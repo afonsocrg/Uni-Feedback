@@ -45,7 +45,7 @@ export function VoiceFeedbackDialog({
               </div>
             </div>
             <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
-              Submit Feedback with1 a Voice Message!
+              Submit Feedback with a Voice Message!
             </h2>
             <p className="text-xs sm:text-sm text-gray-600">
               Send us a voice message and we'll create your feedback
