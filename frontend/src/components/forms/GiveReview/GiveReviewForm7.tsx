@@ -40,12 +40,14 @@ import {
   HelpCircle,
   Lightbulb,
   Loader2,
+  Mic,
   Send
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { z } from 'zod'
 import { FeedbackTipsDialog } from './FeedbackTipsDialog'
 import { GiveReviewProps } from './types'
+import { VoiceFeedbackDialog } from './VoiceFeedbackDialog'
 
 // Utility function to check if a field is required in the Zod schema
 function isFieldRequired(schema: z.ZodSchema, fieldName: string): boolean {
@@ -89,6 +91,8 @@ export function GiveReviewForm7({
 
   const selectedDegreeId = form.watch('degreeId')
   const [isFeedbackTipsDialogOpen, setIsFeedbackTipsDialogOpen] =
+    useState(false)
+  const [isVoiceFeedbackDialogOpen, setIsVoiceFeedbackDialogOpen] =
     useState(false)
 
   // Watch all form values to check for completeness
@@ -154,6 +158,10 @@ export function GiveReviewForm7({
 
   return (
     <>
+      <VoiceFeedbackDialog
+        isOpen={isVoiceFeedbackDialogOpen}
+        onClose={() => setIsVoiceFeedbackDialogOpen(false)}
+      />
       <FeedbackTipsDialog
         isOpen={isFeedbackTipsDialogOpen}
         onClose={() => setIsFeedbackTipsDialogOpen(false)}
@@ -164,9 +172,28 @@ export function GiveReviewForm7({
           animate={{ opacity: 1, y: 0 }}
         >
           <div>
-            <h1 className="text-xl font-bold text-gray-900 mb-2">
+            <h1 className="text-xl font-bold text-gray-900 mb-6">
               Leave your Feedback!
             </h1>
+
+            {/* Voice Feedback Feature */}
+            <div className="mb-6">
+              <div className="w-full p-3 bg-istBlue/5 border border-istBlue/20 rounded-md flex justify-start items-center gap-3">
+                <Mic className="w-6 h-6 sm:w-5 sm:h-5 text-istBlue flex-shrink-0" />
+                <div className="text-sm text-wrap text-start">
+                  <span className="text-gray-700">
+                    You can now submit your feedback by sending us a voice
+                    message.{' '}
+                  </span>
+                  <span
+                    className="font-medium text-istBlue underline cursor-pointer"
+                    onClick={() => setIsVoiceFeedbackDialogOpen(true)}
+                  >
+                    Learn more!
+                  </span>
+                </div>
+              </div>
+            </div>
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
@@ -200,8 +227,8 @@ export function GiveReviewForm7({
                                   className="max-w-xs text-sm"
                                 >
                                   We ask for your email to verify you are an IST
-                                  student. We may contact you about your review
-                                  if needed.
+                                  student. We may contact you about your
+                                  feedback if needed.
                                 </TooltipContent>
                               </Tooltip>
                             </TooltipProvider>
