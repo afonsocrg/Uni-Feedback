@@ -10,9 +10,9 @@ The more real and specific you are, the more you help other students!
 
 Don't worry, we've been there! Here are some ideas:
 
- * **Professors:** How did you like them? How helpful and available were they? Were they engaging during lectures? Were they fair in their evaluation?
- * **Workload:** Was the workload manageable? If not, what consumed most of your time?
- * **Lectures:** How useful were they? Were they engaging or boring?
- * **Course Content:** How up-to-date was the course material? How relevant and useful was the content for your future career or studies? Did the content match the course description?
- * Do you have any pro-tips to share with your colleagues?
- * If you went back in time, would you take this course again? Why?
+- **Professors:** How did you like them? How helpful and available were they? Were they engaging during lectures? Were they fair in their evaluation?
+- **Workload:** Was the workload manageable? If not, what consumed most of your time?
+- **Lectures:** How useful were they? Were they engaging or boring?
+- **Course Content:** How up-to-date was the course material? How relevant and useful was the content for your future career or studies? Did the content match the course description?
+- Do you have any pro-tips to share with your colleagues?
+- If you went back in time, would you take this course again? Why?

@@ -1,8 +1,8 @@
-import { 
-  CourseExplorer, 
+import {
+  CourseExplorer,
   DegreeSelectorInline,
   FacultySelector,
-  HeroSection 
+  HeroSection
 } from '@components'
 import { useApp } from '@hooks'
 
