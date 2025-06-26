@@ -1,8 +1,8 @@
-# IST Feedback
+# Uni Feedback
 
 ## Honest reviews. Smarter choices.
 
-**IST Feedback** is a platform where you can discover what each IST course is really like, through honest, anonymous reviews from fellow students.
+**Uni Feedback** is a platform where you can discover what each course is really like, through honest, anonymous reviews from fellow students.
 
 - **Know what to expect before enrolling** — avoid bad courses, find the best ones for you.
 - **Share your own experience** — help other students make informed decisions. Your review is always anonymous.

@@ -2,7 +2,6 @@ import { insensitiveMatch } from '@/utils'
 import { CourseGrid, SearchCourses } from '@components'
 import { useApp, useDegreeCourseGroups, useDegreeCourses } from '@hooks'
 import { motion } from 'framer-motion'
-import { Pencil } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
@@ -151,23 +150,9 @@ export function CourseExplorer() {
                 sortBy={sortBy}
                 setSortBy={setSortBy}
               />
-              <div className="text-sm text-gray-500 mb-4 pl-4">
-                Currently viewing courses for{' '}
-                <button
-                  onClick={() => setIsDegreeSelectorOpen(true)}
-                  className="hover:text-gray-700 text-istBlue transition-colors cursor-pointer"
-                >
-                  <div className="flex items-center justify-center gap-1">
-                    <span className="underline decoration-dotted">
-                      {selectedDegree ? selectedDegree.acronym : 'all degrees'}
-                    </span>
-                    <Pencil className="h-3 w-3 inline-block" />
-                  </div>
-                </button>
-              </div>
             </motion.div>
 
-            <motion.div variants={itemVariants}>
+            <motion.div variants={itemVariants} className="mt-6">
               {isCoursesLoading ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {[...Array(6)].map((_, index) => (

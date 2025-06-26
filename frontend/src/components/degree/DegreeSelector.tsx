@@ -1,5 +1,5 @@
 import { SearchDegrees } from '@components'
-import { useApp, useDegrees } from '@hooks'
+import { useApp, useFacultyDegrees } from '@hooks'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@ui'
 import { insensitiveMatch } from '@utils'
 import { useEffect, useMemo, useState } from 'react'
@@ -11,10 +11,10 @@ interface DegreeSelectorProps {
 }
 
 export function DegreeSelector({ isOpen, onClose }: DegreeSelectorProps) {
-  const { setSelectedDegreeId } = useApp()
+  const { selectedFacultyId, setSelectedDegreeId } = useApp()
   const [searchQuery, setSearchQuery] = useState('')
 
-  const { data: degrees } = useDegrees()
+  const { data: degrees } = useFacultyDegrees(selectedFacultyId)
 
   const availableTypes = useMemo(() => {
     return [...new Set(degrees?.map((degree) => degree.type))].sort()

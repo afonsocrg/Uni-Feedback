@@ -1,3 +1,14 @@
+export interface Faculty {
+  id: number
+  name: string
+  short_name: string
+  url: string
+}
+
+export interface FacultyDetails extends Faculty {
+  degrees: Degree[]
+}
+
 export interface Degree {
   id: number
   name: string

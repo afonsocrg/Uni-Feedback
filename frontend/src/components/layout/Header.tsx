@@ -10,7 +10,7 @@ export function Header() {
           className="flex items-center gap-2 text-xl font-medium hover:opacity-80 transition-opacity"
         >
           <GraduationCap className="h-6 w-6" />
-          <span>IST Feedback</span>
+          <span>Uni Feedback</span>
         </Link>
       </div>
     </header>

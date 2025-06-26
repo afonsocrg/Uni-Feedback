@@ -1,5 +1,5 @@
 import { Chip, MarkdownTextarea, StarRatingWithLabel } from '@components'
-import { useDegrees, useIsMobile } from '@hooks'
+import { useApp, useFacultyDegrees, useIsMobile } from '@hooks'
 import { formatSchoolYearString } from '@lib/schoolYear'
 import {
   Button,
@@ -58,7 +58,8 @@ export function GiveReviewForm6({
   setLocalDegreeId,
   onSubmit
 }: GiveReviewProps) {
-  const { data: degrees } = useDegrees()
+  const { selectedFacultyId } = useApp()
+  const { data: degrees } = useFacultyDegrees(selectedFacultyId)
 
   const selectedCourseId = form.watch('courseId')
   const selectedCourse = courses.find((c) => c.id === selectedCourseId)

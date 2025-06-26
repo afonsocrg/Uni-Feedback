@@ -22,7 +22,7 @@ export function CourseHeader({ course }: CourseHeaderProps) {
 
     const shareUrl = addUtmParams(window.location.toString(), 'whatsapp')
     openWhatsapp({
-      text: `Check out this course on IST Feedback: ${shareUrl}`
+      text: `Check out this course on Uni Feedback: ${shareUrl}`
     })
   }, [course])
 
@@ -65,14 +65,16 @@ export function CourseHeader({ course }: CourseHeaderProps) {
             </span>
           </div>
         )}
-        <a
-          href={course.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-istBlue hover:underline cursor-pointer"
-        >
-          Fénix
-        </a>
+        {course.url && (
+          <a
+            href={course.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-istBlue hover:underline cursor-pointer"
+          >
+            Course page
+          </a>
+        )}
         <div>
           <Popover>
             <PopoverTrigger asChild>

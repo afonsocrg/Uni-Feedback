@@ -1,4 +1,5 @@
 import { cn } from '@/utils'
+import { SelectionCard } from '@components'
 import { Degree } from '@services/meicFeedbackAPI'
 import { motion } from 'framer-motion'
 
@@ -19,20 +20,13 @@ export function DegreeCard({ degree, onClick, className }: DegreeCardProps) {
   }
 
   return (
-    <motion.div
-      variants={itemVariants}
-      onClick={onClick}
-      className={cn(
-        'bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer',
-        className
-      )}
-    >
-      <div>
-        <h2 className="text-xl font-semibold text-gray-800 mb-2">
-          {degree.acronym}
-        </h2>
-        <p className="text-gray-600">{degree.name}</p>
-      </div>
+    <motion.div variants={itemVariants} className={className}>
+      <SelectionCard
+        title={degree.acronym}
+        subtitle={degree.name}
+        description={degree.type}
+        onClick={onClick}
+      />
     </motion.div>
   )
 }

@@ -1,5 +1,5 @@
 import { MarkdownTextarea, StarRatingWithLabel } from '@components'
-import { useDegrees } from '@hooks'
+import { useApp, useFacultyDegrees } from '@hooks'
 import { formatSchoolYearString } from '@lib/schoolYear'
 import {
   Button,
@@ -87,7 +87,8 @@ export function GiveReviewForm7({
   onSubmit,
   schema
 }: GiveReviewProps) {
-  const { data: degrees } = useDegrees()
+  const { selectedFacultyId } = useApp()
+  const { data: degrees } = useFacultyDegrees(selectedFacultyId)
 
   const selectedDegreeId = form.watch('degreeId')
   const [isFeedbackTipsDialogOpen, setIsFeedbackTipsDialogOpen] =

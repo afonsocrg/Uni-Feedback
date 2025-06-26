@@ -1,8 +1,8 @@
-import { Chip, StarRating } from '@components'
+import { Chip, SelectionCard, StarRating } from '@components'
 import { Course } from '@services/meicFeedbackAPI'
 import { Button } from '@ui'
 import { motion } from 'framer-motion'
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 interface CourseCardProps extends Omit<Course, 'id'> {
   courseId: number
@@ -18,6 +18,8 @@ export function CourseCard({
   terms,
   useAcronymAsTitle = false
 }: CourseCardProps) {
+  const navigate = useNavigate()
+
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
@@ -28,39 +30,34 @@ export function CourseCard({
   }
 
   const title = useAcronymAsTitle ? acronym : name
-  const desc = useAcronymAsTitle ? name : acronym
+  const subtitle = useAcronymAsTitle ? name : acronym
+
+  const handleClick = () => {
+    navigate(`/courses/${courseId}`)
+  }
 
   return (
-    <motion.div
-      key={courseId}
-      variants={itemVariants}
-      className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow h-full cursor-pointer"
-    >
-      <Link
-        to={`/courses/${courseId}`}
-        className="h-full flex flex-col justify-between"
+    <motion.div key={courseId} variants={itemVariants}>
+      <SelectionCard
+        title={title}
+        subtitle={subtitle}
+        onClick={handleClick}
+        className="flex flex-col"
       >
-        <div>
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">{title}</h2>
-        </div>
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-2">
-            <p className="text-gray-600">{desc}</p>
-            <div className="flex items-center gap-2">
-              {/* {feedbackCount === 0 && <Chip label="New!" />} */}
-              {terms && (
-                <>
-                  {terms.map((t) => (
-                    <Chip key={t} label={t} />
-                  ))}
-                </>
-              )}
-            </div>
-          </div>
-          <div className="flex items-center justify-between">
+        <div className="flex flex-col h-full flex-end">
+          <div className="flex flex-col gap-3 mt-auto">
+            {terms && terms.length > 0 && (
+              <div className="flex items-center gap-2 flex-wrap">
+                {terms.map((t) => (
+                  <Chip key={t} label={t} />
+                ))}
+              </div>
+            )}
+
+            {/* Rating or Call to Action */}
             <div className="flex items-center">
               {feedbackCount > 0 ? (
-                <>
+                <div className="flex items-center">
                   <div className="mr-2">
                     <StarRating value={rating} size="sm" />
                   </div>
@@ -68,7 +65,7 @@ export function CourseCard({
                   <span className="text-gray-500 ml-2">
                     ({feedbackCount} reviews)
                   </span>
-                </>
+                </div>
               ) : (
                 <Button
                   onClick={(e) => {
@@ -77,6 +74,7 @@ export function CourseCard({
                     window.open(`/feedback/new?courseId=${courseId}`, '_blank')
                   }}
                   variant="link"
+                  className="p-0 h-auto"
                 >
                   Give the first review!
                 </Button>
@@ -84,7 +82,7 @@ export function CourseCard({
             </div>
           </div>
         </div>
-      </Link>
+      </SelectionCard>
     </motion.div>
   )
 }
