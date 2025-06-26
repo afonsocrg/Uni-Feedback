@@ -2,7 +2,7 @@ import { fromIttyRouter } from 'chanfana'
 import { cors, Router, withCookies } from 'itty-router'
 import { GetCourse, GetCourseFeedback, SubmitFeedback } from './courses'
 import { GetDegreeCourseGroups, GetDegreeCourses, GetDegrees } from './degrees'
-import { GetFaculties, GetFacultyDetails, GetFacultyDegrees } from './faculties'
+import { GetFaculties, GetFacultyDegrees, GetFacultyDetails } from './faculties'
 import { CreateFeedbackDraft, GetFeedbackDraft } from './feedbackDrafts'
 
 const { preflight, corsify } = cors({
@@ -10,7 +10,8 @@ const { preflight, corsify } = cors({
     'http://localhost:5173',
     'https://meic-feedback.afonsocrg.com',
     'https://ist-feedback.afonsocrg.com',
-    'https://istfeedback.com'
+    'https://istfeedback.com',
+    'https://uni-feedback.com'
   ],
   credentials: true,
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
