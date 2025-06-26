@@ -30,10 +30,10 @@ export function FacultySelector() {
     <div className="w-full max-w-4xl mx-auto">
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Select Your Faculty
+          Select Your Uni
         </h1>
         <p className="text-gray-600">
-          Choose your faculty to browse available degrees and courses
+          Choose your uni to browse available degrees and courses
         </p>
       </div>
 
