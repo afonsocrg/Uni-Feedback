@@ -15,7 +15,10 @@ updated_at INTEGER
 
 -- 2. Insert default faculty (update values as needed)
 INSERT INTO faculties (name, short_name, url, created_at, updated_at)
-VALUES ('Instituto Superior Técnico', 'IST', 'https://tecnico.ulisboa.pt', strftime('%s', 'now'), strftime('%s', 'now'));
+VALUES
+    ('Instituto Superior Técnico', 'IST', 'https://tecnico.ulisboa.pt', strftime('%s', 'now'), strftime('%s', 'now')),
+    ('NOVA School of Business and Economics', 'Nova SBE', 'https://guia.unl.pt/en/2025/novasbe', strftime('%s', 'now'), strftime('%s', 'now'))
+;
 
 -- 3. Create new degrees table with faculty_id
 CREATE TABLE degrees_new (
@@ -39,6 +42,9 @@ DROP TABLE degrees;
 
 -- 6. Rename the new table
 ALTER TABLE degrees_new RENAME TO degrees;
+
+-- 7. Add ECTS column to courses table
+ALTER TABLE courses ADD COLUMN ects REAL;
 
 -- Re-enable foreign key checks
 PRAGMA foreign_keys = ON;

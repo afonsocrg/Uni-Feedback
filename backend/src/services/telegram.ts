@@ -64,7 +64,7 @@ export async function sendCourseReviewReceived(
   let message = `
 🎉 NEW REVIEW ALERT! 🎉
 
-A fresh review just landed on IST Feedback!!
+A fresh review just landed on Uni Feedback!!
 
 ✉️ Submitted by: ${email}
 🎓 School Year: ${formatSchoolYearString(schoolYear, { yearFormat: 'long' })}

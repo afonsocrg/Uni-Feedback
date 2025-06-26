@@ -2,7 +2,7 @@ import { fromIttyRouter } from 'chanfana'
 import { cors, Router, withCookies } from 'itty-router'
 import { GetCourse, GetCourseFeedback, SubmitFeedback } from './courses'
 import { GetDegreeCourseGroups, GetDegreeCourses, GetDegrees } from './degrees'
-import { GetFaculties, GetFacultyDetails } from './faculties'
+import { GetFaculties, GetFacultyDetails, GetFacultyDegrees } from './faculties'
 import { CreateFeedbackDraft, GetFeedbackDraft } from './feedbackDrafts'
 
 const { preflight, corsify } = cors({
@@ -36,6 +36,7 @@ router.get('/degrees/:id/courseGroups', GetDegreeCourseGroups)
 router.get('/degrees/:id/courses', GetDegreeCourses)
 router.get('/faculties', GetFaculties)
 router.get('/faculties/:id', GetFacultyDetails)
+router.get('/faculties/:facultyId/degrees', GetFacultyDegrees)
 router.post('/feedback-drafts', CreateFeedbackDraft)
 router.get('/feedback-drafts/:code', GetFeedbackDraft)
 

@@ -1,4 +1,4 @@
-import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import { integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 import { degrees } from './degree'
 export const courses = sqliteTable('courses', {
   id: integer('id').primaryKey({ autoIncrement: true }),
@@ -13,6 +13,7 @@ export const courses = sqliteTable('courses', {
   name: text('name').notNull(),
   acronym: text('acronym').notNull(),
   degreeId: integer('degree_id').references(() => degrees.id),
+  ects: real('ects'),
   terms: text('terms', { mode: 'json' }),
   description: text('description'),
   url: text('url'),
