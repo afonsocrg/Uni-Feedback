@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-IST Feedback is a platform for IST (Instituto Superior Técnico) students to share anonymous course reviews and ratings. The architecture consists of a React frontend and Cloudflare Workers backend with D1 database.
+Uni Feedback is a platform for university students to share anonymous course reviews and ratings. The architecture consists of a React frontend and Cloudflare Workers backend with D1 database.
 
 ## Development Commands
 
