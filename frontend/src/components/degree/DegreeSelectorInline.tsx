@@ -1,6 +1,7 @@
 import { SearchDegrees } from '@components'
 import { useApp, useFacultyDegrees, useFacultyDetails } from '@hooks'
-import { insensitiveMatch } from '@utils'
+import { Button } from '@ui/button'
+import { ADD_COURSE_FORM_URL, insensitiveMatch } from '@utils'
 import { useMemo, useState } from 'react'
 import { DegreeCard } from './DegreeCard'
 
@@ -85,6 +86,26 @@ export function DegreeSelectorInline() {
             ))}
           </div>
         )}
+      </div>
+
+      <div className="text-center mt-8">
+        <p className="text-sm text-gray-500">
+          Missing a degree?{' '}
+          <Button
+            variant="link"
+            size="xs"
+            asChild
+            className="p-0 h-auto text-sm"
+          >
+            <a
+              href={ADD_COURSE_FORM_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Request it here
+            </a>
+          </Button>
+        </p>
       </div>
     </div>
   )
