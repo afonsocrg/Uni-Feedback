@@ -68,7 +68,7 @@ export function GiveReviewForm7({
   schoolYears,
   isSubmitting,
   onSubmit,
-  isFormValid
+  isLoadingFormData = false
 }: GiveReviewProps) {
   const selectedDegreeId = form.watch('degreeId')
   const selectedFacultyId = form.watch('facultyId')
@@ -105,6 +105,9 @@ export function GiveReviewForm7({
       degrees?.some((d) => d.id === selectedDegreeId)
     )
   }, [selectedDegreeId, degrees])
+
+  // Show loading indicator when initial data is being fetched
+  const isInitialLoading = isLoadingFormData
 
   return (
     <>
@@ -144,6 +147,18 @@ export function GiveReviewForm7({
                 </div>
               </div>
             </div>
+
+            {/* Loading Indicator */}
+            {isInitialLoading && (
+              <div className="mb-6">
+                <div className="w-full p-3 bg-istBlue/5 border border-blue-200 rounded-md flex items-center gap-3">
+                  <Loader2 className="h-5 w-5 animate-spin text-istBlue flex-shrink-0" />
+                  <span className="text-sm text-istBlue">
+                    Loading form data...
+                  </span>
+                </div>
+              </div>
+            )}
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
@@ -567,7 +582,7 @@ export function GiveReviewForm7({
                   <Button
                     type="submit"
                     className="w-full mt-6"
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || isInitialLoading}
                   >
                     <>
                       {isSubmitting ? (

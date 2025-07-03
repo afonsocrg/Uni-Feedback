@@ -89,6 +89,7 @@ export function GiveReview() {
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
+  const [isLoadingFormData, setIsLoadingFormData] = useState(false)
 
   const formVersion = searchParams.get('version')
   const selectedCourseId = form.watch('courseId')
@@ -108,12 +109,17 @@ export function GiveReview() {
       return
     } else {
       appliedSearchCourseId.current = true
+      setIsLoadingFormData(true)
       ;(async () => {
-        const courseDetails = await getCourse(initialValues.courseId)
-        // setLocalDegreeId(courseDetails.degreeId)
-        form.setValue('degreeId', courseDetails.degreeId)
-        if (courseDetails.degree) {
-          form.setValue('facultyId', courseDetails.degree.facultyId)
+        try {
+          const courseDetails = await getCourse(initialValues.courseId)
+          // setLocalDegreeId(courseDetails.degreeId)
+          form.setValue('degreeId', courseDetails.degreeId)
+          if (courseDetails.degree) {
+            form.setValue('facultyId', courseDetails.degree.facultyId)
+          }
+        } finally {
+          setIsLoadingFormData(false)
         }
       })()
     }
@@ -133,13 +139,18 @@ export function GiveReview() {
     if (!draftCode || appliedFeedbackDraft.current) return
 
     appliedFeedbackDraft.current = true
+    setIsLoadingFormData(true)
     ;(async () => {
-      const draftData = await getFeedbackDraftData(draftCode)
-      if (draftData) {
-        if (draftData.rating) form.setValue('rating', draftData.rating)
-        if (draftData.workloadRating)
-          form.setValue('workloadRating', draftData.workloadRating)
-        if (draftData.comment) form.setValue('comment', draftData.comment)
+      try {
+        const draftData = await getFeedbackDraftData(draftCode)
+        if (draftData) {
+          if (draftData.rating) form.setValue('rating', draftData.rating)
+          if (draftData.workloadRating)
+            form.setValue('workloadRating', draftData.workloadRating)
+          if (draftData.comment) form.setValue('comment', draftData.comment)
+        }
+      } finally {
+        setIsLoadingFormData(false)
       }
     })()
   }, [form, searchParams])
@@ -274,7 +285,8 @@ export function GiveReview() {
           contextDegree,
           schema: formSchema,
           localFacultyId,
-          isFormValid
+          isFormValid,
+          isLoadingFormData
         }}
       />
     </>

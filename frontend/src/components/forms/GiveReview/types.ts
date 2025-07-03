@@ -14,4 +14,5 @@ export interface GiveReviewProps {
   contextDegree: Degree | null
   schema?: z.ZodSchema
   isFormValid?: boolean
+  isLoadingFormData?: boolean
 }
