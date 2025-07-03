@@ -1,4 +1,4 @@
-import { SearchDegrees } from '@components'
+import { SearchDegrees, WarningAlert } from '@components'
 import { useApp, useFacultyDegrees, useFacultyDetails } from '@hooks'
 import { Button } from '@ui/button'
 import { ADD_COURSE_FORM_URL, insensitiveMatch } from '@utils'
@@ -88,24 +88,28 @@ export function DegreeSelectorInline() {
         )}
       </div>
 
-      <div className="text-center mt-8">
-        <p className="text-sm text-gray-500">
-          Missing a degree?{' '}
-          <Button
-            variant="link"
-            size="xs"
-            asChild
-            className="p-0 h-auto text-sm"
-          >
-            <a
-              href={ADD_COURSE_FORM_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Request it here
-            </a>
-          </Button>
-        </p>
+      <div className="mt-8">
+        <WarningAlert
+          message={
+            <>
+              Missing a degree?{' '}
+              <Button
+                variant="link"
+                size="xs"
+                asChild
+                className="p-0 h-auto text-sm underline"
+              >
+                <a
+                  href={ADD_COURSE_FORM_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Request it here
+                </a>
+              </Button>
+            </>
+          }
+        />
       </div>
     </div>
   )

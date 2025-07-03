@@ -1,5 +1,5 @@
 import { ADD_COURSE_FORM_URL } from '@/utils'
-import { SelectionCard } from '@components'
+import { SelectionCard, WarningAlert } from '@components'
 import { Button } from '@components/ui/button'
 import { useApp, useFaculties } from '@hooks'
 
@@ -50,24 +50,28 @@ export function FacultySelector() {
         ))}
       </div>
 
-      <div className="text-center mt-8">
-        <p className="text-sm text-gray-500">
-          Don't see your university?{' '}
-          <Button
-            variant="link"
-            size="xs"
-            asChild
-            className="p-0 h-auto text-sm"
-          >
-            <a
-              href={ADD_COURSE_FORM_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Request it here
-            </a>
-          </Button>
-        </p>
+      <div className="mt-8">
+        <WarningAlert
+          message={
+            <>
+              Don't see your university?{' '}
+              <Button
+                variant="link"
+                size="xs"
+                asChild
+                className="p-0 h-auto text-sm underline"
+              >
+                <a
+                  href={ADD_COURSE_FORM_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Request it here
+                </a>
+              </Button>
+            </>
+          }
+        />
       </div>
     </div>
   )
