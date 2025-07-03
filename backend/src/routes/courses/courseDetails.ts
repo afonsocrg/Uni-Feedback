@@ -7,7 +7,8 @@ import { z } from 'zod'
 const DegreeSchema = z.object({
   id: z.number(),
   name: z.string(),
-  acronym: z.string()
+  acronym: z.string(),
+  facultyId: z.number()
 })
 
 const CourseDetailSchema = z.object({
@@ -70,7 +71,8 @@ export class GetCourse extends OpenAPIRoute {
         degree: {
           id: degrees.id,
           name: degrees.name,
-          acronym: degrees.acronym
+          acronym: degrees.acronym,
+          facultyId: degrees.facultyId
         }
       })
       .from(courses)
