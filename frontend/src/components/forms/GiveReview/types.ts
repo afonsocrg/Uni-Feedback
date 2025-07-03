@@ -13,4 +13,5 @@ export interface GiveReviewProps {
   setLocalDegreeId?: (degreeId: number | null) => void
   contextDegree: Degree | null
   schema?: z.ZodSchema
+  isFormValid?: boolean
 }

@@ -14,6 +14,7 @@ export interface Degree {
   name: string
   acronym: string
   type: string
+  facultyId: number
 }
 
 export interface CourseGroup {

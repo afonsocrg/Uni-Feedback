@@ -11,7 +11,12 @@ import {
   ReviewSubmitSuccess
 } from '@components'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useApp, useDegreeCourses, useSubmitFeedback } from '@hooks'
+import {
+  useApp,
+  useDegreeCourses,
+  useFacultyDegrees,
+  useSubmitFeedback
+} from '@hooks'
 import { getCurrentSchoolYear } from '@lib/schoolYear'
 import { getCourse, getFeedbackDraft } from '@services/meicFeedbackAPI'
 import posthog from 'posthog-js'
@@ -20,35 +25,21 @@ import { useForm } from 'react-hook-form'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { z } from 'zod'
-
-const formSchema = z.object({
-  email: z
-    .string()
-    .email()
-    .refine(
-      (email) =>
-        email.endsWith('@tecnico.ulisboa.pt') ||
-        email.endsWith('@ist.utl.pt') ||
-        email.endsWith('@novasbe.pt') ||
-        email.endsWith('@fct.unl.p'),
-      'Please enter your university email address'
-    ),
-  schoolYear: z.number().min(2020).max(3050),
-  degreeId: z.number().optional(),
-  courseId: z.number(),
-  rating: z.number().min(0).max(5),
-  workloadRating: z.number().min(0).max(5),
-  comment: z.string().min(0).optional()
-})
+import { formSchema, requiredFields } from './schema'
 
 const FEEDBACK_EMAIL_STORAGE_KEY = 'lastFeedbackEmail'
 const FEEDBACK_DEGREE_ID_STORAGE_KEY = 'lastFeedbackDegreeId'
+const FEEDBACK_FACULTY_ID_STORAGE_KEY = 'lastFeedbackFacultyId'
 
 export type GiveReviewFormValues = z.infer<typeof formSchema>
 
 export function GiveReview() {
   const navigate = useNavigate()
-  const { selectedDegreeId, selectedDegree: contextDegree } = useApp()
+  const {
+    selectedFacultyId,
+    selectedDegreeId,
+    selectedDegree: contextDegree
+  } = useApp()
   const submitFeedbackMutation = useSubmitFeedback()
 
   const [searchParams] = useSearchParams()
@@ -57,8 +48,14 @@ export function GiveReview() {
     []
   )
   const initialValues = useMemo(
-    () => getInitialValues(searchParams, selectedDegreeId, schoolYears),
-    [searchParams, selectedDegreeId, schoolYears]
+    () =>
+      getInitialValues(
+        searchParams,
+        selectedFacultyId,
+        selectedDegreeId,
+        schoolYears
+      ),
+    [searchParams, selectedFacultyId, selectedDegreeId, schoolYears]
   )
 
   // By default, the available courses are the ones from the currently selected degree
@@ -68,17 +65,13 @@ export function GiveReview() {
   // (1) WARNING: we have to check if there is no degree selected using the selectedDegreeId
   // property, because when the page is loading, we may have a selected degree, but not a
   // degree object yet!!
-  // const [localDegreeId, setLocalDegreeId] = useState<number | null>(
-  //   selectedDegreeId ||
-  //     Number(localStorage.getItem(FEEDBACK_DEGREE_ID_STORAGE_KEY)) ||
-  //     null
-  // )
 
-  const form = useForm<GiveReviewFormValues>({
+  const form = useForm<GiveReviewFormValues, any, GiveReviewFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: initialValues.email,
       schoolYear: initialValues.schoolYear,
+      facultyId: initialValues.facultyId,
       degreeId: initialValues.degreeId,
       courseId: initialValues.courseId,
       rating: initialValues.rating,
@@ -87,8 +80,11 @@ export function GiveReview() {
     }
   })
 
-  const localDegreeId = form.watch('degreeId')
+  const formValues = form.watch()
+  const localFacultyId = formValues.facultyId
+  const localDegreeId = formValues.degreeId
 
+  const { data: localDegrees } = useFacultyDegrees(localFacultyId)
   const { data: localCourses } = useDegreeCourses(localDegreeId)
 
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -116,9 +112,19 @@ export function GiveReview() {
         const courseDetails = await getCourse(initialValues.courseId)
         // setLocalDegreeId(courseDetails.degreeId)
         form.setValue('degreeId', courseDetails.degreeId)
+        if (courseDetails.degree) {
+          form.setValue('facultyId', courseDetails.degree.facultyId)
+        }
       })()
     }
-  }, [form, initialValues.courseId, localCourses])
+  }, [
+    form,
+    initialValues.courseId,
+    localFacultyId,
+    localDegreeId,
+    localCourses,
+    initialValues
+  ])
 
   // Handle feedback draft codes
   const appliedFeedbackDraft = useRef(false)
@@ -138,9 +144,54 @@ export function GiveReview() {
     })()
   }, [form, searchParams])
 
+  // Check if all required fields are filled
+  const isFormValid = useMemo(() => {
+    if (!formSchema || requiredFields.length === 0) return true
+
+    return requiredFields.every((field) => {
+      const value = formValues[field as keyof typeof formValues]
+
+      // Special handling for different field types
+      if (field === 'email') {
+        return typeof value === 'string' && value.trim() !== ''
+      }
+      if (field === 'degreeId') {
+        return (
+          typeof value === 'number' &&
+          value > 0 &&
+          localDegrees?.some((d) => d.id === value)
+        )
+      }
+      if (field === 'courseId') {
+        return (
+          typeof value === 'number' &&
+          value > 0 &&
+          localCourses?.some((c) => c.id === value)
+        )
+      }
+      if (field === 'rating' || field === 'workloadRating') {
+        return typeof value === 'number' && value > 0
+      }
+      if (field === 'schoolYear') {
+        return typeof value === 'number' && value > 0
+      }
+
+      // Default check for other fields
+      return value !== undefined && value !== null && value !== ''
+    })
+  }, [formValues, localDegrees, localCourses])
+
   async function onSubmit(values: GiveReviewFormValues) {
     // Store email and degree id in local storage for next time
     localStorage.setItem(FEEDBACK_EMAIL_STORAGE_KEY, values.email)
+    if (localFacultyId) {
+      localStorage.setItem(
+        FEEDBACK_FACULTY_ID_STORAGE_KEY,
+        localFacultyId.toString()
+      )
+    } else {
+      console.error('No local faculty id')
+    }
     if (localDegreeId) {
       localStorage.setItem(
         FEEDBACK_DEGREE_ID_STORAGE_KEY,
@@ -150,10 +201,20 @@ export function GiveReview() {
       console.error('No local degree id')
     }
 
-    // Check if courseId is a valid course
+    // Validate that degree belongs to the selected faculty
+    if (localFacultyId && localDegrees && values.degreeId) {
+      if (!localDegrees.some((d) => d.id === values.degreeId)) {
+        form.setError('degreeId', {
+          message: 'Please select a degree'
+        })
+        return
+      }
+    }
+
+    // Check if courseId is a valid course for the selected degree
     if (!localCourses || !localCourses.some((c) => c.id === values.courseId)) {
       form.setError('courseId', {
-        message: 'Please select a valid course'
+        message: 'Please select a course'
       })
       return
     }
@@ -211,7 +272,9 @@ export function GiveReview() {
           localDegreeId: localDegreeId ?? null,
           // setLocalDegreeId,
           contextDegree,
-          schema: formSchema
+          schema: formSchema,
+          localFacultyId,
+          isFormValid
         }}
       />
     </>
@@ -227,6 +290,7 @@ function getRatingValue(searchValue: string | null) {
 
 function getInitialValues(
   searchParams: URLSearchParams,
+  selectedFacultyId: number | null,
   selectedDegreeId: number | null,
   schoolYears: number[]
 ) {
@@ -238,7 +302,13 @@ function getInitialValues(
     const year = Number(searchParams.get('schoolYear'))
     return schoolYears.includes(year) ? year : getCurrentSchoolYear()
   })()
+
+  const facultyId = selectedFacultyId ?? 0
+  // Number(localStorage.getItem(FEEDBACK_FACULTY_ID_STORAGE_KEY))
+
   const degreeId = selectedDegreeId ?? 0
+  // Number(localStorage.getItem(FEEDBACK_DEGREE_ID_STORAGE_KEY))
+
   const courseId = Number(searchParams.get('courseId')) || 0
   const rating = getRatingValue(searchParams.get('rating'))
   const workloadRating = getRatingValue(searchParams.get('workloadRating'))
@@ -247,6 +317,7 @@ function getInitialValues(
   return {
     email,
     schoolYear,
+    facultyId,
     degreeId,
     courseId,
     rating,

@@ -4,7 +4,7 @@ export function Footer() {
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="text-gray-600 text-sm">
-            Made with{' '}
+            {/* Made with{' '}
             <span className="text-red-500" role="img" aria-label="love">
               ❤️
             </span>{' '}
@@ -16,7 +16,7 @@ export function Footer() {
               className="text-istBlue hover:text-istBlue/80 font-medium transition-colors"
             >
               IST community
-            </a>
+            </a> */}
           </div>
           <div className="flex gap-6">
             <a
