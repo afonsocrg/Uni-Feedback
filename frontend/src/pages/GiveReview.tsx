@@ -29,7 +29,8 @@ const formSchema = z.object({
       (email) =>
         email.endsWith('@tecnico.ulisboa.pt') ||
         email.endsWith('@ist.utl.pt') ||
-        email.endsWith('@novasbe.pt'),
+        email.endsWith('@novasbe.pt') ||
+        email.endsWith('@fct.unl.p'),
       'Please enter your university email address'
     ),
   schoolYear: z.number().min(2020).max(3050),

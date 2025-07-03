@@ -1,3 +1,4 @@
+import { Faculty } from '@/services/meicFeedbackAPI'
 import { MarkdownTextarea, StarRatingWithLabel } from '@components'
 import { useApp, useFacultyDegrees } from '@hooks'
 import { formatSchoolYearString } from '@lib/schoolYear'
@@ -64,6 +65,19 @@ function isFieldRequired(schema: z.ZodSchema, fieldName: string): boolean {
   }
 }
 
+function getEmailPlaceHolder(selectedFaculty: Faculty | null) {
+  console.log({ selectedFaculty })
+  switch (selectedFaculty?.short_name) {
+    case 'IST':
+      return 'your.email@tecnico.ulisboa.pt'
+    case 'Nova SBE':
+      return 'xxxxx@novasbe.pt'
+    case 'FCT':
+      return 'your.email@fct.unl.pt'
+  }
+  return 'your.email@university.com'
+}
+
 // Function to get required fields from schema
 function getRequiredFields(schema: z.ZodSchema): string[] {
   try {
@@ -87,7 +101,7 @@ export function GiveReviewForm7({
   onSubmit,
   schema
 }: GiveReviewProps) {
-  const { selectedFacultyId } = useApp()
+  const { selectedFacultyId, selectedFaculty } = useApp()
   const { data: degrees } = useFacultyDegrees(selectedFacultyId)
 
   const selectedDegreeId = form.watch('degreeId')
@@ -148,7 +162,7 @@ export function GiveReviewForm7({
       // Default check for other fields
       return value !== undefined && value !== null && value !== ''
     })
-  }, [formValues, requiredFields, schema])
+  }, [formValues, requiredFields, schema, courses])
 
   // Watch individual fields for asterisk display
   const email = form.watch('email')
@@ -237,7 +251,7 @@ export function GiveReviewForm7({
                         </FormLabel>
                         <FormControl>
                           <Input
-                            placeholder="your.email@tecnico.ulisboa.pt"
+                            placeholder={getEmailPlaceHolder(selectedFaculty)}
                             {...field}
                             className="bg-white"
                           />
