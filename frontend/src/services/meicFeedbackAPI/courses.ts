@@ -4,10 +4,14 @@ import { Course, CourseDetail, Feedback } from './types'
 interface GetCoursesParams {
   acronym?: string
   degreeId?: number
+  faculty?: string
+  degree?: string
 }
 export async function getCourses({
   acronym,
-  degreeId
+  degreeId,
+  faculty,
+  degree
 }: GetCoursesParams = {}): Promise<Course[]> {
   const url = new URL(`${API_BASE_URL}/courses`)
   if (acronym) {
@@ -15,6 +19,12 @@ export async function getCourses({
   }
   if (degreeId) {
     url.searchParams.append('degreeId', degreeId.toString())
+  }
+  if (faculty) {
+    url.searchParams.append('faculty', faculty)
+  }
+  if (degree) {
+    url.searchParams.append('degree', degree)
   }
   const response = await fetch(url.toString())
   if (!response.ok) {

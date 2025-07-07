@@ -7,7 +7,12 @@ import { useSearchParams } from 'react-router-dom'
 
 type SortOption = 'rating' | 'alphabetical' | 'reviews'
 
-export function CourseExplorer() {
+interface CourseExplorerProps {
+  facultyId?: number
+  degreeId?: number
+}
+
+export function CourseExplorer({ facultyId, degreeId }: CourseExplorerProps) {
   const [searchParams] = useSearchParams()
   const initialValues = getInitialValues(searchParams)
 
@@ -25,15 +30,19 @@ export function CourseExplorer() {
     setIsDegreeSelectorOpen
   } = useApp()
 
+  // Use prop degreeId if provided, otherwise fall back to context
+  const effectiveDegreeId = degreeId ?? selectedDegreeId
+
   const { data: courses, isLoading: isCoursesLoading } =
-    useDegreeCourses(selectedDegreeId)
-  const { data: courseGroups } = useDegreeCourseGroups(selectedDegreeId ?? 0)
+    useDegreeCourses(effectiveDegreeId)
+  const { data: courseGroups } = useDegreeCourseGroups(effectiveDegreeId ?? 0)
 
   useEffect(() => {
-    if (selectedDegreeId === null && !isDegreeSelectorOpen) {
+    // Only open degree selector if we don't have a degree from props and context is null
+    if (effectiveDegreeId === null && !isDegreeSelectorOpen) {
       setIsDegreeSelectorOpen(true)
     }
-  }, [selectedDegreeId, isDegreeSelectorOpen, setIsDegreeSelectorOpen])
+  }, [effectiveDegreeId, isDegreeSelectorOpen, setIsDegreeSelectorOpen])
 
   // Ensure selected Course Group exists!
   useEffect(() => {
@@ -132,7 +141,7 @@ export function CourseExplorer() {
         initial="hidden"
         animate="visible"
       >
-        {selectedDegree && (
+        {(selectedDegree || effectiveDegreeId) && (
           <>
             <motion.div
               variants={itemVariants}

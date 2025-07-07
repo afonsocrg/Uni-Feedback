@@ -1,41 +1,24 @@
-import {
-  CourseExplorer,
-  DegreeSelectorInline,
-  FacultySelector,
-  HeroSection
-} from '@components'
-import { useApp } from '@hooks'
+import { FacultySelector, HeroSection } from '@components'
+import { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 export function Home() {
-  const { selectedFacultyId, selectedDegreeId } = useApp()
+  const navigate = useNavigate()
 
-  // Progressive selection logic
-  if (!selectedFacultyId) {
-    return (
-      <div>
-        <HeroSection showBreadcrumb />
-        <div className="container mx-auto px-4 py-8">
-          <FacultySelector />
-        </div>
-      </div>
-    )
-  }
-
-  if (!selectedDegreeId) {
-    return (
-      <div>
-        <HeroSection showBreadcrumb />
-        <div className="container mx-auto px-4 py-8">
-          <DegreeSelectorInline />
-        </div>
-      </div>
-    )
-  }
+  // Check for last visited path and redirect
+  useEffect(() => {
+    const lastVisitedPath = localStorage.getItem('lastVisitedPath')
+    if (lastVisitedPath && lastVisitedPath !== '/') {
+      // navigate(lastVisitedPath, { replace: true })
+    }
+  }, [navigate])
 
   return (
     <div>
       <HeroSection showBreadcrumb />
-      <CourseExplorer />
+      <div className="container mx-auto px-4 py-8">
+        <FacultySelector />
+      </div>
     </div>
   )
 }

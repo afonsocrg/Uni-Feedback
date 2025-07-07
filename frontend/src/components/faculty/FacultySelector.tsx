@@ -1,14 +1,15 @@
-import { ADD_COURSE_FORM_URL } from '@/utils'
+import { ADD_COURSE_FORM_URL, buildFacultyUrl } from '@/utils'
 import { SelectionCard, WarningAlert } from '@components'
-import { Button } from '@components/ui/button'
-import { useApp, useFaculties } from '@hooks'
+import { useFaculties } from '@hooks'
+import { Button } from '@ui/button'
+import { useNavigate } from 'react-router-dom'
 
 export function FacultySelector() {
-  const { setSelectedFacultyId } = useApp()
+  const navigate = useNavigate()
   const { data: faculties, isLoading } = useFaculties()
 
-  const handleFacultySelect = (facultyId: number) => {
-    setSelectedFacultyId(facultyId)
+  const handleFacultySelect = (faculty) => {
+    navigate(buildFacultyUrl(faculty))
   }
 
   if (isLoading) {
@@ -45,7 +46,7 @@ export function FacultySelector() {
             key={faculty.id}
             title={faculty.short_name}
             subtitle={faculty.name}
-            onClick={() => handleFacultySelect(faculty.id)}
+            onClick={() => handleFacultySelect(faculty)}
           />
         ))}
       </div>

@@ -26,3 +26,11 @@ export async function getFacultyDegrees(facultyId: number): Promise<Degree[]> {
   }
   return response.json()
 }
+
+export async function getFacultyDegreesByAcronym(facultyAcronym: string): Promise<Degree[]> {
+  const response = await fetch(`${API_BASE_URL}/degrees?faculty=${encodeURIComponent(facultyAcronym)}`)
+  if (!response.ok) {
+    throw new Error('Failed to fetch faculty degrees')
+  }
+  return response.json()
+}
