@@ -1,7 +1,7 @@
-import { useFaculties, useFacultyDegrees } from '@hooks'
-import { slugToFaculty, slugToDegree, buildFacultyUrl } from '@utils'
+import { useUrlNavigation } from '@hooks'
+import { buildFacultyUrl } from '@utils'
 import { ChevronRight, Home } from 'lucide-react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 interface BreadcrumbProps {
   className?: string
@@ -9,17 +9,7 @@ interface BreadcrumbProps {
 
 export function Breadcrumb({ className = '' }: BreadcrumbProps) {
   const navigate = useNavigate()
-  const { faculty: facultyParam, degree: degreeParam } = useParams()
-  
-  const { data: faculties } = useFaculties()
-  
-  // Find faculty by URL parameter
-  const faculty = facultyParam && faculties ? slugToFaculty(facultyParam, faculties) : null
-  
-  const { data: degrees } = useFacultyDegrees(faculty?.id ?? null)
-  
-  // Find degree by URL parameter
-  const degree = degreeParam && degrees ? slugToDegree(degreeParam, degrees) : null
+  const { faculty, degree } = useUrlNavigation()
 
   const handleFacultyClick = () => {
     navigate('/')

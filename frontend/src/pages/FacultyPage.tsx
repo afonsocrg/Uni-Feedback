@@ -1,20 +1,16 @@
-import { ADD_COURSE_FORM_URL, slugToFaculty, buildFacultyUrl, buildDegreeUrl } from '@/utils'
+import { ADD_COURSE_FORM_URL, buildDegreeUrl, buildFacultyUrl } from '@/utils'
 import { SelectionCard, WarningAlert, HeroSection } from '@components'
 import { Button } from '@components/ui/button'
-import { useFaculties, useFacultyDegrees } from '@hooks'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useUrlNavigation, useFacultyDegrees } from '@hooks'
+import { useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
+import type { Degree } from '@services/meicFeedbackAPI'
 
 export function FacultyPage() {
-  const { faculty: facultyParam } = useParams()
   const navigate = useNavigate()
+  const { faculty, isLoading, error } = useUrlNavigation()
   
-  const { data: faculties, isLoading: facultiesLoading } = useFaculties()
-  
-  // Find faculty by URL slug
-  const faculty = facultyParam && faculties ? slugToFaculty(facultyParam, faculties) : null
-  
-  const { data: degrees, isLoading: degreesLoading } = useFacultyDegrees(faculty?.id)
+  const { data: degrees, isLoading: degreesLoading } = useFacultyDegrees(faculty?.id ?? null)
 
   // Store last visited path
   useEffect(() => {
@@ -23,20 +19,20 @@ export function FacultyPage() {
     }
   }, [faculty])
 
-  // Handle faculty not found
+  // Handle errors
   useEffect(() => {
-    if (!facultiesLoading && faculties && !faculty) {
+    if (error === 'faculty-not-found') {
       navigate('/', { replace: true })
     }
-  }, [facultiesLoading, faculties, faculty, navigate])
+  }, [error, navigate])
 
-  const handleDegreeSelect = (degree) => {
+  const handleDegreeSelect = (degree: Degree) => {
     if (faculty) {
       navigate(buildDegreeUrl(faculty, degree))
     }
   }
 
-  if (facultiesLoading || degreesLoading) {
+  if (isLoading || degreesLoading) {
     return (
       <div>
         <HeroSection showBreadcrumb />

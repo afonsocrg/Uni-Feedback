@@ -1,24 +1,12 @@
 import { CourseExplorer, HeroSection } from '@components'
-import { useFaculties, useFacultyDegrees } from '@hooks'
-import { slugToFaculty, slugToDegree, buildFacultyUrl, buildDegreeUrl } from '@utils'
+import { useUrlNavigation } from '@hooks'
+import { buildDegreeUrl, buildFacultyUrl } from '@utils'
 import { useEffect } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 export function DegreePage() {
-  const { faculty: facultyParam, degree: degreeParam } = useParams()
   const navigate = useNavigate()
-
-  const { data: faculties, isLoading: facultiesLoading } = useFaculties()
-
-  // Find faculty by URL slug
-  const faculty = facultyParam && faculties ? slugToFaculty(facultyParam, faculties) : null
-
-  const { data: degrees, isLoading: degreesLoading } = useFacultyDegrees(
-    faculty?.id ?? null
-  )
-
-  // Find degree by URL slug
-  const degree = degreeParam && degrees ? slugToDegree(degreeParam, degrees) : null
+  const { faculty, degree, isLoading, error } = useUrlNavigation()
 
   // Store last visited path
   useEffect(() => {
@@ -27,29 +15,16 @@ export function DegreePage() {
     }
   }, [faculty, degree])
 
-  // Handle not found cases
+  // Handle errors
   useEffect(() => {
-    if (!facultiesLoading && faculties && !faculty) {
+    if (error === 'faculty-not-found') {
       navigate('/', { replace: true })
-      return
-    }
-
-    if (!degreesLoading && degrees && faculty && !degree) {
+    } else if (error === 'degree-not-found' && faculty) {
       navigate(buildFacultyUrl(faculty), { replace: true })
-      return
     }
-  }, [
-    facultiesLoading,
-    degreesLoading,
-    faculties,
-    degrees,
-    faculty,
-    degree,
-    navigate,
-    facultyParam
-  ])
+  }, [error, faculty, navigate])
 
-  if (facultiesLoading || degreesLoading) {
+  if (isLoading) {
     return (
       <div>
         <HeroSection showBreadcrumb />

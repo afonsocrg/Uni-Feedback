@@ -3,12 +3,13 @@ import { SelectionCard, WarningAlert } from '@components'
 import { useFaculties } from '@hooks'
 import { Button } from '@ui/button'
 import { useNavigate } from 'react-router-dom'
+import type { Faculty } from '@services/meicFeedbackAPI'
 
 export function FacultySelector() {
   const navigate = useNavigate()
   const { data: faculties, isLoading } = useFaculties()
 
-  const handleFacultySelect = (faculty) => {
+  const handleFacultySelect = (faculty: Faculty) => {
     navigate(buildFacultyUrl(faculty))
   }
 
