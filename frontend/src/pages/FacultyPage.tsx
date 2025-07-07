@@ -1,9 +1,9 @@
-import { ADD_COURSE_FORM_URL, buildDegreeUrl, buildFacultyUrl } from '@/utils'
-import { SelectionCard, WarningAlert, HeroSection } from '@components'
+import { ADD_COURSE_FORM_URL, buildDegreeUrl, buildFacultyUrl, insensitiveMatch } from '@/utils'
+import { SelectionCard, WarningAlert, HeroSection, SearchDegrees } from '@components'
 import { Button } from '@components/ui/button'
 import { useUrlNavigation, useFacultyDegrees } from '@hooks'
 import { useNavigate } from 'react-router-dom'
-import { useEffect } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import type { Degree } from '@services/meicFeedbackAPI'
 
 export function FacultyPage() {
@@ -11,6 +11,29 @@ export function FacultyPage() {
   const { faculty, isLoading, error } = useUrlNavigation()
   
   const { data: degrees, isLoading: degreesLoading } = useFacultyDegrees(faculty?.id ?? null)
+  
+  // Search state
+  const [searchQuery, setSearchQuery] = useState('')
+  const [selectedType, setSelectedType] = useState<string | null>(null)
+  
+  // Available degree types for filtering
+  const availableTypes = useMemo(() => {
+    return [...new Set(degrees?.map((degree) => degree.type))].sort()
+  }, [degrees])
+  
+  // Filtered degrees based on search and type
+  const filteredDegrees = useMemo(() => {
+    return degrees
+      ?.filter((degree) => {
+        return insensitiveMatch(`${degree.name} ${degree.acronym}`, searchQuery)
+      })
+      .filter((degree) => {
+        if (selectedType === null) {
+          return true
+        }
+        return degree.type === selectedType
+      }) ?? []
+  }, [degrees, searchQuery, selectedType])
 
   // Store last visited path
   useEffect(() => {
@@ -69,16 +92,33 @@ export function FacultyPage() {
               No degrees found for this university.
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {degrees.map((degree) => (
-                <SelectionCard
-                  key={degree.id}
-                  title={degree.acronym}
-                  subtitle={degree.name}
-                  onClick={() => handleDegreeSelect(degree)}
+            <>
+              <div className="mb-6">
+                <SearchDegrees
+                  searchQuery={searchQuery}
+                  setSearchQuery={setSearchQuery}
+                  availableTypes={availableTypes}
+                  selectedType={selectedType}
+                  setSelectedType={setSelectedType}
                 />
-              ))}
-            </div>
+              </div>
+              {filteredDegrees.length === 0 ? (
+                <div className="text-center text-gray-500 py-8">
+                  No degrees found matching your search.
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {filteredDegrees.map((degree) => (
+                    <SelectionCard
+                      key={degree.id}
+                      title={degree.acronym}
+                      subtitle={degree.name}
+                      onClick={() => handleDegreeSelect(degree)}
+                    />
+                  ))}
+                </div>
+              )}
+            </>
           )}
 
           <div className="mt-8">
