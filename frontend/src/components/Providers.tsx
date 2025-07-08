@@ -40,7 +40,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <MaybePostHogProvider>
       <QueryClientProvider client={queryClient}>
         {/* AppProvider needs to be inside Router because it uses useSearchParams */}
-        <Router>
+        <Router future={{ v7_startTransition: true }}>
           <AppProvider>
             <Layout>
               <ReactQueryDevtools initialIsOpen={false} />
