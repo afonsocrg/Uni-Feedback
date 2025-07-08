@@ -24,21 +24,22 @@ export function FeedbackItem({ feedback, variants }: FeedbackItemProps) {
     >
       {/* Header with rating and date */}
       <div className="mb-6">
-        <div className="flex flex-wrap items-center gap-3 mb-3">
-          <StarRating value={feedback.rating} />
-          {feedback.workloadRating && (
-            <div
-              className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getWorkloadColor(feedback.workloadRating)}`}
-            >
-              <Clock className="w-3 h-3 mr-1.5" />
-              Workload: {feedback.workloadRating}/5 -{' '}
-              {getWorkloadLabel(feedback.workloadRating)}
-            </div>
-          )}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <StarRating value={feedback.rating} />
+            {feedback.workloadRating && (
+              <div
+                className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getWorkloadColor(feedback.workloadRating)}`}
+              >
+                <Clock className="w-3 h-3 mr-1.5" />
+                Workload: ({feedback.workloadRating}/5) {getWorkloadLabel(feedback.workloadRating)}
+              </div>
+            )}
+          </div>
+          <span className="text-gray-400 text-sm">
+            {new Date(feedback.createdAt).toLocaleDateString()}
+          </span>
         </div>
-        <span className="text-gray-400 text-sm">
-          {new Date(feedback.createdAt).toLocaleDateString()}
-        </span>
       </div>
 
       {/* Comment section */}
