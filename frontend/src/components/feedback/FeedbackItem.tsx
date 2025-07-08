@@ -50,7 +50,9 @@ export function FeedbackItem({ feedback, variants }: FeedbackItemProps) {
               />
             )
           }}
-        ></Markdown>
+        >
+          {feedback.comment}
+        </Markdown>
       ) : (
         <span className="text-gray-500 italic text-sm ml-4">
           This user did not leave any comment
