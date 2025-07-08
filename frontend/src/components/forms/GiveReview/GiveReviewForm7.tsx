@@ -1,4 +1,5 @@
 import { Faculty } from '@/services/meicFeedbackAPI'
+import { getWorkloadLabel } from '@/lib/workload'
 import { MarkdownTextarea, StarRatingWithLabel } from '@components'
 import { useFaculties, useFacultyDegrees } from '@hooks'
 import { formatSchoolYearString } from '@lib/schoolYear'
@@ -523,13 +524,7 @@ export function GiveReviewForm7({
                                   value={field.value}
                                   onChange={field.onChange}
                                   size="lg"
-                                  labels={[
-                                    'No work-life balance possible',
-                                    'Difficult to balance with other courses',
-                                    'Balanced with other commitments',
-                                    'Easy to balance with other courses',
-                                    'Barely impacted my schedule'
-                                  ]}
+                                  labelFunction={getWorkloadLabel}
                                   labelPosition="bottom"
                                 />
                               </FormControl>

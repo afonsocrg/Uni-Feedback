@@ -8,6 +8,7 @@ const FeedbackSchema = z.object({
   id: z.number(),
   courseId: z.number(),
   rating: z.number(),
+  workloadRating: z.number(),
   comment: z.string().nullable(),
   schoolYear: z.number(),
   createdAt: z.string()
@@ -47,6 +48,7 @@ export class GetCourseFeedback extends OpenAPIRoute {
         id: feedback.id,
         courseId: feedback.courseId,
         rating: feedback.rating,
+        workloadRating: feedback.workloadRating,
         comment: feedback.comment,
         schoolYear: feedback.schoolYear,
         createdAt: feedback.createdAt

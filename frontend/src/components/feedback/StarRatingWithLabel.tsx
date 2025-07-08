@@ -17,6 +17,7 @@ interface StarRatingWithLabelProps {
   onChange?: (value: number) => void
   size?: 'sm' | 'md' | 'lg'
   labels?: RatingLabel
+  labelFunction?: (rating: number) => string
   displayHover?: boolean
   labelPosition?: 'bottom' | 'right'
 }
@@ -26,6 +27,7 @@ export function StarRatingWithLabel({
   onChange,
   size,
   labels,
+  labelFunction,
   displayHover = true,
   labelPosition = 'right'
 }: StarRatingWithLabelProps) {
@@ -36,8 +38,9 @@ export function StarRatingWithLabel({
   }
 
   const displayValue = displayHover && hoverValue ? hoverValue : value
-  const label =
-    displayValue >= 1 && displayValue <= 5 ? labels[displayValue - 1] : ''
+  const label = labelFunction 
+    ? labelFunction(displayValue)
+    : displayValue >= 1 && displayValue <= 5 ? labels[displayValue - 1] : ''
 
   if (labelPosition === 'bottom') {
     return (
