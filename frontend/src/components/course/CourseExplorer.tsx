@@ -12,7 +12,7 @@ interface CourseExplorerProps {
   degreeId: number
 }
 
-export function CourseExplorer({ facultyId, degreeId }: CourseExplorerProps) {
+export function CourseExplorer({ degreeId }: CourseExplorerProps) {
   const [searchParams] = useSearchParams()
   const initialValues = getInitialValues(searchParams)
 
@@ -24,11 +24,10 @@ export function CourseExplorer({ facultyId, degreeId }: CourseExplorerProps) {
   const [sortBy, setSortBy] = useState<SortOption>(initialValues.sortBy)
 
   // Use the required degreeId prop directly
-  const effectiveDegreeId = degreeId
 
   const { data: courses, isLoading: isCoursesLoading } =
-    useDegreeCourses(effectiveDegreeId)
-  const { data: courseGroups } = useDegreeCourseGroups(effectiveDegreeId)
+    useDegreeCourses(degreeId)
+  const { data: courseGroups } = useDegreeCourseGroups(degreeId)
 
   // Ensure selected Course Group exists!
   useEffect(() => {
@@ -127,7 +126,7 @@ export function CourseExplorer({ facultyId, degreeId }: CourseExplorerProps) {
         initial="hidden"
         animate="visible"
       >
-        {effectiveDegreeId && (
+        {degreeId && (
           <>
             <motion.div
               variants={itemVariants}
@@ -144,7 +143,7 @@ export function CourseExplorer({ facultyId, degreeId }: CourseExplorerProps) {
                 setSelectedCourseGroupId={setSelectedCourseGroupId}
                 sortBy={sortBy}
                 setSortBy={setSortBy}
-                degreeId={effectiveDegreeId}
+                degreeId={degreeId}
               />
             </motion.div>
 
