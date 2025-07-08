@@ -8,7 +8,6 @@ import { useSearchParams } from 'react-router-dom'
 type SortOption = 'rating' | 'alphabetical' | 'reviews'
 
 interface CourseExplorerProps {
-  facultyId: number
   degreeId: number
 }
 
@@ -22,8 +21,6 @@ export function CourseExplorer({ degreeId }: CourseExplorerProps) {
     number | null
   >(initialValues.courseGroupId)
   const [sortBy, setSortBy] = useState<SortOption>(initialValues.sortBy)
-
-  // Use the required degreeId prop directly
 
   const { data: courses, isLoading: isCoursesLoading } =
     useDegreeCourses(degreeId)

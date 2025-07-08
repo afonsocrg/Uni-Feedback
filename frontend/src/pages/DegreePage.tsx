@@ -49,7 +49,7 @@ export function DegreePage() {
   return (
     <div>
       <HeroSection showBreadcrumb />
-      <CourseExplorer facultyId={faculty.id} degreeId={degree.id} />
+      <CourseExplorer degreeId={degree.id} />
     </div>
   )
 }
