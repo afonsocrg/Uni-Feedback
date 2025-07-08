@@ -17,7 +17,6 @@
 
 [Give your anonymous review](https://istfeedback.com/feedback/new) on the courses you took. Other students will thank you!
 
-
 ## Contributing
 
 The sole purpose of this project is to help students choosing the right courses for them.

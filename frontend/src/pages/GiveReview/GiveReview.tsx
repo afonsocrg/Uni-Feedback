@@ -6,9 +6,9 @@ import {
 } from '@components'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
-  useApp,
   useDegreeCourses,
   useFacultyDegrees,
+  useSelectedFacultyDegree,
   useSubmitFeedback
 } from '@hooks'
 import { getCurrentSchoolYear } from '@lib/schoolYear'
@@ -26,11 +26,10 @@ export type GiveReviewFormValues = z.infer<typeof formSchema>
 
 export function GiveReview() {
   const navigate = useNavigate()
-  const {
-    selectedFacultyId,
-    selectedDegreeId,
-    selectedDegree: contextDegree
-  } = useApp()
+  const { faculty: contextFaculty, degree: contextDegree } =
+    useSelectedFacultyDegree()
+  const selectedFacultyId = contextFaculty?.id ?? null
+  const selectedDegreeId = contextDegree?.id ?? null
   const submitFeedbackMutation = useSubmitFeedback()
 
   const [searchParams] = useSearchParams()

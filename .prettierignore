@@ -1,11 +1,74 @@
-node_modules
+# Git
+.git/
+
+# Dependencies
+node_modules/
+bun.lock
 bun.lockb
 package-lock.json
+yarn.lock
 
-# Ignore artifacts:
-build
-dist
-coverage
+# Build outputs
+dist/
+build/
+coverage/
+.next/
+out/
 
-# Ignore all HTML files:
+# Cache directories
+.cache/
+.parcel-cache/
+.vite/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Database
+*.db
+*.sqlite
+
+# Database migrations and generated files
+backend/src/db/migrations/
+backend/src/db/README.md
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# GitHub templates
+.github/
+
+# Legacy content
+legacy/
+
+# Project documentation and notes
+afonsocrg/
+
+# Scripts and generated data
+backend/scripts/
+
+# Other
+.wrangler/
+.dev.vars
+
+# HTML files (index.html is typically auto-generated)
 **/*.html

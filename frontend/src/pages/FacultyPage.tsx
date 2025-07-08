@@ -54,13 +54,15 @@ export function FacultyPage() {
     )
   }, [degrees, searchQuery, selectedType])
 
-  // Store last visited path
+  // Store selected faculty and clear selected degree
   useEffect(() => {
     if (faculty) {
       localStorage.setItem(
-        STORAGE_KEYS.LAST_VISITED_PATH,
-        buildFacultyUrl(faculty)
+        STORAGE_KEYS.SELECTED_FACULTY_ID,
+        faculty.id.toString()
       )
+      // Clear selected degree when visiting faculty page
+      localStorage.removeItem(STORAGE_KEYS.SELECTED_DEGREE_ID)
     }
   }, [faculty])
 

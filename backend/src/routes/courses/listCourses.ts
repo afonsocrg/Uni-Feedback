@@ -80,12 +80,15 @@ export class GetCourses extends OpenAPIRoute {
     // Add joins for faculty/degree filtering
     if (faculty || degree) {
       baseQuery = baseQuery.innerJoin(degrees, eq(courses.degreeId, degrees.id))
-      
+
       if (faculty) {
-        baseQuery = baseQuery.innerJoin(faculties, eq(degrees.facultyId, faculties.id))
+        baseQuery = baseQuery.innerJoin(
+          faculties,
+          eq(degrees.facultyId, faculties.id)
+        )
         conditions.push(eq(faculties.shortName, faculty))
       }
-      
+
       if (degree) {
         conditions.push(eq(degrees.acronym, degree))
       }

@@ -3,7 +3,8 @@ export const ADD_COURSE_FORM_URL =
 
 // LocalStorage keys
 export const STORAGE_KEYS = {
-  LAST_VISITED_PATH: 'lastVisitedPath',
+  SELECTED_FACULTY_ID: 'selectedFacultyId',
+  SELECTED_DEGREE_ID: 'selectedDegreeId',
   FEEDBACK_EMAIL: 'lastFeedbackEmail',
   FEEDBACK_DEGREE_ID: 'lastFeedbackDegreeId',
   FEEDBACK_FACULTY_ID: 'lastFeedbackFacultyId'

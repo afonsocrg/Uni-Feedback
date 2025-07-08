@@ -28,7 +28,8 @@ export class GetFacultyDegrees extends OpenAPIRoute {
     },
     responses: {
       '200': {
-        description: 'List of degrees for the faculty with aggregated feedback data',
+        description:
+          'List of degrees for the faculty with aggregated feedback data',
         content: {
           'application/json': {
             schema: DegreeResponseSchema.array()

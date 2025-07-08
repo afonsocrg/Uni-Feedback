@@ -9,12 +9,16 @@ export function DegreePage() {
   const navigate = useNavigate()
   const { faculty, degree, isLoading, error } = useUrlNavigation()
 
-  // Store last visited path
+  // Store selected faculty and degree
   useEffect(() => {
     if (faculty && degree) {
       localStorage.setItem(
-        STORAGE_KEYS.LAST_VISITED_PATH,
-        buildDegreeUrl(faculty, degree)
+        STORAGE_KEYS.SELECTED_FACULTY_ID,
+        faculty.id.toString()
+      )
+      localStorage.setItem(
+        STORAGE_KEYS.SELECTED_DEGREE_ID,
+        degree.id.toString()
       )
     }
   }, [faculty, degree])

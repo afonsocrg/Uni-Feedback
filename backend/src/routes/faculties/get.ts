@@ -14,7 +14,8 @@ export class GetFaculties extends OpenAPIRoute {
   schema = {
     tags: ['Faculties'],
     summary: 'Get all faculties',
-    description: 'Returns a list of all faculties, optionally filtered by acronym',
+    description:
+      'Returns a list of all faculties, optionally filtered by acronym',
     request: {
       query: z.object({
         acronym: z.string().optional()

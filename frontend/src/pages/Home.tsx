@@ -1,18 +1,23 @@
 import { FacultySelector, HeroSection } from '@components'
-import { STORAGE_KEYS } from '@utils'
+import { useSelectedFacultyDegree } from '@hooks'
+import { buildDegreeUrl, buildFacultyUrl } from '@utils'
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 export function Home() {
   const navigate = useNavigate()
+  const { faculty, degree, isLoading } = useSelectedFacultyDegree()
 
-  // Check for last visited path and redirect
+  // Check for selected faculty/degree and redirect
   useEffect(() => {
-    const lastVisitedPath = localStorage.getItem(STORAGE_KEYS.LAST_VISITED_PATH)
-    if (lastVisitedPath && lastVisitedPath !== '/') {
-      // navigate(lastVisitedPath, { replace: true })
+    if (isLoading) return
+
+    if (faculty && degree) {
+      navigate(buildDegreeUrl(faculty, degree), { replace: true })
+    } else if (faculty) {
+      navigate(buildFacultyUrl(faculty), { replace: true })
     }
-  }, [navigate])
+  }, [navigate, faculty, degree, isLoading])
 
   return (
     <div>

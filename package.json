@@ -12,9 +12,12 @@
     "build": "bun run build-b && bun run build-f",
     "build-b": "cd backend && bun run build",
     "build-f": "cd frontend && bun run build",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "clean": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' + && rm -f bun.lockb"
   },
   "devDependencies": {
-    "prettier": "^3.5.3"
+    "prettier": "^3.5.3",
+    "prettier-plugin-organize-imports": "^4.1.0"
   }
 }

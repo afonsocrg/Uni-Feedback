@@ -49,7 +49,9 @@ export class GetFacultyDetails extends OpenAPIRoute {
   async handle(request: IRequest, env: any, context: any) {
     const db = getDb(env)
     const data = await this.getValidatedData<typeof this.schema>()
-    const { params: { id: facultyId } } = data
+    const {
+      params: { id: facultyId }
+    } = data
 
     // Get faculty details
     const faculty = await db
