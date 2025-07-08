@@ -28,7 +28,7 @@ export function FeedbackItem({ feedback, variants }: FeedbackItemProps) {
           </span>
         </div>
       </div>
-      {feedback.comment && (
+      {feedback.comment ? (
         <Markdown
           components={{
             h1: ({ ...props }) => (
@@ -50,9 +50,11 @@ export function FeedbackItem({ feedback, variants }: FeedbackItemProps) {
               />
             )
           }}
-        >
-          {feedback.comment}
-        </Markdown>
+        ></Markdown>
+      ) : (
+        <span className="text-gray-500 italic text-sm ml-4">
+          This user did not leave any comment
+        </span>
       )}
     </motion.div>
   )
