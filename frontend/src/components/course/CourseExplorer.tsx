@@ -30,7 +30,6 @@ export function CourseExplorer({ facultyId, degreeId }: CourseExplorerProps) {
     useDegreeCourses(effectiveDegreeId)
   const { data: courseGroups } = useDegreeCourseGroups(effectiveDegreeId)
 
-
   // Ensure selected Course Group exists!
   useEffect(() => {
     if (

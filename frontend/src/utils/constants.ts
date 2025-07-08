@@ -6,5 +6,5 @@ export const STORAGE_KEYS = {
   LAST_VISITED_PATH: 'lastVisitedPath',
   FEEDBACK_EMAIL: 'lastFeedbackEmail',
   FEEDBACK_DEGREE_ID: 'lastFeedbackDegreeId',
-  FEEDBACK_FACULTY_ID: 'lastFeedbackFacultyId',
+  FEEDBACK_FACULTY_ID: 'lastFeedbackFacultyId'
 } as const

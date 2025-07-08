@@ -12,7 +12,10 @@ export function DegreePage() {
   // Store last visited path
   useEffect(() => {
     if (faculty && degree) {
-      localStorage.setItem(STORAGE_KEYS.LAST_VISITED_PATH, buildDegreeUrl(faculty, degree))
+      localStorage.setItem(
+        STORAGE_KEYS.LAST_VISITED_PATH,
+        buildDegreeUrl(faculty, degree)
+      )
     }
   }, [faculty, degree])
 

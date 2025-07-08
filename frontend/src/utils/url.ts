@@ -15,7 +15,10 @@ export function facultyToSlug(shortName: string): string {
  * @param faculties - Array of faculty objects to search
  * @returns Matching faculty object or undefined
  */
-export function slugToFaculty(slug: string, faculties: Faculty[]): Faculty | undefined {
+export function slugToFaculty(
+  slug: string,
+  faculties: Faculty[]
+): Faculty | undefined {
   return faculties.find(
     (f) => facultyToSlug(f.short_name) === slug.toLowerCase()
   )
@@ -36,10 +39,11 @@ export function degreeToSlug(acronym: string): string {
  * @param degrees - Array of degree objects to search
  * @returns Matching degree object or undefined
  */
-export function slugToDegree(slug: string, degrees: Degree[]): Degree | undefined {
-  return degrees.find(
-    (d) => d.acronym.toLowerCase() === slug.toLowerCase()
-  )
+export function slugToDegree(
+  slug: string,
+  degrees: Degree[]
+): Degree | undefined {
+  return degrees.find((d) => d.acronym.toLowerCase() === slug.toLowerCase())
 }
 
 /**
