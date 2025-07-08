@@ -1,44 +1,66 @@
-import { ADD_COURSE_FORM_URL, buildDegreeUrl, buildFacultyUrl, insensitiveMatch } from '@/utils'
-import { SelectionCard, WarningAlert, HeroSection, SearchDegrees } from '@components'
+import {
+  ADD_COURSE_FORM_URL,
+  buildDegreeUrl,
+  buildFacultyUrl,
+  insensitiveMatch,
+  STORAGE_KEYS
+} from '@/utils'
+import {
+  HeroSection,
+  SearchDegrees,
+  SelectionCard,
+  WarningAlert
+} from '@components'
 import { Button } from '@components/ui/button'
-import { useUrlNavigation, useFacultyDegrees } from '@hooks'
-import { useNavigate } from 'react-router-dom'
-import { useEffect, useState, useMemo } from 'react'
+import { useFacultyDegrees, useUrlNavigation } from '@hooks'
 import type { Degree } from '@services/meicFeedbackAPI'
+import { Loader2 } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 export function FacultyPage() {
   const navigate = useNavigate()
   const { faculty, isLoading, error } = useUrlNavigation()
-  
-  const { data: degrees, isLoading: degreesLoading } = useFacultyDegrees(faculty?.id ?? null)
-  
+
+  const { data: degrees, isLoading: degreesLoading } = useFacultyDegrees(
+    faculty?.id ?? null
+  )
+
   // Search state
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedType, setSelectedType] = useState<string | null>(null)
-  
+
   // Available degree types for filtering
   const availableTypes = useMemo(() => {
     return [...new Set(degrees?.map((degree) => degree.type))].sort()
   }, [degrees])
-  
+
   // Filtered degrees based on search and type
   const filteredDegrees = useMemo(() => {
-    return degrees
-      ?.filter((degree) => {
-        return insensitiveMatch(`${degree.name} ${degree.acronym}`, searchQuery)
-      })
-      .filter((degree) => {
-        if (selectedType === null) {
-          return true
-        }
-        return degree.type === selectedType
-      }) ?? []
+    return (
+      degrees
+        ?.filter((degree) => {
+          return insensitiveMatch(
+            `${degree.name} ${degree.acronym}`,
+            searchQuery
+          )
+        })
+        .filter((degree) => {
+          if (selectedType === null) {
+            return true
+          }
+          return degree.type === selectedType
+        }) ?? []
+    )
   }, [degrees, searchQuery, selectedType])
 
   // Store last visited path
   useEffect(() => {
     if (faculty) {
-      localStorage.setItem('lastVisitedPath', buildFacultyUrl(faculty))
+      localStorage.setItem(
+        STORAGE_KEYS.LAST_VISITED_PATH,
+        buildFacultyUrl(faculty)
+      )
     }
   }, [faculty])
 
@@ -61,7 +83,7 @@ export function FacultyPage() {
         <HeroSection showBreadcrumb />
         <div className="container mx-auto px-4 py-8">
           <div className="flex flex-col items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <Loader2 className="h-8 w-8 animate-spin text-istBlue" />
             <p className="mt-4 text-gray-600">Loading degrees...</p>
           </div>
         </div>
@@ -111,8 +133,8 @@ export function FacultyPage() {
                   {filteredDegrees.map((degree) => (
                     <SelectionCard
                       key={degree.id}
-                      title={degree.acronym}
-                      subtitle={degree.name}
+                      title={degree.name}
+                      subtitle={degree.acronym}
                       onClick={() => handleDegreeSelect(degree)}
                     />
                   ))}

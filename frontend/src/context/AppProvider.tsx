@@ -6,21 +6,11 @@ interface AppProviderProps {
 }
 
 export function AppProvider({ children }: AppProviderProps) {
-  // Simplified provider - URL-driven architecture doesn't need complex state management
-  // Legacy AppContext maintained for components that still use it (like CourseExplorer)
+  // Minimal provider for URL-driven architecture
+  // Only keeping the structure for any remaining legacy components
+  // All state is now managed through URL parameters
   return (
-    <AppContext.Provider
-      value={{
-        selectedFacultyId: null,
-        setSelectedFacultyId: () => {},
-        selectedFaculty: null,
-        selectedDegreeId: null,
-        setSelectedDegreeId: () => {},
-        selectedDegree: null,
-        isDegreeSelectorOpen: false,
-        setIsDegreeSelectorOpen: () => {}
-      }}
-    >
+    <AppContext.Provider value={undefined}>
       {children}
     </AppContext.Provider>
   )

@@ -1,6 +1,6 @@
 import { insensitiveMatch } from '@/utils'
 import { CourseGrid, SearchCourses } from '@components'
-import { useApp, useDegreeCourseGroups, useDegreeCourses } from '@hooks'
+import { useDegreeCourseGroups, useDegreeCourses } from '@hooks'
 import { motion } from 'framer-motion'
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
@@ -8,8 +8,8 @@ import { useSearchParams } from 'react-router-dom'
 type SortOption = 'rating' | 'alphabetical' | 'reviews'
 
 interface CourseExplorerProps {
-  facultyId?: number
-  degreeId?: number
+  facultyId: number
+  degreeId: number
 }
 
 export function CourseExplorer({ facultyId, degreeId }: CourseExplorerProps) {
@@ -23,26 +23,13 @@ export function CourseExplorer({ facultyId, degreeId }: CourseExplorerProps) {
   >(initialValues.courseGroupId)
   const [sortBy, setSortBy] = useState<SortOption>(initialValues.sortBy)
 
-  const {
-    selectedDegreeId,
-    selectedDegree,
-    isDegreeSelectorOpen,
-    setIsDegreeSelectorOpen
-  } = useApp()
-
-  // Use prop degreeId if provided, otherwise fall back to context
-  const effectiveDegreeId = degreeId ?? selectedDegreeId
+  // Use the required degreeId prop directly
+  const effectiveDegreeId = degreeId
 
   const { data: courses, isLoading: isCoursesLoading } =
     useDegreeCourses(effectiveDegreeId)
-  const { data: courseGroups } = useDegreeCourseGroups(effectiveDegreeId ?? 0)
+  const { data: courseGroups } = useDegreeCourseGroups(effectiveDegreeId)
 
-  useEffect(() => {
-    // Only open degree selector if we don't have a degree from props and context is null
-    if (effectiveDegreeId === null && !isDegreeSelectorOpen) {
-      setIsDegreeSelectorOpen(true)
-    }
-  }, [effectiveDegreeId, isDegreeSelectorOpen, setIsDegreeSelectorOpen])
 
   // Ensure selected Course Group exists!
   useEffect(() => {
@@ -141,7 +128,7 @@ export function CourseExplorer({ facultyId, degreeId }: CourseExplorerProps) {
         initial="hidden"
         animate="visible"
       >
-        {(selectedDegree || effectiveDegreeId) && (
+        {effectiveDegreeId && (
           <>
             <motion.div
               variants={itemVariants}
@@ -158,6 +145,7 @@ export function CourseExplorer({ facultyId, degreeId }: CourseExplorerProps) {
                 setSelectedCourseGroupId={setSelectedCourseGroupId}
                 sortBy={sortBy}
                 setSortBy={setSortBy}
+                degreeId={effectiveDegreeId}
               />
             </motion.div>
 

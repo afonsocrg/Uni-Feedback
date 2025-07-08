@@ -1,6 +1,7 @@
 import { CourseExplorer, HeroSection } from '@components'
 import { useUrlNavigation } from '@hooks'
-import { buildDegreeUrl, buildFacultyUrl } from '@utils'
+import { buildDegreeUrl, buildFacultyUrl, STORAGE_KEYS } from '@utils'
+import { Loader2 } from 'lucide-react'
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -11,7 +12,7 @@ export function DegreePage() {
   // Store last visited path
   useEffect(() => {
     if (faculty && degree) {
-      localStorage.setItem('lastVisitedPath', buildDegreeUrl(faculty, degree))
+      localStorage.setItem(STORAGE_KEYS.LAST_VISITED_PATH, buildDegreeUrl(faculty, degree))
     }
   }, [faculty, degree])
 
@@ -30,7 +31,7 @@ export function DegreePage() {
         <HeroSection showBreadcrumb />
         <div className="container mx-auto px-4 py-8">
           <div className="flex flex-col items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <Loader2 className="h-8 w-8 animate-spin text-istBlue" />
             <p className="mt-4 text-gray-600">Loading courses...</p>
           </div>
         </div>

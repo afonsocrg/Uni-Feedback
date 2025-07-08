@@ -1,4 +1,5 @@
 import { FacultySelector, HeroSection } from '@components'
+import { STORAGE_KEYS } from '@utils'
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -7,7 +8,7 @@ export function Home() {
 
   // Check for last visited path and redirect
   useEffect(() => {
-    const lastVisitedPath = localStorage.getItem('lastVisitedPath')
+    const lastVisitedPath = localStorage.getItem(STORAGE_KEYS.LAST_VISITED_PATH)
     if (lastVisitedPath && lastVisitedPath !== '/') {
       // navigate(lastVisitedPath, { replace: true })
     }
