@@ -5,7 +5,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-import { useApp, useDegreeCourseGroups } from '@/hooks'
+import { useDegreeCourseGroups } from '@/hooks'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useState } from 'react'
 
@@ -21,6 +21,7 @@ interface SearchCoursesProps {
   setSelectedCourseGroupId: (courseGroupId: number | null) => void
   sortBy: SortOption
   setSortBy: (sort: SortOption) => void
+  degreeId: number
 }
 
 export function SearchCourses({
@@ -32,12 +33,12 @@ export function SearchCourses({
   selectedCourseGroupId,
   setSelectedCourseGroupId,
   sortBy,
-  setSortBy
+  setSortBy,
+  degreeId
 }: SearchCoursesProps) {
   const [isExpanded, setIsExpanded] = useState(false)
 
-  const { selectedDegreeId } = useApp()
-  const { data: courseGroups } = useDegreeCourseGroups(selectedDegreeId)
+  const { data: courseGroups } = useDegreeCourseGroups(degreeId)
 
   const handleClearFilters = () => {
     setSearchQuery('')

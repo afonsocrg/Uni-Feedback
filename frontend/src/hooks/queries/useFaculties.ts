@@ -1,7 +1,7 @@
 import {
   getFaculties,
-  getFacultyDetails,
-  getFacultyDegrees
+  getFacultyDegrees,
+  getFacultyDetails
 } from '@services/meicFeedbackAPI'
 import { useQuery } from '@tanstack/react-query'
 import { infrequentDataConfig } from './config'

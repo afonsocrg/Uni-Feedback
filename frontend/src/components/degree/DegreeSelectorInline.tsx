@@ -2,6 +2,7 @@ import { SearchDegrees, WarningAlert } from '@components'
 import { useApp, useFacultyDegrees, useFacultyDetails } from '@hooks'
 import { Button } from '@ui/button'
 import { ADD_COURSE_FORM_URL, insensitiveMatch } from '@utils'
+import { Loader2 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { DegreeCard } from './DegreeCard'
 
@@ -36,7 +37,7 @@ export function DegreeSelectorInline() {
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <Loader2 className="h-8 w-8 animate-spin text-istBlue" />
         <p className="mt-4 text-gray-600">Loading degrees...</p>
       </div>
     )

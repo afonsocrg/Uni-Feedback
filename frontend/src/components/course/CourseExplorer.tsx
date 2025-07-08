@@ -1,13 +1,17 @@
 import { insensitiveMatch } from '@/utils'
 import { CourseGrid, SearchCourses } from '@components'
-import { useApp, useDegreeCourseGroups, useDegreeCourses } from '@hooks'
+import { useDegreeCourseGroups, useDegreeCourses } from '@hooks'
 import { motion } from 'framer-motion'
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 type SortOption = 'rating' | 'alphabetical' | 'reviews'
 
-export function CourseExplorer() {
+interface CourseExplorerProps {
+  degreeId: number
+}
+
+export function CourseExplorer({ degreeId }: CourseExplorerProps) {
   const [searchParams] = useSearchParams()
   const initialValues = getInitialValues(searchParams)
 
@@ -18,22 +22,9 @@ export function CourseExplorer() {
   >(initialValues.courseGroupId)
   const [sortBy, setSortBy] = useState<SortOption>(initialValues.sortBy)
 
-  const {
-    selectedDegreeId,
-    selectedDegree,
-    isDegreeSelectorOpen,
-    setIsDegreeSelectorOpen
-  } = useApp()
-
   const { data: courses, isLoading: isCoursesLoading } =
-    useDegreeCourses(selectedDegreeId)
-  const { data: courseGroups } = useDegreeCourseGroups(selectedDegreeId ?? 0)
-
-  useEffect(() => {
-    if (selectedDegreeId === null && !isDegreeSelectorOpen) {
-      setIsDegreeSelectorOpen(true)
-    }
-  }, [selectedDegreeId, isDegreeSelectorOpen, setIsDegreeSelectorOpen])
+    useDegreeCourses(degreeId)
+  const { data: courseGroups } = useDegreeCourseGroups(degreeId)
 
   // Ensure selected Course Group exists!
   useEffect(() => {
@@ -132,7 +123,7 @@ export function CourseExplorer() {
         initial="hidden"
         animate="visible"
       >
-        {selectedDegree && (
+        {degreeId && (
           <>
             <motion.div
               variants={itemVariants}
@@ -149,6 +140,7 @@ export function CourseExplorer() {
                 setSelectedCourseGroupId={setSelectedCourseGroupId}
                 sortBy={sortBy}
                 setSortBy={setSortBy}
+                degreeId={degreeId}
               />
             </motion.div>
 

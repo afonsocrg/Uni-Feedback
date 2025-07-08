@@ -1,6 +1,6 @@
-import { courses, degrees, getDb } from '@db'
+import { courses, degrees, faculties, getDb } from '@db'
 import { OpenAPIRoute } from 'chanfana'
-import { eq } from 'drizzle-orm'
+import { eq, and } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
 import { z } from 'zod'
 
@@ -17,13 +17,13 @@ export class GetDegrees extends OpenAPIRoute {
     tags: ['Degrees'],
     summary: 'Get all degrees with aggregated feedback data',
     description:
-      'Returns a list of all courses with their average rating and feedback count',
-    // request: {
-    //   query: z.object({
-    //     acronym: z.string().optional(),
-    //     degreeId: z.number().optional()
-    //   })
-    // },
+      'Returns a list of all degrees with their average rating and feedback count, optionally filtered by faculty',
+    request: {
+      query: z.object({
+        faculty: z.string().optional(),
+        onlyWithCourses: z.boolean().optional()
+      })
+    },
     responses: {
       '200': {
         description: 'List of degrees with aggregated feedback data',
@@ -38,9 +38,9 @@ export class GetDegrees extends OpenAPIRoute {
 
   async handle(request: IRequest, env: any, context: any) {
     const db = getDb(env)
-    const { onlyWithCourses = true } = request.query
+    const { onlyWithCourses = true, faculty } = request.query
 
-    const baseQuery = db
+    let baseQuery = db
       .select({
         id: degrees.id,
         externalId: degrees.externalId,
@@ -49,6 +49,13 @@ export class GetDegrees extends OpenAPIRoute {
         acronym: degrees.acronym
       })
       .from(degrees)
+
+    // Filter by faculty if provided
+    if (faculty) {
+      baseQuery = baseQuery
+        .innerJoin(faculties, eq(degrees.facultyId, faculties.id))
+        .where(eq(faculties.shortName, faculty))
+    }
 
     const result = onlyWithCourses
       ? await baseQuery

@@ -1,4 +1,4 @@
-import { courses, feedback, getDb } from '@db'
+import { courses, feedback, degrees, faculties, getDb } from '@db'
 import { OpenAPIRoute } from 'chanfana'
 import { and, eq, isNotNull, sql } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
@@ -23,7 +23,9 @@ export class GetCourses extends OpenAPIRoute {
     request: {
       query: z.object({
         acronym: z.string().optional(),
-        degreeId: z.number().optional()
+        degreeId: z.number().optional(),
+        faculty: z.string().optional(),
+        degree: z.string().optional()
       })
     },
     responses: {
@@ -43,7 +45,7 @@ export class GetCourses extends OpenAPIRoute {
 
     const data = await this.getValidatedData<typeof this.schema>()
     const {
-      query: { acronym, degreeId }
+      query: { acronym, degreeId, faculty, degree }
     } = data
 
     const conditions = []
@@ -56,7 +58,7 @@ export class GetCourses extends OpenAPIRoute {
     }
 
     // Base query with feedback join
-    const baseQuery = db
+    let baseQuery = db
       .select({
         id: courses.id,
         name: courses.name,
@@ -74,11 +76,24 @@ export class GetCourses extends OpenAPIRoute {
         feedback,
         and(eq(courses.id, feedback.courseId), isNotNull(feedback.approvedAt))
       )
-      .groupBy(courses.id)
 
-    const query = baseQuery.where(
-      conditions.length > 0 ? and(...conditions) : undefined
-    )
+    // Add joins for faculty/degree filtering
+    if (faculty || degree) {
+      baseQuery = baseQuery.innerJoin(degrees, eq(courses.degreeId, degrees.id))
+      
+      if (faculty) {
+        baseQuery = baseQuery.innerJoin(faculties, eq(degrees.facultyId, faculties.id))
+        conditions.push(eq(faculties.shortName, faculty))
+      }
+      
+      if (degree) {
+        conditions.push(eq(degrees.acronym, degree))
+      }
+    }
+
+    const query = baseQuery
+      .groupBy(courses.id)
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
 
     const result = await query
 

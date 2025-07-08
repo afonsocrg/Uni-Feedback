@@ -1,5 +1,5 @@
-import { useApp } from '@/hooks'
 import { ActionButton, Breadcrumb } from '@components'
+import { useUrlNavigation } from '@hooks'
 import posthog from 'posthog-js'
 import { useNavigate } from 'react-router-dom'
 
@@ -9,7 +9,7 @@ interface HeroSectionProps {
 
 export function HeroSection({ showBreadcrumb = false }: HeroSectionProps) {
   const navigate = useNavigate()
-  const { selectedDegree, selectedFaculty } = useApp()
+  const { degree, faculty } = useUrlNavigation()
 
   return (
     <div className="bg-blue-50 py-6 md:py-12 px-2 md:px-4 shadow-sm">
@@ -21,8 +21,7 @@ export function HeroSection({ showBreadcrumb = false }: HeroSectionProps) {
         )}
         <div className="flex flex-col items-center text-center">
           <h1 className="text-2xl md:text-4xl font-extrabold text-istBlue mb-2 md:mb-4">
-            Find the best{' '}
-            {selectedDegree?.acronym ?? selectedFaculty?.short_name ?? 'Uni'}{' '}
+            Find the best {degree?.acronym ?? faculty?.short_name ?? 'Uni'}{' '}
             courses
           </h1>
           <p className="text-base md:text-lg text-gray-500 mb-4 md:mb-8 max-w-md md:max-w-2xl">

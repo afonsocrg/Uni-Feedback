@@ -1,11 +1,5 @@
 import { MeicFeedbackAPIError } from '@/services/meicFeedbackAPI'
 import {
-  GiveReviewForm1,
-  GiveReviewForm2,
-  GiveReviewForm3,
-  GiveReviewForm4,
-  // GiveReviewForm5,
-  GiveReviewForm6,
   GiveReviewForm7,
   GiveReviewProps,
   ReviewSubmitSuccess
@@ -19,6 +13,7 @@ import {
 } from '@hooks'
 import { getCurrentSchoolYear } from '@lib/schoolYear'
 import { getCourse, getFeedbackDraft } from '@services/meicFeedbackAPI'
+import { STORAGE_KEYS } from '@utils'
 import posthog from 'posthog-js'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -26,10 +21,6 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { formSchema, requiredFields } from './schema'
-
-const FEEDBACK_EMAIL_STORAGE_KEY = 'lastFeedbackEmail'
-const FEEDBACK_DEGREE_ID_STORAGE_KEY = 'lastFeedbackDegreeId'
-const FEEDBACK_FACULTY_ID_STORAGE_KEY = 'lastFeedbackFacultyId'
 
 export type GiveReviewFormValues = z.infer<typeof formSchema>
 
@@ -194,10 +185,10 @@ export function GiveReview() {
 
   async function onSubmit(values: GiveReviewFormValues) {
     // Store email and degree id in local storage for next time
-    localStorage.setItem(FEEDBACK_EMAIL_STORAGE_KEY, values.email)
+    localStorage.setItem(STORAGE_KEYS.FEEDBACK_EMAIL, values.email)
     if (localFacultyId) {
       localStorage.setItem(
-        FEEDBACK_FACULTY_ID_STORAGE_KEY,
+        STORAGE_KEYS.FEEDBACK_FACULTY_ID,
         localFacultyId.toString()
       )
     } else {
@@ -205,7 +196,7 @@ export function GiveReview() {
     }
     if (localDegreeId) {
       localStorage.setItem(
-        FEEDBACK_DEGREE_ID_STORAGE_KEY,
+        STORAGE_KEYS.FEEDBACK_DEGREE_ID,
         localDegreeId.toString()
       )
     } else {
@@ -308,7 +299,7 @@ function getInitialValues(
 ) {
   const email =
     searchParams.get('email') ||
-    localStorage.getItem(FEEDBACK_EMAIL_STORAGE_KEY) ||
+    localStorage.getItem(STORAGE_KEYS.FEEDBACK_EMAIL) ||
     ''
   const schoolYear = (() => {
     const year = Number(searchParams.get('schoolYear'))
@@ -316,10 +307,10 @@ function getInitialValues(
   })()
 
   const facultyId = selectedFacultyId ?? 0
-  // Number(localStorage.getItem(FEEDBACK_FACULTY_ID_STORAGE_KEY))
+  // Number(localStorage.getItem(STORAGE_KEYS.FEEDBACK_FACULTY_ID))
 
   const degreeId = selectedDegreeId ?? 0
-  // Number(localStorage.getItem(FEEDBACK_DEGREE_ID_STORAGE_KEY))
+  // Number(localStorage.getItem(STORAGE_KEYS.FEEDBACK_DEGREE_ID))
 
   const courseId = Number(searchParams.get('courseId')) || 0
   const rating = getRatingValue(searchParams.get('rating'))
@@ -356,21 +347,22 @@ async function getFeedbackDraftData(code: string) {
 interface GiveReviewFormProps extends GiveReviewProps {
   version: string | null
 }
-function GiveReviewForm({ version, ...props }: GiveReviewFormProps) {
-  switch (version) {
-    case '1':
-      return <GiveReviewForm1 {...props} />
-    case '2':
-      return <GiveReviewForm2 {...props} />
-    case '3':
-      return <GiveReviewForm3 {...props} />
-    case '4':
-      return <GiveReviewForm4 {...props} />
-    // case '5':
-    //   return <GiveReviewForm5 {...props} />
-    case '6':
-      return <GiveReviewForm6 {...props} />
-    default:
-      return <GiveReviewForm7 {...props} />
-  }
+function GiveReviewForm({ ...props }: GiveReviewFormProps) {
+  return <GiveReviewForm7 {...props} />
+  // switch (version) {
+  // case '1':
+  //   return <GiveReviewForm1 {...props} />
+  // case '2':
+  //   return <GiveReviewForm2 {...props} />
+  // case '3':
+  //   return <GiveReviewForm3 {...props} />
+  // case '4':
+  //   return <GiveReviewForm4 {...props} />
+  // case '5':
+  //   return <GiveReviewForm5 {...props} />
+  // case '6':
+  //   return <GiveReviewForm6 {...props} />
+  // default:
+  //   return <GiveReviewForm7 {...props} />
+  // }
 }

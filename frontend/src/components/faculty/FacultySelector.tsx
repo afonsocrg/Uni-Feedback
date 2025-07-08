@@ -1,20 +1,23 @@
-import { ADD_COURSE_FORM_URL } from '@/utils'
+import { ADD_COURSE_FORM_URL, buildFacultyUrl } from '@/utils'
 import { SelectionCard, WarningAlert } from '@components'
-import { Button } from '@components/ui/button'
-import { useApp, useFaculties } from '@hooks'
+import { useFaculties } from '@hooks'
+import { Button } from '@ui/button'
+import { Loader2 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import type { Faculty } from '@services/meicFeedbackAPI'
 
 export function FacultySelector() {
-  const { setSelectedFacultyId } = useApp()
+  const navigate = useNavigate()
   const { data: faculties, isLoading } = useFaculties()
 
-  const handleFacultySelect = (facultyId: number) => {
-    setSelectedFacultyId(facultyId)
+  const handleFacultySelect = (faculty: Faculty) => {
+    navigate(buildFacultyUrl(faculty))
   }
 
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <Loader2 className="h-8 w-8 animate-spin text-istBlue" />
         <p className="mt-4 text-gray-600">Loading faculties...</p>
       </div>
     )
@@ -45,7 +48,7 @@ export function FacultySelector() {
             key={faculty.id}
             title={faculty.short_name}
             subtitle={faculty.name}
-            onClick={() => handleFacultySelect(faculty.id)}
+            onClick={() => handleFacultySelect(faculty)}
           />
         ))}
       </div>
