@@ -38,9 +38,11 @@ export function StarRatingWithLabel({
   }
 
   const displayValue = displayHover && hoverValue ? hoverValue : value
-  const label = labelFunction 
+  const label = labelFunction
     ? labelFunction(displayValue)
-    : displayValue >= 1 && displayValue <= 5 ? labels[displayValue - 1] : ''
+    : displayValue >= 1 && displayValue <= 5
+      ? labels[displayValue - 1]
+      : ''
 
   if (labelPosition === 'bottom') {
     return (

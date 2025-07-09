@@ -15,6 +15,8 @@ export interface Degree {
   acronym: string
   type: string
   facultyId: number
+  courseCount?: number
+  feedbackCount?: number
 }
 
 export interface CourseGroup {

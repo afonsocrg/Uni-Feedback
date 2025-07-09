@@ -32,7 +32,8 @@ export function FeedbackItem({ feedback, variants }: FeedbackItemProps) {
                 className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getWorkloadColor(feedback.workloadRating)}`}
               >
                 <Clock className="w-3 h-3 mr-1.5" />
-                Workload: ({feedback.workloadRating}/5) {getWorkloadLabel(feedback.workloadRating)}
+                Workload: ({feedback.workloadRating}/5){' '}
+                {getWorkloadLabel(feedback.workloadRating)}
               </div>
             )}
           </div>

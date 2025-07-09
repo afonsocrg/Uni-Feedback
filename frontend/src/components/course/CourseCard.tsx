@@ -44,42 +44,39 @@ export function CourseCard({
         onClick={handleClick}
         className="flex flex-col"
       >
-        <div className="flex flex-col h-full flex-end">
-          <div className="flex flex-col gap-3 mt-auto">
-            {terms && terms.length > 0 && (
-              <div className="flex items-center gap-2 flex-wrap">
-                {terms.map((t) => (
-                  <Chip key={t} label={t} />
-                ))}
-              </div>
-            )}
-
-            {/* Rating or Call to Action */}
-            <div className="flex items-center">
-              {feedbackCount > 0 ? (
-                <div className="flex items-center">
-                  <div className="mr-2">
-                    <StarRating value={rating} size="sm" />
-                  </div>
-                  <span className="text-gray-700">{rating.toFixed(1)}</span>
-                  <span className="text-gray-500 ml-2">
-                    ({feedbackCount} reviews)
-                  </span>
-                </div>
-              ) : (
-                <Button
-                  onClick={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    window.open(`/feedback/new?courseId=${courseId}`, '_blank')
-                  }}
-                  variant="link"
-                  className="p-0 h-auto"
-                >
-                  Give the first review!
-                </Button>
-              )}
+        <div className="flex flex-col gap-3 mt-auto">
+          {terms && terms.length > 0 && (
+            <div className="flex items-center gap-2 flex-wrap">
+              {terms.map((t) => (
+                <Chip key={t} label={t} />
+              ))}
             </div>
+          )}
+
+          {/* Rating and Feedback Count */}
+          <div className="flex items-center">
+            {feedbackCount > 0 ? (
+              <div className="flex items-center">
+                <div className="mr-2">
+                  <StarRating value={rating} size="sm" />
+                </div>
+                <span className="text-gray-700">
+                  {rating.toFixed(1)} ({feedbackCount})
+                </span>
+              </div>
+            ) : (
+              <Button
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  window.open(`/feedback/new?courseId=${courseId}`, '_blank')
+                }}
+                variant="link"
+                className="p-0 h-auto"
+              >
+                Give the first feedback!
+              </Button>
+            )}
           </div>
         </div>
       </SelectionCard>

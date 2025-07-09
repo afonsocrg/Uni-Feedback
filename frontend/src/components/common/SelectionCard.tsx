@@ -22,7 +22,7 @@ export function SelectionCard({
 }: SelectionCardProps) {
   return (
     <Card
-      className={`cursor-pointer hover:shadow-lg transition-shadow duration-200 h-full ${className}`}
+      className={`cursor-pointer hover:shadow-lg transition-shadow duration-200 h-full flex flex-col ${className}`}
       onClick={onClick}
     >
       <CardHeader>
@@ -37,7 +37,7 @@ export function SelectionCard({
         )}
       </CardHeader>
       {(description || children) && (
-        <CardContent>
+        <CardContent className="flex-1 flex flex-col">
           {description && (
             <p className="text-sm text-gray-600 transition-colors">
               {description}

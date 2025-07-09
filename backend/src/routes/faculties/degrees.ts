@@ -1,15 +1,17 @@
-import { courses, degrees, getDb } from '@db'
+import { getDb } from '@db'
 import { OpenAPIRoute } from 'chanfana'
-import { eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
 import { z } from 'zod'
+import { DegreeService } from '@services'
 
 const DegreeResponseSchema = z.object({
   id: z.number(),
   externalId: z.string(),
   type: z.string(),
   name: z.string(),
-  acronym: z.string()
+  acronym: z.string(),
+  courseCount: z.number(),
+  feedbackCount: z.number()
 })
 
 export class GetFacultyDegrees extends OpenAPIRoute {
@@ -17,7 +19,7 @@ export class GetFacultyDegrees extends OpenAPIRoute {
     tags: ['Faculties'],
     summary: 'Get all degrees for a specific faculty',
     description:
-      'Returns a list of all degrees belonging to the specified faculty with their aggregated feedback data',
+      'Returns a list of all degrees belonging to the specified faculty with their course and feedback counts',
     request: {
       params: z.object({
         facultyId: z.string().transform((val) => parseInt(val, 10))
@@ -29,7 +31,7 @@ export class GetFacultyDegrees extends OpenAPIRoute {
     responses: {
       '200': {
         description:
-          'List of degrees for the faculty with aggregated feedback data',
+          'List of degrees for the faculty with course and feedback counts',
         content: {
           'application/json': {
             schema: DegreeResponseSchema.array()
@@ -47,22 +49,11 @@ export class GetFacultyDegrees extends OpenAPIRoute {
     const { facultyId } = request.params
     const { onlyWithCourses = true } = request.query
 
-    const baseQuery = db
-      .select({
-        id: degrees.id,
-        externalId: degrees.externalId,
-        type: degrees.type,
-        name: degrees.name,
-        acronym: degrees.acronym
-      })
-      .from(degrees)
-      .where(eq(degrees.facultyId, facultyId))
-
-    const result = onlyWithCourses
-      ? await baseQuery
-          .innerJoin(courses, eq(courses.degreeId, degrees.id))
-          .groupBy(degrees.id)
-      : await baseQuery
+    const degreeService = new DegreeService(db)
+    const result = await degreeService.getDegreesWithCounts({
+      facultyId,
+      onlyWithCourses
+    })
 
     return Response.json(result)
   }
