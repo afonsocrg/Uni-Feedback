@@ -1,6 +1,6 @@
 import { CourseExplorer, HeroSection } from '@components'
 import { useUrlNavigation } from '@hooks'
-import { buildDegreeUrl, buildFacultyUrl, STORAGE_KEYS } from '@utils'
+import { buildFacultyUrl, STORAGE_KEYS } from '@utils'
 import { Loader2 } from 'lucide-react'
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'

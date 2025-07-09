@@ -1,7 +1,6 @@
 import {
   ADD_COURSE_FORM_URL,
   buildDegreeUrl,
-  buildFacultyUrl,
   insensitiveMatch,
   STORAGE_KEYS
 } from '@/utils'
@@ -50,7 +49,8 @@ export function FacultyPage() {
             return true
           }
           return degree.type === selectedType
-        }) ?? []
+        })
+        .sort((a, b) => (b.feedbackCount ?? 0) - (a.feedbackCount ?? 0)) ?? []
     )
   }, [degrees, searchQuery, selectedType])
 

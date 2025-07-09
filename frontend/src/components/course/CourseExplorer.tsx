@@ -184,7 +184,7 @@ function getInitialValues(searchParams: URLSearchParams) {
   const sortBy = (
     sortValue && ['rating', 'alphabetical', 'reviews'].includes(sortValue)
       ? sortValue
-      : 'alphabetical'
+      : 'reviews'
   ) as SortOption
 
   return {
