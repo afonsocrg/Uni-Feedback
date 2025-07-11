@@ -1,6 +1,7 @@
-import { courses, degrees, feedback, getDb } from '@db'
+import { courses, degrees, getDb } from '@db'
+import { CourseFeedbackService } from '@services'
 import { OpenAPIRoute } from 'chanfana'
-import { and, eq, isNotNull, sql } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
 import { z } from 'zod'
 
@@ -53,8 +54,10 @@ export class GetCourse extends OpenAPIRoute {
   async handle(request: IRequest, env: any, context: any) {
     const db = getDb(env)
     const courseId = parseInt(request.params.id)
+    const courseFeedbackService = new CourseFeedbackService(db)
 
-    const result = await db
+    // Get course details
+    const courseResult = await db
       .select({
         id: courses.id,
         name: courses.name,
@@ -62,10 +65,6 @@ export class GetCourse extends OpenAPIRoute {
         description: courses.description,
         degreeId: courses.degreeId,
         url: courses.url,
-        rating: sql<number>`ifnull(avg(${feedback.rating}), 0)`.as('rating'),
-        feedbackCount: sql<number>`ifnull(count(${feedback.id}), 0)`.as(
-          'feedback_count'
-        ),
         terms: courses.terms,
         assessment: courses.assessment,
         degree: {
@@ -76,18 +75,23 @@ export class GetCourse extends OpenAPIRoute {
         }
       })
       .from(courses)
-      .leftJoin(
-        feedback,
-        and(eq(courses.id, feedback.courseId), isNotNull(feedback.approvedAt))
-      )
       .leftJoin(degrees, eq(courses.degreeId, degrees.id))
       .where(eq(courses.id, courseId))
-      .groupBy(courses.id)
 
-    if (result.length === 0) {
+    if (courseResult.length === 0) {
       return Response.json({ error: 'Course not found' }, { status: 404 })
     }
 
-    return Response.json(result[0])
+    // Get aggregated feedback stats including related courses
+    const feedbackStats =
+      await courseFeedbackService.getCourseFeedbackStats(courseId)
+
+    const result = {
+      ...courseResult[0],
+      rating: feedbackStats.rating,
+      feedbackCount: feedbackStats.feedbackCount
+    }
+
+    return Response.json(result)
   }
 }

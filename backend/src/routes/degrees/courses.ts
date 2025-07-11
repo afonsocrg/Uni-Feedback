@@ -1,6 +1,7 @@
-import { courses, feedback, getDb } from '@db'
+import { courses, getDb } from '@db'
+import { CourseFeedbackService } from '@services'
 import { OpenAPIRoute } from 'chanfana'
-import { and, eq, isNotNull, sql } from 'drizzle-orm'
+import { and, eq, sql } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
 import { z } from 'zod'
 
@@ -42,6 +43,7 @@ export class GetDegreeCourses extends OpenAPIRoute {
 
   async handle(request: IRequest, env: any, context: any) {
     const db = getDb(env)
+    const courseFeedbackService = new CourseFeedbackService(db)
 
     const data = await this.getValidatedData<typeof this.schema>()
     const {
@@ -58,25 +60,28 @@ export class GetDegreeCourses extends OpenAPIRoute {
       conditions.push(eq(courses.degreeId, degreeId))
     }
 
-    // Base query with feedback join
+    // Get enhanced feedback join that includes related courses
+    const feedbackJoin = courseFeedbackService.getEnhancedFeedbackJoin()
+
+    // Base query with enhanced feedback join
     const baseQuery = db
       .select({
         id: courses.id,
         name: courses.name,
         acronym: courses.acronym,
         url: courses.url,
-        rating: sql<number>`ifnull(avg(${feedback.rating}), 0)`.as('rating'),
-        feedbackCount: sql<number>`ifnull(count(${feedback.id}), 0)`.as(
-          'feedback_count'
+        rating: sql<number>`ifnull(avg(${feedbackJoin.table.rating}), 0)`.as(
+          'rating'
         ),
+        feedbackCount:
+          sql<number>`ifnull(count(distinct ${feedbackJoin.table.id}), 0)`.as(
+            'feedback_count'
+          ),
         degreeId: courses.degreeId,
         terms: courses.terms
       })
       .from(courses)
-      .leftJoin(
-        feedback,
-        and(eq(courses.id, feedback.courseId), isNotNull(feedback.approvedAt))
-      )
+      .leftJoin(feedbackJoin.table, feedbackJoin.condition)
       .groupBy(courses.id)
 
     const query = baseQuery.where(

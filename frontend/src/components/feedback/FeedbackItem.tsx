@@ -1,8 +1,8 @@
-import { Markdown, StarRating } from '@components'
-import { Feedback } from '@services/meicFeedbackAPI'
 import { getWorkloadColor, getWorkloadLabel } from '@/lib/workload'
+import { Markdown, StarRating, Tooltip } from '@components'
+import { Feedback } from '@services/meicFeedbackAPI'
 import { motion } from 'framer-motion'
-import { Clock } from 'lucide-react'
+import { Clock, GraduationCap } from 'lucide-react'
 
 interface FeedbackItemProps {
   feedback: Feedback
@@ -35,6 +35,16 @@ export function FeedbackItem({ feedback, variants }: FeedbackItemProps) {
                 Workload: ({feedback.workloadRating}/5){' '}
                 {getWorkloadLabel(feedback.workloadRating)}
               </div>
+            )}
+            {feedback.isFromDifferentCourse && (
+              <Tooltip
+                content={`Feedback submitted by a student from ${feedback.degree.name}`}
+              >
+                <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border border-blue-200 bg-blue-50 text-blue-700">
+                  <GraduationCap className="w-3 h-3 mr-1.5" />
+                  {feedback.degree.acronym}
+                </div>
+              </Tooltip>
             )}
           </div>
           <span className="text-gray-400 text-sm">

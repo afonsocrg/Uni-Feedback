@@ -1,6 +1,7 @@
 export * from './course'
 export * from './courseGroup'
 export * from './courseGroupsCourses'
+export * from './courseRelationship'
 export * from './degree'
 export * from './faculty'
 export * from './feedback'

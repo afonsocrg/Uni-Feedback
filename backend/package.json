@@ -12,13 +12,15 @@
     "tail": "wrangler tail",
     "backup": "./backup_database.sh",
     "backup-local": "./backup_database.sh --local",
-    "backup-remote": "./backup_database.sh --remote"
+    "backup-remote": "./backup_database.sh --remote",
+    "type-check": "tsc --noEmit",
+    "type-check-relaxed": "tsc --noEmit --skipLibCheck"
   },
   "dependencies": {
     "@oslojs/crypto": "^1.0.1",
     "@oslojs/encoding": "^1.1.0",
     "@types/better-sqlite3": "^7.6.13",
-    "@types/node": "^22.16.0",
+    "@types/node": "^22.16.2",
     "@uidotdev/usehooks": "^2.4.1",
     "better-sqlite3": "^11.10.0",
     "chanfana": "^2.8.1",
@@ -31,12 +33,12 @@
     "uuid": "^9.0.1"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20250705.0",
+    "@cloudflare/workers-types": "^4.20250710.0",
     "@types/speakeasy": "latest",
     "@types/uuid": "^10.0.0",
     "drizzle-kit": "^0.30.6",
     "tsx": "^4.20.3",
     "typescript": "^5.8.3",
-    "wrangler": "^4.23.0"
+    "wrangler": "^4.24.0"
   }
 }

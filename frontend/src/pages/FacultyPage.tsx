@@ -10,9 +10,9 @@ import {
   SelectionCard,
   WarningAlert
 } from '@components'
-import { Button } from '@components/ui/button'
 import { useFacultyDegrees, useUrlNavigation } from '@hooks'
 import type { Degree } from '@services/meicFeedbackAPI'
+import { Button } from '@ui/button'
 import { BookOpen, Loader2, MessageSquare } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -139,7 +139,7 @@ export function FacultyPage() {
                       subtitle={degree.acronym}
                       onClick={() => handleDegreeSelect(degree)}
                     >
-                      <div className="flex items-center gap-4 text-sm text-gray-600 mt-auto">
+                      <div className="flex flex-wrap items-center gap-2 text-sm text-gray-600 mt-auto">
                         <div className="flex items-center gap-1">
                           <BookOpen className="w-4 h-4" />
                           <span>{degree.courseCount ?? 0} courses</span>

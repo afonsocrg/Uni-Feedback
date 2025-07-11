@@ -51,4 +51,15 @@ export interface Feedback {
   workloadRating: number
   comment?: string
   createdAt: string
+  course: {
+    id: number
+    name: string
+    acronym: string
+  }
+  degree: {
+    id: number
+    name: string
+    acronym: string
+  }
+  isFromDifferentCourse: boolean
 }

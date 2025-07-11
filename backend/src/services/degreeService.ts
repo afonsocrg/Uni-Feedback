@@ -1,15 +1,20 @@
-import { courses, degrees, faculties, feedback } from '@db'
-import { and, eq, isNotNull, sql } from 'drizzle-orm'
+import { courses, degrees, faculties, feedback, type Database } from '@db'
+import { and, eq, sql } from 'drizzle-orm'
 import { DrizzleD1Database } from 'drizzle-orm/d1'
 import type { DegreeWithCounts, GetDegreesOptions } from '@types'
+import { CourseFeedbackService } from './courseFeedbackService'
 
 export class DegreeService {
-  constructor(private db: DrizzleD1Database) {}
+  constructor(private db: DrizzleD1Database<Database>) {}
 
   async getDegreesWithCounts(
     options: GetDegreesOptions = {}
   ): Promise<DegreeWithCounts[]> {
     const { facultyId, facultyShortName, onlyWithCourses = true } = options
+    const courseFeedbackService = new CourseFeedbackService(this.db)
+
+    // Use the centralized enhanced feedback join logic
+    const feedbackJoin = courseFeedbackService.getEnhancedFeedbackJoin()
 
     let baseQuery = this.db
       .select({
@@ -21,16 +26,14 @@ export class DegreeService {
         courseCount: sql<number>`ifnull(count(distinct ${courses.id}), 0)`.as(
           'course_count'
         ),
-        feedbackCount: sql<number>`ifnull(count(${feedback.id}), 0)`.as(
-          'feedback_count'
-        )
+        feedbackCount:
+          sql<number>`ifnull(count(distinct ${feedbackJoin.table.id}), 0)`.as(
+            'feedback_count'
+          )
       })
       .from(degrees)
       .leftJoin(courses, eq(courses.degreeId, degrees.id))
-      .leftJoin(
-        feedback,
-        and(eq(courses.id, feedback.courseId), isNotNull(feedback.approvedAt))
-      )
+      .leftJoin(feedbackJoin.table, feedbackJoin.condition)
 
     // Filter by faculty ID if provided
     if (facultyId) {

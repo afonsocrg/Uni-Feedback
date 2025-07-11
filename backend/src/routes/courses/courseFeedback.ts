@@ -1,6 +1,7 @@
-import { feedback, getDb } from '@db'
+import { getDb, feedback } from '@db'
+import { CourseFeedbackService, CourseService } from '@services'
 import { OpenAPIRoute } from 'chanfana'
-import { and, desc, eq, isNotNull } from 'drizzle-orm'
+import { desc } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
 import { z } from 'zod'
 
@@ -11,7 +12,18 @@ const FeedbackSchema = z.object({
   workloadRating: z.number(),
   comment: z.string().nullable(),
   schoolYear: z.number(),
-  createdAt: z.string()
+  createdAt: z.string(),
+  course: z.object({
+    id: z.number(),
+    name: z.string(),
+    acronym: z.string()
+  }),
+  degree: z.object({
+    id: z.number(),
+    name: z.string(),
+    acronym: z.string()
+  }),
+  isFromDifferentCourse: z.boolean()
 })
 
 export class GetCourseFeedback extends OpenAPIRoute {
@@ -42,26 +54,23 @@ export class GetCourseFeedback extends OpenAPIRoute {
   async handle(request: IRequest, env: any, context: any) {
     const db = getDb(env)
     const courseId = parseInt(request.params.id)
+    const courseFeedbackService = new CourseFeedbackService(db)
+    const courseService = new CourseService(db)
 
-    const result = await db
-      .select({
-        id: feedback.id,
-        courseId: feedback.courseId,
-        rating: feedback.rating,
-        workloadRating: feedback.workloadRating,
-        comment: feedback.comment,
-        schoolYear: feedback.schoolYear,
-        createdAt: feedback.createdAt
-      })
-      .from(feedback)
-      .where(
-        and(
-          eq(feedback.courseId, courseId),
-          isNotNull(feedback.approvedAt)
-          // isNotNull(feedback.comment)
-        )
-      )
+    // First validate that the course exists
+    if (!(await courseService.courseExists(courseId))) {
+      return Response.json({ error: 'Course not found' }, { status: 404 })
+    }
+
+    const feedbackData = await courseFeedbackService
+      .getCourseFeedbackWithDetails(courseId)
       .orderBy(desc(feedback.createdAt))
+
+    // Convert SQLite number (0/1) to proper boolean
+    const result = feedbackData.map((item) => ({
+      ...item,
+      isFromDifferentCourse: Boolean(item.isFromDifferentCourse)
+    }))
 
     return Response.json(result)
   }
