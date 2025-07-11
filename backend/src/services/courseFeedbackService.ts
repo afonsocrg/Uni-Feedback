@@ -1,4 +1,10 @@
-import { courseRelationships, courses, degrees, feedback, type Database } from '@db'
+import {
+  courseRelationships,
+  courses,
+  degrees,
+  feedback,
+  type Database
+} from '@db'
 import { and, eq, isNotNull, or, sql, inArray } from 'drizzle-orm'
 import { DrizzleD1Database } from 'drizzle-orm/d1'
 

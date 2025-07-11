@@ -1,8 +1,11 @@
 import { getWorkloadColor, getWorkloadLabel } from '@/lib/workload'
+import { getTruncatedText } from '@/lib/textUtils'
 import { Markdown, StarRating, Tooltip } from '@components'
 import { Feedback } from '@services/meicFeedbackAPI'
+import { Button } from '@ui'
 import { motion } from 'framer-motion'
 import { Clock, GraduationCap } from 'lucide-react'
+import { useState } from 'react'
 
 interface FeedbackItemProps {
   feedback: Feedback
@@ -17,6 +20,11 @@ interface FeedbackItemProps {
 }
 
 export function FeedbackItem({ feedback, variants }: FeedbackItemProps) {
+  const [isExpanded, setIsExpanded] = useState(false)
+  const characterLimit = 600
+  const isLongComment =
+    feedback.comment && feedback.comment.length > characterLimit
+
   return (
     <motion.div
       variants={variants}
@@ -56,30 +64,44 @@ export function FeedbackItem({ feedback, variants }: FeedbackItemProps) {
       {/* Comment section */}
       {feedback.comment ? (
         <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed">
-          <Markdown
-            components={{
-              h1: ({ ...props }) => (
-                <h1
-                  {...props}
-                  className="text-xl font-semibold text-gray-900 mt-4 mb-3"
-                />
-              ),
-              h2: ({ ...props }) => (
-                <h2
-                  {...props}
-                  className="text-lg font-semibold text-gray-900 mt-3 mb-2"
-                />
-              ),
-              h3: ({ ...props }) => (
-                <h3
-                  {...props}
-                  className="text-lg font-semibold text-gray-900 mt-2 mb-1"
-                />
-              )
-            }}
-          >
-            {feedback.comment}
-          </Markdown>
+          <div className="transition-all duration-300 ease-in-out">
+            <Markdown
+              components={{
+                h1: ({ ...props }) => (
+                  <h1
+                    {...props}
+                    className="text-xl font-semibold text-gray-900 mt-4 mb-3"
+                  />
+                ),
+                h2: ({ ...props }) => (
+                  <h2
+                    {...props}
+                    className="text-lg font-semibold text-gray-900 mt-3 mb-2"
+                  />
+                ),
+                h3: ({ ...props }) => (
+                  <h3
+                    {...props}
+                    className="text-lg font-semibold text-gray-900 mt-2 mb-1"
+                  />
+                )
+              }}
+            >
+              {isLongComment && !isExpanded
+                ? getTruncatedText(feedback.comment, characterLimit) + '...'
+                : feedback.comment}
+            </Markdown>
+          </div>
+          {isLongComment && (
+            <Button
+              variant="link"
+              size="sm"
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="mt-3 p-0 h-auto text-sm"
+            >
+              {isExpanded ? 'Show less' : 'Show more'}
+            </Button>
+          )}
         </div>
       ) : (
         <p className="text-gray-500 italic text-sm">
