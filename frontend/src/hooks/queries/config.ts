@@ -8,7 +8,7 @@ export const infrequentDataConfig = {
 }
 
 export const frequentDataConfig = {
-  staleTime: 10 * MINUTE,
+  staleTime: 1 * MINUTE,
   refetchOnMount: true,
   refetchOnWindowFocus: true,
   refetchOnReconnect: true
