@@ -18,6 +18,7 @@ const FacultyDetailsResponseSchema = z.object({
   name: z.string(),
   short_name: z.string(),
   url: z.string(),
+  emailSuffixes: z.array(z.string()).optional(),
   degrees: z.array(DegreeSchema)
 })
 
@@ -59,7 +60,8 @@ export class GetFacultyDetails extends OpenAPIRoute {
         id: faculties.id,
         name: faculties.name,
         short_name: faculties.shortName,
-        url: faculties.url
+        url: faculties.url,
+        emailSuffixes: faculties.emailSuffixes
       })
       .from(faculties)
       .where(eq(faculties.id, facultyId))

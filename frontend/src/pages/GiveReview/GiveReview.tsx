@@ -7,6 +7,7 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   useDegreeCourses,
+  useFaculties,
   useFacultyDegrees,
   useSelectedFacultyDegree,
   useSubmitFeedback
@@ -31,6 +32,7 @@ export function GiveReview() {
   const selectedFacultyId = contextFaculty?.id ?? null
   const selectedDegreeId = contextDegree?.id ?? null
   const submitFeedbackMutation = useSubmitFeedback()
+  const { data: faculties } = useFaculties()
 
   const [searchParams] = useSearchParams()
   const schoolYears = useMemo(
@@ -218,6 +220,25 @@ export function GiveReview() {
         message: 'Please select a course'
       })
       return
+    }
+
+    // Validate email suffix against selected faculty
+    if (localFacultyId && faculties) {
+      const selectedFaculty = faculties.find((f) => f.id === localFacultyId)
+      if (
+        selectedFaculty?.emailSuffixes &&
+        selectedFaculty.emailSuffixes.length > 0
+      ) {
+        const isValidEmail = selectedFaculty.emailSuffixes.some((suffix) =>
+          values.email.endsWith(suffix)
+        )
+        if (!isValidEmail) {
+          form.setError('email', {
+            message: 'Please enter your university email address'
+          })
+          return
+        }
+      }
     }
 
     setIsSubmitting(true)

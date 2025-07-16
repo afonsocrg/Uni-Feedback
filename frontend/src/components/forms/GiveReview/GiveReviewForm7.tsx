@@ -1,4 +1,4 @@
-import { getWorkloadLabel, getWorkloadColor } from '@/lib/workload'
+import { getWorkloadColor, getWorkloadLabel } from '@/lib/workload'
 import { Faculty } from '@/services/meicFeedbackAPI'
 import { MarkdownTextarea, StarRatingWithLabel } from '@components'
 import { useFaculties, useFacultyDegrees } from '@hooks'
@@ -529,15 +529,17 @@ export function GiveReviewForm7({
                                 >
                                   <SelectTrigger className="w-full bg-white min-h-[40px]">
                                     <SelectValue placeholder="Select workload rating">
-                                      {field.value && (
+                                      {field.value ? (
                                         <div
-                                          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getWorkloadColor(field.value)}`}
+                                          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getWorkloadColor(
+                                            field.value
+                                          )}`}
                                         >
                                           <Clock className="w-3 h-3 mr-1.5" />
                                           Workload: ({field.value}/5){' '}
                                           {getWorkloadLabel(field.value)}
                                         </div>
-                                      )}
+                                      ) : null}
                                     </SelectValue>
                                   </SelectTrigger>
                                   <SelectContent>
@@ -549,7 +551,9 @@ export function GiveReviewForm7({
                                           value={rating.toString()}
                                         >
                                           <div
-                                            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getWorkloadColor(rating)}`}
+                                            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getWorkloadColor(
+                                              rating
+                                            )}`}
                                           >
                                             <Clock className="w-3 h-3 mr-1.5" />
                                             Workload: ({rating}/5){' '}

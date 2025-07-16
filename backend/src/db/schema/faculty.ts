@@ -5,6 +5,7 @@ export const faculties = sqliteTable('faculties', {
   name: text('name').notNull(),
   shortName: text('short_name').notNull(),
   url: text('url').notNull(),
+  emailSuffixes: text('email_suffixes', { mode: 'json' }),
   createdAt: integer('created_at', { mode: 'timestamp' }).$defaultFn(
     () => new Date()
   ),

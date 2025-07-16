@@ -2,17 +2,7 @@ import { getRequiredFields, isFieldRequired } from '@utils/forms'
 import { z } from 'zod'
 
 export const formSchema = z.object({
-  email: z
-    .string()
-    .email()
-    .refine(
-      (email) =>
-        email.endsWith('@tecnico.ulisboa.pt') ||
-        email.endsWith('@ist.utl.pt') ||
-        email.endsWith('@novasbe.pt') ||
-        email.endsWith('@fct.unl.p'),
-      'Please enter your university email address'
-    ),
+  email: z.string().email(),
   schoolYear: z.number().min(2020).max(3050),
   facultyId: z.number(),
   degreeId: z.number(),

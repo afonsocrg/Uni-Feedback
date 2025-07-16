@@ -1,5 +1,6 @@
 import { faculties, getDb } from '@db'
 import { OpenAPIRoute } from 'chanfana'
+import { eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
 import { z } from 'zod'
 
@@ -7,7 +8,8 @@ const FacultyResponseSchema = z.object({
   id: z.number(),
   name: z.string(),
   short_name: z.string(),
-  url: z.string()
+  url: z.string(),
+  emailSuffixes: z.array(z.string()).optional()
 })
 
 export class GetFaculties extends OpenAPIRoute {
@@ -42,7 +44,8 @@ export class GetFaculties extends OpenAPIRoute {
         id: faculties.id,
         name: faculties.name,
         short_name: faculties.shortName,
-        url: faculties.url
+        url: faculties.url,
+        emailSuffixes: faculties.emailSuffixes
       })
       .from(faculties)
 

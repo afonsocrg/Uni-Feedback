@@ -3,6 +3,7 @@ export interface Faculty {
   name: string
   short_name: string
   url: string
+  emailSuffixes?: string[]
 }
 
 export interface FacultyDetails extends Faculty {
