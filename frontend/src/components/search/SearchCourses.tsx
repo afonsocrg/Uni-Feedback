@@ -75,8 +75,8 @@ export function SearchCourses({
               {isExpanded
                 ? 'Hide Filters'
                 : hasActiveFilters
-                ? 'Filters Active'
-                : 'Show Filters'}
+                  ? 'Filters Active'
+                  : 'Show Filters'}
             </span>
             {hasActiveFilters && !isExpanded && (
               <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-medium bg-primaryBlue text-white rounded-full">

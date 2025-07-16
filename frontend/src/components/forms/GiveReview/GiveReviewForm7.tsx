@@ -1,4 +1,4 @@
-import { getWorkloadLabel } from '@/lib/workload'
+import { getWorkloadLabel, getWorkloadColor } from '@/lib/workload'
 import { Faculty } from '@/services/meicFeedbackAPI'
 import { MarkdownTextarea, StarRatingWithLabel } from '@components'
 import { useFaculties, useFacultyDegrees } from '@hooks'
@@ -40,6 +40,7 @@ import { motion } from 'framer-motion'
 import {
   Check,
   ChevronsUpDown,
+  Clock,
   HelpCircle,
   Lightbulb,
   Loader2,
@@ -520,13 +521,45 @@ export function GiveReviewForm7({
                                   )}
                               </FormLabel>
                               <FormControl>
-                                <StarRatingWithLabel
-                                  value={field.value}
-                                  onChange={field.onChange}
-                                  size="lg"
-                                  labelFunction={getWorkloadLabel}
-                                  labelPosition="bottom"
-                                />
+                                <Select
+                                  onValueChange={(val) =>
+                                    field.onChange(Number(val))
+                                  }
+                                  value={field.value?.toString() || ''}
+                                >
+                                  <SelectTrigger className="w-full bg-white min-h-[40px]">
+                                    <SelectValue placeholder="Select workload rating">
+                                      {field.value && (
+                                        <div
+                                          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getWorkloadColor(field.value)}`}
+                                        >
+                                          <Clock className="w-3 h-3 mr-1.5" />
+                                          Workload: ({field.value}/5){' '}
+                                          {getWorkloadLabel(field.value)}
+                                        </div>
+                                      )}
+                                    </SelectValue>
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectGroup>
+                                      <SelectLabel>Workload Rating</SelectLabel>
+                                      {[1, 2, 3, 4, 5].map((rating) => (
+                                        <SelectItem
+                                          key={rating}
+                                          value={rating.toString()}
+                                        >
+                                          <div
+                                            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getWorkloadColor(rating)}`}
+                                          >
+                                            <Clock className="w-3 h-3 mr-1.5" />
+                                            Workload: ({rating}/5){' '}
+                                            {getWorkloadLabel(rating)}
+                                          </div>
+                                        </SelectItem>
+                                      ))}
+                                    </SelectGroup>
+                                  </SelectContent>
+                                </Select>
                               </FormControl>
                               <FormMessage />
                             </FormItem>

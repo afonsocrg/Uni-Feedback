@@ -38,7 +38,9 @@ export function CourseHeader({ course }: CourseHeaderProps) {
 
   return (
     <>
-      <h1 className="text-3xl font-bold text-primaryBlue mb-4">{course.name}</h1>
+      <h1 className="text-3xl font-bold text-primaryBlue mb-4">
+        {course.name}
+      </h1>
 
       <div className="flex items-center gap-4 mb-6 flex-wrap">
         <p className="text-gray-600">{course.acronym}</p>
