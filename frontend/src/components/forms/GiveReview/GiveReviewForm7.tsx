@@ -53,13 +53,13 @@ import { GiveReviewProps } from './types'
 import { VoiceFeedbackDialog } from './VoiceFeedbackDialog'
 
 function getEmailPlaceHolder(selectedFaculty: Faculty | null) {
-  switch (selectedFaculty?.short_name) {
-    case 'IST':
-      return 'your.email@tecnico.ulisboa.pt'
-    case 'Nova SBE':
-      return 'xxxxx@novasbe.pt'
-    case 'FCT':
-      return 'your.email@fct.unl.pt'
+  if (
+    selectedFaculty?.emailSuffixes &&
+    selectedFaculty.emailSuffixes.length > 0
+  ) {
+    // Use the first email suffix as the placeholder
+    const firstSuffix = selectedFaculty.emailSuffixes[0]
+    return `your.email${firstSuffix}`
   }
   return 'your.email@university.com'
 }
