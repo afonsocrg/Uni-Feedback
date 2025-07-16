@@ -20,7 +20,7 @@
     "@oslojs/crypto": "^1.0.1",
     "@oslojs/encoding": "^1.1.0",
     "@types/better-sqlite3": "^7.6.13",
-    "@types/node": "^22.16.2",
+    "@types/node": "^22.16.3",
     "@uidotdev/usehooks": "^2.4.1",
     "better-sqlite3": "^11.10.0",
     "chanfana": "^2.8.1",
@@ -33,12 +33,12 @@
     "uuid": "^9.0.1"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20250710.0",
+    "@cloudflare/workers-types": "^4.20250712.0",
     "@types/speakeasy": "latest",
     "@types/uuid": "^10.0.0",
     "drizzle-kit": "^0.30.6",
     "tsx": "^4.20.3",
     "typescript": "^5.8.3",
-    "wrangler": "^4.24.0"
+    "wrangler": "^4.24.3"
   }
 }

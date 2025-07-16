@@ -8,6 +8,8 @@ export const degrees = sqliteTable('degrees', {
   name: text('name').notNull(),
   acronym: text('acronym').notNull(),
   campus: text('campus').notNull(), // This field may be removed later. It may be too specific
+  description: text('description'),
+  url: text('url'),
   facultyId: integer('faculty_id').references(() => faculties.id),
   createdAt: integer('created_at', { mode: 'timestamp' }).$defaultFn(
     () => new Date()

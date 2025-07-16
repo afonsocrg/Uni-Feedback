@@ -17,13 +17,15 @@ export const courses = sqliteTable('courses', {
   terms: text('terms', { mode: 'json' }),
   description: text('description'),
   url: text('url'),
+  bibliography: text('bibliography'),
   createdAt: integer('created_at', { mode: 'timestamp' }).$defaultFn(
     () => new Date()
   ),
   updatedAt: integer('updated_at', { mode: 'timestamp' }).$defaultFn(
     () => new Date()
   ),
-  assessment: text('assessment')
+  assessment: text('assessment'),
+  hasMandatoryExam: integer('has_mandatory_exam', { mode: 'boolean' })
 })
 
 export type Course = typeof courses.$inferSelect
