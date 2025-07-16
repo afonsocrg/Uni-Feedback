@@ -25,7 +25,7 @@ export function WorkloadRating({ rating, onChange }: WorkloadRatingProps) {
             value={index + 1}
             checked={rating === index + 1}
             onChange={() => onChange(index + 1)}
-            className="h-4 w-4 text-istBlue focus:ring-istBlue border-gray-300"
+            className="h-4 w-4 text-primaryBlue focus:ring-primaryBlue border-gray-300"
           />
           <span className="text-gray-700">{label}</span>
         </label>

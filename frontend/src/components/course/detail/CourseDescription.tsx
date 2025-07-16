@@ -20,7 +20,7 @@ export function CourseDescription({ course }: CourseDescriptionProps) {
             href={getEditDescriptionFormUrl(course)}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-istBlue underline hover:no-underline"
+            className="text-primaryBlue underline hover:no-underline"
           >
             Be the first to add one!
           </a>

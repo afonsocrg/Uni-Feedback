@@ -20,7 +20,7 @@ export function HeroSection({ showBreadcrumb = false }: HeroSectionProps) {
           </div>
         )}
         <div className="flex flex-col items-center text-center">
-          <h1 className="text-2xl md:text-4xl font-extrabold text-istBlue mb-2 md:mb-4">
+          <h1 className="text-2xl md:text-4xl font-extrabold text-primaryBlue mb-2 md:mb-4">
             Find the best {degree?.acronym ?? faculty?.short_name ?? 'Uni'}{' '}
             courses
           </h1>

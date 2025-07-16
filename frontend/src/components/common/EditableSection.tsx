@@ -27,7 +27,7 @@ export function EditableSection({
           <Tooltip content={editTooltip}>
             <button
               onClick={() => window.open(getEditUrl(), '_blank')}
-              className="flex items-center justify-center text-gray-400 hover:text-istBlue transition-colors"
+              className="flex items-center justify-center text-gray-400 hover:text-primaryBlue transition-colors"
               aria-label={`Edit ${title.toLowerCase()}`}
             >
               <Pencil className="w-4 h-4" />

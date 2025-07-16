@@ -39,7 +39,7 @@ export function ReviewSubmitSuccess({
             already available on the{' '}
             <Link
               to={getCoursePath(selectedCourse)}
-              className="cursor-pointer underline text-istBlue hover:text-istBlue/80"
+              className="cursor-pointer underline text-primaryBlue hover:text-primaryBlue/80"
             >
               course page
             </Link>

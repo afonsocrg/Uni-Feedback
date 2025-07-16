@@ -36,7 +36,7 @@ export function SearchDegrees({
               id="search"
               type="text"
               placeholder="Search by name or acronym..."
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-istBlue focus:border-transparent bg-gray-50 text-gray-700 transition"
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primaryBlue focus:border-transparent bg-gray-50 text-gray-700 transition"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />

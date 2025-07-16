@@ -347,7 +347,7 @@ export function GiveReviewForm6({
                   />
                   {selectedCourse && (
                     <Link to={getCoursePath(selectedCourse)} target="_blank">
-                      <ExternalLink className="size-3 text-istBlue hover:text-istBlue/80" />
+                      <ExternalLink className="size-3 text-primaryBlue hover:text-primaryBlue/80" />
                     </Link>
                   )}
                 </div>
@@ -436,7 +436,7 @@ export function GiveReviewForm6({
                         <Link
                           to="https://www.markdownguide.org/basic-syntax/"
                           target="_blank"
-                          className="underline text-istBlue hover:text-istBlue/80"
+                          className="underline text-primaryBlue hover:text-primaryBlue/80"
                         >
                           Learn more
                         </Link>

@@ -223,7 +223,7 @@ export function GiveReviewForm3({
                       <Link
                         to="https://www.markdownguide.org/basic-syntax/"
                         target="_blank"
-                        className="underline text-istBlue hover:text-istBlue/80"
+                        className="underline text-primaryBlue hover:text-primaryBlue/80"
                       >
                         Learn more
                       </Link>

@@ -38,7 +38,7 @@ export function DegreePage() {
         <HeroSection showBreadcrumb />
         <div className="container mx-auto px-4 py-8">
           <div className="flex flex-col items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-istBlue" />
+            <Loader2 className="h-8 w-8 animate-spin text-primaryBlue" />
             <p className="mt-4 text-gray-600">Loading courses...</p>
           </div>
         </div>

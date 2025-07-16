@@ -7,15 +7,15 @@
 - **Know what to expect before enrolling** — avoid bad courses, find the best ones for you.
 - **Share your own experience** — help other students make informed decisions. Your review is always anonymous.
 
-👉 [Explore course ratings and reviews](https://istfeedback.com)
+👉 [Explore course ratings and reviews](https://uni-feedback.com)
 
-![istfeedback.com](./website_screenshot.png)
+![uni-feedback.com](./website_screenshot.png)
 
 ---
 
 ❤️ **Finding this platform useful?**
 
-[Give your anonymous review](https://istfeedback.com/feedback/new) on the courses you took. Other students will thank you!
+[Give your anonymous review](https://uni-feedback.com/feedback/new) on the courses you took. Other students will thank you!
 
 ## Contributing
 

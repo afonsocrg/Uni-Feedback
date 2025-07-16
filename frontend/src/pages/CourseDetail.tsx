@@ -82,9 +82,9 @@ export function CourseDetail() {
     'px-4 py-2 cursor-pointer',
     'font-medium',
     'rounded-none border-b-2 border-transparent',
-    'data-[state=active]:border-b-istBlue data-[state=active]:text-istBlue',
+    'data-[state=active]:border-b-primaryBlue data-[state=active]:text-primaryBlue',
     'data-[state=active]:bg-transparent data-[state=active]:shadow-none',
-    'hover:text-istBlue'
+    'hover:text-primaryBlue'
   )
 
   return (

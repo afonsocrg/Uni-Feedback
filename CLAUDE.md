@@ -33,7 +33,7 @@ bun run db         # Open Drizzle Studio
 ## Project Structure
 
 ```
-ist-feedback/
+uni-feedback/
 ├── frontend/          # React application
 ├── backend/           # Cloudflare Workers API
 ├── afonsocrg/         # Documentation and project data

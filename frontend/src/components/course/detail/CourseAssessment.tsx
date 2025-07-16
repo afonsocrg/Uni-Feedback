@@ -20,7 +20,7 @@ export function CourseAssessment({ course }: CourseAssessmentProps) {
             href={getAssessmentFormUrl(course)}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-istBlue underline hover:no-underline"
+            className="text-primaryBlue underline hover:no-underline"
           >
             Be the first to add one!
           </a>

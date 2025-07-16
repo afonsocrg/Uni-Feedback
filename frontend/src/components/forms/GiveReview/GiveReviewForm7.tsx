@@ -1,5 +1,5 @@
-import { Faculty } from '@/services/meicFeedbackAPI'
 import { getWorkloadLabel } from '@/lib/workload'
+import { Faculty } from '@/services/meicFeedbackAPI'
 import { MarkdownTextarea, StarRatingWithLabel } from '@components'
 import { useFaculties, useFacultyDegrees } from '@hooks'
 import { formatSchoolYearString } from '@lib/schoolYear'
@@ -132,15 +132,15 @@ export function GiveReviewForm7({
 
             {/* Voice Feedback Feature */}
             <div className="mb-6">
-              <div className="w-full p-3 bg-istBlue/5 border border-istBlue/20 rounded-md flex justify-start items-center gap-3">
-                <Mic className="w-6 h-6 sm:w-5 sm:h-5 text-istBlue flex-shrink-0" />
+              <div className="w-full p-3 bg-primaryBlue/5 border border-primaryBlue/20 rounded-md flex justify-start items-center gap-3">
+                <Mic className="w-6 h-6 sm:w-5 sm:h-5 text-primaryBlue flex-shrink-0" />
                 <div className="text-sm text-wrap text-start">
                   <span className="text-gray-700">
                     You can now submit your feedback by sending us a voice
                     message.{' '}
                   </span>
                   <span
-                    className="font-medium text-istBlue underline cursor-pointer"
+                    className="font-medium text-primaryBlue underline cursor-pointer"
                     onClick={() => setIsVoiceFeedbackDialogOpen(true)}
                   >
                     Learn more!
@@ -152,9 +152,9 @@ export function GiveReviewForm7({
             {/* Loading Indicator */}
             {isInitialLoading && (
               <div className="mb-6">
-                <div className="w-full p-3 bg-istBlue/5 border border-blue-200 rounded-md flex items-center gap-3">
-                  <Loader2 className="h-5 w-5 animate-spin text-istBlue flex-shrink-0" />
-                  <span className="text-sm text-istBlue">
+                <div className="w-full p-3 bg-primaryBlue/5 border border-blue-200 rounded-md flex items-center gap-3">
+                  <Loader2 className="h-5 w-5 animate-spin text-primaryBlue flex-shrink-0" />
+                  <span className="text-sm text-primaryBlue">
                     Loading form data...
                   </span>
                 </div>

@@ -1,6 +1,6 @@
 {
   "name": "Uni Feedback",
-  "short_name": "ISTFeedback",
+  "short_name": "Uni Feedback",
   "icons": [
     {
       "src": "/web-app-manifest-192x192.png",
@@ -15,7 +15,7 @@
       "purpose": "maskable"
     }
   ],
-  "theme_color": "#009de0",
-  "background_color": "#009de0",
+  "theme_color": "#23729f",
+  "background_color": "#ffffff",
   "display": "standalone"
 }

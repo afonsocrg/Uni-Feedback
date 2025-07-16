@@ -12,11 +12,11 @@ export function ActionButton({
 }: ActionButtonProps) {
   const buttonClasses =
     variant === 'primary'
-      ? 'bg-istBlue hover:bg-istBlue/80 text-white'
-      : 'bg-white border-2 border-istBlue text-istBlue hover:bg-istBlue hover:text-white'
+      ? 'bg-primaryBlue hover:bg-primaryBlue/80 text-white'
+      : 'bg-white border-2 border-primaryBlue text-primaryBlue hover:bg-primaryBlue hover:text-white'
 
   const commonClasses =
-    'font-semibold py-2 md:py-3 w-full max-w-[180px] rounded-lg shadow transition-all text-lg focus:outline-none focus:ring-2 focus:ring-istBlue focus:ring-offset-2 cursor-pointer'
+    'font-semibold py-2 md:py-3 w-full max-w-[180px] rounded-lg shadow transition-all text-lg focus:outline-none focus:ring-2 focus:ring-primaryBlue focus:ring-offset-2 cursor-pointer'
 
   return (
     <div className="flex flex-col items-center w-full max-w-[180px]">

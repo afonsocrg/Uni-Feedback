@@ -25,7 +25,9 @@ export function VoiceFeedbackDialog({
     'whatsapp' | 'telegram'
   >('whatsapp')
   const telegramBotUrl = 'https://t.me/istfeedback_bot'
-  const whatsappUrl = `https://wa.me/${import.meta.env.VITE_WHATSAPP_BOT_NUMBER}`
+  const whatsappUrl = `https://wa.me/${
+    import.meta.env.VITE_WHATSAPP_BOT_NUMBER
+  }`
 
   const whatsappWarningMessage =
     'WhatsApp messages go directly to our team (no bot yet) - may take longer to process'
@@ -40,8 +42,8 @@ export function VoiceFeedbackDialog({
           {/* Header */}
           <div className="text-center">
             <div className="flex justify-center mb-3">
-              <div className="p-3 bg-istBlue/10 rounded-full">
-                <Mic className="w-6 h-6 text-istBlue" />
+              <div className="p-3 bg-primaryBlue/10 rounded-full">
+                <Mic className="w-6 h-6 text-primaryBlue" />
               </div>
             </div>
             <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
@@ -60,21 +62,21 @@ export function VoiceFeedbackDialog({
             </h3>
             <div className="space-y-2">
               <div className="flex items-start gap-2 sm:gap-3">
-                <Volume2 className="w-4 h-4 sm:w-4 sm:h-4 text-istBlue mt-0.5 flex-shrink-0" />
+                <Volume2 className="w-4 h-4 sm:w-4 sm:h-4 text-primaryBlue mt-0.5 flex-shrink-0" />
                 <div className="text-xs sm:text-sm text-gray-600">
                   <span className="font-medium">Record:</span> Send us a voice
                   message telling us about a course you took
                 </div>
               </div>
               <div className="flex items-start gap-2 sm:gap-3">
-                <FileText className="w-4 h-4 sm:w-4 sm:h-4 text-istBlue mt-0.5 flex-shrink-0" />
+                <FileText className="w-4 h-4 sm:w-4 sm:h-4 text-primaryBlue mt-0.5 flex-shrink-0" />
                 <div className="text-xs sm:text-sm text-gray-600">
                   <span className="font-medium">Process:</span> We'll create a
                   feedback draft based on your audio
                 </div>
               </div>
               <div className="flex items-start gap-2 sm:gap-3">
-                <CheckCircle className="w-4 h-4 sm:w-4 sm:h-4 text-istBlue mt-0.5 flex-shrink-0" />
+                <CheckCircle className="w-4 h-4 sm:w-4 sm:h-4 text-primaryBlue mt-0.5 flex-shrink-0" />
                 <div className="text-xs sm:text-sm text-gray-600">
                   <span className="font-medium">Submit:</span> We'll send you a
                   link for you to validate and submit your feedback
@@ -98,7 +100,7 @@ export function VoiceFeedbackDialog({
                       window.open(whatsappUrl, '_blank')
                       onClose()
                     }}
-                    className="bg-istBlue hover:bg-istBlue/90 text-white text-xs flex-1"
+                    className="bg-primaryBlue hover:bg-primaryBlue/90 text-white text-xs flex-1"
                     size="sm"
                   >
                     <FaWhatsapp className="w-3 h-3 mr-1" />
@@ -113,7 +115,7 @@ export function VoiceFeedbackDialog({
                       window.open(telegramBotUrl, '_blank')
                       onClose()
                     }}
-                    className="bg-istBlue hover:bg-istBlue/90 text-white text-xs flex-1"
+                    className="bg-primaryBlue hover:bg-primaryBlue/90 text-white text-xs flex-1"
                     size="sm"
                   >
                     <FaTelegram className="w-3 h-3 mr-1" />
@@ -133,7 +135,7 @@ export function VoiceFeedbackDialog({
                     onClick={() => setSelectedPlatform('whatsapp')}
                     className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium transition-colors ${
                       selectedPlatform === 'whatsapp'
-                        ? 'bg-istBlue text-white'
+                        ? 'bg-primaryBlue text-white'
                         : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
                     }`}
                   >
@@ -147,7 +149,7 @@ export function VoiceFeedbackDialog({
                     onClick={() => setSelectedPlatform('telegram')}
                     className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium transition-colors ${
                       selectedPlatform === 'telegram'
-                        ? 'bg-istBlue text-white'
+                        ? 'bg-primaryBlue text-white'
                         : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
                     }`}
                   >

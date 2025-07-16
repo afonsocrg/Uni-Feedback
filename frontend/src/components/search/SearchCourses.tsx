@@ -58,7 +58,7 @@ export function SearchCourses({
               id="search"
               type="text"
               placeholder="Search by name or acronym..."
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-istBlue focus:border-transparent bg-gray-50 text-gray-700 transition"
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primaryBlue focus:border-transparent bg-gray-50 text-gray-700 transition"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -67,19 +67,19 @@ export function SearchCourses({
             onClick={() => setIsExpanded(!isExpanded)}
             className={`self-end px-4 py-2 text-sm font-medium focus:outline-none flex items-center gap-2 ${
               hasActiveFilters
-                ? 'text-istBlue bg-blue-50 rounded-lg border border-blue-100'
-                : 'text-istBlue hover:istBlue/80'
+                ? 'text-primaryBlue bg-blue-50 rounded-lg border border-blue-100'
+                : 'text-primaryBlue hover:primaryBlue/80'
             }`}
           >
             <span>
               {isExpanded
                 ? 'Hide Filters'
                 : hasActiveFilters
-                  ? 'Filters Active'
-                  : 'Show Filters'}
+                ? 'Filters Active'
+                : 'Show Filters'}
             </span>
             {hasActiveFilters && !isExpanded && (
-              <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-medium bg-istBlue text-white rounded-full">
+              <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-medium bg-primaryBlue text-white rounded-full">
                 {(selectedTerm !== '' ? 1 : 0) +
                   (selectedCourseGroupId !== null ? 1 : 0)}
               </span>

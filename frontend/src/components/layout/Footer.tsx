@@ -13,7 +13,7 @@ export function Footer() {
               href="https://github.com/afonsocrg/meic-feedback"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-istBlue hover:text-istBlue/80 font-medium transition-colors"
+              className="text-primaryBlue hover:text-primaryBlue/80 font-medium transition-colors"
             >
               IST community
             </a> */}
@@ -23,7 +23,7 @@ export function Footer() {
               href="https://github.com/afonsocrg/meic-feedback/issues/new?template=feature_request.md"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-istBlue hover:text-istBlue/80 text-sm font-medium transition-colors"
+              className="text-primaryBlue hover:text-primaryBlue/80 text-sm font-medium transition-colors"
             >
               Request a feature
             </a>
@@ -31,7 +31,7 @@ export function Footer() {
               href="https://github.com/afonsocrg/meic-feedback/issues/new?template=bug_report.md"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-istBlue hover:text-istBlue/80 text-sm font-medium transition-colors"
+              className="text-primaryBlue hover:text-primaryBlue/80 text-sm font-medium transition-colors"
             >
               Report a bug
             </a>

@@ -13,7 +13,7 @@ const defaultComponents: Components = {
   a: ({ ...props }) => (
     <a
       {...props}
-      className="text-istBlue hover:underline hover:text-istBlue/80"
+      className="text-primaryBlue hover:underline hover:text-primaryBlue/80"
       target="_blank"
     />
   ),

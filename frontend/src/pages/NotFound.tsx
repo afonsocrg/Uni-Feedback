@@ -19,7 +19,7 @@ export function NotFound() {
       >
         <button
           onClick={() => navigate('/')}
-          className="inline-flex items-center gap-2 px-6 py-3 bg-istBlue text-white rounded-lg hover:bg-istBlue/90 transition-colors cursor-pointer"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-primaryBlue text-white rounded-lg hover:bg-primaryBlue/90 transition-colors cursor-pointer"
         >
           <Home className="h-5 w-5" />
           <span>Take me home!</span>
