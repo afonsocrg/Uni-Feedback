@@ -1,3 +1,48 @@
+# System files
 .DS_Store
-node_modules
-afonsocrg
+*.log
+.env
+.env.local
+.env.production.local
+.env.test.local
+
+# Dependencies
+node_modules/
+package-lock.json
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# Turborepo
+.turbo/
+
+# Development and cache
+.cache/
+.vite/
+.next/
+.nuxt/
+coverage/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+tmp/
+temp/
+
+# Personal/Private directories
+afonsocrg/
+
+# Database backups and cache
+*.sqlite
+*.db
+
+# Logs
+logs/
+*.log

@@ -19,6 +19,7 @@ out/
 .cache/
 .parcel-cache/
 .vite/
+.turbo/
 
 # Environment files
 .env
@@ -36,8 +37,8 @@ yarn-error.log*
 *.sqlite
 
 # Database migrations and generated files
-backend/src/db/migrations/
-backend/src/db/README.md
+apps/api/src/db/migrations/
+apps/api/src/db/README.md
 
 # OS generated files
 .DS_Store
@@ -64,11 +65,15 @@ legacy/
 afonsocrg/
 
 # Scripts and generated data
-backend/scripts/
+apps/api/scripts/
 
 # Other
 .wrangler/
 .dev.vars
+.claude/
 
 # HTML files (index.html is typically auto-generated)
 **/*.html
+
+# Generated Vite files
+**/*.timestamp-*.mjs

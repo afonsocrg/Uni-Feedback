@@ -1,8 +1,0 @@
-# Programação 3D
-
-Fenix: [Pre-MEPP](https://fenix.tecnico.ulisboa.pt/cursos/meic-a/disciplina-curricular/283003985068059) | [Pos-MEPP](https://fenix.tecnico.ulisboa.pt/cursos/meic-a/disciplina-curricular/1971853845332804)
-
----
-A cadeira mudou um pouco por causa da pandemia. Antes da pandemia além da parte pratica havia 2 mini testes, que foram substituídos por o professor fazer-nos algumas perguntas teóricas durante a discussão dos 2 primeiros Assignments. Como para o ano há a probabilidade disto voltar a ser tudo presencial, possivelmente os metodos de avaliação da cadeira voltam a ser diferentes.
-Basicamente em P3D neste semestre tivemos 3 projetos, feitos em grupos de 3, relativamente longos, onde as aulas praticas até à semana da entrega eram de feedback sobre determinadas partes da entrega. A primeira entrega é para ser feita em C++, tínhamos de implementar umas quantas cenas de Computação Gráfica como Ray-Tracing, Anti-Aliasing, Soft Shadows, estruturas de aceleração do código, etc...
-A segunda entrega é para ser feita em GLSL, que é uma linguagem feita para correr na GPU, acelerando o tempo de execução do programa. É basicamente implementar o Ray-Tracing que fizemos na primeira entrega mas em GLSL. A terceira entrega era para desenvolvermos um jogo em Unity onde esse jogo tinha de incluir diversas mecânicas e componentes presentes no enunciado. A cadeira overall é parecida com AVT, achei ambas bastante mais puxadas que a cadeira de CG que tivemos na licenciatura, mas por outro lado são muito mais praticas (não há exame), mas como disse no inicio, P3D para o ano é capaz de voltar a ter 2 mini testes, como havia antes da pandemia, caso isto volte a ser 100% presencial.

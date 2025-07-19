@@ -1,6 +1,0 @@
-# Computação Gráfica para Jogos
-
-Fenix: [Pre-MEPP](https://fenix.tecnico.ulisboa.pt/cursos/meic-a/disciplina-curricular/283003985068078) | [Pos-MEPP](https://fenix.tecnico.ulisboa.pt/cursos/meic-a/disciplina-curricular/1971853845332805)
-
----
-Gostei de aprender a parte teórica, não é nada que não se aprendesse pelo youtube, e vais ter de recorrer ao youtube para fazer aquilo, porque enquanto que te ensinam os bocados individuais o projeto é algo mais substancial e sem cuidado desce para esparguete em 2 tempos. O proj é em C++ e por isso a dificuldade da cadeira depende muito do teu grau de conforto com essa linguagem. A avaliação foi uns docs aqui e ali mas principalmente um mini proj semanal e um proj mais completo a meio do semestre (gostei do proj pq tens uma tabela com coisas q podes fazer e cabe-te a ti escolheres quais queres tentar fazer e como vais ligar essas cosas num todo mais conciso). Eu não estava muito confortável com C++ por isso ainda penei durante esses TPCs semanais, mas tenho ideia que para quem percebe da coisa não seja assim tanta carga. Apanhei o Carlos Martinho nas teóricas, 5 estrelas, mas o stor das práticas é aluno de doutoramento e não tenho grande razão de queixa mas às vezes punha-se com feedbacks meio esquisitos, só para mandar vir.
