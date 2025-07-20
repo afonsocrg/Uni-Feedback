@@ -1,0 +1,22 @@
+{
+  "name": "@uni-feedback/vite-utils",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./src/index.ts",
+      "types": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "type-check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3",
+    "vite": "^5.4.19"
+  },
+  "peerDependencies": {
+    "vite": "^5.0.0"
+  }
+}

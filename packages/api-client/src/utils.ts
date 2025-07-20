@@ -1,4 +1,4 @@
-import { API_CONFIG } from './config'
+import { API_BASE_URL } from './config'
 
 interface ApiOptions {
   requiresAuth?: boolean
@@ -13,18 +13,18 @@ async function apiFetch(
 ): Promise<Response> {
   const { requiresAuth = true, ...fetchOptions } = options
 
-  const url = `${API_CONFIG.baseUrl}${endpoint}`
-  
+  const url = `${API_BASE_URL}${endpoint}`
+
   const defaultHeaders: HeadersInit = {
-    'Content-Type': 'application/json',
+    'Content-Type': 'application/json'
   }
 
   const config: RequestInit = {
     ...fetchOptions,
     headers: {
       ...defaultHeaders,
-      ...fetchOptions.headers,
-    },
+      ...fetchOptions.headers
+    }
   }
 
   // Include credentials for authenticated requests
@@ -35,8 +35,12 @@ async function apiFetch(
   const response = await fetch(url, config)
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: 'Request failed' }))
-    throw new Error(error.error || `Request failed with status ${response.status}`)
+    const error = await response
+      .json()
+      .catch(() => ({ error: 'Request failed' }))
+    throw new Error(
+      error.error || `Request failed with status ${response.status}`
+    )
   }
 
   return response
@@ -51,7 +55,7 @@ export async function apiGet<T>(
 ): Promise<T> {
   const response = await apiFetch(endpoint, {
     method: 'GET',
-    ...options,
+    ...options
   })
   return response.json()
 }
@@ -67,7 +71,7 @@ export async function apiPost<T>(
   const response = await apiFetch(endpoint, {
     method: 'POST',
     body: data ? JSON.stringify(data) : undefined,
-    ...options,
+    ...options
   })
   return response.json()
 }
@@ -83,7 +87,7 @@ export async function apiPut<T>(
   const response = await apiFetch(endpoint, {
     method: 'PUT',
     body: data ? JSON.stringify(data) : undefined,
-    ...options,
+    ...options
   })
   return response.json()
 }
@@ -97,7 +101,7 @@ export async function apiDelete<T>(
 ): Promise<T> {
   const response = await apiFetch(endpoint, {
     method: 'DELETE',
-    ...options,
+    ...options
   })
   return response.json()
 }
@@ -113,6 +117,6 @@ export async function apiPostVoid(
   await apiFetch(endpoint, {
     method: 'POST',
     body: data ? JSON.stringify(data) : undefined,
-    ...options,
+    ...options
   })
 }

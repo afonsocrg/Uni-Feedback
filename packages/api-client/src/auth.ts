@@ -35,7 +35,6 @@ export interface InviteUserRequest {
   email: string
 }
 
-
 export interface User {
   id: number
   email: string
@@ -69,28 +68,40 @@ export async function refreshToken(): Promise<LoginResponse> {
 /**
  * Request password reset
  */
-export async function forgotPassword(data: ForgotPasswordRequest): Promise<{ message: string }> {
-  return apiPost<{ message: string }>('/auth/forgot-password', data, { requiresAuth: false })
+export async function forgotPassword(
+  data: ForgotPasswordRequest
+): Promise<{ message: string }> {
+  return apiPost<{ message: string }>('/auth/forgot-password', data, {
+    requiresAuth: false
+  })
 }
 
 /**
  * Reset password with token
  */
-export async function resetPassword(data: ResetPasswordRequest): Promise<{ message: string }> {
-  return apiPost<{ message: string }>('/auth/reset-password', data, { requiresAuth: false })
+export async function resetPassword(
+  data: ResetPasswordRequest
+): Promise<{ message: string }> {
+  return apiPost<{ message: string }>('/auth/reset-password', data, {
+    requiresAuth: false
+  })
 }
 
 /**
  * Create account with invitation token
  */
-export async function createAccount(data: CreateAccountRequest): Promise<LoginResponse> {
+export async function createAccount(
+  data: CreateAccountRequest
+): Promise<LoginResponse> {
   return apiPost<LoginResponse>('/auth/create-account', data)
 }
 
 /**
  * Invite a new user (superuser only)
  */
-export async function inviteUser(data: InviteUserRequest): Promise<{ message: string }> {
+export async function inviteUser(
+  data: InviteUserRequest
+): Promise<{ message: string }> {
   return apiPost<{ message: string }>('/auth/invite', data)
 }
 
@@ -100,4 +111,3 @@ export async function inviteUser(data: InviteUserRequest): Promise<{ message: st
 export async function getUsers(): Promise<User[]> {
   return apiGet<User[]>('/users')
 }
-

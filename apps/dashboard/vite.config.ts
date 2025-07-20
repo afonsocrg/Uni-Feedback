@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { getViteAliasFromTsconfig } from '@uni-feedback/vite-utils'
 
 export default defineConfig({
   plugins: [react()],
@@ -7,8 +8,6 @@ export default defineConfig({
     port: 5174
   },
   resolve: {
-    alias: {
-      '@': '/src'
-    }
+    alias: getViteAliasFromTsconfig('./tsconfig.json', __dirname)
   }
 })
