@@ -1,22 +1,23 @@
 {
-  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "outDir": "dist",
     "baseUrl": ".",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "target": "ESNext",
+    "jsx": "react-jsx",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
     "paths": {
       "@/*": ["src/*"],
-      "@components/*": ["src/components/*"],
+      "@components": ["src/components"],
       "@pages/*": ["src/pages/*"],
-      "@providers/*": ["src/providers/*"],
+      "@providers": ["src/providers"],
       "@hooks/*": ["src/hooks/*"],
       "@contexts/*": ["src/contexts/*"]
     }
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"],
-  "references": [
-    { "path": "../../packages/ui" },
-    { "path": "../../packages/api-client" },
-    { "path": "../../packages/utils" }
-  ]
+  "exclude": ["node_modules", "dist"]
 }

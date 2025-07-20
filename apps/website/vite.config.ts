@@ -1,25 +1,17 @@
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
-import { getViteAliasFromTsconfig } from '@uni-feedback/vite-utils'
+import {
+  getViteAliasFromTsconfig,
+  markdownLoaderPlugin
+} from '@uni-feedback/vite-utils'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [
-    react(),
-    tailwindcss(),
-    {
-      name: 'markdown-loader',
-      transform(code, id) {
-        if (id.endsWith('.md')) {
-          return {
-            code: `export default ${JSON.stringify(code)}`,
-            map: null
-          }
-        }
-      }
-    }
-  ],
+  plugins: [react(), tailwindcss(), markdownLoaderPlugin()],
+  resolve: {
+    alias: getViteAliasFromTsconfig('./tsconfig.json', __dirname)
+  },
   optimizeDeps: {
     exclude: ['lucide-react']
   },
@@ -50,8 +42,5 @@ export default defineConfig({
         drop_debugger: true
       }
     }
-  },
-  resolve: {
-    alias: getViteAliasFromTsconfig('./tsconfig.json', __dirname)
   }
 })

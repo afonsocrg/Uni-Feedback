@@ -1,0 +1,8 @@
+export { HomePage } from './HomePage'
+export { UsersPage } from './UsersPage'
+export { FacultiesPage } from './FacultiesPage'
+export { DegreesPage } from './DegreesPage'
+export { CoursesPage } from './CoursesPage'
+export { FeedbackPage } from './FeedbackPage'
+export { ProfilePage } from './ProfilePage'
+export * from './auth'

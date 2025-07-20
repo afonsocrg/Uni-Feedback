@@ -1,5 +1,5 @@
-import path from 'path'
-import fs from 'fs'
+import * as path from 'path'
+import * as fs from 'fs'
 
 /**
  * Reads tsconfig.json and converts the paths configuration to Vite alias format
