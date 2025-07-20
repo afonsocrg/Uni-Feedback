@@ -38,11 +38,11 @@ export class GetDegrees extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: any, context: any) {
+  async handle(request: IRequest, env: Env, context: any) {
     const db = getDb(env)
     const { onlyWithCourses = true, faculty } = request.query
 
-    const degreeService = new DegreeService(db)
+    const degreeService = new DegreeService(env)
     const result = await degreeService.getDegreesWithCounts({
       facultyShortName: faculty,
       onlyWithCourses

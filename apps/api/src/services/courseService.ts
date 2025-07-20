@@ -1,9 +1,14 @@
-import { courses, type Database } from '@db'
+import { courses, getDb } from '@db'
 import { eq } from 'drizzle-orm'
-import { DrizzleD1Database } from 'drizzle-orm/d1'
 
 export class CourseService {
-  constructor(private db: DrizzleD1Database<Database>) {}
+  private env: Env
+  private db: ReturnType<typeof getDb>
+
+  constructor(env: Env) {
+    this.env = env
+    this.db = getDb(env)
+  }
 
   /**
    * Check if a course exists in the database.

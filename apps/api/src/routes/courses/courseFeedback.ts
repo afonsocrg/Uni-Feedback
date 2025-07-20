@@ -51,11 +51,11 @@ export class GetCourseFeedback extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: any, context: any) {
+  async handle(request: IRequest, env: Env, context: any) {
     const db = getDb(env)
     const courseId = parseInt(request.params.id)
-    const courseFeedbackService = new CourseFeedbackService(db)
-    const courseService = new CourseService(db)
+    const courseFeedbackService = new CourseFeedbackService(env)
+    const courseService = new CourseService(env)
 
     // First validate that the course exists
     if (!(await courseService.courseExists(courseId))) {

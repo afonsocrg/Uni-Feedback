@@ -112,7 +112,10 @@ import { Button, Card, Dialog } from '@uni-feedback/ui'
 import { getCourses, submitFeedback } from '@uni-feedback/api-client'
 
 // Import utilities
-import { getCurrentSchoolYear, formatSchoolYearString } from '@uni-feedback/utils'
+import {
+  getCurrentSchoolYear,
+  formatSchoolYearString
+} from '@uni-feedback/utils'
 ```
 
 ## Commit Rules

@@ -1,17 +1,22 @@
-import { courses, degrees, faculties, feedback, type Database } from '@db'
+import { courses, degrees, faculties, feedback, getDb } from '@db'
 import { and, eq, sql } from 'drizzle-orm'
-import { DrizzleD1Database } from 'drizzle-orm/d1'
 import type { DegreeWithCounts, GetDegreesOptions } from '@types'
 import { CourseFeedbackService } from './courseFeedbackService'
 
 export class DegreeService {
-  constructor(private db: DrizzleD1Database<Database>) {}
+  private env: Env
+  private db: ReturnType<typeof getDb>
+
+  constructor(env: Env) {
+    this.env = env
+    this.db = getDb(env)
+  }
 
   async getDegreesWithCounts(
     options: GetDegreesOptions = {}
   ): Promise<DegreeWithCounts[]> {
     const { facultyId, facultyShortName, onlyWithCourses = true } = options
-    const courseFeedbackService = new CourseFeedbackService(this.db)
+    const courseFeedbackService = new CourseFeedbackService(this.env)
 
     // Use the centralized enhanced feedback join logic
     const feedbackJoin = courseFeedbackService.getEnhancedFeedbackJoin()

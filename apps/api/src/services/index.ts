@@ -1,3 +1,5 @@
+export * from './authService'
+export * from './emailService'
 export * from './degreeService'
 export * from './courseFeedbackService'
 export * from './courseService'

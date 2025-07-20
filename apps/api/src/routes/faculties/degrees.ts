@@ -49,7 +49,7 @@ export class GetFacultyDegrees extends OpenAPIRoute {
     const { facultyId } = request.params
     const { onlyWithCourses = true } = request.query
 
-    const degreeService = new DegreeService(db)
+    const degreeService = new DegreeService(env)
     const result = await degreeService.getDegreesWithCounts({
       facultyId,
       onlyWithCourses

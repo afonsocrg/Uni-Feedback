@@ -1,15 +1,14 @@
-import {
-  courseRelationships,
-  courses,
-  degrees,
-  feedback,
-  type Database
-} from '@db'
+import { courseRelationships, courses, degrees, feedback, getDb } from '@db'
 import { and, eq, isNotNull, or, sql, inArray } from 'drizzle-orm'
-import { DrizzleD1Database } from 'drizzle-orm/d1'
 
 export class CourseFeedbackService {
-  constructor(private db: DrizzleD1Database<Database>) {}
+  private env: Env
+  private db: ReturnType<typeof getDb>
+
+  constructor(env: Env) {
+    this.env = env
+    this.db = getDb(env)
+  }
 
   /**
    * Get all course IDs that should be included when fetching feedback for a given course.
