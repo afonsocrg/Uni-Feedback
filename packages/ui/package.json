@@ -3,26 +3,28 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "import": "./src/index.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
     },
     "./components/*": {
-      "types": "./src/components/*.tsx",
-      "import": "./src/components/*.tsx"
+      "types": "./dist/components/*.d.ts",
+      "import": "./dist/components/*.js"
     },
     "./utils/*": {
-      "types": "./src/utils/*.ts",
-      "import": "./src/utils/*.ts"
+      "types": "./dist/utils/*.d.ts",
+      "import": "./dist/utils/*.js"
     },
     "./styles/*": "./src/styles/*",
     "./globals.css": "./src/styles/globals.css",
     "./tailwind.config.js": "./tailwind.config.js"
   },
   "scripts": {
-    "build": "tsc --build",
-    "dev": "tsc --build --watch",
+    "build": "vite build",
+    "dev": "vite build --watch",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
@@ -48,7 +50,11 @@
   "devDependencies": {
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",
-    "typescript": "^5.8.3"
+    "@uni-feedback/vite-utils": "workspace:*",
+    "@vitejs/plugin-react": "^4.6.0",
+    "typescript": "^5.8.3",
+    "vite": "^5.4.19",
+    "vite-plugin-dts": "^4.5.4"
   },
   "peerDependencies": {
     "react": "^18.0.0 || ^19.0.0",

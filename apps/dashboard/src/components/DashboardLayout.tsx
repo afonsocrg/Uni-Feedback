@@ -1,9 +1,11 @@
+// import { SidebarProvider } from '@uni-feedback/ui'
 import { Outlet } from 'react-router-dom'
-import { DashboardSidebar } from './DashboardSidebar'
 import { DashboardHeader } from './DashboardHeader'
+import { DashboardSidebar } from './DashboardSidebar'
 
 export function DashboardLayout() {
   return (
+    // <SidebarProvider>
     <div className="flex h-screen bg-background">
       <DashboardSidebar />
 
@@ -17,5 +19,6 @@ export function DashboardLayout() {
         </main>
       </div>
     </div>
+    // </SidebarProvider>
   )
 }

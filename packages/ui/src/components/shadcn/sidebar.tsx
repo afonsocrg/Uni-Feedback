@@ -1,5 +1,5 @@
+import { cn } from '@/utils'
 import * as React from 'react'
-import { cn } from '../../utils/cn'
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode
@@ -167,9 +167,9 @@ export {
   Sidebar,
   SidebarContent,
   SidebarGroup,
-  SidebarGroupLabel,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton
+  SidebarMenuButton,
+  SidebarMenuItem
 }
