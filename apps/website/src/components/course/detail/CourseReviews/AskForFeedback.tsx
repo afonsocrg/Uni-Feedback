@@ -1,9 +1,13 @@
-import { addUtmParams } from '@/utils/routes'
-import { getAskForFeedbackMessage, openWhatsapp } from '@/utils/whatsapp'
 import { CopyButton } from '@components'
 import { useCourseDetails } from '@hooks'
-import { Button } from '@ui/button'
-import { Popover, PopoverContent, PopoverTrigger } from '@ui/popover'
+import {
+  Button,
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from '@uni-feedback/ui'
+import { addUtmParams } from '@utils/routes'
+import { getAskForFeedbackMessage, openWhatsapp } from '@utils/whatsapp'
 import { Share2 } from 'lucide-react'
 import posthog from 'posthog-js'
 import { useCallback } from 'react'

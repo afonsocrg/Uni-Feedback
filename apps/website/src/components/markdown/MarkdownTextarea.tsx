@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@uni-feedback/ui'
 import { Markdown } from '@components'
 import {
   Button,
@@ -9,7 +9,7 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger
-} from '@ui'
+} from '@uni-feedback/ui'
 import { CircleHelp } from 'lucide-react'
 
 interface MarkdownTextareaProps extends React.ComponentProps<'textarea'> {

@@ -33,7 +33,7 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger
-} from '@ui'
+} from '@uni-feedback/ui'
 import { formatSchoolYearString } from '@uni-feedback/utils'
 import { cn } from '@utils'
 import { motion } from 'framer-motion'

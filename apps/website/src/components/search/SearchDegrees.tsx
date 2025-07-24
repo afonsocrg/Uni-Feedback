@@ -4,7 +4,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue
-} from '@/components/ui/select'
+} from '@uni-feedback/ui'
 
 interface SearchDegreesProps {
   searchQuery: string

@@ -1,18 +1,18 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import { Providers, ProtectedRoute, DashboardLayout } from '@components'
+import { DashboardLayout, ProtectedRoute, Providers } from '@components'
 import {
-  HomePage,
-  UsersPage,
-  FacultiesPage,
-  DegreesPage,
   CoursesPage,
+  CreateAccountPage,
+  DegreesPage,
+  FacultiesPage,
   FeedbackPage,
-  ProfilePage,
-  LoginPage,
   ForgotPasswordPage,
+  HomePage,
+  LoginPage,
+  ProfilePage,
   ResetPasswordPage,
-  CreateAccountPage
+  UsersPage
 } from '@pages'
+import { Route, BrowserRouter as Router, Routes } from 'react-router-dom'
 
 function App() {
   return (
@@ -20,6 +20,12 @@ function App() {
       <Router future={{ v7_startTransition: true }}>
         <div className="min-h-screen bg-background">
           <Routes>
+            {/* Auth Routes */}
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
+            <Route path="/create-account" element={<CreateAccountPage />} />
+
             {/* Protected Dashboard Routes */}
             <Route
               path="/"
@@ -37,12 +43,6 @@ function App() {
               <Route path="feedback" element={<FeedbackPage />} />
               <Route path="profile" element={<ProfilePage />} />
             </Route>
-
-            {/* Auth Routes */}
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-            <Route path="/reset-password" element={<ResetPasswordPage />} />
-            <Route path="/create-account" element={<CreateAccountPage />} />
           </Routes>
         </div>
       </Router>

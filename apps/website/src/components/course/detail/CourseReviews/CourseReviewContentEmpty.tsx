@@ -1,5 +1,5 @@
 import { getFullUrl } from '@/utils/routes'
-import { Button } from '@ui/button'
+import { Button } from '@uni-feedback/ui'
 import posthog from 'posthog-js'
 import { useNavigate } from 'react-router-dom'
 import { AskForFeedback } from './AskForFeedback'

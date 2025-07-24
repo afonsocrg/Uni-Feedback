@@ -15,13 +15,18 @@
     "./utils/*": {
       "types": "./src/utils/*.ts",
       "import": "./src/utils/*.ts"
-    }
+    },
+    "./styles/*": "./src/styles/*",
+    "./globals.css": "./src/styles/globals.css",
+    "./tailwind.config.js": "./tailwind.config.js"
   },
   "scripts": {
-    "build": "echo 'Building UI package'",
+    "build": "tsc --build",
+    "dev": "tsc --build --watch",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-checkbox": "^1.3.2",
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-label": "^2.1.7",

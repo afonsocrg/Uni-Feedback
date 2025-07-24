@@ -1,0 +1,6 @@
+export { GetAdminCourses } from './courses'
+export { GetAdminDegrees } from './degrees'
+export { GetAdminFaculties } from './faculties'
+export { GetAdminFeedback } from './feedback'
+export { GetAdminUsers } from './users'
+export { GetAdminStats } from './stats'

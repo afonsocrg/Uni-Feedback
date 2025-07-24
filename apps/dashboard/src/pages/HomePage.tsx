@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import {
   Card,
   CardContent,
@@ -6,6 +7,7 @@ import {
   CardTitle,
   Chip
 } from '@uni-feedback/ui'
+import { getAdminStats, type AdminStats } from '@uni-feedback/api-client'
 import { useAuth } from '@providers'
 import {
   Users,
@@ -17,44 +19,61 @@ import {
 
 export function HomePage() {
   const { user } = useAuth()
+  const [stats, setStats] = useState<AdminStats | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
-  const statsCards = [
+  useEffect(() => {
+    async function fetchStats() {
+      try {
+        const data = await getAdminStats()
+        setStats(data)
+      } catch (error) {
+        console.error('Failed to fetch admin stats:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchStats()
+  }, [])
+
+  const statsCards = stats ? [
     {
       title: 'Total Users',
-      value: '24',
+      value: stats.totalUsers.toString(),
       icon: Users,
       description: 'Active admin users',
       color: 'bg-blue-500'
     },
     {
       title: 'Faculties',
-      value: '5',
+      value: stats.totalFaculties.toString(),
       icon: Building2,
       description: 'University faculties',
       color: 'bg-green-500'
     },
     {
       title: 'Degrees',
-      value: '18',
+      value: stats.totalDegrees.toString(),
       icon: GraduationCap,
       description: 'Degree programs',
       color: 'bg-purple-500'
     },
     {
       title: 'Courses',
-      value: '156',
+      value: stats.totalCourses.toString(),
       icon: BookOpen,
       description: 'Available courses',
       color: 'bg-orange-500'
     },
     {
       title: 'Feedback',
-      value: '1,247',
+      value: stats.totalFeedback.toLocaleString(),
       icon: MessageSquare,
       description: 'Student reviews',
       color: 'bg-cyan-500'
     }
-  ]
+  ] : []
 
   return (
     <div className="space-y-8">
@@ -87,27 +106,45 @@ export function HomePage() {
           </CardContent>
         </Card>
 
-        {statsCards.map((stat) => (
-          <Card key={stat.title} className="relative overflow-hidden">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                {stat.title}
-              </CardTitle>
-              <div className={`p-2 ${stat.color} rounded-full`}>
-                <stat.icon className="h-4 w-4 text-white" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
-              <p className="text-xs text-muted-foreground">
-                {stat.description}
-              </p>
-            </CardContent>
-            <div
-              className={`absolute bottom-0 left-0 right-0 h-1 ${stat.color}`}
-            ></div>
-          </Card>
-        ))}
+        {isLoading ? (
+          // Loading skeleton cards
+          Array.from({ length: 5 }).map((_, index) => (
+            <Card key={index} className="relative overflow-hidden">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <div className="h-4 w-20 bg-muted rounded animate-pulse"></div>
+                <div className="p-2 bg-muted rounded-full animate-pulse">
+                  <div className="h-4 w-4"></div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="h-8 w-16 bg-muted rounded animate-pulse mb-1"></div>
+                <div className="h-3 w-24 bg-muted rounded animate-pulse"></div>
+              </CardContent>
+            </Card>
+          ))
+        ) : (
+          statsCards.map((stat) => (
+            <Card key={stat.title} className="relative overflow-hidden">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  {stat.title}
+                </CardTitle>
+                <div className={`p-2 ${stat.color} rounded-full`}>
+                  <stat.icon className="h-4 w-4 text-white" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stat.value}</div>
+                <p className="text-xs text-muted-foreground">
+                  {stat.description}
+                </p>
+              </CardContent>
+              <div
+                className={`absolute bottom-0 left-0 right-0 h-1 ${stat.color}`}
+              ></div>
+            </Card>
+          ))
+        )}
       </div>
 
       <Card className="bg-gradient-to-r from-muted/30 to-transparent border-t-4 border-t-cyan-500">

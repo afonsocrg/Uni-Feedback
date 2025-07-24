@@ -32,7 +32,7 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue
-} from '@ui'
+} from '@uni-feedback/ui'
 import { cn } from '@utils'
 import { motion } from 'framer-motion'
 import { Check, ChevronDown, Loader2, Send } from 'lucide-react'

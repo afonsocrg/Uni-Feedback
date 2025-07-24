@@ -1,9 +1,5 @@
-import { useState, useEffect } from 'react'
-import { Link, useSearchParams, useNavigate } from 'react-router-dom'
-import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-import { toast } from 'sonner'
+import { useAuth } from '@providers'
 import {
   Button,
   Card,
@@ -11,15 +7,19 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-  Input,
   Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
-  FormMessage
+  FormMessage,
+  Input
 } from '@uni-feedback/ui'
-import { useAuth } from '@providers'
+import { useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { toast } from 'sonner'
+import { z } from 'zod'
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -71,9 +71,9 @@ export function LoginPage() {
         <div className="flex flex-col gap-6">
           <Card>
             <CardHeader>
-              <CardTitle>Login to your account</CardTitle>
+              <CardTitle>Welcome to Uni Feedback</CardTitle>
               <CardDescription>
-                Enter your email below to login to your account
+                Please sign in to access the admin dashboard.
               </CardDescription>
             </CardHeader>
             <CardContent>

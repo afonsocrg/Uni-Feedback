@@ -1,23 +1,23 @@
-import { Link, useLocation } from 'react-router-dom'
-import {
-  Users,
-  Building2,
-  GraduationCap,
-  BookOpen,
-  MessageSquare,
-  Settings,
-  Home
-} from 'lucide-react'
+import { useAuth } from '@providers'
 import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
   SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton
+  SidebarMenuButton,
+  SidebarMenuItem
 } from '@uni-feedback/ui'
-import { useAuth } from '@providers'
+import {
+  BookOpen,
+  Building2,
+  GraduationCap,
+  Home,
+  MessageSquare,
+  Settings,
+  Users
+} from 'lucide-react'
+import { Link, useLocation } from 'react-router-dom'
 
 const menuItems = [
   { title: 'Dashboard', icon: Home, url: '/' },

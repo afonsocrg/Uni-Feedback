@@ -1,6 +1,6 @@
-import { insensitiveMatch } from '@/utils'
 import { CourseGrid, SearchCourses } from '@components'
 import { useDegreeCourseGroups, useDegreeCourses } from '@hooks'
+import { insensitiveMatch } from '@utils'
 import { motion } from 'framer-motion'
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'

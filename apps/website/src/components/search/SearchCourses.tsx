@@ -4,7 +4,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue
-} from '@/components/ui/select'
+} from '@uni-feedback/ui'
 import { useDegreeCourseGroups } from '@/hooks'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useState } from 'react'

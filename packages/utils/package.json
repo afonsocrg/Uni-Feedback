@@ -10,7 +10,8 @@
     }
   },
   "scripts": {
-    "build": "echo 'Building utils package'",
+    "build": "tsc --build",
+    "dev": "tsc --build --watch",
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {

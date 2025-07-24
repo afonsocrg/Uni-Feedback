@@ -30,7 +30,7 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger
-} from '@ui'
+} from '@uni-feedback/ui'
 import { cn } from '@utils'
 import { motion } from 'framer-motion'
 import { Check, ChevronsUpDown, HelpCircle, Loader2, Send } from 'lucide-react'

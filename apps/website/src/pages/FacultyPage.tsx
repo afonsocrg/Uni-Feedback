@@ -1,10 +1,4 @@
 import {
-  ADD_COURSE_FORM_URL,
-  buildDegreeUrl,
-  insensitiveMatch,
-  STORAGE_KEYS
-} from '@/utils'
-import {
   HeroSection,
   SearchDegrees,
   SelectionCard,
@@ -12,7 +6,13 @@ import {
 } from '@components'
 import { useFacultyDegrees, useUrlNavigation } from '@hooks'
 import type { Degree } from '@services/meicFeedbackAPI'
-import { Button } from '@ui/button'
+import { Button } from '@uni-feedback/ui'
+import {
+  ADD_COURSE_FORM_URL,
+  buildDegreeUrl,
+  insensitiveMatch,
+  STORAGE_KEYS
+} from '@utils'
 import { BookOpen, Loader2, MessageSquare } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'

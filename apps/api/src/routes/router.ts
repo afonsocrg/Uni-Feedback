@@ -20,6 +20,14 @@ import { GetDegreeCourseGroups, GetDegreeCourses, GetDegrees } from './degrees'
 import { GetFaculties, GetFacultyDegrees, GetFacultyDetails } from './faculties'
 import { CreateFeedbackDraft, GetFeedbackDraft } from './feedbackDrafts'
 import { GetUsers } from './users'
+import {
+  GetAdminCourses,
+  GetAdminDegrees,
+  GetAdminFaculties,
+  GetAdminFeedback,
+  GetAdminUsers,
+  GetAdminStats
+} from './admin'
 
 const { preflight, corsify } = cors({
   origin: [
@@ -74,6 +82,16 @@ router.post('/auth/create-account', CreateAccount)
 // ---------------------------------------------------------
 router.post('/auth/invite', requireSuperuser, Invite)
 router.get('/users', requireSuperuser, GetUsers)
+
+// ---------------------------------------------------------
+// Admin dashboard routes
+// ---------------------------------------------------------
+router.get('/admin/stats', requireSuperuser, GetAdminStats)
+router.get('/admin/users', requireSuperuser, GetAdminUsers)
+router.get('/admin/courses', requireSuperuser, GetAdminCourses)
+router.get('/admin/degrees', requireSuperuser, GetAdminDegrees)
+router.get('/admin/faculties', requireSuperuser, GetAdminFaculties)
+router.get('/admin/feedback', requireSuperuser, GetAdminFeedback)
 
 // 404 for everything else
 router.all('*', () =>

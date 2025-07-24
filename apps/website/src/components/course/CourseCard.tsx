@@ -1,6 +1,6 @@
 import { Chip, SelectionCard, StarRating } from '@components'
 import { Course } from '@services/meicFeedbackAPI'
-import { Button } from '@ui'
+import { Button } from '@uni-feedback/ui'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 

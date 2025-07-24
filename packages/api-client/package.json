@@ -10,7 +10,8 @@
     }
   },
   "scripts": {
-    "build": "echo 'Building API client package'",
+    "build": "tsc --build",
+    "dev": "tsc --build --watch",
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {

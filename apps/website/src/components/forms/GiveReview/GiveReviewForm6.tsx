@@ -31,7 +31,7 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger
-} from '@ui'
+} from '@uni-feedback/ui'
 import { cn } from '@utils'
 import { getCoursePath } from '@utils/routes'
 import { motion } from 'framer-motion'
