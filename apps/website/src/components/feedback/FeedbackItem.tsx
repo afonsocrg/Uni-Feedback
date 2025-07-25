@@ -1,5 +1,5 @@
-import { getWorkloadColor, getWorkloadLabel } from '@/lib/workload'
 import { getTruncatedText } from '@/lib/textUtils'
+import { getWorkloadColor, getWorkloadLabel } from '@/lib/workload'
 import { Markdown, StarRating, Tooltip } from '@components'
 import { Feedback } from '@services/meicFeedbackAPI'
 import { Button } from '@ui'
