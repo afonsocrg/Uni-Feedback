@@ -21,10 +21,7 @@
       "@utils/*": ["./src/utils/*"],
       "@ui": ["./src/components/ui"],
       "@ui/*": ["./src/components/ui/*"],
-      "@md/*": ["./src/md/*"],
-      "@uni-feedback/ui": ["../../packages/ui/src"],
-      "@uni-feedback/api-client": ["../../packages/api-client/src"],
-      "@uni-feedback/utils": ["../../packages/utils/src"]
+      "@md/*": ["./src/md/*"]
     }
   },
   "include": ["src/**/*"]
