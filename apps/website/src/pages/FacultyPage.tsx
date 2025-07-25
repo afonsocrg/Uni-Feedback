@@ -4,15 +4,11 @@ import {
   insensitiveMatch,
   STORAGE_KEYS
 } from '@/utils'
-import {
-  HeroSection,
-  SearchDegrees,
-  SelectionCard,
-  WarningAlert
-} from '@components'
+import { HeroSection, SearchDegrees, SelectionCard } from '@components'
 import { useFacultyDegrees, useUrlNavigation } from '@hooks'
 import type { Degree } from '@services/meicFeedbackAPI'
 import { Button } from '@ui/button'
+import { WarningAlert } from '@uni-feedback/ui'
 import { BookOpen, Loader2, MessageSquare } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'

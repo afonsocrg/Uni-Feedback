@@ -1,12 +1,12 @@
 import {
   CourseReviewContentEmpty,
   CourseReviewsSkeleton,
-  SchoolYearSection,
-  WarningAlert
+  SchoolYearSection
 } from '@components'
 import { useCourseFeedback } from '@hooks'
-import { getCurrentSchoolYear } from '@uni-feedback/utils'
 import { type Feedback } from '@services/meicFeedbackAPI'
+import { WarningAlert } from '@uni-feedback/ui'
+import { getCurrentSchoolYear } from '@uni-feedback/utils'
 import { useMemo } from 'react'
 
 const itemVariants = {

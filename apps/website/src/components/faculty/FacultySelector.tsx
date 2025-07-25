@@ -1,8 +1,9 @@
 import { ADD_COURSE_FORM_URL, buildFacultyUrl } from '@/utils'
-import { SelectionCard, WarningAlert } from '@components'
+import { SelectionCard } from '@components'
 import { useFaculties } from '@hooks'
 import type { Faculty } from '@services/meicFeedbackAPI'
 import { Button } from '@ui/button'
+import { WarningAlert } from '@uni-feedback/ui'
 import { Loader2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
