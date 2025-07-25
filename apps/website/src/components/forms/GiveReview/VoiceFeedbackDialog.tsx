@@ -1,5 +1,6 @@
 import { useIsMobile } from '@/hooks'
-import { Button, Dialog, DialogContent, DialogTitle } from '@ui'
+import { Dialog, DialogContent, DialogTitle } from '@ui'
+import { Button } from '@uni-feedback/ui'
 import {
   CheckCircle,
   FileText,

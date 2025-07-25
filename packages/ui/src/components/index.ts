@@ -1,2 +1,2 @@
 export * from './custom'
-// export * from './shadcn'
+export * from './shadcn'

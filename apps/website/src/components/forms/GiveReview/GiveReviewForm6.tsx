@@ -1,7 +1,6 @@
 import { MarkdownTextarea, StarRatingWithLabel } from '@components'
 import { useApp, useFacultyDegrees, useIsMobile } from '@hooks'
 import {
-  Button,
   Command,
   CommandEmpty,
   CommandGroup,
@@ -31,7 +30,7 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@ui'
-import { Chip } from '@uni-feedback/ui'
+import { Button, Chip } from '@uni-feedback/ui'
 import { formatSchoolYearString } from '@uni-feedback/utils'
 import { cn } from '@utils'
 import { getCoursePath } from '@utils/routes'

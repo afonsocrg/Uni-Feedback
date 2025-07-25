@@ -1,4 +1,3 @@
-import { Button } from '@ui/button'
 import {
   Command,
   CommandEmpty,
@@ -7,6 +6,7 @@ import {
   CommandItem
 } from '@ui/command'
 import { Popover, PopoverContent, PopoverTrigger } from '@ui/popover'
+import { Button } from '@uni-feedback/ui'
 import { cn } from '@utils'
 import { Check, ChevronsUpDown } from 'lucide-react'
 import * as React from 'react'

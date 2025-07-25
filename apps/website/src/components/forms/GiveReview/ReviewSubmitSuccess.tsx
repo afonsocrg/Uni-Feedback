@@ -1,6 +1,6 @@
-import { Button } from '@/components/ui'
 import { getCoursePath } from '@/utils/routes'
 import { Course } from '@services/meicFeedbackAPI'
+import { Button } from '@uni-feedback/ui'
 import { motion } from 'framer-motion'
 import { CheckCircle, Home, PlusCircle } from 'lucide-react'
 import { Link } from 'react-router-dom'

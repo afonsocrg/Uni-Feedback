@@ -1,7 +1,7 @@
 import { getFullUrl } from '@/utils/routes'
 import { CourseReviewsContent } from '@components'
 import { useCourseFeedback } from '@hooks'
-import { Button } from '@ui/button'
+import { Button } from '@uni-feedback/ui'
 import posthog from 'posthog-js'
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'

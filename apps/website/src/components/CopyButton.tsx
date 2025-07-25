@@ -1,4 +1,4 @@
-import { Button, type ButtonProps } from '@ui/button'
+import { Button, type ButtonProps } from '@uni-feedback/ui'
 import { Check, Copy } from 'lucide-react'
 import { useCallback, useState } from 'react'
 

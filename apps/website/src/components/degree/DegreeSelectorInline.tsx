@@ -1,7 +1,6 @@
 import { SearchDegrees } from '@components'
 import { useApp, useFacultyDegrees, useFacultyDetails } from '@hooks'
-import { Button } from '@ui/button'
-import { WarningAlert } from '@uni-feedback/ui'
+import { Button, WarningAlert } from '@uni-feedback/ui'
 import { ADD_COURSE_FORM_URL, insensitiveMatch } from '@utils'
 import { Loader2 } from 'lucide-react'
 import { useMemo, useState } from 'react'

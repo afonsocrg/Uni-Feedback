@@ -1,7 +1,5 @@
 import { MarkdownTextarea, StarRatingWithLabel } from '@components'
-import { formatSchoolYearString } from '@uni-feedback/utils'
 import {
-  Button,
   Command,
   CommandEmpty,
   CommandGroup,
@@ -33,6 +31,8 @@ import {
   SelectTrigger,
   SelectValue
 } from '@ui'
+import { Button } from '@uni-feedback/ui'
+import { formatSchoolYearString } from '@uni-feedback/utils'
 import { cn } from '@utils'
 import { motion } from 'framer-motion'
 import { Check, ChevronDown, Loader2, Send } from 'lucide-react'
