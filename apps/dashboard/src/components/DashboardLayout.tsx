@@ -1,13 +1,14 @@
 import { SidebarProvider, SidebarTrigger } from '@uni-feedback/ui'
+import { Outlet } from 'react-router-dom'
 import { DashboardSidebar } from './DashboardSidebar'
 
-export function DashboardLayout({ children }: { children: React.ReactNode }) {
+export function DashboardLayout() {
   return (
     <SidebarProvider>
       <DashboardSidebar />
       <main>
         <SidebarTrigger />
-        {children}
+        <Outlet />
       </main>
     </SidebarProvider>
   )
