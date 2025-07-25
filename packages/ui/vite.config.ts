@@ -12,7 +12,7 @@ function getAlias() {
   for (const pathKey in paths) {
     const target = paths[pathKey][0]
     const key = pathKey.replace('/*', '')
-    const value = target.replace('/*', '').replace('./', '').replace('../', '')
+    const value = target.replace('/*', '').replace('./', '')
 
     // Handle relative paths
     if (target.startsWith('../')) {
@@ -21,7 +21,6 @@ function getAlias() {
       alias[key] = path.resolve(__dirname, value)
     }
   }
-  console.log('Vite alias:', alias) // Debugging output
   return alias
 }
 
