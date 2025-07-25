@@ -1,16 +1,11 @@
+import baseConfig from '@uni-feedback/ui/tailwind.config.js'
+
 /** @type {import('tailwindcss').Config} */
 export default {
+  ...baseConfig,
   content: [
-    './index.html', 
+    './index.html',
     './src/**/*.{js,ts,jsx,tsx}',
-    '../../packages/ui/src/**/*.{js,ts,jsx,tsx}'
-  ],
-  theme: {
-    extend: {
-      colors: {
-        primaryBlue: '#123755'
-      }
-    }
-  },
-  plugins: []
+    '../../packages/ui/**/*.{js,ts,jsx,tsx,cjs}'
+  ]
 }

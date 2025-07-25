@@ -1,11 +1,14 @@
+import tailwindcss from '@tailwindcss/vite'
 import { getViteAliasFromTsconfig } from '@uni-feedback/vite-utils'
 import react from '@vitejs/plugin-react'
+import { resolve } from 'path'
 import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
 
 export default defineConfig({
   plugins: [
     react(),
+    tailwindcss(),
     dts({
       insertTypesEntry: true,
       include: ['src/**/*'],
@@ -17,10 +20,11 @@ export default defineConfig({
   },
   build: {
     lib: {
-      entry: 'src/index.ts',
+      entry: resolve(__dirname, 'src/index.ts'),
       name: 'UniFeedbackUI',
-      formats: ['es'],
-      fileName: 'index'
+      minify: false,
+      formats: ['es', 'cjs'],
+      fileName: (format) => `index.${format}.js`
     },
     rollupOptions: {
       external: ['react', 'react-dom'],

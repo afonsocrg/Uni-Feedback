@@ -3,12 +3,12 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "main": "./dist/index.js",
+  "main": "./dist/index.es.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": "./dist/index.es.js"
     },
     "./components/*": {
       "types": "./dist/components/*.d.ts",
@@ -18,8 +18,7 @@
       "types": "./dist/utils/*.d.ts",
       "import": "./dist/utils/*.js"
     },
-    "./styles/*": "./src/styles/*",
-    "./globals.css": "./src/styles/globals.css",
+    "./style.css": "./dist/style.css",
     "./tailwind.config.js": "./tailwind.config.js"
   },
   "scripts": {

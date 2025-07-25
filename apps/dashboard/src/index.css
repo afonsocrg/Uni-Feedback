@@ -1,4 +1,4 @@
-@import "@uni-feedback/ui/globals.css";
+@import "@uni-feedback/ui/style.css";
 @import "tailwindcss";
 /* The line below ensures tailwind includes the classes used in the ui package */
 @source "../../../packages/ui";

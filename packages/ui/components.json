@@ -13,7 +13,8 @@
   "aliases": {
     "components": "src/components/shadcn",
     "utils": "src/utils",
-    "ui": "src/components/shadcn"
+    "ui": "src/components/shadcn",
+    "hooks": "src/hooks"
   },
   "iconLibrary": "lucide"
 }
