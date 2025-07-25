@@ -1,4 +1,10 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@ui'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '@uni-feedback/ui'
 import { ReactNode } from 'react'
 
 interface SelectionCardProps {

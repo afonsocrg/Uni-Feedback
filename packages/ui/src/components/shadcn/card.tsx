@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import { cn } from '@/utils/index'
+import { cn } from '../../utils'
 
 function Card({ className, ...props }: React.ComponentProps<'div'>) {
   return (
@@ -83,10 +83,10 @@ function CardFooter({ className, ...props }: React.ComponentProps<'div'>) {
 
 export {
   Card,
-  CardHeader,
-  CardFooter,
-  CardTitle,
   CardAction,
+  CardContent,
   CardDescription,
-  CardContent
+  CardFooter,
+  CardHeader,
+  CardTitle
 }

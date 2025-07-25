@@ -1,6 +1,11 @@
 import { SearchDegrees } from '@components'
 import { useApp, useFacultyDegrees } from '@hooks'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@ui'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
+} from '@uni-feedback/ui'
 import { insensitiveMatch } from '@utils'
 import { useEffect, useMemo, useState } from 'react'
 import { DegreeCard } from './DegreeCard'

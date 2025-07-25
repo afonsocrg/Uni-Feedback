@@ -1,11 +1,11 @@
+import { useDegreeCourseGroups } from '@/hooks'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue
-} from '@/components/ui/select'
-import { useDegreeCourseGroups } from '@/hooks'
+} from '@uni-feedback/ui'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useState } from 'react'
 

@@ -1,5 +1,6 @@
 import { MarkdownTextarea, StarRatingWithLabel } from '@/components'
 import {
+  Button,
   Command,
   CommandEmpty,
   CommandGroup,
@@ -28,8 +29,7 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger
-} from '@ui'
-import { Button } from '@uni-feedback/ui'
+} from '@uni-feedback/ui'
 import { formatSchoolYearString } from '@uni-feedback/utils'
 import { cn } from '@utils'
 import { motion } from 'framer-motion'

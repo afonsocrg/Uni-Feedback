@@ -2,8 +2,13 @@ import { addUtmParams } from '@/utils/routes'
 import { openWhatsapp } from '@/utils/whatsapp'
 import { CopyButton, Tooltip } from '@components'
 import { type CourseDetail } from '@services/meicFeedbackAPI'
-import { Popover, PopoverContent, PopoverTrigger } from '@ui/popover'
-import { Button, Chip } from '@uni-feedback/ui'
+import {
+  Button,
+  Chip,
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from '@uni-feedback/ui'
 import { Share2 } from 'lucide-react'
 import posthog from 'posthog-js'
 import { useCallback } from 'react'

@@ -2,7 +2,7 @@ import {
   Tooltip as ShadcnTooltip,
   TooltipContent,
   TooltipTrigger
-} from '@ui/tooltip'
+} from '@uni-feedback/ui'
 import React from 'react'
 
 interface TooltipProps {

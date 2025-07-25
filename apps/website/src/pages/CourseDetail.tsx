@@ -7,7 +7,7 @@ import {
   CourseReviews
 } from '@components'
 import { useCourseDetails } from '@hooks'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@ui/tabs'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@uni-feedback/ui'
 import { motion } from 'framer-motion'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
