@@ -1,16 +1,19 @@
+import { getViteAliasFromTsconfig } from '@uni-feedback/vite-utils'
 import react from '@vitejs/plugin-react'
-import { resolve } from 'path'
 import { defineConfig } from 'vite'
+import dts from 'vite-plugin-dts'
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    dts({
+      insertTypesEntry: true,
+      include: ['src/**/*'],
+      exclude: ['src/**/*.stories.*', 'src/**/*.test.*']
+    })
+  ],
   resolve: {
-    alias: {
-      '@': resolve(process.cwd(), 'src'),
-      '@/components': resolve(process.cwd(), 'src/components'),
-      '@/utils': resolve(process.cwd(), 'src/utils'),
-      '@/styles': resolve(process.cwd(), 'src/styles')
-    }
+    alias: getViteAliasFromTsconfig()
   },
   build: {
     lib: {
@@ -27,6 +30,7 @@ export default defineConfig({
           'react-dom': 'ReactDOM'
         }
       }
-    }
+    },
+    cssCodeSplit: false
   }
 })
