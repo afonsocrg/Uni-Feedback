@@ -1,4 +1,3 @@
-import '@uni-feedback/ui/style'
 import './index.css'
 
 import { StrictMode } from 'react'

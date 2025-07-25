@@ -8,20 +8,12 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.es.js"
     },
-    "./components/*": {
-      "types": "./src/components/*.tsx",
-      "import": "./src/components/*.tsx"
-    },
-    "./utils/*": {
-      "types": "./src/utils/*.ts",
-      "import": "./src/utils/*.ts"
-    },
-    "./style": {
-      "import": "./dist/style.css"
-    }
+    "./style.css": "./dist/style.css",
+    "./tailwind.config.ts": "./tailwind.config.js"
   },
   "scripts": {
     "build": "vite build",
+    "dev": "vite build --watch",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {

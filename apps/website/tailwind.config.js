@@ -3,8 +3,7 @@ export default {
   content: [
     './index.html',
     './src/**/*.{js,ts,jsx,tsx}',
-    '../../packages/ui/src/**/*.{js,ts,jsx,tsx}',
-    '../../packages111/ui/dist/**/*.{js,ts,jsx,tsx}'
+    '../../packages/ui/src/**/*.{js,ts,jsx,tsx}'
   ],
   plugins: []
 }
