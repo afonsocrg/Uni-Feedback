@@ -1,6 +1,5 @@
 export * from './ActionButton'
 export * from './Breadcrumb'
-export * from './Chip'
 export * from './EditableSection'
 export * from './ErrorPanel'
 export * from './SelectionCard'

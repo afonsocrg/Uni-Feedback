@@ -1,6 +1,7 @@
-import { Chip, FeedbackItem } from '@components'
-import { formatSchoolYearString } from '@uni-feedback/utils'
+import { FeedbackItem } from '@components'
 import { Feedback } from '@services/meicFeedbackAPI'
+import { Chip } from '@uni-feedback/ui'
+import { formatSchoolYearString } from '@uni-feedback/utils'
 
 interface SchoolYearSectionProps {
   schoolYear: number
