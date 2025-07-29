@@ -1,5 +1,5 @@
 import { DashboardLayout, ProtectedRoute } from '@components'
-import { HomePage, LoginPage } from '@pages'
+import { HomePage, LoginPage, ForgotPasswordPage, ResetPasswordPage, CreateAccountPage } from '@pages'
 import { Providers } from '@providers'
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom'
 
@@ -11,9 +11,9 @@ function App() {
           <Routes>
             {/* Auth Routes */}
             <Route path="/login" element={<LoginPage />} />
-            {/* <Route path="/forgot-password" element={<ForgotPasswordPage />} /> */}
-            {/* <Route path="/reset-password" element={<ResetPasswordPage />} /> */}
-            {/* <Route path="/create-account" element={<CreateAccountPage />} /> */}
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
+            <Route path="/create-account" element={<CreateAccountPage />} />
 
             {/* Protected Dashboard Routes */}
             <Route

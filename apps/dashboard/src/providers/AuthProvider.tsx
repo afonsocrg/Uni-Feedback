@@ -65,7 +65,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     isAuthenticated,
     login,
     logout,
-    refreshAuth
+    refreshAuth,
+    setUser
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
