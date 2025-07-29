@@ -1,8 +1,8 @@
-import { Calendar, Home, Inbox, LogOut, Search, Settings } from 'lucide-react'
-
+import { useAuth } from '@hooks'
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -10,7 +10,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem
 } from '@uni-feedback/ui'
-import { useAuth } from '@hooks'
+import { Calendar, Home, Inbox, Search, Settings } from 'lucide-react'
+import { NavUser } from './NavUser'
 
 // Menu items.
 const items = [
@@ -41,17 +42,8 @@ const items = [
   }
 ]
 
-const secondaryItems = [
-  {
-    title: 'Logout',
-    url: '#',
-    icon: LogOut
-  }
-]
-
 export function DashboardSidebar() {
-  const { logout } = useAuth()
-
+  const { user } = useAuth()
   return (
     <Sidebar>
       <SidebarContent>
@@ -72,26 +64,10 @@ export function DashboardSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        <SidebarGroup className="mt-auto">
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {secondaryItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild size="sm">
-                    <a 
-                      href={item.url}
-                      onClick={item.title === 'Logout' ? logout : undefined}
-                    >
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter>
+        <NavUser user={user} />
+      </SidebarFooter>
     </Sidebar>
   )
 }
