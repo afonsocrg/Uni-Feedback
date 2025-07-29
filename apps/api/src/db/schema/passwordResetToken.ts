@@ -6,7 +6,7 @@ export const passwordResetTokens = sqliteTable('password_reset_tokens', {
   userId: integer('user_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
-  token: text('token').notNull().unique(),
+  tokenHash: text('token_hash').notNull().unique(),
   expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull(),
   usedAt: integer('used_at', { mode: 'timestamp' }),
   createdAt: integer('created_at', { mode: 'timestamp' }).$defaultFn(

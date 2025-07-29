@@ -11,7 +11,7 @@ import {
   type User,
   type UserCreationToken
 } from '@db/schema'
-import { generateSecureToken, hashPassword, verifyPassword } from '@utils/auth'
+import { generateSecureToken, hashPassword, hashToken, verifyHash } from '@utils/auth'
 import { and, eq, gt, isNull, lt } from 'drizzle-orm'
 
 export class AuthService {
@@ -80,32 +80,38 @@ export class AuthService {
     const user = await this.findUserByEmail(email)
     if (!user) return null
 
-    const isValid = await verifyPassword(password, user.passwordHash)
+    const isValid = await verifyHash(password, user.passwordHash)
     return isValid ? user : null
   }
 
   /**
    * Create a new session
    */
-  async createSession(userId: number): Promise<Session> {
+  async createSession(userId: number): Promise<Session & { accessToken: string; refreshToken: string }> {
     // Clean up expired sessions for this user
     await this.cleanupExpiredSessions(userId)
 
     const accessToken = generateSecureToken(32)
     const refreshToken = generateSecureToken(48)
+    const accessTokenHash = await hashToken(accessToken)
+    const refreshTokenHash = await hashToken(refreshToken)
     const expiresAt = new Date(Date.now() + TOKEN_EXPIRATION_MS.ACCESS_TOKEN)
 
     const [session] = await this.db
       .insert(sessions)
       .values({
         userId,
-        accessToken,
-        refreshToken,
+        accessTokenHash,
+        refreshTokenHash,
         expiresAt
       })
       .returning()
 
-    return session
+    return {
+      ...session,
+      accessToken,
+      refreshToken
+    }
   }
 
   /**
@@ -114,6 +120,8 @@ export class AuthService {
   async findSessionByAccessToken(
     accessToken: string
   ): Promise<(Session & { user: User }) | null> {
+    const accessTokenHash = await hashToken(accessToken)
+    
     const result = await this.db
       .select({
         session: sessions,
@@ -123,7 +131,7 @@ export class AuthService {
       .innerJoin(users, eq(sessions.userId, users.id))
       .where(
         and(
-          eq(sessions.accessToken, accessToken),
+          eq(sessions.accessTokenHash, accessTokenHash),
           gt(sessions.expiresAt, new Date())
         )
       )
@@ -143,6 +151,8 @@ export class AuthService {
   async findSessionByRefreshToken(
     refreshToken: string
   ): Promise<(Session & { user: User }) | null> {
+    const refreshTokenHash = await hashToken(refreshToken)
+    
     const result = await this.db
       .select({
         session: sessions,
@@ -150,7 +160,7 @@ export class AuthService {
       })
       .from(sessions)
       .innerJoin(users, eq(sessions.userId, users.id))
-      .where(eq(sessions.refreshToken, refreshToken))
+      .where(eq(sessions.refreshTokenHash, refreshTokenHash))
       .limit(1)
 
     if (result.length === 0) return null
@@ -164,33 +174,40 @@ export class AuthService {
   /**
    * Refresh a session
    */
-  async refreshSession(refreshToken: string): Promise<Session | null> {
+  async refreshSession(refreshToken: string): Promise<(Session & { accessToken: string; refreshToken: string }) | null> {
     const sessionData = await this.findSessionByRefreshToken(refreshToken)
     if (!sessionData) return null
 
     // Update the session with new tokens and expiry
     const newAccessToken = generateSecureToken(32)
     const newRefreshToken = generateSecureToken(48)
+    const newAccessTokenHash = await hashToken(newAccessToken)
+    const newRefreshTokenHash = await hashToken(newRefreshToken)
     const newExpiresAt = new Date(Date.now() + TOKEN_EXPIRATION_MS.ACCESS_TOKEN)
 
     const [updatedSession] = await this.db
       .update(sessions)
       .set({
-        accessToken: newAccessToken,
-        refreshToken: newRefreshToken,
+        accessTokenHash: newAccessTokenHash,
+        refreshTokenHash: newRefreshTokenHash,
         expiresAt: newExpiresAt
       })
       .where(eq(sessions.id, sessionData.id))
       .returning()
 
-    return updatedSession
+    return {
+      ...updatedSession,
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken
+    }
   }
 
   /**
    * Delete a session
    */
   async deleteSession(accessToken: string): Promise<void> {
-    await this.db.delete(sessions).where(eq(sessions.accessToken, accessToken))
+    const accessTokenHash = await hashToken(accessToken)
+    await this.db.delete(sessions).where(eq(sessions.accessTokenHash, accessTokenHash))
   }
 
   /**
@@ -207,20 +224,24 @@ export class AuthService {
   /**
    * Create password reset token
    */
-  async createPasswordResetToken(userId: number): Promise<PasswordResetToken> {
+  async createPasswordResetToken(userId: number): Promise<PasswordResetToken & { token: string }> {
     const token = generateSecureToken(32)
+    const tokenHash = await hashToken(token)
     const expiresAt = new Date(Date.now() + TOKEN_EXPIRATION_MS.PASSWORD_RESET)
 
     const [resetToken] = await this.db
       .insert(passwordResetTokens)
       .values({
         userId,
-        token,
+        tokenHash,
         expiresAt
       })
       .returning()
 
-    return resetToken
+    return {
+      ...resetToken,
+      token
+    }
   }
 
   /**
@@ -229,6 +250,8 @@ export class AuthService {
   async findPasswordResetToken(
     token: string
   ): Promise<(PasswordResetToken & { user: User }) | null> {
+    const tokenHash = await hashToken(token)
+    
     const result = await this.db
       .select({
         token: passwordResetTokens,
@@ -238,7 +261,7 @@ export class AuthService {
       .innerJoin(users, eq(passwordResetTokens.userId, users.id))
       .where(
         and(
-          eq(passwordResetTokens.token, token),
+          eq(passwordResetTokens.tokenHash, tokenHash),
           gt(passwordResetTokens.expiresAt, new Date()),
           isNull(passwordResetTokens.usedAt)
         )
@@ -289,21 +312,25 @@ export class AuthService {
   async createUserCreationToken(
     email: string,
     createdBy: number
-  ): Promise<UserCreationToken> {
+  ): Promise<UserCreationToken & { token: string }> {
     const token = generateSecureToken(32)
+    const tokenHash = await hashToken(token)
     const expiresAt = new Date(Date.now() + TOKEN_EXPIRATION_MS.USER_CREATION)
 
     const [creationToken] = await this.db
       .insert(userCreationTokens)
       .values({
         email,
-        token,
+        tokenHash,
         expiresAt,
         createdBy
       })
       .returning()
 
-    return creationToken
+    return {
+      ...creationToken,
+      token
+    }
   }
 
   /**
@@ -312,12 +339,14 @@ export class AuthService {
   async findUserCreationToken(
     token: string
   ): Promise<UserCreationToken | null> {
+    const tokenHash = await hashToken(token)
+    
     const [creationToken] = await this.db
       .select()
       .from(userCreationTokens)
       .where(
         and(
-          eq(userCreationTokens.token, token),
+          eq(userCreationTokens.tokenHash, tokenHash),
           gt(userCreationTokens.expiresAt, new Date()),
           isNull(userCreationTokens.usedAt)
         )

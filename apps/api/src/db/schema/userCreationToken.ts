@@ -4,7 +4,7 @@ import { users } from './user'
 export const userCreationTokens = sqliteTable('user_creation_tokens', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   email: text('email').notNull(),
-  token: text('token').notNull().unique(),
+  tokenHash: text('token_hash').notNull().unique(),
   expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull(),
   usedAt: integer('used_at', { mode: 'timestamp' }),
   createdBy: integer('created_by')

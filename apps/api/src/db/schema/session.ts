@@ -6,8 +6,8 @@ export const sessions = sqliteTable('sessions', {
   userId: integer('user_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
-  accessToken: text('access_token').notNull().unique(),
-  refreshToken: text('refresh_token').notNull().unique(),
+  accessTokenHash: text('access_token_hash').notNull().unique(),
+  refreshTokenHash: text('refresh_token_hash').notNull().unique(),
   expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull(),
   createdAt: integer('created_at', { mode: 'timestamp' }).$defaultFn(
     () => new Date()

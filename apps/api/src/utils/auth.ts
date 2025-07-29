@@ -74,9 +74,23 @@ export async function hashPassword(password: string): Promise<string> {
 }
 
 /**
+ * Hashes a token using SHA-256 (for high-entropy tokens)
+ */
+export async function hashToken(token: string): Promise<string> {
+  const encoder = new TextEncoder()
+  const data = encoder.encode(token)
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
+  const hashArray = new Uint8Array(hashBuffer)
+  
+  return Array.from(hashArray)
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('')
+}
+
+/**
  * Verifies a password against its hash
  */
-export async function verifyPassword(
+export async function verifyHash(
   password: string,
   hash: string
 ): Promise<boolean> {
