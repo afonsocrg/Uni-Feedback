@@ -1,5 +1,5 @@
 import { DashboardLayout, ProtectedRoute } from '@components'
-import { HomePage, LoginPage, ForgotPasswordPage, ResetPasswordPage, CreateAccountPage } from '@pages'
+import { HomePage, LoginPage, ForgotPasswordPage, ResetPasswordPage, CreateAccountPage, NotFoundPage } from '@pages'
 import { Providers } from '@providers'
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom'
 
@@ -32,6 +32,9 @@ function App() {
               <Route path="feedback" element={<FeedbackPage />} />
               <Route path="profile" element={<ProfilePage />} /> */}
             </Route>
+
+            {/* 404 Not Found - Outside of DashboardLayout */}
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </div>
       </Router>

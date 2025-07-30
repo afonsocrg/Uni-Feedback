@@ -6,7 +6,7 @@ export function DashboardLayout() {
   return (
     <SidebarProvider>
       <DashboardSidebar />
-      <main>
+      <main className="p-4">
         <SidebarTrigger />
         <Outlet />
       </main>

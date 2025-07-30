@@ -10,35 +10,42 @@ import {
   SidebarMenuButton,
   SidebarMenuItem
 } from '@uni-feedback/ui'
-import { Calendar, Home, Inbox, Search, Settings } from 'lucide-react'
+import {
+  BookOpen,
+  Building2,
+  GraduationCap,
+  MessageSquare,
+  Users
+} from 'lucide-react'
 import { NavUser } from './NavUser'
 
 // Menu items.
 const items = [
   {
-    title: 'Home',
-    url: '#',
-    icon: Home
+    title: 'Users',
+    url: '/users',
+    icon: Users,
+    superuserOnly: true
   },
   {
-    title: 'Inbox',
-    url: '#',
-    icon: Inbox
+    title: 'Faculties',
+    url: '/faculties',
+    icon: Building2
   },
   {
-    title: 'Calendar',
-    url: '#',
-    icon: Calendar
+    title: 'Degrees',
+    url: '/degrees',
+    icon: GraduationCap
   },
   {
-    title: 'Search',
-    url: '#',
-    icon: Search
+    title: 'Courses',
+    url: '/courses',
+    icon: BookOpen
   },
   {
-    title: 'Settings',
-    url: '#',
-    icon: Settings
+    title: 'Feedback',
+    url: '/feedback',
+    icon: MessageSquare
   }
 ]
 
@@ -48,19 +55,21 @@ export function DashboardSidebar() {
     <Sidebar>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
+          <SidebarGroupLabel>Uni Feedback</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <a href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {items
+                .filter((item) => !item.superuserOnly || user?.superuser)
+                .map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <a href={item.url}>
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </a>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
