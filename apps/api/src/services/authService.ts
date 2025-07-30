@@ -11,7 +11,12 @@ import {
   type User,
   type UserCreationToken
 } from '@db/schema'
-import { generateSecureToken, hashPassword, hashToken, verifyHash } from '@utils/auth'
+import {
+  generateSecureToken,
+  hashPassword,
+  hashToken,
+  verifyHash
+} from '@utils/auth'
 import { and, eq, gt, isNull, lt } from 'drizzle-orm'
 
 export class AuthService {
@@ -87,7 +92,9 @@ export class AuthService {
   /**
    * Create a new session
    */
-  async createSession(userId: number): Promise<Session & { accessToken: string; refreshToken: string }> {
+  async createSession(
+    userId: number
+  ): Promise<Session & { accessToken: string; refreshToken: string }> {
     // Clean up expired sessions for this user
     await this.cleanupExpiredSessions(userId)
 
@@ -121,7 +128,7 @@ export class AuthService {
     accessToken: string
   ): Promise<(Session & { user: User }) | null> {
     const accessTokenHash = await hashToken(accessToken)
-    
+
     const result = await this.db
       .select({
         session: sessions,
@@ -152,7 +159,7 @@ export class AuthService {
     refreshToken: string
   ): Promise<(Session & { user: User }) | null> {
     const refreshTokenHash = await hashToken(refreshToken)
-    
+
     const result = await this.db
       .select({
         session: sessions,
@@ -174,7 +181,9 @@ export class AuthService {
   /**
    * Refresh a session
    */
-  async refreshSession(refreshToken: string): Promise<(Session & { accessToken: string; refreshToken: string }) | null> {
+  async refreshSession(
+    refreshToken: string
+  ): Promise<(Session & { accessToken: string; refreshToken: string }) | null> {
     const sessionData = await this.findSessionByRefreshToken(refreshToken)
     if (!sessionData) return null
 
@@ -207,7 +216,9 @@ export class AuthService {
    */
   async deleteSession(accessToken: string): Promise<void> {
     const accessTokenHash = await hashToken(accessToken)
-    await this.db.delete(sessions).where(eq(sessions.accessTokenHash, accessTokenHash))
+    await this.db
+      .delete(sessions)
+      .where(eq(sessions.accessTokenHash, accessTokenHash))
   }
 
   /**
@@ -224,7 +235,9 @@ export class AuthService {
   /**
    * Create password reset token
    */
-  async createPasswordResetToken(userId: number): Promise<PasswordResetToken & { token: string }> {
+  async createPasswordResetToken(
+    userId: number
+  ): Promise<PasswordResetToken & { token: string }> {
     const token = generateSecureToken(32)
     const tokenHash = await hashToken(token)
     const expiresAt = new Date(Date.now() + TOKEN_EXPIRATION_MS.PASSWORD_RESET)
@@ -251,7 +264,7 @@ export class AuthService {
     token: string
   ): Promise<(PasswordResetToken & { user: User }) | null> {
     const tokenHash = await hashToken(token)
-    
+
     const result = await this.db
       .select({
         token: passwordResetTokens,
@@ -340,7 +353,7 @@ export class AuthService {
     token: string
   ): Promise<UserCreationToken | null> {
     const tokenHash = await hashToken(token)
-    
+
     const [creationToken] = await this.db
       .select()
       .from(userCreationTokens)

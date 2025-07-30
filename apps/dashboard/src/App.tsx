@@ -1,5 +1,13 @@
 import { DashboardLayout, ProtectedRoute } from '@components'
-import { HomePage, LoginPage, ForgotPasswordPage, ResetPasswordPage, CreateAccountPage, NotFoundPage } from '@pages'
+import {
+  HomePage,
+  LoginPage,
+  ForgotPasswordPage,
+  ResetPasswordPage,
+  CreateAccountPage,
+  NotFoundPage,
+  UsersPage
+} from '@pages'
 import { Providers } from '@providers'
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom'
 
@@ -25,8 +33,8 @@ function App() {
               }
             >
               <Route index element={<HomePage />} />
-              {/* <Route path="users" element={<UsersPage />} />
-              <Route path="faculties" element={<FacultiesPage />} />
+              <Route path="users" element={<UsersPage />} />
+              {/* <Route path="faculties" element={<FacultiesPage />} />
               <Route path="degrees" element={<DegreesPage />} />
               <Route path="courses" element={<CoursesPage />} />
               <Route path="feedback" element={<FeedbackPage />} />

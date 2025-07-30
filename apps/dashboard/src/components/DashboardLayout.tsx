@@ -6,8 +6,8 @@ export function DashboardLayout() {
   return (
     <SidebarProvider>
       <DashboardSidebar />
-      <main className="p-4">
-        <SidebarTrigger />
+      <main className="p-4 w-full">
+        <SidebarTrigger className="mb-2" />
         <Outlet />
       </main>
     </SidebarProvider>

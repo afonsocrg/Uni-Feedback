@@ -16,7 +16,10 @@ import {
   FormMessage,
   Input
 } from '@uni-feedback/ui'
-import { createAccount, type CreateAccountRequest } from '@uni-feedback/api-client'
+import {
+  createAccount,
+  type CreateAccountRequest
+} from '@uni-feedback/api-client'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
@@ -164,7 +167,9 @@ function CreateAccountForm({
                     name="confirmPassword"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel htmlFor="confirmPassword">Confirm Password</FormLabel>
+                        <FormLabel htmlFor="confirmPassword">
+                          Confirm Password
+                        </FormLabel>
                         <FormControl>
                           <Input
                             id="confirmPassword"
@@ -179,11 +184,7 @@ function CreateAccountForm({
                   />
                 </div>
                 <div className="flex flex-col gap-3">
-                  <Button
-                    type="submit"
-                    className="w-full"
-                    disabled={isLoading}
-                  >
+                  <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading ? 'Creating account...' : 'Create account'}
                   </Button>
                   <Button asChild variant="outline" className="w-full">

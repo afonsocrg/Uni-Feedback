@@ -15,7 +15,10 @@ import {
   FormMessage,
   Input
 } from '@uni-feedback/ui'
-import { forgotPassword, type ForgotPasswordRequest } from '@uni-feedback/api-client'
+import {
+  forgotPassword,
+  type ForgotPasswordRequest
+} from '@uni-feedback/api-client'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link } from 'react-router-dom'
@@ -84,7 +87,8 @@ function ForgotPasswordForm({
         <CardHeader>
           <CardTitle>Forgot your password?</CardTitle>
           <CardDescription>
-            Enter your email address and we'll send you a link to reset your password.
+            Enter your email address and we'll send you a link to reset your
+            password.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -113,11 +117,7 @@ function ForgotPasswordForm({
                   />
                 </div>
                 <div className="flex flex-col gap-3">
-                  <Button
-                    type="submit"
-                    className="w-full"
-                    disabled={isLoading}
-                  >
+                  <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading ? 'Sending...' : 'Send reset link'}
                   </Button>
                   <Button asChild variant="outline" className="w-full">
