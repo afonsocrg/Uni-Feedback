@@ -17,7 +17,7 @@ const DegreeSchema = z.object({
 const FacultyDetailsResponseSchema = z.object({
   id: z.number(),
   name: z.string(),
-  short_name: z.string(),
+  shortName: z.string(),
   url: z.string(),
   emailSuffixes: z.array(z.string()).optional(),
   degrees: z.array(DegreeSchema)
@@ -27,7 +27,8 @@ export class GetFacultyDetails extends OpenAPIRoute {
   schema = {
     tags: ['Faculties'],
     summary: 'Get faculty details with degrees and course counts',
-    description: 'Returns faculty information with all associated degrees including course counts per degree',
+    description:
+      'Returns faculty information with all associated degrees including course counts per degree',
     request: {
       params: z.object({
         id: z.number()
@@ -60,7 +61,7 @@ export class GetFacultyDetails extends OpenAPIRoute {
       .select({
         id: faculties.id,
         name: faculties.name,
-        short_name: faculties.shortName,
+        shortName: faculties.shortName,
         url: faculties.url,
         emailSuffixes: faculties.emailSuffixes
       })

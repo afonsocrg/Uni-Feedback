@@ -37,7 +37,7 @@ export function FacultiesPage() {
   const filteredFaculties = faculties.filter(
     (faculty) =>
       faculty.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      faculty.shortName.toLowerCase().includes(searchTerm.toLowerCase())
+      faculty.shortName?.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   const handleFacultyClick = (facultyId: number) => {

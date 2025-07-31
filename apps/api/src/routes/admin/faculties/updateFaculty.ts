@@ -22,7 +22,8 @@ export class UpdateFaculty extends OpenAPIRoute {
   schema = {
     tags: ['Admin - Faculties'],
     summary: 'Update faculty information',
-    description: 'Updates basic faculty information (name, short_name, url). Email suffixes are managed separately.',
+    description:
+      'Updates basic faculty information (name, shortName, url). Email suffixes are managed separately.',
     request: {
       params: z.object({
         id: z.string().transform((val) => parseInt(val, 10))
@@ -50,10 +51,14 @@ export class UpdateFaculty extends OpenAPIRoute {
           'application/json': {
             schema: z.object({
               error: z.string(),
-              errors: z.array(z.object({
-                field: z.string(),
-                message: z.string()
-              })).optional()
+              errors: z
+                .array(
+                  z.object({
+                    field: z.string(),
+                    message: z.string()
+                  })
+                )
+                .optional()
             })
           }
         }
@@ -79,7 +84,7 @@ export class UpdateFaculty extends OpenAPIRoute {
 
       // Validate field values are not null/empty
       const validationErrors: { field: string; message: string }[] = []
-      
+
       if (updateData.name !== undefined) {
         if (updateData.name === null || updateData.name.trim() === '') {
           validationErrors.push({
@@ -88,16 +93,19 @@ export class UpdateFaculty extends OpenAPIRoute {
           })
         }
       }
-      
+
       if (updateData.shortName !== undefined) {
-        if (updateData.shortName === null || updateData.shortName.trim() === '') {
+        if (
+          updateData.shortName === null ||
+          updateData.shortName.trim() === ''
+        ) {
           validationErrors.push({
             field: 'shortName',
             message: 'Faculty short name cannot be empty'
           })
         }
       }
-      
+
       if (validationErrors.length > 0) {
         return Response.json(
           {
@@ -123,9 +131,11 @@ export class UpdateFaculty extends OpenAPIRoute {
 
       // Update database with trimmed values
       const dbUpdateData: any = {}
-      if (updateData.name !== undefined) dbUpdateData.name = updateData.name.trim()
-      if (updateData.shortName !== undefined) dbUpdateData.shortName = updateData.shortName.trim()
-      
+      if (updateData.name !== undefined)
+        dbUpdateData.name = updateData.name.trim()
+      if (updateData.shortName !== undefined)
+        dbUpdateData.shortName = updateData.shortName.trim()
+
       // Update faculty
       const updatedFaculty = await db
         .update(faculties)

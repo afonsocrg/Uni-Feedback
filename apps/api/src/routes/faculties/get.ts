@@ -7,7 +7,7 @@ import { z } from 'zod'
 const FacultyResponseSchema = z.object({
   id: z.number(),
   name: z.string(),
-  short_name: z.string(),
+  shortName: z.string(),
   url: z.string(),
   emailSuffixes: z.array(z.string()).optional()
 })
@@ -43,7 +43,7 @@ export class GetFaculties extends OpenAPIRoute {
       .select({
         id: faculties.id,
         name: faculties.name,
-        short_name: faculties.shortName,
+        shortName: faculties.shortName,
         url: faculties.url,
         emailSuffixes: faculties.emailSuffixes
       })
