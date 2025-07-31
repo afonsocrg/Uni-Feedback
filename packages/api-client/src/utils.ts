@@ -34,6 +34,35 @@ async function apiFetch(
 
   const response = await fetch(url, config)
 
+  // Handle 401 Unauthorized errors with token refresh
+  if (response.status === 401 && requiresAuth) {
+    try {
+      // Attempt to refresh the access token
+      const refreshResponse = await fetch(`${API_BASE_URL}/auth/refresh`, {
+        method: 'POST',
+        credentials: 'include'
+      })
+
+      if (refreshResponse.ok) {
+        // Retry the original request with the new token
+        const retryResponse = await fetch(url, config)
+
+        if (!retryResponse.ok) {
+          const error = await retryResponse
+            .json()
+            .catch(() => ({ error: 'Request failed' }))
+          throw new Error(
+            error.error || `Request failed with status ${retryResponse.status}`
+          )
+        }
+
+        return retryResponse
+      }
+    } catch {
+      // If refresh fails, fall through to original error handling
+    }
+  }
+
   if (!response.ok) {
     const error = await response
       .json()
