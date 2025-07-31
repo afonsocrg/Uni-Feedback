@@ -46,7 +46,7 @@ export function FacultySelector() {
         {faculties.map((faculty) => (
           <SelectionCard
             key={faculty.id}
-            title={faculty.short_name}
+            title={faculty.shortName}
             subtitle={faculty.name}
             onClick={() => handleFacultySelect(faculty)}
           />

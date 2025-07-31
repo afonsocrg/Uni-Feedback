@@ -1,7 +1,7 @@
 export interface Faculty {
   id: number
   name: string
-  short_name: string
+  shortName: string
   url: string
   emailSuffixes?: string[]
 }

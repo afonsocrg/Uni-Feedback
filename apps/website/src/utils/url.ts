@@ -1,7 +1,7 @@
-import type { Faculty, Degree } from '@services/meicFeedbackAPI'
+import type { Degree, Faculty } from '@services/meicFeedbackAPI'
 
 /**
- * Converts a faculty short_name to a URL-safe slug
+ * Converts a faculty shortName to a URL-safe slug
  * @param shortName - The faculty short name (e.g., "Nova SBE")
  * @returns URL-safe slug (e.g., "nova-sbe")
  */
@@ -10,7 +10,7 @@ export function facultyToSlug(shortName: string): string {
 }
 
 /**
- * Converts a URL slug back to match faculty short_name for lookup
+ * Converts a URL slug back to match faculty shortName for lookup
  * @param slug - URL slug (e.g., "nova-sbe")
  * @param faculties - Array of faculty objects to search
  * @returns Matching faculty object or undefined
@@ -20,7 +20,7 @@ export function slugToFaculty(
   faculties: Faculty[]
 ): Faculty | undefined {
   return faculties.find(
-    (f) => facultyToSlug(f.short_name) === slug.toLowerCase()
+    (f) => facultyToSlug(f.shortName) === slug.toLowerCase()
   )
 }
 
@@ -52,7 +52,7 @@ export function slugToDegree(
  * @returns URL path (e.g., "/nova-sbe")
  */
 export function buildFacultyUrl(faculty: Faculty): string {
-  return `/${facultyToSlug(faculty.short_name)}`
+  return `/${facultyToSlug(faculty.shortName)}`
 }
 
 /**
@@ -62,5 +62,5 @@ export function buildFacultyUrl(faculty: Faculty): string {
  * @returns URL path (e.g., "/nova-sbe/mba")
  */
 export function buildDegreeUrl(faculty: Faculty, degree: Degree): string {
-  return `/${facultyToSlug(faculty.short_name)}/${degreeToSlug(degree.acronym)}`
+  return `/${facultyToSlug(faculty.shortName)}/${degreeToSlug(degree.acronym)}`
 }

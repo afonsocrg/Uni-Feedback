@@ -1,4 +1,4 @@
-import { apiGet } from './utils'
+import { apiDelete, apiGet, apiPost, apiPut } from './utils'
 
 // Admin Stats Types
 export interface AdminStats {
@@ -103,6 +103,29 @@ export interface AdminFaculty {
   courseCount: number
   feedbackCount: number
   createdAt: string
+}
+
+export interface AdminFacultyDetail {
+  id: number
+  name: string
+  shortName: string
+  emailSuffixes: string[]
+  degrees: AdminFacultyDegree[]
+  degreeCount: number
+  createdAt: string
+}
+
+export interface AdminFacultyDegree {
+  id: number
+  name: string
+  acronym: string
+  type: string
+  courseCount: number
+}
+
+export interface FacultyUpdateData {
+  name?: string
+  shortName?: string
 }
 
 export interface AdminFacultiesResponse {
@@ -245,4 +268,54 @@ export async function getAdminFeedback(
     ? `/admin/feedback?${params}`
     : '/admin/feedback'
   return apiGet<AdminFeedbackResponse>(url)
+}
+
+/**
+ * Update faculty information
+ */
+export async function updateFaculty(
+  facultyId: number,
+  updates: FacultyUpdateData
+): Promise<AdminFacultyDetail> {
+  return apiPut<AdminFacultyDetail>(`/admin/faculties/${facultyId}`, updates)
+}
+
+/**
+ * Get faculty email suffixes
+ */
+export async function getFacultyEmailSuffixes(
+  facultyId: number
+): Promise<{ facultyId: number; emailSuffixes: string[] }> {
+  return apiGet<{ facultyId: number; emailSuffixes: string[] }>(
+    `/admin/faculties/${facultyId}/email-suffixes`
+  )
+}
+
+/**
+ * Add email suffix to faculty
+ */
+export async function addFacultyEmailSuffix(
+  facultyId: number,
+  suffix: string
+): Promise<{ facultyId: number; emailSuffixes: string[]; message: string }> {
+  return apiPost<{
+    facultyId: number
+    emailSuffixes: string[]
+    message: string
+  }>(`/admin/faculties/${facultyId}/email-suffixes`, { suffix })
+}
+
+/**
+ * Remove email suffix from faculty
+ */
+export async function removeFacultyEmailSuffix(
+  facultyId: number,
+  suffix: string
+): Promise<{ facultyId: number; emailSuffixes: string[]; message: string }> {
+  const encodedSuffix = encodeURIComponent(suffix)
+  return apiDelete<{
+    facultyId: number
+    emailSuffixes: string[]
+    message: string
+  }>(`/admin/faculties/${facultyId}/email-suffixes/${encodedSuffix}`)
 }

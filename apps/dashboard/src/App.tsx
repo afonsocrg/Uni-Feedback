@@ -6,7 +6,9 @@ import {
   ResetPasswordPage,
   CreateAccountPage,
   NotFoundPage,
-  UsersPage
+  UsersPage,
+  FacultiesPage,
+  FacultyDetailPage
 } from '@pages'
 import { Providers } from '@providers'
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom'
@@ -34,8 +36,9 @@ function App() {
             >
               <Route index element={<HomePage />} />
               <Route path="users" element={<UsersPage />} />
-              {/* <Route path="faculties" element={<FacultiesPage />} />
-              <Route path="degrees" element={<DegreesPage />} />
+              <Route path="faculties" element={<FacultiesPage />} />
+              <Route path="faculties/:id" element={<FacultyDetailPage />} />
+              {/* <Route path="degrees" element={<DegreesPage />} />
               <Route path="courses" element={<CoursesPage />} />
               <Route path="feedback" element={<FeedbackPage />} />
               <Route path="profile" element={<ProfilePage />} /> */}

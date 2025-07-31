@@ -1,6 +1,12 @@
-import { requireSuperuser } from '@middleware/auth'
+import { requireAdmin, requireSuperuser } from '@middleware/auth'
 import { fromIttyRouter } from 'chanfana'
 import { cors, Router, withCookies } from 'itty-router'
+import {
+  AddFacultyEmailSuffix,
+  GetFacultyEmailSuffixes,
+  RemoveFacultyEmailSuffix,
+  UpdateFaculty
+} from './admin'
 import {
   CreateAccount,
   ForgotPassword,
@@ -74,6 +80,26 @@ router.post('/auth/create-account', CreateAccount)
 // ---------------------------------------------------------
 router.post('/auth/invite', requireSuperuser, Invite)
 router.get('/users', requireSuperuser, GetUsers)
+
+// ---------------------------------------------------------
+// Admin routes
+// ---------------------------------------------------------
+router.put('/admin/faculties/:id', requireAdmin, UpdateFaculty)
+router.get(
+  '/admin/faculties/:id/email-suffixes',
+  requireAdmin,
+  GetFacultyEmailSuffixes
+)
+router.post(
+  '/admin/faculties/:id/email-suffixes',
+  requireAdmin,
+  AddFacultyEmailSuffix
+)
+router.delete(
+  '/admin/faculties/:id/email-suffixes/:suffix',
+  requireAdmin,
+  RemoveFacultyEmailSuffix
+)
 
 // 404 for everything else
 router.all('*', () =>

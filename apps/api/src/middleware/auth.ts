@@ -1,5 +1,5 @@
-import { AuthService } from '@services/authService'
 import { AUTH_CONFIG } from '@config/auth'
+import { AuthService } from '@services/authService'
 
 export async function authenticateUser(
   request: Request,
@@ -30,6 +30,14 @@ export async function authenticateUser(
   // Add user to context
   context.user = sessionData.user
   context.session = sessionData
+}
+
+export async function requireAdmin(request: Request, env: any, context: any) {
+  // First authenticate
+  const authResult = await authenticateUser(request, env, context)
+  if (authResult) return authResult
+
+  // Logged in users are always admin
 }
 
 export async function requireSuperuser(

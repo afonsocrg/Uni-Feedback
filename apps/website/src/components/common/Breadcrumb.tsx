@@ -38,7 +38,7 @@ export function Breadcrumb({ className = '' }: BreadcrumbProps) {
         <>
           <ChevronRight className="h-4 w-4 text-gray-400 mx-1" />
           <BreadcrumbItem onClick={handleDegreeClick}>
-            {faculty.short_name}
+            {faculty.shortName}
           </BreadcrumbItem>
         </>
       )}

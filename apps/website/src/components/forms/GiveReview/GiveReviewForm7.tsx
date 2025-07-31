@@ -285,7 +285,7 @@ export function GiveReviewForm7({
                                   >
                                     {faculties?.find(
                                       (f) => f.id === field.value
-                                    )?.short_name ?? 'Select university'}
+                                    )?.shortName ?? 'Select university'}
                                     <ChevronsUpDown className="opacity-50" />
                                   </Button>
                                 </FormControl>
@@ -303,13 +303,13 @@ export function GiveReviewForm7({
                                     <CommandGroup>
                                       {faculties?.map((f) => (
                                         <CommandItem
-                                          value={`${f.short_name} - ${f.name}`}
+                                          value={`${f.shortName} - ${f.name}`}
                                           key={f.id}
                                           onSelect={() => {
                                             form.setValue('facultyId', f.id)
                                           }}
                                         >
-                                          {f.short_name}
+                                          {f.shortName}
                                           <Check
                                             className={
                                               cn(

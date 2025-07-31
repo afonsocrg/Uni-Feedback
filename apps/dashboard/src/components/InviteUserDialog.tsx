@@ -1,28 +1,26 @@
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { useMutation } from '@tanstack/react-query'
 import { inviteUser } from '@uni-feedback/api-client'
 import {
+  Button,
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  Button,
-  Input,
-  Label,
   Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
-  FormMessage
+  FormMessage,
+  Input
 } from '@uni-feedback/ui'
 import { Loader2, Mail } from 'lucide-react'
+import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
+import { z } from 'zod'
 
 const inviteSchema = z.object({
   email: z.string().email('Please enter a valid email address')

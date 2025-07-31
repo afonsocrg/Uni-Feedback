@@ -1,4 +1,7 @@
+export * from './AddSuffixDialog'
 export * from './DashboardLayout'
+export * from './EditableField'
+export * from './FacultyEditDialog'
 export * from './LoginForm'
 export * from './NavUser'
 export * from './ProtectedRoute'

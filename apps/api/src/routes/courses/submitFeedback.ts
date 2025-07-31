@@ -1,6 +1,6 @@
 import { courses, degrees, feedback, getDb } from '@db'
-import { getCurrentSchoolYear } from '@uni-feedback/utils'
 import { sendCourseReviewReceived } from '@services/telegram'
+import { getCurrentSchoolYear } from '@uni-feedback/utils'
 import { contentJson, OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'

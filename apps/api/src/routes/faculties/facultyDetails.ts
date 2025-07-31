@@ -1,6 +1,6 @@
-import { degrees, faculties, getDb } from '@db'
+import { courses, degrees, faculties, getDb } from '@db'
 import { OpenAPIRoute } from 'chanfana'
-import { eq } from 'drizzle-orm'
+import { count, eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
 import { z } from 'zod'
 
@@ -10,7 +10,8 @@ const DegreeSchema = z.object({
   type: z.string(),
   name: z.string(),
   acronym: z.string(),
-  campus: z.string()
+  campus: z.string(),
+  courseCount: z.number().optional()
 })
 
 const FacultyDetailsResponseSchema = z.object({
@@ -25,8 +26,8 @@ const FacultyDetailsResponseSchema = z.object({
 export class GetFacultyDetails extends OpenAPIRoute {
   schema = {
     tags: ['Faculties'],
-    summary: 'Get faculty details with degrees',
-    description: 'Returns faculty information with all associated degrees',
+    summary: 'Get faculty details with degrees and course counts',
+    description: 'Returns faculty information with all associated degrees including course counts per degree',
     request: {
       params: z.object({
         id: z.number()
@@ -74,7 +75,7 @@ export class GetFacultyDetails extends OpenAPIRoute {
       )
     }
 
-    // Get degrees for this faculty
+    // Get degrees for this faculty with course counts
     const facultyDegrees = await db
       .select({
         id: degrees.id,
@@ -82,10 +83,13 @@ export class GetFacultyDetails extends OpenAPIRoute {
         type: degrees.type,
         name: degrees.name,
         acronym: degrees.acronym,
-        campus: degrees.campus
+        campus: degrees.campus,
+        courseCount: count(courses.id)
       })
       .from(degrees)
+      .leftJoin(courses, eq(degrees.id, courses.degreeId))
       .where(eq(degrees.facultyId, facultyId))
+      .groupBy(degrees.id)
 
     const result = {
       ...faculty[0],

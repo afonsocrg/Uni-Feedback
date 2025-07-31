@@ -51,7 +51,7 @@ export function HomePage() {
       {/* Welcome Section */}
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-foreground mb-2">
-          Welcome back, {user?.username}!!
+          {user?.username ? `Welcome back, ${user.username}!` : 'Welcome back!'}
         </h1>
         <p className="text-xl text-muted-foreground">
           What would you like to do today?
