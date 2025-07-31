@@ -1,0 +1,22 @@
+import { requireSuperuser } from '@middleware'
+import { fromIttyRouter } from 'chanfana'
+import { AutoRouter } from 'itty-router'
+import { CreateAccount } from './createAccount'
+import { ForgotPassword } from './forgotPassword'
+import { Invite } from './invite'
+import { Login } from './login'
+import { Logout } from './logout'
+import { Refresh } from './refresh'
+import { ResetPassword } from './resetPassword'
+
+const router = fromIttyRouter(AutoRouter({ base: '/auth' }))
+
+router.post('/login', Login)
+router.post('/logout', Logout)
+router.post('/refresh', Refresh)
+router.post('/forgot-password', ForgotPassword)
+router.post('/reset-password', ResetPassword)
+router.post('/create-account', CreateAccount)
+router.post('/invite', requireSuperuser, Invite)
+
+export { router }

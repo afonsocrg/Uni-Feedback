@@ -1,21 +1,7 @@
-import { requireAdmin, requireSuperuser } from '@middleware/auth'
 import { fromIttyRouter } from 'chanfana'
 import { cors, Router, withCookies } from 'itty-router'
-import {
-  AddFacultyEmailSuffix,
-  GetFacultyEmailSuffixes,
-  RemoveFacultyEmailSuffix,
-  UpdateFaculty
-} from './admin'
-import {
-  CreateAccount,
-  ForgotPassword,
-  Invite,
-  Login,
-  Logout,
-  Refresh,
-  ResetPassword
-} from './auth'
+import { router as adminRouter } from './admin'
+import { router as authRouter } from './auth'
 import {
   GetCourse,
   GetCourseFeedback,
@@ -25,7 +11,6 @@ import {
 import { GetDegreeCourseGroups, GetDegreeCourses, GetDegrees } from './degrees'
 import { GetFaculties, GetFacultyDegrees, GetFacultyDetails } from './faculties'
 import { CreateFeedbackDraft, GetFeedbackDraft } from './feedbackDrafts'
-import { GetUsers } from './users'
 
 const { preflight, corsify } = cors({
   origin: [
@@ -52,62 +37,29 @@ export const router = fromIttyRouter(
 // ---------------------------------------------------------
 // Public routes
 // ---------------------------------------------------------
+router.get('/faculties', GetFaculties)
+router.get('/faculties/:id', GetFacultyDetails)
+router.get('/faculties/:facultyId/degrees', GetFacultyDegrees)
+
+router.get('/degrees', GetDegrees)
+router.get('/degrees/:id/courseGroups', GetDegreeCourseGroups)
+router.get('/degrees/:id/courses', GetDegreeCourses)
+
 router.get('/courses', GetCourses)
 router.get('/courses/:id', GetCourse)
 router.get('/courses/:id/feedback', GetCourseFeedback)
 router.post('/courses/:id/feedback', SubmitFeedback)
-router.get('/degrees', GetDegrees)
-router.get('/degrees/:id/courseGroups', GetDegreeCourseGroups)
-router.get('/degrees/:id/courses', GetDegreeCourses)
-router.get('/faculties', GetFaculties)
-router.get('/faculties/:id', GetFacultyDetails)
-router.get('/faculties/:facultyId/degrees', GetFacultyDegrees)
+
 router.post('/feedback-drafts', CreateFeedbackDraft)
 router.get('/feedback-drafts/:code', GetFeedbackDraft)
 
 // ---------------------------------------------------------
-// Authentication routes
+// Nested routers
 // ---------------------------------------------------------
-router.post('/auth/login', Login)
-router.post('/auth/logout', Logout)
-router.post('/auth/refresh', Refresh)
-router.post('/auth/forgot-password', ForgotPassword)
-router.post('/auth/reset-password', ResetPassword)
-router.post('/auth/create-account', CreateAccount)
-
-// ---------------------------------------------------------
-// Authenticated routes
-// ---------------------------------------------------------
-router.post('/auth/invite', requireSuperuser, Invite)
-router.get('/users', requireSuperuser, GetUsers)
-
-// ---------------------------------------------------------
-// Admin routes
-// ---------------------------------------------------------
-router.put('/admin/faculties/:id', requireAdmin, UpdateFaculty)
-router.get(
-  '/admin/faculties/:id/email-suffixes',
-  requireAdmin,
-  GetFacultyEmailSuffixes
-)
-router.post(
-  '/admin/faculties/:id/email-suffixes',
-  requireAdmin,
-  AddFacultyEmailSuffix
-)
-router.delete(
-  '/admin/faculties/:id/email-suffixes/:suffix',
-  requireAdmin,
-  RemoveFacultyEmailSuffix
-)
+router.all('/auth/*', authRouter)
+router.all('/admin/*', adminRouter)
 
 // 404 for everything else
 router.all('*', () =>
-  Response.json(
-    {
-      success: false,
-      error: 'Route not found'
-    },
-    { status: 404 }
-  )
+  Response.json({ error: 'Route not found' }, { status: 404 })
 )

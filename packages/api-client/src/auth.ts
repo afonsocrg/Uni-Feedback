@@ -109,5 +109,5 @@ export async function inviteUser(
  * Get all users (superuser only)
  */
 export async function getUsers(): Promise<User[]> {
-  return apiGet<User[]>('/users')
+  return apiGet<User[]>('/admin/users')
 }

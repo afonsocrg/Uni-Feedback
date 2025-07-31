@@ -1,7 +1,6 @@
+import { AuthService } from '@services/authService'
 import { OpenAPIRoute } from 'chanfana'
 import { z } from 'zod'
-import { AuthService } from '@services/authService'
-import { maskEmail } from '@uni-feedback/utils'
 
 export class GetUsers extends OpenAPIRoute {
   schema = {
@@ -66,8 +65,8 @@ export class GetUsers extends OpenAPIRoute {
 
       // Mask email addresses for privacy
       const maskedUsers = users.map((user) => ({
-        ...user,
-        email: maskEmail(user.email, { showStart: 2, showEnd: 1 })
+        ...user
+        // email: maskEmail(user.email, { showStart: 2, showEnd: 1 })
       }))
 
       return Response.json(maskedUsers)

@@ -1,1 +1,1 @@
-export * from './faculties'
+export { router } from './router'

@@ -1,7 +1,1 @@
-export { Login } from './login'
-export { Logout } from './logout'
-export { Refresh } from './refresh'
-export { ForgotPassword } from './forgotPassword'
-export { ResetPassword } from './resetPassword'
-export { Invite } from './invite'
-export { CreateAccount } from './createAccount'
+export { router } from './router'
