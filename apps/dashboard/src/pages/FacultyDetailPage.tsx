@@ -13,6 +13,12 @@ import {
   CardHeader,
   CardTitle,
   Checkbox,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
   Input,
   Label,
   Select,
@@ -59,6 +65,9 @@ export function FacultyDetailPage() {
 
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isAddSuffixDialogOpen, setIsAddSuffixDialogOpen] = useState(false)
+  const [isRemoveSuffixDialogOpen, setIsRemoveSuffixDialogOpen] =
+    useState(false)
+  const [suffixToRemove, setSuffixToRemove] = useState<string>('')
 
   const facultyId = id ? parseInt(id, 10) : 0
 
@@ -99,9 +108,13 @@ export function FacultyDetailPage() {
         queryKey: ['faculty-details', facultyId]
       })
       queryClient.invalidateQueries({ queryKey: ['faculties'] })
+      setIsRemoveSuffixDialogOpen(false)
+      setSuffixToRemove('')
       toast.success('Email suffix removed successfully')
     },
     onError: (error) => {
+      setIsRemoveSuffixDialogOpen(false)
+      setSuffixToRemove('')
       toast.error(
         error instanceof Error ? error.message : 'Failed to remove email suffix'
       )
@@ -130,7 +143,14 @@ export function FacultyDetailPage() {
   }
 
   const handleRemoveSuffix = (suffix: string) => {
-    removeSuffixMutation.mutate(suffix)
+    setSuffixToRemove(suffix)
+    setIsRemoveSuffixDialogOpen(true)
+  }
+
+  const confirmRemoveSuffixAction = () => {
+    if (suffixToRemove) {
+      removeSuffixMutation.mutate(suffixToRemove)
+    }
   }
 
   if (!facultyId) {
@@ -456,6 +476,39 @@ export function FacultyDetailPage() {
         open={isAddSuffixDialogOpen}
         onOpenChange={setIsAddSuffixDialogOpen}
       />
+
+      {/* Remove Suffix Confirmation Dialog */}
+      <Dialog
+        open={isRemoveSuffixDialogOpen}
+        onOpenChange={setIsRemoveSuffixDialogOpen}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Remove Email Suffix</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to remove the email suffix "@
+              {suffixToRemove}"? Students with this email suffix will no longer
+              be able to submit feedback to courses of this university.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsRemoveSuffixDialogOpen(false)}
+              disabled={removeSuffixMutation.isPending}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmRemoveSuffixAction}
+              disabled={removeSuffixMutation.isPending}
+            >
+              {removeSuffixMutation.isPending ? 'Removing...' : 'Remove Suffix'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
