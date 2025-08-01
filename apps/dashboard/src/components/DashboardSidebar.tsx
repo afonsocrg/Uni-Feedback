@@ -14,6 +14,7 @@ import {
   BookOpen,
   Building2,
   GraduationCap,
+  Home,
   MessageSquare,
   Users
 } from 'lucide-react'
@@ -21,6 +22,11 @@ import { NavUser } from './NavUser'
 
 // Menu items.
 const items = [
+  {
+    title: 'Home',
+    url: '/',
+    icon: Home
+  },
   {
     title: 'Users',
     url: '/users',
