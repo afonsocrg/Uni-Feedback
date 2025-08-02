@@ -1,4 +1,7 @@
 export * from './Chip'
+export * from './StarRating'
 export * from './WarningAlert'
+export * from './WorkloadRating'
+export * from './WorkloadRatingDisplay'
 export { Markdown } from './Markdown'
 export { MarkdownTextarea } from './MarkdownTextarea'

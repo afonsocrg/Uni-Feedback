@@ -11,7 +11,8 @@ import {
   FacultyDetailPage,
   DegreesPage,
   DegreeDetailPage,
-  CoursesPage
+  CoursesPage,
+  CourseDetailPage
 } from '@pages'
 import { Providers } from '@providers'
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom'
@@ -44,6 +45,7 @@ function App() {
               <Route path="degrees" element={<DegreesPage />} />
               <Route path="degrees/:id" element={<DegreeDetailPage />} />
               <Route path="courses" element={<CoursesPage />} />
+              <Route path="courses/:id" element={<CourseDetailPage />} />
               {/* <Route path="feedback" element={<FeedbackPage />} />
               <Route path="profile" element={<ProfilePage />} /> */}
             </Route>

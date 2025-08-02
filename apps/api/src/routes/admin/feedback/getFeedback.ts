@@ -5,7 +5,7 @@ import {
   getPaginatedSchema
 } from '@types'
 import { OpenAPIRoute } from 'chanfana'
-import { and, count, eq, isNotNull, isNull, sql } from 'drizzle-orm'
+import { and, count, desc, eq, isNotNull, isNull, sql } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
 import { z } from 'zod'
 
@@ -165,7 +165,7 @@ export class GetFeedback extends OpenAPIRoute {
         .leftJoin(degrees, eq(courses.degreeId, degrees.id))
         .leftJoin(faculties, eq(degrees.facultyId, faculties.id))
         .where(whereClause)
-        .orderBy(feedback.createdAt)
+        .orderBy(desc(feedback.schoolYear), desc(feedback.createdAt))
         .limit(limit)
         .offset(offset)
 

@@ -1,6 +1,7 @@
 import { getTruncatedText } from '@/lib/textUtils'
 import { getWorkloadColor, getWorkloadLabel } from '@/lib/workload'
-import { StarRating, Tooltip } from '@components'
+import { Tooltip } from '@components'
+import { StarRating } from '@uni-feedback/ui'
 import { Feedback } from '@services/meicFeedbackAPI'
 import { Button, Markdown } from '@uni-feedback/ui'
 import { motion } from 'framer-motion'

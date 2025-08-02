@@ -1,6 +1,6 @@
 import { cn } from '@utils'
 import { useState } from 'react'
-import { StarRating } from './StarRating'
+import { StarRating } from '@uni-feedback/ui'
 
 type RatingLabel = [string, string, string, string, string]
 
