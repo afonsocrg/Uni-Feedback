@@ -2,6 +2,7 @@ import {
   CourseGroupEditDialog,
   DegreeEditDialog,
   EditableField,
+  PaginationControls,
   SelectableField
 } from '@components'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -22,18 +23,34 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  Chip,
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  Markdown,
   MarkdownTextarea,
+  Skeleton,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger
 } from '@uni-feedback/ui'
-import { ArrowLeft, BookOpen, Edit3, GraduationCap } from 'lucide-react'
+import {
+  ArrowLeft,
+  BookOpen,
+  Edit3,
+  GraduationCap,
+  Plus,
+  Users
+} from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -342,12 +359,7 @@ export function DegreeDetailPage() {
         </CardContent>
       </Card>
 
-      {/* Placeholder for tabs */}
-      {/* <div className="border rounded-lg p-6">
-        <h2 className="text-lg font-semibold mb-4">Tabs Section</h2>
-        <p>Tabs will go here</p>
-      </div> */}
-      <Tabs defaultValue="courses" className="w-[400px]">
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="courses">
             <BookOpen className="h-4 w-4" />
@@ -362,9 +374,245 @@ export function DegreeDetailPage() {
             <span>Description</span>
           </TabsTrigger>
         </TabsList>
-        <TabsContent value="courses">Courses content</TabsContent>
-        <TabsContent value="course-groups">Course Groups content</TabsContent>
-        <TabsContent value="description">Description content</TabsContent>
+        <Card>
+          <CardHeader>
+            <CardTitle>{getTabTitle()}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {/* Courses Tab */}
+            <TabsContent value="courses" className="space-y-4">
+              {coursesLoading ? (
+                <div className="space-y-3">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <Skeleton key={i} className="h-12 w-full" />
+                  ))}
+                </div>
+              ) : !coursesResponse?.data.length ? (
+                <div className="text-center py-8">
+                  <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">
+                    No courses found for this degree
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="rounded-md border">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Course</TableHead>
+                          <TableHead>ECTS</TableHead>
+                          <TableHead>Terms</TableHead>
+                          <TableHead className="text-right">Feedback</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {coursesResponse.data.map((course) => (
+                          <TableRow
+                            key={course.id}
+                            className="cursor-pointer hover:bg-muted/50"
+                            onClick={() => navigate(`/courses/${course.id}`)}
+                          >
+                            <TableCell>
+                              <div className="space-y-1">
+                                <div className="text-sm font-medium">
+                                  {course.name}
+                                </div>
+                                <div className="font-mono text-sm text-muted-foreground">
+                                  {course.acronym}
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell>{course.ects || 'N/A'}</TableCell>
+                            <TableCell>
+                              {course.terms?.length ? (
+                                <div className="flex flex-wrap gap-1">
+                                  {course.terms.map((term, index) => (
+                                    <Chip key={index} label={term} />
+                                  ))}
+                                </div>
+                              ) : (
+                                <span className="text-muted-foreground">
+                                  N/A
+                                </span>
+                              )}
+                            </TableCell>
+                            <TableCell className="text-right text-muted-foreground">
+                              {course.feedbackCount}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+
+                  {coursesResponse && (
+                    <PaginationControls
+                      currentPage={coursesResponse.page}
+                      totalPages={coursesResponse.totalPages}
+                      pageSize={coursesResponse.limit}
+                      total={coursesResponse.total}
+                      onPageChange={(page) => {
+                        setCoursesPage(page)
+                      }}
+                      onPageSizeChange={(limit) => {
+                        setCoursesPage(1)
+                        setCoursesLimit(limit)
+                      }}
+                    />
+                  )}
+                </div>
+              )}
+            </TabsContent>
+
+            {/* Course Groups Tab */}
+            <TabsContent value="course-groups" className="space-y-4">
+              <div className="space-y-4">
+                <div className="bg-muted/50 border rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <Users className="h-5 w-5 text-muted-foreground mt-0.5" />
+                    <div className="space-y-1">
+                      <h4 className="font-medium text-sm">
+                        About Course Groups
+                      </h4>
+                      <p className="text-xs text-muted-foreground">
+                        Course groups are used to aggregate similar courses
+                        within the same degree (e.g., specialization tracks,
+                        core subjects, electives). Each course may belong to
+                        multiple course groups, allowing flexible organization
+                        and helping students understand the structure of their
+                        degree.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-end">
+                  <Button onClick={handleCreateCourseGroup}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Course Group
+                  </Button>
+                </div>
+              </div>
+
+              {courseGroupsLoading ? (
+                <div className="space-y-3">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <Skeleton key={i} className="h-12 w-full" />
+                  ))}
+                </div>
+              ) : !courseGroupsResponse?.data.length ? (
+                <div className="text-center py-8">
+                  <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">
+                    No course groups found for this degree
+                  </p>
+                  <Button onClick={handleCreateCourseGroup} className="mt-4">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create your first course group
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="rounded-md border">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Name</TableHead>
+                          <TableHead>Created</TableHead>
+                          <TableHead className="w-24">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {courseGroupsResponse.data.map((group) => (
+                          <TableRow key={group.id}>
+                            <TableCell className="font-medium">
+                              {group.name}
+                            </TableCell>
+                            <TableCell className="text-muted-foreground">
+                              {new Date(group.createdAt).toLocaleDateString()}
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleEditCourseGroup(group)}
+                                >
+                                  <Edit3 className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+
+                  {courseGroupsResponse && (
+                    <PaginationControls
+                      currentPage={courseGroupsResponse.page}
+                      totalPages={courseGroupsResponse.totalPages}
+                      pageSize={courseGroupsResponse.limit}
+                      total={courseGroupsResponse.total}
+                      onPageChange={(page) => {
+                        setCourseGroupsPage(page)
+                      }}
+                      onPageSizeChange={(limit) => {
+                        setCourseGroupsPage(1)
+                        setCourseGroupsLimit(limit)
+                      }}
+                    />
+                  )}
+                </div>
+              )}
+            </TabsContent>
+
+            {/* Description Tab */}
+            <TabsContent value="description" className="space-y-4">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-medium">Degree Description</h3>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() =>
+                      handleEdit('description', degree.description || '')
+                    }
+                  >
+                    <Edit3 className="h-4 w-4 mr-2" />
+                    Edit Description
+                  </Button>
+                </div>
+                <div className="text-sm">
+                  {degree.description ? (
+                    <div className="border rounded-md p-4 bg-muted/20">
+                      <Markdown>{degree.description}</Markdown>
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <Edit3 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold">
+                        No description provided
+                      </h3>
+                      <p className="text-muted-foreground mt-1">
+                        Add a description to help students understand this
+                        degree
+                      </p>
+                      <Button
+                        onClick={() => handleEdit('description', '')}
+                        className="mt-4"
+                      >
+                        <Edit3 className="h-4 w-4 mr-2" />
+                        Add Description
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </TabsContent>
+          </CardContent>
+        </Card>
       </Tabs>
 
       {/* Description Edit Dialog */}
