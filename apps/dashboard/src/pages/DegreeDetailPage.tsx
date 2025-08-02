@@ -181,14 +181,64 @@ export function DegreeDetailPage() {
     }
   }
 
+  if (!degreeId) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <p className="text-lg font-semibold text-destructive">
+            Invalid degree ID
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <p className="text-lg font-semibold text-destructive">
+            Failed to load degree details
+          </p>
+          <p className="text-sm text-muted-foreground mt-1">
+            {error instanceof Error ? error.message : 'An error occurred'}
+          </p>
+          <button onClick={() => refetch()} className="mt-4">
+            Try Again
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  if (isLoading || !degree) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-4">
+          <div className="h-9 w-20 bg-gray-200 rounded animate-pulse" />
+          <div className="h-8 w-64 bg-gray-200 rounded animate-pulse" />
+        </div>
+        <div className="border rounded-lg">
+          <div className="p-6">
+            <div className="h-6 w-32 bg-gray-200 rounded animate-pulse mb-4" />
+            <div className="space-y-4">
+              <div className="h-4 w-full bg-gray-200 rounded animate-pulse" />
+              <div className="h-4 w-3/4 bg-gray-200 rounded animate-pulse" />
+              <div className="h-4 w-1/2 bg-gray-200 rounded animate-pulse" />
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div>
-      <h1>Degree Detail Page - With Logic Test</h1>
-      <p>This version has all the logic but simple return</p>
+      <h1>Degree Detail Page - With Conditionals Test</h1>
+      <p>This version has logic + conditional returns</p>
       <p>Degree ID: {id}</p>
-      <p>Loading: {isLoading ? 'Yes' : 'No'}</p>
-      <p>Error: {error ? 'Yes' : 'No'}</p>
-      <p>Degree Name: {degree?.name || 'Loading...'}</p>
+      <p>Degree Name: {degree.name}</p>
+      <p>Faculty: {degree.facultyName}</p>
     </div>
   )
 }
