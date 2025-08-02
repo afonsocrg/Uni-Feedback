@@ -78,11 +78,17 @@ export function FacultyDegreesCard({ facultyId }: FacultyDegreesCardProps) {
           <Input
             placeholder="Search degrees..."
             value={degreesSearch}
-            onChange={(e) => setDegreesSearch(e.target.value)}
+            onChange={(e) => {
+              setDegreesSearch(e.target.value)
+              setDegreesPage(1)
+            }}
             className="pl-10"
           />
         </div>
-        <Select value={degreesTypeFilter} onValueChange={setDegreesTypeFilter}>
+        <Select value={degreesTypeFilter} onValueChange={(value) => {
+          setDegreesTypeFilter(value)
+          setDegreesPage(1)
+        }}>
           <SelectTrigger>
             <SelectValue placeholder="All types" />
           </SelectTrigger>
