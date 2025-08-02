@@ -1,8 +1,4 @@
-interface ChipProps {
-  label: string
-  className?: string
-  onClick?: () => void
-}
+import { Badge } from '../shadcn/badge'
 
 // A set of nice, accessible colors that work well together
 const CHIP_COLORS = {
@@ -46,12 +42,13 @@ export function Chip({ label, className = '', color, onClick }: ChipProps) {
   const { bg, text } = color ? CHIP_COLORS[color] : getColorForLabel(label)
 
   return (
-    <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${className}`}
-      style={{ backgroundColor: bg, color: text }}
+    <Badge
+      variant="outline"
+      className={`text-xs ${className}`}
+      style={{ backgroundColor: bg, color: text, borderColor: text }}
       onClick={onClick}
     >
       {label}
-    </span>
+    </Badge>
   )
 }

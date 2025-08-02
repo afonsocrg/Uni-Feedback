@@ -1,5 +1,14 @@
 import { apiDelete, apiGet, apiPost, apiPut } from './utils'
 
+// Generic Pagination Types
+export interface PaginatedResponse<T> {
+  data: T[]
+  total: number
+  page: number
+  limit: number
+  totalPages: number
+}
+
 // Admin Stats Types
 export interface AdminStats {
   totalUsers: number
@@ -38,15 +47,22 @@ export interface AdminUsersQuery {
 export interface AdminCourse {
   id: number
   name: string
-  code: string
-  credits: number
-  semester: string
-  schoolYear: string
+  acronym: string
+  ects: number | null
   degreeId: number
   degreeName: string
+  degreeAcronym: string
   facultyName: string
   feedbackCount: number
-  averageRating: number | null
+  terms: string[] | null
+  createdAt: string
+}
+
+export interface AdminCoursesQuery {
+  page?: number
+  limit?: number
+  search?: string
+  degree_id?: number
 }
 
 export interface AdminCoursesResponse {
@@ -57,40 +73,77 @@ export interface AdminCoursesResponse {
   totalPages: number
 }
 
-export interface AdminCoursesQuery {
-  page?: number
-  limit?: number
-  search?: string
-  facultyId?: number
-  degreeId?: number
-}
-
 // Admin Degrees Types
 export interface AdminDegree {
   id: number
   name: string
-  code: string
+  acronym: string
   type: string
   facultyId: number
   facultyName: string
+  facultyShortName: string
   courseCount: number
-  feedbackCount: number
   createdAt: string
 }
 
-export interface AdminDegreesResponse {
-  degrees: AdminDegree[]
-  total: number
-  page: number
-  limit: number
-  totalPages: number
+export interface AdminDegreeDetail {
+  id: number
+  name: string
+  acronym: string
+  type: string
+  description: string | null
+  facultyId: number
+  facultyName: string
+  facultyShortName: string
+  courseCount: number
+  createdAt: string
+  updatedAt: string
+}
+
+export interface DegreeUpdateData {
+  name?: string
+  acronym?: string
+  type?: string
+  description?: string | null
+}
+
+export interface DegreeTypesResponse {
+  types: string[]
 }
 
 export interface AdminDegreesQuery {
   page?: number
   limit?: number
   search?: string
-  facultyId?: number
+  faculty_id?: number
+  type?: string
+}
+
+// Admin Course Groups Types
+export interface AdminCourseGroup {
+  id: number
+  name: string
+  degreeId: number
+  degreeName: string
+  degreeAcronym: string
+  facultyName: string
+  createdAt: string
+}
+
+export interface CreateCourseGroupRequest {
+  name: string
+  degreeId: number
+}
+
+export interface UpdateCourseGroupRequest {
+  name?: string
+}
+
+export interface AdminCourseGroupsQuery {
+  page?: number
+  limit?: number
+  search?: string
+  degree_id?: number
 }
 
 // Admin Faculties Types
@@ -210,28 +263,12 @@ export async function getAdminCourses(
   if (query?.page) params.set('page', query.page.toString())
   if (query?.limit) params.set('limit', query.limit.toString())
   if (query?.search) params.set('search', query.search)
-  if (query?.facultyId) params.set('facultyId', query.facultyId.toString())
-  if (query?.degreeId) params.set('degreeId', query.degreeId.toString())
+  if (query?.degree_id) params.set('degree_id', query.degree_id.toString())
 
   const url = params.toString() ? `/admin/courses?${params}` : '/admin/courses'
   return apiGet<AdminCoursesResponse>(url)
 }
 
-/**
- * Get degrees for admin dashboard
- */
-export async function getAdminDegrees(
-  query?: AdminDegreesQuery
-): Promise<AdminDegreesResponse> {
-  const params = new URLSearchParams()
-  if (query?.page) params.set('page', query.page.toString())
-  if (query?.limit) params.set('limit', query.limit.toString())
-  if (query?.search) params.set('search', query.search)
-  if (query?.facultyId) params.set('facultyId', query.facultyId.toString())
-
-  const url = params.toString() ? `/admin/degrees?${params}` : '/admin/degrees'
-  return apiGet<AdminDegreesResponse>(url)
-}
 
 /**
  * Get faculties for admin dashboard
@@ -318,4 +355,109 @@ export async function removeFacultyEmailSuffix(
     emailSuffixes: string[]
     message: string
   }>(`/admin/faculties/${facultyId}/email-suffixes/${encodedSuffix}`)
+}
+
+/**
+ * Get degrees for admin dashboard (new paginated version)
+ */
+export async function getAdminDegrees(
+  query?: AdminDegreesQuery
+): Promise<PaginatedResponse<AdminDegree>> {
+  const params = new URLSearchParams()
+  if (query?.page) params.set('page', query.page.toString())
+  if (query?.limit) params.set('limit', query.limit.toString())
+  if (query?.search) params.set('search', query.search)
+  if (query?.faculty_id) params.set('faculty_id', query.faculty_id.toString())
+  if (query?.type) params.set('type', query.type)
+
+  const url = params.toString() ? `/admin/degrees?${params}` : '/admin/degrees'
+  return apiGet<PaginatedResponse<AdminDegree>>(url)
+}
+
+/**
+ * Get all degree types for filtering
+ */
+export async function getAdminDegreeTypes(facultyId?: number): Promise<DegreeTypesResponse> {
+  const params = new URLSearchParams()
+  if (facultyId) params.set('faculty_id', facultyId.toString())
+  
+  const url = params.toString() ? `/admin/degrees/types?${params}` : '/admin/degrees/types'
+  return apiGet<DegreeTypesResponse>(url)
+}
+
+/**
+ * Get detailed degree information
+ */
+export async function getAdminDegreeDetails(
+  degreeId: number
+): Promise<AdminDegreeDetail> {
+  return apiGet<AdminDegreeDetail>(`/admin/degrees/${degreeId}`)
+}
+
+/**
+ * Update degree information
+ */
+export async function updateDegree(
+  degreeId: number,
+  updates: DegreeUpdateData
+): Promise<AdminDegreeDetail> {
+  return apiPut<AdminDegreeDetail>(`/admin/degrees/${degreeId}`, updates)
+}
+
+/**
+ * Get course groups for admin dashboard
+ */
+export async function getAdminCourseGroups(
+  query?: AdminCourseGroupsQuery
+): Promise<PaginatedResponse<AdminCourseGroup>> {
+  const params = new URLSearchParams()
+  if (query?.page) params.set('page', query.page.toString())
+  if (query?.limit) params.set('limit', query.limit.toString())
+  if (query?.search) params.set('search', query.search)
+  if (query?.degree_id) params.set('degree_id', query.degree_id.toString())
+
+  const url = params.toString() ? `/admin/course-groups?${params}` : '/admin/course-groups'
+  return apiGet<PaginatedResponse<AdminCourseGroup>>(url)
+}
+
+/**
+ * Create a new course group
+ */
+export async function createCourseGroup(
+  data: CreateCourseGroupRequest
+): Promise<AdminCourseGroup> {
+  return apiPost<AdminCourseGroup>('/admin/course-groups', data)
+}
+
+/**
+ * Update course group information
+ */
+export async function updateCourseGroup(
+  id: number,
+  data: UpdateCourseGroupRequest
+): Promise<AdminCourseGroup> {
+  return apiPut<AdminCourseGroup>(`/admin/course-groups/${id}`, data)
+}
+
+/**
+ * Delete a course group
+ */
+export async function deleteCourseGroup(id: number): Promise<void> {
+  return apiDelete<void>(`/admin/course-groups/${id}`)
+}
+
+/**
+ * Get courses for admin dashboard (new paginated version)
+ */
+export async function getAdminCoursesNew(
+  query?: AdminCoursesQuery
+): Promise<PaginatedResponse<AdminCourse>> {
+  const params = new URLSearchParams()
+  if (query?.page) params.set('page', query.page.toString())
+  if (query?.limit) params.set('limit', query.limit.toString())
+  if (query?.search) params.set('search', query.search)
+  if (query?.degree_id) params.set('degree_id', query.degree_id.toString())
+
+  const url = params.toString() ? `/admin/courses?${params}` : '/admin/courses'
+  return apiGet<PaginatedResponse<AdminCourse>>(url)
 }
