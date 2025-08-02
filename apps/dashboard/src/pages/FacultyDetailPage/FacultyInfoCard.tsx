@@ -1,18 +1,9 @@
+import { AddSuffixDialog, EditableField, FacultyEditDialog } from '@components'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {
-  AddSuffixDialog,
-  EditableField,
-  FacultyEditDialog,
-  PaginationControls
-} from '@components'
-import { useDebounced } from '@hooks'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import {
-  getAdminDegrees,
-  getAdminDegreeTypes,
-  getFacultyDetails,
+  FacultyDetails,
   removeFacultyEmailSuffix,
-  updateFaculty,
-  type AdminDegreesQuery
+  updateFaculty
 } from '@uni-feedback/api-client'
 import {
   Badge,
@@ -27,54 +18,25 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Skeleton,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger
 } from '@uni-feedback/ui'
-import {
-  ArrowLeft,
-  Building2,
-  Edit3,
-  HelpCircle,
-  Plus,
-  Search,
-  X
-} from 'lucide-react'
+import { Edit3, HelpCircle, Plus, X } from 'lucide-react'
 import { useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 
-export function FacultyDetailPage() {
+interface FacultyInfoCardProps {
+  faculty: FacultyDetails
+}
+export function FacultyInfoCard({ faculty }: FacultyInfoCardProps) {
   const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
   const queryClient = useQueryClient()
 
   const [editingField, setEditingField] = useState<string | null>(null)
   const [editValues, setEditValues] = useState<Record<string, string>>({})
-
-  const [degreesSearch, setDegreesSearch] = useState('')
-  const [degreesTypeFilter, setDegreesTypeFilter] = useState<string>('all')
-
-  // Debounce search term to avoid too many API calls
-  const debouncedDegreesSearch = useDebounced(degreesSearch, 300)
-
-  // Degrees pagination state
-  const [degreesPage, setDegreesPage] = useState(1)
-  const [degreesLimit, setDegreesLimit] = useState(20)
 
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isAddSuffixDialogOpen, setIsAddSuffixDialogOpen] = useState(false)
@@ -83,38 +45,6 @@ export function FacultyDetailPage() {
   const [suffixToRemove, setSuffixToRemove] = useState<string>('')
 
   const facultyId = id ? parseInt(id, 10) : 0
-
-  const {
-    data: faculty,
-    isLoading,
-    error,
-    refetch
-  } = useQuery({
-    queryKey: ['faculty-details', facultyId],
-    queryFn: () => getFacultyDetails(facultyId),
-    enabled: !!facultyId
-  })
-
-  // Build query object using debounced search and current filters
-  const degreesQuery: AdminDegreesQuery = {
-    page: degreesPage,
-    limit: degreesLimit,
-    ...(debouncedDegreesSearch && { search: debouncedDegreesSearch }),
-    faculty_id: facultyId,
-    ...(degreesTypeFilter !== 'all' && { type: degreesTypeFilter })
-  }
-
-  const { data: degreesResponse, isLoading: degreesLoading } = useQuery({
-    queryKey: ['admin-degrees', degreesQuery],
-    queryFn: () => getAdminDegrees(degreesQuery),
-    enabled: !!facultyId
-  })
-
-  const { data: degreeTypesResponse } = useQuery({
-    queryKey: ['degree-types', facultyId],
-    queryFn: () => getAdminDegreeTypes(facultyId),
-    enabled: !!facultyId
-  })
 
   const updateMutation = useMutation({
     mutationFn: (updates: { name?: string; shortName?: string }) =>
@@ -172,10 +102,6 @@ export function FacultyDetailPage() {
     setEditValues({})
   }
 
-  const handleDegreeClick = (degreeId: number) => {
-    navigate(`/degrees/${degreeId}`)
-  }
-
   const handleRemoveSuffix = (suffix: string) => {
     setSuffixToRemove(suffix)
     setIsRemoveSuffixDialogOpen(true)
@@ -186,61 +112,6 @@ export function FacultyDetailPage() {
       removeSuffixMutation.mutate(suffixToRemove)
     }
   }
-
-  if (!facultyId) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <p className="text-lg font-semibold text-destructive">
-            Invalid faculty ID
-          </p>
-        </div>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <p className="text-lg font-semibold text-destructive">
-            Failed to load faculty details
-          </p>
-          <p className="text-sm text-muted-foreground mt-1">
-            {error instanceof Error ? error.message : 'An error occurred'}
-          </p>
-          <Button onClick={() => refetch()} className="mt-4">
-            Try Again
-          </Button>
-        </div>
-      </div>
-    )
-  }
-
-  if (isLoading || !faculty) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center gap-4">
-          <Skeleton className="h-9 w-20" />
-          <Skeleton className="h-8 w-64" />
-        </div>
-        <Card>
-          <CardHeader>
-            <Skeleton className="h-6 w-32" />
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-3/4" />
-            <Skeleton className="h-4 w-1/2" />
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
-
-  // Use server-side pagination and filtering
-  const degrees = degreesResponse?.data || []
-  const degreeTypes = degreeTypesResponse?.types || []
 
   const handleEditValueChange = (field: string, value: string) => {
     setEditValues((prev) => ({ ...prev, [field]: value }))
@@ -260,24 +131,7 @@ export function FacultyDetailPage() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="space-y-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => navigate('/faculties')}
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Faculties
-        </Button>
-        <div className="flex items-center gap-2 text-primaryBlue">
-          <Building2 className="h-6 w-6" />
-          <h1 className="text-2xl font-bold">{faculty.name}</h1>
-        </div>
-      </div>
-
-      {/* Faculty Info Card */}
+    <>
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
@@ -383,110 +237,6 @@ export function FacultyDetailPage() {
         </CardContent>
       </Card>
 
-      {/* Degrees Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Degrees ({faculty.degrees.length})</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center gap-2 mb-4">
-            <div className="relative flex-1 max-w-sm">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search degrees..."
-                value={degreesSearch}
-                onChange={(e) => setDegreesSearch(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <Select
-              value={degreesTypeFilter}
-              onValueChange={setDegreesTypeFilter}
-            >
-              <SelectTrigger className="w-32">
-                <SelectValue placeholder="All types" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All types</SelectItem>
-                {degreeTypes.map((type) => (
-                  <SelectItem key={type} value={type}>
-                    {type}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {degreesLoading ? (
-            <div className="space-y-3">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="h-12 bg-muted rounded animate-pulse" />
-              ))}
-            </div>
-          ) : degrees.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-muted-foreground">
-                {degreesSearch || degreesTypeFilter !== 'all'
-                  ? 'No degrees found matching your search'
-                  : 'No degrees found'}
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Acronym</TableHead>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Courses</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {degrees.map((degree) => (
-                      <TableRow
-                        key={degree.id}
-                        className="cursor-pointer hover:bg-muted/50"
-                        onClick={() => handleDegreeClick(degree.id)}
-                      >
-                        <TableCell>
-                          <Badge variant="outline">{degree.type}</Badge>
-                        </TableCell>
-                        <TableCell className="font-medium">
-                          {degree.acronym}
-                        </TableCell>
-                        <TableCell>{degree.name}</TableCell>
-                        <TableCell className="text-muted-foreground">
-                          {degree.courseCount || 0}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-
-              {/* Pagination Controls */}
-              {degreesResponse && (
-                <PaginationControls
-                  currentPage={degreesResponse.page}
-                  totalPages={degreesResponse.totalPages}
-                  pageSize={degreesResponse.limit}
-                  total={degreesResponse.total}
-                  onPageChange={(page) => {
-                    setDegreesPage(page)
-                  }}
-                  onPageSizeChange={(limit) => {
-                    setDegreesPage(1)
-                    setDegreesLimit(limit)
-                  }}
-                />
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
       {/* Edit Dialog */}
       <FacultyEditDialog
         faculty={faculty}
@@ -533,6 +283,6 @@ export function FacultyDetailPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   )
 }

@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { updateFaculty, type FacultyDetails } from '@uni-feedback/api-client'
+import { updateFaculty } from '@uni-feedback/api-client'
 import {
   Button,
   Dialog,
@@ -28,7 +28,7 @@ const facultyEditSchema = z.object({
 type FacultyEditFormData = z.infer<typeof facultyEditSchema>
 
 interface FacultyEditDialogProps {
-  faculty: FacultyDetails | null
+  faculty: AdminFacultyDetails | null
   open: boolean
   onOpenChange: (open: boolean) => void
 }
