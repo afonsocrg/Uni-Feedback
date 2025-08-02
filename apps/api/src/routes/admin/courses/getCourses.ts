@@ -18,7 +18,8 @@ const CoursesQuerySchema = PaginationQuerySchema.extend({
   faculty_id: z
     .string()
     .optional()
-    .transform((val) => (val ? parseInt(val, 10) : undefined))
+    .transform((val) => (val ? parseInt(val, 10) : undefined)),
+  term: z.string().optional()
 })
 
 const AdminCourseSchema = z.object({
@@ -44,7 +45,7 @@ export class GetCourses extends OpenAPIRoute {
     tags: ['Admin - Courses'],
     summary: 'Get paginated courses with filtering',
     description:
-      'Retrieve courses with pagination, search, degree and faculty filtering capabilities',
+      'Retrieve courses with pagination, search, degree, faculty and term filtering capabilities',
     request: {
       query: CoursesQuerySchema
     },
@@ -73,7 +74,7 @@ export class GetCourses extends OpenAPIRoute {
   async handle(request: IRequest, env: any, context: any) {
     try {
       const { query } = await this.getValidatedData<typeof this.schema>()
-      const { page, limit, search, degree_id, faculty_id } = query
+      const { page, limit, search, degree_id, faculty_id, term } = query
 
       const db = getDb(env)
 
@@ -95,6 +96,13 @@ export class GetCourses extends OpenAPIRoute {
 
       if (faculty_id) {
         conditions.push(eq(degrees.facultyId, faculty_id))
+      }
+
+      if (term) {
+        // Filter courses that have the specific term in their terms array
+        conditions.push(
+          sql`JSON_EXTRACT(${courses.terms}, '$') LIKE ${`%"${term}"%`}`
+        )
       }
 
       const whereClause = conditions.length > 0 ? and(...conditions) : undefined

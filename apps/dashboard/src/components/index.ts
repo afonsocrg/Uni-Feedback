@@ -1,5 +1,6 @@
 export * from './AddSuffixDialog'
 export * from './DashboardLayout'
+export * from './EditableBadgeList'
 export * from './EditableField'
 export * from './FacultyEditDialog'
 export * from './LoginForm'

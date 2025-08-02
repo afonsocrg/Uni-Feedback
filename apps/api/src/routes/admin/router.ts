@@ -29,6 +29,7 @@ import {
   UpdateFaculty
 } from './faculties'
 import { GetFeedback } from './feedback'
+import { GetDegreeSuggestions } from './suggestions'
 import { GetUsers } from './users'
 
 const router = fromIttyRouter(
@@ -64,6 +65,9 @@ router.delete('/courses/:id/terms/:term', RemoveCourseTerm)
 
 // Feedback routes
 router.get('/feedback', GetFeedback)
+
+// Suggestions routes
+router.get('/suggestions/degrees', GetDegreeSuggestions)
 
 // User routes
 router.get('/users', requireSuperuser, GetUsers)

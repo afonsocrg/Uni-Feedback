@@ -52,7 +52,9 @@ export interface AdminCourse {
   degreeId: number
   degreeName: string
   degreeAcronym: string
+  facultyId: number
   facultyName: string
+  facultyShortName: string
   feedbackCount: number
   terms: string[] | null
   createdAt: string
@@ -63,6 +65,8 @@ export interface AdminCoursesQuery {
   limit?: number
   search?: string
   degree_id?: number
+  faculty_id?: number
+  term?: string
 }
 
 export interface AdminCoursesResponse {
@@ -71,6 +75,47 @@ export interface AdminCoursesResponse {
   page: number
   limit: number
   totalPages: number
+}
+
+// Admin Course Detail Types
+export interface AdminCourseDetail {
+  id: number
+  name: string
+  acronym: string
+  ects: number | null
+  terms: string[] | null
+  description: string | null
+  bibliography: string | null
+  assessment: string | null
+  hasMandatoryExam: boolean | null
+  degreeId: number
+  degreeName: string
+  degreeAcronym: string
+  facultyId: number
+  facultyName: string
+  facultyShortName: string
+  feedbackCount: number
+  createdAt: string
+  updatedAt: string
+}
+
+export interface CourseUpdateData {
+  name?: string
+  acronym?: string
+  ects?: number | null
+  description?: string | null
+  bibliography?: string | null
+  assessment?: string | null
+  hasMandatoryExam?: boolean | null
+}
+
+export interface CourseTermsResponse {
+  courseId: number
+  terms: string[]
+}
+
+export interface AllTermsResponse {
+  terms: string[]
 }
 
 // Admin Degrees Types
@@ -198,18 +243,23 @@ export interface AdminFacultiesQuery {
 // Admin Feedback Types
 export interface AdminFeedback {
   id: number
+  email: string | null
+  schoolYear: number | null
+  rating: number
+  workloadRating: number | null
+  comment: string | null
+  approved: boolean
+  approvedAt: string | null
+  createdAt: string
   courseId: number
   courseName: string
-  courseCode: string
+  courseAcronym: string
+  degreeId: number
   degreeName: string
+  degreeAcronym: string
+  facultyId: number
   facultyName: string
-  overallRating: number
-  difficultyRating: number
-  workloadRating: number
-  comment: string | null
-  schoolYear: string
-  semester: string
-  createdAt: string
+  facultyShortName: string
 }
 
 export interface AdminFeedbackResponse {
@@ -223,10 +273,11 @@ export interface AdminFeedbackResponse {
 export interface AdminFeedbackQuery {
   page?: number
   limit?: number
-  search?: string
-  courseId?: number
-  startDate?: string
-  endDate?: string
+  course_id?: number
+  degree_id?: number
+  faculty_id?: number
+  email?: string
+  approved?: boolean
 }
 
 // API Functions
@@ -287,7 +338,7 @@ export async function getAdminFaculties(
 }
 
 /**
- * Get feedback for admin dashboard
+ * Get feedback for admin dashboard (legacy - use getAdminFeedbackNew instead)
  */
 export async function getAdminFeedback(
   query?: AdminFeedbackQuery
@@ -295,10 +346,12 @@ export async function getAdminFeedback(
   const params = new URLSearchParams()
   if (query?.page) params.set('page', query.page.toString())
   if (query?.limit) params.set('limit', query.limit.toString())
-  if (query?.search) params.set('search', query.search)
-  if (query?.courseId) params.set('courseId', query.courseId.toString())
-  if (query?.startDate) params.set('startDate', query.startDate)
-  if (query?.endDate) params.set('endDate', query.endDate)
+  if (query?.course_id) params.set('course_id', query.course_id.toString())
+  if (query?.degree_id) params.set('degree_id', query.degree_id.toString())
+  if (query?.faculty_id) params.set('faculty_id', query.faculty_id.toString())
+  if (query?.email) params.set('email', query.email)
+  if (query?.approved !== undefined)
+    params.set('approved', query.approved.toString())
 
   const url = params.toString()
     ? `/admin/feedback?${params}`
@@ -388,6 +441,28 @@ export async function getAdminDegreeTypes(
   return apiGet<DegreeTypesResponse>(url)
 }
 
+// Suggestion Types
+export interface DegreeSuggestion {
+  id: number
+  name: string
+  acronym: string
+}
+
+/**
+ * Get degrees for filtering/suggestions (lightweight, no pagination)
+ */
+export async function getDegreeSuggestions(
+  facultyId?: number
+): Promise<DegreeSuggestion[]> {
+  const params = new URLSearchParams()
+  if (facultyId) params.set('faculty_id', facultyId.toString())
+
+  const url = params.toString()
+    ? `/admin/suggestions/degrees?${params}`
+    : '/admin/suggestions/degrees'
+  return apiGet<DegreeSuggestion[]>(url)
+}
+
 /**
  * Get detailed degree information
  */
@@ -462,7 +537,103 @@ export async function getAdminCoursesNew(
   if (query?.limit) params.set('limit', query.limit.toString())
   if (query?.search) params.set('search', query.search)
   if (query?.degree_id) params.set('degree_id', query.degree_id.toString())
+  if (query?.faculty_id) params.set('faculty_id', query.faculty_id.toString())
+  if (query?.term) params.set('term', query.term)
 
   const url = params.toString() ? `/admin/courses?${params}` : '/admin/courses'
   return apiGet<PaginatedResponse<AdminCourse>>(url)
+}
+
+/**
+ * Get detailed course information
+ */
+export async function getAdminCourseDetails(
+  courseId: number
+): Promise<AdminCourseDetail> {
+  return apiGet<AdminCourseDetail>(`/admin/courses/${courseId}`)
+}
+
+/**
+ * Update course information
+ */
+export async function updateCourse(
+  courseId: number,
+  updates: CourseUpdateData
+): Promise<AdminCourseDetail> {
+  return apiPut<AdminCourseDetail>(`/admin/courses/${courseId}`, updates)
+}
+
+/**
+ * Get course terms
+ */
+export async function getCourseTerms(
+  courseId: number
+): Promise<CourseTermsResponse> {
+  return apiGet<CourseTermsResponse>(`/admin/courses/${courseId}/terms`)
+}
+
+/**
+ * Add term to course
+ */
+export async function addCourseTerm(
+  courseId: number,
+  term: string
+): Promise<{ courseId: number; terms: string[]; message: string }> {
+  return apiPost<{
+    courseId: number
+    terms: string[]
+    message: string
+  }>(`/admin/courses/${courseId}/terms`, { term })
+}
+
+/**
+ * Remove term from course
+ */
+export async function removeCourseTerm(
+  courseId: number,
+  term: string
+): Promise<{ courseId: number; terms: string[]; message: string }> {
+  const encodedTerm = encodeURIComponent(term)
+  return apiDelete<{
+    courseId: number
+    terms: string[]
+    message: string
+  }>(`/admin/courses/${courseId}/terms/${encodedTerm}`)
+}
+
+/**
+ * Get all distinct course terms with optional faculty filtering
+ */
+export async function getAllTerms(
+  facultyId?: number
+): Promise<AllTermsResponse> {
+  const params = new URLSearchParams()
+  if (facultyId) params.set('faculty_id', facultyId.toString())
+
+  const url = params.toString()
+    ? `/admin/courses/terms?${params}`
+    : '/admin/courses/terms'
+  return apiGet<AllTermsResponse>(url)
+}
+
+/**
+ * Get feedback for admin dashboard (new version)
+ */
+export async function getAdminFeedbackNew(
+  query?: AdminFeedbackQuery
+): Promise<PaginatedResponse<AdminFeedback>> {
+  const params = new URLSearchParams()
+  if (query?.page) params.set('page', query.page.toString())
+  if (query?.limit) params.set('limit', query.limit.toString())
+  if (query?.course_id) params.set('course_id', query.course_id.toString())
+  if (query?.degree_id) params.set('degree_id', query.degree_id.toString())
+  if (query?.faculty_id) params.set('faculty_id', query.faculty_id.toString())
+  if (query?.email) params.set('email', query.email)
+  if (query?.approved !== undefined)
+    params.set('approved', query.approved.toString())
+
+  const url = params.toString()
+    ? `/admin/feedback?${params}`
+    : '/admin/feedback'
+  return apiGet<PaginatedResponse<AdminFeedback>>(url)
 }

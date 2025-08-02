@@ -1,4 +1,9 @@
-import { AddSuffixDialog, EditableField, FacultyEditDialog } from '@components'
+import {
+  AddSuffixDialog,
+  EditableBadgeList,
+  EditableField,
+  FacultyEditDialog
+} from '@components'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   FacultyDetails,
@@ -6,24 +11,13 @@ import {
   updateFaculty
 } from '@uni-feedback/api-client'
 import {
-  Badge,
   Button,
   Card,
   CardContent,
   CardHeader,
-  CardTitle,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
+  CardTitle
 } from '@uni-feedback/ui'
-import { Edit3, HelpCircle, Plus, X } from 'lucide-react'
+import { Edit3 } from 'lucide-react'
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -178,61 +172,33 @@ export function FacultyInfoCard({ faculty }: FacultyInfoCardProps) {
             />
 
             {/* Email Suffixes */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <dt className="font-medium text-sm">Email Suffixes</dt>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p className="max-w-xs">
-                        Email suffixes of students at this university (used to
-                        validate emails when submitting feedback)
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-              <dd className="flex flex-wrap gap-2">
-                {faculty.emailSuffixes && faculty.emailSuffixes.length > 0
-                  ? faculty.emailSuffixes.map((suffix, index) => (
-                      <Badge
-                        key={index}
-                        variant="secondary"
-                        className="font-mono group hover:bg-destructive/10 transition-colors"
-                      >
-                        @{suffix}
-                        <button
-                          onClick={() => handleRemoveSuffix(suffix)}
-                          className="ml-2 hover:text-destructive transition-colors"
-                          disabled={removeSuffixMutation.isPending}
-                        >
-                          <X className="h-3 w-3" />
-                        </button>
-                      </Badge>
-                    ))
-                  : null}
-
-                {/* Add Suffix Badge */}
-                <Badge
-                  variant="outline"
-                  className="cursor-pointer hover:bg-accent/50 transition-colors border-dashed"
-                  onClick={() => setIsAddSuffixDialogOpen(true)}
-                >
-                  <Plus className="h-3 w-3 mr-1" />
-                  Add suffix
-                </Badge>
-              </dd>
-
-              {(!faculty.emailSuffixes ||
-                faculty.emailSuffixes.length === 0) && (
-                <p className="text-sm text-muted-foreground">
-                  No email suffixes configured. Click "Add suffix" to add one.
-                </p>
-              )}
-            </div>
+            <EditableBadgeList
+              label="Email Suffixes"
+              items={faculty.emailSuffixes || []}
+              onAdd={() => setIsAddSuffixDialogOpen(true)}
+              onRemove={handleRemoveSuffix}
+              addButtonLabel="Add suffix"
+              emptyMessage="No email suffixes configured. Click 'Add suffix' to add one."
+              tooltip="Email suffixes of students at this university (used to validate emails when submitting feedback)"
+              prefix="@"
+              isLoading={removeSuffixMutation.isPending}
+              removeConfirmDialog={{
+                isOpen: isRemoveSuffixDialogOpen,
+                itemToRemove: suffixToRemove,
+                title: 'Remove Email Suffix',
+                description: `Are you sure you want to remove the email suffix "@${suffixToRemove}"? Students with this email suffix will no longer be able to submit feedback to courses of this university.`,
+                onConfirm: confirmRemoveSuffixAction,
+                onCancel: () => setIsRemoveSuffixDialogOpen(false),
+                isRemoving: removeSuffixMutation.isPending
+              }}
+              addDialog={
+                <AddSuffixDialog
+                  facultyId={facultyId}
+                  open={isAddSuffixDialogOpen}
+                  onOpenChange={setIsAddSuffixDialogOpen}
+                />
+              }
+            />
           </div>
         </CardContent>
       </Card>
@@ -243,46 +209,6 @@ export function FacultyInfoCard({ faculty }: FacultyInfoCardProps) {
         open={isEditDialogOpen}
         onOpenChange={setIsEditDialogOpen}
       />
-
-      {/* Add Suffix Dialog */}
-      <AddSuffixDialog
-        facultyId={facultyId}
-        open={isAddSuffixDialogOpen}
-        onOpenChange={setIsAddSuffixDialogOpen}
-      />
-
-      {/* Remove Suffix Confirmation Dialog */}
-      <Dialog
-        open={isRemoveSuffixDialogOpen}
-        onOpenChange={setIsRemoveSuffixDialogOpen}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Remove Email Suffix</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to remove the email suffix "@
-              {suffixToRemove}"? Students with this email suffix will no longer
-              be able to submit feedback to courses of this university.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setIsRemoveSuffixDialogOpen(false)}
-              disabled={removeSuffixMutation.isPending}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={confirmRemoveSuffixAction}
-              disabled={removeSuffixMutation.isPending}
-            >
-              {removeSuffixMutation.isPending ? 'Removing...' : 'Remove Suffix'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </>
   )
 }
