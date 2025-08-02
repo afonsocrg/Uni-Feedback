@@ -367,12 +367,12 @@ export function DegreeDetailPage() {
             <span>Courses</span>
           </TabsTrigger>
           <TabsTrigger value="course-groups">
-            <BookOpen className="h-4 w-4" />
+            <Users className="h-4 w-4" />
             <span>Course Groups</span>
           </TabsTrigger>
           <TabsTrigger value="description">
-            <BookOpen className="h-4 w-4" />
-            <span>Description</span>
+            <Edit3 className="h-4 w-4" />
+            Description
           </TabsTrigger>
         </TabsList>
 
