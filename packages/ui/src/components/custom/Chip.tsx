@@ -45,7 +45,12 @@ export function Chip({ label, className = '', color, onClick }: ChipProps) {
     <Badge
       variant="outline"
       className={`text-xs ${className}`}
-      style={{ backgroundColor: bg, color: text, borderColor: text }}
+      style={{
+        backgroundColor: bg,
+        color: text,
+        // borderColor: text
+        borderColor: bg
+      }}
       onClick={onClick}
     >
       {label}
