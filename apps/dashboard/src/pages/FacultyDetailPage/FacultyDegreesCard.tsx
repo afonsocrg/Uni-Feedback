@@ -7,7 +7,7 @@ import {
   type AdminDegreesQuery
 } from '@uni-feedback/api-client'
 import {
-  Badge,
+  Chip,
   Input,
   Select,
   SelectContent,
@@ -83,14 +83,14 @@ export function FacultyDegreesCard({ facultyId }: FacultyDegreesCardProps) {
           />
         </div>
         <Select value={degreesTypeFilter} onValueChange={setDegreesTypeFilter}>
-          <SelectTrigger className="w-32">
+          <SelectTrigger>
             <SelectValue placeholder="All types" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All types</SelectItem>
             {degreeTypes.map((type) => (
               <SelectItem key={type} value={type}>
-                {type}
+                <Chip label={type} />
               </SelectItem>
             ))}
           </SelectContent>
@@ -131,7 +131,7 @@ export function FacultyDegreesCard({ facultyId }: FacultyDegreesCardProps) {
                     onClick={() => handleDegreeClick(degree.id)}
                   >
                     <TableCell>
-                      <Badge variant="outline">{degree.type}</Badge>
+                      <Chip label={degree.type} />
                     </TableCell>
                     <TableCell className="font-medium">
                       {degree.acronym}

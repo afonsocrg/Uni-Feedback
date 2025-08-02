@@ -1,5 +1,6 @@
 import {
   Button,
+  Chip,
   Select,
   SelectContent,
   SelectItem,
@@ -71,7 +72,7 @@ export function SelectableField({
           </div>
         ) : (
           <div className="flex items-center gap-2">
-            <span>{value}</span>
+            <Chip label={value} />
             <Button
               size="sm"
               variant="ghost"
