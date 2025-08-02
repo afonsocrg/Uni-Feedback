@@ -21,6 +21,7 @@ import {
 } from '@uni-feedback/ui'
 import { Check, Search, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { markdownToText } from '../../utils/markdownToText'
 
 interface FeedbackTabContentProps {
   courseId: number
@@ -183,8 +184,8 @@ export function FeedbackTabContent({ courseId }: FeedbackTabContentProps) {
                     </TableCell>
                     <TableCell>
                       {feedback.comment ? (
-                        <p className="text-sm line-clamp-4" title={feedback.comment}>
-                          {feedback.comment}
+                        <p className="text-sm line-clamp-4" title={markdownToText(feedback.comment)}>
+                          {markdownToText(feedback.comment)}
                         </p>
                       ) : (
                         <span className="text-muted-foreground text-sm">
