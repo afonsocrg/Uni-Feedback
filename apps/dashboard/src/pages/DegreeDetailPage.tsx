@@ -1,3 +1,4 @@
+import { EditableField, SelectableField } from '@components'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   getAdminCourseGroups,
@@ -9,6 +10,15 @@ import {
   type AdminCourseGroupsQuery,
   type AdminCoursesQuery
 } from '@uni-feedback/api-client'
+import {
+  Badge,
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle
+} from '@uni-feedback/ui'
+import { ArrowLeft, Edit3, GraduationCap } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -229,24 +239,93 @@ export function DegreeDetailPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="space-y-4">
-        <button
-          className="inline-flex items-center px-3 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
+        <Button
+          variant="outline"
+          size="sm"
           onClick={() => navigate('/degrees')}
         >
-          ← Back to Degrees
-        </button>
-        <div className="flex items-center gap-2 text-blue-600">
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Degrees
+        </Button>
+        <div className="flex items-center gap-2 text-primaryBlue">
+          <GraduationCap className="h-6 w-6" />
           <h1 className="text-2xl font-bold">{degree.name}</h1>
         </div>
       </div>
 
-      {/* Placeholder for degree info card */}
-      <div className="border rounded-lg p-6">
-        <h2 className="text-lg font-semibold mb-4">Degree Information Card</h2>
-        <p>Faculty: {degree.facultyName}</p>
-        <p>Type: {degree.type}</p>
-        <p>Acronym: {degree.acronym}</p>
-      </div>
+      {/* Degree Info Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            Degree Information
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setIsDegreeEditDialogOpen(true)}
+            >
+              <Edit3 className="h-4 w-4 mr-2" />
+              Edit All
+            </Button>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-6">
+          <div className="space-y-4">
+            {/* Faculty (non-editable, clickable) */}
+            <div className="space-y-2">
+              <dt className="font-medium text-sm">Faculty</dt>
+              <dd>
+                <Badge
+                  variant="secondary"
+                  className="cursor-pointer hover:bg-secondary/80"
+                  onClick={() => navigate(`/faculties/${degree.facultyId}`)}
+                >
+                  {degree.facultyShortName} - {degree.facultyName}
+                </Badge>
+              </dd>
+            </div>
+
+            <EditableField
+              field="name"
+              label="Name"
+              value={degree.name}
+              isEditing={editingField === 'name'}
+              editValue={editValues['name'] || ''}
+              onEdit={handleEdit}
+              onSave={handleSave}
+              onCancel={handleCancel}
+              onChange={handleEditValueChange}
+              onKeyDown={handleKeyDown}
+              disabled={updateMutation.isPending}
+            />
+            <EditableField
+              field="acronym"
+              label="Acronym"
+              value={degree.acronym}
+              isEditing={editingField === 'acronym'}
+              editValue={editValues['acronym'] || ''}
+              onEdit={handleEdit}
+              onSave={handleSave}
+              onCancel={handleCancel}
+              onChange={handleEditValueChange}
+              onKeyDown={handleKeyDown}
+              disabled={updateMutation.isPending}
+            />
+            <SelectableField
+              field="type"
+              label="Type"
+              value={degree.type}
+              options={degreeTypesResponse?.types || []}
+              isEditing={editingField === 'type'}
+              editValue={editValues['type'] || ''}
+              onEdit={handleEdit}
+              onSave={handleSave}
+              onCancel={handleCancel}
+              onChange={handleEditValueChange}
+              disabled={updateMutation.isPending}
+            />
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Placeholder for tabs */}
       <div className="border rounded-lg p-6">

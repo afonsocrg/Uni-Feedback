@@ -9,7 +9,8 @@ import {
   UsersPage,
   FacultiesPage,
   FacultyDetailPage,
-  DegreesPage
+  DegreesPage,
+  DegreeDetailPage
 } from '@pages'
 import { Providers } from '@providers'
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom'
@@ -40,6 +41,7 @@ function App() {
               <Route path="faculties" element={<FacultiesPage />} />
               <Route path="faculties/:id" element={<FacultyDetailPage />} />
               <Route path="degrees" element={<DegreesPage />} />
+              <Route path="degrees/:id" element={<DegreeDetailPage />} />
               {/* <Route path="courses" element={<CoursesPage />} />
               <Route path="feedback" element={<FeedbackPage />} />
               <Route path="profile" element={<ProfilePage />} /> */}
