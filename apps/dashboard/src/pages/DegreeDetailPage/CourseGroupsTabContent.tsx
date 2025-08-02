@@ -1,4 +1,4 @@
-import { CourseGroupEditDialog, PaginationControls } from '@components'
+import { PaginationControls } from '@components'
 import { useQuery } from '@tanstack/react-query'
 import {
   getAdminCourseGroups,
@@ -17,6 +17,8 @@ import {
 } from '@uni-feedback/ui'
 import { Edit3, Plus, Users } from 'lucide-react'
 import { useState } from 'react'
+import { CourseGroupEditDialog } from './CourseGroupEditDialog'
+import { CreateCourseGroupDialog } from './CreateCourseGroupDialog'
 
 interface CourseGroupsTabContentProps {
   degreeId: number
@@ -24,7 +26,9 @@ interface CourseGroupsTabContentProps {
 export function CourseGroupsTabContent({
   degreeId
 }: CourseGroupsTabContentProps) {
-  const [isCourseGroupDialogOpen, setIsCourseGroupDialogOpen] = useState(false)
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+
   const [editingCourseGroup, setEditingCourseGroup] =
     useState<AdminCourseGroup | null>(null)
 
@@ -48,12 +52,14 @@ export function CourseGroupsTabContent({
 
   const handleCreateCourseGroup = () => {
     setEditingCourseGroup(null)
-    setIsCourseGroupDialogOpen(true)
+    setIsCreateDialogOpen(true)
+    setIsEditDialogOpen(false)
   }
 
   const handleEditCourseGroup = (courseGroup: AdminCourseGroup) => {
     setEditingCourseGroup(courseGroup)
-    setIsCourseGroupDialogOpen(true)
+    setIsCreateDialogOpen(false)
+    setIsEditDialogOpen(true)
   }
 
   return (
@@ -152,12 +158,16 @@ export function CourseGroupsTabContent({
           )}
         </div>
       )}
-      {/* Course Group Edit/Create Dialog */}
+
       <CourseGroupEditDialog
         courseGroup={editingCourseGroup}
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+      />
+      <CreateCourseGroupDialog
         degreeId={degreeId}
-        open={isCourseGroupDialogOpen}
-        onOpenChange={setIsCourseGroupDialogOpen}
+        open={isCreateDialogOpen}
+        onOpenChange={setIsCreateDialogOpen}
       />
     </>
   )

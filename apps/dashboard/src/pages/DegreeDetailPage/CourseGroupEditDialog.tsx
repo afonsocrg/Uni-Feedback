@@ -1,7 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {
-  createCourseGroup,
   updateCourseGroup,
   type AdminCourseGroup
 } from '@uni-feedback/api-client'
@@ -32,45 +31,21 @@ type CourseGroupFormData = z.infer<typeof courseGroupSchema>
 
 interface CourseGroupEditDialogProps {
   courseGroup?: AdminCourseGroup | null
-  degreeId: number
   open: boolean
   onOpenChange: (open: boolean) => void
 }
 
 export function CourseGroupEditDialog({
   courseGroup,
-  degreeId,
   open,
   onOpenChange
 }: CourseGroupEditDialogProps) {
   const queryClient = useQueryClient()
-  const isEditing = !!courseGroup
 
   const form = useForm<CourseGroupFormData>({
     resolver: zodResolver(courseGroupSchema),
     defaultValues: {
       name: ''
-    }
-  })
-
-  const createMutation = useMutation({
-    mutationFn: (data: CourseGroupFormData) =>
-      createCourseGroup({
-        name: data.name,
-        degreeId
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['admin-course-groups']
-      })
-      toast.success('Course group created successfully')
-      onOpenChange(false)
-      form.reset()
-    },
-    onError: (error) => {
-      toast.error(
-        error instanceof Error ? error.message : 'Failed to create course group'
-      )
     }
   })
 
@@ -96,24 +71,14 @@ export function CourseGroupEditDialog({
   // Update form when courseGroup changes
   useEffect(() => {
     if (open) {
-      if (courseGroup) {
-        form.reset({
-          name: courseGroup.name
-        })
-      } else {
-        form.reset({
-          name: ''
-        })
-      }
+      form.reset({
+        name: courseGroup?.name ?? ''
+      })
     }
   }, [courseGroup, open, form])
 
   const onSubmit = (data: CourseGroupFormData) => {
-    if (isEditing) {
-      updateMutation.mutate(data)
-    } else {
-      createMutation.mutate(data)
-    }
+    updateMutation.mutate(data)
   }
 
   const handleCancel = () => {
@@ -121,15 +86,13 @@ export function CourseGroupEditDialog({
     onOpenChange(false)
   }
 
-  const isLoading = createMutation.isPending || updateMutation.isPending
+  const isLoading = updateMutation.isPending
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>
-            {isEditing ? 'Edit Course Group' : 'Create Course Group'}
-          </DialogTitle>
+          <DialogTitle>{'Edit Course Group'}</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
@@ -158,13 +121,7 @@ export function CourseGroupEditDialog({
                 Cancel
               </Button>
               <Button type="submit" disabled={isLoading}>
-                {isLoading
-                  ? isEditing
-                    ? 'Saving...'
-                    : 'Creating...'
-                  : isEditing
-                    ? 'Save Changes'
-                    : 'Create Group'}
+                {isLoading ? 'Saving...' : 'Save Changes'}
               </Button>
             </div>
           </form>
