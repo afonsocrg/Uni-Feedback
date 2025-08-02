@@ -10,12 +10,11 @@ import {
   TabsList,
   TabsTrigger
 } from '@uni-feedback/ui'
-import { BookOpen, Edit3, GraduationCap, Users } from 'lucide-react'
+import { BookOpen, Edit3, GraduationCap } from 'lucide-react'
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { InvalidIdError } from '../../components/InvalidIdError'
 import { QueryError } from '../../components/QueryError'
-import { CourseGroupsTabContent } from './CourseGroupsTabContent'
 import { CoursesTabContent } from './CoursesTabContent'
 import { DegreeDetailPageSkeleton } from './DegreeDetailPageSkeleton'
 import { DegreeInfoCard } from './DegreeInfoCard'
@@ -86,10 +85,10 @@ export function DegreeDetailPage() {
             <BookOpen className="h-4 w-4" />
             <span>Courses</span>
           </TabsTrigger>
-          <TabsTrigger value="course-groups">
+          {/* <TabsTrigger value="course-groups">
             <Users className="h-4 w-4" />
             <span>Course Groups</span>
-          </TabsTrigger>
+          </TabsTrigger> */}
           <TabsTrigger value="description">
             <Edit3 className="h-4 w-4" />
             Description
@@ -106,9 +105,9 @@ export function DegreeDetailPage() {
               <CoursesTabContent degreeId={degreeId} />
             </TabsContent>
 
-            <TabsContent value="course-groups" className="space-y-4">
+            {/* <TabsContent value="course-groups" className="space-y-4">
               <CourseGroupsTabContent degreeId={degreeId} />
-            </TabsContent>
+            </TabsContent> */}
 
             <TabsContent value="description" className="space-y-4">
               <DescriptionTabContent degree={degree} />
