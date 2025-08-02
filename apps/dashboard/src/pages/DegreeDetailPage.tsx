@@ -1,10 +1,3 @@
-import {
-  CourseGroupEditDialog,
-  DegreeEditDialog,
-  EditableField,
-  PaginationControls,
-  SelectableField
-} from '@components'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   getAdminCourseGroups,
@@ -233,12 +226,33 @@ export function DegreeDetailPage() {
   }
 
   return (
-    <div>
-      <h1>Degree Detail Page - With Conditionals Test</h1>
-      <p>This version has logic + conditional returns</p>
-      <p>Degree ID: {id}</p>
-      <p>Degree Name: {degree.name}</p>
-      <p>Faculty: {degree.facultyName}</p>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="space-y-4">
+        <button
+          className="inline-flex items-center px-3 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
+          onClick={() => navigate('/degrees')}
+        >
+          ← Back to Degrees
+        </button>
+        <div className="flex items-center gap-2 text-blue-600">
+          <h1 className="text-2xl font-bold">{degree.name}</h1>
+        </div>
+      </div>
+
+      {/* Placeholder for degree info card */}
+      <div className="border rounded-lg p-6">
+        <h2 className="text-lg font-semibold mb-4">Degree Information Card</h2>
+        <p>Faculty: {degree.facultyName}</p>
+        <p>Type: {degree.type}</p>
+        <p>Acronym: {degree.acronym}</p>
+      </div>
+
+      {/* Placeholder for tabs */}
+      <div className="border rounded-lg p-6">
+        <h2 className="text-lg font-semibold mb-4">Tabs Section</h2>
+        <p>Tabs will go here</p>
+      </div>
     </div>
   )
 }
