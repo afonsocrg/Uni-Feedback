@@ -14,6 +14,10 @@ const CoursesQuerySchema = PaginationQuerySchema.extend({
   degree_id: z
     .string()
     .optional()
+    .transform((val) => (val ? parseInt(val, 10) : undefined)),
+  faculty_id: z
+    .string()
+    .optional()
     .transform((val) => (val ? parseInt(val, 10) : undefined))
 })
 
@@ -25,7 +29,9 @@ const AdminCourseSchema = z.object({
   degreeId: z.number(),
   degreeName: z.string(),
   degreeAcronym: z.string(),
+  facultyId: z.number(),
   facultyName: z.string(),
+  facultyShortName: z.string(),
   feedbackCount: z.number(),
   terms: z.array(z.string()).nullable(),
   createdAt: z.string()
@@ -38,7 +44,7 @@ export class GetCourses extends OpenAPIRoute {
     tags: ['Admin - Courses'],
     summary: 'Get paginated courses with filtering',
     description:
-      'Retrieve courses with pagination, search, and degree filtering capabilities',
+      'Retrieve courses with pagination, search, degree and faculty filtering capabilities',
     request: {
       query: CoursesQuerySchema
     },
@@ -67,7 +73,7 @@ export class GetCourses extends OpenAPIRoute {
   async handle(request: IRequest, env: any, context: any) {
     try {
       const { query } = await this.getValidatedData<typeof this.schema>()
-      const { page, limit, search, degree_id } = query
+      const { page, limit, search, degree_id, faculty_id } = query
 
       const db = getDb(env)
 
@@ -85,6 +91,10 @@ export class GetCourses extends OpenAPIRoute {
 
       if (degree_id) {
         conditions.push(eq(courses.degreeId, degree_id))
+      }
+
+      if (faculty_id) {
+        conditions.push(eq(degrees.facultyId, faculty_id))
       }
 
       const whereClause = conditions.length > 0 ? and(...conditions) : undefined
@@ -111,7 +121,9 @@ export class GetCourses extends OpenAPIRoute {
           degreeId: courses.degreeId,
           degreeName: degrees.name,
           degreeAcronym: degrees.acronym,
+          facultyId: faculties.id,
           facultyName: faculties.name,
+          facultyShortName: faculties.shortName,
           terms: courses.terms,
           createdAt: courses.createdAt,
           feedbackCount: sql<number>`(

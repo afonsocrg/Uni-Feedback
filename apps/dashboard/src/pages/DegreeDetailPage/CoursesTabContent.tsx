@@ -26,7 +26,11 @@ interface CoursesSearchBarProps {
   onSearchReset: () => void
 }
 
-function CoursesSearchBar({ searchValue, onSearchChange, onSearchReset }: CoursesSearchBarProps) {
+function CoursesSearchBar({
+  searchValue,
+  onSearchChange,
+  onSearchReset
+}: CoursesSearchBarProps) {
   return (
     <div className="flex items-center gap-2 mb-4">
       <div className="relative flex-1 max-w-sm">

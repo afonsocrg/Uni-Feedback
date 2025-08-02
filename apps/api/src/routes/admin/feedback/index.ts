@@ -1,0 +1,1 @@
+export { GetFeedback } from './getFeedback'

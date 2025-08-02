@@ -85,10 +85,13 @@ export function FacultyDegreesCard({ facultyId }: FacultyDegreesCardProps) {
             className="pl-10"
           />
         </div>
-        <Select value={degreesTypeFilter} onValueChange={(value) => {
-          setDegreesTypeFilter(value)
-          setDegreesPage(1)
-        }}>
+        <Select
+          value={degreesTypeFilter}
+          onValueChange={(value) => {
+            setDegreesTypeFilter(value)
+            setDegreesPage(1)
+          }}
+        >
           <SelectTrigger>
             <SelectValue placeholder="All types" />
           </SelectTrigger>

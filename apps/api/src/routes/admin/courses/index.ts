@@ -1,1 +1,7 @@
 export { GetCourses } from './getCourses'
+export { GetCourseDetails } from './getCourseDetails'
+export { UpdateCourse } from './updateCourse'
+export { GetCourseTerms } from './getCourseTerms'
+export { AddCourseTerm } from './addCourseTerm'
+export { RemoveCourseTerm } from './removeCourseTerm'
+export { GetAllTerms } from './getAllTerms'
