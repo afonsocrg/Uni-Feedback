@@ -1,5 +1,5 @@
 import { Button, Input } from '@uni-feedback/ui'
-import { Edit3, Save, X } from 'lucide-react'
+import { Check, Edit3, X } from 'lucide-react'
 
 interface EditableFieldProps {
   field: string
@@ -44,14 +44,10 @@ export function EditableField({
               onKeyDown={onKeyDown}
               autoFocus
             />
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => onSave(field)}
-              disabled={disabled}
-            >
-              <Save className="h-3 w-3" />
+            <Button size="sm" onClick={() => onSave(field)} disabled={disabled}>
+              <Check className="h-3 w-3" />
             </Button>
+
             <Button
               size="sm"
               variant="outline"
