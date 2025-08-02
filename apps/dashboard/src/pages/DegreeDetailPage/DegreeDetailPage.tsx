@@ -1,12 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
 import { getAdminDegreeDetails } from '@uni-feedback/api-client'
 import {
-  Button,
   Card,
   CardContent,
   CardHeader,
   CardTitle,
-  Skeleton,
   Tabs,
   TabsContent,
   TabsList,
@@ -15,8 +13,11 @@ import {
 import { BookOpen, Edit3, GraduationCap, Users } from 'lucide-react'
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'
+import { InvalidIdError } from '../../components/InvalidIdError'
+import { QueryError } from '../../components/QueryError'
 import { CourseGroupsTabContent } from './CourseGroupsTabContent'
 import { CoursesTabContent } from './CoursesTabContent'
+import { DegreeDetailPageSkeleton } from './DegreeDetailPageSkeleton'
 import { DegreeInfoCard } from './DegreeInfoCard'
 import { DescriptionTabContent } from './DescriptionTabContent'
 
@@ -53,54 +54,17 @@ export function DegreeDetailPage() {
   })
 
   if (!degreeId) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <p className="text-lg font-semibold text-destructive">
-            Invalid degree ID
-          </p>
-        </div>
-      </div>
-    )
+    return <InvalidIdError entityType="degree" />
   }
 
   if (error) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <p className="text-lg font-semibold text-destructive">
-            Failed to load degree details
-          </p>
-          <p className="text-sm text-muted-foreground mt-1">
-            {error instanceof Error ? error.message : 'An error occurred'}
-          </p>
-          <Button onClick={() => refetch()} className="mt-4">
-            Try Again
-          </Button>
-        </div>
-      </div>
+      <QueryError entityType="degree" error={error} onRetry={() => refetch()} />
     )
   }
 
   if (isLoading || !degree) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center gap-4">
-          <Skeleton className="h-9 w-20" />
-          <Skeleton className="h-8 w-64" />
-        </div>
-        <Card>
-          <CardHeader>
-            <Skeleton className="h-6 w-32" />
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-3/4" />
-            <Skeleton className="h-4 w-1/2" />
-          </CardContent>
-        </Card>
-      </div>
-    )
+    return <DegreeDetailPageSkeleton />
   }
 
   return (

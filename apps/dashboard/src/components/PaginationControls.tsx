@@ -77,7 +77,10 @@ export function PaginationControls({
         </div>
         <div className="flex items-center space-x-2">
           <p className="text-sm font-medium">Rows per page</p>
-          <Select value={pageSize.toString()} onValueChange={handlePageSizeChange}>
+          <Select
+            value={pageSize.toString()}
+            onValueChange={handlePageSizeChange}
+          >
             <SelectTrigger className="h-8 w-[70px]">
               <SelectValue placeholder={pageSize.toString()} />
             </SelectTrigger>
@@ -102,7 +105,10 @@ export function PaginationControls({
       <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 lg:gap-8">
         <div className="flex items-center space-x-2">
           <p className="text-sm font-medium">Rows per page</p>
-          <Select value={pageSize.toString()} onValueChange={handlePageSizeChange}>
+          <Select
+            value={pageSize.toString()}
+            onValueChange={handlePageSizeChange}
+          >
             <SelectTrigger className="h-8 w-[70px]">
               <SelectValue placeholder={pageSize.toString()} />
             </SelectTrigger>
@@ -128,7 +134,7 @@ export function PaginationControls({
             <span className="sr-only">Go to previous page</span>
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          
+
           <div className="flex items-center space-x-1">
             {getVisiblePages().map((page, index) => (
               <div key={index}>

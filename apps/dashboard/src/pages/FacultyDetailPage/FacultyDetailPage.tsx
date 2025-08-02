@@ -1,8 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
 import { getFacultyDetails } from '@uni-feedback/api-client'
-import { Button } from '@uni-feedback/ui'
+import { Card, CardContent, CardHeader, CardTitle } from '@uni-feedback/ui'
 import { Building2 } from 'lucide-react'
 import { useParams } from 'react-router-dom'
+import { InvalidIdError } from '../../components/InvalidIdError'
+import { QueryError } from '../../components/QueryError'
 import { FacultyDegreesCard } from './FacultyDegreesCard'
 import { FacultyInfoCard } from './FacultyInfoCard'
 import { FacultyPageSkeleton } from './FacultyPageSkeleton'
@@ -24,32 +26,16 @@ export function FacultyDetailPage() {
   })
 
   if (!facultyId) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <p className="text-lg font-semibold text-destructive">
-            Invalid faculty ID
-          </p>
-        </div>
-      </div>
-    )
+    return <InvalidIdError entityType="faculty" />
   }
 
   if (error) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <p className="text-lg font-semibold text-destructive">
-            Failed to load faculty details
-          </p>
-          <p className="text-sm text-muted-foreground mt-1">
-            {error instanceof Error ? error.message : 'An error occurred'}
-          </p>
-          <Button onClick={() => refetch()} className="mt-4">
-            Try Again
-          </Button>
-        </div>
-      </div>
+      <QueryError
+        entityType="faculty"
+        error={error}
+        onRetry={() => refetch()}
+      />
     )
   }
 
@@ -69,7 +55,14 @@ export function FacultyDetailPage() {
 
       <FacultyInfoCard faculty={faculty} />
 
-      <FacultyDegreesCard faculty={faculty} />
+      <Card>
+        <CardHeader>
+          <CardTitle>Degrees ({faculty.degrees.length})</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <FacultyDegreesCard facultyId={faculty.id} />
+        </CardContent>
+      </Card>
     </div>
   )
 }

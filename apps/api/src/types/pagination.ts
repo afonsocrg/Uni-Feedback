@@ -10,8 +10,14 @@ export interface PaginatedResponse<T> {
 
 // Common pagination query schema
 export const PaginationQuerySchema = z.object({
-  page: z.string().optional().transform((val) => parseInt(val || '1', 10)),
-  limit: z.string().optional().transform((val) => parseInt(val || '20', 10))
+  page: z
+    .string()
+    .optional()
+    .transform((val) => parseInt(val || '1', 10)),
+  limit: z
+    .string()
+    .optional()
+    .transform((val) => parseInt(val || '20', 10))
 })
 
 // Helper function to create paginated response schemas

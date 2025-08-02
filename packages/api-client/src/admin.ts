@@ -269,7 +269,6 @@ export async function getAdminCourses(
   return apiGet<AdminCoursesResponse>(url)
 }
 
-
 /**
  * Get faculties for admin dashboard
  */
@@ -377,11 +376,15 @@ export async function getAdminDegrees(
 /**
  * Get all degree types for filtering
  */
-export async function getAdminDegreeTypes(facultyId?: number): Promise<DegreeTypesResponse> {
+export async function getAdminDegreeTypes(
+  facultyId?: number
+): Promise<DegreeTypesResponse> {
   const params = new URLSearchParams()
   if (facultyId) params.set('faculty_id', facultyId.toString())
-  
-  const url = params.toString() ? `/admin/degrees/types?${params}` : '/admin/degrees/types'
+
+  const url = params.toString()
+    ? `/admin/degrees/types?${params}`
+    : '/admin/degrees/types'
   return apiGet<DegreeTypesResponse>(url)
 }
 
@@ -416,7 +419,9 @@ export async function getAdminCourseGroups(
   if (query?.search) params.set('search', query.search)
   if (query?.degree_id) params.set('degree_id', query.degree_id.toString())
 
-  const url = params.toString() ? `/admin/course-groups?${params}` : '/admin/course-groups'
+  const url = params.toString()
+    ? `/admin/course-groups?${params}`
+    : '/admin/course-groups'
   return apiGet<PaginatedResponse<AdminCourseGroup>>(url)
 }
 

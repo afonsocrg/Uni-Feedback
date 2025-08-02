@@ -5,7 +5,10 @@ import { IRequest } from 'itty-router'
 import { z } from 'zod'
 
 const DegreeTypesQuerySchema = z.object({
-  faculty_id: z.string().optional().transform((val) => val ? parseInt(val, 10) : undefined)
+  faculty_id: z
+    .string()
+    .optional()
+    .transform((val) => (val ? parseInt(val, 10) : undefined))
 })
 
 const DegreeTypesResponseSchema = z.object({
@@ -16,7 +19,8 @@ export class GetDegreeTypes extends OpenAPIRoute {
   schema = {
     tags: ['Admin - Degrees'],
     summary: 'Get all degree types',
-    description: 'Retrieve all distinct degree types available in the system for filtering, optionally filtered by faculty',
+    description:
+      'Retrieve all distinct degree types available in the system for filtering, optionally filtered by faculty',
     request: {
       query: DegreeTypesQuerySchema
     },
@@ -48,7 +52,8 @@ export class GetDegreeTypes extends OpenAPIRoute {
         conditions.push(eq(degrees.facultyId, faculty_id))
       }
 
-      const whereClause = conditions.length > 1 ? and(...conditions) : conditions[0]
+      const whereClause =
+        conditions.length > 1 ? and(...conditions) : conditions[0]
 
       // Get distinct degree types
       const typesResult = await db
@@ -60,8 +65,8 @@ export class GetDegreeTypes extends OpenAPIRoute {
         .orderBy(degrees.type)
 
       const types = typesResult
-        .map(row => row.type)
-        .filter(type => type !== null && type !== '')
+        .map((row) => row.type)
+        .filter((type) => type !== null && type !== '')
 
       return Response.json({ types })
     } catch (error) {

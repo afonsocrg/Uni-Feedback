@@ -22,7 +22,8 @@ export class GetDegreeDetails extends OpenAPIRoute {
   schema = {
     tags: ['Admin - Degrees'],
     summary: 'Get detailed degree information',
-    description: 'Retrieve detailed information for a specific degree including description and course count',
+    description:
+      'Retrieve detailed information for a specific degree including description and course count',
     request: {
       params: z.object({
         id: z.string().transform((val) => parseInt(val, 10))

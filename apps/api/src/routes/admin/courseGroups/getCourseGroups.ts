@@ -1,5 +1,9 @@
 import { courseGroup, getDb } from '@db'
-import { PaginatedResponse, PaginationQuerySchema, getPaginatedSchema } from '@types'
+import {
+  PaginatedResponse,
+  PaginationQuerySchema,
+  getPaginatedSchema
+} from '@types'
 import { OpenAPIRoute } from 'chanfana'
 import { and, count, eq, sql } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
@@ -7,7 +11,10 @@ import { z } from 'zod'
 
 const CourseGroupsQuerySchema = PaginationQuerySchema.extend({
   search: z.string().optional(),
-  degree_id: z.string().optional().transform((val) => val ? parseInt(val, 10) : undefined)
+  degree_id: z
+    .string()
+    .optional()
+    .transform((val) => (val ? parseInt(val, 10) : undefined))
 })
 
 const AdminCourseGroupSchema = z.object({
@@ -17,13 +24,16 @@ const AdminCourseGroupSchema = z.object({
   createdAt: z.string()
 })
 
-const PaginatedCourseGroupsResponseSchema = getPaginatedSchema(AdminCourseGroupSchema)
+const PaginatedCourseGroupsResponseSchema = getPaginatedSchema(
+  AdminCourseGroupSchema
+)
 
 export class GetCourseGroups extends OpenAPIRoute {
   schema = {
     tags: ['Admin - Course Groups'],
     summary: 'Get paginated course groups with filtering',
-    description: 'Retrieve course groups with pagination, search, and degree filtering capabilities',
+    description:
+      'Retrieve course groups with pagination, search, and degree filtering capabilities',
     request: {
       query: CourseGroupsQuerySchema
     },
@@ -58,9 +68,11 @@ export class GetCourseGroups extends OpenAPIRoute {
 
       // Build where conditions
       const conditions = []
-      
+
       if (search) {
-        conditions.push(sql`LOWER(${courseGroup.name}) LIKE ${`%${search.toLowerCase()}%`}`)
+        conditions.push(
+          sql`LOWER(${courseGroup.name}) LIKE ${`%${search.toLowerCase()}%`}`
+        )
       }
 
       if (degree_id) {
@@ -94,7 +106,7 @@ export class GetCourseGroups extends OpenAPIRoute {
         .offset(offset)
 
       const response: PaginatedResponse<any> = {
-        data: courseGroupsResult.map(group => ({
+        data: courseGroupsResult.map((group) => ({
           ...group,
           createdAt: group.createdAt?.toISOString() || ''
         })),

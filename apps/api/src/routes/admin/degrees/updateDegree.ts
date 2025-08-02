@@ -26,7 +26,8 @@ export class UpdateDegree extends OpenAPIRoute {
   schema = {
     tags: ['Admin - Degrees'],
     summary: 'Update degree information',
-    description: 'Updates degree information including name, acronym, type, and description',
+    description:
+      'Updates degree information including name, acronym, type, and description',
     request: {
       params: z.object({
         id: z.string().transform((val) => parseInt(val, 10))

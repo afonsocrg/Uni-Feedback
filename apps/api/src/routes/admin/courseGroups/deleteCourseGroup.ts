@@ -46,13 +46,14 @@ export class DeleteCourseGroup extends OpenAPIRoute {
         .limit(1)
 
       if (existingCourseGroup.length === 0) {
-        return Response.json({ error: 'Course group not found' }, { status: 404 })
+        return Response.json(
+          { error: 'Course group not found' },
+          { status: 404 }
+        )
       }
 
       // Delete course group
-      await db
-        .delete(courseGroup)
-        .where(eq(courseGroup.id, id))
+      await db.delete(courseGroup).where(eq(courseGroup.id, id))
 
       return new Response(null, { status: 204 })
     } catch (error) {

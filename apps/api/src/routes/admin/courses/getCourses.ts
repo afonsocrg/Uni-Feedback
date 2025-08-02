@@ -1,5 +1,9 @@
 import { courses, degrees, faculties, getDb } from '@db'
-import { PaginatedResponse, PaginationQuerySchema, getPaginatedSchema } from '@types'
+import {
+  PaginatedResponse,
+  PaginationQuerySchema,
+  getPaginatedSchema
+} from '@types'
 import { OpenAPIRoute } from 'chanfana'
 import { and, count, eq, or, sql } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
@@ -7,7 +11,10 @@ import { z } from 'zod'
 
 const CoursesQuerySchema = PaginationQuerySchema.extend({
   search: z.string().optional(),
-  degree_id: z.string().optional().transform((val) => val ? parseInt(val, 10) : undefined)
+  degree_id: z
+    .string()
+    .optional()
+    .transform((val) => (val ? parseInt(val, 10) : undefined))
 })
 
 const AdminCourseSchema = z.object({
@@ -30,7 +37,8 @@ export class GetCourses extends OpenAPIRoute {
   schema = {
     tags: ['Admin - Courses'],
     summary: 'Get paginated courses with filtering',
-    description: 'Retrieve courses with pagination, search, and degree filtering capabilities',
+    description:
+      'Retrieve courses with pagination, search, and degree filtering capabilities',
     request: {
       query: CoursesQuerySchema
     },
@@ -65,7 +73,7 @@ export class GetCourses extends OpenAPIRoute {
 
       // Build where conditions
       const conditions = []
-      
+
       if (search) {
         conditions.push(
           or(
@@ -121,7 +129,7 @@ export class GetCourses extends OpenAPIRoute {
         .offset(offset)
 
       const response: PaginatedResponse<any> = {
-        data: coursesResult.map(course => ({
+        data: coursesResult.map((course) => ({
           ...course,
           feedbackCount: Number(course.feedbackCount),
           terms: course.terms as string[] | null,

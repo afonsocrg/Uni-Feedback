@@ -1,4 +1,11 @@
-import { Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@uni-feedback/ui'
+import {
+  Button,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@uni-feedback/ui'
 import { Check, Edit3, X } from 'lucide-react'
 
 interface SelectableFieldProps {
@@ -50,11 +57,7 @@ export function SelectableField({
                 ))}
               </SelectContent>
             </Select>
-            <Button
-              size="sm"
-              onClick={() => onSave(field)}
-              disabled={disabled}
-            >
+            <Button size="sm" onClick={() => onSave(field)} disabled={disabled}>
               <Check className="h-3 w-3" />
             </Button>
             <Button
