@@ -1,8 +1,10 @@
 import {
+  AddBadge,
   AddSuffixDialog,
-  EditableBadgeList,
+  EditableBadge,
   EditableField,
-  FacultyEditDialog
+  FacultyEditDialog,
+  RemoveSuffixDialog
 } from '@components'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {
@@ -15,9 +17,13 @@ import {
   Card,
   CardContent,
   CardHeader,
-  CardTitle
+  CardTitle,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
 } from '@uni-feedback/ui'
-import { Edit3 } from 'lucide-react'
+import { Edit3, HelpCircle } from 'lucide-react'
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -172,33 +178,49 @@ export function FacultyInfoCard({ faculty }: FacultyInfoCardProps) {
             />
 
             {/* Email Suffixes */}
-            <EditableBadgeList
-              label="Email Suffixes"
-              items={faculty.emailSuffixes || []}
-              onAdd={() => setIsAddSuffixDialogOpen(true)}
-              onRemove={handleRemoveSuffix}
-              addButtonLabel="Add suffix"
-              emptyMessage="No email suffixes configured. Click 'Add suffix' to add one."
-              tooltip="Email suffixes of students at this university (used to validate emails when submitting feedback)"
-              prefix="@"
-              isLoading={removeSuffixMutation.isPending}
-              removeConfirmDialog={{
-                isOpen: isRemoveSuffixDialogOpen,
-                itemToRemove: suffixToRemove,
-                title: 'Remove Email Suffix',
-                description: `Are you sure you want to remove the email suffix "@${suffixToRemove}"? Students with this email suffix will no longer be able to submit feedback to courses of this university.`,
-                onConfirm: confirmRemoveSuffixAction,
-                onCancel: () => setIsRemoveSuffixDialogOpen(false),
-                isRemoving: removeSuffixMutation.isPending
-              }}
-              addDialog={
-                <AddSuffixDialog
-                  facultyId={facultyId}
-                  open={isAddSuffixDialogOpen}
-                  onOpenChange={setIsAddSuffixDialogOpen}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <dt className="font-medium text-sm">Email Suffixes</dt>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="max-w-xs">
+                        Email suffixes of students at this university (used to
+                        validate emails when submitting feedback)
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              <dd className="flex flex-wrap gap-2">
+                {faculty.emailSuffixes && faculty.emailSuffixes.length > 0
+                  ? faculty.emailSuffixes.map((suffix, index) => (
+                      <EditableBadge
+                        key={index}
+                        value={suffix}
+                        prefix="@"
+                        onRemove={handleRemoveSuffix}
+                        disabled={removeSuffixMutation.isPending}
+                      />
+                    ))
+                  : null}
+
+                <AddBadge
+                  label="Add suffix"
+                  onClick={() => setIsAddSuffixDialogOpen(true)}
                 />
-              }
-            />
+              </dd>
+
+              {(!faculty.emailSuffixes ||
+                faculty.emailSuffixes.length === 0) && (
+                <p className="text-sm text-muted-foreground">
+                  No email suffixes configured. Click "Add suffix" to add one.
+                </p>
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -208,6 +230,22 @@ export function FacultyInfoCard({ faculty }: FacultyInfoCardProps) {
         faculty={faculty}
         open={isEditDialogOpen}
         onOpenChange={setIsEditDialogOpen}
+      />
+
+      {/* Add Suffix Dialog */}
+      <AddSuffixDialog
+        facultyId={facultyId}
+        open={isAddSuffixDialogOpen}
+        onOpenChange={setIsAddSuffixDialogOpen}
+      />
+
+      {/* Remove Suffix Dialog */}
+      <RemoveSuffixDialog
+        open={isRemoveSuffixDialogOpen}
+        onOpenChange={setIsRemoveSuffixDialogOpen}
+        suffix={suffixToRemove}
+        onConfirm={confirmRemoveSuffixAction}
+        isLoading={removeSuffixMutation.isPending}
       />
     </>
   )
