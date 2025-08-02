@@ -1,4 +1,4 @@
-import { DegreeEditDialog, EditableField, SelectableField } from '@components'
+import { EditableField, SelectableField } from '@components'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   AdminDegreeDetail,
@@ -17,6 +17,7 @@ import { Edit3 } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
+import { DegreeEditDialog } from './DegreeEditDialog'
 
 interface DegreeInfoCardProps {
   degree: AdminDegreeDetail

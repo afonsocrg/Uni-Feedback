@@ -1,6 +1,5 @@
 export * from './AddSuffixDialog'
 export * from './DashboardLayout'
-export * from './DegreeEditDialog'
 export * from './EditableField'
 export * from './FacultyEditDialog'
 export * from './LoginForm'
