@@ -30,7 +30,7 @@ export function FeedbackTabContent({ courseId }: FeedbackTabContentProps) {
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
   const [approvedFilter, setApprovedFilter] = useState<string>('all')
-  const limit = 10
+  const [limit, setLimit] = useState(10)
 
   const debouncedSearch = useDebounced(search, 300)
 
