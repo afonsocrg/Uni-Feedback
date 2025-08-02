@@ -10,22 +10,26 @@ interface DescriptionTabContentProps {
 export function DescriptionTabContent({ degree }: DescriptionTabContentProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
+  const hasDescription = Boolean(degree.description)
+
   return (
     <>
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <h3 className="font-medium">Degree Description</h3>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => setIsDialogOpen(true)}
-          >
-            <Edit3 className="h-4 w-4 mr-2" />
-            Edit Description
-          </Button>
+          {hasDescription && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setIsDialogOpen(true)}
+            >
+              <Edit3 className="h-4 w-4 mr-2" />
+              Edit Description
+            </Button>
+          )}
         </div>
         <div className="text-sm">
-          {degree.description ? (
+          {hasDescription ? (
             <div className="border rounded-md p-4 bg-muted/20">
               <Markdown>{degree.description}</Markdown>
             </div>
@@ -36,7 +40,7 @@ export function DescriptionTabContent({ degree }: DescriptionTabContentProps) {
               <p className="text-muted-foreground mt-1">
                 Add a description to help students understand this degree
               </p>
-              <Button className="mt-4">
+              <Button className="mt-4" onClick={() => setIsDialogOpen(true)}>
                 <Edit3 className="h-4 w-4 mr-2" />
                 Add Description
               </Button>
