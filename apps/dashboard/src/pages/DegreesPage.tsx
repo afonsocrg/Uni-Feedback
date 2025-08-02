@@ -14,6 +14,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  Chip,
   Input,
   Select,
   SelectContent,
@@ -180,7 +181,7 @@ export function DegreesPage() {
                 <SelectItem value="all">All faculties</SelectItem>
                 {faculties.map((faculty) => (
                   <SelectItem key={faculty.id} value={faculty.id.toString()}>
-                    {faculty.shortName}
+                    <Chip label={faculty.shortName} />
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -262,15 +263,12 @@ export function DegreesPage() {
                         onClick={() => handleDegreeClick(degree.id)}
                       >
                         <TableCell>
-                          <Badge
-                            variant="secondary"
-                            className="cursor-pointer hover:bg-secondary/80"
+                          <Chip
+                            label={degree.facultyShortName}
                             onClick={(e) =>
                               handleFacultyClick(e, degree.facultyId)
                             }
-                          >
-                            {degree.facultyShortName}
-                          </Badge>
+                          />
                         </TableCell>
                         <TableCell>
                           <Badge variant="outline">{degree.type}</Badge>
