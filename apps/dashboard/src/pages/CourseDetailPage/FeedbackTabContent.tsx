@@ -140,9 +140,9 @@ export function FeedbackTabContent({ courseId }: FeedbackTabContentProps) {
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-20">Approved</TableHead>
-                  <TableHead>School Year</TableHead>
-                  <TableHead>Ratings</TableHead>
-                  <TableHead>Comment</TableHead>
+                  <TableHead className="w-32">School Year</TableHead>
+                  <TableHead className="w-48">Ratings</TableHead>
+                  <TableHead className="w-auto">Comment</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -183,13 +183,11 @@ export function FeedbackTabContent({ courseId }: FeedbackTabContentProps) {
                     </TableCell>
                     <TableCell>
                       {feedback.comment ? (
-                        <div className="max-w-xs">
-                          <p className="text-sm line-clamp-2">
-                            {feedback.comment}
-                          </p>
-                        </div>
+                        <p className="text-sm line-clamp-4" title={feedback.comment}>
+                          {feedback.comment}
+                        </p>
                       ) : (
-                        <span className="text-muted-foreground">
+                        <span className="text-muted-foreground text-sm">
                           No comment
                         </span>
                       )}
