@@ -1,9 +1,18 @@
-import { AddSuffixDialog, EditableField, FacultyEditDialog } from '@components'
+import {
+  AddSuffixDialog,
+  EditableField,
+  FacultyEditDialog,
+  PaginationControls
+} from '@components'
+import { useDebounced } from '@hooks'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
+  getAdminDegrees,
+  getAdminDegreeTypes,
   getFacultyDetails,
   removeFacultyEmailSuffix,
-  updateFaculty
+  updateFaculty,
+  type AdminDegreesQuery
 } from '@uni-feedback/api-client'
 import {
   Badge,
@@ -12,7 +21,6 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-  Checkbox,
   Dialog,
   DialogContent,
   DialogDescription,
@@ -20,7 +28,6 @@ import {
   DialogHeader,
   DialogTitle,
   Input,
-  Label,
   Select,
   SelectContent,
   SelectItem,
@@ -61,7 +68,13 @@ export function FacultyDetailPage() {
 
   const [degreesSearch, setDegreesSearch] = useState('')
   const [degreesTypeFilter, setDegreesTypeFilter] = useState<string>('all')
-  const [hideEmptyDegrees, setHideEmptyDegrees] = useState(true)
+
+  // Debounce search term to avoid too many API calls
+  const debouncedDegreesSearch = useDebounced(degreesSearch, 300)
+
+  // Degrees pagination state
+  const [degreesPage, setDegreesPage] = useState(1)
+  const [degreesLimit, setDegreesLimit] = useState(20)
 
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isAddSuffixDialogOpen, setIsAddSuffixDialogOpen] = useState(false)
@@ -79,6 +92,27 @@ export function FacultyDetailPage() {
   } = useQuery({
     queryKey: ['faculty-details', facultyId],
     queryFn: () => getFacultyDetails(facultyId),
+    enabled: !!facultyId
+  })
+
+  // Build query object using debounced search and current filters
+  const degreesQuery: AdminDegreesQuery = {
+    page: degreesPage,
+    limit: degreesLimit,
+    ...(debouncedDegreesSearch && { search: debouncedDegreesSearch }),
+    faculty_id: facultyId,
+    ...(degreesTypeFilter !== 'all' && { type: degreesTypeFilter })
+  }
+
+  const { data: degreesResponse, isLoading: degreesLoading } = useQuery({
+    queryKey: ['admin-degrees', degreesQuery],
+    queryFn: () => getAdminDegrees(degreesQuery),
+    enabled: !!facultyId
+  })
+
+  const { data: degreeTypesResponse } = useQuery({
+    queryKey: ['degree-types', facultyId],
+    queryFn: () => getAdminDegreeTypes(facultyId),
     enabled: !!facultyId
   })
 
@@ -204,28 +238,9 @@ export function FacultyDetailPage() {
     )
   }
 
-  const uniqueDegreeTypes = Array.from(
-    new Set(faculty.degrees.map((degree) => degree.type))
-  ).sort()
-
-  const hasEmptyDegrees = faculty.degrees.some(
-    (degree) => !degree.courseCount || degree.courseCount === 0
-  )
-
-  const filteredDegrees = faculty.degrees.filter((degree) => {
-    const matchesSearch =
-      degree.name.toLowerCase().includes(degreesSearch.toLowerCase()) ||
-      degree.acronym.toLowerCase().includes(degreesSearch.toLowerCase())
-
-    const matchesType =
-      degreesTypeFilter === 'all' ||
-      degree.type.toLowerCase() === degreesTypeFilter.toLowerCase()
-
-    const hasCoursesOrShowEmpty =
-      !hideEmptyDegrees || (degree.courseCount && degree.courseCount > 0)
-
-    return matchesSearch && matchesType && hasCoursesOrShowEmpty
-  })
+  // Use server-side pagination and filtering
+  const degrees = degreesResponse?.data || []
+  const degreeTypes = degreeTypesResponse?.types || []
 
   const handleEditValueChange = (field: string, value: string) => {
     setEditValues((prev) => ({ ...prev, [field]: value }))
@@ -393,32 +408,22 @@ export function FacultyDetailPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All types</SelectItem>
-                {uniqueDegreeTypes.map((type) => (
+                {degreeTypes.map((type) => (
                   <SelectItem key={type} value={type}>
                     {type}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-
-            {hasEmptyDegrees && (
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="hide-empty-degrees"
-                  checked={hideEmptyDegrees}
-                  onCheckedChange={setHideEmptyDegrees}
-                />
-                <Label
-                  htmlFor="hide-empty-degrees"
-                  className="text-sm font-medium cursor-pointer"
-                >
-                  Hide empty degrees
-                </Label>
-              </div>
-            )}
           </div>
 
-          {filteredDegrees.length === 0 ? (
+          {degreesLoading ? (
+            <div className="space-y-3">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="h-12 bg-muted rounded animate-pulse" />
+              ))}
+            </div>
+          ) : degrees.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-muted-foreground">
                 {degreesSearch || degreesTypeFilter !== 'all'
@@ -427,37 +432,56 @@ export function FacultyDetailPage() {
               </p>
             </div>
           ) : (
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Acronym</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Courses</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredDegrees.map((degree) => (
-                    <TableRow
-                      key={degree.id}
-                      className="cursor-pointer hover:bg-muted/50"
-                      onClick={() => handleDegreeClick(degree.id)}
-                    >
-                      <TableCell className="font-medium">
-                        {degree.acronym}
-                      </TableCell>
-                      <TableCell>{degree.name}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{degree.type}</Badge>
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {degree.courseCount || 0}
-                      </TableCell>
+            <div className="space-y-4">
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Type</TableHead>
+                      <TableHead>Acronym</TableHead>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Courses</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {degrees.map((degree) => (
+                      <TableRow
+                        key={degree.id}
+                        className="cursor-pointer hover:bg-muted/50"
+                        onClick={() => handleDegreeClick(degree.id)}
+                      >
+                        <TableCell>
+                          <Badge variant="outline">{degree.type}</Badge>
+                        </TableCell>
+                        <TableCell className="font-medium">
+                          {degree.acronym}
+                        </TableCell>
+                        <TableCell>{degree.name}</TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {degree.courseCount || 0}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Pagination Controls */}
+              {degreesResponse && (
+                <PaginationControls
+                  currentPage={degreesResponse.page}
+                  totalPages={degreesResponse.totalPages}
+                  pageSize={degreesResponse.limit}
+                  total={degreesResponse.total}
+                  onPageChange={(page) => {
+                    setDegreesPage(page)
+                  }}
+                  onPageSizeChange={(limit) => {
+                    setDegreesPage(1)
+                    setDegreesLimit(limit)
+                  }}
+                />
+              )}
             </div>
           )}
         </CardContent>
