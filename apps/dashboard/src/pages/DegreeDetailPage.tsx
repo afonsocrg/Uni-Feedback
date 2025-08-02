@@ -1,4 +1,9 @@
-import { EditableField, SelectableField } from '@components'
+import {
+  CourseGroupEditDialog,
+  DegreeEditDialog,
+  EditableField,
+  SelectableField
+} from '@components'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   getAdminCourseGroups,
@@ -16,9 +21,19 @@ import {
   Card,
   CardContent,
   CardHeader,
-  CardTitle
+  CardTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  MarkdownTextarea,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger
 } from '@uni-feedback/ui'
-import { ArrowLeft, Edit3, GraduationCap } from 'lucide-react'
+import { ArrowLeft, BookOpen, Edit3, GraduationCap } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -328,10 +343,84 @@ export function DegreeDetailPage() {
       </Card>
 
       {/* Placeholder for tabs */}
-      <div className="border rounded-lg p-6">
+      {/* <div className="border rounded-lg p-6">
         <h2 className="text-lg font-semibold mb-4">Tabs Section</h2>
         <p>Tabs will go here</p>
-      </div>
+      </div> */}
+      <Tabs defaultValue="courses" className="w-[400px]">
+        <TabsList>
+          <TabsTrigger value="courses">
+            <BookOpen className="h-4 w-4" />
+            <span>Courses</span>
+          </TabsTrigger>
+          <TabsTrigger value="course-groups">
+            <BookOpen className="h-4 w-4" />
+            <span>Course Groups</span>
+          </TabsTrigger>
+          <TabsTrigger value="description">
+            <BookOpen className="h-4 w-4" />
+            <span>Description</span>
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="courses">Courses content</TabsContent>
+        <TabsContent value="course-groups">Course Groups content</TabsContent>
+        <TabsContent value="description">Description content</TabsContent>
+      </Tabs>
+
+      {/* Description Edit Dialog */}
+      <Dialog
+        open={isDescriptionDialogOpen}
+        onOpenChange={setIsDescriptionDialogOpen}
+      >
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Edit Description</DialogTitle>
+            <DialogDescription>
+              Update the degree description using Markdown formatting.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <MarkdownTextarea
+              value={descriptionValue}
+              onChange={(e) => setDescriptionValue(e.target.value)}
+              placeholder="Enter degree description..."
+              className="min-h-[200px]"
+            />
+          </div>
+
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setIsDescriptionDialogOpen(false)}
+              disabled={updateMutation.isPending}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSaveDescription}
+              disabled={updateMutation.isPending}
+            >
+              {updateMutation.isPending ? 'Saving...' : 'Save Changes'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Degree Edit Dialog */}
+      <DegreeEditDialog
+        degree={degree}
+        open={isDegreeEditDialogOpen}
+        onOpenChange={setIsDegreeEditDialogOpen}
+      />
+
+      {/* Course Group Edit/Create Dialog */}
+      <CourseGroupEditDialog
+        courseGroup={editingCourseGroup}
+        degreeId={degreeId}
+        open={isCourseGroupDialogOpen}
+        onOpenChange={setIsCourseGroupDialogOpen}
+      />
     </div>
   )
 }
