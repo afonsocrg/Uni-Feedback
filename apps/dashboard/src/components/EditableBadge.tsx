@@ -17,12 +17,12 @@ export function EditableBadge({
   return (
     <Badge
       variant="secondary"
-      className="font-mono group hover:bg-destructive/10 transition-colors"
+      className="font-mono group transition-colors has-[button:hover]:bg-destructive/10"
     >
       {prefix}{value}
       <button
         onClick={() => onRemove(value)}
-        className="ml-2 hover:text-destructive transition-colors"
+        className="ml-2 cursor-pointer hover:text-destructive transition-colors"
         disabled={disabled}
       >
         <X className="h-3 w-3" />
