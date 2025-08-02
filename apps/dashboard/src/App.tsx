@@ -8,7 +8,8 @@ import {
   NotFoundPage,
   UsersPage,
   FacultiesPage,
-  FacultyDetailPage
+  FacultyDetailPage,
+  DegreesPage
 } from '@pages'
 import { Providers } from '@providers'
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom'
@@ -38,8 +39,8 @@ function App() {
               <Route path="users" element={<UsersPage />} />
               <Route path="faculties" element={<FacultiesPage />} />
               <Route path="faculties/:id" element={<FacultyDetailPage />} />
-              {/* <Route path="degrees" element={<DegreesPage />} />
-              <Route path="courses" element={<CoursesPage />} />
+              <Route path="degrees" element={<DegreesPage />} />
+              {/* <Route path="courses" element={<CoursesPage />} />
               <Route path="feedback" element={<FeedbackPage />} />
               <Route path="profile" element={<ProfilePage />} /> */}
             </Route>
