@@ -1,4 +1,4 @@
-import { MarkdownTextarea, StarRatingWithLabel } from '@components'
+import { StarRatingWithLabel } from '@/components'
 import { useApp, useFacultyDegrees, useIsMobile } from '@hooks'
 import {
   Button,
@@ -17,6 +17,7 @@ import {
   FormLabel,
   FormMessage,
   Input,
+  MarkdownTextarea,
   Popover,
   PopoverContent,
   PopoverTrigger,

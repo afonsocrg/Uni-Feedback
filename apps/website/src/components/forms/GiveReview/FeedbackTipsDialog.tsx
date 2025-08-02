@@ -1,6 +1,5 @@
-import { Markdown } from '@components'
 import content from '@md/review-guidelines-short.md'
-import { Dialog, DialogContent, DialogTitle } from '@uni-feedback/ui'
+import { Dialog, DialogContent, DialogTitle, Markdown } from '@uni-feedback/ui'
 
 interface FeedbackTipsDialogProps {
   isOpen: boolean

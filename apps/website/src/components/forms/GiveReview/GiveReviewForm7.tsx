@@ -1,6 +1,6 @@
+import { StarRatingWithLabel } from '@/components'
 import { getWorkloadColor, getWorkloadLabel } from '@/lib/workload'
 import { Faculty } from '@/services/meicFeedbackAPI'
-import { MarkdownTextarea, StarRatingWithLabel } from '@components'
 import { useFaculties, useFacultyDegrees } from '@hooks'
 import { isRequired } from '@pages/GiveReview'
 import {
@@ -19,6 +19,7 @@ import {
   FormLabel,
   FormMessage,
   Input,
+  MarkdownTextarea,
   Popover,
   PopoverContent,
   PopoverTrigger,

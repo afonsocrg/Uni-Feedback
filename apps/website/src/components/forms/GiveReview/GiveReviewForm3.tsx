@@ -1,4 +1,4 @@
-import { MarkdownTextarea, StarRatingWithLabel } from '@components'
+import { StarRatingWithLabel } from '@/components'
 import {
   Button,
   Command,
@@ -21,6 +21,7 @@ import {
   FormLabel,
   FormMessage,
   Input,
+  MarkdownTextarea,
   Popover,
   PopoverContent,
   PopoverTrigger,

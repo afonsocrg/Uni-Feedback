@@ -1,6 +1,7 @@
-import { EditableSection, Markdown } from '@components'
+import { EditableSection } from '@components'
 import { getAssessmentFormUrl } from '@services/googleForms'
 import { type CourseDetail } from '@services/meicFeedbackAPI'
+import { Markdown } from '@uni-feedback/ui'
 
 export interface CourseAssessmentProps {
   course: CourseDetail
