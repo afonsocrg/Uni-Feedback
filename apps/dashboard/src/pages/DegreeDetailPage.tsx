@@ -238,9 +238,9 @@ export function DegreeDetailPage() {
           <p className="text-sm text-muted-foreground mt-1">
             {error instanceof Error ? error.message : 'An error occurred'}
           </p>
-          <button onClick={() => refetch()} className="mt-4">
+          <Button onClick={() => refetch()} className="mt-4">
             Try Again
-          </button>
+          </Button>
         </div>
       </div>
     )
@@ -250,19 +250,19 @@ export function DegreeDetailPage() {
     return (
       <div className="space-y-6">
         <div className="flex items-center gap-4">
-          <div className="h-9 w-20 bg-gray-200 rounded animate-pulse" />
-          <div className="h-8 w-64 bg-gray-200 rounded animate-pulse" />
+          <Skeleton className="h-9 w-20" />
+          <Skeleton className="h-8 w-64" />
         </div>
-        <div className="border rounded-lg">
-          <div className="p-6">
-            <div className="h-6 w-32 bg-gray-200 rounded animate-pulse mb-4" />
-            <div className="space-y-4">
-              <div className="h-4 w-full bg-gray-200 rounded animate-pulse" />
-              <div className="h-4 w-3/4 bg-gray-200 rounded animate-pulse" />
-              <div className="h-4 w-1/2 bg-gray-200 rounded animate-pulse" />
-            </div>
-          </div>
-        </div>
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-6 w-32" />
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-4 w-1/2" />
+          </CardContent>
+        </Card>
       </div>
     )
   }
@@ -302,7 +302,7 @@ export function DegreeDetailPage() {
         </CardHeader>
         <CardContent className="pt-6">
           <div className="space-y-4">
-            {/* Faculty (non-editable, clickable) */}
+            {/* Faculty (non-editable, clickable) - moved to top */}
             <div className="space-y-2">
               <dt className="font-medium text-sm">Faculty</dt>
               <dd>
@@ -359,6 +359,7 @@ export function DegreeDetailPage() {
         </CardContent>
       </Card>
 
+      {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="courses">
@@ -374,6 +375,8 @@ export function DegreeDetailPage() {
             <span>Description</span>
           </TabsTrigger>
         </TabsList>
+
+        {/* Tab Content Card */}
         <Card>
           <CardHeader>
             <CardTitle>{getTabTitle()}</CardTitle>
