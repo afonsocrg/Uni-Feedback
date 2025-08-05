@@ -6,18 +6,21 @@ interface EditableBadgeProps {
   prefix?: string
   onRemove: (value: string) => void
   disabled?: boolean
+  backgroundColor?: string
 }
 
 export function EditableBadge({
   value,
   prefix = '',
   onRemove,
-  disabled = false
+  disabled = false,
+  backgroundColor
 }: EditableBadgeProps) {
   return (
     <Badge
       variant="secondary"
       className="font-mono group transition-colors has-[button:hover]:bg-destructive/10"
+      style={backgroundColor ? { backgroundColor } : undefined}
     >
       {prefix}{value}
       <button

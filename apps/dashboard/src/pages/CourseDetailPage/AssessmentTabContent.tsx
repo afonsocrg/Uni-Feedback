@@ -10,7 +10,8 @@ import {
   DialogHeader,
   DialogTitle,
   Label,
-  Textarea
+  Markdown,
+  MarkdownTextarea
 } from '@uni-feedback/ui'
 import { Edit3 } from 'lucide-react'
 import { useState } from 'react'
@@ -89,9 +90,7 @@ export function AssessmentTabContent({ course }: AssessmentTabContentProps) {
           <div className="min-h-32 p-4 border rounded-md bg-muted/50">
             {course.assessment ? (
               <div className="prose prose-sm max-w-none">
-                <div className="whitespace-pre-wrap text-sm leading-relaxed">
-                  {course.assessment}
-                </div>
+                <Markdown>{course.assessment}</Markdown>
               </div>
             ) : (
               <div className="text-center py-8">
@@ -161,12 +160,12 @@ export function AssessmentTabContent({ course }: AssessmentTabContentProps) {
             {/* Assessment Text */}
             <div className="space-y-2">
               <Label htmlFor="assessment">Assessment Details</Label>
-              <Textarea
+              <MarkdownTextarea
                 id="assessment"
                 value={assessment}
                 onChange={(e) => setAssessment(e.target.value)}
-                placeholder="Enter assessment details (e.g., grading breakdown, assignment types, evaluation criteria)..."
-                className="min-h-32 resize-none"
+                placeholder="Enter assessment details using Markdown (e.g., grading breakdown, assignment types, evaluation criteria)..."
+                className="min-h-32"
                 maxLength={2000}
               />
               <div className="text-xs text-muted-foreground text-right">

@@ -1,10 +1,8 @@
 import { PaginationControls } from '@components'
-import { useDebounced } from '@hooks'
 import { useQuery } from '@tanstack/react-query'
 import { getAdminFeedbackNew } from '@uni-feedback/api-client'
 import {
   Badge,
-  Input,
   Select,
   SelectContent,
   SelectItem,
@@ -19,8 +17,9 @@ import {
   TableRow,
   WorkloadRatingDisplay
 } from '@uni-feedback/ui'
-import { Check, Search, X } from 'lucide-react'
+import { Check, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { markdownToText } from '../../utils/markdownToText'
 
 interface FeedbackTabContentProps {
@@ -28,19 +27,17 @@ interface FeedbackTabContentProps {
 }
 
 export function FeedbackTabContent({ courseId }: FeedbackTabContentProps) {
+  const navigate = useNavigate()
   const [page, setPage] = useState(1)
-  const [search, setSearch] = useState('')
   const [approvedFilter, setApprovedFilter] = useState<string>('all')
   const [limit, setLimit] = useState(10)
 
-  const debouncedSearch = useDebounced(search, 300)
 
   const feedbackQuery = useMemo(() => {
     const query: {
       page: number
       limit: number
       course_id: number
-      email?: string
       approved?: boolean
     } = {
       page,
@@ -48,16 +45,12 @@ export function FeedbackTabContent({ courseId }: FeedbackTabContentProps) {
       course_id: courseId
     }
 
-    if (debouncedSearch) {
-      query.email = debouncedSearch
-    }
-
     if (approvedFilter !== 'all') {
       query.approved = approvedFilter === 'approved'
     }
 
     return query
-  }, [page, limit, courseId, debouncedSearch, approvedFilter])
+  }, [page, limit, courseId, approvedFilter])
 
   const {
     data: feedbackData,
@@ -68,14 +61,13 @@ export function FeedbackTabContent({ courseId }: FeedbackTabContentProps) {
     queryFn: () => getAdminFeedbackNew(feedbackQuery)
   })
 
-  const handleSearchChange = (value: string) => {
-    setSearch(value)
-    setPage(1) // Reset to first page when searching
-  }
-
   const handleApprovedFilterChange = (value: string) => {
     setApprovedFilter(value)
     setPage(1) // Reset to first page when filtering
+  }
+
+  const handleFeedbackClick = (feedbackId: number) => {
+    navigate(`/feedback/${feedbackId}`)
   }
 
 
@@ -93,18 +85,7 @@ export function FeedbackTabContent({ courseId }: FeedbackTabContentProps) {
   return (
     <div className="space-y-4">
       {/* Filters */}
-      <div className="flex gap-4">
-        <div className="flex-1">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-            <Input
-              placeholder="Search by email..."
-              value={search}
-              onChange={(e) => handleSearchChange(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-        </div>
+      <div className="flex gap-4 justify-end">
         <Select
           value={approvedFilter}
           onValueChange={handleApprovedFilterChange}
@@ -128,9 +109,9 @@ export function FeedbackTabContent({ courseId }: FeedbackTabContentProps) {
       ) : !feedbackData?.data.length ? (
         <div className="text-center py-8">
           <p className="text-muted-foreground">No feedback found</p>
-          {(search || approvedFilter !== 'all') && (
+          {approvedFilter !== 'all' && (
             <p className="text-sm text-muted-foreground mt-2">
-              Try adjusting your filters
+              Try adjusting your filter
             </p>
           )}
         </div>
@@ -148,7 +129,11 @@ export function FeedbackTabContent({ courseId }: FeedbackTabContentProps) {
               </TableHeader>
               <TableBody>
                 {feedbackData.data.map((feedback) => (
-                  <TableRow key={feedback.id}>
+                  <TableRow 
+                    key={feedback.id}
+                    className="cursor-pointer hover:bg-muted/50 transition-colors"
+                    onClick={() => handleFeedbackClick(feedback.id)}
+                  >
                     <TableCell className="text-center">
                       <div className="flex justify-center">
                         {feedback.approved ? (

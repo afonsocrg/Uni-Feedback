@@ -8,7 +8,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  Textarea
+  Markdown,
+  MarkdownTextarea
 } from '@uni-feedback/ui'
 import { Edit3 } from 'lucide-react'
 import { useState } from 'react'
@@ -78,9 +79,7 @@ export function BibliographyTabContent({ course }: BibliographyTabContentProps) 
         <div className="min-h-32 p-4 border rounded-md bg-muted/50">
           {course.bibliography ? (
             <div className="prose prose-sm max-w-none">
-              <div className="whitespace-pre-wrap text-sm leading-relaxed">
-                {course.bibliography}
-              </div>
+              <Markdown>{course.bibliography}</Markdown>
             </div>
           ) : (
             <div className="text-center py-8">
@@ -112,11 +111,11 @@ export function BibliographyTabContent({ course }: BibliographyTabContentProps) 
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <Textarea
+            <MarkdownTextarea
               value={bibliography}
               onChange={(e) => setBibliography(e.target.value)}
-              placeholder="Enter course bibliography..."
-              className="min-h-40 resize-none"
+              placeholder="Enter course bibliography using Markdown..."
+              className="min-h-40"
               maxLength={2000}
             />
             <div className="text-xs text-muted-foreground text-right">

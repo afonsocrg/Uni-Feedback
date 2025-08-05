@@ -8,7 +8,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  Textarea
+  Markdown,
+  MarkdownTextarea
 } from '@uni-feedback/ui'
 import { Edit3 } from 'lucide-react'
 import { useState } from 'react'
@@ -78,9 +79,7 @@ export function DescriptionTabContent({ course }: DescriptionTabContentProps) {
         <div className="min-h-32 p-4 border rounded-md bg-muted/50">
           {course.description ? (
             <div className="prose prose-sm max-w-none">
-              <p className="whitespace-pre-wrap text-sm leading-relaxed">
-                {course.description}
-              </p>
+              <Markdown>{course.description}</Markdown>
             </div>
           ) : (
             <div className="text-center py-8">
@@ -112,11 +111,11 @@ export function DescriptionTabContent({ course }: DescriptionTabContentProps) {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <Textarea
+            <MarkdownTextarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Enter course description..."
-              className="min-h-40 resize-none"
+              className="min-h-40"
               maxLength={2000}
             />
             <div className="text-xs text-muted-foreground text-right">
@@ -127,10 +126,7 @@ export function DescriptionTabContent({ course }: DescriptionTabContentProps) {
             <Button variant="outline" onClick={handleCancel}>
               Cancel
             </Button>
-            <Button
-              onClick={handleSave}
-              disabled={updateMutation.isPending}
-            >
+            <Button onClick={handleSave} disabled={updateMutation.isPending}>
               {updateMutation.isPending ? 'Saving...' : 'Save Description'}
             </Button>
           </DialogFooter>
