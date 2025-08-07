@@ -5,7 +5,9 @@ import {
   FacultyPage,
   GiveReview,
   Home,
-  NotFound
+  NotFound,
+  PrivacyPage,
+  TermsPage
 } from '@pages'
 import { getReviewPath } from '@utils/routes'
 import { Route, Routes } from 'react-router-dom'
@@ -17,6 +19,8 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/courses/:id" element={<CourseDetail />} />
         <Route path={getReviewPath()} element={<GiveReview />} />
+        <Route path="/terms" element={<TermsPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
 
         {/* URL-driven university/degree routes */}
         <Route path="/:faculty" element={<FacultyPage />} />
