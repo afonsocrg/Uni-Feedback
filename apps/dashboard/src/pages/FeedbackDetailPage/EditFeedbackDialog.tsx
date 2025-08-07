@@ -70,15 +70,15 @@ export function EditFeedbackDialog({
 
   const handleSave = () => {
     const updates: any = {}
-    
+
     if (schoolYear !== (initialSchoolYear?.toString() || '')) {
       updates.schoolYear = schoolYear ? parseInt(schoolYear) : null
     }
-    
+
     if (rating !== initialRating) {
       updates.rating = rating || undefined
     }
-    
+
     if (workloadRating !== initialWorkloadRating) {
       updates.workloadRating = workloadRating
     }
@@ -93,10 +93,10 @@ export function EditFeedbackDialog({
     onOpenChange(false)
   }
 
-  // Generate school year options (current and previous 5 years)
+  // Generate 5 most recent school years
   const currentYear = getCurrentSchoolYear()
   const schoolYearOptions = []
-  for (let year = currentYear; year >= currentYear - 5; year--) {
+  for (let year = currentYear; year > currentYear - 5; year--) {
     schoolYearOptions.push(year)
   }
 
@@ -114,7 +114,12 @@ export function EditFeedbackDialog({
           {/* School Year */}
           <div className="space-y-2">
             <Label>School Year</Label>
-            <Select value={schoolYear || 'none'} onValueChange={(value) => setSchoolYear(value === 'none' ? '' : value)}>
+            <Select
+              value={schoolYear || 'none'}
+              onValueChange={(value) =>
+                setSchoolYear(value === 'none' ? '' : value)
+              }
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select school year" />
               </SelectTrigger>
