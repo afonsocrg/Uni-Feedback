@@ -1,4 +1,5 @@
 export * from './Chip'
+export * from './EditableStarRating'
 export * from './StarRating'
 export * from './StarRatingWithLabel'
 export * from './WarningAlert'

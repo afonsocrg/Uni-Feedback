@@ -1,7 +1,7 @@
 import {
   ConfirmationDialog,
   EditableSelect,
-  EditableStarRating,
+  EditableStarRatingField,
   EditableWorkloadRating
 } from '@components'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -140,7 +140,7 @@ export function FeedbackInfoCard({ feedback }: FeedbackInfoCardProps) {
             />
 
             {/* Rating (editable) */}
-            <EditableStarRating
+            <EditableStarRatingField
               label="Rating"
               value={feedback.rating}
               onSave={(value) => {

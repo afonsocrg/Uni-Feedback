@@ -32,7 +32,6 @@ export function FeedbackTabContent({ courseId }: FeedbackTabContentProps) {
   const [approvedFilter, setApprovedFilter] = useState<string>('all')
   const [limit, setLimit] = useState(10)
 
-
   const feedbackQuery = useMemo(() => {
     const query: {
       page: number
@@ -69,7 +68,6 @@ export function FeedbackTabContent({ courseId }: FeedbackTabContentProps) {
   const handleFeedbackClick = (feedbackId: number) => {
     navigate(`/feedback/${feedbackId}`)
   }
-
 
   if (error) {
     return (
@@ -129,7 +127,7 @@ export function FeedbackTabContent({ courseId }: FeedbackTabContentProps) {
               </TableHeader>
               <TableBody>
                 {feedbackData.data.map((feedback) => (
-                  <TableRow 
+                  <TableRow
                     key={feedback.id}
                     className="cursor-pointer hover:bg-muted/50 transition-colors"
                     onClick={() => handleFeedbackClick(feedback.id)}
@@ -161,15 +159,22 @@ export function FeedbackTabContent({ courseId }: FeedbackTabContentProps) {
                           </span>
                         </div>
                         {feedback.workloadRating ? (
-                          <WorkloadRatingDisplay rating={feedback.workloadRating} />
+                          <WorkloadRatingDisplay
+                            rating={feedback.workloadRating}
+                          />
                         ) : (
-                          <span className="text-xs text-muted-foreground">No workload rating</span>
+                          <span className="text-xs text-muted-foreground">
+                            No workload rating
+                          </span>
                         )}
                       </div>
                     </TableCell>
                     <TableCell>
                       {feedback.comment ? (
-                        <p className="text-sm line-clamp-4" title={markdownToText(feedback.comment)}>
+                        <p
+                          className="text-sm line-clamp-4"
+                          title={markdownToText(feedback.comment)}
+                        >
                           {markdownToText(feedback.comment)}
                         </p>
                       ) : (

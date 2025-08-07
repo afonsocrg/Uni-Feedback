@@ -1,6 +1,6 @@
 import { PaginationControls } from '@components'
-import { useQuery } from '@tanstack/react-query'
 import { useAdminFilters } from '@hooks'
+import { useQuery } from '@tanstack/react-query'
 import {
   getAdminCoursesNew,
   getAdminFeedbackNew,
@@ -52,7 +52,8 @@ export function FeedbackPage() {
   // Local state for pagination and filters
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(20)
-  const { facultyId, degreeId, courseId, setFaculty, setDegree, setCourse } = useAdminFilters()
+  const { facultyId, degreeId, courseId, setFaculty, setDegree, setCourse } =
+    useAdminFilters()
   const [approvedFilter, setApprovedFilter] = useState('all')
 
   const selectedFacultyId = facultyId?.toString() ?? 'all'
@@ -94,22 +95,13 @@ export function FeedbackPage() {
   })
 
   const { data: degrees = [] } = useQuery({
-    queryKey: [
-      'degree-suggestions',
-      facultyId
-    ],
-    queryFn: () =>
-      getDegreeSuggestions(
-        facultyId ?? undefined
-      ),
+    queryKey: ['degree-suggestions', facultyId],
+    queryFn: () => getDegreeSuggestions(facultyId ?? undefined),
     enabled: facultyId !== null
   })
 
   const { data: coursesResponse } = useQuery({
-    queryKey: [
-      'admin-courses',
-      degreeId
-    ],
+    queryKey: ['admin-courses', degreeId],
     queryFn: () =>
       getAdminCoursesNew({
         degree_id: degreeId ?? undefined,

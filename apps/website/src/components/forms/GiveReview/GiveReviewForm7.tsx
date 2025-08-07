@@ -1,4 +1,4 @@
-import { StarRatingWithLabel } from '@/components'
+import { EditableStarRating } from '@uni-feedback/ui'
 import { Faculty } from '@/services/meicFeedbackAPI'
 import { useFaculties, useFacultyDegrees } from '@hooks'
 import { isRequired } from '@pages/GiveReview'
@@ -495,7 +495,7 @@ export function GiveReviewForm7({
                                 )}
                               </FormLabel>
                               <FormControl>
-                                <StarRatingWithLabel
+                                <EditableStarRating
                                   value={field.value}
                                   onChange={field.onChange}
                                   size="lg"

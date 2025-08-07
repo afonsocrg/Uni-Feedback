@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { cn } from '../../utils'
 import { StarRating } from './StarRating'
 
@@ -14,44 +13,37 @@ const RATING_LABELS: RatingLabel = [
 
 interface StarRatingWithLabelProps {
   value: number
-  onChange?: (value: number) => void
+  variant?: 'default' | 'muted'
   size?: 'sm' | 'md' | 'lg'
   labels?: RatingLabel
   labelFunction?: (rating: number) => string
-  displayHover?: boolean
   labelPosition?: 'bottom' | 'right'
 }
 
 export function StarRatingWithLabel({
   value,
-  onChange,
+  variant = 'default',
   size,
   labels,
   labelFunction,
-  displayHover = true,
   labelPosition = 'right'
 }: StarRatingWithLabelProps) {
-  const [hoverValue, setHoverValue] = useState<number | null>(null)
-
   if (!labels) {
     labels = RATING_LABELS
   }
 
-  const displayValue = displayHover && hoverValue ? hoverValue : value
   const label = labelFunction
-    ? labelFunction(displayValue)
-    : displayValue >= 1 && displayValue <= 5
-      ? labels[displayValue - 1]
+    ? labelFunction(value)
+    : value >= 1 && value <= 5
+      ? labels[value - 1]
       : ''
 
   if (labelPosition === 'bottom') {
     return (
       <div className="flex flex-col items-start gap-1">
         <StarRating
-          value={displayValue}
-          onChange={onChange}
-          onHover={setHoverValue}
-          hoverValue={hoverValue}
+          value={value}
+          variant={variant}
           size={size}
         />
         <span
@@ -67,10 +59,8 @@ export function StarRatingWithLabel({
   return (
     <div className={cn('flex gap-3', 'flex-row items-center gap-3')}>
       <StarRating
-        value={displayValue}
-        onChange={onChange}
-        onHover={setHoverValue}
-        hoverValue={hoverValue}
+        value={value}
+        variant={variant}
         size={size}
       />
       <span

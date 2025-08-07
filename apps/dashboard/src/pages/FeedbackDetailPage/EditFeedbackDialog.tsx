@@ -14,7 +14,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  StarRatingWithLabel
+  EditableStarRating
 } from '@uni-feedback/ui'
 import { getCurrentSchoolYear } from '@uni-feedback/utils'
 import { useState } from 'react'
@@ -138,10 +138,9 @@ export function EditFeedbackDialog({
           <div className="space-y-2">
             <Label>Rating</Label>
             {rating ? (
-              <StarRatingWithLabel
+              <EditableStarRating
                 value={rating}
                 onChange={(newValue) => setRating(newValue)}
-                displayHover={true}
                 labelPosition="right"
               />
             ) : (

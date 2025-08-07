@@ -1,4 +1,4 @@
-import { StarRatingWithLabel } from '@/components'
+import { EditableStarRating } from '@uni-feedback/ui'
 import { useApp, useFacultyDegrees, useIsMobile } from '@hooks'
 import {
   Button,
@@ -360,7 +360,7 @@ export function GiveReviewForm6({
                     <FormItem>
                       <FormLabel>Overall Rating</FormLabel>
                       <FormControl>
-                        <StarRatingWithLabel
+                        <EditableStarRating
                           value={field.value}
                           onChange={field.onChange}
                           size="lg"
@@ -377,7 +377,7 @@ export function GiveReviewForm6({
                     <FormItem>
                       <FormLabel>Workload Rating</FormLabel>
                       <FormControl>
-                        <StarRatingWithLabel
+                        <EditableStarRating
                           value={field.value}
                           onChange={field.onChange}
                           size="lg"
