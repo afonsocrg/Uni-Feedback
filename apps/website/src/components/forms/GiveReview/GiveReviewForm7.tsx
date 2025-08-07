@@ -1,4 +1,3 @@
-import { EditableStarRating } from '@uni-feedback/ui'
 import { Faculty } from '@/services/meicFeedbackAPI'
 import { useFaculties, useFacultyDegrees } from '@hooks'
 import { isRequired } from '@pages/GiveReview'
@@ -10,6 +9,7 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
+  EditableStarRating,
   Form,
   FormControl,
   FormDescription,
@@ -34,7 +34,11 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@uni-feedback/ui'
-import { formatSchoolYearString, getWorkloadColor, getWorkloadLabel } from '@uni-feedback/utils'
+import {
+  formatSchoolYearString,
+  getWorkloadColor,
+  getWorkloadLabel
+} from '@uni-feedback/utils'
 import { cn } from '@utils'
 import { motion } from 'framer-motion'
 import {
@@ -59,7 +63,7 @@ function getEmailPlaceHolder(selectedFaculty: Faculty | null) {
   ) {
     // Use the first email suffix as the placeholder
     const firstSuffix = selectedFaculty.emailSuffixes[0]
-    return `your.email${firstSuffix}`
+    return `your.email@${firstSuffix}`
   }
   return 'your.email@university.com'
 }
