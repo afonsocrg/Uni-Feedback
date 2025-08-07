@@ -1,4 +1,5 @@
 import { feedback, getDb } from '@db'
+import { detectChanges, notifyAdminChange } from '@utils/notificationHelpers'
 import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
@@ -128,6 +129,21 @@ export class UpdateFeedback extends OpenAPIRoute {
         }
       }
 
+      // Detect changes for notification (compare with original feedback fields)
+      const originalData = {
+        schoolYear: existingFeedback[0].schoolYear,
+        rating: existingFeedback[0].rating,
+        workloadRating: existingFeedback[0].workloadRating,
+        comment: existingFeedback[0].comment,
+        approved: existingFeedback[0].approvedAt !== null
+      }
+      const newData = {
+        ...originalData,
+        ...updates,
+        approved: updates.approved !== undefined ? updates.approved : originalData.approved
+      }
+      const changes = detectChanges(originalData, newData, ['schoolYear', 'rating', 'workloadRating', 'comment', 'approved'])
+
       // Perform update
       await db
         .update(feedback)
@@ -142,6 +158,19 @@ export class UpdateFeedback extends OpenAPIRoute {
         .limit(1)
 
       const fb = updatedFeedback[0]
+
+      // Send notification if changes were made
+      if (changes.length > 0) {
+        await notifyAdminChange({
+          env,
+          user: context.user,
+          resourceType: 'feedback',
+          resourceId: id,
+          resourceName: `Feedback #${id}`,
+          action: 'updated',
+          changes
+        })
+      }
 
       const response = {
         id: fb.id,

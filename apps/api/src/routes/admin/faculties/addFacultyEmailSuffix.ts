@@ -1,4 +1,5 @@
 import { faculties, getDb } from '@db'
+import { notifyAdminChange } from '@utils/notificationHelpers'
 import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
@@ -78,6 +79,8 @@ export class AddFacultyEmailSuffix extends OpenAPIRoute {
       const faculty = await db
         .select({
           id: faculties.id,
+          name: faculties.name,
+          shortName: faculties.shortName,
           emailSuffixes: faculties.emailSuffixes
         })
         .from(faculties)
@@ -109,6 +112,18 @@ export class AddFacultyEmailSuffix extends OpenAPIRoute {
           updatedAt: new Date()
         })
         .where(eq(faculties.id, id))
+
+      // Send notification
+      await notifyAdminChange({
+        env,
+        user: context.user,
+        resourceType: 'faculty',
+        resourceId: id,
+        resourceName: faculty[0].name,
+        resourceShortName: faculty[0].shortName,
+        action: 'added',
+        addedItem: `email suffix "${suffix}"`
+      })
 
       return Response.json({
         facultyId: id,

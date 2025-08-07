@@ -1,4 +1,5 @@
 import { courseGroup, getDb } from '@db'
+import { detectChanges, notifyAdminChange } from '@utils/notificationHelpers'
 import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
@@ -123,6 +124,9 @@ export class UpdateCourseGroup extends OpenAPIRoute {
         dbUpdateData.name = updateData.name.trim()
       }
 
+      // Detect changes for notification
+      const changes = detectChanges(existingCourseGroup[0], dbUpdateData, ['name'])
+
       // Update course group
       const updatedCourseGroup = await db
         .update(courseGroup)
@@ -138,6 +142,19 @@ export class UpdateCourseGroup extends OpenAPIRoute {
           createdAt: courseGroup.createdAt,
           updatedAt: courseGroup.updatedAt
         })
+
+      // Send notification if changes were made
+      if (changes.length > 0) {
+        await notifyAdminChange({
+          env,
+          user: context.user,
+          resourceType: 'course-group',
+          resourceId: id,
+          resourceName: updatedCourseGroup[0].name,
+          action: 'updated',
+          changes
+        })
+      }
 
       const response = {
         ...updatedCourseGroup[0],

@@ -1,4 +1,5 @@
 import { courses, getDb } from '@db'
+import { notifyAdminChange } from '@utils/notificationHelpers'
 import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
@@ -77,6 +78,8 @@ export class AddCourseTerm extends OpenAPIRoute {
       const course = await db
         .select({
           id: courses.id,
+          name: courses.name,
+          acronym: courses.acronym,
           terms: courses.terms
         })
         .from(courses)
@@ -105,6 +108,18 @@ export class AddCourseTerm extends OpenAPIRoute {
           updatedAt: new Date()
         })
         .where(eq(courses.id, id))
+
+      // Send notification
+      await notifyAdminChange({
+        env,
+        user: context.user,
+        resourceType: 'course',
+        resourceId: id,
+        resourceName: course[0].name,
+        resourceShortName: course[0].acronym,
+        action: 'added',
+        addedItem: `term "${term}"`
+      })
 
       return Response.json({
         courseId: id,

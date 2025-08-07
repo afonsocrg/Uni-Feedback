@@ -1,4 +1,5 @@
 import { degrees, getDb } from '@db'
+import { detectChanges, notifyAdminChange } from '@utils/notificationHelpers'
 import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
@@ -150,6 +151,9 @@ export class UpdateDegree extends OpenAPIRoute {
       if (updateData.description !== undefined)
         dbUpdateData.description = updateData.description
 
+      // Detect changes for notification
+      const changes = detectChanges(existingDegree[0], dbUpdateData, ['name', 'acronym', 'type', 'description'])
+
       // Update degree
       const updatedDegree = await db
         .update(degrees)
@@ -168,6 +172,20 @@ export class UpdateDegree extends OpenAPIRoute {
           createdAt: degrees.createdAt,
           updatedAt: degrees.updatedAt
         })
+
+      // Send notification if changes were made
+      if (changes.length > 0) {
+        await notifyAdminChange({
+          env,
+          user: context.user,
+          resourceType: 'degree',
+          resourceId: id,
+          resourceName: updatedDegree[0].name,
+          resourceShortName: updatedDegree[0].acronym,
+          action: 'updated',
+          changes
+        })
+      }
 
       const response = {
         ...updatedDegree[0],

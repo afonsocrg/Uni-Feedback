@@ -1,5 +1,6 @@
 import { courseGroup, degrees, getDb } from '@db'
-import { ValidationErrors } from '@types/validation'
+import { ValidationErrors } from '@types'
+import { notifyAdminChange } from '@utils/notificationHelpers'
 import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
@@ -133,6 +134,16 @@ export class CreateCourseGroup extends OpenAPIRoute {
           createdAt: courseGroup.createdAt,
           updatedAt: courseGroup.updatedAt
         })
+
+      // Send notification
+      await notifyAdminChange({
+        env,
+        user: context.user,
+        resourceType: 'course-group',
+        resourceId: newCourseGroup[0].id,
+        resourceName: newCourseGroup[0].name,
+        action: 'created'
+      })
 
       const response = {
         ...newCourseGroup[0],
