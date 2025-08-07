@@ -1,44 +1,30 @@
 import { useState } from 'react'
-import { StarRatingWithLabel } from './StarRatingWithLabel'
+import { StarRatingWithLabel, StarRatingWithLabelProps } from './StarRatingWithLabel'
 
-type RatingLabel = [string, string, string, string, string]
-
-interface EditableStarRatingProps {
-  value: number
+export interface EditableStarRatingProps extends StarRatingWithLabelProps {
   onChange: (value: number) => void
   disabled?: boolean
-  size?: 'sm' | 'md' | 'lg'
-  labels?: RatingLabel
-  labelFunction?: (rating: number) => string
-  labelPosition?: 'bottom' | 'right'
 }
 
 export function EditableStarRating({
-  value,
   onChange,
   disabled = false,
-  size = 'md',
-  labels,
-  labelFunction,
-  labelPosition = 'right'
+  ...starRatingWithLabelProps
 }: EditableStarRatingProps) {
   const [hoverValue, setHoverValue] = useState<number | null>(null)
 
   if (disabled) {
     return (
       <StarRatingWithLabel
-        value={value}
+        {...starRatingWithLabelProps}
         variant="default"
-        size={size}
-        labels={labels}
-        labelFunction={labelFunction}
-        labelPosition={labelPosition}
       />
     )
   }
 
-  const displayValue = hoverValue ?? value
+  const displayValue = hoverValue ?? starRatingWithLabelProps.value
   const variant = hoverValue !== null ? 'muted' : 'default'
+  const size = starRatingWithLabelProps.size || 'md'
   const sizeClasses = { sm: 'text-lg', md: 'text-2xl', lg: 'text-3xl' }
 
   return (
@@ -47,12 +33,9 @@ export function EditableStarRating({
       onMouseLeave={() => setHoverValue(null)}
     >
       <StarRatingWithLabel
+        {...starRatingWithLabelProps}
         value={displayValue}
         variant={variant}
-        size={size}
-        labels={labels}
-        labelFunction={labelFunction}
-        labelPosition={labelPosition}
       />
       <div className="absolute top-0 left-0 flex">
         {[...Array(5)].map((_, index) => (

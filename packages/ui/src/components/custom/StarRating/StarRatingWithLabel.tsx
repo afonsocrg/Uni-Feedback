@@ -1,5 +1,5 @@
-import { cn } from '../../utils'
-import { StarRating } from './StarRating'
+import { cn } from '../../../utils'
+import { StarRating, StarRatingProps } from './StarRating'
 
 type RatingLabel = [string, string, string, string, string]
 
@@ -11,26 +11,23 @@ const RATING_LABELS: RatingLabel = [
   'Excellent'
 ]
 
-interface StarRatingWithLabelProps {
-  value: number
-  variant?: 'default' | 'muted'
-  size?: 'sm' | 'md' | 'lg'
+export interface StarRatingWithLabelProps extends StarRatingProps {
   labels?: RatingLabel
   labelFunction?: (rating: number) => string
   labelPosition?: 'bottom' | 'right'
 }
 
 export function StarRatingWithLabel({
-  value,
-  variant = 'default',
-  size,
   labels,
   labelFunction,
-  labelPosition = 'right'
+  labelPosition = 'right',
+  ...starRatingProps
 }: StarRatingWithLabelProps) {
   if (!labels) {
     labels = RATING_LABELS
   }
+
+  const { value } = starRatingProps
 
   const label = labelFunction
     ? labelFunction(value)
@@ -41,11 +38,7 @@ export function StarRatingWithLabel({
   if (labelPosition === 'bottom') {
     return (
       <div className="flex flex-col items-start gap-1">
-        <StarRating
-          value={value}
-          variant={variant}
-          size={size}
-        />
+        <StarRating {...starRatingProps} />
         <span
           className="text-sm text-gray-500 min-h-[20px] min-w-[70px] block pl-2"
           style={{ height: '20px' }}
@@ -58,11 +51,7 @@ export function StarRatingWithLabel({
 
   return (
     <div className={cn('flex gap-3', 'flex-row items-center gap-3')}>
-      <StarRating
-        value={value}
-        variant={variant}
-        size={size}
-      />
+      <StarRating {...starRatingProps} />
       <span
         className="text-sm text-gray-500 min-w-[70px]"
         style={{ height: '20px', display: 'inline-block' }}

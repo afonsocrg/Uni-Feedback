@@ -1,4 +1,4 @@
-interface StarRatingProps {
+export interface StarRatingProps {
   value: number
   variant?: 'default' | 'muted'
   size?: 'sm' | 'md' | 'lg'
