@@ -7,6 +7,7 @@ import {
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { AdminFeedbackDetail, updateFeedback } from '@uni-feedback/api-client'
 import {
+  ApprovalStatusBadge,
   Badge,
   Button,
   Card,
@@ -167,9 +168,7 @@ export function FeedbackInfoCard({ feedback }: FeedbackInfoCardProps) {
             <div className="space-y-2">
               <dt className="font-medium text-sm">Approval Status</dt>
               <dd className="flex items-center gap-2">
-                <Badge variant={feedback.approved ? 'default' : 'secondary'}>
-                  {feedback.approved ? 'Approved' : 'Pending Approval'}
-                </Badge>
+                <ApprovalStatusBadge approved={feedback.approved} />
                 {feedback.approvedAt && (
                   <span className="text-muted-foreground text-xs">
                     on {new Date(feedback.approvedAt).toLocaleDateString()}

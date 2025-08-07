@@ -1,3 +1,4 @@
+export * from './ApprovalStatusBadge'
 export * from './Chip'
 export * from './StarRating'
 export * from './WarningAlert'
