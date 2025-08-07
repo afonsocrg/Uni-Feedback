@@ -56,15 +56,12 @@ export function RemoveTermConfirmationDialog({
         <DialogHeader>
           <DialogTitle>Remove Term</DialogTitle>
           <DialogDescription>
-            Are you sure you want to remove "{termToRemove}" from this
-            course's terms? This action cannot be undone.
+            Are you sure you want to remove "{termToRemove}" from this course's
+            terms? This action cannot be undone.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-          >
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
           <Button

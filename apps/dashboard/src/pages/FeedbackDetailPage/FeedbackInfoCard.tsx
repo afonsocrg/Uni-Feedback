@@ -174,7 +174,7 @@ export function FeedbackInfoCard({ feedback }: FeedbackInfoCardProps) {
                     on {new Date(feedback.approvedAt).toLocaleDateString()}
                   </span>
                 )}
-                
+
                 {feedback.approved ? (
                   <ConfirmationDialog
                     onConfirm={handleDisapprove}
@@ -184,9 +184,9 @@ export function FeedbackInfoCard({ feedback }: FeedbackInfoCardProps) {
                     variant="destructive"
                   >
                     {({ open }) => (
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
+                      <Button
+                        size="sm"
+                        variant="outline"
                         onClick={open}
                         disabled={updateMutation.isPending}
                       >
@@ -204,9 +204,9 @@ export function FeedbackInfoCard({ feedback }: FeedbackInfoCardProps) {
                     variant="default"
                   >
                     {({ open }) => (
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
+                      <Button
+                        size="sm"
+                        variant="outline"
                         onClick={open}
                         disabled={updateMutation.isPending}
                       >

@@ -121,8 +121,8 @@ export function AssessmentTabContent({ course }: AssessmentTabContentProps) {
                   course.hasMandatoryExam === true
                     ? 'bg-red-500'
                     : course.hasMandatoryExam === false
-                    ? 'bg-green-500'
-                    : 'bg-gray-400'
+                      ? 'bg-green-500'
+                      : 'bg-gray-400'
                 }`}
               />
               <div>
@@ -130,15 +130,15 @@ export function AssessmentTabContent({ course }: AssessmentTabContentProps) {
                   {course.hasMandatoryExam === true
                     ? 'Mandatory Exam Required'
                     : course.hasMandatoryExam === false
-                    ? 'No Mandatory Exam'
-                    : 'Exam Requirement Not Specified'}
+                      ? 'No Mandatory Exam'
+                      : 'Exam Requirement Not Specified'}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {course.hasMandatoryExam === true
                     ? 'Students must take a mandatory exam to complete this course'
                     : course.hasMandatoryExam === false
-                    ? 'This course can be completed without a mandatory exam'
-                    : 'Exam requirements have not been specified for this course'}
+                      ? 'This course can be completed without a mandatory exam'
+                      : 'Exam requirements have not been specified for this course'}
                 </p>
               </div>
             </div>

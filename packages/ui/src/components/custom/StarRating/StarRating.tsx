@@ -11,7 +11,8 @@ export function StarRating({
 }: StarRatingProps) {
   const sizeClasses = { sm: 'text-lg', md: 'text-2xl', lg: 'text-3xl' }
   const displayValue = Math.round(value)
-  const yellowTone = variant === 'default' ? 'text-yellow-500' : 'text-yellow-500/70'
+  const yellowTone =
+    variant === 'default' ? 'text-yellow-500' : 'text-yellow-500/70'
 
   return (
     <div className="flex">

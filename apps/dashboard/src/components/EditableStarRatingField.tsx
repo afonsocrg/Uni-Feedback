@@ -39,7 +39,7 @@ export function EditableStarRatingField({
           labelFunction={labelFunction}
           labelPosition={labelPosition}
         />
-        
+
         {isEditing ? (
           <>
             <Button

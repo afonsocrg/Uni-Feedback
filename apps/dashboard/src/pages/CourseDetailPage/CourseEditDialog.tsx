@@ -1,9 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import {
-  updateCourse,
-  type AdminCourseDetail
-} from '@uni-feedback/api-client'
+import { updateCourse, type AdminCourseDetail } from '@uni-feedback/api-client'
 import {
   Button,
   Dialog,
@@ -146,10 +143,10 @@ export function CourseEditDialog({
                 <FormItem>
                   <FormLabel>ECTS Credits</FormLabel>
                   <FormControl>
-                    <Input 
-                      {...field} 
-                      type="number" 
-                      placeholder="ECTS credits" 
+                    <Input
+                      {...field}
+                      type="number"
+                      placeholder="ECTS credits"
                       min="0"
                       step="0.5"
                     />

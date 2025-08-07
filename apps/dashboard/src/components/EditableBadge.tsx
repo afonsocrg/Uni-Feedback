@@ -22,7 +22,8 @@ export function EditableBadge({
       className="font-mono group transition-colors has-[button:hover]:bg-destructive/10"
       style={backgroundColor ? { backgroundColor } : undefined}
     >
-      {prefix}{value}
+      {prefix}
+      {value}
       <button
         onClick={() => onRemove(value)}
         className="ml-2 cursor-pointer hover:text-destructive transition-colors"

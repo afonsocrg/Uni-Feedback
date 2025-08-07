@@ -155,7 +155,15 @@ export class UpdateCourse extends OpenAPIRoute {
         dbUpdateData.hasMandatoryExam = updateData.hasMandatoryExam
 
       // Detect changes for notification
-      const changes = detectChanges(existingCourse[0], dbUpdateData, ['name', 'acronym', 'ects', 'description', 'bibliography', 'assessment', 'hasMandatoryExam'])
+      const changes = detectChanges(existingCourse[0], dbUpdateData, [
+        'name',
+        'acronym',
+        'ects',
+        'description',
+        'bibliography',
+        'assessment',
+        'hasMandatoryExam'
+      ])
 
       // Update course
       const updatedCourse = await db

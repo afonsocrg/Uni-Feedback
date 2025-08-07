@@ -28,7 +28,7 @@ export function CourseDetailPageSkeleton() {
                 <Skeleton className="h-4 w-full" />
               </div>
             ))}
-            
+
             {/* Terms badges */}
             <div className="space-y-2">
               <Skeleton className="h-4 w-16" />
@@ -50,7 +50,7 @@ export function CourseDetailPageSkeleton() {
             <Skeleton key={i} className="h-10 w-24" />
           ))}
         </div>
-        
+
         {/* Tab content */}
         <Card>
           <CardHeader>

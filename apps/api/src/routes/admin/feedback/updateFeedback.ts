@@ -86,7 +86,10 @@ export class UpdateFeedback extends OpenAPIRoute {
       }
 
       if (Object.keys(updates).length === 0) {
-        return Response.json({ error: 'No update fields provided' }, { status: 400 })
+        return Response.json(
+          { error: 'No update fields provided' },
+          { status: 400 }
+        )
       }
 
       const db = getDb(env)
@@ -140,15 +143,21 @@ export class UpdateFeedback extends OpenAPIRoute {
       const newData = {
         ...originalData,
         ...updates,
-        approved: updates.approved !== undefined ? updates.approved : originalData.approved
+        approved:
+          updates.approved !== undefined
+            ? updates.approved
+            : originalData.approved
       }
-      const changes = detectChanges(originalData, newData, ['schoolYear', 'rating', 'workloadRating', 'comment', 'approved'])
+      const changes = detectChanges(originalData, newData, [
+        'schoolYear',
+        'rating',
+        'workloadRating',
+        'comment',
+        'approved'
+      ])
 
       // Perform update
-      await db
-        .update(feedback)
-        .set(updateData)
-        .where(eq(feedback.id, id))
+      await db.update(feedback).set(updateData).where(eq(feedback.id, id))
 
       // Get updated feedback
       const updatedFeedback = await db
@@ -160,6 +169,7 @@ export class UpdateFeedback extends OpenAPIRoute {
       const fb = updatedFeedback[0]
 
       // Send notification if changes were made
+      console.log(changes)
       if (changes.length > 0) {
         await notifyAdminChange({
           env,

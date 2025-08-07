@@ -42,9 +42,13 @@ export async function notifyAdminChange(args: NotifyChangeArgs) {
   }
 }
 
-export function detectChanges(oldData: any, newData: any, fieldsToTrack: string[]) {
+export function detectChanges(
+  oldData: any,
+  newData: any,
+  fieldsToTrack: string[]
+) {
   const changes = []
-  
+
   for (const field of fieldsToTrack) {
     if (newData[field] !== undefined && oldData[field] !== newData[field]) {
       changes.push({
@@ -54,6 +58,6 @@ export function detectChanges(oldData: any, newData: any, fieldsToTrack: string[
       })
     }
   }
-  
+
   return changes
 }

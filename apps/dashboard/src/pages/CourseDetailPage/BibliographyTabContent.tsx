@@ -20,7 +20,9 @@ interface BibliographyTabContentProps {
   course: AdminCourseDetail
 }
 
-export function BibliographyTabContent({ course }: BibliographyTabContentProps) {
+export function BibliographyTabContent({
+  course
+}: BibliographyTabContentProps) {
   const { id } = useParams<{ id: string }>()
   const queryClient = useQueryClient()
 
@@ -126,10 +128,7 @@ export function BibliographyTabContent({ course }: BibliographyTabContentProps) 
             <Button variant="outline" onClick={handleCancel}>
               Cancel
             </Button>
-            <Button
-              onClick={handleSave}
-              disabled={updateMutation.isPending}
-            >
+            <Button onClick={handleSave} disabled={updateMutation.isPending}>
               {updateMutation.isPending ? 'Saving...' : 'Save Bibliography'}
             </Button>
           </DialogFooter>

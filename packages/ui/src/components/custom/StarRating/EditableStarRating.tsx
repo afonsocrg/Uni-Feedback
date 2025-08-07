@@ -1,5 +1,8 @@
 import { useState } from 'react'
-import { StarRatingWithLabel, StarRatingWithLabelProps } from './StarRatingWithLabel'
+import {
+  StarRatingWithLabel,
+  StarRatingWithLabelProps
+} from './StarRatingWithLabel'
 
 export interface EditableStarRatingProps extends StarRatingWithLabelProps {
   onChange: (value: number) => void
@@ -14,12 +17,7 @@ export function EditableStarRating({
   const [hoverValue, setHoverValue] = useState<number | null>(null)
 
   if (disabled) {
-    return (
-      <StarRatingWithLabel
-        {...starRatingWithLabelProps}
-        variant="default"
-      />
-    )
+    return <StarRatingWithLabel {...starRatingWithLabelProps} />
   }
 
   const displayValue = hoverValue ?? starRatingWithLabelProps.value
@@ -28,10 +26,7 @@ export function EditableStarRating({
   const sizeClasses = { sm: 'text-lg', md: 'text-2xl', lg: 'text-3xl' }
 
   return (
-    <div 
-      className="relative"
-      onMouseLeave={() => setHoverValue(null)}
-    >
+    <div className="relative" onMouseLeave={() => setHoverValue(null)}>
       <StarRatingWithLabel
         {...starRatingWithLabelProps}
         value={displayValue}

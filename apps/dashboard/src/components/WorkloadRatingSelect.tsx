@@ -29,11 +29,7 @@ export function WorkloadRatingSelect({
     >
       <SelectTrigger className={`bg-white min-h-[40px] ${className}`}>
         <SelectValue placeholder={placeholder}>
-          {value ? (
-            <WorkloadRatingDisplay rating={value} />
-          ) : (
-            placeholder
-          )}
+          {value ? <WorkloadRatingDisplay rating={value} /> : placeholder}
         </SelectValue>
       </SelectTrigger>
       <SelectContent>

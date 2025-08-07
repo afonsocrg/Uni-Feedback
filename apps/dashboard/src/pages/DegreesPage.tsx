@@ -78,14 +78,8 @@ export function DegreesPage() {
   })
 
   const { data: degreeTypesResponse } = useQuery({
-    queryKey: [
-      'degree-types',
-      facultyId
-    ],
-    queryFn: () =>
-      getAdminDegreeTypes(
-        facultyId ?? undefined
-      )
+    queryKey: ['degree-types', facultyId],
+    queryFn: () => getAdminDegreeTypes(facultyId ?? undefined)
   })
 
   const degrees = degreesResponse?.data || []

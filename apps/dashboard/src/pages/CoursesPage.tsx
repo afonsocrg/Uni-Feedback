@@ -95,26 +95,14 @@ export function CoursesPage() {
   })
 
   const { data: degrees = [] } = useQuery({
-    queryKey: [
-      'degree-suggestions',
-      facultyId
-    ],
-    queryFn: () =>
-      getDegreeSuggestions(
-        facultyId ?? undefined
-      ),
+    queryKey: ['degree-suggestions', facultyId],
+    queryFn: () => getDegreeSuggestions(facultyId ?? undefined),
     enabled: facultyId !== null
   })
 
   const { data: termsResponse } = useQuery({
-    queryKey: [
-      'all-terms',
-      facultyId
-    ],
-    queryFn: () =>
-      getAllTerms(
-        facultyId ?? undefined
-      )
+    queryKey: ['all-terms', facultyId],
+    queryFn: () => getAllTerms(facultyId ?? undefined)
   })
 
   const courses = coursesResponse?.data || []

@@ -125,7 +125,9 @@ export class UpdateCourseGroup extends OpenAPIRoute {
       }
 
       // Detect changes for notification
-      const changes = detectChanges(existingCourseGroup[0], dbUpdateData, ['name'])
+      const changes = detectChanges(existingCourseGroup[0], dbUpdateData, [
+        'name'
+      ])
 
       // Update course group
       const updatedCourseGroup = await db

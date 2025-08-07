@@ -152,7 +152,12 @@ export class UpdateDegree extends OpenAPIRoute {
         dbUpdateData.description = updateData.description
 
       // Detect changes for notification
-      const changes = detectChanges(existingDegree[0], dbUpdateData, ['name', 'acronym', 'type', 'description'])
+      const changes = detectChanges(existingDegree[0], dbUpdateData, [
+        'name',
+        'acronym',
+        'type',
+        'description'
+      ])
 
       // Update degree
       const updatedDegree = await db

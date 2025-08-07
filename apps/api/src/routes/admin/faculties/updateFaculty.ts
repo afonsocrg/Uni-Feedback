@@ -138,7 +138,10 @@ export class UpdateFaculty extends OpenAPIRoute {
         dbUpdateData.shortName = updateData.shortName.trim()
 
       // Detect changes for notification
-      const changes = detectChanges(existingFaculty[0], dbUpdateData, ['name', 'shortName'])
+      const changes = detectChanges(existingFaculty[0], dbUpdateData, [
+        'name',
+        'shortName'
+      ])
 
       // Update faculty
       const updatedFaculty = await db

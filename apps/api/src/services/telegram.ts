@@ -123,24 +123,31 @@ export async function sendAdminChangeNotification(
 
   let changesText = ''
   if (changes && changes.length > 0) {
-    changesText = '\n\n📝 Changes:\n' + changes.map(change => {
-      const oldVal = change.oldValue === null ? 'null' : change.oldValue || 'empty'
-      const newVal = change.newValue === null ? 'null' : change.newValue || 'empty'
-      return `• ${change.field}: "${oldVal}" → "${newVal}"`
-    }).join('\n')
+    changesText =
+      '\n\n📝 Changes:\n' +
+      changes
+        .map((change) => {
+          const oldVal =
+            change.oldValue === null ? 'null' : change.oldValue || 'empty'
+          const newVal =
+            change.newValue === null ? 'null' : change.newValue || 'empty'
+          return `• ${change.field}: "${oldVal}" → "${newVal}"`
+        })
+        .join('\n')
   } else if (addedItem) {
     changesText = `\n\n➕ Added: ${addedItem}`
   } else if (removedItem) {
     changesText = `\n\n➖ Removed: ${removedItem}`
   }
 
-  const actionEmoji = {
-    updated: '✏️',
-    created: '➕',
-    deleted: '🗑️',
-    added: '➕',
-    removed: '➖'
-  }[action] || '🔧'
+  const actionEmoji =
+    {
+      updated: '✏️',
+      created: '➕',
+      deleted: '🗑️',
+      added: '➕',
+      removed: '➖'
+    }[action] || '🔧'
 
   const message = `
 ${actionEmoji} ADMIN CHANGE ALERT! ${actionEmoji}

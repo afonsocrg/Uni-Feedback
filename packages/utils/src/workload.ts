@@ -31,7 +31,7 @@ export function getWorkloadFormLabels(): string[] {
 export function getWorkloadDetailedLabels(): string[] {
   return [
     'Overwhelming! Consumed way too much time',
-    'Very heavy workload', 
+    'Very heavy workload',
     'Moderate workload',
     'Light workload',
     'Perfect balance with my other commitments'
