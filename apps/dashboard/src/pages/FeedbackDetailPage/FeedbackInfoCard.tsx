@@ -1,4 +1,5 @@
 import {
+  ConfirmationDialog,
   EditableSelect,
   EditableStarRating,
   EditableWorkloadRating
@@ -18,7 +19,7 @@ import {
   formatSchoolYearString,
   getCurrentSchoolYear
 } from '@uni-feedback/utils'
-import { Edit3 } from 'lucide-react'
+import { Check, Edit3, X } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -54,6 +55,14 @@ export function FeedbackInfoCard({ feedback }: FeedbackInfoCardProps) {
       )
     }
   })
+
+  const handleApprove = async () => {
+    await updateMutation.mutateAsync({ approved: true })
+  }
+
+  const handleDisapprove = async () => {
+    await updateMutation.mutateAsync({ approved: false })
+  }
 
   // Generate 5 most recent school years
   const currentYear = getCurrentSchoolYear()
@@ -153,6 +162,63 @@ export function FeedbackInfoCard({ feedback }: FeedbackInfoCardProps) {
               }}
               disabled={updateMutation.isPending}
             />
+
+            {/* Approval Status (editable) */}
+            <div className="space-y-2">
+              <dt className="font-medium text-sm">Approval Status</dt>
+              <dd className="flex items-center gap-2">
+                <Badge variant={feedback.approved ? 'default' : 'secondary'}>
+                  {feedback.approved ? 'Approved' : 'Pending Approval'}
+                </Badge>
+                {feedback.approvedAt && (
+                  <span className="text-muted-foreground text-xs">
+                    on {new Date(feedback.approvedAt).toLocaleDateString()}
+                  </span>
+                )}
+                
+                {feedback.approved ? (
+                  <ConfirmationDialog
+                    onConfirm={handleDisapprove}
+                    message="Are you sure you want to unapprove this feedback? This will hide it from students."
+                    title="Unapprove Feedback"
+                    confirmText="Unapprove"
+                    variant="destructive"
+                  >
+                    {({ open }) => (
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        onClick={open}
+                        disabled={updateMutation.isPending}
+                      >
+                        <X className="h-4 w-4 mr-1" />
+                        Unapprove
+                      </Button>
+                    )}
+                  </ConfirmationDialog>
+                ) : (
+                  <ConfirmationDialog
+                    onConfirm={handleApprove}
+                    message="Are you sure you want to approve this feedback? This will make it visible to students."
+                    title="Approve Feedback"
+                    confirmText="Approve"
+                    variant="default"
+                  >
+                    {({ open }) => (
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        onClick={open}
+                        disabled={updateMutation.isPending}
+                      >
+                        <Check className="h-4 w-4 mr-1" />
+                        Approve
+                      </Button>
+                    )}
+                  </ConfirmationDialog>
+                )}
+              </dd>
+            </div>
           </div>
         </CardContent>
       </Card>

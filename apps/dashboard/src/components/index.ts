@@ -1,5 +1,6 @@
 export * from './AddBadge'
 export * from './AddSuffixDialog'
+export * from './ConfirmationDialog'
 export * from './DashboardLayout'
 export * from './EditableBadge'
 export * from './EditableField'
