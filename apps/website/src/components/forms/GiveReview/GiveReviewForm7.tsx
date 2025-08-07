@@ -630,6 +630,28 @@ export function GiveReviewForm7({
                       )}
                     </>
                   </Button>
+
+                  <p className="text-xs text-gray-500 text-center mt-3">
+                    By submitting this review, you agree to our{' '}
+                    <a
+                      href="/terms"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primaryBlue hover:text-primaryBlue/80 underline"
+                    >
+                      Terms of Service
+                    </a>{' '}
+                    and{' '}
+                    <a
+                      href="/privacy"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primaryBlue hover:text-primaryBlue/80 underline"
+                    >
+                      Privacy Policy
+                    </a>
+                    .
+                  </p>
                 </div>
               </form>
             </Form>

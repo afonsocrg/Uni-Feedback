@@ -20,6 +20,18 @@ export function Footer() {
           </div>
           <div className="flex gap-6">
             <a
+              href="/terms"
+              className="text-primaryBlue hover:text-primaryBlue/80 text-sm font-medium transition-colors"
+            >
+              Terms of Service
+            </a>
+            <a
+              href="/privacy"
+              className="text-primaryBlue hover:text-primaryBlue/80 text-sm font-medium transition-colors"
+            >
+              Privacy Policy
+            </a>
+            <a
               href="https://github.com/afonsocrg/meic-feedback/issues/new?template=feature_request.md"
               target="_blank"
               rel="noopener noreferrer"
