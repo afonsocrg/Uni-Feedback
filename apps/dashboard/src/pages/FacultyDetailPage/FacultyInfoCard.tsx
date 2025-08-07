@@ -35,9 +35,6 @@ export function FacultyInfoCard({ faculty }: FacultyInfoCardProps) {
   const { id } = useParams<{ id: string }>()
   const queryClient = useQueryClient()
 
-  const [editingField, setEditingField] = useState<string | null>(null)
-  const [editValues, setEditValues] = useState<Record<string, string>>({})
-
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isAddSuffixDialogOpen, setIsAddSuffixDialogOpen] = useState(false)
   const [isRemoveSuffixDialogOpen, setIsRemoveSuffixDialogOpen] =
@@ -54,8 +51,6 @@ export function FacultyInfoCard({ faculty }: FacultyInfoCardProps) {
         queryKey: ['faculty-details', facultyId]
       })
       queryClient.invalidateQueries({ queryKey: ['faculties'] })
-      setEditingField(null)
-      setEditValues({})
       toast.success('Faculty updated successfully')
     },
     onError: (error) => {
@@ -85,23 +80,6 @@ export function FacultyInfoCard({ faculty }: FacultyInfoCardProps) {
     }
   })
 
-  const handleEdit = (field: string, currentValue: string) => {
-    setEditingField(field)
-    setEditValues({ [field]: currentValue })
-  }
-
-  const handleSave = (field: string) => {
-    const value = editValues[field]
-    if (value !== undefined) {
-      updateMutation.mutate({ [field]: value })
-    }
-  }
-
-  const handleCancel = () => {
-    setEditingField(null)
-    setEditValues({})
-  }
-
   const handleRemoveSuffix = (suffix: string) => {
     setSuffixToRemove(suffix)
     setIsRemoveSuffixDialogOpen(true)
@@ -110,23 +88,6 @@ export function FacultyInfoCard({ faculty }: FacultyInfoCardProps) {
   const confirmRemoveSuffixAction = () => {
     if (suffixToRemove) {
       removeSuffixMutation.mutate(suffixToRemove)
-    }
-  }
-
-  const handleEditValueChange = (field: string, value: string) => {
-    setEditValues((prev) => ({ ...prev, [field]: value }))
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      // Find which field is being edited
-      const editingFieldName = editingField
-      if (editingFieldName) {
-        handleSave(editingFieldName)
-      }
-    }
-    if (e.key === 'Escape') {
-      handleCancel()
     }
   }
 
@@ -151,29 +112,19 @@ export function FacultyInfoCard({ faculty }: FacultyInfoCardProps) {
         <CardContent className="pt-6">
           <div className="space-y-4">
             <EditableField
-              field="name"
               label="Name"
               value={faculty.name}
-              isEditing={editingField === 'name'}
-              editValue={editValues['name'] || ''}
-              onEdit={handleEdit}
-              onSave={handleSave}
-              onCancel={handleCancel}
-              onChange={handleEditValueChange}
-              onKeyDown={handleKeyDown}
+              onSave={(newValue) => {
+                updateMutation.mutate({ name: newValue })
+              }}
               disabled={updateMutation.isPending}
             />
             <EditableField
-              field="shortName"
               label="Short Name"
               value={faculty.shortName}
-              isEditing={editingField === 'shortName'}
-              editValue={editValues['shortName'] || ''}
-              onEdit={handleEdit}
-              onSave={handleSave}
-              onCancel={handleCancel}
-              onChange={handleEditValueChange}
-              onKeyDown={handleKeyDown}
+              onSave={(newValue) => {
+                updateMutation.mutate({ shortName: newValue })
+              }}
               disabled={updateMutation.isPending}
             />
 

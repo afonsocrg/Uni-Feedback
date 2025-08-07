@@ -1,35 +1,25 @@
-import {
-  Button,
-  WorkloadRatingDisplay
-} from '@uni-feedback/ui'
+import { Button, WorkloadRatingDisplay } from '@uni-feedback/ui'
 import { Check, Edit3, X } from 'lucide-react'
+import { useState } from 'react'
 import { WorkloadRatingSelect } from './WorkloadRatingSelect'
 
 interface EditableWorkloadRatingProps {
-  field: string
   label: string
   value: number | null
-  isEditing: boolean
   editValue: number | null
-  onEdit: (field: string, value: number | null) => void
-  onSave: (field: string) => void
-  onCancel: () => void
-  onChange: (field: string, value: number | null) => void
+  onSave: (v: number | null) => void
   disabled?: boolean
 }
 
 export function EditableWorkloadRating({
-  field,
   label,
   value,
-  isEditing,
-  editValue,
-  onEdit,
   onSave,
-  onCancel,
-  onChange,
   disabled = false
 }: EditableWorkloadRatingProps) {
+  const [isEditing, setIsEditing] = useState(false)
+  const [editValue, setEditValue] = useState<number | null>(value)
+
   return (
     <div className="space-y-2">
       <dt className="font-medium text-sm">{label}</dt>
@@ -38,16 +28,26 @@ export function EditableWorkloadRating({
           <>
             <WorkloadRatingSelect
               value={editValue}
-              onChange={(value) => onChange(field, value)}
+              onChange={(value) => setEditValue(value)}
             />
-            <Button size="sm" onClick={() => onSave(field)} disabled={disabled}>
+            <Button
+              size="sm"
+              onClick={() => {
+                onSave(editValue)
+                setIsEditing(false)
+              }}
+              disabled={disabled}
+            >
               <Check className="h-3 w-3" />
             </Button>
 
             <Button
               size="sm"
               variant="outline"
-              onClick={onCancel}
+              onClick={() => {
+                setIsEditing(false)
+                setEditValue(value) // Reset to original value
+              }}
               disabled={disabled}
             >
               <X className="h-3 w-3" />
@@ -65,7 +65,7 @@ export function EditableWorkloadRating({
             <Button
               size="sm"
               variant="ghost"
-              onClick={() => onEdit(field, value || 3)}
+              onClick={() => setIsEditing(true)}
             >
               <Edit3 className="h-3 w-3" />
             </Button>

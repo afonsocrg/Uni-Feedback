@@ -1,35 +1,45 @@
 import { Button, Input } from '@uni-feedback/ui'
 import { Check, Edit3, X } from 'lucide-react'
+import { useState } from 'react'
 
 interface EditableFieldProps {
-  field: string
   label: string
   value: string
   type?: string
-  isEditing: boolean
-  editValue: string
-  onEdit: (field: string, value: string) => void
   onSave: (field: string) => void
-  onCancel: () => void
-  onChange: (field: string, value: string) => void
-  onKeyDown: (e: React.KeyboardEvent) => void
   disabled?: boolean
 }
 
 export function EditableField({
-  field,
   label,
   value,
   type = 'text',
-  isEditing,
-  editValue,
-  onEdit,
   onSave,
-  onCancel,
-  onChange,
-  onKeyDown,
   disabled = false
 }: EditableFieldProps) {
+  const [isEditing, setIsEditing] = useState(false)
+  const [editValue, setEditValue] = useState<string | null>(value)
+
+  const handleSave = () => {
+    onSave(editValue ?? '')
+    setIsEditing(false)
+  }
+
+  const handleCancel = () => {
+    setIsEditing(false)
+    setEditValue(value) // Reset to original value
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    e.stopPropagation()
+    if (e.key === 'Enter') {
+      handleSave()
+    }
+    if (e.key === 'Escape') {
+      handleCancel()
+    }
+  }
+
   return (
     <div className="space-y-2">
       <dt className="font-medium text-sm">{label}</dt>
@@ -38,20 +48,20 @@ export function EditableField({
           <>
             <Input
               type={type}
-              value={editValue}
-              onChange={(e) => onChange(field, e.target.value)}
+              value={editValue ?? ''}
+              onChange={(e) => setEditValue(e.target.value)}
               className="h-8 w-64"
-              onKeyDown={onKeyDown}
+              onKeyDown={handleKeyDown}
               autoFocus
             />
-            <Button size="sm" onClick={() => onSave(field)} disabled={disabled}>
+            <Button size="sm" onClick={handleSave} disabled={disabled}>
               <Check className="h-3 w-3" />
             </Button>
 
             <Button
               size="sm"
               variant="outline"
-              onClick={onCancel}
+              onClick={handleCancel}
               disabled={disabled}
             >
               <X className="h-3 w-3" />
@@ -63,7 +73,7 @@ export function EditableField({
             <Button
               size="sm"
               variant="ghost"
-              onClick={() => onEdit(field, value)}
+              onClick={() => setIsEditing(true)}
             >
               <Edit3 className="h-3 w-3" />
             </Button>

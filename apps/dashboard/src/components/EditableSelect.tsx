@@ -1,5 +1,13 @@
-import { Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@uni-feedback/ui'
+import {
+  Button,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@uni-feedback/ui'
 import { Check, Edit3, X } from 'lucide-react'
+import { useState } from 'react'
 
 interface Option {
   value: string
@@ -7,36 +15,28 @@ interface Option {
 }
 
 interface EditableSelectProps {
-  field: string
   label: string
   value: string | null
   options: Option[]
   placeholder?: string
-  isEditing: boolean
-  editValue: string | null
-  onEdit: (field: string, value: string | null) => void
   onSave: (field: string) => void
-  onCancel: () => void
-  onChange: (field: string, value: string) => void
   disabled?: boolean
-  displayValue?: string
 }
 
 export function EditableSelect({
-  field,
   label,
   value,
   options,
   placeholder = 'Select...',
-  isEditing,
-  editValue,
-  onEdit,
   onSave,
-  onCancel,
-  onChange,
-  disabled = false,
-  displayValue
+  disabled = false
 }: EditableSelectProps) {
+  const [isEditing, setIsEditing] = useState(false)
+  const [editValue, setEditValue] = useState<string | null>(value)
+
+  const displayValue =
+    options.find((opt) => opt.value === value)?.label || value
+
   return (
     <div className="space-y-2">
       <dt className="font-medium text-sm">{label}</dt>
@@ -45,7 +45,7 @@ export function EditableSelect({
           <>
             <Select
               value={editValue || ''}
-              onValueChange={(newValue) => onChange(field, newValue)}
+              onValueChange={(newValue) => setEditValue(newValue)}
             >
               <SelectTrigger className="w-64">
                 <SelectValue placeholder={placeholder} />
@@ -58,14 +58,24 @@ export function EditableSelect({
                 ))}
               </SelectContent>
             </Select>
-            <Button size="sm" onClick={() => onSave(field)} disabled={disabled}>
+            <Button
+              size="sm"
+              onClick={() => {
+                onSave(editValue || '')
+                setIsEditing(false)
+              }}
+              disabled={disabled}
+            >
               <Check className="h-3 w-3" />
             </Button>
 
             <Button
               size="sm"
               variant="outline"
-              onClick={onCancel}
+              onClick={() => {
+                setIsEditing(false)
+                setEditValue(value) // Reset to original value
+              }}
               disabled={disabled}
             >
               <X className="h-3 w-3" />
@@ -74,12 +84,15 @@ export function EditableSelect({
         ) : (
           <>
             <span className="text-sm">
-              {displayValue || (value ? options.find(opt => opt.value === value)?.label : 'Not set')}
+              {displayValue ||
+                (value
+                  ? options.find((opt) => opt.value === value)?.label
+                  : 'Not set')}
             </span>
             <Button
               size="sm"
               variant="ghost"
-              onClick={() => onEdit(field, value)}
+              onClick={() => setIsEditing(true)}
             >
               <Edit3 className="h-3 w-3" />
             </Button>

@@ -1,4 +1,4 @@
-import { EditableField, SelectableField } from '@components'
+import { EditableField, EditableSelect } from '@components'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   AdminDegreeDetail,
@@ -27,8 +27,6 @@ export function DegreeInfoCard({ degree }: DegreeInfoCardProps) {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
-  const [editingField, setEditingField] = useState<string | null>(null)
-  const [editValues, setEditValues] = useState<Record<string, string>>({})
   const [isDegreeEditDialogOpen, setIsDegreeEditDialogOpen] = useState(false)
 
   const degreeId = id ? parseInt(id, 10) : 0
@@ -51,8 +49,6 @@ export function DegreeInfoCard({ degree }: DegreeInfoCardProps) {
         queryKey: ['degree-details', degreeId]
       })
       queryClient.invalidateQueries({ queryKey: ['admin-degrees'] })
-      setEditingField(null)
-      setEditValues({})
       toast.success('Degree updated successfully')
     },
     onError: (error) => {
@@ -61,39 +57,6 @@ export function DegreeInfoCard({ degree }: DegreeInfoCardProps) {
       )
     }
   })
-
-  const handleEdit = (field: string, currentValue: string) => {
-    setEditingField(field)
-    setEditValues({ [field]: currentValue })
-  }
-
-  const handleSave = (field: string) => {
-    const value = editValues[field]
-    if (value !== undefined) {
-      updateMutation.mutate({ [field]: value })
-    }
-  }
-
-  const handleCancel = () => {
-    setEditingField(null)
-    setEditValues({})
-  }
-
-  const handleEditValueChange = (field: string, value: string) => {
-    setEditValues((prev) => ({ ...prev, [field]: value }))
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      const editingFieldName = editingField
-      if (editingFieldName) {
-        handleSave(editingFieldName)
-      }
-    }
-    if (e.key === 'Escape') {
-      handleCancel()
-    }
-  }
 
   return (
     <>
@@ -128,42 +91,33 @@ export function DegreeInfoCard({ degree }: DegreeInfoCardProps) {
             </div>
 
             <EditableField
-              field="name"
               label="Name"
               value={degree.name}
-              isEditing={editingField === 'name'}
-              editValue={editValues['name'] || ''}
-              onEdit={handleEdit}
-              onSave={handleSave}
-              onCancel={handleCancel}
-              onChange={handleEditValueChange}
-              onKeyDown={handleKeyDown}
+              onSave={(newValue) => {
+                updateMutation.mutate({ name: newValue })
+              }}
               disabled={updateMutation.isPending}
             />
             <EditableField
-              field="acronym"
               label="Acronym"
               value={degree.acronym}
-              isEditing={editingField === 'acronym'}
-              editValue={editValues['acronym'] || ''}
-              onEdit={handleEdit}
-              onSave={handleSave}
-              onCancel={handleCancel}
-              onChange={handleEditValueChange}
-              onKeyDown={handleKeyDown}
+              onSave={(newValue) => {
+                updateMutation.mutate({ acronym: newValue })
+              }}
               disabled={updateMutation.isPending}
             />
-            <SelectableField
-              field="type"
+            <EditableSelect
               label="Type"
               value={degree.type}
-              options={degreeTypesResponse?.types || []}
-              isEditing={editingField === 'type'}
-              editValue={editValues['type'] || ''}
-              onEdit={handleEdit}
-              onSave={handleSave}
-              onCancel={handleCancel}
-              onChange={handleEditValueChange}
+              options={
+                degreeTypesResponse?.types.map((type) => ({
+                  value: type,
+                  label: type
+                })) || []
+              }
+              onSave={(newValue) => {
+                updateMutation.mutate({ type: newValue })
+              }}
               disabled={updateMutation.isPending}
             />
           </div>

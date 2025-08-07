@@ -1,13 +1,6 @@
 import { AddBadge, EditableBadge, EditableField } from '@components'
-import { openCourseInWebsite } from '../../utils'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import {
-  AdminCourseDetail,
-  addCourseTerm,
-  getAllTerms,
-  removeCourseTerm,
-  updateCourse
-} from '@uni-feedback/api-client'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { AdminCourseDetail, updateCourse } from '@uni-feedback/api-client'
 import {
   Button,
   Card,
@@ -15,18 +8,6 @@ import {
   CardHeader,
   CardTitle,
   Chip,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  Label,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
   Tooltip,
   TooltipContent,
   TooltipProvider,
@@ -36,7 +17,10 @@ import { Edit3, ExternalLink, HelpCircle } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
+import { openCourseInWebsite } from '../../utils'
+import { AddTermDialog } from './AddTermDialog'
 import { CourseEditDialog } from './CourseEditDialog'
+import { RemoveTermConfirmationDialog } from './RemoveTermConfirmationDialog'
 
 // Utility function to get consistent colors like Chip component
 function getChipColorForLabel(label: string) {
@@ -72,22 +56,10 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
-  const [editingField, setEditingField] = useState<string | null>(null)
-  const [editValues, setEditValues] = useState<Record<string, string | number>>(
-    {}
-  )
-
   const [isAddTermDialogOpen, setIsAddTermDialogOpen] = useState(false)
   const [isRemoveTermDialogOpen, setIsRemoveTermDialogOpen] = useState(false)
   const [isCourseEditDialogOpen, setIsCourseEditDialogOpen] = useState(false)
   const [termToRemove, setTermToRemove] = useState<string>('')
-  const [newTerm, setNewTerm] = useState('')
-
-  // Fetch available terms for the faculty
-  const { data: availableTerms } = useQuery({
-    queryKey: ['course-terms', course.facultyId],
-    queryFn: () => getAllTerms(course.facultyId)
-  })
 
   const courseId = id ? parseInt(id, 10) : 0
 
@@ -102,8 +74,6 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
         queryKey: ['course-details', courseId]
       })
       queryClient.invalidateQueries({ queryKey: ['courses'] })
-      setEditingField(null)
-      setEditValues({})
       toast.success('Course updated successfully')
     },
     onError: (error) => {
@@ -113,95 +83,9 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
     }
   })
 
-  const addTermMutation = useMutation({
-    mutationFn: (term: string) => addCourseTerm(courseId, term),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['course-details', courseId]
-      })
-      queryClient.invalidateQueries({ queryKey: ['courses'] })
-      setIsAddTermDialogOpen(false)
-      setNewTerm('')
-      toast.success('Term added successfully')
-    },
-    onError: (error) => {
-      toast.error(error instanceof Error ? error.message : 'Failed to add term')
-    }
-  })
-
-  const removeTermMutation = useMutation({
-    mutationFn: (term: string) => removeCourseTerm(courseId, term),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['course-details', courseId]
-      })
-      queryClient.invalidateQueries({ queryKey: ['courses'] })
-      setIsRemoveTermDialogOpen(false)
-      setTermToRemove('')
-      toast.success('Term removed successfully')
-    },
-    onError: (error) => {
-      setIsRemoveTermDialogOpen(false)
-      setTermToRemove('')
-      toast.error(
-        error instanceof Error ? error.message : 'Failed to remove term'
-      )
-    }
-  })
-
-  const handleEdit = (field: string, currentValue: string | number) => {
-    setEditingField(field)
-    setEditValues({ [field]: currentValue })
-  }
-
-  const handleSave = (field: string) => {
-    const value = editValues[field]
-    if (value !== undefined) {
-      // Handle ECTS as number, others as string
-      const updateData =
-        field === 'ects'
-          ? { [field]: value === '' ? null : Number(value) }
-          : { [field]: value }
-      updateMutation.mutate(updateData)
-    }
-  }
-
-  const handleCancel = () => {
-    setEditingField(null)
-    setEditValues({})
-  }
-
   const handleRemoveTerm = (term: string) => {
     setTermToRemove(term)
     setIsRemoveTermDialogOpen(true)
-  }
-
-  const confirmRemoveTermAction = () => {
-    if (termToRemove) {
-      removeTermMutation.mutate(termToRemove)
-    }
-  }
-
-  const handleAddTerm = () => {
-    if (newTerm.trim()) {
-      addTermMutation.mutate(newTerm.trim())
-    }
-  }
-
-  const handleEditValueChange = (field: string, value: string | number) => {
-    setEditValues((prev) => ({ ...prev, [field]: value }))
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      const editingFieldName = editingField
-      if (editingFieldName) {
-        handleSave(editingFieldName)
-      }
-    }
-    if (e.key === 'Escape') {
-      handleCancel()
-    }
   }
 
   return (
@@ -250,47 +134,34 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
             </div>
 
             <EditableField
-              field="name"
               label="Name"
               value={course.name}
-              isEditing={editingField === 'name'}
-              editValue={editValues['name']?.toString() || ''}
-              onEdit={handleEdit}
-              onSave={handleSave}
-              onCancel={handleCancel}
-              onChange={handleEditValueChange}
-              onKeyDown={handleKeyDown}
+              onSave={(value) => {
+                updateMutation.mutate({ name: value })
+              }}
               disabled={updateMutation.isPending}
             />
 
             <EditableField
-              field="acronym"
               label="Acronym"
               value={course.acronym}
-              isEditing={editingField === 'acronym'}
-              editValue={editValues['acronym']?.toString() || ''}
-              onEdit={handleEdit}
-              onSave={handleSave}
-              onCancel={handleCancel}
-              onChange={handleEditValueChange}
-              onKeyDown={handleKeyDown}
+              onSave={(value) => {
+                updateMutation.mutate({ acronym: value })
+              }}
               disabled={updateMutation.isPending}
             />
 
             <EditableField
-              field="ects"
               label="ECTS"
-              value={course.ects?.toString() || 'Not specified'}
-              isEditing={editingField === 'ects'}
-              editValue={editValues['ects']?.toString() || ''}
-              onEdit={handleEdit}
-              onSave={handleSave}
-              onCancel={handleCancel}
-              onChange={handleEditValueChange}
-              onKeyDown={handleKeyDown}
+              value={course.ects?.toString() || ''}
+              onSave={(value) => {
+                updateMutation.mutate({
+                  ects: value === '' ? null : Number(value)
+                })
+              }}
               disabled={updateMutation.isPending}
               type="number"
-              placeholder="Enter ECTS credits"
+              // placeholder="Enter ECTS credits"
             />
 
             {/* Terms */}
@@ -318,10 +189,7 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
                         key={index}
                         value={term}
                         onRemove={handleRemoveTerm}
-                        disabled={
-                          removeTermMutation.isPending ||
-                          addTermMutation.isPending
-                        }
+                        disabled={false}
                         backgroundColor={getChipColorForLabel(term).bg}
                       />
                     ))
@@ -343,82 +211,20 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
         </CardContent>
       </Card>
 
-      {/* Add Term Dialog */}
-      <Dialog open={isAddTermDialogOpen} onOpenChange={setIsAddTermDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add Term</DialogTitle>
-            <DialogDescription>
-              Add a new academic term for this course (e.g., Fall, Spring,
-              Summer).
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="new-term">Term Name</Label>
-              <Select value={newTerm} onValueChange={setNewTerm}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a term..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableTerms?.terms
-                    .filter((term) => !course.terms?.includes(term))
-                    .map((term) => (
-                      <SelectItem key={term} value={term}>
-                        {term}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setIsAddTermDialogOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleAddTerm}
-              disabled={!newTerm.trim() || addTermMutation.isPending}
-            >
-              {addTermMutation.isPending ? 'Adding...' : 'Add Term'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <AddTermDialog
+        open={isAddTermDialogOpen}
+        onOpenChange={setIsAddTermDialogOpen}
+        courseId={courseId}
+        facultyId={course.facultyId}
+        existingTerms={course.terms}
+      />
 
-      {/* Remove Term Confirmation Dialog */}
-      <Dialog
+      <RemoveTermConfirmationDialog
         open={isRemoveTermDialogOpen}
         onOpenChange={setIsRemoveTermDialogOpen}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Remove Term</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to remove "{termToRemove}" from this
-              course's terms? This action cannot be undone.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setIsRemoveTermDialogOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={confirmRemoveTermAction}
-              disabled={removeTermMutation.isPending}
-            >
-              {removeTermMutation.isPending ? 'Removing...' : 'Remove'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        courseId={courseId}
+        termToRemove={termToRemove}
+      />
 
       <CourseEditDialog
         course={course}

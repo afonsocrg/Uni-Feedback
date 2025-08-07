@@ -33,7 +33,6 @@ export function FeedbackInfoCard({ feedback }: FeedbackInfoCardProps) {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
-  const [editingField, setEditingField] = useState<string | null>(null)
   const [editValues, setEditValues] = useState<Record<string, any>>({})
   const [isRatingDialogOpen, setIsRatingDialogOpen] = useState(false)
 
@@ -46,7 +45,6 @@ export function FeedbackInfoCard({ feedback }: FeedbackInfoCardProps) {
         queryKey: ['feedback-details', feedbackId]
       })
       queryClient.invalidateQueries({ queryKey: ['admin-feedback'] })
-      setEditingField(null)
       setEditValues({})
       toast.success('Feedback updated successfully')
     },
@@ -56,27 +54,6 @@ export function FeedbackInfoCard({ feedback }: FeedbackInfoCardProps) {
       )
     }
   })
-
-  const handleEdit = (field: string, currentValue: any) => {
-    setEditingField(field)
-    setEditValues({ [field]: currentValue })
-  }
-
-  const handleSave = (field: string) => {
-    const value = editValues[field]
-    if (value !== undefined) {
-      updateMutation.mutate({ [field]: value })
-    }
-  }
-
-  const handleCancel = () => {
-    setEditingField(null)
-    setEditValues({})
-  }
-
-  const handleEditValueChange = (field: string, value: any) => {
-    setEditValues((prev) => ({ ...prev, [field]: value }))
-  }
 
   // Generate 5 most recent school years
   const currentYear = getCurrentSchoolYear()
@@ -141,63 +118,39 @@ export function FeedbackInfoCard({ feedback }: FeedbackInfoCardProps) {
 
             {/* School Year (editable) */}
             <EditableSelect
-              field="schoolYear"
               label="School Year"
               value={feedback.schoolYear?.toString() || null}
               options={schoolYearOptions.map((year) => ({
                 value: year.toString(),
                 label: formatSchoolYearString(year, { yearFormat: 'long' })
               }))}
-              isEditing={editingField === 'schoolYear'}
-              editValue={
-                editValues['schoolYear']?.toString() ||
-                feedback.schoolYear?.toString() ||
-                null
-              }
-              onEdit={(field, value) =>
-                handleEdit(field, value ? parseInt(value) : null)
-              }
-              onSave={handleSave}
-              onCancel={handleCancel}
-              onChange={(field, value) =>
-                handleEditValueChange(field, parseInt(value))
-              }
+              onSave={(newValue) => {
+                updateMutation.mutate({ schoolYear: parseInt(newValue, 10) })
+              }}
               disabled={updateMutation.isPending}
-              displayValue={
-                feedback.schoolYear
-                  ? `${feedback.schoolYear}/${feedback.schoolYear + 1}`
-                  : undefined
-              }
             />
 
             {/* Rating (editable) */}
             <EditableStarRating
-              field="rating"
               label="Rating"
               value={feedback.rating}
-              isEditing={editingField === 'rating'}
-              editValue={editValues['rating'] || feedback.rating}
-              onEdit={handleEdit}
-              onSave={handleSave}
-              onCancel={handleCancel}
-              onChange={handleEditValueChange}
+              onSave={(value) => {
+                updateMutation.mutate({ rating: value })
+              }}
               disabled={updateMutation.isPending}
               labelPosition="bottom"
             />
 
             {/* Workload Rating (editable) */}
             <EditableWorkloadRating
-              field="workloadRating"
               label="Workload Rating"
               value={feedback.workloadRating}
-              isEditing={editingField === 'workloadRating'}
               editValue={
                 editValues['workloadRating'] || feedback.workloadRating
               }
-              onEdit={handleEdit}
-              onSave={handleSave}
-              onCancel={handleCancel}
-              onChange={handleEditValueChange}
+              onSave={(value) => {
+                updateMutation.mutate({ workloadRating: value })
+              }}
               disabled={updateMutation.isPending}
             />
           </div>

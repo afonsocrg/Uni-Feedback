@@ -1,5 +1,6 @@
 import { Button, StarRatingWithLabel } from '@uni-feedback/ui'
 import { Check, Edit3, X } from 'lucide-react'
+import { useState } from 'react'
 
 interface StarRatingWithLabelProps {
   value: number
@@ -13,28 +14,16 @@ interface StarRatingWithLabelProps {
 
 interface EditableStarRatingProps
   extends Omit<StarRatingWithLabelProps, 'value' | 'onChange'> {
-  field: string
   label: string
   value: number
-  isEditing: boolean
-  editValue: number
-  onEdit: (field: string, value: number) => void
-  onSave: (field: string) => void
-  onCancel: () => void
-  onChange: (field: string, value: number) => void
+  onSave: (newValue: number | null) => void
   disabled?: boolean
 }
 
 export function EditableStarRating({
-  field,
   label,
   value,
-  isEditing,
-  editValue,
-  onEdit,
   onSave,
-  onCancel,
-  onChange,
   disabled = false,
   // StarRatingWithLabel props
   size = 'md',
@@ -42,29 +31,42 @@ export function EditableStarRating({
   labelFunction,
   labelPosition = 'right'
 }: EditableStarRatingProps) {
+  const [isEditing, setIsEditing] = useState(false)
+  const [editValue, setEditValue] = useState<number | null>(value)
+
   return (
     <div className="space-y-2">
       <dt className="font-medium text-sm">{label}</dt>
-      <dd className="flex items-center gap-2">
+      <dd className="flex items-start gap-2">
         {isEditing ? (
           <>
             <StarRatingWithLabel
-              value={editValue}
-              onChange={(newValue) => onChange(field, newValue)}
+              value={editValue ?? 0}
+              onChange={(newValue) => setEditValue(newValue)}
               size={size}
               labels={labels}
               labelFunction={labelFunction}
               displayHover={true}
               labelPosition={labelPosition}
             />
-            <Button size="sm" onClick={() => onSave(field)} disabled={disabled}>
+            <Button
+              size="sm"
+              onClick={() => {
+                onSave(editValue)
+                setIsEditing(false)
+              }}
+              disabled={disabled}
+            >
               <Check className="h-3 w-3" />
             </Button>
 
             <Button
               size="sm"
               variant="outline"
-              onClick={onCancel}
+              onClick={() => {
+                setIsEditing(false)
+                setEditValue(value) // Reset to original value
+              }}
               disabled={disabled}
             >
               <X className="h-3 w-3" />
@@ -83,7 +85,7 @@ export function EditableStarRating({
             <Button
               size="sm"
               variant="ghost"
-              onClick={() => onEdit(field, value)}
+              onClick={() => setIsEditing(true)}
             >
               <Edit3 className="h-3 w-3" />
             </Button>
