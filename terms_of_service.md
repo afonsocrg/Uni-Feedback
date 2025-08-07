@@ -226,9 +226,9 @@ These Terms are provided in English. In case of conflicts between translations, 
 
 For questions about these Terms, contact us at:
 
-**General Inquiries:** contact@uni-feedback.com
-**Disputes:** disputes@uni-feedback.com
-**Address:** Available upon request
+- **General Inquiries:** contact@uni-feedback.com
+- **Disputes:** disputes@uni-feedback.com
+- **Address:** Available upon request
 
-**Business Operator:** Afonso Gonçalves (Individual Proprietorship)
-**Location:** Portugal
+- **Business Operator:** Afonso Gonçalves (Individual Proprietorship)
+- **Location:** Portugal

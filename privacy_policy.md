@@ -245,9 +245,9 @@ We may update this Privacy Policy periodically to reflect changes in our practic
 
 For privacy-related questions, concerns, or requests:
 
-**Email:** privacy@uni-feedback.com
-**Subject Line:** Privacy Request
-**Address:** Available upon request
+- **Email:** privacy@uni-feedback.com
+- **Subject Line:** Privacy Request
+- **Address:** Available upon request
 
 **Data Protection Contact:**
 
