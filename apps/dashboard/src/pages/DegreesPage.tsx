@@ -1,5 +1,5 @@
 import { PaginationControls } from '@components'
-import { useDebouncedSearch } from '@hooks'
+import { useDebouncedSearch, useAdminFilters } from '@hooks'
 import { useQuery } from '@tanstack/react-query'
 import {
   getAdminDegrees,
@@ -39,8 +39,10 @@ export function DegreesPage() {
   // Local state for pagination and filters
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(20)
-  const [selectedFacultyId, setSelectedFacultyId] = useState('all')
+  const { facultyId, setFaculty } = useAdminFilters()
   const [selectedType, setSelectedType] = useState('all')
+
+  const selectedFacultyId = facultyId?.toString() ?? 'all'
 
   // Debounced search functionality
   const { searchTerm, setSearchTerm, debouncedSearchTerm } = useDebouncedSearch(
@@ -53,8 +55,8 @@ export function DegreesPage() {
     page,
     limit,
     ...(debouncedSearchTerm && { search: debouncedSearchTerm }),
-    ...(selectedFacultyId !== 'all' && {
-      faculty_id: parseInt(selectedFacultyId, 10)
+    ...(facultyId !== null && {
+      faculty_id: facultyId
     }),
     ...(selectedType !== 'all' && { type: selectedType })
   }
@@ -78,13 +80,11 @@ export function DegreesPage() {
   const { data: degreeTypesResponse } = useQuery({
     queryKey: [
       'degree-types',
-      selectedFacultyId !== 'all' ? parseInt(selectedFacultyId, 10) : null
+      facultyId
     ],
     queryFn: () =>
       getAdminDegreeTypes(
-        selectedFacultyId !== 'all'
-          ? parseInt(selectedFacultyId, 10)
-          : undefined
+        facultyId ?? undefined
       )
   })
 
@@ -93,7 +93,7 @@ export function DegreesPage() {
 
   // Handle faculty change
   const handleFacultyChange = (newFacultyId: string) => {
-    setSelectedFacultyId(newFacultyId)
+    setFaculty(newFacultyId === 'all' ? null : parseInt(newFacultyId, 10))
     // Reset type selection when faculty changes since available types may change
     setSelectedType('all')
     setPage(1) // Reset to first page when changing filters

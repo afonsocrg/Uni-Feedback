@@ -1,5 +1,6 @@
 import { PaginationControls } from '@components'
 import { useQuery } from '@tanstack/react-query'
+import { useAdminFilters } from '@hooks'
 import {
   getAdminCoursesNew,
   getAdminFeedbackNew,
@@ -51,10 +52,12 @@ export function FeedbackPage() {
   // Local state for pagination and filters
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(20)
-  const [selectedFacultyId, setSelectedFacultyId] = useState('all')
-  const [selectedDegreeId, setSelectedDegreeId] = useState('all')
-  const [selectedCourseId, setSelectedCourseId] = useState('all')
+  const { facultyId, degreeId, courseId, setFaculty, setDegree, setCourse } = useAdminFilters()
   const [approvedFilter, setApprovedFilter] = useState('all')
+
+  const selectedFacultyId = facultyId?.toString() ?? 'all'
+  const selectedDegreeId = degreeId?.toString() ?? 'all'
+  const selectedCourseId = courseId?.toString() ?? 'all'
   const [degreePopoverOpen, setDegreePopoverOpen] = useState(false)
   const [coursePopoverOpen, setCoursePopoverOpen] = useState(false)
 
@@ -62,14 +65,14 @@ export function FeedbackPage() {
   const query: AdminFeedbackQuery = {
     page,
     limit,
-    ...(selectedFacultyId !== 'all' && {
-      faculty_id: parseInt(selectedFacultyId, 10)
+    ...(facultyId !== null && {
+      faculty_id: facultyId
     }),
-    ...(selectedDegreeId !== 'all' && {
-      degree_id: parseInt(selectedDegreeId, 10)
+    ...(degreeId !== null && {
+      degree_id: degreeId
     }),
-    ...(selectedCourseId !== 'all' && {
-      course_id: parseInt(selectedCourseId, 10)
+    ...(courseId !== null && {
+      course_id: courseId
     }),
     ...(approvedFilter !== 'all' && { approved: approvedFilter === 'approved' })
   }
@@ -93,31 +96,26 @@ export function FeedbackPage() {
   const { data: degrees = [] } = useQuery({
     queryKey: [
       'degree-suggestions',
-      selectedFacultyId !== 'all' ? parseInt(selectedFacultyId, 10) : null
+      facultyId
     ],
     queryFn: () =>
       getDegreeSuggestions(
-        selectedFacultyId !== 'all'
-          ? parseInt(selectedFacultyId, 10)
-          : undefined
+        facultyId ?? undefined
       ),
-    enabled: selectedFacultyId !== 'all'
+    enabled: facultyId !== null
   })
 
   const { data: coursesResponse } = useQuery({
     queryKey: [
       'admin-courses',
-      selectedDegreeId !== 'all' ? parseInt(selectedDegreeId, 10) : null
+      degreeId
     ],
     queryFn: () =>
       getAdminCoursesNew({
-        degree_id:
-          selectedDegreeId !== 'all'
-            ? parseInt(selectedDegreeId, 10)
-            : undefined,
+        degree_id: degreeId ?? undefined,
         limit: 1000 // Get all courses for the degree
       }),
-    enabled: selectedDegreeId !== 'all'
+    enabled: degreeId !== null
   })
 
   const feedback = feedbackResponse?.data || []
@@ -125,24 +123,19 @@ export function FeedbackPage() {
 
   // Handle faculty change
   const handleFacultyChange = (newFacultyId: string) => {
-    setSelectedFacultyId(newFacultyId)
-    // Reset degree and course selection when faculty changes
-    setSelectedDegreeId('all')
-    setSelectedCourseId('all')
+    setFaculty(newFacultyId === 'all' ? null : parseInt(newFacultyId, 10))
     setPage(1)
   }
 
   // Handle degree change
   const handleDegreeChange = (newDegreeId: string) => {
-    setSelectedDegreeId(newDegreeId)
-    // Reset course selection when degree changes
-    setSelectedCourseId('all')
+    setDegree(newDegreeId === 'all' ? null : parseInt(newDegreeId, 10))
     setPage(1)
   }
 
   // Handle course change
   const handleCourseChange = (newCourseId: string) => {
-    setSelectedCourseId(newCourseId)
+    setCourse(newCourseId === 'all' ? null : parseInt(newCourseId, 10))
     setPage(1)
   }
 
@@ -183,9 +176,9 @@ export function FeedbackPage() {
   }
 
   const hasFilters =
-    selectedFacultyId !== 'all' ||
-    selectedDegreeId !== 'all' ||
-    selectedCourseId !== 'all' ||
+    facultyId !== null ||
+    degreeId !== null ||
+    courseId !== null ||
     approvedFilter !== 'all'
 
   if (feedbackError) {
@@ -255,10 +248,10 @@ export function FeedbackPage() {
                   role="combobox"
                   aria-expanded={degreePopoverOpen}
                   className="w-full sm:w-48 justify-between font-normal"
-                  disabled={selectedFacultyId === 'all'}
+                  disabled={facultyId === null}
                 >
                   {selectedDegreeId === 'all'
-                    ? selectedFacultyId === 'all'
+                    ? facultyId === null
                       ? 'Select faculty first'
                       : 'All degrees'
                     : (degrees.find((d) => d.id.toString() === selectedDegreeId)
@@ -328,10 +321,10 @@ export function FeedbackPage() {
                   role="combobox"
                   aria-expanded={coursePopoverOpen}
                   className="w-full sm:w-48 justify-between font-normal"
-                  disabled={selectedDegreeId === 'all'}
+                  disabled={degreeId === null}
                 >
                   {selectedCourseId === 'all'
-                    ? selectedDegreeId === 'all'
+                    ? degreeId === null
                       ? 'Select degree first'
                       : 'All courses'
                     : (courses.find((c) => c.id.toString() === selectedCourseId)
