@@ -1,16 +1,12 @@
+import { getWorkloadDetailedLabels } from '@uni-feedback/utils'
+
 interface WorkloadRatingProps {
   rating: number
   onChange: (rating: number) => void
 }
 
 export function WorkloadRating({ rating, onChange }: WorkloadRatingProps) {
-  const labels = [
-    'Overwhelming! Consumed way too much time',
-    'Very heavy workload',
-    'Moderate workload',
-    'Light workload',
-    'Perfect balance with my other commitments'
-  ]
+  const labels = getWorkloadDetailedLabels()
 
   return (
     <div className="space-y-2">

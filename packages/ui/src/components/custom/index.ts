@@ -1,5 +1,6 @@
 export * from './Chip'
 export * from './StarRating'
+export * from './StarRatingWithLabel'
 export * from './WarningAlert'
 export * from './WorkloadRating'
 export * from './WorkloadRatingDisplay'

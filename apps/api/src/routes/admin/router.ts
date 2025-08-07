@@ -28,7 +28,7 @@ import {
   RemoveFacultyEmailSuffix,
   UpdateFaculty
 } from './faculties'
-import { GetFeedback } from './feedback'
+import { GetFeedback, GetFeedbackDetails, UpdateFeedback } from './feedback'
 import { GetDegreeSuggestions } from './suggestions'
 import { GetUsers } from './users'
 
@@ -65,6 +65,8 @@ router.delete('/courses/:id/terms/:term', RemoveCourseTerm)
 
 // Feedback routes
 router.get('/feedback', GetFeedback)
+router.get('/feedback/:id', GetFeedbackDetails)
+router.put('/feedback/:id', UpdateFeedback)
 
 // Suggestions routes
 router.get('/suggestions/degrees', GetDegreeSuggestions)

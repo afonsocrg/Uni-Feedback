@@ -1,4 +1,5 @@
 export * from './schoolYear'
+export * from './workload'
 export * from './cookies'
 export * from './email'
 export * as TIME_S from './time_s'

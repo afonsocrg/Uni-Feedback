@@ -24,3 +24,16 @@ export function getWorkloadColor(rating: number): string {
 export function getWorkloadFormLabels(): string[] {
   return ['Very heavy', 'Heavy', 'Moderate', 'Light', 'Very light']
 }
+
+/**
+ * Get the detailed workload labels used in WorkloadRating component
+ */
+export function getWorkloadDetailedLabels(): string[] {
+  return [
+    'Overwhelming! Consumed way too much time',
+    'Very heavy workload', 
+    'Moderate workload',
+    'Light workload',
+    'Perfect balance with my other commitments'
+  ]
+}

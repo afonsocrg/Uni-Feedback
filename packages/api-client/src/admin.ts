@@ -262,6 +262,10 @@ export interface AdminFeedback {
   facultyShortName: string
 }
 
+export interface AdminFeedbackDetail extends AdminFeedback {
+  updatedAt: string
+}
+
 export interface AdminFeedbackResponse {
   feedback: AdminFeedback[]
   total: number
@@ -277,6 +281,14 @@ export interface AdminFeedbackQuery {
   degree_id?: number
   faculty_id?: number
   email?: string
+  approved?: boolean
+}
+
+export interface FeedbackUpdateData {
+  schoolYear?: number | null
+  rating?: number
+  workloadRating?: number | null
+  comment?: string | null
   approved?: boolean
 }
 
@@ -636,4 +648,41 @@ export async function getAdminFeedbackNew(
     ? `/admin/feedback?${params}`
     : '/admin/feedback'
   return apiGet<PaginatedResponse<AdminFeedback>>(url)
+}
+
+/**
+ * Get detailed feedback information
+ */
+export async function getAdminFeedbackDetails(
+  feedbackId: number
+): Promise<AdminFeedbackDetail> {
+  return apiGet<AdminFeedbackDetail>(`/admin/feedback/${feedbackId}`)
+}
+
+/**
+ * Update feedback information
+ */
+export async function updateFeedback(
+  feedbackId: number,
+  updates: FeedbackUpdateData
+): Promise<{
+  id: number
+  schoolYear: number | null
+  rating: number
+  workloadRating: number | null
+  comment: string | null
+  approved: boolean
+  updatedAt: string
+  message: string
+}> {
+  return apiPut<{
+    id: number
+    schoolYear: number | null
+    rating: number
+    workloadRating: number | null
+    comment: string | null
+    approved: boolean
+    updatedAt: string
+    message: string
+  }>(`/admin/feedback/${feedbackId}`, updates)
 }

@@ -165,7 +165,7 @@ export class GetFeedback extends OpenAPIRoute {
         .leftJoin(degrees, eq(courses.degreeId, degrees.id))
         .leftJoin(faculties, eq(degrees.facultyId, faculties.id))
         .where(whereClause)
-        .orderBy(desc(feedback.schoolYear), desc(feedback.createdAt))
+        .orderBy(desc(feedback.createdAt))
         .limit(limit)
         .offset(offset)
 

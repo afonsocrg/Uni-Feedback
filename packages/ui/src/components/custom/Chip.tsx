@@ -35,7 +35,7 @@ interface ChipProps {
   label: string
   className?: string
   color?: ChipColor
-  onClick?: () => void
+  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void
 }
 
 export function Chip({ label, className = '', color, onClick }: ChipProps) {
