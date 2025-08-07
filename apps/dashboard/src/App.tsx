@@ -16,6 +16,8 @@ import {
   FeedbackPage,
   FeedbackDetailPage
 } from '@pages'
+import { TermsPage } from './pages/TermsPage'
+import { PrivacyPage } from './pages/PrivacyPage'
 import { Providers } from '@providers'
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom'
 
@@ -30,6 +32,10 @@ function App() {
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/create-account" element={<CreateAccountPage />} />
+
+            {/* Public Routes */}
+            <Route path="/terms" element={<TermsPage />} />
+            <Route path="/privacy" element={<PrivacyPage />} />
 
             {/* Protected Dashboard Routes */}
             <Route

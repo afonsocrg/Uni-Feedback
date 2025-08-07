@@ -1,6 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useAuth } from '@hooks'
 import {
+  createAccount,
+  type CreateAccountRequest
+} from '@uni-feedback/api-client'
+import {
   Button,
   Card,
   CardContent,
@@ -16,10 +20,6 @@ import {
   FormMessage,
   Input
 } from '@uni-feedback/ui'
-import {
-  createAccount,
-  type CreateAccountRequest
-} from '@uni-feedback/api-client'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
@@ -184,6 +184,17 @@ function CreateAccountForm({
                   />
                 </div>
                 <div className="flex flex-col gap-3">
+                  <div className="text-xs text-gray-600 text-center">
+                    By creating an account, you agree to our{' '}
+                    <Link to="/terms" className="text-gray-700 underline">
+                      Terms of Service
+                    </Link>{' '}
+                    and{' '}
+                    <Link to="/privacy" className="text-gray-700 underline">
+                      Privacy Policy
+                    </Link>
+                    .
+                  </div>
                   <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading ? 'Creating account...' : 'Create account'}
                   </Button>
