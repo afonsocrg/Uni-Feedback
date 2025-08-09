@@ -12,6 +12,7 @@ declare global {
     DB: D1Database
     WORKER_ENV: string
     RESEND_API_KEY: string
+    SEND_EMAILS_IN_DEV?: string
     FORCE_SEND_EMAIL?: string
     POSTHOG_API_KEY: string
     POSTHOG_HOST: string

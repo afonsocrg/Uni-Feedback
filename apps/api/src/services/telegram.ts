@@ -164,3 +164,35 @@ An admin just ${action} a ${resourceType} in the system.
 
   return sendToTelegram(env, message)
 }
+
+interface SendEmailStatusNotificationArgs {
+  email: string
+  emailType: string
+  success: boolean
+  error?: string
+}
+
+export async function sendEmailStatusNotification(
+  env: Env,
+  args: SendEmailStatusNotificationArgs
+) {
+  const { email, emailType, success, error } = args
+
+  const statusEmoji = success ? '✅' : '❌'
+  const statusText = success ? 'SUCCESS' : 'FAILED'
+
+  let message = `
+${statusEmoji} EMAIL ${statusText} ${statusEmoji}
+
+📧 Email Type: ${emailType}
+📬 Recipient: ${email}
+🕒 Timestamp: ${new Date().toISOString()}`
+
+  if (!success && error) {
+    message += `\n\n❌ Error: ${error}`
+  }
+
+  message = message.trim()
+
+  return sendToTelegram(env, message)
+}
