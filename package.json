@@ -19,8 +19,8 @@
     "clean": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' + && rm -f bun.lockb"
   },
   "devDependencies": {
-    "prettier": "^3.5.3",
-    "prettier-plugin-organize-imports": "^4.1.0",
+    "prettier": "^3.6.2",
+    "prettier-plugin-organize-imports": "^4.2.0",
     "turbo": "^2.5.5"
   }
 }
