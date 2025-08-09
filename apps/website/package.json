@@ -11,9 +11,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@uni-feedback/ui": "workspace:*",
-    "@uni-feedback/api-client": "workspace:*",
-    "@uni-feedback/utils": "workspace:*",
+    "@uni-feedback/ui": "file:../../packages/ui",
+    "@uni-feedback/api-client": "file:../../packages/api-client",
+    "@uni-feedback/utils": "file:../../packages/utils",
     "@hookform/resolvers": "^5.1.1",
     "@radix-ui/react-checkbox": "^1.3.2",
     "@radix-ui/react-dialog": "^1.1.14",
