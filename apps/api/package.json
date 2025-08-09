@@ -6,6 +6,7 @@
     "build": "echo 'API built - using Wrangler for deployment'",
     "start": "bun dev",
     "dev": "wrangler dev",
+    "dev:api": "wrangler dev",
     "prod": "wrangler dev --remote",
     "db": "bun drizzle-kit studio",
     "db-prod": "DB_REMOTE=true bun drizzle-kit studio",

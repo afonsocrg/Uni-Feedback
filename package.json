@@ -8,7 +8,10 @@
   ],
   "scripts": {
     "build": "turbo build",
-    "dev": "turbo dev --parallel",
+    "dev": "bun run dev:all",
+    "dev:all": "turbo dev:api dev:website dev:dashboard @uni-feedback/ui#dev db --parallel --ui=tui",
+    "dev:website": "turbo dev:api dev:website @uni-feedback/ui#dev db --parallel --ui=tui",
+    "dev:dashboard": "turbo dev:api dev:dashboard @uni-feedback/ui#dev db --parallel --ui=tui",
     "start": "turbo start --parallel",
     "lint": "turbo lint",
     "type-check": "turbo type-check",
