@@ -8,8 +8,6 @@
   ],
   "scripts": {
     "build": "turbo build",
-    "build:dashboard": "turbo build --filter=@uni-feedback/dashboard",
-    "build:website": "turbo build --filter=meic-feedback",
     "dev": "bun run dev:all",
     "dev:all": "turbo dev:api dev:website dev:dashboard @uni-feedback/ui#dev db --parallel --ui=tui",
     "dev:website": "turbo dev:api dev:website @uni-feedback/ui#dev db --parallel --ui=tui",
