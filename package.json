@@ -21,6 +21,10 @@
     "format:check": "turbo format:check",
     "db": "turbo db",
     "deploy": "turbo deploy",
+    "deploy:api": "cd apps/api && bun wrangler deploy",
+    "deploy:website": "./push_to_prod.sh",
+    "deploy:dashboard": "./push_to_prod.sh",
+    "deploy:prod": "bun run deploy:api && ./push_to_prod.sh",
     "clean": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' + && rm -f bun.lockb"
   },
   "devDependencies": {
