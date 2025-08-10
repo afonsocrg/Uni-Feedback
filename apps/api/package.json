@@ -13,8 +13,8 @@
     "deploy": "wrangler deploy",
     "tail": "wrangler tail",
     "backup": "./backup_database.sh",
-    "backup-local": "./backup_database.sh --local",
-    "backup-remote": "./backup_database.sh --remote",
+    "backup:local": "./backup_database.sh --local",
+    "backup:remote": "./backup_database.sh --remote",
     "type-check": "tsc --noEmit",
     "type-check-relaxed": "tsc --noEmit --skipLibCheck"
   },
