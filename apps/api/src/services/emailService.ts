@@ -23,7 +23,7 @@ export class EmailService {
     html: string
     text: string
   }): Promise<void> {
-    const isDevelopment = this.env.WORKER_ENV === 'development'
+    const isDevelopment = this.env.DEV_MODE === 'true'
     const shouldSendInDev = this.env.SEND_EMAILS_IN_DEV === 'true'
     const forceSend = this.env.FORCE_SEND_EMAIL === 'true'
 

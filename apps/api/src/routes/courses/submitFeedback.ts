@@ -4,7 +4,8 @@ import { getCurrentSchoolYear } from '@uni-feedback/utils'
 import { contentJson, OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
-import { z, ZodError } from 'zod'
+import { z } from 'zod'
+import { BusinessLogicError, NotFoundError, withErrorHandling } from '../utils'
 
 const FeedbackRequestSchema = z
   .object({
@@ -41,7 +42,7 @@ export class SubmitFeedback extends OpenAPIRoute {
   }
 
   async handle(request: IRequest, env: any, context: any) {
-    try {
+    return withErrorHandling(request, async () => {
       const db = getDb(env)
       const courseId = parseInt(request.params.id)
       const { body } = await this.getValidatedData<typeof this.schema>()
@@ -49,11 +50,8 @@ export class SubmitFeedback extends OpenAPIRoute {
       // Validate school year
       const currentSchoolYear = getCurrentSchoolYear()
       if (body.schoolYear > currentSchoolYear) {
-        return Response.json(
-          {
-            error: 'Cannot submit feedback for a future school year'
-          },
-          { status: 400 }
+        throw new BusinessLogicError(
+          'Cannot submit feedback for a future school year'
         )
       }
 
@@ -65,12 +63,7 @@ export class SubmitFeedback extends OpenAPIRoute {
         .limit(1)
 
       if (courseResult.length === 0) {
-        return Response.json(
-          {
-            error: 'Course not found'
-          },
-          { status: 404 }
-        )
+        throw new NotFoundError('Course not found')
       }
       const course = courseResult[0]
 
@@ -81,12 +74,7 @@ export class SubmitFeedback extends OpenAPIRoute {
         .limit(1)
 
       if (degreeResult.length === 0) {
-        return Response.json(
-          {
-            error: 'Degree not found'
-          },
-          { status: 404 }
-        )
+        throw new NotFoundError('Degree not found')
       }
       const degree = degreeResult[0]
 
@@ -123,18 +111,6 @@ export class SubmitFeedback extends OpenAPIRoute {
         },
         { status: 201 }
       )
-    } catch (error: unknown) {
-      if (error instanceof ZodError) {
-        return Response.json({ error }, { status: 400 })
-      }
-
-      console.error('Error submitting feedback:', error)
-      return Response.json(
-        {
-          error: 'Failed to submit feedback'
-        },
-        { status: 500 }
-      )
-    }
+    })
   }
 }

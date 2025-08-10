@@ -1,0 +1,840 @@
+{
+  "info": {
+    "name": "Uni Feedback API",
+    "description": "Complete API collection for Uni Feedback platform with authentication, admin, and public endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8787",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "🔐 Authentication",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "logout"]
+            }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "refresh"]
+            }
+          }
+        },
+        {
+          "name": "Create Account",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"invitation-token-here\",\n  \"username\": \"newuser\",\n  \"password\": \"password123\",\n  \"confirmPassword\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/create-account",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "create-account"]
+            }
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/forgot-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "forgot-password"]
+            }
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"reset-token-here\",\n  \"password\": \"newpassword123\",\n  \"confirmPassword\": \"newpassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/reset-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "reset-password"]
+            }
+          }
+        },
+        {
+          "name": "Invite User (Superuser only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"newuser@example.com\",\n  \"superuser\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/invite",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "invite"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏫 Public Routes",
+      "item": [
+        {
+          "name": "Faculties",
+          "item": [
+            {
+              "name": "Get All Faculties",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/faculties",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["faculties"]
+                }
+              }
+            },
+            {
+              "name": "Get Faculty Details",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/faculties/1",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["faculties", "1"]
+                }
+              }
+            },
+            {
+              "name": "Get Faculty Degrees",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/faculties/1/degrees",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["faculties", "1", "degrees"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Degrees",
+          "item": [
+            {
+              "name": "Get All Degrees",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/degrees",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["degrees"]
+                }
+              }
+            },
+            {
+              "name": "Get Degree Course Groups",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/degrees/1/courseGroups",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["degrees", "1", "courseGroups"]
+                }
+              }
+            },
+            {
+              "name": "Get Degree Courses",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/degrees/1/courses?school_year=2024",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["degrees", "1", "courses"],
+                  "query": [
+                    {
+                      "key": "school_year",
+                      "value": "2024"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Courses",
+          "item": [
+            {
+              "name": "Get All Courses",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/courses?degree_id=1&school_year=2024",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["courses"],
+                  "query": [
+                    {
+                      "key": "degree_id",
+                      "value": "1"
+                    },
+                    {
+                      "key": "school_year",
+                      "value": "2024"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Get Course Details",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/courses/1",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["courses", "1"]
+                }
+              }
+            },
+            {
+              "name": "Get Course Feedback",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/courses/1/feedback?school_year=2024",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["courses", "1", "feedback"],
+                  "query": [
+                    {
+                      "key": "school_year",
+                      "value": "2024"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Submit Course Feedback",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"student@ist.utl.pt\",\n  \"schoolYear\": 2024,\n  \"rating\": 4,\n  \"workloadRating\": 3,\n  \"comment\": \"Great course! Very informative and well structured.\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/courses/1/feedback",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["courses", "1", "feedback"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Feedback Drafts",
+          "item": [
+            {
+              "name": "Create Feedback Draft",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"rating\": 4,\n  \"workloadRating\": 3,\n  \"comment\": \"Draft feedback comment\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/feedback-drafts",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["feedback-drafts"]
+                }
+              }
+            },
+            {
+              "name": "Get Feedback Draft",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/feedback-drafts/ABCD1234",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["feedback-drafts", "ABCD1234"]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "👨‍💼 Admin Routes",
+      "item": [
+        {
+          "name": "Faculties Management",
+          "item": [
+            {
+              "name": "Update Faculty",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Updated Faculty Name\",\n  \"shortName\": \"UFN\",\n  \"url\": \"https://updated-faculty.com\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/admin/faculties/1",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "faculties", "1"]
+                }
+              }
+            },
+            {
+              "name": "Get Faculty Email Suffixes",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/faculties/1/email-suffixes",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "faculties", "1", "email-suffixes"]
+                }
+              }
+            },
+            {
+              "name": "Add Faculty Email Suffix",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"suffix\": \"@student.faculty.edu\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/admin/faculties/1/email-suffixes",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "faculties", "1", "email-suffixes"]
+                }
+              }
+            },
+            {
+              "name": "Remove Faculty Email Suffix",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/faculties/1/email-suffixes/@student.faculty.edu",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "faculties", "1", "email-suffixes", "@student.faculty.edu"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Degrees Management",
+          "item": [
+            {
+              "name": "Get All Degrees (Admin)",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/degrees?page=1&limit=20",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "degrees"],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Get Degree Types",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/degrees/types",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "degrees", "types"]
+                }
+              }
+            },
+            {
+              "name": "Get Degree Details (Admin)",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/degrees/1",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "degrees", "1"]
+                }
+              }
+            },
+            {
+              "name": "Update Degree",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Updated Degree Name\",\n  \"acronym\": \"UDN\",\n  \"type\": \"Masters\",\n  \"url\": \"https://updated-degree.com\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/admin/degrees/1",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "degrees", "1"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Course Groups Management",
+          "item": [
+            {
+              "name": "Get All Course Groups",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/course-groups?page=1&limit=20",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "course-groups"],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Create Course Group",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"New Course Group\",\n  \"degreeId\": 1\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/admin/course-groups",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "course-groups"]
+                }
+              }
+            },
+            {
+              "name": "Update Course Group",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Updated Course Group Name\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/admin/course-groups/1",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "course-groups", "1"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Courses Management",
+          "item": [
+            {
+              "name": "Get All Courses (Admin)",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/courses?page=1&limit=20&degree_id=1",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "courses"],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    },
+                    {
+                      "key": "degree_id",
+                      "value": "1"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Get All Terms",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/courses/terms",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "courses", "terms"]
+                }
+              }
+            },
+            {
+              "name": "Get Course Details (Admin)",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/courses/1",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "courses", "1"]
+                }
+              }
+            },
+            {
+              "name": "Update Course",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Updated Course Name\",\n  \"acronym\": \"UCN\",\n  \"ects\": 6,\n  \"url\": \"https://updated-course.com\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/admin/courses/1",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "courses", "1"]
+                }
+              }
+            },
+            {
+              "name": "Get Course Terms",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/courses/1/terms",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "courses", "1", "terms"]
+                }
+              }
+            },
+            {
+              "name": "Add Course Term",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"term\": \"S1\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/admin/courses/1/terms",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "courses", "1", "terms"]
+                }
+              }
+            },
+            {
+              "name": "Remove Course Term",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/courses/1/terms/S1",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "courses", "1", "terms", "S1"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Feedback Management",
+          "item": [
+            {
+              "name": "Get All Feedback (Admin)",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/feedback?page=1&limit=20&course_id=1&approved=true",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "feedback"],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    },
+                    {
+                      "key": "course_id",
+                      "value": "1"
+                    },
+                    {
+                      "key": "approved",
+                      "value": "true"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Get Feedback Details (Admin)",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/feedback/1",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "feedback", "1"]
+                }
+              }
+            },
+            {
+              "name": "Update Feedback",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"comment\": \"Updated feedback comment\",\n  \"approved\": true\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/admin/feedback/1",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "feedback", "1"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Suggestions",
+          "item": [
+            {
+              "name": "Get Degree Suggestions",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/suggestions/degrees?q=computer",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "suggestions", "degrees"],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "computer"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Users Management",
+          "item": [
+            {
+              "name": "Get All Users (Superuser only)",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/users?page=1&limit=20",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["admin", "users"],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "📖 Documentation",
+      "item": [
+        {
+          "name": "OpenAPI Docs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/docs",
+              "host": ["{{baseUrl}}"],
+              "path": ["docs"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

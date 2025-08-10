@@ -2,7 +2,8 @@ import { feedbackDrafts, getDb } from '@db'
 import { contentJson, OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
-import { z, ZodError } from 'zod'
+import { z } from 'zod'
+import { InternalServerError, withErrorHandling } from '../utils'
 
 const FeedbackDraftRequestSchema = z
   .object({
@@ -49,7 +50,7 @@ export class CreateFeedbackDraft extends OpenAPIRoute {
   }
 
   async handle(request: IRequest, env: any, context: any) {
-    try {
+    withErrorHandling(request, async () => {
       const db = getDb(env)
       const { body } = await this.getValidatedData<typeof this.schema>()
 
@@ -63,9 +64,8 @@ export class CreateFeedbackDraft extends OpenAPIRoute {
         attempts++
 
         if (attempts > maxAttempts) {
-          return Response.json(
-            { error: 'Failed to generate unique code' },
-            { status: 500 }
+          throw new InternalServerError(
+            'Failed to generate unique code after multiple attempts'
           )
         }
 
@@ -103,16 +103,6 @@ export class CreateFeedbackDraft extends OpenAPIRoute {
         },
         { status: 201 }
       )
-    } catch (error: unknown) {
-      if (error instanceof ZodError) {
-        return Response.json({ error }, { status: 400 })
-      }
-
-      console.error('Error creating feedback draft:', error)
-      return Response.json(
-        { error: 'Failed to create feedback draft' },
-        { status: 500 }
-      )
-    }
+    })
   }
 }

@@ -8,6 +8,7 @@ import { OpenAPIRoute } from 'chanfana'
 import { and, count, desc, eq, isNotNull, isNull, sql } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
 import { z } from 'zod'
+import { withErrorHandling } from '../../utils'
 
 const FeedbackQuerySchema = PaginationQuerySchema.extend({
   course_id: z
@@ -88,7 +89,7 @@ export class GetFeedback extends OpenAPIRoute {
   }
 
   async handle(request: IRequest, env: any, context: any) {
-    try {
+    return withErrorHandling(request, async () => {
       const { query } = await this.getValidatedData<typeof this.schema>()
       const { page, limit, course_id, degree_id, faculty_id, email, approved } =
         query
@@ -183,9 +184,6 @@ export class GetFeedback extends OpenAPIRoute {
       }
 
       return Response.json(response)
-    } catch (error) {
-      console.error('Get feedback error:', error)
-      return Response.json({ error: 'Internal server error' }, { status: 500 })
-    }
+    })
   }
 }
