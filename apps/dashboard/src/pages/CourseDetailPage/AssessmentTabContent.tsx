@@ -166,7 +166,6 @@ export function AssessmentTabContent({ course }: AssessmentTabContentProps) {
                 onChange={(e) => setAssessment(e.target.value)}
                 placeholder="Enter assessment details using Markdown (e.g., grading breakdown, assignment types, evaluation criteria)..."
                 className="min-h-32"
-                maxLength={2000}
               />
               <div className="text-xs text-muted-foreground text-right">
                 {assessment.length}/2000 characters

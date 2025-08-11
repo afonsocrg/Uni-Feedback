@@ -116,7 +116,6 @@ export function DescriptionTabContent({ course }: DescriptionTabContentProps) {
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Enter course description..."
               className="min-h-40"
-              maxLength={2000}
             />
             <div className="text-xs text-muted-foreground text-right">
               {description.length}/2000 characters

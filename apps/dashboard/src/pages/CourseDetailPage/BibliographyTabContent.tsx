@@ -118,7 +118,6 @@ export function BibliographyTabContent({
               onChange={(e) => setBibliography(e.target.value)}
               placeholder="Enter course bibliography using Markdown..."
               className="min-h-40"
-              maxLength={2000}
             />
             <div className="text-xs text-muted-foreground text-right">
               {bibliography.length}/2000 characters
