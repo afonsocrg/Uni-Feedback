@@ -1,6 +1,5 @@
-import * as React from 'react'
 import { CircleHelp } from 'lucide-react'
-import { Markdown } from './Markdown'
+import * as React from 'react'
 import {
   Button,
   Tabs,
@@ -13,6 +12,7 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '../shadcn'
+import { Markdown } from './Markdown'
 
 interface MarkdownTextareaProps extends React.ComponentProps<'textarea'> {
   previewPlaceholder?: string
@@ -66,14 +66,14 @@ export function MarkdownTextarea({
         <TabsContent value="markdown">
           <Textarea
             {...props}
-            className="w-full min-h-[120px] rounded-md rounded-t-none p-2 resize-y text-sm"
+            className="w-full min-h-[120px] max-h-[300px] rounded-md rounded-t-none p-2 resize-y text-sm overflow-auto"
             placeholder={
               props.placeholder || 'Use Markdown to format your comment'
             }
           />
         </TabsContent>
         <TabsContent value="preview">
-          <div className="w-full min-h-[120px] border rounded-md rounded-t-none p-2">
+          <div className="w-full min-h-[120px] max-h-[300px] border rounded-md rounded-t-none p-2 overflow-auto">
             <Markdown className="markdown-compact">
               {String(props.value || previewPlaceholder)}
             </Markdown>
