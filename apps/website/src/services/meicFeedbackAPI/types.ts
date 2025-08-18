@@ -35,11 +35,15 @@ export interface Course {
   rating: number
   feedbackCount: number
   terms: string[]
+  ects: number | null
+  hasMandatoryExam: boolean | null
+  averageWorkload?: number
 }
 
 export interface CourseDetail extends Course {
   description: string | null
   assessment: string | null
+  bibliography: string | null
   degree: Degree | null
 }
 

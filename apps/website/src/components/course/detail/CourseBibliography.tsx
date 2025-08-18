@@ -1,24 +1,24 @@
 import { EditableSection } from '@components'
-import { getEditDescriptionFormUrl } from '@services/googleForms'
+import { getBibliographyFormUrl } from '@services/googleForms'
 import { type CourseDetail } from '@services/meicFeedbackAPI'
 import { Markdown } from '@uni-feedback/ui'
 
 interface CourseDescriptionProps {
   course: CourseDetail
 }
-export function CourseDescription({ course }: CourseDescriptionProps) {
+export function CourseBiblioraphy({ course }: CourseDescriptionProps) {
   return (
     <EditableSection
-      title="Description"
-      value={course.description}
-      editTooltip="Edit description"
-      getEditUrl={() => getEditDescriptionFormUrl(course)}
+      title="Bibliography"
+      value={course.bibliography}
+      editTooltip="Edit bibliography"
+      getEditUrl={() => getBibliographyFormUrl(course)}
       renderContent={(value) => <Markdown>{value}</Markdown>}
       fallback={
         <p className="text-gray-600 italic">
-          We don't have a description for this course yet.{' '}
+          We don't have a bibliography for this course yet.{' '}
           <a
-            href={getEditDescriptionFormUrl(course)}
+            href={getBibliographyFormUrl(course)}
             target="_blank"
             rel="noopener noreferrer"
             className="text-primaryBlue underline hover:no-underline"

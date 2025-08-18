@@ -14,14 +14,14 @@ export function CourseReviewContentEmpty({
 }: CourseReviewContentEmptyProps) {
   const navigate = useNavigate()
   return (
-    <div className="flex flex-col items-center justify-center py-16 text-center gap-6 bg-gray-50 rounded-lg">
+    <div className="flex flex-col items-center justify-center py-16 text-center gap-6 rounded-lg">
       <div className="text-5xl">💬</div>
       <div>
         <h3 className="text-xl font-semibold mb-2">
-          No reviews yet for this course
+          No feedback for this course yet
         </h3>
         <p className="text-gray-600 max-w-md mx-auto">
-          Be the first to share your experience, or invite your friends to leave
+          Be the first to share your experience, or ask your friends to leave
           feedback! Your input helps future students make better choices.
         </p>
       </div>

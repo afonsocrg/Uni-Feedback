@@ -20,12 +20,13 @@ export function WorkloadRatingDisplay({
   rating,
   className = ''
 }: WorkloadRatingDisplayProps) {
+  const roundedRating = Math.round(rating)
   return (
     <Badge
       variant="secondary"
-      className={`${getWorkloadColor(rating)} hover:${getWorkloadColor(rating)} ${className}`}
+      className={`${getWorkloadColor(roundedRating)} hover:${getWorkloadColor(roundedRating)} ${className}`}
     >
-      {rating}/5 {getWorkloadLabel(rating)}
+      {rating}/5 {getWorkloadLabel(roundedRating)}
     </Badge>
   )
 }

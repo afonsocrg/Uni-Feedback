@@ -41,6 +41,9 @@ export interface CourseDetail extends Course {
   description: string | null
   assessment: string | null
   degree: Degree | null
+  averageWorkload: number | null
+  ects: number | null
+  hasMandatoryExam: boolean | null
 }
 
 export interface Feedback {

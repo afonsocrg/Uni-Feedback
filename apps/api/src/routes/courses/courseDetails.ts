@@ -16,13 +16,17 @@ const CourseDetailSchema = z.object({
   id: z.number(),
   name: z.string(),
   acronym: z.string(),
-  description: z.string(),
+  ects: z.number().nullable(),
+  hasMandatoryExam: z.boolean().nullable(),
   url: z.string(),
-  rating: z.number(),
-  feedbackCount: z.number(),
   terms: z.array(z.string()),
+  description: z.string(),
   assessment: z.string(),
-  degree: DegreeSchema.nullable()
+  bibliography: z.string().optional(),
+  degree: DegreeSchema.nullable(),
+  feedbackCount: z.number(),
+  rating: z.number(),
+  averageWorkload: z.number().nullable()
 })
 
 export class GetCourse extends OpenAPIRoute {
@@ -62,11 +66,14 @@ export class GetCourse extends OpenAPIRoute {
         id: courses.id,
         name: courses.name,
         acronym: courses.acronym,
-        description: courses.description,
-        degreeId: courses.degreeId,
+        ects: courses.ects,
+        hasMandatoryExam: courses.hasMandatoryExam,
         url: courses.url,
         terms: courses.terms,
+        description: courses.description,
         assessment: courses.assessment,
+        bibliography: courses.bibliography,
+        degreeId: courses.degreeId,
         degree: {
           id: degrees.id,
           name: degrees.name,
@@ -89,7 +96,8 @@ export class GetCourse extends OpenAPIRoute {
     const result = {
       ...courseResult[0],
       rating: feedbackStats.rating,
-      feedbackCount: feedbackStats.feedbackCount
+      feedbackCount: feedbackStats.feedbackCount,
+      averageWorkload: feedbackStats.averageWorkload
     }
 
     return Response.json(result)

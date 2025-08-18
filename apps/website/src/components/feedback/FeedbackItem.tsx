@@ -1,10 +1,14 @@
 import { getTruncatedText } from '@/lib/textUtils'
 import { Tooltip } from '@components'
 import { Feedback } from '@services/meicFeedbackAPI'
-import { Button, Markdown, StarRating } from '@uni-feedback/ui'
-import { getWorkloadColor, getWorkloadLabel } from '@uni-feedback/utils'
+import {
+  Button,
+  Markdown,
+  StarRating,
+  WorkloadRatingDisplay
+} from '@uni-feedback/ui'
 import { motion } from 'framer-motion'
-import { Clock, GraduationCap } from 'lucide-react'
+import { GraduationCap } from 'lucide-react'
 import { useState } from 'react'
 
 interface FeedbackItemProps {
@@ -36,12 +40,9 @@ export function FeedbackItem({ feedback, variants }: FeedbackItemProps) {
           <div className="flex flex-wrap items-center gap-3">
             <StarRating value={feedback.rating} />
             {feedback.workloadRating && (
-              <div
-                className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getWorkloadColor(feedback.workloadRating)}`}
-              >
-                <Clock className="w-3 h-3 mr-1.5" />
-                Workload: ({feedback.workloadRating}/5){' '}
-                {getWorkloadLabel(feedback.workloadRating)}
+              <div className="inline-flex items-center px-3 py-1 text-xs text-gray-500 font-medium">
+                <span className="mr-1">Workload:</span>
+                <WorkloadRatingDisplay rating={feedback.workloadRating} />
               </div>
             )}
             {feedback.isFromDifferentCourse && (

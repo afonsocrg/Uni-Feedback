@@ -22,7 +22,7 @@ export function CourseReviews({ courseId }: CourseReviewsProps) {
     <>
       <div className="flex flex-wrap gap-2 justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold text-gray-800">
-          Student Reviews
+          Student Feedback
         </h2>
         {feedback && feedback.length > 0 && (
           <div className="flex gap-3">

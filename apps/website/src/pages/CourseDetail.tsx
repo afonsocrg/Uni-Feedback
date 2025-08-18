@@ -1,9 +1,10 @@
 import { cn } from '@/utils'
 import {
   CourseAssessment,
+  CourseBiblioraphy,
   CourseDescription,
   CourseDetailSkeleton,
-  CourseHeader,
+  CourseInfoCard,
   CourseReviews
 } from '@components'
 import { useCourseDetails } from '@hooks'
@@ -79,13 +80,15 @@ export function CourseDetail() {
   }
 
   const tabClasses = cn(
-    'px-4 py-2 cursor-pointer',
-    'font-medium',
-    'rounded-none border-b-2 border-transparent',
-    'data-[state=active]:border-b-primaryBlue data-[state=active]:text-primaryBlue',
-    'data-[state=active]:bg-transparent data-[state=active]:shadow-none',
-    'hover:text-primaryBlue'
+    'px-6 py-3 cursor-pointer relative',
+    'font-medium text-gray-600 transition-all duration-200',
+    'rounded-t-lg border-b-2 border-transparent',
+    'hover:text-primaryBlue hover:bg-blue-50/50',
+    'data-[state=active]:bg-primaryBlue data-[state=active]:text-white',
+    'focus:outline-none transition-colors duration-200'
   )
+
+  console.log({ course })
 
   return (
     <motion.main
@@ -95,20 +98,20 @@ export function CourseDetail() {
       animate="visible"
     >
       <motion.div variants={itemVariants}>
-        <CourseHeader {...{ course }} />
+        <CourseInfoCard course={course} />
       </motion.div>
 
       <motion.div variants={itemVariants}>
-        <Tabs defaultValue="reviews" className="w-full">
+        <Tabs defaultValue="feedback">
           <div className="relative">
             {/* Left gradient fade (opacity transitions) */}
             <div
-              className="pointer-events-none absolute left-0 top-0 h-full w-6 bg-gradient-to-r from-gray-200 to-transparent z-10 md:hidden transition-opacity duration-300"
+              className="pointer-events-none absolute left-0 top-0 h-full w-8 bg-gradient-to-r from-white via-white/90 to-transparent z-10 md:hidden transition-opacity duration-300"
               style={{ opacity: showLeftFade ? 1 : 0 }}
             />
             {/* Right gradient fade (opacity transitions) */}
             <div
-              className="pointer-events-none absolute right-0 top-0 h-full w-6 bg-gradient-to-l from-gray-200 to-transparent z-10 md:hidden transition-opacity duration-300"
+              className="pointer-events-none absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-white via-white/90 to-transparent z-10 md:hidden transition-opacity duration-300"
               style={{ opacity: showRightFade ? 1 : 0 }}
             />
             <div
@@ -116,26 +119,44 @@ export function CourseDetail() {
               onScroll={handleScroll}
               className="overflow-x-auto scrollbar-none"
             >
-              <TabsList className="inline-flex justify-start bg-transparent border-b border-gray-200 w-full rounded-none min-w-max">
-                <TabsTrigger value="description" className={tabClasses}>
-                  What's this course about?
+              <TabsList className="inline-flex justify-start bg-white border-b-2 border-gray-100 rounded-none min-w-max shadow-sm gap-1 rounded-lg">
+                <TabsTrigger value="feedback" className={tabClasses}>
+                  Feedback
                 </TabsTrigger>
-                <TabsTrigger value="reviews" className={tabClasses}>
-                  Reviews
+                <TabsTrigger value="description" className={tabClasses}>
+                  Description
                 </TabsTrigger>
                 <TabsTrigger value="assessment" className={tabClasses}>
                   Assessment
                 </TabsTrigger>
+                <TabsTrigger value="bibliography" className={tabClasses}>
+                  Bibliography
+                </TabsTrigger>
               </TabsList>
             </div>
           </div>
-          <TabsContent value="description" className="mt-6">
+          <TabsContent
+            value="description"
+            className="bg-white rounded-lg border border-gray-100 shadow-sm p-6"
+          >
             <CourseDescription {...{ course }} />
           </TabsContent>
-          <TabsContent value="assessment" className="mt-6">
+          <TabsContent
+            value="assessment"
+            className="bg-white rounded-lg border border-gray-100 shadow-sm p-6"
+          >
             <CourseAssessment {...{ course }} />
           </TabsContent>
-          <TabsContent value="reviews" className="mt-6">
+          <TabsContent
+            value="bibliography"
+            className="bg-white rounded-lg border border-gray-100 shadow-sm p-6"
+          >
+            <CourseBiblioraphy {...{ course }} />
+          </TabsContent>
+          <TabsContent
+            value="feedback"
+            className="bg-white rounded-lg border border-gray-100 shadow-sm p-6"
+          >
             <CourseReviews courseId={courseId} />
           </TabsContent>
         </Tabs>

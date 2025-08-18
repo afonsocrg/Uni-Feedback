@@ -1,5 +1,5 @@
 import { courseRelationships, courses, degrees, feedback, getDb } from '@db'
-import { and, eq, isNotNull, or, sql, inArray } from 'drizzle-orm'
+import { and, eq, inArray, isNotNull, or, sql } from 'drizzle-orm'
 
 export class CourseFeedbackService {
   private env: Env
@@ -44,25 +44,36 @@ export class CourseFeedbackService {
 
   /**
    * Get aggregated feedback statistics for a course, including related courses.
-   * Returns the average rating and total feedback count across all related courses.
+   * Returns the average rating, total feedback count, and average workload rating across all related courses.
    */
   async getCourseFeedbackStats(courseId: number): Promise<{
     rating: number
     feedbackCount: number
+    averageWorkload: number | null
   }> {
     const result = await this.db
       .select({
         rating: sql<number>`ifnull(avg(${feedback.rating}), 0)`.as('rating'),
         feedbackCount: sql<number>`ifnull(count(${feedback.id}), 0)`.as(
           'feedback_count'
-        )
+        ),
+        averageWorkload: sql<
+          number | null
+        >`ifnull(avg(${feedback.workloadRating}), 0)`.as('average_workload')
       })
       .from(feedback)
       .where(this.getFeedbackWhereCondition(courseId))
 
+    // Round average workload to 1 decimal place if it exists
+    const avgWorkload = result[0]?.averageWorkload
+    const roundedWorkload = avgWorkload
+      ? Math.round(avgWorkload * 10) / 10
+      : null
+
     return {
       rating: result[0]?.rating || 0,
-      feedbackCount: result[0]?.feedbackCount || 0
+      feedbackCount: result[0]?.feedbackCount || 0,
+      averageWorkload: roundedWorkload
     }
   }
 

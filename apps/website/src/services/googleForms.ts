@@ -69,3 +69,12 @@ export const getAssessmentFormUrl = (course: CourseDetail): string => {
     (c) => c.assessment
   )
 }
+
+const FORM_BIBLIOGRAPHY_FIELD_NAME = 'Bibliography'
+export const getBibliographyFormUrl = (course: CourseDetail): string => {
+  return getEditCourseFormUrl(
+    course,
+    FORM_BIBLIOGRAPHY_FIELD_NAME,
+    (c) => c.bibliography
+  )
+}

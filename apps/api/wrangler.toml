@@ -13,7 +13,7 @@ head_sampling_rate = 1 # optional. default = 1.
 
 [vars]
 WORKER_ENV = "prod"
-
+DASHBOARD_URL = "admin.uni-feedback.com"
 
 [[d1_databases]]
 binding = "DB"
