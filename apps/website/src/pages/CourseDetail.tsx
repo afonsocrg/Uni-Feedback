@@ -88,8 +88,6 @@ export function CourseDetail() {
     'focus:outline-none transition-colors duration-200'
   )
 
-  console.log({ course })
-
   return (
     <motion.main
       className="container mx-auto px-4 py-8 max-w-4xl"
