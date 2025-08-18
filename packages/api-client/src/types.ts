@@ -32,8 +32,8 @@ export interface Course {
   degreeId: number
   acronym: string
   url: string
-  rating: number
-  feedbackCount: number
+  averageRating: number
+  totalFeedbackCount: number
   terms: string[]
 }
 

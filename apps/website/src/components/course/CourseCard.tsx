@@ -13,8 +13,8 @@ export function CourseCard({
   courseId,
   acronym,
   name,
-  rating,
-  feedbackCount,
+  averageRating,
+  totalFeedbackCount,
   terms,
   useAcronymAsTitle = false
 }: CourseCardProps) {
@@ -55,13 +55,13 @@ export function CourseCard({
 
           {/* Rating and Feedback Count */}
           <div className="flex items-center">
-            {feedbackCount > 0 ? (
+            {totalFeedbackCount > 0 ? (
               <div className="flex items-center">
                 <div className="mr-2">
-                  <StarRating value={rating} size="sm" />
+                  <StarRating value={averageRating} size="sm" />
                 </div>
                 <span className="text-gray-700">
-                  {rating.toFixed(1)} ({feedbackCount})
+                  {averageRating.toFixed(1)} ({totalFeedbackCount})
                 </span>
               </div>
             ) : (

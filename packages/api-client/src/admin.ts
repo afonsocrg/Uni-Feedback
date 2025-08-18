@@ -55,7 +55,7 @@ export interface AdminCourse {
   facultyId: number
   facultyName: string
   facultyShortName: string
-  feedbackCount: number
+  totalFeedbackCount: number
   terms: string[] | null
   createdAt: string
 }
@@ -94,7 +94,7 @@ export interface AdminCourseDetail {
   facultyId: number
   facultyName: string
   facultyShortName: string
-  feedbackCount: number
+  totalFeedbackCount: number
   createdAt: string
   updatedAt: string
 }

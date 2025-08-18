@@ -447,7 +447,7 @@ export function CoursesPage() {
                           )}
                         </TableCell>
                         <TableCell className="text-right text-muted-foreground">
-                          {course.feedbackCount}
+                          {course.totalFeedbackCount}
                         </TableCell>
                       </TableRow>
                     ))}

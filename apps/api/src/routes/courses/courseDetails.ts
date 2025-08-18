@@ -24,8 +24,8 @@ const CourseDetailSchema = z.object({
   assessment: z.string(),
   bibliography: z.string().optional(),
   degree: DegreeSchema.nullable(),
-  feedbackCount: z.number(),
-  rating: z.number(),
+  totalFeedbackCount: z.number(),
+  averageRating: z.number(),
   averageWorkload: z.number().nullable()
 })
 
@@ -95,8 +95,8 @@ export class GetCourse extends OpenAPIRoute {
 
     const result = {
       ...courseResult[0],
-      rating: feedbackStats.rating,
-      feedbackCount: feedbackStats.feedbackCount,
+      averageRating: feedbackStats.averageRating,
+      totalFeedbackCount: feedbackStats.totalFeedbackCount,
       averageWorkload: feedbackStats.averageWorkload
     }
 

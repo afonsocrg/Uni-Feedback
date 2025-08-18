@@ -125,18 +125,18 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
                 <span className="text-sm font-medium text-gray-700">
                   Feedback
                 </span>
-                {course.feedbackCount > 0 && (
+                {course.totalFeedbackCount > 0 && (
                   <span className="text-sm text-gray-500">
                     (
-                    {course.feedbackCount === 1
-                      ? `${course.feedbackCount} review`
-                      : `${course.feedbackCount} reviews`}
+                    {course.totalFeedbackCount === 1
+                      ? `${course.totalFeedbackCount} review`
+                      : `${course.totalFeedbackCount} reviews`}
                     )
                   </span>
                 )}
               </div>
               <div className="flex items-center gap-2 text-sm text-gray-500">
-                {course.feedbackCount === 0 ? (
+                {course.totalFeedbackCount === 0 ? (
                   <>
                     <Users className="size-4" />
                     <span className="text-sm">No feedback yet</span>
@@ -144,8 +144,8 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
                 ) : (
                   <div>
                     <div className="flex items-center gap-1">
-                      <StarRating value={course.rating ?? 0} />
-                      <span>({course.rating.toFixed(1)})</span>
+                      <StarRating value={course.averageRating ?? 0} />
+                      <span>({course.averageRating.toFixed(1)})</span>
                     </div>
                     <div className="flex items-center gap-1 mt-2">
                       <span>

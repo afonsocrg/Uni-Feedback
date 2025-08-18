@@ -77,11 +77,11 @@ export function CourseExplorer({ degreeId }: CourseExplorerProps) {
         .sort((a, b) => {
           switch (sortBy as SortOption) {
             case 'rating':
-              return (b.rating || 0) - (a.rating || 0)
+              return (b.averageRating || 0) - (a.averageRating || 0)
             case 'alphabetical':
               return a.name.localeCompare(b.name)
             case 'reviews':
-              return (b.feedbackCount || 0) - (a.feedbackCount || 0)
+              return (b.totalFeedbackCount || 0) - (a.totalFeedbackCount || 0)
             default:
               return 0
           }

@@ -10,8 +10,8 @@ const CourseResponseSchema = z.object({
   name: z.string(),
   acronym: z.string(),
   url: z.string(),
-  rating: z.number(),
-  feedbackCount: z.number(),
+  averageRating: z.number(),
+  totalFeedbackCount: z.number(),
   terms: z.array(z.string())
 })
 
@@ -70,12 +70,12 @@ export class GetDegreeCourses extends OpenAPIRoute {
         name: courses.name,
         acronym: courses.acronym,
         url: courses.url,
-        rating: sql<number>`ifnull(avg(${feedbackJoin.table.rating}), 0)`.as(
-          'rating'
+        averageRating: sql<number>`ifnull(avg(${feedbackJoin.table.rating}), 0)`.as(
+          'average_rating'
         ),
-        feedbackCount:
+        totalFeedbackCount:
           sql<number>`ifnull(count(distinct ${feedbackJoin.table.id}), 0)`.as(
-            'feedback_count'
+            'total_feedback_count'
           ),
         degreeId: courses.degreeId,
         terms: courses.terms

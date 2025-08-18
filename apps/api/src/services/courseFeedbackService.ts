@@ -47,15 +47,15 @@ export class CourseFeedbackService {
    * Returns the average rating, total feedback count, and average workload rating across all related courses.
    */
   async getCourseFeedbackStats(courseId: number): Promise<{
-    rating: number
-    feedbackCount: number
+    averageRating: number
+    totalFeedbackCount: number
     averageWorkload: number | null
   }> {
     const result = await this.db
       .select({
-        rating: sql<number>`ifnull(avg(${feedback.rating}), 0)`.as('rating'),
-        feedbackCount: sql<number>`ifnull(count(${feedback.id}), 0)`.as(
-          'feedback_count'
+        averageRating: sql<number>`ifnull(avg(${feedback.rating}), 0)`.as('average_rating'),
+        totalFeedbackCount: sql<number>`ifnull(count(${feedback.id}), 0)`.as(
+          'total_feedback_count'
         ),
         averageWorkload: sql<
           number | null
@@ -71,8 +71,8 @@ export class CourseFeedbackService {
       : null
 
     return {
-      rating: result[0]?.rating || 0,
-      feedbackCount: result[0]?.feedbackCount || 0,
+      averageRating: result[0]?.averageRating || 0,
+      totalFeedbackCount: result[0]?.totalFeedbackCount || 0,
       averageWorkload: roundedWorkload
     }
   }

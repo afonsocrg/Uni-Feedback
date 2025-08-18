@@ -33,7 +33,7 @@ const AdminCourseSchema = z.object({
   facultyId: z.number(),
   facultyName: z.string(),
   facultyShortName: z.string(),
-  feedbackCount: z.number(),
+  totalFeedbackCount: z.number(),
   terms: z.array(z.string()).nullable(),
   createdAt: z.string()
 })
@@ -134,7 +134,7 @@ export class GetCourses extends OpenAPIRoute {
           facultyShortName: faculties.shortName,
           terms: courses.terms,
           createdAt: courses.createdAt,
-          feedbackCount: sql<number>`(
+          totalFeedbackCount: sql<number>`(
             SELECT COUNT(*) 
             FROM feedback 
             WHERE feedback.course_id = ${courses.id}
@@ -151,7 +151,7 @@ export class GetCourses extends OpenAPIRoute {
       const response: PaginatedResponse<any> = {
         data: coursesResult.map((course) => ({
           ...course,
-          feedbackCount: Number(course.feedbackCount),
+          totalFeedbackCount: Number(course.totalFeedbackCount),
           terms: course.terms as string[] | null,
           createdAt: course.createdAt?.toISOString() || ''
         })),

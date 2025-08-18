@@ -113,7 +113,7 @@ export function CourseDetailPage() {
         <Card>
           <CardHeader>
             <CardTitle>
-              {getTabTitle(activeTab, course.feedbackCount)}
+              {getTabTitle(activeTab, course.totalFeedbackCount)}
             </CardTitle>
           </CardHeader>
           <CardContent>

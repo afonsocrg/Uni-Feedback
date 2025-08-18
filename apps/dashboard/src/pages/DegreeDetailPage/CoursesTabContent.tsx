@@ -161,7 +161,7 @@ export function CoursesTabContent({ degreeId }: CoursesTabContentProps) {
                   )}
                 </TableCell>
                 <TableCell className="text-right text-muted-foreground">
-                  {course.feedbackCount}
+                  {course.totalFeedbackCount}
                 </TableCell>
               </TableRow>
             ))}

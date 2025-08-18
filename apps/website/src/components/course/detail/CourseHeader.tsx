@@ -61,14 +61,14 @@ export function CourseHeader({ course }: CourseHeaderProps) {
             ))}
           </div>
         )}
-        {course.feedbackCount > 0 && (
+        {course.totalFeedbackCount > 0 && (
           <div className="flex items-center">
             <span className="text-yellow-500 mr-1">★</span>
             <span className="text-gray-700">
-              {(course.rating ?? 0).toFixed(1)}
+              {(course.averageRating ?? 0).toFixed(1)}
             </span>
             <span className="text-gray-500 ml-2">
-              ({course.feedbackCount} reviews)
+              ({course.totalFeedbackCount} reviews)
             </span>
           </div>
         )}
