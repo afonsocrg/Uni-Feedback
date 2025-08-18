@@ -10,13 +10,22 @@ interface MarkdownProps {
 }
 
 const defaultComponents: Components = {
-  a: ({ ...props }) => (
-    <a
-      {...props}
-      className="text-primaryBlue hover:underline hover:text-primaryBlue/80"
-      target="_blank"
-    />
-  ),
+  a: ({ ...props }) => {
+    const href = props.href
+    const isExternal = href?.startsWith('http') || href?.startsWith('www.')
+
+    // Make sure external links start with https://
+    const fullHref = href?.startsWith('www.') ? `https://${href}` : href
+
+    return (
+      <a
+        {...props}
+        href={fullHref}
+        className="text-primaryBlue hover:underline hover:text-primaryBlue/80"
+        {...(isExternal && { target: '_blank', rel: 'noopener noreferrer' })}
+      />
+    )
+  },
   h1: ({ ...props }) => (
     <h1 {...props} className="text-2xl font-bold text-gray-900 mt-4 mb-4" />
   ),
