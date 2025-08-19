@@ -199,11 +199,6 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
                     label={`${course.degree.acronym} - ${course.degree.name}`}
                     color="gray"
                   />
-                  {/* <Tooltip content={course.degree.name}>
-                    <div className="flex items-center gap-2">
-                      <Chip label={course.degree.acronym} />
-                    </div>
-                  </Tooltip> */}
                 </div>
               </div>
             )}

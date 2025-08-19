@@ -26,7 +26,7 @@ export function WorkloadRatingDisplay({
       variant="secondary"
       className={`${getWorkloadColor(roundedRating)} hover:${getWorkloadColor(roundedRating)} ${className}`}
     >
-      {rating}/5 {getWorkloadLabel(roundedRating)}
+      {rating.toFixed(1)}/5 {getWorkloadLabel(roundedRating)}
     </Badge>
   )
 }

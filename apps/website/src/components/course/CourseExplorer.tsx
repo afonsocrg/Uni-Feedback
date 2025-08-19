@@ -21,6 +21,7 @@ export function CourseExplorer({ degreeId }: CourseExplorerProps) {
     number | null
   >(initialValues.courseGroupId)
   const [sortBy, setSortBy] = useState<SortOption>(initialValues.sortBy)
+  const [mandatoryExamFilter, setMandatoryExamFilter] = useState<boolean | null>(initialValues.mandatoryExam)
 
   const { data: courses, isLoading: isCoursesLoading } =
     useDegreeCourses(degreeId)
@@ -72,7 +73,9 @@ export function CourseExplorer({ degreeId }: CourseExplorerProps) {
             courseGroups
               ?.find((s) => s.id === selectedCourseGroupId)
               ?.courseIds.includes(course.id)
-          return matchesSearch && matchesTerm && matchesCourseGroup
+          const matchesMandatoryExam =
+            mandatoryExamFilter === null || course.hasMandatoryExam === mandatoryExamFilter
+          return matchesSearch && matchesTerm && matchesCourseGroup && matchesMandatoryExam
         })
         .sort((a, b) => {
           switch (sortBy as SortOption) {
@@ -92,7 +95,8 @@ export function CourseExplorer({ degreeId }: CourseExplorerProps) {
       selectedTerm,
       selectedCourseGroupId,
       sortBy,
-      courseGroups
+      courseGroups,
+      mandatoryExamFilter
     ]
   )
 
@@ -141,6 +145,8 @@ export function CourseExplorer({ degreeId }: CourseExplorerProps) {
                 sortBy={sortBy}
                 setSortBy={setSortBy}
                 degreeId={degreeId}
+                mandatoryExamFilter={mandatoryExamFilter}
+                setMandatoryExamFilter={setMandatoryExamFilter}
               />
             </motion.div>
 
@@ -187,10 +193,14 @@ function getInitialValues(searchParams: URLSearchParams) {
       : 'reviews'
   ) as SortOption
 
+  const mandatoryExamValue = searchParams.get('mandatoryExam')
+  const mandatoryExam = mandatoryExamValue === 'true' ? true : mandatoryExamValue === 'false' ? false : null
+
   return {
     searchQuery,
     term,
     courseGroupId,
-    sortBy
+    sortBy,
+    mandatoryExam
   }
 }

@@ -11,8 +11,10 @@ const CourseResponseSchema = z.object({
   acronym: z.string(),
   url: z.string(),
   averageRating: z.number(),
+  averageWorkload: z.number().nullable(),
   totalFeedbackCount: z.number(),
-  terms: z.array(z.string())
+  terms: z.array(z.string()),
+  hasMandatoryExam: z.boolean().nullable()
 })
 
 export class GetCourses extends OpenAPIRoute {
@@ -69,15 +71,22 @@ export class GetCourses extends OpenAPIRoute {
         name: courses.name,
         acronym: courses.acronym,
         url: courses.url,
-        averageRating: sql<number>`ifnull(avg(${feedbackJoin.table.rating}), 0)`.as(
-          'average_rating'
+        averageRating:
+          sql<number>`ifnull(avg(${feedbackJoin.table.rating}), 0)`.as(
+            'average_rating'
+          ),
+        averageWorkload: sql<
+          number | null
+        >`ifnull(avg(${feedbackJoin.table.workloadRating}), 0)`.as(
+          'average_workload'
         ),
         totalFeedbackCount:
           sql<number>`ifnull(count(distinct ${feedbackJoin.table.id}), 0)`.as(
             'total_feedback_count'
           ),
         degreeId: courses.degreeId,
-        terms: courses.terms
+        terms: courses.terms,
+        hasMandatoryExam: courses.hasMandatoryExam
       })
       .from(courses)
       .leftJoin(feedbackJoin.table, feedbackJoin.condition)

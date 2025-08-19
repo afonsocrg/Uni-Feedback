@@ -33,8 +33,10 @@ export interface Course {
   acronym: string
   url: string
   averageRating: number
+  averageWorkload: number | null
   totalFeedbackCount: number
   terms: string[]
+  hasMandatoryExam: boolean | null
 }
 
 export interface CourseDetail extends Course {

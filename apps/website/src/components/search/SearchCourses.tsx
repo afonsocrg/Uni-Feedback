@@ -22,6 +22,8 @@ interface SearchCoursesProps {
   sortBy: SortOption
   setSortBy: (sort: SortOption) => void
   degreeId: number
+  mandatoryExamFilter: boolean | null
+  setMandatoryExamFilter: (filter: boolean | null) => void
 }
 
 export function SearchCourses({
@@ -34,7 +36,9 @@ export function SearchCourses({
   setSelectedCourseGroupId,
   sortBy,
   setSortBy,
-  degreeId
+  degreeId,
+  mandatoryExamFilter,
+  setMandatoryExamFilter
 }: SearchCoursesProps) {
   const [isExpanded, setIsExpanded] = useState(false)
 
@@ -44,10 +48,11 @@ export function SearchCourses({
     setSearchQuery('')
     setSelectedTerm('')
     setSelectedCourseGroupId(null)
+    setMandatoryExamFilter(null)
     setSortBy('rating')
   }
 
-  const hasActiveFilters = selectedTerm !== '' || selectedCourseGroupId !== null
+  const hasActiveFilters = selectedTerm !== '' || selectedCourseGroupId !== null || mandatoryExamFilter !== null
 
   return (
     <div className="bg-white rounded-xl shadow-md px-6 py-4">
@@ -81,7 +86,8 @@ export function SearchCourses({
             {hasActiveFilters && !isExpanded && (
               <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-medium bg-primaryBlue text-white rounded-full">
                 {(selectedTerm !== '' ? 1 : 0) +
-                  (selectedCourseGroupId !== null ? 1 : 0)}
+                  (selectedCourseGroupId !== null ? 1 : 0) +
+                  (mandatoryExamFilter !== null ? 1 : 0)}
               </span>
             )}
           </button>
@@ -151,6 +157,31 @@ export function SearchCourses({
                           {courseGroup.name}
                         </SelectItem>
                       )) ?? []}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex-1 flex flex-col min-w-[160px]">
+                  <label
+                    htmlFor="mandatoryExam"
+                    className="text-xs font-semibold text-gray-500 mb-1"
+                  >
+                    Mandatory Exam
+                  </label>
+                  <Select
+                    value={mandatoryExamFilter === null ? 'all' : mandatoryExamFilter.toString()}
+                    onValueChange={(value) =>
+                      setMandatoryExamFilter(
+                        value === 'all' ? null : value === 'true'
+                      )
+                    }
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="All" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All</SelectItem>
+                      <SelectItem value="true">Has Mandatory Exam</SelectItem>
+                      <SelectItem value="false">No Mandatory Exam</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

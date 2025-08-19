@@ -1,6 +1,6 @@
 import { SelectionCard } from '@components'
 import { Course } from '@services/meicFeedbackAPI'
-import { Button, Chip, StarRating } from '@uni-feedback/ui'
+import { Button, StarRating, WorkloadRatingDisplay } from '@uni-feedback/ui'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 
@@ -14,9 +14,10 @@ export function CourseCard({
   acronym,
   name,
   averageRating,
+  averageWorkload,
   totalFeedbackCount,
-  terms,
-  useAcronymAsTitle = false
+  useAcronymAsTitle = false,
+  hasMandatoryExam
 }: CourseCardProps) {
   const navigate = useNavigate()
 
@@ -44,39 +45,62 @@ export function CourseCard({
         onClick={handleClick}
         className="flex flex-col"
       >
-        <div className="flex flex-col gap-3 mt-auto">
-          {terms && terms.length > 0 && (
-            <div className="flex items-center gap-2 flex-wrap">
-              {terms.map((t) => (
-                <Chip key={t} label={t} />
-              ))}
-            </div>
-          )}
-
-          {/* Rating and Feedback Count */}
-          <div className="flex items-center">
-            {totalFeedbackCount > 0 ? (
-              <div className="flex items-center">
-                <div className="mr-2">
-                  <StarRating value={averageRating} size="sm" />
+        <div className="flex flex-col mt-auto space-between">
+          {/* Two-column layout for bottom section */}
+          <div className="grid grid-cols-2 gap-3">
+            {/* Left Column - Feedback Information */}
+            <div className="flex flex-col justify-end">
+              {totalFeedbackCount === 0 ? (
+                <Button
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    window.open(`/feedback/new?courseId=${courseId}`, '_blank')
+                  }}
+                  variant="link"
+                  className="p-0 h-auto text-xs justify-start"
+                >
+                  Give the first
+                  <br />
+                  feedback!
+                </Button>
+              ) : (
+                <div className="space-y-1">
+                  <span className="text-xs text-gray-500">
+                    (
+                    {totalFeedbackCount === 1
+                      ? '1 review'
+                      : `${totalFeedbackCount} reviews`}
+                    )
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-sm text-gray-500">
+                      ({averageRating.toFixed(1)})
+                    </span>
+                    <StarRating value={averageRating ?? 0} size="sm" />
+                  </div>
+                  <div className="flex items-center gap-1">
+                    {averageWorkload ? (
+                      <WorkloadRatingDisplay rating={averageWorkload} />
+                    ) : (
+                      <span className="text-xs text-gray-500">
+                        No workload data
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <span className="text-gray-700">
-                  {averageRating.toFixed(1)} ({totalFeedbackCount})
+              )}
+            </div>
+            {/* Right Column - Terms and Mandatory Exam */}
+            <div className="flex flex-col gap-2 justify-end">
+              {hasMandatoryExam && (
+                <span className="text-xs text-gray-500 ml-auto text-right">
+                  📝 Exam
+                  <br />
+                  mandatory
                 </span>
-              </div>
-            ) : (
-              <Button
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  window.open(`/feedback/new?courseId=${courseId}`, '_blank')
-                }}
-                variant="link"
-                className="p-0 h-auto"
-              >
-                Give the first feedback!
-              </Button>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </SelectionCard>
