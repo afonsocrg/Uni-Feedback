@@ -1,5 +1,5 @@
-import { useUrlNavigation } from '@hooks'
-import { buildFacultyUrl, STORAGE_KEYS } from '@utils'
+import { useNavigationState, useUrlNavigation } from '@hooks'
+import { buildFacultyUrl } from '@utils'
 import { ChevronRight, Home } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { BreadcrumbItem } from './BreadcrumbItem'
@@ -11,19 +11,21 @@ interface BreadcrumbProps {
 export function Breadcrumb({ className = '' }: BreadcrumbProps) {
   const navigate = useNavigate()
   const { faculty, degree } = useUrlNavigation()
+  const { setFacultyId, setDegreeId } = useNavigationState()
 
   const handleFacultyClick = () => {
     // Clear both selected faculty and degree when going back to home
-    localStorage.removeItem(STORAGE_KEYS.SELECTED_FACULTY_ID)
-    localStorage.removeItem(STORAGE_KEYS.SELECTED_DEGREE_ID)
+    // This will automatically clear course filters too
     navigate('/')
+    setFacultyId(null)
   }
 
   const handleDegreeClick = () => {
     if (faculty) {
       // Clear selected degree when going back to faculty page
-      localStorage.removeItem(STORAGE_KEYS.SELECTED_DEGREE_ID)
+      // This will automatically clear course filters too
       navigate(buildFacultyUrl(faculty))
+      setDegreeId(null)
     }
   }
 

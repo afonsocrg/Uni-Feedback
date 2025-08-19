@@ -1,9 +1,4 @@
-import {
-  ADD_COURSE_FORM_URL,
-  buildDegreeUrl,
-  insensitiveMatch,
-  STORAGE_KEYS
-} from '@/utils'
+import { ADD_COURSE_FORM_URL, buildDegreeUrl, insensitiveMatch } from '@/utils'
 import { HeroSection, SearchDegrees, SelectionCard } from '@components'
 import { useFacultyDegrees, useUrlNavigation } from '@hooks'
 import type { Degree } from '@services/meicFeedbackAPI'
@@ -48,18 +43,6 @@ export function FacultyPage() {
         .sort((a, b) => (b.feedbackCount ?? 0) - (a.feedbackCount ?? 0)) ?? []
     )
   }, [degrees, searchQuery, selectedType])
-
-  // Store selected faculty and clear selected degree
-  useEffect(() => {
-    if (faculty) {
-      localStorage.setItem(
-        STORAGE_KEYS.SELECTED_FACULTY_ID,
-        faculty.id.toString()
-      )
-      // Clear selected degree when visiting faculty page
-      localStorage.removeItem(STORAGE_KEYS.SELECTED_DEGREE_ID)
-    }
-  }, [faculty])
 
   // Handle errors
   useEffect(() => {

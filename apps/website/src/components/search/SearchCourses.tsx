@@ -1,3 +1,4 @@
+import { type SortOption } from '@/context/NavigationContext'
 import { useDegreeCourseGroups } from '@/hooks'
 import {
   Select,
@@ -8,8 +9,6 @@ import {
 } from '@uni-feedback/ui'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useState } from 'react'
-
-type SortOption = 'rating' | 'alphabetical' | 'reviews'
 
 interface SearchCoursesProps {
   searchQuery: string
@@ -52,7 +51,10 @@ export function SearchCourses({
     setSortBy('rating')
   }
 
-  const hasActiveFilters = selectedTerm !== '' || selectedCourseGroupId !== null || mandatoryExamFilter !== null
+  const hasActiveFilters =
+    selectedTerm !== '' ||
+    selectedCourseGroupId !== null ||
+    mandatoryExamFilter !== null
 
   return (
     <div className="bg-white rounded-xl shadow-md px-6 py-4">
@@ -102,7 +104,7 @@ export function SearchCourses({
               transition={{ duration: 0.2 }}
               className="relative"
             >
-              <div className="flex flex-col gap-4 md:flex-row md:items-end md:gap-6 pt-4 pb-2 px-2">
+              <div className="flex flex-col gap-4 md:flex-row md:items-end md:gap-6 pt-4 pb-2 px-2 flex-wrap">
                 <div className="flex-1 flex flex-col min-w-[120px]">
                   <label
                     htmlFor="term"
@@ -165,10 +167,14 @@ export function SearchCourses({
                     htmlFor="mandatoryExam"
                     className="text-xs font-semibold text-gray-500 mb-1"
                   >
-                    Mandatory Exam
+                    Exam
                   </label>
                   <Select
-                    value={mandatoryExamFilter === null ? 'all' : mandatoryExamFilter.toString()}
+                    value={
+                      mandatoryExamFilter === null
+                        ? 'all'
+                        : mandatoryExamFilter.toString()
+                    }
                     onValueChange={(value) =>
                       setMandatoryExamFilter(
                         value === 'all' ? null : value === 'true'

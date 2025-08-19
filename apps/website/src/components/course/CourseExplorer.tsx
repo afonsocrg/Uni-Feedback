@@ -1,11 +1,10 @@
+import { type SortOption } from '@/context/NavigationContext'
 import { insensitiveMatch } from '@/utils'
 import { CourseGrid, SearchCourses } from '@components'
-import { useDegreeCourseGroups, useDegreeCourses } from '@hooks'
+import { useDegreeCourseGroups, useDegreeCourses, useNavigationState } from '@hooks'
 import { motion } from 'framer-motion'
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-
-type SortOption = 'rating' | 'alphabetical' | 'reviews'
 
 interface CourseExplorerProps {
   degreeId: number
@@ -16,12 +15,18 @@ export function CourseExplorer({ degreeId }: CourseExplorerProps) {
   const initialValues = getInitialValues(searchParams)
 
   const [searchQuery, setSearchQuery] = useState(initialValues.searchQuery)
-  const [selectedTerm, setSelectedTerm] = useState(initialValues.term)
-  const [selectedCourseGroupId, setSelectedCourseGroupId] = useState<
-    number | null
-  >(initialValues.courseGroupId)
-  const [sortBy, setSortBy] = useState<SortOption>(initialValues.sortBy)
-  const [mandatoryExamFilter, setMandatoryExamFilter] = useState<boolean | null>(initialValues.mandatoryExam)
+
+  // Use navigation context for course filters and sortBy
+  const {
+    selectedTerm,
+    setSelectedTerm,
+    selectedCourseGroupId,
+    setSelectedCourseGroupId,
+    mandatoryExamFilter,
+    setMandatoryExamFilter,
+    sortBy,
+    setSortBy
+  } = useNavigationState()
 
   const { data: courses, isLoading: isCoursesLoading } =
     useDegreeCourses(degreeId)
@@ -36,7 +41,7 @@ export function CourseExplorer({ degreeId }: CourseExplorerProps) {
     ) {
       setSelectedCourseGroupId(null)
     }
-  }, [courseGroups, selectedCourseGroupId])
+  }, [courseGroups, selectedCourseGroupId, setSelectedCourseGroupId])
 
   const availableTerms = useMemo(() => {
     return [...new Set(courses?.flatMap((course) => course.terms) ?? [])].sort()
@@ -44,19 +49,35 @@ export function CourseExplorer({ degreeId }: CourseExplorerProps) {
 
   // Load filters from search params
   useEffect(() => {
-    // Chrome converts search parameters to lowercase
-    // So we need to do a case insensitive search
-    // and then use the found term
+    // Initialize term filter from URL params
     const term = searchParams.get('term')
-    if (!term) return
-
-    const foundTerm = availableTerms.find(
-      (t) => t.toLowerCase() === term.toLowerCase()
-    )
-    if (foundTerm) {
-      setSelectedTerm(foundTerm)
+    if (term && availableTerms.length > 0) {
+      const foundTerm = availableTerms.find(
+        (t) => t.toLowerCase() === term.toLowerCase()
+      )
+      if (foundTerm) {
+        setSelectedTerm(foundTerm)
+      }
     }
-  }, [availableTerms, searchParams])
+
+    // Initialize mandatory exam filter from URL params
+    const mandatoryExamValue = searchParams.get('mandatoryExam')
+    if (mandatoryExamValue !== null) {
+      const mandatoryExam =
+        mandatoryExamValue === 'true'
+          ? true
+          : mandatoryExamValue === 'false'
+            ? false
+            : null
+      setMandatoryExamFilter(mandatoryExam)
+    }
+
+    // Initialize sortBy from URL params
+    const sortValue = searchParams.get('sort')
+    if (sortValue && ['rating', 'alphabetical', 'reviews'].includes(sortValue)) {
+      setSortBy(sortValue as any)
+    }
+  }, [availableTerms, searchParams, setSelectedTerm, setMandatoryExamFilter, setSortBy])
 
   const filteredCourses = useMemo(
     () =>
@@ -74,8 +95,14 @@ export function CourseExplorer({ degreeId }: CourseExplorerProps) {
               ?.find((s) => s.id === selectedCourseGroupId)
               ?.courseIds.includes(course.id)
           const matchesMandatoryExam =
-            mandatoryExamFilter === null || course.hasMandatoryExam === mandatoryExamFilter
-          return matchesSearch && matchesTerm && matchesCourseGroup && matchesMandatoryExam
+            mandatoryExamFilter === null ||
+            course.hasMandatoryExam === mandatoryExamFilter
+          return (
+            matchesSearch &&
+            matchesTerm &&
+            matchesCourseGroup &&
+            matchesMandatoryExam
+          )
         })
         .sort((a, b) => {
           switch (sortBy as SortOption) {
@@ -138,8 +165,8 @@ export function CourseExplorer({ degreeId }: CourseExplorerProps) {
                 searchQuery={searchQuery}
                 setSearchQuery={setSearchQuery}
                 availableTerms={availableTerms}
-                selectedTerm={selectedTerm}
-                setSelectedTerm={setSelectedTerm}
+                selectedTerm={selectedTerm || ''}
+                setSelectedTerm={(term: string) => setSelectedTerm(term || null)}
                 selectedCourseGroupId={selectedCourseGroupId}
                 setSelectedCourseGroupId={setSelectedCourseGroupId}
                 sortBy={sortBy}
@@ -183,24 +210,8 @@ export function CourseExplorer({ degreeId }: CourseExplorerProps) {
 
 function getInitialValues(searchParams: URLSearchParams) {
   const searchQuery = searchParams.get('q') || ''
-  const term = searchParams.get('term') || ''
-  const courseGroupId = null
-
-  const sortValue = searchParams.get('sort')
-  const sortBy = (
-    sortValue && ['rating', 'alphabetical', 'reviews'].includes(sortValue)
-      ? sortValue
-      : 'reviews'
-  ) as SortOption
-
-  const mandatoryExamValue = searchParams.get('mandatoryExam')
-  const mandatoryExam = mandatoryExamValue === 'true' ? true : mandatoryExamValue === 'false' ? false : null
 
   return {
-    searchQuery,
-    term,
-    courseGroupId,
-    sortBy,
-    mandatoryExam
+    searchQuery
   }
 }

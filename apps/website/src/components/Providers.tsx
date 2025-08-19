@@ -1,5 +1,5 @@
 import { Layout } from '@components'
-import { AppProvider } from '@context'
+import { AppProvider, NavigationProvider } from '@context'
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
@@ -41,13 +41,15 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <QueryClientProvider client={queryClient}>
         {/* AppProvider needs to be inside Router because it uses useSearchParams */}
         <Router future={{ v7_startTransition: true }}>
-          <AppProvider>
-            <Layout>
+          <NavigationProvider>
+            <AppProvider>
+              <Layout>
               <ReactQueryDevtools initialIsOpen={false} />
               <Toaster position="top-right" />
               {children}
-            </Layout>
-          </AppProvider>
+              </Layout>
+            </AppProvider>
+          </NavigationProvider>
         </Router>
       </QueryClientProvider>
     </MaybePostHogProvider>
