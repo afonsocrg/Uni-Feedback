@@ -209,6 +209,7 @@ export function SearchCourses({
                       <SelectItem value="rating">Highest Rating</SelectItem>
                       <SelectItem value="alphabetical">Alphabetical</SelectItem>
                       <SelectItem value="reviews">Most Reviews</SelectItem>
+                      <SelectItem value="workload">Workload Rating</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

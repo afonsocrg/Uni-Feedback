@@ -1,6 +1,6 @@
 import { createContext } from 'react'
 
-export type SortOption = 'rating' | 'alphabetical' | 'reviews'
+export type SortOption = 'rating' | 'alphabetical' | 'reviews' | 'workload'
 
 export interface NavigationState {
   // Faculty/Degree selection

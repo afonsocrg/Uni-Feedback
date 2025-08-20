@@ -74,7 +74,7 @@ export function CourseExplorer({ degreeId }: CourseExplorerProps) {
 
     // Initialize sortBy from URL params
     const sortValue = searchParams.get('sort')
-    if (sortValue && ['rating', 'alphabetical', 'reviews'].includes(sortValue)) {
+    if (sortValue && ['rating', 'alphabetical', 'reviews', 'workload'].includes(sortValue)) {
       setSortBy(sortValue as any)
     }
   }, [availableTerms, searchParams, setSelectedTerm, setMandatoryExamFilter, setSortBy])
@@ -112,6 +112,8 @@ export function CourseExplorer({ degreeId }: CourseExplorerProps) {
               return a.name.localeCompare(b.name)
             case 'reviews':
               return (b.totalFeedbackCount || 0) - (a.totalFeedbackCount || 0)
+            case 'workload':
+              return (b.averageWorkload || 0) - (a.averageWorkload || 0)
             default:
               return 0
           }
