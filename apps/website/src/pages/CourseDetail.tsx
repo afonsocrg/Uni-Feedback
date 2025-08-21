@@ -100,24 +100,26 @@ export function CourseDetail() {
       </motion.div>
 
       <motion.div variants={itemVariants}>
-        <Tabs defaultValue="feedback">
-          <div className="relative">
-            {/* Left gradient fade (opacity transitions) */}
-            <div
-              className="pointer-events-none absolute left-0 top-0 h-full w-8 bg-gradient-to-r from-white via-white/90 to-transparent z-10 md:hidden transition-opacity duration-300"
-              style={{ opacity: showLeftFade ? 1 : 0 }}
-            />
-            {/* Right gradient fade (opacity transitions) */}
-            <div
-              className="pointer-events-none absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-white via-white/90 to-transparent z-10 md:hidden transition-opacity duration-300"
-              style={{ opacity: showRightFade ? 1 : 0 }}
-            />
+        <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-6">
+          <Tabs defaultValue="feedback">
+            <div className="relative">
+              {/* Left gradient fade (opacity transitions) */}
+              <div
+                className="pointer-events-none absolute left-0 top-0 h-full w-8 bg-gradient-to-r from-white via-white/90 to-transparent z-10 md:hidden transition-opacity duration-300"
+                style={{ opacity: showLeftFade ? 1 : 0 }}
+              />
+              {/* Right gradient fade (opacity transitions) */}
+              <div
+                className="pointer-events-none absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-white via-white/90 to-transparent z-10 md:hidden transition-opacity duration-300"
+                style={{ opacity: showRightFade ? 1 : 0 }}
+              />
+            </div>
             <div
               ref={tabsListRef}
               onScroll={handleScroll}
-              className="overflow-x-auto scrollbar-none"
+              className="overflow-x-auto scrollbar-none mb-4"
             >
-              <TabsList className="inline-flex justify-start bg-white border-b-2 border-gray-100 rounded-none min-w-max shadow-sm gap-1 rounded-lg">
+              <TabsList className="inline-flex justify-start bg-white border-b-2 border-gray-100 rounded-none min-w-ax gap-1 rounded-lg">
                 <TabsTrigger value="feedback" className={tabClasses}>
                   Feedback
                 </TabsTrigger>
@@ -132,32 +134,20 @@ export function CourseDetail() {
                 </TabsTrigger>
               </TabsList>
             </div>
-          </div>
-          <TabsContent
-            value="description"
-            className="bg-white rounded-lg border border-gray-100 shadow-sm p-6"
-          >
-            <CourseDescription {...{ course }} />
-          </TabsContent>
-          <TabsContent
-            value="assessment"
-            className="bg-white rounded-lg border border-gray-100 shadow-sm p-6"
-          >
-            <CourseAssessment {...{ course }} />
-          </TabsContent>
-          <TabsContent
-            value="bibliography"
-            className="bg-white rounded-lg border border-gray-100 shadow-sm p-6"
-          >
-            <CourseBiblioraphy {...{ course }} />
-          </TabsContent>
-          <TabsContent
-            value="feedback"
-            className="bg-white rounded-lg border border-gray-100 shadow-sm p-6"
-          >
-            <CourseReviews courseId={courseId} />
-          </TabsContent>
-        </Tabs>
+            <TabsContent value="description">
+              <CourseDescription {...{ course }} />
+            </TabsContent>
+            <TabsContent value="assessment">
+              <CourseAssessment {...{ course }} />
+            </TabsContent>
+            <TabsContent value="bibliography">
+              <CourseBiblioraphy {...{ course }} />
+            </TabsContent>
+            <TabsContent value="feedback">
+              <CourseReviews courseId={courseId} />
+            </TabsContent>
+          </Tabs>
+        </div>
       </motion.div>
     </motion.main>
   )

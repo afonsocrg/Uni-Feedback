@@ -31,20 +31,31 @@ const getColorForLabel = (label: string) => {
   return CHIP_COLORS[colorKeys[index]]
 }
 
+export type ChipSize = 'xs' | 'sm' | 'md' | 'lg'
+
+const CHIP_SIZE_CLASSES = {
+  xs: 'text-xs px-1.5 py-0.5',
+  sm: 'text-xs px-2 py-0.5',
+  md: 'text-sm px-2.5 py-1', 
+  lg: 'text-base px-3 py-1.5'
+}
+
 interface ChipProps {
   label: string
   className?: string
   color?: ChipColor
+  size?: ChipSize
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void
 }
 
-export function Chip({ label, className = '', color, onClick }: ChipProps) {
+export function Chip({ label, className = '', color, size = 'sm', onClick }: ChipProps) {
   const { bg, text } = color ? CHIP_COLORS[color] : getColorForLabel(label)
+  const sizeClasses = CHIP_SIZE_CLASSES[size]
 
   return (
     <Badge
       variant="outline"
-      className={`text-xs ${className}`}
+      className={`${sizeClasses} ${className}`}
       style={{
         backgroundColor: bg,
         color: text,

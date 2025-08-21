@@ -14,7 +14,7 @@ import {
   StarRating,
   WorkloadRatingDisplay
 } from '@uni-feedback/ui'
-import { Clock, ExternalLink, Share2, Users } from 'lucide-react'
+import { ExternalLink, Share2, Users } from 'lucide-react'
 import posthog from 'posthog-js'
 import { useCallback } from 'react'
 import { FaWhatsapp } from 'react-icons/fa'
@@ -52,77 +52,87 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
   return (
     <Card className="mb-8 shadow-sm border border-gray-200 bg-white">
       <CardHeader className="pb-4">
-        {/* Header with title and action buttons - Mobile-first responsive layout */}
-        <div className="space-y-3 sm:flex sm:items-start sm:justify-between sm:space-y-0 sm:gap-4">
-          {/* Title section - full width on mobile, constrained on larger screens */}
-          <div className="sm:flex-1 sm:min-w-0 sm:max-w-[calc(100%-200px)]">
-            <h1 className="text-3xl font-bold text-primaryBlue leading-tight">
-              {course.name}
-            </h1>
-            <div className="flex items-center gap-2 mt-1">
-              <span className="text-lg text-gray-500 font-medium">
-                {course.acronym}
-              </span>
-              {course.ects && <Chip label={`${course.ects} ECTS`} />}
+        <div className="space-y-2">
+          {/* First row: Acronym and action buttons */}
+          <div className="flex items-end justify-between gap-2">
+            <span className="text-lg text-gray-500 font-medium">
+              {course.acronym}
+            </span>
+
+            <div className="flex items-center gap-2">
+              {course.url && (
+                <Button variant="outline" size="sm" asChild className="gap-2">
+                  <a
+                    href={course.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2"
+                  >
+                    <ExternalLink className="size-4" />
+                    <span className="hidden sm:block">Course Page</span>
+                  </a>
+                </Button>
+              )}
+
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="gap-2 text-gray-500"
+                  >
+                    <Share2 className="size-4" />
+                    {/* Share */}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-48 p-2">
+                  <div className="flex flex-col gap-2">
+                    <Button popover variant="ghost" onClick={handleWhatsapp}>
+                      <FaWhatsapp className="size-4" />
+                      WhatsApp
+                    </Button>
+                    {navigator.clipboard && (
+                      <CopyButton
+                        popover
+                        variant="ghost"
+                        onClick={handleCopyUrl}
+                      />
+                    )}
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
 
-          {/* Action buttons - full width on mobile, fixed width on larger screens */}
-          <div className="flex items-center gap-2 sm:flex-shrink-0">
-            {course.url && (
-              <Button variant="outline" size="sm" asChild className="gap-2">
-                <a
-                  href={course.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2"
-                >
-                  <ExternalLink className="size-4" />
-                  Course Page
-                </a>
-              </Button>
-            )}
+          {/* Second row: Course name */}
+          <h1 className="text-2xl sm:text-3xl font-bold text-primaryBlue leading-tight">
+            {course.name}
+          </h1>
 
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="gap-2 text-gray-500"
-                >
-                  <Share2 className="size-4" />
-                  Share
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-48 p-2">
-                <div className="flex flex-col gap-2">
-                  <Button popover variant="ghost" onClick={handleWhatsapp}>
-                    <FaWhatsapp className="size-4" />
-                    WhatsApp
-                  </Button>
-                  {navigator.clipboard && (
-                    <CopyButton
-                      popover
-                      variant="ghost"
-                      onClick={handleCopyUrl}
-                    />
-                  )}
-                </div>
-              </PopoverContent>
-            </Popover>
+          {/* Third row: Degree chip */}
+          <div className="flex flex-wrap gap-2">
+            {course.ects && (
+              <Chip label={`${course.ects} ECTS`} size="xs" color="gray" />
+            )}
+            {course.degree && (
+              <div className="flex items-center text-xs text-gray-500">
+                {course.degree.acronym} - {course.degree.name}
+              </div>
+            )}
           </div>
         </div>
       </CardHeader>
 
       <CardContent className="space-y-6">
-        {/* Course Information Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          {/* Left Column - Primary Information */}
-          <div className="space-y-4">
-            {/* Overall Rating */}
+        {/* Course Information */}
+        <div className="space-y-4 px-2 sm:px-4">
+          {/* First row: Feedback Workload and Exam*/}
+          {/* <div className="flex flex-col sm:flex-row gap-4"> */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {/* Feedback */}
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-gray-700">
+                <span className="text-md font-medium text-gray-700">
                   Feedback
                 </span>
                 {course.totalFeedbackCount > 0 && (
@@ -147,74 +157,71 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
                       <StarRating value={course.averageRating ?? 0} />
                       <span>({course.averageRating.toFixed(1)})</span>
                     </div>
-                    <div className="flex items-center gap-1 mt-2">
-                      <span>
-                        <Clock className="inline size-4 mr-1" />
-                        Workload:
-                      </span>
-                      {averageWorkload ? (
-                        <WorkloadRatingDisplay rating={averageWorkload} />
-                      ) : (
-                        <span className="text-gray-500">--</span>
-                      )}
-                    </div>
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Mandatory Exam */}
+            {/* Workload */}
             <div className="space-y-2">
-              <span className="text-sm font-medium text-gray-700">Exam</span>
               <div className="flex items-center gap-2">
-                {course.hasMandatoryExam === null ? (
-                  <Chip
-                    label="Not specified"
-                    color="gray"
-                    className="text-sm"
-                  />
-                ) : course.hasMandatoryExam ? (
-                  <Chip label="Mandatory" color="red" className="text-sm" />
+                <span className="text-md font-medium text-gray-700">
+                  Workload
+                </span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-500">
+                {averageWorkload ? (
+                  <>
+                    <WorkloadRatingDisplay rating={averageWorkload} />
+                  </>
                 ) : (
-                  <Chip
-                    label="Not Mandatory"
-                    color="green"
-                    className="text-sm"
-                  />
+                  <span className="text-gray-500">--</span>
+                )}
+              </div>
+            </div>
+
+            {/* Exam */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="text-md font-medium text-gray-700">Exam</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-500">
+                {course.hasMandatoryExam !== null ? (
+                  course.hasMandatoryExam ? (
+                    <Chip label="Mandatory Exam" color="red" size="md" />
+                  ) : (
+                    <Chip
+                      size="md"
+                      label="Not Mandatory exam"
+                      color="green"
+                      className="text-sm"
+                    />
+                  )
+                ) : (
+                  <span>
+                    <Chip
+                      label="Not specified"
+                      size="md"
+                      color="gray"
+                      className="text-sm"
+                    />
+                  </span>
                 )}
               </div>
             </div>
           </div>
 
-          {/* Right Column - Secondary Information */}
-          <div className="space-y-4">
-            {/* Degree */}
-            {course.degree && (
-              <div className="space-y-2">
-                <span className="text-sm font-medium text-gray-700">
-                  Degree
-                </span>
-                <div className="flex flex-wrap gap-1">
-                  <Chip
-                    label={`${course.degree.acronym} - ${course.degree.name}`}
-                    color="gray"
-                  />
-                </div>
+          {/* Second row: Terms */}
+          {course.terms && course.terms.length > 0 && (
+            <div className="space-y-2">
+              <span className="text-sm font-medium text-gray-700">Terms</span>
+              <div className="flex flex-wrap gap-1">
+                {course.terms.map((term) => (
+                  <Chip key={term} label={term} color="gray" />
+                ))}
               </div>
-            )}
-
-            {/* Terms */}
-            {course.terms && course.terms.length > 0 && (
-              <div className="space-y-2">
-                <span className="text-sm font-medium text-gray-700">Terms</span>
-                <div className="flex flex-wrap gap-1">
-                  {course.terms.map((term) => (
-                    <Chip key={term} label={term} />
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
