@@ -1,4 +1,4 @@
-import { getDb } from '@db'
+import { getDb } from '@uni-feedback/database'
 import { OpenAPIRoute } from 'chanfana'
 import { IRequest } from 'itty-router'
 import { z } from 'zod'

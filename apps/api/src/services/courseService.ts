@@ -1,4 +1,4 @@
-import { courses, getDb } from '@db'
+import { courses, getDb } from '@uni-feedback/database'
 import { eq } from 'drizzle-orm'
 
 export class CourseService {

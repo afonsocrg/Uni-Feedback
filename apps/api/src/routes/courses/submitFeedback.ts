@@ -1,4 +1,4 @@
-import { courses, degrees, feedback, getDb } from '@db'
+import { courses, degrees, feedback, getDb } from '@uni-feedback/database'
 import { sendCourseReviewReceived } from '@services/telegram'
 import { getCurrentSchoolYear } from '@uni-feedback/utils'
 import { contentJson, OpenAPIRoute } from 'chanfana'

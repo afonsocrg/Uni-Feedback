@@ -1,4 +1,4 @@
-import { courseGroup, degrees, getDb } from '@db'
+import { courseGroup, degrees, getDb } from '@uni-feedback/database'
 import { ValidationErrors } from '@types'
 import { notifyAdminChange } from '@utils/notificationHelpers'
 import { OpenAPIRoute } from 'chanfana'

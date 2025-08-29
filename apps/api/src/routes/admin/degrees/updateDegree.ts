@@ -1,4 +1,4 @@
-import { degrees, getDb } from '@db'
+import { degrees, getDb } from '@uni-feedback/database'
 import { detectChanges, notifyAdminChange } from '@utils/notificationHelpers'
 import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'

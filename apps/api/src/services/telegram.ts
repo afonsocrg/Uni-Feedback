@@ -1,4 +1,4 @@
-import { Course, Degree } from '@db/schema'
+import { Course, Degree } from '@uni-feedback/database/schema'
 import { formatSchoolYearString } from '@uni-feedback/utils'
 
 // Telegram

@@ -1,6 +1,6 @@
 import { TOKEN_EXPIRATION_MS } from '@config/auth'
-import { getDb } from '@db'
 import {
+  getDb,
   passwordResetTokens,
   sessions,
   userCreationTokens,
@@ -10,7 +10,7 @@ import {
   type Session,
   type User,
   type UserCreationToken
-} from '@db/schema'
+} from '@uni-feedback/database'
 import {
   generateSecureToken,
   hashPassword,

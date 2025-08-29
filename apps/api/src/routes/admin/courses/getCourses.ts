@@ -1,4 +1,4 @@
-import { courses, degrees, faculties, getDb } from '@db'
+import { courses, degrees, faculties, getDb } from '@uni-feedback/database'
 import {
   PaginatedResponse,
   PaginationQuerySchema,

@@ -14,6 +14,8 @@
       "@config/*": ["./src/config/*"],
       "@db": ["./src/db"],
       "@db/*": ["./src/db/*"],
+      "@uni-feedback/database": ["../../packages/database/src"],
+      "@uni-feedback/database/*": ["../../packages/database/src/*"],
       "@lib": ["./src/lib"],
       "@lib/*": ["./src/lib/*"],
       "@middleware": ["./src/middleware"],

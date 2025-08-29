@@ -1,4 +1,4 @@
-import { getDb, feedbackDrafts } from '@db'
+import { getDb, feedbackDrafts } from '@uni-feedback/database'
 import { OpenAPIRoute } from 'chanfana'
 import { eq, lt } from 'drizzle-orm'
 import { IRequest } from 'itty-router'

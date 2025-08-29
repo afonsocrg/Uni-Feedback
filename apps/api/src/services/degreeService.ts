@@ -1,4 +1,4 @@
-import { courses, degrees, faculties, feedback, getDb } from '@db'
+import { courses, degrees, faculties, feedback, getDb } from '@uni-feedback/database'
 import { and, eq, sql } from 'drizzle-orm'
 import type { DegreeWithCounts, GetDegreesOptions } from '@types'
 import { CourseFeedbackService } from './courseFeedbackService'

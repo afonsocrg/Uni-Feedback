@@ -1,5 +1,5 @@
 import { AUTH_CONFIG, TOKEN_EXPIRATION_S } from '@config/auth'
-import type { Session } from '@db/schema'
+import type { Session } from '@uni-feedback/database/schema'
 import { createCookie } from '@uni-feedback/utils'
 
 /**

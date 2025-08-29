@@ -19,6 +19,7 @@
     "type-check-relaxed": "tsc --noEmit --skipLibCheck"
   },
   "dependencies": {
+    "@uni-feedback/database": "workspace:*",
     "@uni-feedback/utils": "workspace:*",
     "@oslojs/crypto": "^1.0.1",
     "@oslojs/encoding": "^1.1.0",

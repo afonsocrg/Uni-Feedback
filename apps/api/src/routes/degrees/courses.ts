@@ -1,4 +1,4 @@
-import { courses, getDb } from '@db'
+import { courses, getDb } from '@uni-feedback/database'
 import { CourseFeedbackService } from '@services'
 import { OpenAPIRoute } from 'chanfana'
 import { and, eq, sql } from 'drizzle-orm'

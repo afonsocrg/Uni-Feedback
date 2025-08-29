@@ -1,4 +1,4 @@
-import { courseGroup, degrees, getDb } from '@db'
+import { courseGroup, degrees, getDb } from '@uni-feedback/database'
 import { OpenAPIRoute } from 'chanfana'
 import { eq, sql } from 'drizzle-orm'
 import { IRequest } from 'itty-router'

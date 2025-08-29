@@ -58,8 +58,8 @@ const getCredentials = () => {
 }
 
 const config = defineConfig({
-  schema: './src/db/schema',
-  out: './src/db/migrations',
+  schema: '../../packages/database/src/schema',
+  out: '../../packages/database/src/migrations',
   dialect: 'sqlite',
   ...getCredentials()
 })

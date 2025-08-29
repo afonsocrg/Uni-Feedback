@@ -1,4 +1,4 @@
-import { degrees, faculties, getDb } from '@db'
+import { degrees, faculties, getDb } from '@uni-feedback/database'
 import { PaginatedResponse } from '@types'
 import { OpenAPIRoute } from 'chanfana'
 import { and, count, eq, or, sql } from 'drizzle-orm'

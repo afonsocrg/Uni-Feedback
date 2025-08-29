@@ -1,4 +1,4 @@
-import { courseRelationships, courses, degrees, feedback, getDb } from '@db'
+import { courseRelationships, courses, degrees, feedback, getDb } from '@uni-feedback/database'
 import { and, eq, inArray, isNotNull, or, sql } from 'drizzle-orm'
 
 export class CourseFeedbackService {
