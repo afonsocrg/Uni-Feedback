@@ -3,10 +3,13 @@
   "private": "true",
   "packageManager": "bun@1.2.18",
   "workspaces": [
-    "apps/*",
+    "apps/api",
+    "apps/website",
+    "apps/dashboard",
     "packages/*"
   ],
   "scripts": {
+    "setup": "./setup-database.sh",
     "build": "turbo build",
     "build:dashboard": "turbo build --filter=@uni-feedback/dashboard",
     "build:website": "turbo build --filter=@uni-feedback/website",
@@ -33,5 +36,14 @@
     "prettier": "^3.6.2",
     "prettier-plugin-organize-imports": "^4.2.0",
     "turbo": "^2.5.5"
+  },
+  "bun": {
+    "workspaces": {
+      "nohoist": [
+        "**/react-router",
+        "**/react-router-dom",
+        "**/@react-router/**"
+      ]
+    }
   }
 }

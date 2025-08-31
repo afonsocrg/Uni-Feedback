@@ -8,13 +8,8 @@
     "dev": "wrangler dev",
     "dev:api": "wrangler dev",
     "prod": "wrangler dev --remote",
-    "db": "bun drizzle-kit studio",
-    "db-prod": "DB_REMOTE=true bun drizzle-kit studio",
     "deploy": "wrangler deploy",
     "tail": "wrangler tail",
-    "backup": "./backup_database.sh",
-    "backup:local": "./backup_database.sh --local",
-    "backup:remote": "./backup_database.sh --remote",
     "type-check": "tsc --noEmit",
     "type-check-relaxed": "tsc --noEmit --skipLibCheck"
   },

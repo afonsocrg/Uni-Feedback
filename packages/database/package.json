@@ -15,16 +15,31 @@
     "./migrations": {
       "import": "./src/migrations/index.ts",
       "types": "./src/migrations/index.ts"
+    },
+    "./drizzle.config": {
+      "import": "./drizzle.config.ts",
+      "types": "./drizzle.config.ts"
     }
   },
   "scripts": {
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "wrangler d1 migrations apply --local DB",
+    "db:migrate-production": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio",
+    "db:studio-prod": "DB_REMOTE=true bun drizzle-kit studio",
+    "backup": "./backup_database.sh",
+    "backup-local": "./backup_database.sh --local",
+    "backup-remote": "./backup_database.sh --remote"
   },
   "peerDependencies": {
     "drizzle-orm": "^0.38.4"
   },
   "devDependencies": {
     "typescript": "^5.8.3",
-    "@types/node": "^22.16.3"
+    "@types/node": "^22.16.3",
+    "drizzle-kit": "^0.30.6",
+    "dotenv": "^16.4.7",
+    "wrangler": "^4.33.1"
   }
 }

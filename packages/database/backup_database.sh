@@ -29,8 +29,8 @@ if [ "$local_backup" = false ] && [ "$remote_backup" = false ]; then
 fi
 
 # Create backup directories if they don't exist
-mkdir -p backup/local
-mkdir -p backup/remote
+mkdir -p ./backup/local
+mkdir -p ./backup/remote
 
 # Generate timestamp for filename
 timestamp=$(date +"%Y%m%d%H%M")
@@ -38,7 +38,7 @@ timestamp=$(date +"%Y%m%d%H%M")
 # Function to perform backup
 perform_backup() {
     local type=$1
-    local output_file="backup/${type}/${timestamp}.sql"
+    local output_file="./backup/${type}/${timestamp}.sql"
     
     echo "Performing ${type} backup..."
     npx wrangler d1 export meic-feedback --${type} --output="${output_file}"

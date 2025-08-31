@@ -17,6 +17,8 @@ const getLocalD1 = () => {
 
     console.log('Found local db files:', localDbFiles)
     const dbFile = localDbFiles[0]
+    // const dbFile =
+    //   'miniflare-D1DatabaseObject/c6b97b54306f034a0f6566f4e36a1e8d175d81909a21df8009196a0f3e240555.sqlite'
 
     console.log('Connecting to local db file:', dbFile)
 
@@ -56,8 +58,8 @@ const getCredentials = () => {
 }
 
 const config = defineConfig({
-  schema: '../../packages/database/src/schema',
-  out: '../../packages/database/src/migrations',
+  schema: './src/schema',
+  out: './src/migrations',
   dialect: 'sqlite',
   ...getCredentials()
 })
