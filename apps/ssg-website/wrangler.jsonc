@@ -1,0 +1,17 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "react-router-app",
+	"compatibility_date": "2025-04-04",
+	"main": "./workers/app.ts",
+	"vars": {
+		"VALUE_FROM_CLOUDFLARE": "Hello from Cloudflare"
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "meic-feedback",
+			"database_id": "31aa2a7b-6eb4-4639-8588-643e0cc1098b",
+			"migrations_dir": "../../packages/database/src/migrations"
+		}
+	]
+}
