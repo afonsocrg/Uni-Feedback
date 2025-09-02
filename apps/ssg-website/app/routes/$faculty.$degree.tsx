@@ -1,36 +1,42 @@
-import { CourseExplorer, HeroSection } from '../components'
-import { useUrlNavigation } from '../hooks'
-import { buildFacultyUrl, STORAGE_KEYS } from '../utils'
 import { Loader2 } from 'lucide-react'
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router'
+import { CourseExplorer, HeroSection } from '../components'
+import { useUrlNavigation } from '../hooks'
+import { buildFacultyUrl, STORAGE_KEYS } from '../utils'
 
-import type { Route } from "./+types/$faculty.$degree";
+import type { Route } from './+types/$faculty.$degree'
 
 export function meta({ params }: Route.MetaArgs) {
   return [
     { title: `${params.degree} - ${params.faculty} University` },
-    { name: "description", content: `Browse courses and reviews for ${params.degree} degree at ${params.faculty}` },
-  ];
+    {
+      name: 'description',
+      content: `Browse courses and reviews for ${params.degree} degree at ${params.faculty}`
+    }
+  ]
 }
 
 export async function loader({ params, context }: Route.LoaderArgs) {
-  const facultyName = params.faculty
-  const degreeName = params.degree
-  
+  // const facultyName = params.faculty
+  // const degreeName = params.degree
+
   // TODO: Pre-load degree and courses data for SSG
   // This could fetch degree details and courses from the database
-  
+
   return {
-    facultyName,
-    degreeName,
+    // facultyName,
+    // degreeName,
     // faculty: await getFacultyByShortName(facultyName, context.db),
     // degree: await getDegreeByAcronym(degreeName, context.db),
     // courses: await getCoursesByDegree(degreeId, context.db)
-  };
+  }
 }
 
-export default function DegreePage({ params, loaderData }: Route.ComponentProps) {
+export default function DegreePage({
+  params,
+  loaderData
+}: Route.ComponentProps) {
   const navigate = useNavigate()
   const { faculty, degree, isLoading, error } = useUrlNavigation()
 
@@ -100,7 +106,7 @@ export default function DegreePage({ params, loaderData }: Route.ComponentProps)
         showAddCourseButton
         showBackButton
       />
-      
+
       <div className="container mx-auto px-4 py-8">
         <CourseExplorer facultyId={faculty.id} degreeId={degree.id} />
       </div>

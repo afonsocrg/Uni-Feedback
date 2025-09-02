@@ -1,8 +1,8 @@
-// import { FacultySelector } from '~/components/faculty/FacultySelector'
-// import { HeroSection } from '~/components/layout/HeroSection'
+import type { Faculty } from '@uni-feedback/database'
 import { faculties } from '@uni-feedback/database'
-import { Test } from '~/components'
 import type { Route } from './+types/home'
+// import { FacultySelector } from '~/components/faculty/FacultySelector'
+// import { HeroSection } from '~/components/HeroSection'
 
 export async function loader({ context }: Route.LoaderArgs) {
   const result = await context.db
@@ -15,20 +15,30 @@ export async function loader({ context }: Route.LoaderArgs) {
     })
     .from(faculties)
   return {
-    faculties: result
+    faculties: result as Faculty[]
   }
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {
+  const { faculties } = loaderData
+
   return (
     <>
-      <h1>Faculties</h1>
+      <h1>Hello, world!</h1>
       <ul>
-        {loaderData.faculties.map((f) => (
+        {faculties.map((f) => (
           <li key={f.id}>{f.name}</li>
         ))}
       </ul>
-      <Test />
     </>
+    // <div>
+    //   {/* <HeroSection showBreadcrumb /> */}
+    //   Hero
+    //   <div className="container mx-auto px-4 py-8">
+    //     {/* <FacultySelector faculties={faculties} /> */}
+    //     Selector
+    //   </div>
+    //   <Test />
+    // </div>
   )
 }

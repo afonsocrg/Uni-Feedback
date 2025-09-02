@@ -9,7 +9,7 @@
     "db:migrate": "wrangler d1 migrations apply --local DB",
     "db:migrate-production": "dotenv -- drizzle-kit migrate",
     "deploy": "npm run build && wrangler deploy",
-    "dev": "npx react-router dev",
+    "dev": "npx react-router dev -l info",
     "dev:ssg-website": "npx react-router dev",
     "postinstall": "npm run cf-typegen",
     "preview": "npm run build && vite preview",
@@ -27,7 +27,7 @@
     "react-router-dom": "^7.8.2"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "^1.0.12",
+    "@cloudflare/vite-plugin": "^1.12.1",
     "@react-router/dev": "^7.8.2",
     "@tailwindcss/vite": "^4.1.4",
     "@types/node": "^20",

@@ -5,6 +5,6 @@ export default [
   // route("/courses/:id", "routes/courses.$id.tsx"),
   // route("/terms", "routes/terms.tsx"),
   // route("/privacy", "routes/privacy.tsx"),
-  // route("/:faculty", "routes/$faculty.tsx"),
+  // route('/:faculty', 'routes/$faculty.tsx')
   // route("/:faculty/:degree", "routes/$faculty.$degree.tsx"),
 ] satisfies RouteConfig
