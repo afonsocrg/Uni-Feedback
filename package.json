@@ -3,9 +3,7 @@
   "private": "true",
   "packageManager": "bun@1.2.18",
   "workspaces": [
-    "apps/api",
-    "apps/website",
-    "apps/dashboard",
+    "apps/*",
     "packages/*"
   ],
   "scripts": {
@@ -30,7 +28,7 @@
     "deploy:website": "./push_to_prod.sh",
     "deploy:dashboard": "./push_to_prod.sh",
     "deploy:prod": "bun run deploy:api && ./push_to_prod.sh",
-    "clean": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' + && rm -f bun.lockb"
+    "clean": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' + && rm -f bun.lockb bun.lock"
   },
   "devDependencies": {
     "prettier": "^3.6.2",
