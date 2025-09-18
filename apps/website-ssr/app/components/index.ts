@@ -1,5 +1,6 @@
 export * from './ActionButton'
 export * from './FacultySelector'
+export * from './FacultyPageContent'
 export * from './Header'
 export * from './Footer'
 export * from './HeroSection'

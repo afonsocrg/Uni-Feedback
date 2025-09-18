@@ -40,6 +40,8 @@
     "tsx": "^4.19.2",
     "typescript": "^5.8.3",
     "vite": "^6.3.3",
+    "vite-plugin-devtools-json": "^1.0.0",
+    "vite-plugin-markdown": "^2.2.0",
     "vite-tsconfig-paths": "^5.1.4"
   }
 }
