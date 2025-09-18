@@ -2,7 +2,7 @@ import { database, schema } from '@uni-feedback/db'
 import { and, eq, isNotNull, sql } from 'drizzle-orm'
 import { FacultyPageContent } from '../components'
 
-import type { Route } from './+types/$facultyShortName'
+import type { Route } from './+types/$facultySlug'
 
 export function meta({ loaderData }: Route.MetaArgs) {
   if (!loaderData.faculty) {
@@ -22,12 +22,12 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export async function loader({ params }: Route.LoaderArgs) {
-  const { facultyShortName } = params
+  const { facultySlug } = params
   const db = database()
 
   // Find the faculty by slug
   const faculty = await db.query.faculties.findFirst({
-    where: (faculties, { eq }) => eq(faculties.slug, facultyShortName)
+    where: (faculties, { eq }) => eq(faculties.slug, facultySlug)
   })
 
   if (!faculty) {
