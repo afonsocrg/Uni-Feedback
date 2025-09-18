@@ -7,9 +7,8 @@ interface FacultySelectorProps {
   faculties: Faculty[]
 }
 export function FacultySelector({ faculties }: FacultySelectorProps) {
-  const handleFacultySelect = (faculty: Faculty) => {
-    console.log('Selected faculty:', faculty)
-    // navigate(buildFacultyUrl(faculty))
+  const getFacultyUrl = (faculty: Faculty) => {
+    return `/${faculty.slug || faculty.shortName}`
   }
 
   if (!faculties || faculties.length === 0) {
@@ -37,7 +36,7 @@ export function FacultySelector({ faculties }: FacultySelectorProps) {
             key={faculty.id}
             title={faculty.shortName}
             subtitle={faculty.name}
-            onClick={() => handleFacultySelect(faculty)}
+            href={getFacultyUrl(faculty)}
           />
         ))}
       </div>

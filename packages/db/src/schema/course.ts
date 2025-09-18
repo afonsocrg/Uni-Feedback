@@ -14,6 +14,7 @@ export const courses = pgTable('courses', {
   externalId: text('external_id'),
   name: text('name').notNull(),
   acronym: text('acronym').notNull(),
+  slug: text('slug'),
   degreeId: integer('degree_id').references(() => degrees.id),
   ects: real('ects'),
   terms: jsonb('terms'),

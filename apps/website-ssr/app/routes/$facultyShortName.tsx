@@ -1,5 +1,5 @@
-import { database } from '@uni-feedback/db'
-import { and, eq, sql } from 'drizzle-orm'
+import { database, schema } from '@uni-feedback/db'
+import { and, eq, isNotNull, sql } from 'drizzle-orm'
 import { FacultyPageContent } from '../components'
 
 import type { Route } from './+types/$facultyShortName'
@@ -25,9 +25,9 @@ export async function loader({ params }: Route.LoaderArgs) {
   const { facultyShortName } = params
   const db = database()
 
-  // First, find the faculty by short name
+  // Find the faculty by slug
   const faculty = await db.query.faculties.findFirst({
-    where: (faculties, { eq }) => eq(faculties.shortName, facultyShortName)
+    where: (faculties, { eq }) => eq(faculties.slug, facultyShortName)
   })
 
   if (!faculty) {
@@ -37,30 +37,32 @@ export async function loader({ params }: Route.LoaderArgs) {
   // Get degrees with counts using similar logic to the API
   const degreesWithCounts = await db
     .select({
-      id: db.schema.degrees.id,
-      externalId: db.schema.degrees.externalId,
-      type: db.schema.degrees.type,
-      name: db.schema.degrees.name,
-      acronym: db.schema.degrees.acronym,
-      courseCount: sql<number>`ifnull(count(distinct ${db.schema.courses.id}), 0)`.as(
-        'course_count'
-      ),
-      feedbackCount: sql<number>`ifnull(count(distinct ${db.schema.feedback.id}), 0)`.as(
-        'feedback_count'
-      )
+      id: schema.degrees.id,
+      externalId: schema.degrees.externalId,
+      type: schema.degrees.type,
+      name: schema.degrees.name,
+      acronym: schema.degrees.acronym,
+      courseCount:
+        sql<number>`coalesce(count(distinct ${schema.courses.id}), 0)`.as(
+          'course_count'
+        ),
+      feedbackCount:
+        sql<number>`coalesce(count(distinct ${schema.feedback.id}), 0)`.as(
+          'feedback_count'
+        )
     })
-    .from(db.schema.degrees)
-    .leftJoin(db.schema.courses, eq(db.schema.courses.degreeId, db.schema.degrees.id))
+    .from(schema.degrees)
+    .leftJoin(schema.courses, eq(schema.courses.degreeId, schema.degrees.id))
     .leftJoin(
-      db.schema.feedback,
+      schema.feedback,
       and(
-        eq(db.schema.feedback.courseId, db.schema.courses.id),
-        eq(db.schema.feedback.isActive, true)
+        eq(schema.feedback.courseId, schema.courses.id),
+        isNotNull(schema.feedback.approvedAt)
       )
     )
-    .where(eq(db.schema.degrees.facultyId, faculty.id))
-    .groupBy(db.schema.degrees.id)
-    .having(sql`count(distinct ${db.schema.courses.id}) > 0`)
+    .where(eq(schema.degrees.facultyId, faculty.id))
+    .groupBy(schema.degrees.id)
+    .having(sql`count(distinct ${schema.courses.id}) > 0`)
 
   return {
     faculty,
@@ -69,5 +71,10 @@ export async function loader({ params }: Route.LoaderArgs) {
 }
 
 export default function FacultyPage({ loaderData }: Route.ComponentProps) {
-  return <FacultyPageContent faculty={loaderData.faculty} degrees={loaderData.degrees} />
+  return (
+    <FacultyPageContent
+      faculty={loaderData.faculty}
+      degrees={loaderData.degrees}
+    />
+  )
 }

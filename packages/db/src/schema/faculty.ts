@@ -5,6 +5,7 @@ export const faculties = pgTable('faculties', {
   id: serial('id').primaryKey(),
   name: text('name').notNull(),
   shortName: text('short_name').notNull(),
+  slug: text('slug'),
   url: text('url').notNull(),
   emailSuffixes: jsonb('email_suffixes'),
   createdAt: timestamp('created_at').defaultNow(),

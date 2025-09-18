@@ -1,22 +1,10 @@
-import { useState, useMemo } from 'react'
-import { useNavigate } from 'react-router'
-import { HeroSection, SelectionCard } from '.'
+import type { Degree, Faculty } from '@uni-feedback/db/schema'
 import { Button, WarningAlert } from '@uni-feedback/ui'
 import { BookOpen, MessageSquare } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { HeroSection, SelectionCard } from '.'
 
-interface Faculty {
-  id: number
-  name: string
-  shortName: string
-  url: string
-}
-
-interface Degree {
-  id: number
-  externalId: string
-  type: string
-  name: string
-  acronym: string
+interface DegreeWithCounts extends Degree {
   courseCount: number
   feedbackCount: number
 }
@@ -73,11 +61,14 @@ const ADD_COURSE_FORM_URL = 'https://forms.gle/your-form-url' // TODO: Replace w
 
 interface FacultyPageContentProps {
   faculty: Faculty
-  degrees: Degree[]
+  degrees: DegreeWithCounts[]
 }
 
-export function FacultyPageContent({ faculty, degrees }: FacultyPageContentProps) {
-  const navigate = useNavigate()
+export function FacultyPageContent({
+  faculty,
+  degrees
+}: FacultyPageContentProps) {
+  // const navigate = useNavigate()
 
   // Search state
   const [searchQuery, setSearchQuery] = useState('')
@@ -90,26 +81,26 @@ export function FacultyPageContent({ faculty, degrees }: FacultyPageContentProps
 
   // Filtered degrees based on search and type
   const filteredDegrees = useMemo(() => {
-    return degrees
-      ?.filter((degree) => {
-        return insensitiveMatch(
-          `${degree.name} ${degree.acronym}`,
-          searchQuery
-        )
-      })
-      .filter((degree) => {
-        if (selectedType === null) {
-          return true
-        }
-        return degree.type === selectedType
-      })
-      .sort((a, b) => (b.feedbackCount ?? 0) - (a.feedbackCount ?? 0)) ?? []
+    return (
+      degrees
+        ?.filter((degree) => {
+          return insensitiveMatch(
+            `${degree.name} ${degree.acronym}`,
+            searchQuery
+          )
+        })
+        .filter((degree) => {
+          if (selectedType === null) {
+            return true
+          }
+          return degree.type === selectedType
+        })
+        .sort((a, b) => (b.feedbackCount ?? 0) - (a.feedbackCount ?? 0)) ?? []
+    )
   }, [degrees, searchQuery, selectedType])
 
-  const handleDegreeSelect = (degree: Degree) => {
-    // TODO: Implement navigation to degree page
-    // navigate(`/${faculty.shortName}/${degree.acronym}`)
-    console.log('Navigate to degree:', degree)
+  const getDegreeUrl = (degree: Degree) => {
+    return `/${faculty.slug || faculty.shortName}/${degree.slug || degree.acronym}`
   }
 
   return (
@@ -152,7 +143,7 @@ export function FacultyPageContent({ faculty, degrees }: FacultyPageContentProps
                       key={degree.id}
                       title={degree.name}
                       subtitle={degree.acronym}
-                      onClick={() => handleDegreeSelect(degree)}
+                      href={getDegreeUrl(degree)}
                     >
                       <div className="flex flex-wrap items-center gap-2 text-sm text-gray-600 mt-auto">
                         <div className="flex items-center gap-1">

@@ -10,7 +10,8 @@ interface SelectionCardProps {
   title: string
   subtitle?: string
   description?: string
-  onClick: () => void
+  onClick?: () => void
+  href?: string
   className?: string
   children?: React.ReactElement
   icon?: React.ReactElement
@@ -21,11 +22,12 @@ export function SelectionCard({
   subtitle,
   description,
   onClick,
+  href,
   className = '',
   children,
   icon
 }: SelectionCardProps) {
-  return (
+  const cardContent = (
     <Card
       className={`cursor-pointer hover:shadow-lg transition-shadow duration-200 h-full flex flex-col ${className}`}
       onClick={onClick}
@@ -53,4 +55,17 @@ export function SelectionCard({
       )}
     </Card>
   )
+
+  if (href) {
+    return (
+      <a
+        href={href}
+        className="block no-underline text-inherit hover:no-underline"
+      >
+        {cardContent}
+      </a>
+    )
+  }
+
+  return cardContent
 }

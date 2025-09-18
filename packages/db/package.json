@@ -23,8 +23,12 @@
     "stop": "docker-compose down",
     "shell": "dotenv -- psql -h localhost -p 5433 -U postgres -d uni-feedback",
     "studio": "dotenv -- drizzle-kit studio",
-    "generate": "dotenv -- drizzle-kit generate",
-    "migrate": "dotenv -- drizzle-kit migrate",
+    "generate": "./scripts/generate-migration.sh",
+    "generate:auto": "dotenv -- drizzle-kit generate",
+    "generate:named": "dotenv -- drizzle-kit generate --name",
+    "migrate": "./scripts/run-migration.sh",
+    "migrate:auto": "dotenv -- drizzle-kit migrate",
+    "sql": "./scripts/sql.sh",
     "clean": "rm -rf node_modules"
   },
   "dependencies": {

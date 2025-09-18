@@ -8,6 +8,7 @@ export const degrees = pgTable('degrees', {
   type: text('type').notNull(),
   name: text('name').notNull(),
   acronym: text('acronym').notNull(),
+  slug: text('slug'),
   campus: text('campus').notNull(), // This field may be removed later. It may be too specific
   description: text('description'),
   url: text('url'),

@@ -8,6 +8,27 @@
       "when": 1756955425026,
       "tag": "0000_init_postgresql_schema",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1758179890639,
+      "tag": "0001_lazy_cobalt_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1758180148408,
+      "tag": "0002_add-slug-columns",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1758181628044,
+      "tag": "0003_drop-unique-constraints-on-slugs",
+      "breakpoints": true
     }
   ]
 }
