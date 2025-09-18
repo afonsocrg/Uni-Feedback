@@ -11,6 +11,7 @@
     "deploy": "wrangler deploy",
     "tail": "wrangler tail",
     "type-check": "tsc --noEmit",
+    "clean": "rm -rf node_modules",
     "type-check-relaxed": "tsc --noEmit --skipLibCheck"
   },
   "dependencies": {

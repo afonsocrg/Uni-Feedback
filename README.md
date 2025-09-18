@@ -70,7 +70,7 @@ uni-feedback/
 │   ├── website/           # Main React website (port 5173)
 │   ├── dashboard/         # Admin dashboard (port 5174)
 │   ├── api/              # Cloudflare Workers API (port 8787)
-│   └── ssg-website/      # SSG React Router app (port 5175)
+│   └── website-ssr/      # SSG React Router app (port 5175)
 ├── packages/
 │   ├── database/         # 🗄️ Shared database (schema, migrations)
 │   ├── ui/              # Shared UI components

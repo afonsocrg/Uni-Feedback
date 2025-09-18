@@ -49,10 +49,12 @@ export function MarkdownTextarea({
                     size="xs"
                     onClick={(e) => {
                       e.preventDefault()
-                      window.open(
-                        'https://www.markdownguide.org/cheat-sheet/',
-                        '_blank'
-                      )
+                      if (typeof window !== 'undefined') {
+                        window.open(
+                          'https://www.markdownguide.org/cheat-sheet/',
+                          '_blank'
+                        )
+                      }
                     }}
                   >
                     <CircleHelp className="size-4 text-gray-500" />

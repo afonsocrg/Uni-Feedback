@@ -5,16 +5,17 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.es.js"
+      "types": "./src/index.ts",
+      "import": "./src/index.ts"
     },
-    "./style.css": "./dist/style.css",
+    "./style.css": "./src/style.css",
     "./tailwind.config.ts": "./tailwind.config.js"
   },
   "scripts": {
     "build": "vite build",
     "dev": "vite build --watch",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf node_modules"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.0",
@@ -35,6 +36,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "lucide-react": "^0.525.0",
+    "next-themes": "^0.4.6",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-hook-form": "^7.61.1",

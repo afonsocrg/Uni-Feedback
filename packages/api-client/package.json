@@ -11,7 +11,8 @@
   },
   "scripts": {
     "build": "echo 'Building API client package'",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf node_modules"
   },
   "devDependencies": {
     "typescript": "^5.8.3"

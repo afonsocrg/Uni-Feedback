@@ -11,24 +11,27 @@
     "build": "turbo build",
     "build:dashboard": "turbo build --filter=@uni-feedback/dashboard",
     "build:website": "turbo build --filter=@uni-feedback/website",
-    "build:ssg-website": "turbo build --filter=@uni-feedback/ssg-website",
+    "build:website-ssr": "turbo build --filter=@uni-feedback/website-ssr",
     "dev": "bun run dev:all",
     "dev:all": "turbo dev:api dev:website dev:dashboard @uni-feedback/ui#dev db --parallel --ui=tui",
     "dev:website": "turbo dev:api dev:website @uni-feedback/ui#dev db --parallel --ui=tui",
     "dev:dashboard": "turbo dev:api dev:dashboard @uni-feedback/ui#dev db --parallel --ui=tui",
-    "dev:ssg-website": "turbo dev:api dev:ssg-website @uni-feedback/ui#dev db --parallel --ui=tui",
+    "dev:website-ssr": "turbo dev --filter=@uni-feedback/website-ssr --parallel --ui=tui",
     "start": "turbo start --parallel",
     "lint": "turbo lint",
     "type-check": "turbo type-check",
     "format": "turbo format",
     "format:check": "turbo format:check",
     "db": "turbo db",
+    "db:start": "turbo start --filter=@uni-feedback/db",
+    "db:stop": "turbo stop --filter=@uni-feedback/db",
+    "db:studio": "turbo studio --filter=@uni-feedback/db",
     "deploy": "turbo deploy",
     "deploy:api": "cd apps/api && bun wrangler deploy",
     "deploy:website": "./push_to_prod.sh",
     "deploy:dashboard": "./push_to_prod.sh",
     "deploy:prod": "bun run deploy:api && ./push_to_prod.sh",
-    "clean": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' + && rm -f bun.lockb bun.lock"
+    "clean": "turbo clean && rm -f bun.lockb bun.lock && rm -rf node_modules"
   },
   "devDependencies": {
     "prettier": "^3.6.2",
@@ -40,7 +43,8 @@
       "nohoist": [
         "**/react-router",
         "**/react-router-dom",
-        "**/@react-router/**"
+        "**/@react-router/**",
+        "**/drizzle-orm"
       ]
     }
   }

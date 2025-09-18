@@ -1,0 +1,40 @@
+{
+  "name": "@uni-feedback/db",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./src/index.ts",
+      "types": "./src/index.ts"
+    },
+    "./schema": {
+      "import": "./src/schema/index.ts",
+      "types": "./src/schema/index.ts"
+    },
+    "./context": {
+      "import": "./src/context.ts",
+      "types": "./src/context.ts"
+    }
+  },
+  "scripts": {
+    "type-check": "tsc --noEmit",
+    "start": "docker-compose up -d",
+    "stop": "docker-compose down",
+    "shell": "dotenv -- psql -h localhost -p 5433 -U postgres -d uni-feedback",
+    "studio": "dotenv -- drizzle-kit studio",
+    "generate": "dotenv -- drizzle-kit generate",
+    "migrate": "dotenv -- drizzle-kit migrate",
+    "clean": "rm -rf node_modules"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.44.5",
+    "postgres": "^3.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "dotenv": "^16.4.7",
+    "drizzle-kit": "^0.31.4",
+    "typescript": "^5.8.3"
+  }
+}

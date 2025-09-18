@@ -1,0 +1,45 @@
+{
+  "name": "@uni-feedback/website-ssr",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "react-router build",
+    "dev": "dotenv -- node server.js",
+    "start": "node server.js",
+    "typecheck": "react-router typegen && tsc -b",
+    "clean": "rm -rf node_modules build .react-router"
+  },
+  "dependencies": {
+    "@react-router/express": "^7.7.1",
+    "@react-router/node": "^7.7.1",
+    "@uni-feedback/db": "workspace:*",
+    "@uni-feedback/ui": "workspace:*",
+    "compression": "^1.8.0",
+    "drizzle-orm": "^0.44.5",
+    "express": "^5.1.0",
+    "isbot": "^5.1.27",
+    "lucide-react": "^0.460.0",
+    "morgan": "^1.10.0",
+    "postgres": "^3.4.5",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-router": "^7.7.1"
+  },
+  "devDependencies": {
+    "@react-router/dev": "^7.7.1",
+    "@tailwindcss/vite": "^4.1.11",
+    "@types/compression": "^1.7.5",
+    "@types/express": "^5.0.1",
+    "@types/express-serve-static-core": "^5.0.6",
+    "@types/morgan": "^1.9.9",
+    "@types/node": "^20",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "dotenv-cli": "^8.0.0",
+    "tailwindcss": "^4.1.11",
+    "tsx": "^4.19.2",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.3",
+    "vite-tsconfig-paths": "^5.1.4"
+  }
+}

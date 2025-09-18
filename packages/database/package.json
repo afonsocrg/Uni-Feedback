@@ -23,6 +23,7 @@
   },
   "scripts": {
     "type-check": "tsc --noEmit",
+    "clean": "rm -rf node_modules",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "wrangler d1 migrations apply --local DB",
     "db:migrate-production": "drizzle-kit migrate",
@@ -40,6 +41,6 @@
     "@types/node": "^22.16.3",
     "drizzle-kit": "^0.30.6",
     "dotenv": "^16.4.7",
-    "wrangler": "^4.33.1"
+    "wrangler": "^4.33.2"
   }
 }
