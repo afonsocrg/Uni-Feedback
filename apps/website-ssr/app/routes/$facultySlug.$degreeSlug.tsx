@@ -1,6 +1,8 @@
 import { database, schema } from '@uni-feedback/db'
 import { and, eq, isNotNull, sql } from 'drizzle-orm'
+import { useEffect } from 'react'
 import { DegreePageContent } from '../components'
+import { userPreferences } from '../utils/userPreferences'
 
 import type { Route } from './+types/$facultySlug.$degreeSlug'
 
@@ -108,6 +110,17 @@ export async function loader({ params }: Route.LoaderArgs) {
 }
 
 export default function DegreePage({ loaderData }: Route.ComponentProps) {
+  // Persist selection when component mounts
+  useEffect(() => {
+    if (loaderData.faculty?.slug && loaderData.degree?.slug) {
+      userPreferences.set({
+        lastSelectedFacultySlug: loaderData.faculty.slug,
+        lastSelectedDegreeSlug: loaderData.degree.slug,
+        lastVisitedPath: `/${loaderData.faculty.slug}/${loaderData.degree.slug}`
+      })
+    }
+  }, [loaderData.faculty?.slug, loaderData.degree?.slug])
+
   return (
     <DegreePageContent
       faculty={loaderData.faculty}

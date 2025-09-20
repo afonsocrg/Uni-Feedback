@@ -1,6 +1,8 @@
 import { database, schema } from '@uni-feedback/db'
 import { and, eq, isNotNull, sql } from 'drizzle-orm'
+import { useEffect } from 'react'
 import { FacultyPageContent } from '../components'
+import { userPreferences } from '../utils/userPreferences'
 
 import type { Route } from './+types/$facultySlug'
 
@@ -72,6 +74,16 @@ export async function loader({ params }: Route.LoaderArgs) {
 }
 
 export default function FacultyPage({ loaderData }: Route.ComponentProps) {
+  // Persist selection when component mounts
+  useEffect(() => {
+    if (loaderData.faculty?.slug) {
+      userPreferences.set({
+        lastSelectedFacultySlug: loaderData.faculty.slug,
+        lastVisitedPath: `/${loaderData.faculty.slug}`
+      })
+    }
+  }, [loaderData.faculty?.slug])
+
   return (
     <FacultyPageContent
       faculty={loaderData.faculty}

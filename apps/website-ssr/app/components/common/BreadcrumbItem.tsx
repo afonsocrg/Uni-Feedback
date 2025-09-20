@@ -4,12 +4,14 @@ interface BreadcrumbItemProps {
   children: React.ReactNode
   href?: string
   isActive?: boolean
+  onClick?: () => void
 }
 
 export function BreadcrumbItem({
   children,
   href,
-  isActive = false
+  isActive = false,
+  onClick
 }: BreadcrumbItemProps) {
   if (isActive) {
     return (
@@ -23,6 +25,7 @@ export function BreadcrumbItem({
     return (
       <Link
         to={href}
+        onClick={onClick}
         className="flex items-center px-2 py-1 rounded text-gray-600 hover:text-primaryBlue hover:bg-primaryBlue/10 transition-all duration-200 cursor-pointer hover:underline"
       >
         {children}
