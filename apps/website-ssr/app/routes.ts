@@ -4,6 +4,7 @@ export default [
   layout("routes/layout.tsx", [
     index("routes/home.tsx"),
     route("/:facultySlug", "routes/$facultySlug.tsx"),
+    route("/:facultySlug/:degreeSlug", "routes/$facultySlug.$degreeSlug.tsx"),
     route("/terms", "routes/terms.tsx"),
     route("/privacy", "routes/privacy.tsx")
   ])

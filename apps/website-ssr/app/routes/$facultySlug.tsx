@@ -13,7 +13,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
   }
 
   return [
-    { title: `${loaderData.faculty.name} - Uni Feedback` },
+    { title: `Uni Feedback - ${loaderData.faculty.shortName}` },
     {
       name: 'description',
       content: `Browse degrees and courses from ${loaderData.faculty.name}. Read honest, anonymous student reviews to help you choose the right courses.`
@@ -42,6 +42,7 @@ export async function loader({ params }: Route.LoaderArgs) {
       type: schema.degrees.type,
       name: schema.degrees.name,
       acronym: schema.degrees.acronym,
+      slug: schema.degrees.slug,
       courseCount:
         sql<number>`coalesce(count(distinct ${schema.courses.id}), 0)`.as(
           'course_count'

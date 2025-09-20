@@ -100,12 +100,15 @@ export function FacultyPageContent({
   }, [degrees, searchQuery, selectedType])
 
   const getDegreeUrl = (degree: Degree) => {
-    return `/${faculty.slug || faculty.shortName}/${degree.slug || degree.acronym}`
+    if (!degree.slug) {
+      throw new Error('Degree slug is missing ' + JSON.stringify(degree))
+    }
+    return `/${faculty.slug}/${degree.slug}`
   }
 
   return (
     <div>
-      <HeroSection showBreadcrumb />
+      <HeroSection showBreadcrumb faculty={faculty} />
       <div className="container mx-auto px-4 py-8">
         <div className="w-full max-w-4xl mx-auto">
           <div className="text-center mb-8">

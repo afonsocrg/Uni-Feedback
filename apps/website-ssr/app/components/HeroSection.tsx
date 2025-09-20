@@ -1,4 +1,5 @@
 import type { Degree, Faculty } from '@uni-feedback/db/schema'
+import { Breadcrumb } from '.'
 import { ActionButton } from './ActionButton'
 
 interface HeroSectionProps {
@@ -19,8 +20,7 @@ export function HeroSection({
       <div className="container mx-auto">
         {showBreadcrumb && (
           <div className="mb-6">
-            {/* <Breadcrumb /> */}
-            <p>Breadcrumb</p>
+            <Breadcrumb {...{ faculty, degree }} />
           </div>
         )}
         <div className="flex flex-col items-center text-center">
