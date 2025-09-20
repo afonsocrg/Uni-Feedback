@@ -14,7 +14,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
 
   return [
     {
-      title: `${loaderData.degree.name} - ${loaderData.faculty.shortName} - Uni Feedback`
+      title: `Uni Feedback - ${loaderData.degree.acronym}`
     },
     {
       name: 'description',
@@ -39,10 +39,7 @@ export async function loader({ params }: Route.LoaderArgs) {
   // Find the degree by slug within the faculty
   const degree = await db.query.degrees.findFirst({
     where: (degrees, { eq, and }) =>
-      and(
-        eq(degrees.slug, degreeSlug),
-        eq(degrees.facultyId, faculty.id)
-      )
+      and(eq(degrees.slug, degreeSlug), eq(degrees.facultyId, faculty.id))
   })
 
   if (!degree) {
@@ -58,9 +55,18 @@ export async function loader({ params }: Route.LoaderArgs) {
       url: schema.courses.url,
       terms: schema.courses.terms,
       hasMandatoryExam: schema.courses.hasMandatoryExam,
-      averageRating: sql<number>`coalesce(avg(${schema.feedback.rating})::numeric, 0)`.as('average_rating'),
-      averageWorkload: sql<number>`coalesce(avg(${schema.feedback.workloadRating})::numeric, 0)`.as('average_workload'),
-      totalFeedbackCount: sql<number>`coalesce(count(distinct ${schema.feedback.id})::integer, 0)`.as('total_feedback_count')
+      averageRating:
+        sql<number>`coalesce(avg(${schema.feedback.rating})::numeric, 0)`.as(
+          'average_rating'
+        ),
+      averageWorkload:
+        sql<number>`coalesce(avg(${schema.feedback.workloadRating})::numeric, 0)`.as(
+          'average_workload'
+        ),
+      totalFeedbackCount:
+        sql<number>`coalesce(count(distinct ${schema.feedback.id})::integer, 0)`.as(
+          'total_feedback_count'
+        )
     })
     .from(schema.courses)
     .leftJoin(

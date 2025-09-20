@@ -1,33 +1,15 @@
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
-import path, { resolve } from 'path'
+import { resolve } from 'path'
 import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
-import tsconfig from './tsconfig.json'
-
-// Convert paths from tsconfig.json
-function getAlias() {
-  const paths = tsconfig.compilerOptions.paths as Record<string, string[]>
-  const alias: Record<string, string> = {}
-  for (const pathKey in paths) {
-    const target = paths[pathKey][0]
-    const key = pathKey.replace('/*', '')
-    const value = target.replace('/*', '').replace('./', '')
-
-    // Handle relative paths
-    if (target.startsWith('../')) {
-      alias[key] = path.resolve(__dirname, target.replace('/*', ''))
-    } else {
-      alias[key] = path.resolve(__dirname, value)
-    }
-  }
-  return alias
-}
+import tsconfigPaths from 'vite-tsconfig-paths'
 
 export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
+    tsconfigPaths(),
     dts({
       insertTypesEntry: true,
       include: ['src/**/*'],
@@ -35,9 +17,6 @@ export default defineConfig({
       tsconfigPath: './tsconfig.json'
     })
   ],
-  resolve: {
-    alias: getAlias()
-  },
   build: {
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),

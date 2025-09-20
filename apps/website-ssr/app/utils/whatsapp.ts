@@ -1,6 +1,5 @@
-import { Course } from '@services/meicFeedbackAPI'
-import { isMobile } from '@utils'
-import { addUtmParams } from '@utils/routes'
+import type { Course } from '@uni-feedback/db/schema'
+import { addUtmParams, isMobile } from '../utils'
 
 export const whatsappUrls = {
   // For mobile devices - tries to open app directly

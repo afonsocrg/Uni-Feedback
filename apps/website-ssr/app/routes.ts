@@ -5,6 +5,7 @@ export default [
     index("routes/home.tsx"),
     route("/:facultySlug", "routes/$facultySlug.tsx"),
     route("/:facultySlug/:degreeSlug", "routes/$facultySlug.$degreeSlug.tsx"),
+    route("/courses/:courseId", "routes/courses.$courseId.tsx"),
     route("/terms", "routes/terms.tsx"),
     route("/privacy", "routes/privacy.tsx")
   ])

@@ -1,4 +1,4 @@
-import { Course } from '@services/meicFeedbackAPI'
+import type { Course } from '@uni-feedback/db/schema'
 
 interface ReviewPathParams {
   courseId?: number
@@ -17,6 +17,10 @@ export function getCoursePath(course: Course) {
 }
 
 export function getFullUrl(suffix: string) {
+  if (typeof window === 'undefined') {
+    // During SSR, just return the suffix
+    return suffix
+  }
   const url = new URL(suffix, window.location.origin)
   return url.toString()
 }

@@ -8,6 +8,11 @@
       "types": "./src/index.ts",
       "import": "./src/index.ts"
     },
+    "./components/*": "./src/components/*",
+    "./hooks/*": "./src/hooks/*",
+    "./hooks": "./src/hooks/index.ts",
+    "./utils/*": "./src/utils/*",
+    "./utils": "./src/utils/index.ts",
     "./style.css": "./src/style.css",
     "./tailwind.config.ts": "./tailwind.config.js"
   },
@@ -52,7 +57,8 @@
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",
     "typescript": "^5.8.3",
-    "vite-plugin-dts": "^4.5.4"
+    "vite-plugin-dts": "^4.5.4",
+    "vite-tsconfig-paths": "^5.1.4"
   },
   "peerDependencies": {
     "react": "^18.0.0 || ^19.0.0",

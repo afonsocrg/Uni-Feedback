@@ -25,6 +25,12 @@
     "paths": {
       "@/*": ["./src/*"],
       "@uni-feedback/ui": ["./packages/ui/src"],
+      "@uni-feedback/ui/components": ["./packages/ui/src/components"],
+      "@uni-feedback/ui/components/*": ["./packages/ui/src/components/*"],
+      "@uni-feedback/ui/hooks": ["./packages/ui/src/hooks"],
+      "@uni-feedback/ui/hooks/*": ["./packages/ui/src/hooks/*"],
+      "@uni-feedback/ui/utils": ["./packages/ui/src/utils"],
+      "@uni-feedback/ui/utils/*": ["./packages/ui/src/utils/*"],
       "@uni-feedback/api-client": ["./packages/api-client/src"],
       "@uni-feedback/utils": ["./packages/utils/src"]
     }

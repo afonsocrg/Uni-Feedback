@@ -1,4 +1,4 @@
-import { SelectionCard } from '.'
+import { SelectionCard } from '~/components'
 import { Button, StarRating, WorkloadRatingDisplay } from '@uni-feedback/ui'
 
 interface CourseCardProps {

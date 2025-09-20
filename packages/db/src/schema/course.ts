@@ -1,5 +1,13 @@
-import { boolean, integer, jsonb, pgTable, real, serial, text, timestamp } from 'drizzle-orm/pg-core'
-import { sql } from 'drizzle-orm'
+import {
+  boolean,
+  integer,
+  jsonb,
+  pgTable,
+  real,
+  serial,
+  text,
+  timestamp
+} from 'drizzle-orm/pg-core'
 import { degrees } from './degree'
 
 export const courses = pgTable('courses', {
@@ -24,8 +32,10 @@ export const courses = pgTable('courses', {
   assessment: text('assessment'),
   hasMandatoryExam: boolean('has_mandatory_exam'),
   createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow()
 })
 
-export type Course = typeof courses.$inferSelect
+export type Course = typeof courses.$inferSelect & {
+  terms: string[] | null
+}
 export type NewCourse = typeof courses.$inferInsert
