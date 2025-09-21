@@ -1,12 +1,4 @@
-// The CSS imports must be done in the order
-// app.css
-// @uni-feedback/ui/style.css
-// Otherwise they will break!!!
 import './app.css'
-// Do not remove this line. This prevents prettier from reordering
-// the CSS imports
-import '@uni-feedback/ui/style.css'
-// End of weird code format
 
 import { useEffect } from 'react'
 import {
@@ -17,8 +9,8 @@ import {
   Scripts,
   ScrollRestoration
 } from 'react-router'
+import { userPreferences } from '~/utils'
 import type { Route } from './+types/root'
-import { userPreferences } from './utils/userPreferences'
 
 export const links: Route.LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
