@@ -1,6 +1,6 @@
 import { Button } from '@uni-feedback/ui'
-import { getFullUrl } from '~/utils'
 import { AskForFeedback, type CourseDetail } from '~/components'
+import { getFullUrl } from '~/utils'
 
 interface CourseReviewContentEmptyProps {
   reviewFormUrl: string
@@ -32,6 +32,7 @@ export function CourseReviewContentEmpty({
         <Button asChild>
           <a
             href={reviewFormUrl}
+            className="text-white"
             onClick={(e) => {
               if (typeof window !== 'undefined') {
                 // Dynamically import posthog only on client side

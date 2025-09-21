@@ -163,7 +163,8 @@ function insensitiveMatch(text: string, query: string): boolean {
   return text.toLowerCase().includes(query.toLowerCase())
 }
 
-const ADD_COURSE_FORM_URL = 'https://forms.gle/your-form-url' // TODO: Replace with actual URL
+const ADD_COURSE_FORM_URL =
+  'https://docs.google.com/forms/d/e/1FAIpQLSd2FBk_hbv6v0iW-y8wtY6DL-fDIE_GlyA8rSkamSJJfCjCFQ/viewform'
 
 interface DegreePageContentProps {
   faculty: Faculty
