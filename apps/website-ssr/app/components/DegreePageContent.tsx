@@ -4,17 +4,10 @@ import type {
   Degree,
   Faculty
 } from '@uni-feedback/db/schema'
-import {
-  Button,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  WarningAlert
-} from '@uni-feedback/ui'
-import { Search } from 'lucide-react'
+import { Button, WarningAlert } from '@uni-feedback/ui'
 import { useMemo, useState } from 'react'
+import { SearchCourses } from '~/components'
+import { insensitiveMatch } from '~/utils'
 import { CourseCard, HeroSection } from '.'
 
 interface CourseWithFeedback extends Course {
@@ -28,140 +21,6 @@ interface CourseGroupWithIds extends CourseGroup {
 }
 
 type SortOption = 'rating' | 'alphabetical' | 'reviews' | 'workload'
-
-interface SearchCoursesProps {
-  searchQuery: string
-  setSearchQuery: (query: string) => void
-  availableTerms: string[]
-  selectedTerm: string | null
-  setSelectedTerm: (term: string | null) => void
-  selectedCourseGroupId: number | null
-  setSelectedCourseGroupId: (courseGroupId: number | null) => void
-  sortBy: SortOption
-  setSortBy: (sort: SortOption) => void
-  courseGroups: CourseGroupWithIds[]
-  mandatoryExamFilter: boolean | null
-  setMandatoryExamFilter: (filter: boolean | null) => void
-}
-
-function SearchCourses({
-  searchQuery,
-  setSearchQuery,
-  availableTerms,
-  selectedTerm,
-  setSelectedTerm,
-  selectedCourseGroupId,
-  setSelectedCourseGroupId,
-  sortBy,
-  setSortBy,
-  courseGroups,
-  mandatoryExamFilter,
-  setMandatoryExamFilter
-}: SearchCoursesProps) {
-  return (
-    <div className="bg-white rounded-lg shadow-sm border p-6 space-y-4">
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="flex-1 relative">
-          <Search className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search courses..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
-      </div>
-
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="flex-1">
-          <Select
-            value={selectedTerm || 'all'}
-            onValueChange={(value) =>
-              setSelectedTerm(value === 'all' ? null : value)
-            }
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="All Terms" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Terms</SelectItem>
-              {availableTerms.map((term) => (
-                <SelectItem key={term} value={term}>
-                  {term}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex-1">
-          <Select
-            value={selectedCourseGroupId?.toString() || 'all'}
-            onValueChange={(value) =>
-              setSelectedCourseGroupId(value === 'all' ? null : Number(value))
-            }
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="All Course Groups" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Course Groups</SelectItem>
-              {courseGroups.map((group) => (
-                <SelectItem key={group.id} value={group.id.toString()}>
-                  {group.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex-1">
-          <Select
-            value={
-              mandatoryExamFilter === null
-                ? 'all'
-                : mandatoryExamFilter.toString()
-            }
-            onValueChange={(value) =>
-              setMandatoryExamFilter(value === 'all' ? null : value === 'true')
-            }
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="All Exams" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Exams</SelectItem>
-              <SelectItem value="true">Has Mandatory Exam</SelectItem>
-              <SelectItem value="false">No Mandatory Exam</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex-1">
-          <Select
-            value={sortBy}
-            onValueChange={(value) => setSortBy(value as SortOption)}
-          >
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="rating">Highest Rating</SelectItem>
-              <SelectItem value="alphabetical">Alphabetical</SelectItem>
-              <SelectItem value="reviews">Most Reviews</SelectItem>
-              <SelectItem value="workload">Workload Rating</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function insensitiveMatch(text: string, query: string): boolean {
-  return text.toLowerCase().includes(query.toLowerCase())
-}
 
 const ADD_COURSE_FORM_URL =
   'https://docs.google.com/forms/d/e/1FAIpQLSd2FBk_hbv6v0iW-y8wtY6DL-fDIE_GlyA8rSkamSJJfCjCFQ/viewform'
