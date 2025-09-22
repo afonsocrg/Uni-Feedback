@@ -45,12 +45,7 @@ export function HeroSection({
             <ActionButton
               label="Give feedback"
               description="Help your peers by sharing your honest review!"
-              onClick={() => {
-                // posthog.capture('review_form_open', {
-                //   source: 'hero_section'
-                // })
-                // navigate('/feedback/new')
-              }}
+              href="/feedback/new"
               variant="secondary"
             />
           </div>

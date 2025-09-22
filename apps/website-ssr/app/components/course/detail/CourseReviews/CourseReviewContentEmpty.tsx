@@ -43,13 +43,7 @@ export function CourseReviewContentEmpty({
                   })
                 })
               }
-              // Small delay to ensure PostHog event is sent
-              e.preventDefault()
-              setTimeout(() => {
-                if (typeof window !== 'undefined') {
-                  window.location.href = reviewFormUrl
-                }
-              }, 100)
+              // Let the browser handle navigation naturally - no preventDefault needed
             }}
           >
             Give Feedback!

@@ -40,18 +40,16 @@ export function CourseCard({
           {/* Left Column - Feedback Information */}
           <div className="flex flex-col justify-end">
             {totalFeedbackCount === 0 ? (
-              <Button
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  window.open(`/feedback/new?courseId=${courseId}`, '_blank')
-                }}
-                variant="link"
-                className="p-0 h-auto text-xs justify-start"
-              >
-                Give the first
-                <br />
-                feedback!
+              <Button asChild variant="link" className="p-0 h-auto text-xs justify-start">
+                <a
+                  href={`/feedback/new?courseId=${courseId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  Give the first
+                  <br />
+                  feedback!</a>
               </Button>
             ) : (
               <div className="space-y-1">
