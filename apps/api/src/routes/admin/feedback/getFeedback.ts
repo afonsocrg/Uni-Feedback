@@ -1,4 +1,5 @@
-import { courses, degrees, faculties, feedback, getDb } from '@uni-feedback/database'
+import { database } from '@uni-feedback/db'
+import { courses, degrees, faculties, feedback } from '@uni-feedback/db/schema'
 import {
   PaginatedResponse,
   PaginationQuerySchema,
@@ -94,7 +95,6 @@ export class GetFeedback extends OpenAPIRoute {
       const { page, limit, course_id, degree_id, faculty_id, email, approved } =
         query
 
-      const db = getDb(env)
 
       // Build where conditions
       const conditions = []
@@ -128,7 +128,7 @@ export class GetFeedback extends OpenAPIRoute {
       const whereClause = conditions.length > 0 ? and(...conditions) : undefined
 
       // Get total count
-      const totalResult = await db
+      const totalResult = await database()
         .select({ count: count() })
         .from(feedback)
         .leftJoin(courses, eq(feedback.courseId, courses.id))
@@ -141,7 +141,7 @@ export class GetFeedback extends OpenAPIRoute {
       const offset = (page - 1) * limit
 
       // Get feedback with course, degree, and faculty info
-      const feedbackResult = await db
+      const feedbackResult = await database()
         .select({
           id: feedback.id,
           email: feedback.email,

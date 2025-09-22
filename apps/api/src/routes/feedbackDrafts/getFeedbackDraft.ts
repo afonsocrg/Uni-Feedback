@@ -1,4 +1,5 @@
-import { getDb, feedbackDrafts } from '@uni-feedback/database'
+import { database } from '@uni-feedback/db'
+import { feedbackDrafts } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
 import { eq, lt } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
@@ -35,11 +36,10 @@ export class GetFeedbackDraft extends OpenAPIRoute {
 
   async handle(request: IRequest, env: any, context: any) {
     try {
-      const db = getDb(env)
       const code = request.params.code.toUpperCase()
 
       // Clean up expired codes first (optional cleanup)
-      await db
+      await database()
         .delete(feedbackDrafts)
         .where(lt(feedbackDrafts.expiresAt, new Date()))
 
@@ -62,7 +62,7 @@ export class GetFeedbackDraft extends OpenAPIRoute {
       // Check if expired
       if (feedbackDraft.expiresAt < new Date()) {
         // Delete expired code
-        await db
+        await database()
           .delete(feedbackDrafts)
           .where(eq(feedbackDrafts.id, feedbackDraft.id))
 
@@ -73,7 +73,7 @@ export class GetFeedbackDraft extends OpenAPIRoute {
       }
 
       // Mark as used (optional tracking)
-      await db
+      await database()
         .update(feedbackDrafts)
         .set({ usedAt: new Date() })
         .where(eq(feedbackDrafts.id, feedbackDraft.id))

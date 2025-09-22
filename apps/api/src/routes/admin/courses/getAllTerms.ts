@@ -1,4 +1,5 @@
-import { courses, degrees, getDb } from '@uni-feedback/database'
+import { database } from '@uni-feedback/db'
+import { courses, degrees } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
 import { and, eq, sql } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
@@ -51,11 +52,10 @@ export class GetAllTerms extends OpenAPIRoute {
       const { query } = await this.getValidatedData<typeof this.schema>()
       const { faculty_id } = query
 
-      const db = getDb(env)
 
       // Build query for courses with terms
       const coursesResult = faculty_id
-        ? await db
+        ? await database()
             .selectDistinct({
               terms: courses.terms
             })
@@ -67,7 +67,7 @@ export class GetAllTerms extends OpenAPIRoute {
                 sql`${courses.terms} IS NOT NULL`
               )
             )
-        : await db
+        : await database()
             .selectDistinct({
               terms: courses.terms
             })

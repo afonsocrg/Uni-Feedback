@@ -11,11 +11,10 @@
     "deploy": "wrangler deploy",
     "tail": "wrangler tail",
     "type-check": "tsc --noEmit",
-    "clean": "rm -rf node_modules",
     "type-check-relaxed": "tsc --noEmit --skipLibCheck"
   },
   "dependencies": {
-    "@uni-feedback/database": "workspace:*",
+    "@uni-feedback/db": "workspace:*",
     "@uni-feedback/utils": "workspace:*",
     "@oslojs/crypto": "^1.0.1",
     "@oslojs/encoding": "^1.1.0",
@@ -26,7 +25,8 @@
     "chanfana": "^2.8.1",
     "dayjs": "^1.11.13",
     "dotenv": "^16.6.1",
-    "drizzle-orm": "^0.38.4",
+    "drizzle-orm": "^0.44.5",
+    "postgres": "^3.4.5",
     "itty-router": "^5.0.18",
     "posthog-node": "^4.18.0",
     "resend": "^4.6.0",
@@ -36,9 +36,9 @@
     "@cloudflare/workers-types": "^4.20250712.0",
     "@types/speakeasy": "latest",
     "@types/uuid": "^10.0.0",
-    "drizzle-kit": "^0.30.6",
+    "drizzle-kit": "^0.31.4",
     "tsx": "^4.20.3",
     "typescript": "^5.8.3",
-    "wrangler": "^4.33.1"
+    "wrangler": "~4.26.1"
   }
 }

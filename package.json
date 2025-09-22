@@ -7,7 +7,6 @@
     "packages/*"
   ],
   "scripts": {
-    "setup": "./setup-database.sh",
     "build": "turbo build",
     "build:dashboard": "turbo build --filter=@uni-feedback/dashboard",
     "build:website": "turbo build --filter=@uni-feedback/website",
@@ -16,7 +15,7 @@
     "dev:all": "turbo dev:api dev:website dev:dashboard @uni-feedback/ui#dev db --parallel --ui=tui",
     "dev:website": "turbo dev:api dev:website @uni-feedback/ui#dev db --parallel --ui=tui",
     "dev:dashboard": "turbo dev:api dev:dashboard @uni-feedback/ui#dev db --parallel --ui=tui",
-    "dev:website-ssr": "turbo dev --filter=@uni-feedback/website-ssr --parallel --ui=tui",
+    "dev:website-ssr": "turbo dev:api dev:website-ssr --parallel --ui=tui",
     "start": "turbo start --parallel",
     "lint": "turbo lint",
     "type-check": "turbo type-check",

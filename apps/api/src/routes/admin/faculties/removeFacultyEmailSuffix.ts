@@ -1,4 +1,5 @@
-import { faculties, getDb } from '@uni-feedback/database'
+import { database } from '@uni-feedback/db'
+import { faculties } from '@uni-feedback/db/schema'
 import { notifyAdminChange } from '@utils/notificationHelpers'
 import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
@@ -61,10 +62,9 @@ export class RemoveFacultyEmailSuffix extends OpenAPIRoute {
       // URL decode the suffix parameter to handle special characters
       const decodedSuffix = decodeURIComponent(suffix)
 
-      const db = getDb(env)
 
       // Get current faculty and email suffixes
-      const faculty = await db
+      const faculty = await database()
         .select({
           id: faculties.id,
           name: faculties.name,
@@ -93,7 +93,7 @@ export class RemoveFacultyEmailSuffix extends OpenAPIRoute {
       const updatedSuffixes = currentSuffixes.filter((s) => s !== decodedSuffix)
 
       // Update faculty
-      await db
+      await database()
         .update(faculties)
         .set({
           emailSuffixes: updatedSuffixes,

@@ -1,4 +1,5 @@
-import { feedback, getDb } from '@uni-feedback/database'
+import { database } from '@uni-feedback/db'
+import { feedback } from '@uni-feedback/db/schema'
 import { detectChanges, notifyAdminChange } from '@utils/notificationHelpers'
 import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
@@ -92,10 +93,9 @@ export class UpdateFeedback extends OpenAPIRoute {
         )
       }
 
-      const db = getDb(env)
 
       // Check if feedback exists
-      const existingFeedback = await db
+      const existingFeedback = await database()
         .select()
         .from(feedback)
         .where(eq(feedback.id, id))
@@ -157,10 +157,10 @@ export class UpdateFeedback extends OpenAPIRoute {
       ])
 
       // Perform update
-      await db.update(feedback).set(updateData).where(eq(feedback.id, id))
+      await database().update(feedback).set(updateData).where(eq(feedback.id, id))
 
       // Get updated feedback
-      const updatedFeedback = await db
+      const updatedFeedback = await database()
         .select()
         .from(feedback)
         .where(eq(feedback.id, id))

@@ -8,8 +8,8 @@ export const faculties = pgTable('faculties', {
   slug: text('slug'),
   url: text('url').notNull(),
   emailSuffixes: jsonb('email_suffixes'),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow()
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow()
 })
 
 export type Faculty = typeof faculties.$inferSelect

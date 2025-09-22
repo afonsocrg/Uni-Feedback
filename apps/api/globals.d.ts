@@ -1,5 +1,3 @@
-import { D1Database } from '@cloudflare/workers-types'
-
 declare global {
   type RequestHandler = (
     env: Env,
@@ -9,7 +7,7 @@ declare global {
 
   interface Env {
     DEV_MODE: string
-    DB: D1Database
+    DATABASE_URL: string
     WORKER_ENV: string
     RESEND_API_KEY: string
     SEND_EMAILS_IN_DEV?: string

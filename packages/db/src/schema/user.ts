@@ -7,8 +7,8 @@ export const users = pgTable('users', {
   username: text('username').notNull(),
   passwordHash: text('password_hash').notNull(),
   superuser: boolean('superuser').default(false),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow()
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow()
 })
 
 export type User = typeof users.$inferSelect

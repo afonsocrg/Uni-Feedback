@@ -1,4 +1,4 @@
-import type { Degree } from '@uni-feedback/database/schema/degree'
+import type { Degree } from '@uni-feedback/db/schema'
 
 // Re-export the base database type
 export type { Degree }

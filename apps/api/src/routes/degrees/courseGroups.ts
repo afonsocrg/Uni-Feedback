@@ -1,4 +1,5 @@
-import { courseGroup, degrees, getDb } from '@uni-feedback/database'
+import { database } from '@uni-feedback/db'
+import { courseGroup, degrees } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
 import { eq, sql } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
@@ -36,14 +37,13 @@ export class GetDegreeCourseGroups extends OpenAPIRoute {
   }
 
   async handle(request: IRequest, env: any, context: any) {
-    const db = getDb(env)
 
     const data = await this.getValidatedData<typeof this.schema>()
 
     const { id: degreeId } = data.params
 
     // Assert degree exists
-    const degree = await db
+    const degree = await database()
       .select()
       .from(degrees)
       .where(eq(degrees.id, degreeId))
@@ -54,12 +54,12 @@ export class GetDegreeCourseGroups extends OpenAPIRoute {
       return Response.json({ error: 'Degree not found' }, { status: 404 })
     }
 
-    const result = await db
+    const result = await database()
       .select({
         id: courseGroup.id,
         name: courseGroup.name,
         courseIds: sql<string>`(
-          SELECT group_concat(course_id)
+          SELECT string_agg(course_id::text, ',')
           FROM mtm_course_groups__courses
           WHERE course_group_id = course_groups.id
         )`.as('course_ids')

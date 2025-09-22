@@ -1,4 +1,5 @@
-import { courses, getDb } from '@uni-feedback/database'
+import { database } from '@uni-feedback/db'
+import { courses } from '@uni-feedback/db/schema'
 import { notifyAdminChange } from '@utils/notificationHelpers'
 import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
@@ -72,10 +73,9 @@ export class AddCourseTerm extends OpenAPIRoute {
       const { id } = params
       const { term } = body
 
-      const db = getDb(env)
 
       // Get current course and terms
-      const course = await db
+      const course = await database()
         .select({
           id: courses.id,
           name: courses.name,
@@ -101,7 +101,7 @@ export class AddCourseTerm extends OpenAPIRoute {
       const updatedTerms = [...currentTerms, term].sort()
 
       // Update course
-      await db
+      await database()
         .update(courses)
         .set({
           terms: updatedTerms,

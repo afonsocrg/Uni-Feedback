@@ -1,4 +1,5 @@
-import { degrees, getDb } from '@uni-feedback/database'
+import { database } from '@uni-feedback/db'
+import { degrees } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
 import { and, eq, sql } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
@@ -41,7 +42,6 @@ export class GetDegreeTypes extends OpenAPIRoute {
       const { query } = await this.getValidatedData<typeof this.schema>()
       const { faculty_id } = query
 
-      const db = getDb(env)
 
       // Build where conditions
       const conditions = [
@@ -56,7 +56,7 @@ export class GetDegreeTypes extends OpenAPIRoute {
         conditions.length > 1 ? and(...conditions) : conditions[0]
 
       // Get distinct degree types
-      const typesResult = await db
+      const typesResult = await database()
         .selectDistinct({
           type: degrees.type
         })

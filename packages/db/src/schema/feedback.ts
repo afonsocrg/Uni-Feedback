@@ -17,9 +17,9 @@ export const feedback = pgTable('feedback', {
   // This is the date the feedback was approved
   // If null, it means the feedback is pending approval,
   // and should not be shown in the public-facing pages
-  approvedAt: timestamp('approved_at'),
+  approvedAt: timestamp('approved_at', { withTimezone: true }),
 
-  createdAt: timestamp('created_at').defaultNow()
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow()
 })
 
 export type Feedback = typeof feedback.$inferSelect

@@ -1,20 +1,19 @@
-import { courses, getDb } from '@uni-feedback/database'
+import { courses } from '@uni-feedback/db/schema'
+import { database } from '@uni-feedback/db'
 import { eq } from 'drizzle-orm'
 
 export class CourseService {
   private env: Env
-  private db: ReturnType<typeof getDb>
 
   constructor(env: Env) {
     this.env = env
-    this.db = getDb(env)
   }
 
   /**
    * Check if a course exists in the database.
    */
   async courseExists(courseId: number): Promise<boolean> {
-    const result = await this.db
+    const result = await database()
       .select({ id: courses.id })
       .from(courses)
       .where(eq(courses.id, courseId))
@@ -27,7 +26,7 @@ export class CourseService {
    * Get basic course information by ID.
    */
   async getCourseById(courseId: number) {
-    const result = await this.db
+    const result = await database()
       .select({
         id: courses.id,
         name: courses.name,

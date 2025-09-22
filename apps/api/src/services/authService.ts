@@ -1,6 +1,6 @@
 import { TOKEN_EXPIRATION_MS } from '@config/auth'
+import { database } from '@uni-feedback/db'
 import {
-  getDb,
   passwordResetTokens,
   sessions,
   userCreationTokens,
@@ -10,7 +10,7 @@ import {
   type Session,
   type User,
   type UserCreationToken
-} from '@uni-feedback/database'
+} from '@uni-feedback/db/schema'
 import {
   generateSecureToken,
   hashPassword,
@@ -21,11 +21,9 @@ import { and, eq, gt, isNull, lt } from 'drizzle-orm'
 
 export class AuthService {
   private env: Env
-  private db: ReturnType<typeof getDb>
 
   constructor(env: Env) {
     this.env = env
-    this.db = getDb(env)
   }
   /**
    * Create a new user
@@ -38,7 +36,7 @@ export class AuthService {
   ): Promise<User> {
     const passwordHash = await hashPassword(userData.password)
 
-    const [user] = await this.db
+    const [user] = await database()
       .insert(users)
       .values({
         ...userData,
@@ -53,7 +51,7 @@ export class AuthService {
    * Find user by email
    */
   async findUserByEmail(email: string): Promise<User | null> {
-    const [user] = await this.db
+    const [user] = await database()
       .select()
       .from(users)
       .where(eq(users.email, email))
@@ -66,7 +64,7 @@ export class AuthService {
    * Find user by ID
    */
   async findUserById(id: number): Promise<User | null> {
-    const [user] = await this.db
+    const [user] = await database()
       .select()
       .from(users)
       .where(eq(users.id, id))
@@ -104,7 +102,7 @@ export class AuthService {
     const refreshTokenHash = await hashToken(refreshToken)
     const expiresAt = new Date(Date.now() + TOKEN_EXPIRATION_MS.ACCESS_TOKEN)
 
-    const [session] = await this.db
+    const [session] = await database()
       .insert(sessions)
       .values({
         userId,
@@ -129,7 +127,7 @@ export class AuthService {
   ): Promise<(Session & { user: User }) | null> {
     const accessTokenHash = await hashToken(accessToken)
 
-    const result = await this.db
+    const result = await database()
       .select({
         session: sessions,
         user: users
@@ -160,7 +158,7 @@ export class AuthService {
   ): Promise<(Session & { user: User }) | null> {
     const refreshTokenHash = await hashToken(refreshToken)
 
-    const result = await this.db
+    const result = await database()
       .select({
         session: sessions,
         user: users
@@ -194,7 +192,7 @@ export class AuthService {
     const newRefreshTokenHash = await hashToken(newRefreshToken)
     const newExpiresAt = new Date(Date.now() + TOKEN_EXPIRATION_MS.ACCESS_TOKEN)
 
-    const [updatedSession] = await this.db
+    const [updatedSession] = await database()
       .update(sessions)
       .set({
         accessTokenHash: newAccessTokenHash,
@@ -216,7 +214,7 @@ export class AuthService {
    */
   async deleteSession(accessToken: string): Promise<void> {
     const accessTokenHash = await hashToken(accessToken)
-    await this.db
+    await database()
       .delete(sessions)
       .where(eq(sessions.accessTokenHash, accessTokenHash))
   }
@@ -225,7 +223,7 @@ export class AuthService {
    * Clean up expired sessions for a user
    */
   async cleanupExpiredSessions(userId: number): Promise<void> {
-    await this.db
+    await database()
       .delete(sessions)
       .where(
         and(eq(sessions.userId, userId), lt(sessions.expiresAt, new Date()))
@@ -242,7 +240,7 @@ export class AuthService {
     const tokenHash = await hashToken(token)
     const expiresAt = new Date(Date.now() + TOKEN_EXPIRATION_MS.PASSWORD_RESET)
 
-    const [resetToken] = await this.db
+    const [resetToken] = await database()
       .insert(passwordResetTokens)
       .values({
         userId,
@@ -265,7 +263,7 @@ export class AuthService {
   ): Promise<(PasswordResetToken & { user: User }) | null> {
     const tokenHash = await hashToken(token)
 
-    const result = await this.db
+    const result = await database()
       .select({
         token: passwordResetTokens,
         user: users
@@ -302,15 +300,15 @@ export class AuthService {
     const passwordHash = await hashPassword(newPassword)
 
     // Update user password and mark token as used
-    await this.db.batch([
-      this.db
+    await database().batch([
+      database()
         .update(users)
         .set({
           passwordHash,
           updatedAt: new Date()
         })
         .where(eq(users.id, tokenData.userId)),
-      this.db
+      database()
         .update(passwordResetTokens)
         .set({ usedAt: new Date() })
         .where(eq(passwordResetTokens.id, tokenData.id))
@@ -330,7 +328,7 @@ export class AuthService {
     const tokenHash = await hashToken(token)
     const expiresAt = new Date(Date.now() + TOKEN_EXPIRATION_MS.USER_CREATION)
 
-    const [creationToken] = await this.db
+    const [creationToken] = await database()
       .insert(userCreationTokens)
       .values({
         email,
@@ -354,7 +352,7 @@ export class AuthService {
   ): Promise<UserCreationToken | null> {
     const tokenHash = await hashToken(token)
 
-    const [creationToken] = await this.db
+    const [creationToken] = await database()
       .select()
       .from(userCreationTokens)
       .where(
@@ -382,8 +380,8 @@ export class AuthService {
     const passwordHash = await hashPassword(userData.password)
 
     // Create user and mark token as used
-    const result = await this.db.batch([
-      this.db
+    const result = await database().batch([
+      database()
         .insert(users)
         .values({
           email: tokenData.email,
@@ -392,7 +390,7 @@ export class AuthService {
           superuser: false
         })
         .returning(),
-      this.db
+      database()
         .update(userCreationTokens)
         .set({ usedAt: new Date() })
         .where(eq(userCreationTokens.id, tokenData.id))
@@ -405,7 +403,7 @@ export class AuthService {
    * Get all users (for admin)
    */
   async getAllUsers(): Promise<User[]> {
-    return await this.db.select().from(users).orderBy(users.createdAt)
+    return await database().select().from(users).orderBy(users.createdAt)
   }
 
   /**
@@ -413,6 +411,6 @@ export class AuthService {
    */
   async deleteUser(userId: number): Promise<void> {
     // Foreign key constraints will handle cascading deletes
-    await this.db.delete(users).where(eq(users.id, userId))
+    await database().delete(users).where(eq(users.id, userId))
   }
 }

@@ -1,4 +1,5 @@
-import { feedbackDrafts, getDb } from '@uni-feedback/database'
+import { database } from '@uni-feedback/db'
+import { feedbackDrafts } from '@uni-feedback/db/schema'
 import { contentJson, OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
@@ -51,7 +52,6 @@ export class CreateFeedbackDraft extends OpenAPIRoute {
 
   async handle(request: IRequest, env: any, context: any) {
     withErrorHandling(request, async () => {
-      const db = getDb(env)
       const { body } = await this.getValidatedData<typeof this.schema>()
 
       // Generate unique code
@@ -70,7 +70,7 @@ export class CreateFeedbackDraft extends OpenAPIRoute {
         }
 
         // Check if code already exists
-        const existing = await db
+        const existing = await database()
           .select()
           .from(feedbackDrafts)
           .where(eq(feedbackDrafts.code, code))
@@ -89,7 +89,7 @@ export class CreateFeedbackDraft extends OpenAPIRoute {
         'unknown'
 
       // Insert feedback draft
-      await db.insert(feedbackDrafts).values({
+      await database().insert(feedbackDrafts).values({
         code,
         data: JSON.stringify(body),
         expiresAt,

@@ -19,7 +19,7 @@ export const courseRelationships = pgTable(
       .notNull()
       .references(() => courses.id),
     relationshipType: text('relationship_type').notNull().default('identical'),
-    createdAt: timestamp('created_at').defaultNow()
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow()
   },
   (table) => ({
     pk: primaryKey({

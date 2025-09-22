@@ -1,4 +1,5 @@
-import { getDb, feedback } from '@uni-feedback/database'
+import { database } from '@uni-feedback/db'
+import { feedback } from '@uni-feedback/db/schema'
 import { CourseFeedbackService, CourseService } from '@services'
 import { OpenAPIRoute } from 'chanfana'
 import { desc } from 'drizzle-orm'
@@ -52,7 +53,6 @@ export class GetCourseFeedback extends OpenAPIRoute {
   }
 
   async handle(request: IRequest, env: Env, context: any) {
-    const db = getDb(env)
     const courseId = parseInt(request.params.id)
     const courseFeedbackService = new CourseFeedbackService(env)
     const courseService = new CourseService(env)
@@ -66,11 +66,8 @@ export class GetCourseFeedback extends OpenAPIRoute {
       .getCourseFeedbackWithDetails(courseId)
       .orderBy(desc(feedback.createdAt))
 
-    // Convert SQLite number (0/1) to proper boolean
-    const result = feedbackData.map((item) => ({
-      ...item,
-      isFromDifferentCourse: Boolean(item.isFromDifferentCourse)
-    }))
+    // PostgreSQL already returns proper booleans
+    const result = feedbackData
 
     return Response.json(result)
   }

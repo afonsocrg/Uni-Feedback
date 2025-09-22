@@ -1,4 +1,5 @@
-import { courseGroup, getDb } from '@uni-feedback/database'
+import { database } from '@uni-feedback/db'
+import { courseGroup } from '@uni-feedback/db/schema'
 import {
   PaginatedResponse,
   PaginationQuerySchema,
@@ -64,7 +65,6 @@ export class GetCourseGroups extends OpenAPIRoute {
       const { query } = await this.getValidatedData<typeof this.schema>()
       const { page, limit, search, degree_id } = query
 
-      const db = getDb(env)
 
       // Build where conditions
       const conditions = []
@@ -82,7 +82,7 @@ export class GetCourseGroups extends OpenAPIRoute {
       const whereClause = conditions.length > 0 ? and(...conditions) : undefined
 
       // Get total count
-      const totalResult = await db
+      const totalResult = await database()
         .select({ count: count() })
         .from(courseGroup)
         .where(whereClause)
@@ -92,7 +92,7 @@ export class GetCourseGroups extends OpenAPIRoute {
       const offset = (page - 1) * limit
 
       // Get course groups
-      const courseGroupsResult = await db
+      const courseGroupsResult = await database()
         .select({
           id: courseGroup.id,
           name: courseGroup.name,

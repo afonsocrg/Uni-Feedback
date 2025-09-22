@@ -1,4 +1,5 @@
-import { degrees, faculties, getDb } from '@uni-feedback/database'
+import { database } from '@uni-feedback/db'
+import { degrees, faculties } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
 import { eq, sql } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
@@ -56,10 +57,9 @@ export class GetDegreeDetails extends OpenAPIRoute {
       const { params } = await this.getValidatedData<typeof this.schema>()
       const { id } = params
 
-      const db = getDb(env)
 
       // Get degree with faculty info and course count
-      const degreeResult = await db
+      const degreeResult = await database()
         .select({
           id: degrees.id,
           name: degrees.name,

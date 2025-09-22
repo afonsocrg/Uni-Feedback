@@ -1,4 +1,3 @@
-import { getDb } from '@uni-feedback/database'
 import { OpenAPIRoute } from 'chanfana'
 import { IRequest } from 'itty-router'
 import { z } from 'zod'
@@ -39,7 +38,6 @@ export class GetDegrees extends OpenAPIRoute {
   }
 
   async handle(request: IRequest, env: Env, context: any) {
-    const db = getDb(env)
     const { onlyWithCourses = true, faculty } = request.query
 
     const degreeService = new DegreeService(env)

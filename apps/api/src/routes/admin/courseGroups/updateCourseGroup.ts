@@ -1,4 +1,5 @@
-import { courseGroup, getDb } from '@uni-feedback/database'
+import { database } from '@uni-feedback/db'
+import { courseGroup } from '@uni-feedback/db/schema'
 import { detectChanges, notifyAdminChange } from '@utils/notificationHelpers'
 import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
@@ -102,10 +103,9 @@ export class UpdateCourseGroup extends OpenAPIRoute {
         )
       }
 
-      const db = getDb(env)
 
       // Check if course group exists
-      const existingCourseGroup = await db
+      const existingCourseGroup = await database()
         .select()
         .from(courseGroup)
         .where(eq(courseGroup.id, id))
@@ -130,7 +130,7 @@ export class UpdateCourseGroup extends OpenAPIRoute {
       ])
 
       // Update course group
-      const updatedCourseGroup = await db
+      const updatedCourseGroup = await database()
         .update(courseGroup)
         .set({
           ...dbUpdateData,

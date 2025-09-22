@@ -1,4 +1,5 @@
-import { degrees, faculties, getDb } from '@uni-feedback/database'
+import { database } from '@uni-feedback/db'
+import { degrees, faculties } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
 import { and, eq, or, sql } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
@@ -55,7 +56,6 @@ export class GetDegreeSuggestions extends OpenAPIRoute {
       const { query } = await this.getValidatedData<typeof this.schema>()
       const { faculty_id } = query
 
-      const db = getDb(env)
 
       // Build where conditions
       const conditions = []
@@ -67,7 +67,7 @@ export class GetDegreeSuggestions extends OpenAPIRoute {
       const whereClause = conditions.length > 0 ? and(...conditions) : undefined
 
       // Get degrees with just id, name, and acronym
-      const degreesResult = await db
+      const degreesResult = await database()
         .select({
           id: degrees.id,
           name: degrees.name,

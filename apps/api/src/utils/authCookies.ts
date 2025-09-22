@@ -1,12 +1,15 @@
 import { AUTH_CONFIG, TOKEN_EXPIRATION_S } from '@config/auth'
-import type { Session } from '@uni-feedback/database/schema'
+import type { Session } from '@uni-feedback/db/schema'
 import { createCookie } from '@uni-feedback/utils'
+
+// Type for sessions that include the plain tokens (as returned by AuthService)
+type SessionWithTokens = Session & { accessToken: string; refreshToken: string }
 
 /**
  * Adds authentication cookies to a Response
  * Mutates the response by adding Set-Cookie headers
  */
-export function setAuthCookies(response: Response, session: Session): void {
+export function setAuthCookies(response: Response, session: SessionWithTokens): void {
   // Set access token cookie (sent to all API endpoints)
   response.headers.append(
     'Set-Cookie',

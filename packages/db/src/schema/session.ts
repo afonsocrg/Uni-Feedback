@@ -9,8 +9,8 @@ export const sessions = pgTable('sessions', {
     .references(() => users.id, { onDelete: 'cascade' }),
   accessTokenHash: text('access_token_hash').notNull().unique(),
   refreshTokenHash: text('refresh_token_hash').notNull().unique(),
-  expiresAt: timestamp('expires_at').notNull(),
-  createdAt: timestamp('created_at').defaultNow()
+  expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow()
 })
 
 export type Session = typeof sessions.$inferSelect

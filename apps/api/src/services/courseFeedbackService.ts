@@ -1,13 +1,12 @@
-import { courseRelationships, courses, degrees, feedback, getDb } from '@uni-feedback/database'
+import { database } from '@uni-feedback/db'
+import { courseRelationships, courses, degrees, feedback } from '@uni-feedback/db/schema'
 import { and, eq, inArray, isNotNull, or, sql } from 'drizzle-orm'
 
 export class CourseFeedbackService {
   private env: Env
-  private db: ReturnType<typeof getDb>
 
   constructor(env: Env) {
     this.env = env
-    this.db = getDb(env)
   }
 
   /**
@@ -15,7 +14,7 @@ export class CourseFeedbackService {
    * This includes the original course ID plus any related course IDs based on course relationships.
    */
   private getRelevantCourseIdsQuery(courseId: number) {
-    return this.db
+    return database()
       .select({ courseId: courseRelationships.targetCourseId })
       .from(courseRelationships)
       .where(
@@ -51,15 +50,15 @@ export class CourseFeedbackService {
     totalFeedbackCount: number
     averageWorkload: number | null
   }> {
-    const result = await this.db
+    const result = await database()
       .select({
-        averageRating: sql<number>`ifnull(avg(${feedback.rating}), 0)`.as('average_rating'),
-        totalFeedbackCount: sql<number>`ifnull(count(${feedback.id}), 0)`.as(
+        averageRating: sql<number>`COALESCE(avg(${feedback.rating}), 0)`.as('average_rating'),
+        totalFeedbackCount: sql<number>`COALESCE(count(${feedback.id}), 0)`.as(
           'total_feedback_count'
         ),
         averageWorkload: sql<
           number | null
-        >`ifnull(avg(${feedback.workloadRating}), 0)`.as('average_workload')
+        >`COALESCE(avg(${feedback.workloadRating}), 0)`.as('average_workload')
       })
       .from(feedback)
       .where(this.getFeedbackWhereCondition(courseId))
@@ -84,7 +83,7 @@ export class CourseFeedbackService {
   getCourseFeedbackWithDetails(courseId: number) {
     const relatedCourseIds = this.getRelevantCourseIdsQuery(courseId)
 
-    return this.db
+    return database()
       .select({
         id: feedback.id,
         courseId: feedback.courseId,
@@ -137,7 +136,7 @@ export class CourseFeedbackService {
           // Feedback from courses that are related to this course
           inArray(
             feedback.courseId,
-            this.db
+            database()
               .select({ targetCourseId: courseRelationships.targetCourseId })
               .from(courseRelationships)
               .where(

@@ -1,4 +1,5 @@
-import { courses, getDb } from '@uni-feedback/database'
+import { database } from '@uni-feedback/db'
+import { courses } from '@uni-feedback/db/schema'
 import { CourseFeedbackService } from '@services'
 import { OpenAPIRoute } from 'chanfana'
 import { and, eq, sql } from 'drizzle-orm'
@@ -44,7 +45,6 @@ export class GetDegreeCourses extends OpenAPIRoute {
   }
 
   async handle(request: IRequest, env: any, context: any) {
-    const db = getDb(env)
     const courseFeedbackService = new CourseFeedbackService(env)
 
     const data = await this.getValidatedData<typeof this.schema>()
@@ -66,23 +66,23 @@ export class GetDegreeCourses extends OpenAPIRoute {
     const feedbackJoin = courseFeedbackService.getEnhancedFeedbackJoin()
 
     // Base query with enhanced feedback join
-    const baseQuery = db
+    const baseQuery = database()
       .select({
         id: courses.id,
         name: courses.name,
         acronym: courses.acronym,
         url: courses.url,
         averageRating:
-          sql<number>`ifnull(avg(${feedbackJoin.table.rating}), 0)`.as(
+          sql<number>`COALESCE(avg(${feedbackJoin.table.rating}), 0)`.as(
             'average_rating'
           ),
         averageWorkload: sql<
           number | null
-        >`ifnull(avg(${feedbackJoin.table.workloadRating}), 0)`.as(
+        >`COALESCE(avg(${feedbackJoin.table.workloadRating}), 0)`.as(
           'average_workload'
         ),
         totalFeedbackCount:
-          sql<number>`ifnull(count(distinct ${feedbackJoin.table.id}), 0)`.as(
+          sql<number>`COALESCE(count(distinct ${feedbackJoin.table.id}), 0)`.as(
             'total_feedback_count'
           ),
         degreeId: courses.degreeId,

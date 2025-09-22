@@ -31,8 +31,8 @@ export const courses = pgTable('courses', {
   bibliography: text('bibliography'),
   assessment: text('assessment'),
   hasMandatoryExam: boolean('has_mandatory_exam'),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow()
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow()
 })
 
 export type Course = typeof courses.$inferSelect & {

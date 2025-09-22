@@ -13,8 +13,8 @@ export const degrees = pgTable('degrees', {
   description: text('description'),
   url: text('url'),
   facultyId: integer('faculty_id').references(() => faculties.id),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow()
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow()
 })
 
 export type Degree = typeof degrees.$inferSelect

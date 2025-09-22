@@ -1,4 +1,5 @@
-import { courseGroup, degrees, getDb } from '@uni-feedback/database'
+import { database } from '@uni-feedback/db'
+import { courseGroup, degrees } from '@uni-feedback/db/schema'
 import { ValidationErrors } from '@types'
 import { notifyAdminChange } from '@utils/notificationHelpers'
 import { OpenAPIRoute } from 'chanfana'
@@ -105,10 +106,9 @@ export class CreateCourseGroup extends OpenAPIRoute {
         )
       }
 
-      const db = getDb(env)
 
       // Check if degree exists
-      const existingDegree = await db
+      const existingDegree = await database()
         .select()
         .from(degrees)
         .where(eq(degrees.id, degreeId))
@@ -119,7 +119,7 @@ export class CreateCourseGroup extends OpenAPIRoute {
       }
 
       // Create course group
-      const newCourseGroup = await db
+      const newCourseGroup = await database()
         .insert(courseGroup)
         .values({
           name: name.trim(),

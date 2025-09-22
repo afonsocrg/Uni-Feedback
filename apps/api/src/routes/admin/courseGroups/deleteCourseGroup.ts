@@ -1,4 +1,5 @@
-import { courseGroup, getDb } from '@uni-feedback/database'
+import { database } from '@uni-feedback/db'
+import { courseGroup } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
@@ -36,10 +37,9 @@ export class DeleteCourseGroup extends OpenAPIRoute {
       const { params } = await this.getValidatedData<typeof this.schema>()
       const { id } = params
 
-      const db = getDb(env)
 
       // Check if course group exists
-      const existingCourseGroup = await db
+      const existingCourseGroup = await database()
         .select()
         .from(courseGroup)
         .where(eq(courseGroup.id, id))
@@ -53,7 +53,7 @@ export class DeleteCourseGroup extends OpenAPIRoute {
       }
 
       // Delete course group
-      await db.delete(courseGroup).where(eq(courseGroup.id, id))
+      await database().delete(courseGroup).where(eq(courseGroup.id, id))
 
       return new Response(null, { status: 204 })
     } catch (error) {

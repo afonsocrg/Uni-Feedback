@@ -1,15 +1,14 @@
-import { courses, degrees, faculties, feedback, getDb } from '@uni-feedback/database'
+import { database } from '@uni-feedback/db'
+import { courses, degrees, faculties, feedback } from '@uni-feedback/db/schema'
 import { and, eq, sql } from 'drizzle-orm'
 import type { DegreeWithCounts, GetDegreesOptions } from '@types'
 import { CourseFeedbackService } from './courseFeedbackService'
 
 export class DegreeService {
   private env: Env
-  private db: ReturnType<typeof getDb>
 
   constructor(env: Env) {
     this.env = env
-    this.db = getDb(env)
   }
 
   async getDegreesWithCounts(
@@ -21,18 +20,18 @@ export class DegreeService {
     // Use the centralized enhanced feedback join logic
     const feedbackJoin = courseFeedbackService.getEnhancedFeedbackJoin()
 
-    let baseQuery = this.db
+    let baseQuery = database()
       .select({
         id: degrees.id,
         externalId: degrees.externalId,
         type: degrees.type,
         name: degrees.name,
         acronym: degrees.acronym,
-        courseCount: sql<number>`ifnull(count(distinct ${courses.id}), 0)`.as(
+        courseCount: sql<number>`COALESCE(count(distinct ${courses.id}), 0)`.as(
           'course_count'
         ),
         feedbackCount:
-          sql<number>`ifnull(count(distinct ${feedbackJoin.table.id}), 0)`.as(
+          sql<number>`COALESCE(count(distinct ${feedbackJoin.table.id}), 0)`.as(
             'feedback_count'
           )
       })

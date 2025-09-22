@@ -1,4 +1,5 @@
-import { faculties, getDb } from '@uni-feedback/database'
+import { database } from '@uni-feedback/db'
+import { faculties } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
@@ -43,9 +44,8 @@ export class GetFacultyEmailSuffixes extends OpenAPIRoute {
     try {
       const { params } = await this.getValidatedData<typeof this.schema>()
       const { id } = params
-      const db = getDb(env)
 
-      const faculty = await db
+      const faculty = await database()
         .select({
           id: faculties.id,
           emailSuffixes: faculties.emailSuffixes

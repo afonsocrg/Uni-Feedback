@@ -1,4 +1,5 @@
-import { faculties, getDb } from '@uni-feedback/database'
+import { database } from '@uni-feedback/db'
+import { faculties } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
@@ -36,10 +37,9 @@ export class GetFaculties extends OpenAPIRoute {
   }
 
   async handle(request: IRequest, env: any, context: any) {
-    const db = getDb(env)
     const { acronym } = request.query
 
-    let query = db
+    let query = database()
       .select({
         id: faculties.id,
         name: faculties.name,

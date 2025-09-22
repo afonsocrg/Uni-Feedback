@@ -1,4 +1,5 @@
-import { degrees, faculties, getDb } from '@uni-feedback/database'
+import { database } from '@uni-feedback/db'
+import { degrees, faculties } from '@uni-feedback/db/schema'
 import { PaginatedResponse } from '@types'
 import { OpenAPIRoute } from 'chanfana'
 import { and, count, eq, or, sql } from 'drizzle-orm'
@@ -78,7 +79,6 @@ export class GetDegrees extends OpenAPIRoute {
       const { query } = await this.getValidatedData<typeof this.schema>()
       const { page, limit, search, faculty_id, type } = query
 
-      const db = getDb(env)
 
       // Build where conditions
       const conditions = []
@@ -103,7 +103,7 @@ export class GetDegrees extends OpenAPIRoute {
       const whereClause = conditions.length > 0 ? and(...conditions) : undefined
 
       // Get total count
-      const totalResult = await db
+      const totalResult = await database()
         .select({ count: count() })
         .from(degrees)
         .leftJoin(faculties, eq(degrees.facultyId, faculties.id))
@@ -114,7 +114,7 @@ export class GetDegrees extends OpenAPIRoute {
       const offset = (page - 1) * limit
 
       // Get degrees with course count
-      const degreesResult = await db
+      const degreesResult = await database()
         .select({
           id: degrees.id,
           name: degrees.name,

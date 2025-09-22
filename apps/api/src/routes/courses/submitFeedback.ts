@@ -1,5 +1,6 @@
-import { courses, degrees, feedback, getDb } from '@uni-feedback/database'
 import { sendCourseReviewReceived } from '@services/telegram'
+import { database } from '@uni-feedback/db'
+import { courses, degrees, feedback } from '@uni-feedback/db/schema'
 import { getCurrentSchoolYear } from '@uni-feedback/utils'
 import { contentJson, OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
@@ -43,7 +44,6 @@ export class SubmitFeedback extends OpenAPIRoute {
 
   async handle(request: IRequest, env: any, context: any) {
     return withErrorHandling(request, async () => {
-      const db = getDb(env)
       const courseId = parseInt(request.params.id)
       const { body } = await this.getValidatedData<typeof this.schema>()
 
@@ -56,7 +56,7 @@ export class SubmitFeedback extends OpenAPIRoute {
       }
 
       // Check if course exists
-      const courseResult = await db
+      const courseResult = await database()
         .select()
         .from(courses)
         .where(eq(courses.id, courseId))
@@ -67,7 +67,7 @@ export class SubmitFeedback extends OpenAPIRoute {
       }
       const course = courseResult[0]
 
-      const degreeResult = await db
+      const degreeResult = await database()
         .select()
         .from(degrees)
         .where(eq(degrees.id, courseResult[0].degreeId))
@@ -90,10 +90,10 @@ export class SubmitFeedback extends OpenAPIRoute {
         workloadRating: body.workloadRating,
         comment: comment,
         originalComment: comment,
-        approvedAt: new Date('1970-01-01')
+        approvedAt: new Date('1999-12-16T04:30:00.000Z') // Auto-approved marker (birthday easter egg!) Dec 16, 1999 04:30 UTC
       }
 
-      await db.insert(feedback).values(feedbackData)
+      await database().insert(feedback).values(feedbackData)
 
       await sendCourseReviewReceived(env, {
         email: body.email,

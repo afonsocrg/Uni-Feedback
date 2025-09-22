@@ -1,4 +1,5 @@
-import { courses, getDb } from '@uni-feedback/database'
+import { database } from '@uni-feedback/db'
+import { courses } from '@uni-feedback/db/schema'
 import { detectChanges, notifyAdminChange } from '@utils/notificationHelpers'
 import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
@@ -125,10 +126,9 @@ export class UpdateCourse extends OpenAPIRoute {
         )
       }
 
-      const db = getDb(env)
 
       // Check if course exists
-      const existingCourse = await db
+      const existingCourse = await database()
         .select()
         .from(courses)
         .where(eq(courses.id, id))
@@ -166,7 +166,7 @@ export class UpdateCourse extends OpenAPIRoute {
       ])
 
       // Update course
-      const updatedCourse = await db
+      const updatedCourse = await database()
         .update(courses)
         .set({
           ...dbUpdateData,
