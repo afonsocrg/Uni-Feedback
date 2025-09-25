@@ -1,0 +1,42 @@
+services:
+  db:
+    image: postgres:15
+    restart: always
+    container_name: uni-feedback-db
+    environment:
+      POSTGRES_DB: uni-feedback
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${PGPASSWORD}
+    ports:
+      - "5433:5432"
+    volumes:
+      - uni_feedback_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  website-ssr:
+    image: uni-feedback-website-ssr:latest
+    build:
+      context: .
+      dockerfile: apps/website-ssr/Dockerfile
+    ports:
+      - "3000:3000"
+    env_file:
+      - apps/website-ssr/.env.docker
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "http.get('http://localhost:3000', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  uni_feedback_postgres_data:
