@@ -4,6 +4,9 @@
 FROM oven/bun:1.2-alpine AS builder
 WORKDIR /app
 
+# Install Python and build tools for native modules
+RUN apk add --no-cache python3 make g++
+
 # Copy the entire monorepo
 COPY . .
 
