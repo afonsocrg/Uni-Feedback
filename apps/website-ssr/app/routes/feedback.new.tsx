@@ -1,9 +1,7 @@
 import {
   getFaculties,
-  getFacultyDegrees,
-  getDegreeCourses,
-  submitFeedback,
   MeicFeedbackAPIError,
+  submitFeedback,
   type FeedbackSubmission
 } from '@uni-feedback/api-client'
 import { GiveFeedbackContent } from '~/components'
@@ -16,7 +14,8 @@ export function meta() {
     { title: 'Give Feedback - Uni Feedback' },
     {
       name: 'description',
-      content: 'Share your honest course review to help fellow students make informed decisions.'
+      content:
+        'Share your honest course review to help fellow students make informed decisions.'
     }
   ]
 }
@@ -30,30 +29,7 @@ export async function loader() {
   }
 }
 
-export async function clientLoader({ request }: Route.ClientLoaderArgs) {
-  const url = new URL(request.url)
-  const facultyId = url.searchParams.get('facultyId')
-  const degreeId = url.searchParams.get('degreeId')
-
-  const result: any = {}
-
-  try {
-    // Load degrees if facultyId is provided
-    if (facultyId) {
-      result.degrees = await getFacultyDegrees(parseInt(facultyId))
-    }
-
-    // Load courses if degreeId is provided
-    if (degreeId) {
-      result.courses = await getDegreeCourses(parseInt(degreeId))
-    }
-  } catch (error) {
-    console.error('Failed to load data:', error)
-    // Return partial data on error
-  }
-
-  return result
-}
+// We now handle dynamic data loading directly in the component using the API client
 
 export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData()
@@ -70,7 +46,8 @@ export async function action({ request }: Route.ActionArgs) {
   }
 
   try {
-    const { email, schoolYear, courseId, rating, workloadRating, comment } = validation.data
+    const { email, schoolYear, courseId, rating, workloadRating, comment } =
+      validation.data
 
     // Prepare feedback submission
     const feedbackData: FeedbackSubmission = {
@@ -106,7 +83,10 @@ export async function action({ request }: Route.ActionArgs) {
   }
 }
 
-export default function GiveFeedbackPage({ loaderData, actionData }: Route.ComponentProps) {
+export default function GiveFeedbackPage({
+  loaderData,
+  actionData
+}: Route.ComponentProps) {
   return (
     <GiveFeedbackContent
       faculties={loaderData.faculties}

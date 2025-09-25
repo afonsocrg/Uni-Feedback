@@ -1,5 +1,9 @@
 import './app.css'
 
+import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister'
+import { QueryClient } from '@tanstack/react-query'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { useEffect } from 'react'
 import {
   isRouteErrorResponse,
@@ -25,6 +29,25 @@ export const links: Route.LinksFunction = () => [
   }
 ]
 
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+      refetchOnReconnect: false,
+      gcTime: 1000 * 60 * 60 * 24 // 24 hours for SSR hydration
+    }
+  }
+})
+
+// Create persister only on client side to avoid SSR issues
+const persister = typeof window !== 'undefined'
+  ? createAsyncStoragePersister({
+      storage: window.localStorage
+    })
+  : undefined
+
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
@@ -49,7 +72,15 @@ export default function App() {
     userPreferences.initialize()
   }, [])
 
-  return <Outlet />
+  return (
+    <PersistQueryClientProvider
+      client={queryClient}
+      persistOptions={{ persister }}
+    >
+      <Outlet />
+      <ReactQueryDevtools initialIsOpen={false} />
+    </PersistQueryClientProvider>
+  )
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

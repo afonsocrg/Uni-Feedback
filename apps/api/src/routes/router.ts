@@ -14,6 +14,7 @@ import { CreateFeedbackDraft, GetFeedbackDraft } from './feedbackDrafts'
 
 const { preflight, corsify } = cors({
   origin: [
+    'http://localhost:3000',
     'http://localhost:5173',
     'http://localhost:5174', // Admin dashboard
     'https://meic-feedback.afonsocrg.com',
