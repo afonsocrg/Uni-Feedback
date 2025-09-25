@@ -3,9 +3,8 @@ dist/
 build/
 
 # Environment variables
-.env
-.env.local
-.env.production
+.env.*
+!.env.example
 
 # Dependencies
 node_modules/
