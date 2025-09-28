@@ -33,9 +33,12 @@
     "clean": "turbo clean && rm -f bun.lockb bun.lock && rm -rf node_modules"
   },
   "devDependencies": {
+    "@emnapi/core": "^1.5.0",
+    "@emnapi/wasi-threads": "^1.1.0",
+    "@tybys/wasm-util": "^0.10.1",
     "prettier": "^3.6.2",
-    "prettier-plugin-organize-imports": "^4.2.0",
-    "turbo": "^2.5.5"
+    "prettier-plugin-organize-imports": "^4.3.0",
+    "turbo": "^2.5.8"
   },
   "bun": {
     "workspaces": {

@@ -9,6 +9,8 @@ services:
       POSTGRES_PASSWORD: ${PGPASSWORD}
     ports:
       - "5433:5432"
+    networks:
+      - uni_feedback_network
     volumes:
       - uni_feedback_postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -25,6 +27,8 @@ services:
       dockerfile: apps/website-ssr/Dockerfile
     ports:
       - "3000:3000"
+    networks:
+      - uni_feedback_network
     env_file:
       - apps/website-ssr/.env.docker
     depends_on:
@@ -40,3 +44,7 @@ services:
 
 volumes:
   uni_feedback_postgres_data:
+
+networks:
+  uni_feedback_network:
+    name: uni-feedback-network

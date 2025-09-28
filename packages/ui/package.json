@@ -17,7 +17,6 @@
     "./tailwind.config.ts": "./tailwind.config.js"
   },
   "scripts": {
-    "build": "vite build",
     "dev": "vite build --watch",
     "type-check": "tsc --noEmit",
     "clean": "rm -rf node_modules"

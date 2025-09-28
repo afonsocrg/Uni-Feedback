@@ -55,6 +55,10 @@
     },
     "clean": {
       "cache": false
+    },
+    "@uni-feedback/website-ssr#build": {
+      "dependsOn": [],
+      "outputs": ["build/**"]
     }
   }
 }

@@ -10,7 +10,6 @@
     }
   },
   "scripts": {
-    "build": "echo 'Building utils package'",
     "type-check": "tsc --noEmit",
     "clean": "rm -rf node_modules"
   },

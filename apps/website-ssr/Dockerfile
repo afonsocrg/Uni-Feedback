@@ -1,52 +1,44 @@
-# Multi-stage Dockerfile: Build with Bun, Run with Node.js (best of both worlds)
+FROM oven/bun:1.2-alpine AS base
 
-# Stage 1: Build with Bun (handles workspaces and builds fast)
-FROM oven/bun:1.2-alpine AS builder
+
+FROM base AS builder
+RUN apk update
+# RUN apk add --no-cache libc6-compat
+# RUN apk add --no-cache python3 make g++
 WORKDIR /app
-
-# Install Python and build tools for native modules
-RUN apk add --no-cache python3 make g++
-
-# Copy the entire monorepo
+RUN bun install turbo --global
 COPY . .
+RUN turbo prune @uni-feedback/website-ssr --docker
 
-# Install all dependencies and build
-RUN bun install
-WORKDIR /app/apps/website-ssr
-RUN bun run build
-
-# Stage 2: Runtime with Node.js (better React compatibility)
-FROM node:20-alpine AS runtime
+FROM base AS installer
+RUN apk update
+RUN bun install turbo --global
+# RUN apk add --no-cache libc6-compat
+# RUN apk add --no-cache python3 make g++
 WORKDIR /app
 
-# Install dumb-init for proper signal handling
-RUN apk add --no-cache dumb-init
+COPY --from=builder /app/out/json/ .
+RUN bun install
 
-# Create non-root user
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S appuser -u 1001
+COPY --from=builder /app/out/full/ .
+COPY --from=builder /app/tsconfig.json .
+COPY --from=builder /app/terms_of_service.md .
+COPY --from=builder /app/privacy_policy.md .
 
-# Copy the entire built app from builder stage
-COPY --from=builder /app /app
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+RUN bun run build:website-ssr
 
-# Set proper ownership
-RUN chown -R appuser:nodejs /app
-USER appuser
+FROM node:18-alpine AS runner
+WORKDIR /app
 
-# Environment variables
-ENV NODE_ENV=production
-ENV PORT=3000
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nodejs
+USER nodejs
 
-# Move to website-ssr directory
-WORKDIR /app/apps/website-ssr
+COPY --from=installer --chown=nodejs:nodejs /app/apps/website-ssr/build ./build
+COPY --from=installer --chown=nodejs:nodejs /app/apps/website-ssr/server.js .
+COPY --from=installer --chown=nodejs:nodejs /app/apps/website-ssr/package.json .
+COPY --from=installer --chown=nodejs:nodejs /app/node_modules ./node_modules
 
-# Expose port
-EXPOSE 3000
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "http.get('http://localhost:3000', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })" || exit 1
-
-# Start the application with Node.js
-ENTRYPOINT ["dumb-init", "--"]
+# Debug only!
 CMD ["node", "server.js"]

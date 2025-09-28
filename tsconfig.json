@@ -35,12 +35,5 @@
       "@uni-feedback/utils": ["./packages/utils/src"]
     }
   },
-  "include": [],
-  "references": [
-    { "path": "./packages/utils" },
-    { "path": "./packages/ui" },
-    { "path": "./packages/api-client" },
-    { "path": "./apps/website" },
-    { "path": "./apps/api" }
-  ]
+  "include": []
 }
