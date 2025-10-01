@@ -17,6 +17,10 @@
       "cache": false,
       "persistent": true
     },
+    "dev:db": {
+      "cache": false,
+      "persistent": true
+    },
     "dev:website-ssr": {
       "cache": false,
       "persistent": true

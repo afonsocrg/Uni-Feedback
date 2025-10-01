@@ -13,6 +13,7 @@ import {
   Scripts,
   ScrollRestoration
 } from 'react-router'
+import { NotFound } from '~/components'
 import { userPreferences } from '~/utils'
 import type { Route } from './+types/root'
 
@@ -42,11 +43,12 @@ const queryClient = new QueryClient({
 })
 
 // Create persister only on client side to avoid SSR issues
-const persister = typeof window !== 'undefined'
-  ? createAsyncStoragePersister({
-      storage: window.localStorage
-    })
-  : undefined
+const persister =
+  typeof window !== 'undefined'
+    ? createAsyncStoragePersister({
+        storage: window.localStorage
+      })
+    : undefined
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -89,11 +91,11 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   let stack: string | undefined
 
   if (isRouteErrorResponse(error)) {
-    message = error.status === 404 ? '404' : 'Error'
-    details =
-      error.status === 404
-        ? 'The requested page could not be found.'
-        : error.statusText || details
+    if (error.status === 404) {
+      return <NotFound />
+    }
+    message = 'Error'
+    details = error.statusText || details
   } else if (import.meta.env.DEV && error && error instanceof Error) {
     details = error.message
     stack = error.stack

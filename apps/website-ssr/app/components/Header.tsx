@@ -1,6 +1,6 @@
 import { GraduationCap } from 'lucide-react'
 import { Link } from 'react-router'
-import { useLastVisitedPath } from '../hooks/useLastVisitedPath'
+import { useLastVisitedPath } from '~/hooks/useLastVisitedPath'
 
 export function Header() {
   const lastVisitedPath = useLastVisitedPath()
