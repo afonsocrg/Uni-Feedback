@@ -22,6 +22,7 @@ services:
 
   website-ssr:
     image: uni-feedback-website-ssr:latest
+    container_name: uni-feedback-website-ssr
     build:
       context: .
       dockerfile: apps/website-ssr/Dockerfile
