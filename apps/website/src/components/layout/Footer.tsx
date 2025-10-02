@@ -10,7 +10,7 @@ export function Footer() {
             </span>{' '}
             by the{' '}
             <a
-              href="https://github.com/afonsocrg/meic-feedback"
+              href="https://github.com/afonsocrg/uni-feedback"
               target="_blank"
               rel="noopener noreferrer"
               className="text-primaryBlue hover:text-primaryBlue/80 font-medium transition-colors"
@@ -32,7 +32,7 @@ export function Footer() {
               Privacy Policy
             </a>
             <a
-              href="https://github.com/afonsocrg/meic-feedback/issues/new?template=feature_request.md"
+              href="https://github.com/afonsocrg/uni-feedback/issues/new?template=feature_request.md"
               target="_blank"
               rel="noopener noreferrer"
               className="text-primaryBlue hover:text-primaryBlue/80 text-sm font-medium transition-colors"
@@ -40,7 +40,7 @@ export function Footer() {
               Request a feature
             </a>
             <a
-              href="https://github.com/afonsocrg/meic-feedback/issues/new?template=bug_report.md"
+              href="https://github.com/afonsocrg/uni-feedback/issues/new?template=bug_report.md"
               target="_blank"
               rel="noopener noreferrer"
               className="text-primaryBlue hover:text-primaryBlue/80 text-sm font-medium transition-colors"

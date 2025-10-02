@@ -10,7 +10,7 @@ export function Footer() {
             </span>{' '}
             by the{' '}
             <a
-              href="https://github.com/afonsocrg/meic-feedback"
+              href="https://github.com/afonsocrg/uni-feedback"
               target="_blank"
               rel="noopener noreferrer"
               className="text-primaryBlue hover:text-primaryBlue/80 font-medium transition-colors"

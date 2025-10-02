@@ -50,7 +50,7 @@ This is a **Turborepo monorepo** with React frontends and a Cloudflare Workers b
 This will start:
 - **Main website** at http://localhost:5173
 - **Admin dashboard** at http://localhost:5174  
-- **API** at http://localhost:8787
+- **API** at http://localhost:3001
 - **SSG website** at http://localhost:5175 (if running)
 
 ### Important: Shared Database Setup
@@ -69,7 +69,7 @@ uni-feedback/
 ├── apps/
 │   ├── website/           # Main React website (port 5173)
 │   ├── dashboard/         # Admin dashboard (port 5174)
-│   ├── api/              # Cloudflare Workers API (port 8787)
+│   ├── api/              # Cloudflare Workers API (port 3001)
 │   └── website-ssr/      # SSG React Router app (port 5175)
 ├── packages/
 │   ├── database/         # 🗄️ Shared database (schema, migrations)

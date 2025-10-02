@@ -1,15 +1,12 @@
 {
-  "name": "meic-feedback-api",
+  "name": "uni-feedback-api",
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "build": "echo 'API built - using Wrangler for deployment'",
-    "start": "bun dev",
-    "dev": "wrangler dev",
-    "dev:api": "wrangler dev",
-    "prod": "wrangler dev --remote",
-    "deploy": "wrangler deploy",
-    "tail": "wrangler tail",
+    "build": "bun build src/server.ts --outdir dist --target node",
+    "start": "bun src/server.ts",
+    "dev": "bun --hot src/server.ts",
+    "prod": "NODE_ENV=production bun src/server.ts",
     "type-check": "tsc --noEmit",
     "type-check-relaxed": "tsc --noEmit --skipLibCheck"
   },
@@ -33,12 +30,10 @@
     "uuid": "^9.0.1"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20250712.0",
     "@types/speakeasy": "latest",
     "@types/uuid": "^10.0.0",
     "drizzle-kit": "^0.31.4",
     "tsx": "^4.20.3",
-    "typescript": "^5.8.3",
-    "wrangler": "~4.26.1"
+    "typescript": "^5.8.3"
   }
 }

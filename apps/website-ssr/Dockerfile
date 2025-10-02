@@ -6,13 +6,13 @@ RUN apk update
 # RUN apk add --no-cache libc6-compat
 # RUN apk add --no-cache python3 make g++
 WORKDIR /app
-RUN bun install turbo --global
+RUN bun install turbo@2.5.9-canary.1 --global
 COPY . .
 RUN turbo prune @uni-feedback/website-ssr --docker
 
 FROM base AS installer
 RUN apk update
-RUN bun install turbo --global
+RUN bun install turbo@2.5.9-canary.1 --global
 # RUN apk add --no-cache libc6-compat
 # RUN apk add --no-cache python3 make g++
 WORKDIR /app

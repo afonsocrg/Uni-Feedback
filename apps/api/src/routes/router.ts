@@ -17,7 +17,7 @@ const { preflight, corsify } = cors({
     'http://localhost:3000',
     'http://localhost:5173',
     'http://localhost:5174', // Admin dashboard
-    'https://meic-feedback.afonsocrg.com',
+    'https://uni-feedback.afonsocrg.com',
     'https://ist-feedback.afonsocrg.com',
     'https://istfeedback.com',
     'https://uni-feedback.com',
@@ -34,6 +34,11 @@ export const router = fromIttyRouter(
   }),
   { docs_url: '/docs' }
 )
+
+// ---------------------------------------------------------
+// Health check
+// ---------------------------------------------------------
+router.get('/health', () => Response.json({ status: 'ok', timestamp: new Date().toISOString() }))
 
 // ---------------------------------------------------------
 // Public routes

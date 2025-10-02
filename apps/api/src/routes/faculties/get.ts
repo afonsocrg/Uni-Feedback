@@ -48,6 +48,7 @@ export class GetFaculties extends OpenAPIRoute {
         emailSuffixes: faculties.emailSuffixes
       })
       .from(faculties)
+      .orderBy(faculties.id)
 
     // Filter by acronym if provided
     if (acronym) {
