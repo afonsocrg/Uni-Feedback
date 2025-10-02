@@ -14,7 +14,6 @@ RUN bun install turbo@2.5.9-canary.1 --global
 WORKDIR /app
 
 COPY --from=builder /app/out/json/ .
-# CMD ["/bin/sh"]
 RUN bun install
 
 COPY --from=builder /app/tsconfig.json .
@@ -33,9 +32,6 @@ USER api
 
 COPY --from=builder /app/out/full/ .
 COPY --from=installer --chown=api:bunjs /app/node_modules ./node_modules
-# COPY --from=installer --chown=api:bunjs /app/apps/api/src ./src
-# COPY --from=installer --chown=api:bunjs /app/apps/api/package.json .
-# COPY --from=installer --chown=api:bunjs /app/apps/api/tsconfig.json .
 
 EXPOSE 3001
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \

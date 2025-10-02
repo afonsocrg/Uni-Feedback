@@ -74,7 +74,8 @@ export function SearchCourses({
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <button
+          <Button
+            variant="link"
             onClick={() => setIsExpanded(!isExpanded)}
             className={`self-end px-4 py-2 text-sm font-medium focus:outline-none flex items-center gap-2 ${
               hasActiveFilters
@@ -82,21 +83,12 @@ export function SearchCourses({
                 : 'text-primaryBlue hover:primaryBlue/80'
             }`}
           >
-            <Button variant="link">
-              {isExpanded
-                ? 'Hide Filters'
-                : hasActiveFilters
-                  ? 'Filters Active'
-                  : 'Show Filters'}
-            </Button>
-            {hasActiveFilters && !isExpanded && (
-              <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-medium bg-primaryBlue text-white rounded-full">
-                {(selectedTerm !== null ? 1 : 0) +
-                  (selectedCourseGroupId !== null ? 1 : 0) +
-                  (mandatoryExamFilter !== null ? 1 : 0)}
-              </span>
-            )}
-          </button>
+            {isExpanded
+              ? 'Hide Filters'
+              : hasActiveFilters
+                ? 'Filters Active'
+                : 'Show Filters'}
+          </Button>
         </div>
 
         <AnimatePresence>

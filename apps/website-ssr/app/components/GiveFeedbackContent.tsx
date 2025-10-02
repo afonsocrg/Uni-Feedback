@@ -38,7 +38,7 @@ import {
   Send
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
-import { Form, useSearchParams } from 'react-router'
+import { Form, Link, useSearchParams } from 'react-router'
 import { useDegreeCourses, useFacultyDegrees } from '~/hooks/queries'
 import { cn } from '../utils/tailwind'
 
@@ -610,23 +610,23 @@ export function GiveFeedbackContent({
 
             <p className="text-xs text-gray-500 text-center mt-3">
               By submitting this review, you agree to our{' '}
-              <a
-                href="/terms"
+              <Link
+                to="/terms"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-600 hover:text-blue-500 underline"
+                className="text-primaryBlue hover:text-primaryBlue/80 underline"
               >
                 Terms of Service
-              </a>{' '}
+              </Link>{' '}
               and{' '}
-              <a
-                href="/privacy"
+              <Link
+                to="/privacy"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-600 hover:text-blue-500 underline"
+                className="text-primaryBlue hover:text-primaryBlue/80 underline"
               >
                 Privacy Policy
-              </a>
+              </Link>
               .
             </p>
           </div>

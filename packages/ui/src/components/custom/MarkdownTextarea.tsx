@@ -1,7 +1,6 @@
 import { CircleHelp } from 'lucide-react'
 import * as React from 'react'
 import {
-  Button,
   Tabs,
   TabsContent,
   TabsList,
@@ -43,22 +42,15 @@ export function MarkdownTextarea({
           <span className="text-gray-500 text-sm">
             <TooltipProvider>
               <Tooltip>
-                <TooltipTrigger>
-                  <Button
-                    variant="link"
-                    size="xs"
-                    onClick={(e) => {
-                      e.preventDefault()
-                      if (typeof window !== 'undefined') {
-                        window.open(
-                          'https://www.markdownguide.org/cheat-sheet/',
-                          '_blank'
-                        )
-                      }
-                    }}
+                <TooltipTrigger asChild>
+                  <a
+                    href="https://www.markdownguide.org/cheat-sheet/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
                   >
                     <CircleHelp className="size-4 text-gray-500" />
-                  </Button>
+                  </a>
                 </TooltipTrigger>
                 <TooltipContent>Learn Markdown!</TooltipContent>
               </Tooltip>

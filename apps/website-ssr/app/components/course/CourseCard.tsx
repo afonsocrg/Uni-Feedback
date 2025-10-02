@@ -1,5 +1,6 @@
-import { SelectionCard } from '~/components'
 import { Button, StarRating, WorkloadRatingDisplay } from '@uni-feedback/ui'
+import { useNavigate } from 'react-router'
+import { SelectionCard } from '~/components'
 
 interface CourseCardProps {
   courseId: number
@@ -24,6 +25,7 @@ export function CourseCard({
   hasMandatoryExam,
   href
 }: CourseCardProps) {
+  const navigate = useNavigate()
   const title = useAcronymAsTitle ? acronym : name
   const subtitle = useAcronymAsTitle ? name : acronym
 
@@ -40,16 +42,20 @@ export function CourseCard({
           {/* Left Column - Feedback Information */}
           <div className="flex flex-col justify-end">
             {totalFeedbackCount === 0 ? (
-              <Button asChild variant="link" className="p-0 h-auto text-xs justify-start">
-                <a
-                  href={`/feedback/new?courseId=${courseId}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                >
+              <Button
+                variant="link"
+                className="p-0 h-auto text-xs justify-start"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  e.preventDefault()
+                  navigate('/feedback/new')
+                }}
+              >
+                <span>
                   Give the first
                   <br />
-                  feedback!</a>
+                  feedback!
+                </span>
               </Button>
             ) : (
               <div className="space-y-1">
@@ -68,7 +74,9 @@ export function CourseCard({
                 </div>
                 <div className="flex items-center gap-1">
                   {Number(averageWorkload || 0) > 0 ? (
-                    <WorkloadRatingDisplay rating={Number(averageWorkload || 0)} />
+                    <WorkloadRatingDisplay
+                      rating={Number(averageWorkload || 0)}
+                    />
                   ) : (
                     <span className="text-xs text-gray-500">
                       No workload data
