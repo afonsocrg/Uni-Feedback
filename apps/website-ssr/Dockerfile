@@ -1,24 +1,20 @@
-FROM oven/bun:1.2-alpine AS base
-
+FROM node:22-alpine AS base
+RUN corepack enable && corepack prepare pnpm@9.15.4 --activate
 
 FROM base AS builder
 RUN apk update
-# RUN apk add --no-cache libc6-compat
-# RUN apk add --no-cache python3 make g++
 WORKDIR /app
-RUN bun install turbo@2.5.9-canary.1 --global
 COPY . .
-RUN turbo prune @uni-feedback/website-ssr --docker
+RUN pnpm dlx turbo@2.5.9-canary.3 prune @uni-feedback/website-ssr --docker
 
 FROM base AS installer
 RUN apk update
-RUN bun install turbo@2.5.9-canary.1 --global
-# RUN apk add --no-cache libc6-compat
-# RUN apk add --no-cache python3 make g++
 WORKDIR /app
 
 COPY --from=builder /app/out/json/ .
-RUN bun install
+COPY --from=builder /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
+COPY --from=builder /app/out/pnpm-workspace.yaml ./pnpm-workspace.yaml
+RUN pnpm install --frozen-lockfile
 
 COPY --from=builder /app/out/full/ .
 COPY --from=builder /app/tsconfig.json .
@@ -26,19 +22,20 @@ COPY --from=builder /app/terms_of_service.md .
 COPY --from=builder /app/privacy_policy.md .
 
 ENV NODE_OPTIONS="--max-old-space-size=4096"
-RUN bun run build:website-ssr
+RUN pnpm dlx turbo@2.5.9-canary.3 run build --filter=@uni-feedback/website-ssr
 
-FROM node:18-alpine AS runner
+# Deploy production dependencies to isolated directory
+RUN pnpm --filter=@uni-feedback/website-ssr --prod deploy /prod/website-ssr
+
+FROM base AS runner
 WORKDIR /app
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nodejs
+
+COPY --from=installer --chown=nodejs:nodejs /prod/website-ssr ./
+COPY --from=installer --chown=nodejs:nodejs /app/apps/website-ssr/build ./build
+
 USER nodejs
 
-COPY --from=installer --chown=nodejs:nodejs /app/apps/website-ssr/build ./build
-COPY --from=installer --chown=nodejs:nodejs /app/apps/website-ssr/server.js .
-COPY --from=installer --chown=nodejs:nodejs /app/apps/website-ssr/package.json .
-COPY --from=installer --chown=nodejs:nodejs /app/node_modules ./node_modules
-
-# Debug only!
 CMD ["node", "server.js"]

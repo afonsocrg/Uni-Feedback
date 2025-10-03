@@ -1,8 +1,10 @@
 import { router } from '@routes'
 import { DatabaseContext } from '@uni-feedback/db'
 import * as schema from '@uni-feedback/db/schema'
+import { createServerAdapter } from '@whatwg-node/server'
 import { config } from 'dotenv'
 import { drizzle } from 'drizzle-orm/postgres-js'
+import { createServer } from 'node:http'
 import postgres from 'postgres'
 
 // Load environment variables
@@ -67,30 +69,25 @@ const createFetchHandler = () => {
   }
 }
 
-// Start the Bun server directly with the fetch handler
 const port = process.env.PORT ? parseInt(process.env.PORT) : 3001
+const fetchHandler = createFetchHandler()
 
-const server = Bun.serve({
-  port,
-  fetch: createFetchHandler(),
-  error(error) {
-    console.error('Server error:', error)
-    return new Response('Internal Server Error', { status: 500 })
-  }
+// Create server adapter that converts Node.js requests to Web Requests
+const serverAdapter = createServerAdapter(fetchHandler)
+const server = createServer(serverAdapter)
+
+server.listen(port, () => {
+  console.log(`🚀 API server running at http://localhost:${port}`)
+  console.log(`📖 API docs available at http://localhost:${port}/docs`)
 })
-
-console.log(`🚀 API server running at http://localhost:${port}`)
-console.log(`📖 API docs available at http://localhost:${port}/docs`)
 
 // Graceful shutdown
 process.on('SIGTERM', () => {
   console.log('SIGTERM received, shutting down gracefully')
-  server.stop()
-  process.exit(0)
+  server.close(() => process.exit(0))
 })
 
 process.on('SIGINT', () => {
   console.log('SIGINT received, shutting down gracefully')
-  server.stop()
-  process.exit(0)
+  server.close(() => process.exit(0))
 })

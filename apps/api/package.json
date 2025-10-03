@@ -3,36 +3,40 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "build": "bun build src/server.ts --outdir dist --target node",
-    "start": "bun src/server.ts",
-    "dev": "bun --hot src/server.ts",
-    "prod": "NODE_ENV=production bun src/server.ts",
+    "build": "tsc --skipLibCheck && tsc-alias",
+    "start": "node -r tsconfig-paths/register dist/server.js",
+    "dev": "tsx watch src/server.ts",
+    "prod": "NODE_ENV=production node -r tsconfig-paths/register dist/server.js",
     "type-check": "tsc --noEmit",
     "type-check-relaxed": "tsc --noEmit --skipLibCheck"
   },
   "dependencies": {
-    "@uni-feedback/db": "workspace:*",
-    "@uni-feedback/utils": "workspace:*",
     "@oslojs/crypto": "^1.0.1",
     "@oslojs/encoding": "^1.1.0",
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^22.16.3",
     "@uidotdev/usehooks": "^2.4.1",
+    "@uni-feedback/db": "workspace:*",
+    "@uni-feedback/utils": "workspace:*",
+    "@whatwg-node/server": "^0.10.12",
     "better-sqlite3": "^11.10.0",
     "chanfana": "^2.8.1",
     "dayjs": "^1.11.13",
     "dotenv": "^16.6.1",
     "drizzle-orm": "^0.44.5",
-    "postgres": "^3.4.5",
     "itty-router": "^5.0.18",
+    "postgres": "^3.4.5",
     "posthog-node": "^4.18.0",
     "resend": "^4.6.0",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@types/speakeasy": "latest",
     "@types/uuid": "^10.0.0",
     "drizzle-kit": "^0.31.4",
+    "tsc-alias": "^1.8.10",
+    "tsconfig-paths": "^4.2.0",
     "tsx": "^4.20.3",
     "typescript": "^5.8.3"
   }

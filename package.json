@@ -1,7 +1,7 @@
 {
   "name": "uni-feedback",
   "private": "true",
-  "packageManager": "bun@1.2.18",
+  "packageManager": "pnpm@9.15.4",
   "workspaces": [
     "apps/*",
     "packages/*"
@@ -11,7 +11,7 @@
     "build:dashboard": "turbo build --filter=@uni-feedback/dashboard",
     "build:website": "turbo build --filter=@uni-feedback/website",
     "build:website-ssr": "turbo build --filter=@uni-feedback/website-ssr",
-    "dev": "bun run dev:all",
+    "dev": "pnpm run dev:all",
     "dev:all": "turbo dev:api dev:website dev:website-ssr dev:dashboard @uni-feedback/ui#dev db --parallel --ui=tui",
     "dev:website": "turbo dev:api dev:website @uni-feedback/ui#dev db --parallel --ui=tui",
     "dev:dashboard": "turbo dev:api dev:dashboard @uni-feedback/ui#dev db --parallel --ui=tui",
@@ -26,28 +26,13 @@
     "db:stop": "turbo stop --filter=@uni-feedback/db",
     "db:studio": "turbo studio --filter=@uni-feedback/db",
     "deploy": "turbo deploy",
-    "deploy:api": "cd apps/api && bun wrangler deploy",
     "deploy:website": "./push_to_prod.sh",
     "deploy:dashboard": "./push_to_prod.sh",
-    "deploy:prod": "bun run deploy:api && ./push_to_prod.sh",
-    "clean": "turbo clean && rm -f bun.lockb bun.lock && rm -rf node_modules"
+    "clean": "turbo clean && rm -f pnpm-lock.yaml && rm -rf node_modules"
   },
   "devDependencies": {
-    "@emnapi/core": "^1.5.0",
-    "@emnapi/wasi-threads": "^1.1.0",
-    "@tybys/wasm-util": "^0.10.1",
     "prettier": "^3.6.2",
     "prettier-plugin-organize-imports": "^4.3.0",
     "turbo": "^2.5.8"
-  },
-  "bun": {
-    "workspaces": {
-      "nohoist": [
-        "**/react-router",
-        "**/react-router-dom",
-        "**/@react-router/**",
-        "**/drizzle-orm"
-      ]
-    }
   }
 }
