@@ -14,7 +14,7 @@
     "dev:db": "docker-compose up",
     "start": "docker-compose up -d",
     "stop": "docker-compose down",
-    "shell": "dotenv -- psql -h localhost -p 5433 -U postgres -d uni-feedback",
+    "shell": "dotenv -e .env -- psql -h localhost -p 5433 -U postgres -d uni-feedback",
     "studio": "dotenv -- drizzle-kit studio",
     "generate": "./scripts/generate-migration.sh",
     "generate:auto": "dotenv -- drizzle-kit generate",
@@ -31,6 +31,7 @@
   "devDependencies": {
     "@types/node": "^20",
     "dotenv": "^16.4.7",
+    "dotenv-cli": "^8.0.0",
     "drizzle-kit": "^0.31.4",
     "typescript": "^5.8.3"
   }

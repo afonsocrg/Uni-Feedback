@@ -23,11 +23,10 @@ export class EmailService {
     html: string
     text: string
   }): Promise<void> {
-    const isDevelopment = this.env.DEV_MODE === 'true'
-    const shouldSendInDev = this.env.SEND_EMAILS_IN_DEV === 'true'
-    const forceSend = this.env.FORCE_SEND_EMAIL === 'true'
+    const isDevelopment = this.env.NODE_ENV === 'development'
 
-    if (isDevelopment && !shouldSendInDev && !forceSend) {
+    // In development mode, just log the email instead of sending
+    if (isDevelopment) {
       console.log('📧 EMAIL MOCK (Development Mode)')
       console.log('From:', params.from)
       console.log('To:', params.to)
@@ -38,6 +37,7 @@ export class EmailService {
       return
     }
 
+    // In production, send the actual email
     try {
       await this.resend.emails.send(params)
       console.log(`✅ Email sent successfully to ${params.to}`)

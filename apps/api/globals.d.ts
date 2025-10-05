@@ -7,11 +7,9 @@ declare global {
 
   interface Env {
     DATABASE_URL: string
-    WORKER_ENV: string
+    NODE_ENV: 'development' | 'production'
     DASHBOARD_URL: string
     RESEND_API_KEY?: string
-    SEND_EMAILS_IN_DEV?: string
-    FORCE_SEND_EMAIL?: string
     POSTHOG_API_KEY?: string
     POSTHOG_HOST?: string
     TELEGRAM_BOT_TOKEN?: string

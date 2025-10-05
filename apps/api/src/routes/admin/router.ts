@@ -1,6 +1,12 @@
 import { requireAdmin, requireSuperuser } from '@middleware/auth'
 import { fromIttyRouter } from 'chanfana'
-import { AutoRouter } from 'itty-router'
+import { AutoRouter, IRequest } from 'itty-router'
+import {
+  CreateCourseGroup,
+  // DeleteCourseGroup, // Commented out - users should not be able to delete course groups
+  GetCourseGroups,
+  UpdateCourseGroup
+} from './courseGroups'
 import {
   AddCourseTerm,
   GetAllTerms,
@@ -10,12 +16,6 @@ import {
   RemoveCourseTerm,
   UpdateCourse
 } from './courses'
-import {
-  CreateCourseGroup,
-  // DeleteCourseGroup, // Commented out - users should not be able to delete course groups
-  GetCourseGroups,
-  UpdateCourseGroup
-} from './courseGroups'
 import {
   GetDegreeDetails,
   GetDegrees,
@@ -71,7 +71,15 @@ router.put('/feedback/:id', UpdateFeedback)
 // Suggestions routes
 router.get('/suggestions/degrees', GetDegreeSuggestions)
 
-// User routes
-router.get('/users', requireSuperuser, GetUsers)
+// User routes - Wrapped with superuser middleware
+class GetUsersWithAuth extends GetUsers {
+  async handle(request: IRequest, env: any, context: any) {
+    const authCheck = await requireSuperuser(request, env, context)
+    if (authCheck) return authCheck
+
+    return super.handle(request, env, context)
+  }
+}
+router.get('/users', GetUsersWithAuth)
 
 export { router }

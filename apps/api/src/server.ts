@@ -33,9 +33,10 @@ function createEnv(): Env {
 
   return {
     DATABASE_URL: process.env.DATABASE_URL!,
-    WORKER_ENV: process.env.WORKER_ENV || 'development',
+    NODE_ENV:
+      (process.env.NODE_ENV as 'development' | 'production') || 'development',
     DASHBOARD_URL: process.env.DASHBOARD_URL || 'localhost:5174',
-    RESEND_API_KEY: process.env.RESEND_API_KEY,
+    RESEND_API_KEY: process.env.RESEND_API_KEY || '',
     POSTHOG_API_KEY: process.env.POSTHOG_API_KEY,
     TELEGRAM_BOT_TOKEN: process.env.TELEGRAM_BOT_TOKEN,
     TELEGRAM_CHAT_ID: process.env.TELEGRAM_CHAT_ID

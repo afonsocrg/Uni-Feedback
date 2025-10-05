@@ -87,6 +87,9 @@ importers:
       drizzle-kit:
         specifier: ^0.31.4
         version: 0.31.5
+      esbuild:
+        specifier: ^0.25.10
+        version: 0.25.10
       tsc-alias:
         specifier: ^1.8.10
         version: 1.8.16
@@ -634,6 +637,9 @@ importers:
       dotenv:
         specifier: ^16.4.7
         version: 16.6.1
+      dotenv-cli:
+        specifier: ^8.0.0
+        version: 8.0.0
       drizzle-kit:
         specifier: ^0.31.4
         version: 0.31.5

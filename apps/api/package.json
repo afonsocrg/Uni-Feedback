@@ -3,10 +3,11 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "build": "tsc --skipLibCheck && tsc-alias",
-    "start": "node -r tsconfig-paths/register dist/server.js",
+    "build": "tsx esbuild.config.js",
+    "start": "node dist/server.js",
     "dev": "tsx watch src/server.ts",
-    "prod": "NODE_ENV=production node -r tsconfig-paths/register dist/server.js",
+    "prod": "NODE_ENV=production node dist/server.js",
+    "lint": "eslint .",
     "type-check": "tsc --noEmit",
     "type-check-relaxed": "tsc --noEmit --skipLibCheck"
   },
@@ -35,6 +36,7 @@
     "@types/speakeasy": "latest",
     "@types/uuid": "^10.0.0",
     "drizzle-kit": "^0.31.4",
+    "esbuild": "^0.25.10",
     "tsc-alias": "^1.8.10",
     "tsconfig-paths": "^4.2.0",
     "tsx": "^4.20.3",

@@ -299,20 +299,21 @@ export class AuthService {
 
     const passwordHash = await hashPassword(newPassword)
 
-    // Update user password and mark token as used
-    await database().batch([
-      database()
+    // Update user password and mark token as used in a transaction
+    await database().transaction(async (tx) => {
+      await tx
         .update(users)
         .set({
           passwordHash,
           updatedAt: new Date()
         })
-        .where(eq(users.id, tokenData.userId)),
-      database()
+        .where(eq(users.id, tokenData.userId))
+
+      await tx
         .update(passwordResetTokens)
         .set({ usedAt: new Date() })
         .where(eq(passwordResetTokens.id, tokenData.id))
-    ])
+    })
 
     return true
   }
@@ -379,9 +380,9 @@ export class AuthService {
 
     const passwordHash = await hashPassword(userData.password)
 
-    // Create user and mark token as used
-    const result = await database().batch([
-      database()
+    // Create user and mark token as used in a transaction
+    const newUser = await database().transaction(async (tx) => {
+      const [user] = await tx
         .insert(users)
         .values({
           email: tokenData.email,
@@ -389,14 +390,17 @@ export class AuthService {
           passwordHash,
           superuser: false
         })
-        .returning(),
-      database()
+        .returning()
+
+      await tx
         .update(userCreationTokens)
         .set({ usedAt: new Date() })
         .where(eq(userCreationTokens.id, tokenData.id))
-    ])
 
-    return result[0][0] || null
+      return user
+    })
+
+    return newUser || null
   }
 
   /**

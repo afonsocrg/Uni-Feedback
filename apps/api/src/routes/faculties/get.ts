@@ -37,9 +37,9 @@ export class GetFaculties extends OpenAPIRoute {
   }
 
   async handle(request: IRequest, env: any, context: any) {
-    const { acronym } = request.query
+    const acronym = request.query?.acronym as string | undefined
 
-    let query = database()
+    const baseQuery = database()
       .select({
         id: faculties.id,
         name: faculties.name,
@@ -51,11 +51,9 @@ export class GetFaculties extends OpenAPIRoute {
       .orderBy(faculties.id)
 
     // Filter by acronym if provided
-    if (acronym) {
-      query = query.where(eq(faculties.shortName, acronym))
-    }
-
-    const result = await query
+    const result = acronym
+      ? await baseQuery.where(eq(faculties.shortName, acronym))
+      : await baseQuery
 
     return Response.json(result)
   }

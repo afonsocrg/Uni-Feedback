@@ -22,7 +22,11 @@ export class GetDegrees extends OpenAPIRoute {
     request: {
       query: z.object({
         faculty: z.string().optional(),
-        onlyWithCourses: z.boolean().optional()
+        onlyWithCourses: z
+          .string()
+          .optional()
+          .default('true')
+          .transform((val) => val === 'true')
       })
     },
     responses: {
@@ -38,7 +42,8 @@ export class GetDegrees extends OpenAPIRoute {
   }
 
   async handle(request: IRequest, env: Env, context: any) {
-    const { onlyWithCourses = true, faculty } = request.query
+    const { query } = await this.getValidatedData<typeof this.schema>()
+    const { faculty, onlyWithCourses } = query
 
     const degreeService = new DegreeService(env)
     const result = await degreeService.getDegreesWithCounts({

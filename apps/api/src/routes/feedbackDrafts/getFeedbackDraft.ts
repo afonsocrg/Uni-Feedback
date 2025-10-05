@@ -44,7 +44,7 @@ export class GetFeedbackDraft extends OpenAPIRoute {
         .where(lt(feedbackDrafts.expiresAt, new Date()))
 
       // Find the feedback draft
-      const result = await db
+      const result = await database()
         .select()
         .from(feedbackDrafts)
         .where(eq(feedbackDrafts.code, code))
@@ -78,10 +78,8 @@ export class GetFeedbackDraft extends OpenAPIRoute {
         .set({ usedAt: new Date() })
         .where(eq(feedbackDrafts.id, feedbackDraft.id))
 
-      // Parse and return the data
-      const data = JSON.parse(feedbackDraft.data)
-
-      return Response.json(data, { status: 200 })
+      // Return the data (already parsed from jsonb)
+      return Response.json(feedbackDraft.data, { status: 200 })
     } catch (error: unknown) {
       console.error('Error retrieving feedback draft:', error)
       return Response.json(

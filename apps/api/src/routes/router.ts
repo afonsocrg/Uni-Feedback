@@ -1,7 +1,5 @@
 import { fromIttyRouter } from 'chanfana'
 import { cors, Router, withCookies } from 'itty-router'
-import { router as adminRouter } from './admin'
-import { router as authRouter } from './auth'
 import {
   GetCourse,
   GetCourseFeedback,
@@ -38,7 +36,9 @@ export const router = fromIttyRouter(
 // ---------------------------------------------------------
 // Health check
 // ---------------------------------------------------------
-router.get('/health', () => Response.json({ status: 'ok', timestamp: new Date().toISOString() }))
+router.get('/health', () =>
+  Response.json({ status: 'ok', timestamp: new Date().toISOString() })
+)
 
 // ---------------------------------------------------------
 // Public routes
@@ -62,8 +62,8 @@ router.get('/feedback-drafts/:code', GetFeedbackDraft)
 // ---------------------------------------------------------
 // Nested routers
 // ---------------------------------------------------------
-router.all('/auth/*', authRouter)
-router.all('/admin/*', adminRouter)
+// router.all('/auth/*', authRouter as any)
+// router.all('/admin/*', adminRouter as any)
 
 // 404 for everything else
 router.all('*', () =>

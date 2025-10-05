@@ -67,10 +67,14 @@ export class SubmitFeedback extends OpenAPIRoute {
       }
       const course = courseResult[0]
 
+      if (!course.degreeId) {
+        throw new NotFoundError('Course has no associated degree')
+      }
+
       const degreeResult = await database()
         .select()
         .from(degrees)
-        .where(eq(degrees.id, courseResult[0].degreeId))
+        .where(eq(degrees.id, course.degreeId))
         .limit(1)
 
       if (degreeResult.length === 0) {
@@ -101,7 +105,10 @@ export class SubmitFeedback extends OpenAPIRoute {
         degree,
         rating: body.rating,
         workloadRating: body.workloadRating,
-        course,
+        course: {
+          ...course,
+          terms: course.terms as string[] | null
+        },
         comment
       })
 

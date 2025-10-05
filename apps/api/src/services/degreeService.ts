@@ -20,7 +20,7 @@ export class DegreeService {
     // Use the centralized enhanced feedback join logic
     const feedbackJoin = courseFeedbackService.getEnhancedFeedbackJoin()
 
-    let baseQuery = database()
+    const baseQuery = database()
       .select({
         id: degrees.id,
         externalId: degrees.externalId,
@@ -38,29 +38,30 @@ export class DegreeService {
       .from(degrees)
       .leftJoin(courses, eq(courses.degreeId, degrees.id))
       .leftJoin(feedbackJoin.table, feedbackJoin.condition)
+      .$dynamic()
 
     // Filter by faculty ID if provided
-    if (facultyId) {
-      baseQuery = baseQuery.where(eq(degrees.facultyId, facultyId))
-    }
+    const withFacultyFilter = facultyId
+      ? baseQuery.where(eq(degrees.facultyId, facultyId))
+      : baseQuery
 
     // Filter by faculty short name if provided
-    if (facultyShortName) {
-      baseQuery = baseQuery
-        .innerJoin(faculties, eq(degrees.facultyId, faculties.id))
-        .where(eq(faculties.shortName, facultyShortName))
-    }
+    const withShortNameFilter = facultyShortName
+      ? withFacultyFilter
+          .innerJoin(faculties, eq(degrees.facultyId, faculties.id))
+          .where(eq(faculties.shortName, facultyShortName))
+      : withFacultyFilter
 
     // Apply grouping for aggregations
-    baseQuery = baseQuery.groupBy(degrees.id)
+    const withGroupBy = withShortNameFilter.groupBy(degrees.id)
 
     // If onlyWithCourses is true, filter out degrees without courses
-    if (onlyWithCourses) {
-      baseQuery = baseQuery.having(sql`count(distinct ${courses.id}) > 0`)
-    }
+    const finalQuery = onlyWithCourses
+      ? withGroupBy.having(sql`count(distinct ${courses.id}) > 0`)
+      : withGroupBy
 
-    const result = await baseQuery
+    const result = await finalQuery
 
-    return result
+    return result as DegreeWithCounts[]
   }
 }

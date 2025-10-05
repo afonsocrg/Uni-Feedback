@@ -20,15 +20,15 @@ async function sendToTelegram(env: Env, message: string) {
     body: JSON.stringify(payload)
   }
 
-  if (env.DEV_MODE === 'true') {
+  if (env.NODE_ENV === 'development') {
     console.log('Skipping telegram request in dev mode')
     console.log('Message:')
     console.log(payload.text)
     return null
   } else {
-    // console.log('Sending telegram request', options)
+    console.log('Sending telegram request', options)
     const response = await fetch(url, options)
-    // console.log('Got telegram response', response)
+    console.log('Got telegram response', response)
 
     return response
   }
