@@ -2,9 +2,8 @@ import './app.css'
 
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister'
 import { QueryClient } from '@tanstack/react-query'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import {
   isRouteErrorResponse,
   Links,
@@ -80,10 +79,24 @@ export default function App() {
       persistOptions={{ persister }}
     >
       <Outlet />
-      <ReactQueryDevtools initialIsOpen={false} />
+      {import.meta.env.DEV && (
+        <React.Suspense fallback={null}>
+          {/* @ts-ignore - dynamic import */}
+          <ReactQueryDevtools initialIsOpen={false} />
+        </React.Suspense>
+      )}
     </PersistQueryClientProvider>
   )
 }
+
+// Lazy load devtools only in development
+const ReactQueryDevtools = import.meta.env.DEV
+  ? React.lazy(() =>
+      import('@tanstack/react-query-devtools').then((m) => ({
+        default: m.ReactQueryDevtools
+      }))
+    )
+  : () => null
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   let message = 'Oops!'
