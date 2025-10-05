@@ -1,4 +1,6 @@
 import { Button } from '@uni-feedback/ui'
+import posthog from 'posthog-js'
+import { Link } from 'react-router'
 import { AskForFeedback, type CourseDetail } from '~/components'
 import { getFullUrl } from '~/utils'
 
@@ -9,7 +11,6 @@ interface CourseReviewContentEmptyProps {
 }
 export function CourseReviewContentEmpty({
   reviewFormUrl,
-  courseId,
   course
 }: CourseReviewContentEmptyProps) {
   return (
@@ -29,25 +30,18 @@ export function CourseReviewContentEmpty({
           reviewFormUrl={getFullUrl(reviewFormUrl)}
           course={course}
         />
-        <Button asChild>
-          <a
-            href={reviewFormUrl}
-            className="text-white"
-            onClick={(e) => {
-              if (typeof window !== 'undefined') {
-                // Dynamically import posthog only on client side
-                import('posthog-js').then((posthog) => {
-                  posthog.default.capture('review_form_open', {
-                    source: 'course_detail_page.add_first_review',
-                    course_id: courseId
-                  })
-                })
-              }
-              // Let the browser handle navigation naturally - no preventDefault needed
+        <Button asChild className="text-white">
+          <Link
+            to={reviewFormUrl}
+            onClick={() => {
+              posthog.capture('review_form_open', {
+                source: 'course_detail_page.add_first_review',
+                course_id: courseId
+              })
             }}
           >
             Give Feedback!
-          </a>
+          </Link>
         </Button>
       </div>
     </div>

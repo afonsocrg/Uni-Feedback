@@ -1,4 +1,8 @@
-import { getFaculties, MeicFeedbackAPIError } from '@uni-feedback/api-client'
+import {
+  getCourse,
+  getFaculties,
+  MeicFeedbackAPIError
+} from '@uni-feedback/api-client'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { GiveFeedbackContent } from '~/components'
@@ -19,80 +23,72 @@ export function meta() {
 }
 
 // Use clientLoader for client-side data fetching to avoid SSR overhead on a form page
-export async function clientLoader() {
+export async function clientLoader({ request }: Route.ClientLoaderArgs) {
   const faculties = await getFaculties()
 
-  // Load saved form values from localStorage
+  // Check for courseId in URL search params
+  const url = new URL(request.url)
+  const courseIdParam = url.searchParams.get('courseId')
+
+  let facultyId = 0
+  let degreeId = 0
+  let courseId = 0
+  console.log('courseIdParam:', courseIdParam)
+
+  // If courseId is in URL, fetch the course and use its faculty/degree
+  if (courseIdParam) {
+    const parsedCourseId = Number(courseIdParam)
+    if (!isNaN(parsedCourseId) && parsedCourseId > 0) {
+      try {
+        const courseData = await getCourse(parsedCourseId)
+        courseId = courseData.id
+        degreeId = courseData.degreeId
+        if (courseData.degree) {
+          facultyId = courseData.degree.facultyId
+        }
+      } catch (error) {
+        console.error('Failed to load course from URL:', error)
+        // Fall through to use localStorage values
+      }
+    }
+  }
+
+  // If no valid course from URL, use localStorage values
+  if (!courseId) {
+    facultyId =
+      Number(localStorage.getItem(STORAGE_KEYS.FEEDBACK_FACULTY_ID)) || 0
+    degreeId =
+      Number(localStorage.getItem(STORAGE_KEYS.FEEDBACK_DEGREE_ID)) || 0
+  }
+
+  // Email always comes from localStorage (not URL for privacy)
   const savedEmail = localStorage.getItem(STORAGE_KEYS.FEEDBACK_EMAIL) || ''
-  const savedFacultyId =
-    Number(localStorage.getItem(STORAGE_KEYS.FEEDBACK_FACULTY_ID)) || 0
-  const savedDegreeId =
-    Number(localStorage.getItem(STORAGE_KEYS.FEEDBACK_DEGREE_ID)) || 0
 
   return {
     faculties,
     initialFormValues: {
       email: savedEmail,
-      facultyId: savedFacultyId,
-      degreeId: savedDegreeId
+      facultyId,
+      degreeId,
+      courseId
     }
   }
 }
 
-// We now handle dynamic data loading directly in the component using the API client
+export function HydrateFallback() {
+  return (
+    <main className="container mx-auto px-4 py-8 max-w-2xl">
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="w-12 h-12 mx-auto mb-4 border-4 border-gray-200 border-t-primaryBlue rounded-full animate-spin"></div>
+          <p className="text-gray-600">Loading form...</p>
+        </div>
+      </div>
+    </main>
+  )
+}
 
-// export async function action({ request }: Route.ActionArgs) {
-//   const formData = await request.formData()
-//   console.log(formData)
-//   const data = Object.fromEntries(formData)
-//   console.log(data)
-//   return data
-//   const formData = await request.formData()
-//   // Validate form data using schema
-//   const validation = validateFormData(formData)
-//   if (!validation.success) {
-//     return {
-//       error: Object.values(validation.errors).flat().join(', '),
-//       success: false,
-//       fieldErrors: validation.errors
-//     }
-//   }
-//   try {
-//     const { email, schoolYear, courseId, rating, workloadRating, comment } =
-//       validation.data
-//     // Prepare feedback submission
-//     const feedbackData: FeedbackSubmission = {
-//       email,
-//       schoolYear,
-//       courseId,
-//       rating,
-//       workloadRating,
-//       comment: comment || undefined
-//     }
-//     // Submit feedback using the API client
-//     const result = await submitFeedback(feedbackData)
-//     return {
-//       success: true,
-//       feedback: result
-//     }
-//   } catch (error) {
-//     console.error('Failed to submit feedback:', error)
-//     if (error instanceof MeicFeedbackAPIError) {
-//       return {
-//         error: error.message,
-//         success: false
-//       }
-//     }
-//     return {
-//       error: 'Failed to submit feedback. Please try again.',
-//       success: false
-//     }
-//   }
-// }
-
-export default function GiveFeedbackPage({
-  loaderData
-}: Route.ComponentProps) {
+export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
   const submitFeedbackMutation = useSubmitFeedback()
   const [isSuccess, setIsSuccess] = useState(false)
 

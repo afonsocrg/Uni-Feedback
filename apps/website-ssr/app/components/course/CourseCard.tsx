@@ -48,7 +48,7 @@ export function CourseCard({
                 onClick={(e) => {
                   e.stopPropagation()
                   e.preventDefault()
-                  navigate('/feedback/new')
+                  navigate(`/feedback/new?courseId=${courseId}`)
                 }}
               >
                 <span>

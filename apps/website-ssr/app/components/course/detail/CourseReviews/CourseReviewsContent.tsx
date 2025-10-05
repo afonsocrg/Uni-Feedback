@@ -4,6 +4,7 @@ import { CourseReviewContentEmpty, SchoolYearSection } from '~/components'
 import { WarningAlert } from '@uni-feedback/ui'
 import { getCurrentSchoolYear } from '@uni-feedback/utils'
 import { useMemo } from 'react'
+import type { CourseDetail } from '~/components'
 
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -16,9 +17,11 @@ const itemVariants = {
 
 interface CourseReviewsContentProps {
   courseId: number
+  course: CourseDetail
   feedback: Feedback[]
 }
 export function CourseReviewsContent({
+  course,
   courseId,
   feedback
 }: CourseReviewsContentProps) {
@@ -37,6 +40,7 @@ export function CourseReviewsContent({
     return (
       <CourseReviewContentEmpty
         courseId={courseId}
+        course={course}
         reviewFormUrl={reviewFormUrl}
       />
     )

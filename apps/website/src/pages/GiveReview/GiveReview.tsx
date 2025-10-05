@@ -12,8 +12,8 @@ import {
   useSelectedFacultyDegree,
   useSubmitFeedback
 } from '@hooks'
-import { getCurrentSchoolYear } from '@uni-feedback/utils'
 import { getCourse, getFeedbackDraft } from '@services/meicFeedbackAPI'
+import { getCurrentSchoolYear } from '@uni-feedback/utils'
 import { STORAGE_KEYS } from '@utils'
 import posthog from 'posthog-js'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -50,14 +50,6 @@ export function GiveReview() {
     [searchParams, selectedFacultyId, selectedDegreeId, schoolYears]
   )
 
-  // By default, the available courses are the ones from the currently selected degree
-  // If the URL specifies a courseId and that course does not exist in the set of selected courses
-  // then we want to load all the courses from that degree.
-  // If there is no degree selected (1), we set the degree of the selected course as the selected degree
-  // (1) WARNING: we have to check if there is no degree selected using the selectedDegreeId
-  // property, because when the page is loading, we may have a selected degree, but not a
-  // degree object yet!!
-
   const form = useForm<GiveReviewFormValues, any, GiveReviewFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -90,6 +82,13 @@ export function GiveReview() {
     [selectedCourseId, localCourses]
   )
 
+  // By default, the available courses are the ones from the currently selected degree
+  // If the URL specifies a courseId and that course does not exist in the set of selected courses
+  // then we want to load all the courses from that degree.
+  // If there is no degree selected (1), we set the degree of the selected course as the selected degree
+  // (1) WARNING: we have to check if there is no degree selected using the selectedDegreeId
+  // property, because when the page is loading, we may have a selected degree, but not a
+  // degree object yet!!
   const appliedSearchCourseId = useRef(false)
   useEffect(() => {
     if (

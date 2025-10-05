@@ -58,6 +58,7 @@ interface GiveFeedbackContentProps {
     email: string
     facultyId: number
     degreeId: number
+    courseId: number
   }
   onSubmit: (values: FeedbackFormData) => Promise<void>
   isSubmitting: boolean
@@ -93,7 +94,7 @@ export function GiveFeedbackContent({
       schoolYear: getCurrentSchoolYear(),
       facultyId: initialFormValues?.facultyId || 0,
       degreeId: initialFormValues?.degreeId || 0,
-      courseId: 0,
+      courseId: initialFormValues?.courseId || 0,
       rating: 0,
       workloadRating: 0,
       comment: ''

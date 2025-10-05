@@ -2,6 +2,7 @@ import type { Feedback } from '@uni-feedback/db/schema'
 import { Button } from '@uni-feedback/ui'
 import posthog from 'posthog-js'
 import { useMemo } from 'react'
+import { Link } from 'react-router'
 import {
   AskForFeedback,
   CourseReviewsContent,
@@ -31,17 +32,18 @@ export function CourseReviews({ course, feedback }: CourseReviewsProps) {
               reviewFormUrl={getFullUrl(reviewFormUrl)}
               course={course}
             />
-            <Button
-              className="text-white"
-              onClick={() => {
-                posthog.capture('review_form_open', {
-                  source: 'course_detail_page.add_review',
-                  course_id: course.id
-                })
-                // navigate(reviewFormUrl)
-              }}
-            >
-              Give Feedback!
+            <Button asChild className="text-white">
+              <Link
+                to={reviewFormUrl}
+                onClick={() => {
+                  posthog.capture('review_form_open', {
+                    source: 'course_detail_page.add_review',
+                    course_id: course.id
+                  })
+                }}
+              >
+                Give Feedback!
+              </Link>
             </Button>
           </div>
         )}
