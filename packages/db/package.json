@@ -11,7 +11,7 @@
   },
   "scripts": {
     "type-check": "tsc --noEmit",
-    "dev:db": "docker-compose up",
+    "dev:db": "docker-compose up db",
     "start": "docker-compose up -d",
     "stop": "docker-compose down",
     "shell": "dotenv -e .env -- psql -h localhost -p 5433 -U postgres -d uni-feedback",

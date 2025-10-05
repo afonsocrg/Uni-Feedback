@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "react-router build",
-    "dev": "bun dev:website-ssr",
+    "dev": "pnpm dev:website-ssr",
     "dev:website-ssr": "dotenv -- node server.js",
     "start": "node server.js",
     "typecheck": "react-router typegen && tsc -b",

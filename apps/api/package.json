@@ -5,7 +5,8 @@
   "scripts": {
     "build": "tsx esbuild.config.js",
     "start": "node dist/server.js",
-    "dev": "tsx watch src/server.ts",
+    "dev": "pnpm run dev:api",
+    "dev:api": "tsx watch src/server.ts",
     "prod": "NODE_ENV=production node dist/server.js",
     "lint": "eslint .",
     "type-check": "tsc --noEmit",
