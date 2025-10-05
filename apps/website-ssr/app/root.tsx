@@ -51,6 +51,13 @@ const persister =
     : undefined
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  // Inject runtime environment variables for Docker/SSR
+  const envScript = typeof process !== 'undefined'
+    ? `window.ENV = ${JSON.stringify({
+        API_BASE_URL: process.env.VITE_API_BASE_URL || 'http://localhost:3001'
+      })};`
+    : ''
+
   return (
     <html lang="en">
       <head>
@@ -58,6 +65,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
+        {envScript && (
+          <script
+            dangerouslySetInnerHTML={{ __html: envScript }}
+            suppressHydrationWarning
+          />
+        )}
       </head>
       <body>
         {children}

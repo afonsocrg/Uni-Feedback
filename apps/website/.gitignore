@@ -13,6 +13,3 @@ dist
 stats.html
 
 .eslintcache
-
-.env*
-!.env.example

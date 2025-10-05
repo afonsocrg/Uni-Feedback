@@ -1,10 +1,11 @@
 # System files
 .DS_Store
 *.log
-.env
-.env.local
-.env.production.local
-.env.test.local
+
+# Environment variables
+*.env
+*.env.*
+!*.env.example
 
 # Dependencies
 node_modules/

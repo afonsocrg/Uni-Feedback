@@ -33,7 +33,6 @@ export async function clientLoader({ request }: Route.ClientLoaderArgs) {
   let facultyId = 0
   let degreeId = 0
   let courseId = 0
-  console.log('courseIdParam:', courseIdParam)
 
   // If courseId is in URL, fetch the course and use its faculty/degree
   if (courseIdParam) {
