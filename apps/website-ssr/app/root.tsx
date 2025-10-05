@@ -12,6 +12,7 @@ import {
   Scripts,
   ScrollRestoration
 } from 'react-router'
+import { Toaster } from 'sonner'
 import { NotFound } from '~/components'
 import { userPreferences } from '~/utils'
 import type { Route } from './+types/root'
@@ -78,6 +79,7 @@ export default function App() {
       client={queryClient}
       persistOptions={{ persister }}
     >
+      <Toaster position="top-right" richColors />
       <Outlet />
       {import.meta.env.DEV && (
         <React.Suspense fallback={null}>

@@ -59,11 +59,9 @@ interface GiveFeedbackContentProps {
     facultyId: number
     degreeId: number
   }
-  actionData?: {
-    success?: boolean
-    error?: string
-    feedback?: { id: number }
-  }
+  onSubmit: (values: FeedbackFormData) => Promise<void>
+  isSubmitting: boolean
+  isSuccess: boolean
 }
 
 // Form schema
@@ -83,11 +81,13 @@ type FeedbackFormData = z.infer<typeof feedbackSchema>
 export function GiveFeedbackContent({
   faculties,
   initialFormValues,
-  actionData
+  onSubmit,
+  isSubmitting,
+  isSuccess
 }: GiveFeedbackContentProps) {
   const form = useForm({
     resolver: zodResolver(feedbackSchema),
-    // mode: 'onChange', // Validate on change to enable/disable submit button
+    mode: 'onChange', // Validate on change to enable/disable submit button
     defaultValues: {
       email: initialFormValues?.email || '',
       schoolYear: getCurrentSchoolYear(),
@@ -124,8 +124,6 @@ export function GiveFeedbackContent({
     () => Array.from({ length: 5 }, (_, i) => getCurrentSchoolYear() - i),
     []
   )
-
-  const isSubmitting = false
 
   // Reset dependent selections when parent selections change
   useEffect(() => {
@@ -168,7 +166,7 @@ export function GiveFeedbackContent({
     selectedDegreeId > 0 && degrees?.some((d) => d.id === selectedDegreeId)
 
   // Show success state
-  if (actionData?.success) {
+  if (isSuccess) {
     return (
       <main className="container mx-auto px-4 py-8 max-w-2xl">
         <div className="text-center">
@@ -188,7 +186,7 @@ export function GiveFeedbackContent({
             </svg>
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            Feedback Submitted!
+            Feedback Received!
           </h2>
           <p className="text-gray-600 mb-6">
             Thank you for sharing your course experience. Your feedback helps
@@ -214,14 +212,8 @@ export function GiveFeedbackContent({
           Leave your Feedback!
         </h1>
 
-        {actionData?.error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-600">{actionData.error}</p>
-          </div>
-        )}
-
         <Form {...form}>
-          <form method="post" className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             {/* Email */}
             <FormField
               name="email"
@@ -641,7 +633,10 @@ export function GiveFeedbackContent({
               type="submit"
               className="w-full mt-6 mb-0"
               disabled={
-                isLoadingDegrees || isLoadingCourses || !form.formState.isValid
+                isLoadingDegrees ||
+                isLoadingCourses ||
+                !form.formState.isValid ||
+                isSubmitting
               }
             >
               {isSubmitting ? (

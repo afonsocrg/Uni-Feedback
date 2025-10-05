@@ -1,5 +1,8 @@
-import { getFaculties } from '@uni-feedback/api-client'
+import { getFaculties, MeicFeedbackAPIError } from '@uni-feedback/api-client'
+import { useState } from 'react'
+import { toast } from 'sonner'
 import { GiveFeedbackContent } from '~/components'
+import { useSubmitFeedback } from '~/hooks/queries'
 import { STORAGE_KEYS } from '~/utils/constants'
 
 import type { Route } from './+types/feedback.new'
@@ -88,14 +91,63 @@ export async function clientLoader() {
 // }
 
 export default function GiveFeedbackPage({
-  loaderData,
-  actionData
+  loaderData
 }: Route.ComponentProps) {
+  const submitFeedbackMutation = useSubmitFeedback()
+  const [isSuccess, setIsSuccess] = useState(false)
+
+  const handleSubmit = async (values: {
+    email: string
+    schoolYear: number
+    facultyId: number
+    degreeId: number
+    courseId: number
+    rating: number
+    workloadRating: number
+    comment?: string
+  }) => {
+    // Store values in localStorage for next time
+    localStorage.setItem(STORAGE_KEYS.FEEDBACK_EMAIL, values.email)
+    localStorage.setItem(
+      STORAGE_KEYS.FEEDBACK_FACULTY_ID,
+      values.facultyId.toString()
+    )
+    localStorage.setItem(
+      STORAGE_KEYS.FEEDBACK_DEGREE_ID,
+      values.degreeId.toString()
+    )
+
+    try {
+      // Submit feedback using TanStack Query mutation
+      await submitFeedbackMutation.mutateAsync({
+        email: values.email,
+        schoolYear: values.schoolYear,
+        courseId: values.courseId,
+        rating: values.rating,
+        workloadRating: values.workloadRating,
+        comment: values.comment
+      })
+
+      setIsSuccess(true)
+      toast.success('Feedback submitted successfully!')
+    } catch (error) {
+      if (error instanceof MeicFeedbackAPIError) {
+        toast.error(error.message)
+      } else {
+        console.error('Failed to submit feedback:', error)
+        toast.error('Failed to submit feedback. Please try again.')
+      }
+      throw error // Re-throw so the form can handle it
+    }
+  }
+
   return (
     <GiveFeedbackContent
       faculties={loaderData.faculties}
       initialFormValues={loaderData.initialFormValues}
-      actionData={actionData}
+      onSubmit={handleSubmit}
+      isSubmitting={submitFeedbackMutation.isPending}
+      isSuccess={isSuccess}
     />
   )
 }
