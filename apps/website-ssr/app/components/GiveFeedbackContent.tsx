@@ -50,10 +50,15 @@ import { useForm } from 'react-hook-form'
 import { Link } from 'react-router'
 import { z } from 'zod'
 import { useDegreeCourses, useFacultyDegrees } from '~/hooks/queries'
-import { cn } from '../utils/tailwind'
+import { cn } from '~/utils/tailwind'
 
 interface GiveFeedbackContentProps {
   faculties: Faculty[]
+  initialFormValues?: {
+    email: string
+    facultyId: number
+    degreeId: number
+  }
   actionData?: {
     success?: boolean
     error?: string
@@ -77,16 +82,17 @@ type FeedbackFormData = z.infer<typeof feedbackSchema>
 
 export function GiveFeedbackContent({
   faculties,
+  initialFormValues,
   actionData
 }: GiveFeedbackContentProps) {
   const form = useForm({
     resolver: zodResolver(feedbackSchema),
-    mode: 'onChange', // Validate on change to enable/disable submit button
+    // mode: 'onChange', // Validate on change to enable/disable submit button
     defaultValues: {
-      email: '',
+      email: initialFormValues?.email || '',
       schoolYear: getCurrentSchoolYear(),
-      facultyId: 0,
-      degreeId: 0,
+      facultyId: initialFormValues?.facultyId || 0,
+      degreeId: initialFormValues?.degreeId || 0,
       courseId: 0,
       rating: 0,
       workloadRating: 0,
