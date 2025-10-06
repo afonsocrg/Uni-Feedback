@@ -10,17 +10,14 @@ import { GetDegreeCourseGroups, GetDegreeCourses, GetDegrees } from './degrees'
 import { GetFaculties, GetFacultyDegrees, GetFacultyDetails } from './faculties'
 import { CreateFeedbackDraft, GetFeedbackDraft } from './feedbackDrafts'
 
+// Parse allowed origins from environment variable
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean)
+
 const { preflight, corsify } = cors({
-  origin: [
-    'http://localhost:3000',
-    'http://localhost:5173',
-    'http://localhost:5174', // Admin dashboard
-    'https://uni-feedback.afonsocrg.com',
-    'https://ist-feedback.afonsocrg.com',
-    'https://istfeedback.com',
-    'https://uni-feedback.com',
-    'https://admin.uni-feedback.com'
-  ],
+  origin: allowedOrigins,
   credentials: true,
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 })
