@@ -141,6 +141,7 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
       faculties={loaderData.faculties}
       initialFormValues={loaderData.initialFormValues}
       onSubmit={handleSubmit}
+      onReset={() => setIsSuccess(false)}
       isSubmitting={submitFeedbackMutation.isPending}
       isSuccess={isSuccess}
     />

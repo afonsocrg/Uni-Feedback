@@ -61,6 +61,7 @@ interface GiveFeedbackContentProps {
     courseId: number
   }
   onSubmit: (values: FeedbackFormData) => Promise<void>
+  onReset?: () => void
   isSubmitting: boolean
   isSuccess: boolean
 }
@@ -83,6 +84,7 @@ export function GiveFeedbackContent({
   faculties,
   initialFormValues,
   onSubmit,
+  onReset,
   isSubmitting,
   isSuccess
 }: GiveFeedbackContentProps) {
@@ -166,6 +168,12 @@ export function GiveFeedbackContent({
   const showCourseField =
     selectedDegreeId > 0 && degrees?.some((d) => d.id === selectedDegreeId)
 
+  // Handle reset
+  const handleReset = () => {
+    form.reset()
+    onReset?.()
+  }
+
   // Show success state
   if (isSuccess) {
     return (
@@ -194,8 +202,8 @@ export function GiveFeedbackContent({
             fellow students make informed decisions.
           </p>
           <div className="space-y-3">
-            <Button asChild className="w-full">
-              <a href="/feedback/new">Submit Another Review</a>
+            <Button onClick={handleReset} className="w-full">
+              Submit Another Review
             </Button>
             <Button variant="outline" asChild className="w-full">
               <a href="/">Back to Courses</a>
@@ -630,16 +638,7 @@ export function GiveFeedbackContent({
             </div>
 
             {/* Submit Button */}
-            <Button
-              type="submit"
-              className="w-full mt-6 mb-0"
-              disabled={
-                isLoadingDegrees ||
-                isLoadingCourses ||
-                !form.formState.isValid ||
-                isSubmitting
-              }
-            >
+            <Button type="submit" className="w-full mt-6 mb-0">
               {isSubmitting ? (
                 <>
                   <Loader2 className="size-4 animate-spin" />
