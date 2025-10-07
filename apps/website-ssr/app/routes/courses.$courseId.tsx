@@ -12,7 +12,48 @@ export function meta({ loaderData }: Route.MetaArgs) {
     ]
   }
 
-  const { course } = loaderData
+  const { course, feedback } = loaderData
+
+  // Build Schema.org structured data
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'Course',
+    name: course.name,
+    courseCode: course.acronym,
+    numberOfCredits: course.ects,
+    ...(course.faculty && {
+      provider: {
+        '@type': 'CollegeOrUniversity',
+        name: course.faculty.name
+      }
+    }),
+    ...(course.totalFeedbackCount > 0 && {
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: Number(course.averageRating).toFixed(1),
+        reviewCount: course.totalFeedbackCount.toString(),
+        bestRating: '5',
+        worstRating: '1'
+      }
+    }),
+    ...(feedback.length > 0 && {
+      review: feedback.map((f) => ({
+        '@type': 'Review',
+        reviewRating: {
+          '@type': 'Rating',
+          ratingValue: f.rating.toString(),
+          bestRating: '5',
+          worstRating: '1'
+        },
+        author: {
+          '@type': 'Person',
+          name: 'Anonymous Student'
+        },
+        ...(f.comment && { reviewBody: f.comment }),
+        datePublished: new Date(f.createdAt).toISOString().split('T')[0]
+      }))
+    })
+  }
 
   return [
     {
@@ -21,6 +62,9 @@ export function meta({ loaderData }: Route.MetaArgs) {
     {
       name: 'description',
       content: `Read honest, anonymous student reviews for ${course.name} (${course.acronym}). Get insights on workload, assessment, and course content to help you make informed decisions.`
+    },
+    {
+      'script:ld+json': structuredData
     }
   ]
 }

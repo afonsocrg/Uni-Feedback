@@ -130,7 +130,6 @@ export function DegreePageContent({
   ])
 
   const getCourseUrl = (course: CourseWithFeedback) => {
-    // For now, just return a placeholder URL since we haven't built individual course pages yet
     return `/courses/${course.id}`
   }
 
