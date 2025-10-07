@@ -1,14 +1,13 @@
+// Load environment variables via config module
+import './config'
+
 import { router } from '@routes'
 import { DatabaseContext } from '@uni-feedback/db'
 import * as schema from '@uni-feedback/db/schema'
 import { createServerAdapter } from '@whatwg-node/server'
-import { config } from 'dotenv'
 import { drizzle } from 'drizzle-orm/postgres-js'
 import { createServer } from 'node:http'
 import postgres from 'postgres'
-
-// Load environment variables
-config()
 
 // Global env variable storage (keeping the same pattern as before)
 let globalEnv: Env | null = null
@@ -56,7 +55,7 @@ const createFetchHandler = () => {
       const sql = postgres(globalEnv.DATABASE_URL)
       const db = drizzle(sql, { schema })
 
-      // Run the request within database context (same as before)
+      // Run the request within database context
       return await DatabaseContext.run(db, async () => {
         return await router.fetch(request, globalEnv, {})
       })
