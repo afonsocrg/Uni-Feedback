@@ -53,7 +53,7 @@ export function DegreePageContent({
   >(STORAGE_KEYS.FILTER_HAS_MANDATORY_EXAM, null)
   const [sortBy, setSortBy] = useLocalStorage<SortOption>(
     STORAGE_KEYS.FILTER_SORT_BY,
-    'rating'
+    'reviews'
   )
 
   // Available terms for filtering

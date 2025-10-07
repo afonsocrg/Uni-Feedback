@@ -6339,7 +6339,7 @@ snapshots:
 
   '@types/better-sqlite3@7.6.13':
     dependencies:
-      '@types/node': 22.18.8
+      '@types/node': 20.19.19
 
   '@types/body-parser@1.19.6':
     dependencies:
