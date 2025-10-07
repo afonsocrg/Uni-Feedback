@@ -7,7 +7,8 @@ import type {
 import { Button, WarningAlert } from '@uni-feedback/ui'
 import { useMemo, useState } from 'react'
 import { SearchCourses } from '~/components'
-import { insensitiveMatch } from '~/utils'
+import { useLocalStorage } from '~/hooks'
+import { insensitiveMatch, STORAGE_KEYS } from '~/utils'
 import { CourseCard, HeroSection } from '.'
 
 interface CourseWithFeedback extends Course {
@@ -40,14 +41,20 @@ export function DegreePageContent({
 }: DegreePageContentProps) {
   // Search state
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedTerm, setSelectedTerm] = useState<string | null>(null)
-  const [selectedCourseGroupId, setSelectedCourseGroupId] = useState<
+  const [selectedTerm, setSelectedTerm] = useLocalStorage<string | null>(
+    STORAGE_KEYS.FILTER_TERM,
+    null
+  )
+  const [selectedCourseGroupId, setSelectedCourseGroupId] = useLocalStorage<
     number | null
-  >(null)
-  const [mandatoryExamFilter, setMandatoryExamFilter] = useState<
+  >(STORAGE_KEYS.FILTER_COURSE_GROUP_ID, null)
+  const [mandatoryExamFilter, setMandatoryExamFilter] = useLocalStorage<
     boolean | null
-  >(null)
-  const [sortBy, setSortBy] = useState<SortOption>('rating')
+  >(STORAGE_KEYS.FILTER_HAS_MANDATORY_EXAM, null)
+  const [sortBy, setSortBy] = useLocalStorage<SortOption>(
+    STORAGE_KEYS.FILTER_SORT_BY,
+    'rating'
+  )
 
   // Available terms for filtering
   const availableTerms = useMemo(() => {
