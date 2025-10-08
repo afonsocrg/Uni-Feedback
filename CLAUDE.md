@@ -118,6 +118,17 @@ import {
 } from '@uni-feedback/utils'
 ```
 
+## Environment Variables
+
+**Simple approach:** Each app has its own `.env` file with everything it needs.
+
+**Setup:**
+```bash
+cp apps/api/.env.example apps/api/.env
+cp apps/website-ssr/.env.example apps/website-ssr/.env
+# Update DATABASE_URL password in both files
+```
+
 ## Commit Rules
 
 - **NEVER** include author information in commit messages
