@@ -6,6 +6,9 @@ import {
 } from '@react-router/dev/routes'
 
 export default [
+  // Sitemap route (outside layout for clean XML response)
+  route('sitemap.xml', 'routes/sitemap[.]xml.ts'),
+
   layout('routes/layout.tsx', [
     index('routes/home.tsx'),
     route('/feedback/new', 'routes/feedback.new.tsx'),

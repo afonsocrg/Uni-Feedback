@@ -14,6 +14,7 @@
     "@emnapi/core": "^1.5.0",
     "@emnapi/runtime": "^1.5.0",
     "@emnapi/wasi-threads": "^1.1.0",
+    "@forge42/seo-tools": "^1.4.5",
     "@hookform/resolvers": "^5.2.2",
     "@napi-rs/wasm-runtime": "^1.0.5",
     "@react-router/express": "^7.9.3",
