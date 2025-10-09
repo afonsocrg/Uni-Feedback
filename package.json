@@ -24,10 +24,7 @@
     "db": "turbo db",
     "db:start": "turbo start --filter=@uni-feedback/db",
     "db:stop": "turbo stop --filter=@uni-feedback/db",
-    "db:studio": "turbo studio --filter=@uni-feedback/db",
-    "deploy": "turbo deploy",
-    "deploy:website": "./push_to_prod.sh",
-    "deploy:dashboard": "./push_to_prod.sh",
+    "db:shell": "dotenv run psql -h localhost -p 5433 -U postgres -d uni-feedback",
     "clean": "turbo clean && rm -f pnpm-lock.yaml && rm -rf node_modules"
   },
   "devDependencies": {

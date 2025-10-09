@@ -1,5 +1,5 @@
-import { database, schema } from '@uni-feedback/db'
-import { and, eq, isNotNull, sql } from 'drizzle-orm'
+import { database, queries, schema } from '@uni-feedback/db'
+import { eq, sql } from 'drizzle-orm'
 import { CourseDetailContent } from '~/components'
 
 import type { Route } from './+types/courses.$courseId'
@@ -88,7 +88,7 @@ export async function loader({ params }: Route.LoaderArgs) {
     throw new Response('Course not found', { status: 404 })
   }
 
-  // Get feedback aggregation separately
+  // Get feedback aggregation separately (includes feedback from identical courses)
   const feedbackAggregation = await db
     .select({
       averageRating:
@@ -105,12 +105,7 @@ export async function loader({ params }: Route.LoaderArgs) {
         )
     })
     .from(schema.feedback)
-    .where(
-      and(
-        eq(schema.feedback.courseId, courseIdNum),
-        isNotNull(schema.feedback.approvedAt)
-      )
-    )
+    .where(queries.getFeedbackWhereCondition(courseIdNum))
 
   const aggregation = feedbackAggregation[0] || {
     averageRating: 0,
@@ -134,7 +129,7 @@ export async function loader({ params }: Route.LoaderArgs) {
     })
   }
 
-  // Get feedback for the course
+  // Get feedback for the course (includes feedback from identical courses)
   const feedback = await db
     .select({
       id: schema.feedback.id,
@@ -144,15 +139,25 @@ export async function loader({ params }: Route.LoaderArgs) {
       rating: schema.feedback.rating,
       workloadRating: schema.feedback.workloadRating,
       comment: schema.feedback.comment,
-      createdAt: schema.feedback.createdAt
+      createdAt: schema.feedback.createdAt,
+      course: {
+        id: schema.courses.id,
+        name: schema.courses.name,
+        acronym: schema.courses.acronym
+      },
+      degree: {
+        id: schema.degrees.id,
+        name: schema.degrees.name,
+        acronym: schema.degrees.acronym
+      },
+      isFromDifferentCourse: sql<number>`${schema.feedback.courseId} != ${courseIdNum}`.as(
+        'is_from_different_course'
+      )
     })
     .from(schema.feedback)
-    .where(
-      and(
-        eq(schema.feedback.courseId, courseIdNum),
-        isNotNull(schema.feedback.approvedAt)
-      )
-    )
+    .innerJoin(schema.courses, eq(schema.feedback.courseId, schema.courses.id))
+    .innerJoin(schema.degrees, eq(schema.courses.degreeId, schema.degrees.id))
+    .where(queries.getFeedbackWhereCondition(courseIdNum))
     .orderBy(sql`${schema.feedback.createdAt} DESC`)
 
   return {

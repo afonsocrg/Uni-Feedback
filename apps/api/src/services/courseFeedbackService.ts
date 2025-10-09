@@ -1,6 +1,6 @@
-import { database } from '@uni-feedback/db'
-import { courseRelationships, courses, degrees, feedback } from '@uni-feedback/db/schema'
-import { and, eq, inArray, isNotNull, or, sql } from 'drizzle-orm'
+import { database, queries } from '@uni-feedback/db'
+import { courses, degrees, feedback } from '@uni-feedback/db/schema'
+import { eq, sql } from 'drizzle-orm'
 
 export class CourseFeedbackService {
   private env: Env
@@ -14,15 +14,7 @@ export class CourseFeedbackService {
    * This includes the original course ID plus any related course IDs based on course relationships.
    */
   private getRelevantCourseIdsQuery(courseId: number) {
-    return database()
-      .select({ courseId: courseRelationships.targetCourseId })
-      .from(courseRelationships)
-      .where(
-        and(
-          eq(courseRelationships.sourceCourseId, courseId),
-          eq(courseRelationships.relationshipType, 'identical')
-        )
-      )
+    return queries.getRelatedCourseIdsSubquery(courseId)
   }
 
   /**
@@ -30,15 +22,7 @@ export class CourseFeedbackService {
    * This centralizes the logic for filtering feedback from the original course + related courses.
    */
   getFeedbackWhereCondition(courseId: number) {
-    const relatedCourseIds = this.getRelevantCourseIdsQuery(courseId)
-
-    return and(
-      isNotNull(feedback.approvedAt),
-      or(
-        eq(feedback.courseId, courseId),
-        inArray(feedback.courseId, relatedCourseIds)
-      )
-    )
+    return queries.getFeedbackWhereCondition(courseId)
   }
 
   /**
@@ -81,8 +65,6 @@ export class CourseFeedbackService {
    * This is used by the feedback list endpoint.
    */
   getCourseFeedbackWithDetails(courseId: number) {
-    const relatedCourseIds = this.getRelevantCourseIdsQuery(courseId)
-
     return database()
       .select({
         id: feedback.id,
@@ -110,15 +92,7 @@ export class CourseFeedbackService {
       .from(feedback)
       .innerJoin(courses, eq(feedback.courseId, courses.id))
       .innerJoin(degrees, eq(courses.degreeId, degrees.id))
-      .where(
-        and(
-          isNotNull(feedback.approvedAt),
-          or(
-            eq(feedback.courseId, courseId),
-            inArray(feedback.courseId, relatedCourseIds)
-          )
-        )
-      )
+      .where(this.getFeedbackWhereCondition(courseId))
   }
 
   /**
@@ -128,26 +102,7 @@ export class CourseFeedbackService {
   getEnhancedFeedbackJoin() {
     return {
       table: feedback,
-      condition: and(
-        isNotNull(feedback.approvedAt),
-        or(
-          // Direct feedback for the course
-          eq(courses.id, feedback.courseId),
-          // Feedback from courses that are related to this course
-          inArray(
-            feedback.courseId,
-            database()
-              .select({ targetCourseId: courseRelationships.targetCourseId })
-              .from(courseRelationships)
-              .where(
-                and(
-                  eq(courseRelationships.sourceCourseId, courses.id),
-                  eq(courseRelationships.relationshipType, 'identical')
-                )
-              )
-          )
-        )
-      )
+      condition: queries.getEnhancedFeedbackJoinCondition()
     }
   }
 }

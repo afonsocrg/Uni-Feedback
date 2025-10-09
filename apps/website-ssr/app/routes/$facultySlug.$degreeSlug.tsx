@@ -1,5 +1,5 @@
-import { database, schema } from '@uni-feedback/db'
-import { and, eq, isNotNull, sql } from 'drizzle-orm'
+import { database, queries, schema } from '@uni-feedback/db'
+import { eq, sql } from 'drizzle-orm'
 import { useEffect } from 'react'
 import { DegreePageContent } from '../components'
 import { userPreferences } from '../utils/userPreferences'
@@ -71,13 +71,7 @@ export async function loader({ params }: Route.LoaderArgs) {
         )
     })
     .from(schema.courses)
-    .leftJoin(
-      schema.feedback,
-      and(
-        eq(schema.feedback.courseId, schema.courses.id),
-        isNotNull(schema.feedback.approvedAt)
-      )
-    )
+    .leftJoin(schema.feedback, queries.getEnhancedFeedbackJoinCondition())
     .where(eq(schema.courses.degreeId, degree.id))
     .groupBy(schema.courses.id)
 
