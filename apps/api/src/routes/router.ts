@@ -1,6 +1,8 @@
 import { getAllowedOrigins } from '@config'
 import { fromIttyRouter } from 'chanfana'
 import { cors, Router, withCookies } from 'itty-router'
+import { router as adminRouter } from './admin/router'
+import { router as authRouter } from './auth/router'
 import {
   GetCourse,
   GetCourseFeedback,
@@ -54,8 +56,8 @@ router.get('/feedback-drafts/:code', GetFeedbackDraft)
 // ---------------------------------------------------------
 // Nested routers
 // ---------------------------------------------------------
-// router.all('/auth/*', authRouter as any)
-// router.all('/admin/*', adminRouter as any)
+router.all('/auth/*', authRouter as any)
+router.all('/admin/*', adminRouter as any)
 
 // 404 for everything else
 router.all('*', () =>
