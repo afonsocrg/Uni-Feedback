@@ -27,8 +27,8 @@ jobs:
             cd ~/docs/uni-feedback
 
             # Pull latest changes
-            echo "Pulling latest code from production branch..."
-            git fetch origin production
+            echo "Pulling latest code from prod branch..."
+            git fetch origin prod
             git reset --hard origin/prod
 
             # Run deployment script
