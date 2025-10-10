@@ -22,7 +22,7 @@ git pull origin prod
 
 # Build and deploy with zero downtime
 echo -e "${YELLOW}🔨 Building and deploying containers...${NC}"
-docker-compose up --build -d
+docker compose up --build -d
 
 # Wait for services to be healthy
 echo -e "${YELLOW}⏳ Waiting for services to stabilize...${NC}"
@@ -30,11 +30,11 @@ sleep 10
 
 # Check container status
 echo -e "${YELLOW}📊 Container status:${NC}"
-docker-compose ps
+docker compose ps
 
 # Show recent logs
 echo -e "${YELLOW}📝 Recent logs:${NC}"
-docker-compose logs --tail=30
+docker compose logs --tail=30
 
 # Cleanup old images
 echo -e "${YELLOW}🧹 Cleaning up old Docker images...${NC}"
