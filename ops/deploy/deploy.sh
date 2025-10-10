@@ -12,6 +12,10 @@ echo -e "${GREEN}🚀 Starting zero-downtime deployment...${NC}"
 # Ensure we're in the project root
 cd "$(dirname "$0")/../.."
 
+# Make sure we're on the prod branch
+echo -e "${YELLOW}🔄 Checking out prod branch...${NC}"
+git checkout prod
+
 # Pull latest changes (already done by GitHub Action, but just in case)
 echo -e "${YELLOW}📥 Ensuring latest code...${NC}"
 git pull origin prod

@@ -29,7 +29,7 @@ jobs:
             # Pull latest changes
             echo "Pulling latest code from production branch..."
             git fetch origin production
-            git reset --hard origin/production
+            git reset --hard origin/prod
 
             # Run deployment script
             echo "Running deployment script..."
