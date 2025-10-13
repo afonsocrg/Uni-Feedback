@@ -7,8 +7,7 @@
 
 // import '@uni-feedback/ui/style.css' // <-- Does not work
 // import '../../../packages/ui/dist/style.css' // <-- Does not work
-import '../../../packages/ui/dist/style.css'
-import '../../../packages/ui/src/style.css'
+// import '../../../packages/ui/src/style.css'
 import './index.css'
 
 import { StrictMode } from 'react'

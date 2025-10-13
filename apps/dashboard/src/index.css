@@ -1,0 +1,4 @@
+@import "@uni-feedback/ui/style.css";
+
+/* Docs: https://tailwindcss.com/docs/detecting-classes-in-source-files#explicitly-registering-sources */
+@source "../../../packages/ui";
