@@ -42,6 +42,45 @@ if (DEVELOPMENT) {
   app.use(await import(BUILD_PATH).then((mod) => mod.app));
 }
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
+});
+
+// Graceful shutdown
+async function shutdown() {
+  console.log("Shutting down gracefully...");
+
+  // Close HTTP server
+  await new Promise((resolve) => {
+    server.close(() => {
+      console.log("HTTP server closed");
+      resolve();
+    });
+  });
+
+  // Close database connection pool
+  try {
+    if (DEVELOPMENT) {
+      const source = await import("./server/app.ts");
+      await source.client.end({ timeout: 5 });
+    } else {
+      const source = await import(BUILD_PATH);
+      await source.client.end({ timeout: 5 });
+    }
+    console.log("Database connections closed");
+  } catch (error) {
+    console.error("Error closing database connections:", error);
+  }
+
+  process.exit(0);
+}
+
+process.on("SIGTERM", () => {
+  console.log("SIGTERM received");
+  shutdown();
+});
+
+process.on("SIGINT", () => {
+  console.log("SIGINT received");
+  shutdown();
 });

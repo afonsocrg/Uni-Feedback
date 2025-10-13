@@ -42,21 +42,39 @@ function createEnv(): Env {
   }
 }
 
+// Create a single connection pool that will be reused
+let sql: ReturnType<typeof postgres> | null = null
+let db: ReturnType<typeof drizzle> | null = null
+
+// Initialize the database connection pool
+function initializeDatabase() {
+  if (!globalEnv) {
+    globalEnv = createEnv()
+  }
+
+  if (!sql) {
+    // Create connection pool with proper configuration
+    sql = postgres(globalEnv.DATABASE_URL, {
+      max: 10, // Maximum pool size
+      idle_timeout: 20, // Close idle connections after 20 seconds
+      connect_timeout: 10, // Connection timeout in seconds
+    })
+    db = drizzle(sql, { schema })
+    console.log('✅ Database connection pool initialized')
+  }
+
+  return db!
+}
+
 // Create a fetch handler that mimics the Cloudflare Workers pattern
 const createFetchHandler = () => {
   return async (request: Request): Promise<Response> => {
     try {
-      // Initialize env if not already done
-      if (!globalEnv) {
-        globalEnv = createEnv()
-      }
-
-      // Create database connection
-      const sql = postgres(globalEnv.DATABASE_URL)
-      const db = drizzle(sql, { schema })
+      // Initialize database pool (only happens once)
+      const database = initializeDatabase()
 
       // Run the request within database context
-      return await DatabaseContext.run(db, async () => {
+      return await DatabaseContext.run(database, async () => {
         return await router.fetch(request, globalEnv, {})
       })
     } catch (error) {
@@ -82,12 +100,32 @@ server.listen(port, () => {
 })
 
 // Graceful shutdown
+async function shutdown() {
+  console.log('Shutting down gracefully...')
+
+  // Close HTTP server
+  await new Promise<void>((resolve) => {
+    server.close(() => {
+      console.log('HTTP server closed')
+      resolve()
+    })
+  })
+
+  // Close database connection pool
+  if (sql) {
+    await sql.end({ timeout: 5 })
+    console.log('Database connections closed')
+  }
+
+  process.exit(0)
+}
+
 process.on('SIGTERM', () => {
-  console.log('SIGTERM received, shutting down gracefully')
-  server.close(() => process.exit(0))
+  console.log('SIGTERM received')
+  shutdown()
 })
 
 process.on('SIGINT', () => {
-  console.log('SIGINT received, shutting down gracefully')
-  server.close(() => process.exit(0))
+  console.log('SIGINT received')
+  shutdown()
 })
