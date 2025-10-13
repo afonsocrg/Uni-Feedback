@@ -150,9 +150,10 @@ export async function loader({ params }: Route.LoaderArgs) {
         name: schema.degrees.name,
         acronym: schema.degrees.acronym
       },
-      isFromDifferentCourse: sql<number>`${schema.feedback.courseId} != ${courseIdNum}`.as(
-        'is_from_different_course'
-      )
+      isFromDifferentCourse:
+        sql<number>`${schema.feedback.courseId} != ${courseIdNum}`.as(
+          'is_from_different_course'
+        )
     })
     .from(schema.feedback)
     .innerJoin(schema.courses, eq(schema.feedback.courseId, schema.courses.id))

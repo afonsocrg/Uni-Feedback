@@ -52,11 +52,12 @@ const persister =
 
 export function Layout({ children }: { children: React.ReactNode }) {
   // Inject runtime environment variables for Docker/SSR
-  const envScript = typeof process !== 'undefined'
-    ? `window.ENV = ${JSON.stringify({
-        API_BASE_URL: process.env.VITE_API_BASE_URL || 'http://localhost:3001'
-      })};`
-    : ''
+  const envScript =
+    typeof process !== 'undefined'
+      ? `window.ENV = ${JSON.stringify({
+          API_BASE_URL: process.env.VITE_API_BASE_URL || 'http://localhost:3001'
+        })};`
+      : ''
 
   return (
     <html lang="en">
@@ -119,7 +120,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   let stack: string | undefined
 
   if (isRouteErrorResponse(error)) {
-    if (error.status === 404) {
+    if (error.status === 404 || error.status === 400) {
       return <NotFound />
     }
     message = 'Error'
