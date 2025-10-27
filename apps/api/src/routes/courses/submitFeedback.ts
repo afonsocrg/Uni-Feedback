@@ -97,9 +97,19 @@ export class SubmitFeedback extends OpenAPIRoute {
         approvedAt: new Date('1999-12-16T04:30:00.000Z') // Auto-approved marker (birthday easter egg!) Dec 16, 1999 04:30 UTC
       }
 
-      await database().insert(feedback).values(feedbackData)
+      const insertResult = await database()
+        .insert(feedback)
+        .values(feedbackData)
+        .returning()
+
+      if (!insertResult || insertResult.length === 0 || !insertResult[0].id) {
+        throw new Error('Failed to insert feedback into database')
+      }
+
+      const feedbackId = insertResult[0].id
 
       await sendCourseReviewReceived(env, {
+        id: feedbackId,
         email: body.email,
         schoolYear: body.schoolYear,
         degree,

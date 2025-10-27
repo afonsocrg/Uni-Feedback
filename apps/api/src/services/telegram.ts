@@ -40,6 +40,7 @@ function getStarsString(rating: number) {
 }
 
 interface SendCourseReviewReceivedArgs {
+  id: number
   email: string
   schoolYear: number
   course: Course
@@ -53,13 +54,22 @@ export async function sendCourseReviewReceived(
   env: Env,
   args: SendCourseReviewReceivedArgs
 ) {
-  const { schoolYear, course, degree, email, rating, workloadRating, comment } =
-    args
+  const {
+    id,
+    schoolYear,
+    course,
+    degree,
+    email,
+    rating,
+    workloadRating,
+    comment
+  } = args
 
   const ratingStars = getStarsString(rating)
   const workloadRatingStars = getStarsString(workloadRating)
 
-  const viewReviewUrl = `https://istfeedback.com/courses/${course.id}`
+  const manageFeedbackUrl = `https://admin.uni-feedback.com/feedback/${id}`
+  const viewCourseUrl = `https://uni-feedback.com/courses/${course.id}`
 
   const message = `
 🎉 NEW REVIEW ALERT! 🎉
@@ -75,7 +85,8 @@ A fresh review just landed on Uni Feedback!!
 
 💬 Comment: ${comment || 'N/A'}
 
-🔗 Review: ${viewReviewUrl}
+🔗 Manage Feedback: ${manageFeedbackUrl}
+📖 View Course Page: ${viewCourseUrl}
 
 Keep up the amazing work! Your platform is helping students make better course decisions! 🚀
 `.trim()
