@@ -282,6 +282,9 @@ export interface AdminFeedbackQuery {
   faculty_id?: number
   email?: string
   approved?: boolean
+  rating?: number
+  workload_rating?: number
+  has_comment?: boolean
 }
 
 export interface FeedbackUpdateData {
@@ -643,6 +646,11 @@ export async function getAdminFeedbackNew(
   if (query?.email) params.set('email', query.email)
   if (query?.approved !== undefined)
     params.set('approved', query.approved.toString())
+  if (query?.rating) params.set('rating', query.rating.toString())
+  if (query?.workload_rating)
+    params.set('workload_rating', query.workload_rating.toString())
+  if (query?.has_comment !== undefined)
+    params.set('has_comment', query.has_comment.toString())
 
   const url = params.toString()
     ? `/admin/feedback?${params}`

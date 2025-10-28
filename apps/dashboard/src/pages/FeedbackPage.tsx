@@ -32,7 +32,7 @@ import {
   SelectTrigger,
   SelectValue,
   Skeleton,
-  StarRatingWithLabel,
+  StarRating,
   Table,
   TableBody,
   TableCell,
@@ -55,6 +55,9 @@ export function FeedbackPage() {
   const { facultyId, degreeId, courseId, setFaculty, setDegree, setCourse } =
     useAdminFilters()
   const [approvedFilter, setApprovedFilter] = useState('all')
+  const [ratingFilter, setRatingFilter] = useState('all')
+  const [workloadRatingFilter, setWorkloadRatingFilter] = useState('all')
+  const [hasCommentFilter, setHasCommentFilter] = useState('all')
 
   const selectedFacultyId = facultyId?.toString() ?? 'all'
   const selectedDegreeId = degreeId?.toString() ?? 'all'
@@ -75,7 +78,16 @@ export function FeedbackPage() {
     ...(courseId !== null && {
       course_id: courseId
     }),
-    ...(approvedFilter !== 'all' && { approved: approvedFilter === 'approved' })
+    ...(approvedFilter !== 'all' && {
+      approved: approvedFilter === 'approved'
+    }),
+    ...(ratingFilter !== 'all' && { rating: parseInt(ratingFilter, 10) }),
+    ...(workloadRatingFilter !== 'all' && {
+      workload_rating: parseInt(workloadRatingFilter, 10)
+    }),
+    ...(hasCommentFilter !== 'all' && {
+      has_comment: hasCommentFilter === 'with'
+    })
   }
 
   // Fetch data
@@ -137,6 +149,24 @@ export function FeedbackPage() {
     setPage(1)
   }
 
+  // Handle rating filter change
+  const handleRatingFilterChange = (newRating: string) => {
+    setRatingFilter(newRating)
+    setPage(1)
+  }
+
+  // Handle workload rating filter change
+  const handleWorkloadRatingFilterChange = (newWorkload: string) => {
+    setWorkloadRatingFilter(newWorkload)
+    setPage(1)
+  }
+
+  // Handle comment filter change
+  const handleHasCommentFilterChange = (newComment: string) => {
+    setHasCommentFilter(newComment)
+    setPage(1)
+  }
+
   // Handle pagination
   const handlePageChange = (newPage: number) => {
     setPage(newPage)
@@ -171,7 +201,10 @@ export function FeedbackPage() {
     facultyId !== null ||
     degreeId !== null ||
     courseId !== null ||
-    approvedFilter !== 'all'
+    approvedFilter !== 'all' ||
+    ratingFilter !== 'all' ||
+    workloadRatingFilter !== 'all' ||
+    hasCommentFilter !== 'all'
 
   if (feedbackError) {
     return (
@@ -389,6 +422,74 @@ export function FeedbackPage() {
                 <SelectItem value="pending">Not Approved</SelectItem>
               </SelectContent>
             </Select>
+
+            <Select
+              value={ratingFilter}
+              onValueChange={handleRatingFilterChange}
+            >
+              <SelectTrigger className="w-full sm:w-40">
+                <SelectValue placeholder="All Ratings" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Ratings</SelectItem>
+                <SelectItem value="5">
+                  <StarRating value={5} size="sm" />
+                </SelectItem>
+                <SelectItem value="4">
+                  <StarRating value={4} size="sm" />
+                </SelectItem>
+                <SelectItem value="3">
+                  <StarRating value={3} size="sm" />
+                </SelectItem>
+                <SelectItem value="2">
+                  <StarRating value={2} size="sm" />
+                </SelectItem>
+                <SelectItem value="1">
+                  <StarRating value={1} size="sm" />
+                </SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select
+              value={workloadRatingFilter}
+              onValueChange={handleWorkloadRatingFilterChange}
+            >
+              <SelectTrigger className="w-full sm:w-48">
+                <SelectValue placeholder="All Workloads" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Workloads</SelectItem>
+                <SelectItem value="5">
+                  <WorkloadRatingDisplay rating={5} />
+                </SelectItem>
+                <SelectItem value="4">
+                  <WorkloadRatingDisplay rating={4} />
+                </SelectItem>
+                <SelectItem value="3">
+                  <WorkloadRatingDisplay rating={3} />
+                </SelectItem>
+                <SelectItem value="2">
+                  <WorkloadRatingDisplay rating={2} />
+                </SelectItem>
+                <SelectItem value="1">
+                  <WorkloadRatingDisplay rating={1} />
+                </SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select
+              value={hasCommentFilter}
+              onValueChange={handleHasCommentFilterChange}
+            >
+              <SelectTrigger className="w-full sm:w-48">
+                <SelectValue placeholder="All Comments" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Comments</SelectItem>
+                <SelectItem value="with">With Comments</SelectItem>
+                <SelectItem value="without">Without Comments</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Loading State */}
@@ -476,10 +577,7 @@ export function FeedbackPage() {
                         </TableCell>
                         <TableCell>
                           <div className="space-y-2">
-                            <StarRatingWithLabel
-                              value={feedbackItem.rating}
-                              size="sm"
-                            />
+                            <StarRating value={feedbackItem.rating} size="sm" />
                             {feedbackItem.workloadRating ? (
                               <WorkloadRatingDisplay
                                 rating={feedbackItem.workloadRating}

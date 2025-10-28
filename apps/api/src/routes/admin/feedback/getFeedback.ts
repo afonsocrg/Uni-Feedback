@@ -32,6 +32,22 @@ const FeedbackQuerySchema = PaginationQuerySchema.extend({
       if (val === 'true') return true
       if (val === 'false') return false
       return undefined
+    }),
+  rating: z
+    .string()
+    .optional()
+    .transform((val) => (val ? parseInt(val, 10) : undefined)),
+  workload_rating: z
+    .string()
+    .optional()
+    .transform((val) => (val ? parseInt(val, 10) : undefined)),
+  has_comment: z
+    .string()
+    .optional()
+    .transform((val) => {
+      if (val === 'true') return true
+      if (val === 'false') return false
+      return undefined
     })
 })
 
@@ -92,7 +108,7 @@ export class GetFeedback extends OpenAPIRoute {
   async handle(request: IRequest, env: any, context: any) {
     return withErrorHandling(request, async () => {
       const { query } = await this.getValidatedData<typeof this.schema>()
-      const { page, limit, course_id, degree_id, faculty_id, email, approved } =
+      const { page, limit, course_id, degree_id, faculty_id, email, approved, rating, workload_rating, has_comment } =
         query
 
 
@@ -122,6 +138,26 @@ export class GetFeedback extends OpenAPIRoute {
           conditions.push(isNotNull(feedback.approvedAt))
         } else {
           conditions.push(isNull(feedback.approvedAt))
+        }
+      }
+
+      if (rating !== undefined) {
+        conditions.push(eq(feedback.rating, rating))
+      }
+
+      if (workload_rating !== undefined) {
+        conditions.push(eq(feedback.workloadRating, workload_rating))
+      }
+
+      if (has_comment !== undefined) {
+        if (has_comment) {
+          conditions.push(
+            sql`${feedback.comment} IS NOT NULL AND ${feedback.comment} != ''`
+          )
+        } else {
+          conditions.push(
+            sql`${feedback.comment} IS NULL OR ${feedback.comment} = ''`
+          )
         }
       }
 
