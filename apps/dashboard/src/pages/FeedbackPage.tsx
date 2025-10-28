@@ -58,6 +58,7 @@ export function FeedbackPage() {
   const [ratingFilter, setRatingFilter] = useState('all')
   const [workloadRatingFilter, setWorkloadRatingFilter] = useState('all')
   const [hasCommentFilter, setHasCommentFilter] = useState('all')
+  const [schoolYearFilter, setSchoolYearFilter] = useState('all')
 
   const selectedFacultyId = facultyId?.toString() ?? 'all'
   const selectedDegreeId = degreeId?.toString() ?? 'all'
@@ -87,6 +88,9 @@ export function FeedbackPage() {
     }),
     ...(hasCommentFilter !== 'all' && {
       has_comment: hasCommentFilter === 'with'
+    }),
+    ...(schoolYearFilter !== 'all' && {
+      school_year: parseInt(schoolYearFilter, 10)
     })
   }
 
@@ -167,6 +171,12 @@ export function FeedbackPage() {
     setPage(1)
   }
 
+  // Handle school year filter change
+  const handleSchoolYearFilterChange = (newSchoolYear: string) => {
+    setSchoolYearFilter(newSchoolYear)
+    setPage(1)
+  }
+
   // Handle pagination
   const handlePageChange = (newPage: number) => {
     setPage(newPage)
@@ -204,7 +214,8 @@ export function FeedbackPage() {
     approvedFilter !== 'all' ||
     ratingFilter !== 'all' ||
     workloadRatingFilter !== 'all' ||
-    hasCommentFilter !== 'all'
+    hasCommentFilter !== 'all' ||
+    schoolYearFilter !== 'all'
 
   if (feedbackError) {
     return (
@@ -410,16 +421,19 @@ export function FeedbackPage() {
             </Popover>
 
             <Select
-              value={approvedFilter}
-              onValueChange={handleApprovedFilterChange}
+              value={schoolYearFilter}
+              onValueChange={handleSchoolYearFilterChange}
             >
               <SelectTrigger className="w-full sm:w-40">
-                <SelectValue placeholder="All Status" />
+                <SelectValue placeholder="All Years" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="approved">Approved</SelectItem>
-                <SelectItem value="pending">Not Approved</SelectItem>
+                <SelectItem value="all">All Years</SelectItem>
+                {Array.from({ length: 10 }, (_, i) => 2024 - i).map((year) => (
+                  <SelectItem key={year} value={year.toString()}>
+                    {year}/{year + 1}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
 
@@ -488,6 +502,20 @@ export function FeedbackPage() {
                 <SelectItem value="all">All Comments</SelectItem>
                 <SelectItem value="with">With Comments</SelectItem>
                 <SelectItem value="without">Without Comments</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select
+              value={approvedFilter}
+              onValueChange={handleApprovedFilterChange}
+            >
+              <SelectTrigger className="w-full sm:w-40">
+                <SelectValue placeholder="All Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="approved">Approved</SelectItem>
+                <SelectItem value="pending">Not Approved</SelectItem>
               </SelectContent>
             </Select>
           </div>

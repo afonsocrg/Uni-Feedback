@@ -48,7 +48,11 @@ const FeedbackQuerySchema = PaginationQuerySchema.extend({
       if (val === 'true') return true
       if (val === 'false') return false
       return undefined
-    })
+    }),
+  school_year: z
+    .string()
+    .optional()
+    .transform((val) => (val ? parseInt(val, 10) : undefined))
 })
 
 const AdminFeedbackSchema = z.object({
@@ -108,7 +112,7 @@ export class GetFeedback extends OpenAPIRoute {
   async handle(request: IRequest, env: any, context: any) {
     return withErrorHandling(request, async () => {
       const { query } = await this.getValidatedData<typeof this.schema>()
-      const { page, limit, course_id, degree_id, faculty_id, email, approved, rating, workload_rating, has_comment } =
+      const { page, limit, course_id, degree_id, faculty_id, email, approved, rating, workload_rating, has_comment, school_year } =
         query
 
 
@@ -159,6 +163,10 @@ export class GetFeedback extends OpenAPIRoute {
             sql`${feedback.comment} IS NULL OR ${feedback.comment} = ''`
           )
         }
+      }
+
+      if (school_year !== undefined) {
+        conditions.push(eq(feedback.schoolYear, school_year))
       }
 
       const whereClause = conditions.length > 0 ? and(...conditions) : undefined

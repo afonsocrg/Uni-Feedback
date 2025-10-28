@@ -285,6 +285,7 @@ export interface AdminFeedbackQuery {
   rating?: number
   workload_rating?: number
   has_comment?: boolean
+  school_year?: number
 }
 
 export interface FeedbackUpdateData {
@@ -651,6 +652,8 @@ export async function getAdminFeedbackNew(
     params.set('workload_rating', query.workload_rating.toString())
   if (query?.has_comment !== undefined)
     params.set('has_comment', query.has_comment.toString())
+  if (query?.school_year)
+    params.set('school_year', query.school_year.toString())
 
   const url = params.toString()
     ? `/admin/feedback?${params}`
