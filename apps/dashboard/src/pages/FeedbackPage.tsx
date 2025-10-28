@@ -1,5 +1,5 @@
 import { PaginationControls } from '@components'
-import { useAdminFilters } from '@hooks'
+import { useAdminFilters, useFeedbackFilters } from '@hooks'
 import { useQuery } from '@tanstack/react-query'
 import {
   getAdminCoursesNew,
@@ -54,11 +54,18 @@ export function FeedbackPage() {
   const [limit, setLimit] = useState(20)
   const { facultyId, degreeId, courseId, setFaculty, setDegree, setCourse } =
     useAdminFilters()
-  const [approvedFilter, setApprovedFilter] = useState('all')
-  const [ratingFilter, setRatingFilter] = useState('all')
-  const [workloadRatingFilter, setWorkloadRatingFilter] = useState('all')
-  const [hasCommentFilter, setHasCommentFilter] = useState('all')
-  const [schoolYearFilter, setSchoolYearFilter] = useState('all')
+  const {
+    approvedFilter,
+    ratingFilter,
+    workloadRatingFilter,
+    hasCommentFilter,
+    schoolYearFilter,
+    setApprovedFilter,
+    setRatingFilter,
+    setWorkloadRatingFilter,
+    setHasCommentFilter,
+    setSchoolYearFilter
+  } = useFeedbackFilters()
 
   const selectedFacultyId = facultyId?.toString() ?? 'all'
   const selectedDegreeId = degreeId?.toString() ?? 'all'
