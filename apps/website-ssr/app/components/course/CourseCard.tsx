@@ -66,7 +66,11 @@ export function CourseCard({
                 )
               </span>
               <div className="flex flex-wrap items-center gap-4">
-                <StarRating value={Number(averageRating || 0)} size="sm" />
+                <StarRating
+                  value={Number(averageRating || 0)}
+                  size="sm"
+                  showHalfStars
+                />
                 {showAverageScores && (
                   <span className="text-xs text-gray-400">
                     ({Number(averageRating || 0).toFixed(1)}/5)

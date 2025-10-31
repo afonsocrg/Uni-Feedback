@@ -150,7 +150,10 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
                 ) : (
                   <div>
                     <div className="flex items-center gap-1">
-                      <StarRating value={Number(course.averageRating) || 0} />
+                      <StarRating
+                        value={Number(course.averageRating) || 0}
+                        showHalfStars
+                      />
                       <span className="text-xs text-gray-400">
                         ({(Number(course.averageRating) || 0).toFixed(1)}/5)
                       </span>
