@@ -10,7 +10,7 @@ import {
   StarRating,
   WorkloadRatingDisplay
 } from '@uni-feedback/ui'
-import { ExternalLink, Share2, Users } from 'lucide-react'
+import { ExternalLink, HelpCircle, Share2, Users } from 'lucide-react'
 import { useState } from 'react'
 
 export interface CourseInfoCardProps {
@@ -166,6 +166,27 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
                 <span className="text-md font-medium text-gray-700">
                   Workload
                 </span>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className="text-gray-400 hover:text-gray-600 transition-colors">
+                      <HelpCircle className="size-4" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-72 p-4">
+                    <div className="space-y-2">
+                      <h4 className="font-semibold text-sm">Workload Scale</h4>
+                      <div className="text-xs text-gray-600 space-y-1">
+                        <div>
+                          <strong>1 = Very Heavy</strong> (most time commitment)
+                        </div>
+                        <div>
+                          <strong>5 = Very Light</strong> (least time
+                          commitment)
+                        </div>
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
               </div>
               <div className="flex items-center gap-2 text-sm text-gray-500">
                 {averageWorkload ? (
