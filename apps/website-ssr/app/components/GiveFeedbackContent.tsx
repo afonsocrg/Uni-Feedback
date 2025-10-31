@@ -29,22 +29,14 @@ import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
-  TooltipTrigger
+  TooltipTrigger,
+  WorkloadRatingDisplay
 } from '@uni-feedback/ui'
 import {
   formatSchoolYearString,
-  getCurrentSchoolYear,
-  getWorkloadColor,
-  getWorkloadLabel
+  getCurrentSchoolYear
 } from '@uni-feedback/utils'
-import {
-  Check,
-  ChevronsUpDown,
-  Clock,
-  HelpCircle,
-  Loader2,
-  Send
-} from 'lucide-react'
+import { Check, ChevronsUpDown, HelpCircle, Loader2, Send } from 'lucide-react'
 import { useEffect, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link } from 'react-router'
@@ -76,10 +68,7 @@ const createFeedbackSchema = (faculties: Faculty[]) =>
       degreeId: z.number().min(1, 'Degree is required'),
       courseId: z.number().min(1, 'Course is required'),
       rating: z.number().min(1, 'Rating is required').max(5),
-      workloadRating: z
-        .number()
-        .min(1, 'Workload rating is required')
-        .max(5),
+      workloadRating: z.number().min(1, 'Workload rating is required').max(5),
       comment: z.string().optional()
     })
     .superRefine((data, ctx) => {
@@ -612,7 +601,7 @@ export function GiveFeedbackContent({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>
-                          Workload Rating
+                          Workload
                           {!field.value && (
                             <span className="text-red-500">*</span>
                           )}
@@ -625,13 +614,7 @@ export function GiveFeedbackContent({
                             <SelectTrigger className="w-full bg-white min-h-[40px]">
                               <SelectValue placeholder="Select workload rating">
                                 {field.value ? (
-                                  <div
-                                    className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getWorkloadColor(field.value)}`}
-                                  >
-                                    <Clock className="w-3 h-3 mr-1.5" />
-                                    Workload: ({field.value}/5){' '}
-                                    {getWorkloadLabel(field.value)}
-                                  </div>
+                                  <WorkloadRatingDisplay rating={field.value} />
                                 ) : null}
                               </SelectValue>
                             </SelectTrigger>
@@ -641,13 +624,7 @@ export function GiveFeedbackContent({
                                   key={rating}
                                   value={rating.toString()}
                                 >
-                                  <div
-                                    className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getWorkloadColor(rating)}`}
-                                  >
-                                    <Clock className="w-3 h-3 mr-1.5" />
-                                    Workload: ({rating}/5){' '}
-                                    {getWorkloadLabel(rating)}
-                                  </div>
+                                  <WorkloadRatingDisplay rating={rating} />
                                 </SelectItem>
                               ))}
                             </SelectContent>
