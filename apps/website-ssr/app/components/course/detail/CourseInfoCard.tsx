@@ -151,8 +151,8 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
                   <div>
                     <div className="flex items-center gap-1">
                       <StarRating value={Number(course.averageRating) || 0} />
-                      <span>
-                        ({(Number(course.averageRating) || 0).toFixed(1)})
+                      <span className="text-xs text-gray-400">
+                        ({(Number(course.averageRating) || 0).toFixed(1)}/5)
                       </span>
                     </div>
                   </div>
@@ -171,6 +171,9 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
                 {averageWorkload ? (
                   <>
                     <WorkloadRatingDisplay rating={averageWorkload} />
+                    <span className="text-xs text-gray-400">
+                      ({averageWorkload.toFixed(1)}/5)
+                    </span>
                   </>
                 ) : (
                   <span className="text-gray-500">--</span>

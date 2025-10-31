@@ -12,6 +12,7 @@ interface CourseCardProps {
   useAcronymAsTitle?: boolean
   hasMandatoryExam?: boolean | null
   href?: string
+  showAverageScores?: boolean
 }
 
 export function CourseCard({
@@ -23,7 +24,8 @@ export function CourseCard({
   totalFeedbackCount,
   useAcronymAsTitle = false,
   hasMandatoryExam,
-  href
+  href,
+  showAverageScores = false
 }: CourseCardProps) {
   const navigate = useNavigate()
   const title = useAcronymAsTitle ? acronym : name
@@ -36,67 +38,63 @@ export function CourseCard({
       href={href}
       className="flex flex-col"
     >
-      <div className="flex flex-col mt-auto space-between">
-        {/* Two-column layout for bottom section */}
-        <div className="grid grid-cols-2 gap-3">
-          {/* Left Column - Feedback Information */}
-          <div className="flex flex-col justify-end">
-            {totalFeedbackCount === 0 ? (
-              <Button
-                variant="link"
-                className="p-0 h-auto text-xs justify-start"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  e.preventDefault()
-                  navigate(`/feedback/new?courseId=${courseId}`)
-                }}
-              >
-                <span>
-                  Give the first
-                  <br />
-                  feedback!
-                </span>
-              </Button>
-            ) : (
-              <div className="space-y-1">
-                <span className="text-xs text-gray-500">
-                  (
-                  {totalFeedbackCount === 1
-                    ? '1 review'
-                    : `${totalFeedbackCount} reviews`}
-                  )
-                </span>
-                <div className="flex items-center gap-1">
-                  <span className="text-sm text-gray-500">
-                    ({Number(averageRating || 0).toFixed(1)})
+      <div className="flex flex-col mt-auto">
+        {totalFeedbackCount === 0 ? (
+          <Button
+            variant="link"
+            className="p-0 h-auto text-xs justify-start"
+            onClick={(e) => {
+              e.stopPropagation()
+              e.preventDefault()
+              navigate(`/feedback/new?courseId=${courseId}`)
+            }}
+          >
+            <span>
+              Give the first
+              <br />
+              feedback!
+            </span>
+          </Button>
+        ) : (
+          <div className="flex items-start justify-between gap-3">
+            <div className="space-y-1 min-w-0 flex-1">
+              <span className="text-xs text-gray-500">
+                (
+                {totalFeedbackCount === 1
+                  ? '1 review'
+                  : `${totalFeedbackCount} reviews`}
+                )
+              </span>
+              <div className="flex flex-wrap items-center gap-4">
+                <StarRating value={Number(averageRating || 0)} size="sm" />
+                {showAverageScores && (
+                  <span className="text-xs text-gray-400">
+                    ({Number(averageRating || 0).toFixed(1)}/5)
                   </span>
-                  <StarRating value={Number(averageRating || 0)} size="sm" />
-                </div>
-                <div className="flex items-center gap-1">
-                  {Number(averageWorkload || 0) > 0 ? (
+                )}
+                {Number(averageWorkload || 0) > 0 && (
+                  <>
                     <WorkloadRatingDisplay
                       rating={Number(averageWorkload || 0)}
                     />
-                  ) : (
-                    <span className="text-xs text-gray-500">
-                      No workload data
-                    </span>
-                  )}
-                </div>
+                    {showAverageScores && (
+                      <span className="text-xs text-gray-400">
+                        ({Number(averageWorkload || 0).toFixed(1)}/5)
+                      </span>
+                    )}
+                  </>
+                )}
               </div>
-            )}
-          </div>
-          {/* Right Column - Terms and Mandatory Exam */}
-          <div className="flex flex-col gap-2 justify-end">
+            </div>
             {hasMandatoryExam && (
-              <span className="text-xs text-gray-500 ml-auto text-right">
+              <div className="self-end flex-shrink-0 text-xs text-gray-500 text-right leading-[1.5]">
                 📝 Exam
                 <br />
                 mandatory
-              </span>
+              </div>
             )}
           </div>
-        </div>
+        )}
       </div>
     </SelectionCard>
   )

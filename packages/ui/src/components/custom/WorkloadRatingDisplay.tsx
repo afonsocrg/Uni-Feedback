@@ -15,10 +15,12 @@ function getWorkloadColor(rating: number): string {
 interface WorkloadRatingDisplayProps {
   rating: number
   className?: string
+  showRating?: boolean
 }
 export function WorkloadRatingDisplay({
   rating,
-  className = ''
+  className = '',
+  showRating = false
 }: WorkloadRatingDisplayProps) {
   const roundedRating = Math.round(rating)
   return (
@@ -26,7 +28,8 @@ export function WorkloadRatingDisplay({
       variant="secondary"
       className={`${getWorkloadColor(roundedRating)} hover:${getWorkloadColor(roundedRating)} ${className}`}
     >
-      {rating.toFixed(1)}/5 {getWorkloadLabel(roundedRating)}
+      {showRating && `${rating.toFixed(1)}/5 `}
+      {getWorkloadLabel(roundedRating)}
     </Badge>
   )
 }
