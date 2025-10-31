@@ -66,19 +66,55 @@ interface GiveFeedbackContentProps {
   isSuccess: boolean
 }
 
-// Form schema
-const feedbackSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  schoolYear: z.number().min(2000, 'Invalid school year'),
-  facultyId: z.number().min(1, 'Faculty is required'),
-  degreeId: z.number().min(1, 'Degree is required'),
-  courseId: z.number().min(1, 'Course is required'),
-  rating: z.number().min(1, 'Rating is required').max(5),
-  workloadRating: z.number().min(1, 'Workload rating is required').max(5),
-  comment: z.string().optional()
-})
+// Create form schema factory that validates email against faculty suffixes
+const createFeedbackSchema = (faculties: Faculty[]) =>
+  z
+    .object({
+      email: z.string().email('Invalid email address'),
+      schoolYear: z.number().min(2000, 'Invalid school year'),
+      facultyId: z.number().min(1, 'Faculty is required'),
+      degreeId: z.number().min(1, 'Degree is required'),
+      courseId: z.number().min(1, 'Course is required'),
+      rating: z.number().min(1, 'Rating is required').max(5),
+      workloadRating: z
+        .number()
+        .min(1, 'Workload rating is required')
+        .max(5),
+      comment: z.string().optional()
+    })
+    .superRefine((data, ctx) => {
+      // Find the selected faculty
+      const selectedFaculty = faculties.find((f) => f.id === data.facultyId)
 
-type FeedbackFormData = z.infer<typeof feedbackSchema>
+      // If faculty has email suffix restrictions, validate the email
+      if (
+        selectedFaculty?.emailSuffixes &&
+        selectedFaculty.emailSuffixes.length > 0
+      ) {
+        const emailDomain = data.email.split('@')[1]?.toLowerCase()
+        const isValidDomain = selectedFaculty.emailSuffixes.some(
+          (suffix) => emailDomain === suffix.toLowerCase()
+        )
+
+        if (!isValidDomain) {
+          const suffixesWithAt = selectedFaculty.emailSuffixes.map(
+            (suffix) => `@${suffix}`
+          )
+          const errorMessage =
+            suffixesWithAt.length === 1
+              ? `Email must end with ${suffixesWithAt[0]}`
+              : `Email must end with one of: ${suffixesWithAt.join(', ')}`
+
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: errorMessage,
+            path: ['email']
+          })
+        }
+      }
+    })
+
+type FeedbackFormData = z.infer<ReturnType<typeof createFeedbackSchema>>
 
 export function GiveFeedbackContent({
   faculties,
@@ -88,6 +124,11 @@ export function GiveFeedbackContent({
   isSubmitting,
   isSuccess
 }: GiveFeedbackContentProps) {
+  const feedbackSchema = useMemo(
+    () => createFeedbackSchema(faculties),
+    [faculties]
+  )
+
   const form = useForm({
     resolver: zodResolver(feedbackSchema),
     mode: 'onChange', // Validate on change to enable/disable submit button
@@ -127,6 +168,14 @@ export function GiveFeedbackContent({
     () => Array.from({ length: 5 }, (_, i) => getCurrentSchoolYear() - i),
     []
   )
+
+  // Re-validate email when faculty changes (to check email suffix restrictions)
+  useEffect(() => {
+    const email = form.getValues('email')
+    if (email && selectedFacultyId > 0) {
+      form.trigger('email')
+    }
+  }, [selectedFacultyId, form])
 
   // Reset dependent selections when parent selections change
   useEffect(() => {

@@ -38,7 +38,9 @@ function createEnv(): Env {
     RESEND_API_KEY: process.env.RESEND_API_KEY || '',
     POSTHOG_API_KEY: process.env.POSTHOG_API_KEY,
     TELEGRAM_BOT_TOKEN: process.env.TELEGRAM_BOT_TOKEN,
-    TELEGRAM_CHAT_ID: process.env.TELEGRAM_CHAT_ID
+    TELEGRAM_CHAT_ID: process.env.TELEGRAM_CHAT_ID,
+    VALIDATE_EMAIL_SUFFIX:
+      process.env.VALIDATE_EMAIL_SUFFIX === 'true' ? true : false
   }
 }
 
@@ -57,7 +59,7 @@ function initializeDatabase() {
     sql = postgres(globalEnv.DATABASE_URL, {
       max: 10, // Maximum pool size
       idle_timeout: 20, // Close idle connections after 20 seconds
-      connect_timeout: 10, // Connection timeout in seconds
+      connect_timeout: 10 // Connection timeout in seconds
     })
     db = drizzle(sql, { schema })
     console.log('✅ Database connection pool initialized')

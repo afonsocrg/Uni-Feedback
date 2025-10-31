@@ -14,6 +14,7 @@ declare global {
     POSTHOG_HOST?: string
     TELEGRAM_BOT_TOKEN?: string
     TELEGRAM_CHAT_ID?: string
+    VALIDATE_EMAIL_SUFFIX: boolean
   }
 }
 

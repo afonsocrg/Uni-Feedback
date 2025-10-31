@@ -1,6 +1,6 @@
 import { sendCourseReviewReceived } from '@services/telegram'
 import { database } from '@uni-feedback/db'
-import { courses, degrees, feedback } from '@uni-feedback/db/schema'
+import { courses, degrees, faculties, feedback } from '@uni-feedback/db/schema'
 import { getCurrentSchoolYear } from '@uni-feedback/utils'
 import { contentJson, OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
@@ -42,7 +42,7 @@ export class SubmitFeedback extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: any, context: any) {
+  async handle(request: IRequest, env: Env, context: any) {
     return withErrorHandling(request, async () => {
       const courseId = parseInt(request.params.id)
       const { body } = await this.getValidatedData<typeof this.schema>()
@@ -81,6 +81,47 @@ export class SubmitFeedback extends OpenAPIRoute {
         throw new NotFoundError('Degree not found')
       }
       const degree = degreeResult[0]
+
+      // Fetch faculty to validate email suffix
+      if (!degree.facultyId) {
+        throw new NotFoundError('Degree has no associated faculty')
+      }
+
+      const facultyResult = await database()
+        .select()
+        .from(faculties)
+        .where(eq(faculties.id, degree.facultyId))
+        .limit(1)
+
+      if (facultyResult.length === 0) {
+        throw new NotFoundError('Faculty not found')
+      }
+      const faculty = facultyResult[0]
+
+      // Validate email suffix if faculty has restrictions (controlled by feature flag)
+      const validateEmailSuffix = env.VALIDATE_EMAIL_SUFFIX
+      if (
+        validateEmailSuffix &&
+        faculty.emailSuffixes &&
+        Array.isArray(faculty.emailSuffixes) &&
+        faculty.emailSuffixes.length > 0
+      ) {
+        const emailDomain = body.email.split('@')[1]?.toLowerCase()
+        const emailSuffixes = faculty.emailSuffixes as string[]
+        const isValidDomain = emailSuffixes.some(
+          (suffix: string) => emailDomain === suffix.toLowerCase()
+        )
+
+        if (!isValidDomain) {
+          const suffixesWithAt = emailSuffixes.map((suffix) => `@${suffix}`)
+          const errorMessage =
+            suffixesWithAt.length === 1
+              ? `Email must end with ${suffixesWithAt[0]}`
+              : `Email must end with one of: ${suffixesWithAt.join(', ')}`
+
+          throw new BusinessLogicError(errorMessage)
+        }
+      }
 
       // Ignore empty comments
       const comment = body.comment?.trim() || null
