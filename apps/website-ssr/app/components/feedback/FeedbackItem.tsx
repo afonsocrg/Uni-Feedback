@@ -56,9 +56,6 @@ export function FeedbackItem({ feedback, variants }: FeedbackItemProps) {
               </Tooltip>
             )}
           </div>
-          <span className="text-gray-400 text-sm">
-            {new Date(feedback.createdAt).toLocaleDateString()}
-          </span>
         </div>
       </div>
 
