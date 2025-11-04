@@ -56,7 +56,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const envScript =
     typeof process !== 'undefined'
       ? `window.ENV = ${JSON.stringify({
-          API_BASE_URL: process.env.VITE_API_BASE_URL || 'http://localhost:3001'
+          API_BASE_URL:
+            process.env.VITE_API_BASE_URL || 'http://localhost:3001',
+          POSTHOG_KEY: process.env.VITE_PUBLIC_POSTHOG_KEY || '',
+          POSTHOG_HOST: process.env.VITE_PUBLIC_POSTHOG_HOST || ''
         })};`
       : ''
 
@@ -90,8 +93,13 @@ export default function App() {
 
     // Initialize PostHog (client-side only, disabled in development)
     if (typeof window !== 'undefined' && !import.meta.env.DEV) {
-      const posthogKey = import.meta.env.VITE_PUBLIC_POSTHOG_KEY
-      const posthogHost = import.meta.env.VITE_PUBLIC_POSTHOG_HOST
+      // Read from runtime injection (Docker/SSR) or fallback to build-time
+      const posthogKey =
+        (window as any).ENV?.POSTHOG_KEY ||
+        import.meta.env.VITE_PUBLIC_POSTHOG_KEY
+      const posthogHost =
+        (window as any).ENV?.POSTHOG_HOST ||
+        import.meta.env.VITE_PUBLIC_POSTHOG_HOST
 
       if (!posthogKey || posthogKey === 'your_posthog_api_key_here') {
         console.warn(
