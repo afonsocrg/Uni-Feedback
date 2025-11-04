@@ -89,8 +89,7 @@ export default function App() {
     userPreferences.initialize()
 
     // Initialize PostHog (client-side only, disabled in development)
-    // if (typeof window !== 'undefined' && !import.meta.env.DEV) {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && !import.meta.env.DEV) {
       const posthogKey = import.meta.env.VITE_PUBLIC_POSTHOG_KEY
       const posthogHost = import.meta.env.VITE_PUBLIC_POSTHOG_HOST
 
