@@ -20,6 +20,9 @@ export default defineConfig(({ isSsrBuild }) => ({
     devtoolsJson(),
     markdown({ mode: [Mode.MARKDOWN] })
   ],
+  ssr: {
+    noExternal: ['posthog-js']
+  },
   resolve: {
     alias: {
       // Ensure we use the correct React Router v7 packages

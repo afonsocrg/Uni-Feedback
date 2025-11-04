@@ -3,6 +3,7 @@ import './app.css'
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister'
 import { QueryClient } from '@tanstack/react-query'
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
+import posthog from 'posthog-js'
 import React, { useEffect } from 'react'
 import {
   isRouteErrorResponse,
@@ -86,6 +87,44 @@ export default function App() {
   useEffect(() => {
     // Initialize user preferences and handle migration
     userPreferences.initialize()
+
+    // Initialize PostHog (client-side only, disabled in development)
+    // if (typeof window !== 'undefined' && !import.meta.env.DEV) {
+    if (typeof window !== 'undefined') {
+      const posthogKey = import.meta.env.VITE_PUBLIC_POSTHOG_KEY
+      const posthogHost = import.meta.env.VITE_PUBLIC_POSTHOG_HOST
+
+      if (!posthogKey || posthogKey === 'your_posthog_api_key_here') {
+        console.warn(
+          '[PostHog] PostHog API key is not configured. Analytics will not be tracked. ' +
+            'Set VITE_PUBLIC_POSTHOG_KEY in your .env file.'
+        )
+        return
+      }
+
+      if (!posthogHost) {
+        console.warn(
+          '[PostHog] PostHog host is not configured. Analytics will not be tracked. ' +
+            'Set VITE_PUBLIC_POSTHOG_HOST in your .env file.'
+        )
+        return
+      }
+
+      try {
+        posthog.init(posthogKey, {
+          api_host: posthogHost,
+          person_profiles: 'identified_only',
+          capture_pageview: true,
+          capture_pageleave: true,
+          defaults: '2025-05-24' // Use 2025 defaults for automatic SPA pageview tracking
+        })
+        console.log('[PostHog] Successfully initialized')
+      } catch (error) {
+        console.error('[PostHog] Failed to initialize:', error)
+      }
+    } else if (import.meta.env.DEV) {
+      console.log('[PostHog] Disabled in development mode')
+    }
   }, [])
 
   return (
