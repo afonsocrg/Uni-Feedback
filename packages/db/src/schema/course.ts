@@ -25,6 +25,7 @@ export const courses = pgTable('courses', {
   slug: text('slug'),
   degreeId: integer('degree_id').references(() => degrees.id),
   ects: real('ects'),
+  curriculumYear: integer('curriculum_year'),
   terms: jsonb('terms'),
   url: text('url'),
   description: text('description'),

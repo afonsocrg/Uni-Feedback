@@ -12,7 +12,7 @@
   "scripts": {
     "type-check": "tsc --noEmit",
     "dev:db": "docker-compose up db",
-    "start": "docker-compose up -d",
+    "start": "docker-compose up db -d",
     "stop": "docker-compose down",
     "shell": "dotenv -e .env -- psql -h localhost -p 5433 -U postgres -d uni-feedback",
     "studio": "dotenv -- drizzle-kit studio",

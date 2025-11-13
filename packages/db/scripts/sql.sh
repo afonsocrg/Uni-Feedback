@@ -6,12 +6,12 @@
 
 if [ $# -eq 0 ]; then
     echo "Usage:"
-    echo "  bun sql \"SQL_STATEMENT\"          - Execute SQL statement"
-    echo "  bun sql -f filename.sql           - Execute SQL file"
+    echo "  pnpm sql \"SQL_STATEMENT\"          - Execute SQL statement"
+    echo "  pnpm sql -f filename.sql           - Execute SQL file"
     echo ""
     echo "Examples:"
-    echo "  bun sql \"SELECT * FROM faculties;\""
-    echo "  bun sql -f update_slugs_contextual.sql"
+    echo "  pnpm sql \"SELECT * FROM faculties;\""
+    echo "  pnpm sql -f update_slugs_contextual.sql"
     exit 1
 fi
 
