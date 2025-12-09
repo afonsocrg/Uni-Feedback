@@ -32,6 +32,8 @@ export const courses = pgTable('courses', {
   bibliography: text('bibliography'),
   assessment: text('assessment'),
   hasMandatoryExam: boolean('has_mandatory_exam'),
+  isMandatory: boolean('is_mandatory'),
+  duration: text('duration'),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow()
 })

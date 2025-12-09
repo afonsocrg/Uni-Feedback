@@ -1,5 +1,4 @@
 import { integer, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core'
-import { sql } from 'drizzle-orm'
 import { faculties } from './faculty'
 
 export const degrees = pgTable('degrees', {
