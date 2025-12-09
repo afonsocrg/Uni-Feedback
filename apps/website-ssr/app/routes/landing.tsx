@@ -77,6 +77,10 @@ export async function loader() {
     orderBy: (clubs) => [clubs.sortOrder]
   })
 
+  const faculties = await db.query.faculties.findMany({
+    orderBy: (faculties, { asc }) => [asc(faculties.name)]
+  })
+
   // Fetch 3 most recent approved feedbacks with comments
   const recentFeedbacks = await db.query.feedback.findMany({
     where: (feedback, { and, isNotNull, ne }) =>
@@ -92,7 +96,7 @@ export async function loader() {
     // }
   })
 
-  return { studentClubs, recentFeedbacks }
+  return { studentClubs, faculties, recentFeedbacks }
 }
 
 export default function LandingPage({ loaderData }: Route.ComponentProps) {
@@ -427,37 +431,20 @@ export default function LandingPage({ loaderData }: Route.ComponentProps) {
               <h2 className="font-heading text-3xl md:text-4xl font-semibold tracking-tight">
                 Loved by Students at
               </h2>
-              <div className="relative overflow-hidden w-full carousel-container">
-                <div className="animate-scroll">
-                  {/* First set of logos */}
-                  {loaderData.studentClubs.map((club) => {
-                    const logoUrl = getAssetUrl(club.logoHorizontal)
-                    if (!logoUrl) return null
+              <div className="flex flex-wrap items-center justify-center gap-8">
+                {loaderData.faculties.map((faculty) => {
+                  const logoUrl = getAssetUrl(faculty.logoHorizontal)
+                  if (!logoUrl) return null
 
-                    return (
-                      <img
-                        key={club.id}
-                        alt={`${club.name} logo`}
-                        src={logoUrl}
-                        className="h-12 flex-shrink-0 opacity-50 hover:opacity-100 transition-opacity"
-                      />
-                    )
-                  })}
-                  {/* Duplicate set for seamless loop */}
-                  {loaderData.studentClubs.map((club) => {
-                    const logoUrl = getAssetUrl(club.logoHorizontal)
-                    if (!logoUrl) return null
-
-                    return (
-                      <img
-                        key={`duplicate-${club.id}`}
-                        alt={`${club.name} logo`}
-                        src={logoUrl}
-                        className="h-12 flex-shrink-0 opacity-50 hover:opacity-100 transition-opacity"
-                      />
-                    )
-                  })}
-                </div>
+                  return (
+                    <img
+                      key={faculty.id}
+                      alt={`${faculty.name} logo`}
+                      src={logoUrl}
+                      className="h-12 opacity-50 hover:opacity-100 transition-opacity"
+                    />
+                  )
+                })}
               </div>
             </div>
           </div>
