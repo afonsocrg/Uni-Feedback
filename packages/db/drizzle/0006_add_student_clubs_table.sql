@@ -1,0 +1,23 @@
+CREATE TABLE IF NOT EXISTS "student_clubs" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"name" text NOT NULL,
+	"short_name" text NOT NULL,
+	"slug" text NOT NULL,
+	"logo" text,
+	"banner" text,
+	"logo_horizontal" text,
+	"description" text,
+	"website" text,
+	"instagram" text,
+	"linkedin" text,
+	"twitter" text,
+	"facebook" text,
+	"email" text,
+	"discord" text,
+	"degree_id" integer REFERENCES degrees(id),
+	"faculty_id" integer REFERENCES faculties(id),
+	"sort_order" integer NOT NULL,
+	"is_active" boolean DEFAULT true NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now(),
+	"updated_at" timestamp with time zone DEFAULT now()
+);

@@ -6,6 +6,12 @@ export const faculties = pgTable('faculties', {
   name: text('name').notNull(),
   shortName: text('short_name').notNull(),
   slug: text('slug'),
+
+  // Images
+  logo: text('logo'),
+  banner: text('banner'),
+  logoHorizontal: text('logo_horizontal'),
+
   url: text('url').notNull(),
   emailSuffixes: jsonb('email_suffixes'),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),

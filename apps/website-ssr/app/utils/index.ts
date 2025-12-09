@@ -1,3 +1,4 @@
+export * from './assets'
 export * from './constants'
 export * from './course'
 export * from './mobile'

@@ -29,6 +29,9 @@ import {
   UserX
 } from 'lucide-react'
 
+import { database } from '@uni-feedback/db'
+import { getAssetUrl } from '../utils'
+
 import type { Route } from './+types/landing'
 
 export function meta({}: Route.MetaArgs) {
@@ -42,9 +45,42 @@ export function meta({}: Route.MetaArgs) {
   ]
 }
 
-export default function LandingPage() {
+export async function loader() {
+  const db = database()
+
+  const studentClubs = await db.query.studentClubs.findMany({
+    where: (clubs, { eq }) => eq(clubs.isActive, true),
+    orderBy: (clubs) => [clubs.sortOrder]
+  })
+
+  return { studentClubs }
+}
+
+export default function LandingPage({ loaderData }: Route.ComponentProps) {
   return (
-    <div className="min-h-screen bg-background">
+    <>
+      <style>{`
+        @keyframes scroll {
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-50%);
+          }
+        }
+
+        .carousel-container:hover .animate-scroll {
+          animation-play-state: paused;
+        }
+
+        .animate-scroll {
+          animation: scroll 40s linear infinite;
+          display: flex;
+          gap: 2rem;
+          width: max-content;
+        }
+      `}</style>
+      <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -96,42 +132,37 @@ export default function LandingPage() {
           </h1>
           <div className="">
             <p className="text-xs text-muted-foreground mb-4">Powered by</p>
-            <div className="flex items-center justify-center gap-8 opacity-60 overflow-x-auto">
-              <img
-                alt="Partner logo"
-                src="https://wqnmyfkavrotpmupbtou.supabase.co/storage/v1/object/public/generation-assets/placeholder/landscape.png"
-                className="h-8 grayscale"
-              />
-              <img
-                alt="Partner logo"
-                src="https://wqnmyfkavrotpmupbtou.supabase.co/storage/v1/object/public/generation-assets/placeholder/landscape.png"
-                className="h-8 grayscale"
-              />
-              <img
-                alt="Partner logo"
-                src="https://wqnmyfkavrotpmupbtou.supabase.co/storage/v1/object/public/generation-assets/placeholder/landscape.png"
-                className="h-8 grayscale"
-              />
-              <img
-                alt="Partner logo"
-                src="https://wqnmyfkavrotpmupbtou.supabase.co/storage/v1/object/public/generation-assets/placeholder/landscape.png"
-                className="h-8 grayscale"
-              />
-              <img
-                alt="Partner logo"
-                src="https://wqnmyfkavrotpmupbtou.supabase.co/storage/v1/object/public/generation-assets/placeholder/landscape.png"
-                className="h-8 grayscale"
-              />
-              <img
-                alt="Partner logo"
-                src="https://wqnmyfkavrotpmupbtou.supabase.co/storage/v1/object/public/generation-assets/placeholder/landscape.png"
-                className="h-8 grayscale"
-              />
-              <img
-                alt="Partner logo"
-                src="https://wqnmyfkavrotpmupbtou.supabase.co/storage/v1/object/public/generation-assets/placeholder/landscape.png"
-                className="h-8 grayscale"
-              />
+            <div className="relative overflow-hidden w-full carousel-container">
+              <div className="animate-scroll">
+                {/* First set of logos */}
+                {loaderData.studentClubs.map((club) => {
+                  const logoUrl = getAssetUrl(club.logoHorizontal)
+                  if (!logoUrl) return null
+
+                  return (
+                    <img
+                      key={club.id}
+                      alt={`${club.name} logo`}
+                      src={logoUrl}
+                      className="h-8 flex-shrink-0 opacity-50 hover:opacity-100 transition-opacity"
+                    />
+                  )
+                })}
+                {/* Duplicate set for seamless loop */}
+                {loaderData.studentClubs.map((club) => {
+                  const logoUrl = getAssetUrl(club.logoHorizontal)
+                  if (!logoUrl) return null
+
+                  return (
+                    <img
+                      key={`duplicate-${club.id}`}
+                      alt={`${club.name} logo`}
+                      src={logoUrl}
+                      className="h-8 flex-shrink-0 opacity-50 hover:opacity-100 transition-opacity"
+                    />
+                  )
+                })}
+              </div>
             </div>
           </div>
           <div className="container mx-auto px-4">
@@ -497,22 +528,37 @@ export default function LandingPage() {
             <h2 className="font-heading text-3xl md:text-4xl font-semibold tracking-tight">
               Loved by Students at
             </h2>
-            <div className="flex flex-wrap items-center justify-center gap-12 pt-4">
-              <img
-                alt="University logo"
-                src="https://wqnmyfkavrotpmupbtou.supabase.co/storage/v1/object/public/generation-assets/placeholder/landscape.png"
-                className="h-12 opacity-60 hover:opacity-100 transition-opacity"
-              />
-              <img
-                alt="University logo"
-                src="https://wqnmyfkavrotpmupbtou.supabase.co/storage/v1/object/public/generation-assets/placeholder/landscape.png"
-                className="h-12 opacity-60 hover:opacity-100 transition-opacity"
-              />
-              <img
-                alt="University logo"
-                src="https://wqnmyfkavrotpmupbtou.supabase.co/storage/v1/object/public/generation-assets/placeholder/landscape.png"
-                className="h-12 opacity-60 hover:opacity-100 transition-opacity"
-              />
+            <div className="relative overflow-hidden w-full carousel-container">
+              <div className="animate-scroll">
+                {/* First set of logos */}
+                {loaderData.studentClubs.map((club) => {
+                  const logoUrl = getAssetUrl(club.logoHorizontal)
+                  if (!logoUrl) return null
+
+                  return (
+                    <img
+                      key={club.id}
+                      alt={`${club.name} logo`}
+                      src={logoUrl}
+                      className="h-12 flex-shrink-0 opacity-50 hover:opacity-100 transition-opacity"
+                    />
+                  )
+                })}
+                {/* Duplicate set for seamless loop */}
+                {loaderData.studentClubs.map((club) => {
+                  const logoUrl = getAssetUrl(club.logoHorizontal)
+                  if (!logoUrl) return null
+
+                  return (
+                    <img
+                      key={`duplicate-${club.id}`}
+                      alt={`${club.name} logo`}
+                      src={logoUrl}
+                      className="h-12 flex-shrink-0 opacity-50 hover:opacity-100 transition-opacity"
+                    />
+                  )
+                })}
+              </div>
             </div>
           </div>
         </div>
@@ -747,6 +793,7 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
-    </div>
+      </div>
+    </>
   )
 }
