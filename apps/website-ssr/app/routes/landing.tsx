@@ -3,9 +3,6 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
   Button,
   Card,
   CardContent,
@@ -23,16 +20,43 @@ import {
   PenSquare,
   Search,
   ShieldCheck,
-  Star,
   Users,
   UserX
 } from 'lucide-react'
 
 import { database } from '@uni-feedback/db'
 import { LandingFeedbackCard } from '../components/feedback/LandingFeedbackCard'
+import { Testimonial } from '../components/landing/Testimonial'
 import { getAssetUrl } from '../utils'
 
 import type { Route } from './+types/landing'
+
+const TESTIMONIALS = [
+  {
+    rating: 5,
+    testimonial:
+      "Uni Feedback offers something we can't find anywhere else: an organized collection of real student opinions and key course info, all in one convenient place",
+    name: 'Miguel F.',
+    course: 'Computer Science, 5th Year',
+    avatarUrl: 'https://randomuser.me/api/portraits/women/23.jpg'
+  },
+  {
+    rating: 5,
+    testimonial:
+      "Having all programs in one place, with both ratings and comments, makes it so much easier to understand each course's feedback",
+    name: 'Sofia N.',
+    course: 'LETI, 3rd Year',
+    avatarUrl: 'https://randomuser.me/api/portraits/men/42.jpg'
+  },
+  {
+    rating: 4,
+    testimonial:
+      'Uni Feedback helps students pick the courses that will actually be useful in real life',
+    name: 'Emma P.',
+    course: 'Civil Eng., 4th Year',
+    avatarUrl: 'https://randomuser.me/api/portraits/women/67.jpg'
+  }
+]
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -184,7 +208,10 @@ export default function LandingPage({ loaderData }: Route.ComponentProps) {
               <div className="max-w-5xl mx-auto">
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {loaderData.recentFeedbacks.map((feedback) => (
-                    <LandingFeedbackCard key={feedback.id} feedback={feedback} />
+                    <LandingFeedbackCard
+                      key={feedback.id}
+                      feedback={feedback}
+                    />
                   ))}
                 </div>
                 <div className="text-center mt-8">
@@ -387,89 +414,9 @@ export default function LandingPage({ loaderData }: Route.ComponentProps) {
                 course decisions
               </p>
               <div className="grid md:grid-cols-3 gap-6">
-                <Card>
-                  <CardContent className="space-y-4">
-                    <div className="flex gap-1">
-                      <Star className="size-4 text-yellow-500 fill-yellow-500" />
-                      <Star className="size-4 text-yellow-500 fill-yellow-500" />
-                      <Star className="size-4 text-yellow-500 fill-yellow-500" />
-                      <Star className="size-4 text-yellow-500 fill-yellow-500" />
-                      <Star className="size-4 text-yellow-500 fill-yellow-500" />
-                    </div>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      "Uni Feedback offers something we can’t find anywhere
-                      else: an organized collection of real student opinions and
-                      key course info, all in one convenient place"
-                    </p>
-                    <div className="flex items-center gap-3 pt-2">
-                      <Avatar>
-                        <AvatarImage src="https://randomuser.me/api/portraits/women/23.jpg" />
-                        <AvatarFallback>SM</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className="text-sm font-medium">Miguel F.</div>
-                        <div className="text-xs text-muted-foreground">
-                          Computer Science, 5th Year
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="space-y-4">
-                    <div className="flex gap-1">
-                      <Star className="size-4 text-yellow-500 fill-yellow-500" />
-                      <Star className="size-4 text-yellow-500 fill-yellow-500" />
-                      <Star className="size-4 text-yellow-500 fill-yellow-500" />
-                      <Star className="size-4 text-yellow-500 fill-yellow-500" />
-                      <Star className="size-4 text-yellow-500 fill-yellow-500" />
-                    </div>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      "Having all programs in one place, with both ratings and
-                      comments, makes it so much easier to understand each
-                      course’s feedback"
-                    </p>
-                    <div className="flex items-center gap-3 pt-2">
-                      <Avatar>
-                        <AvatarImage src="https://randomuser.me/api/portraits/men/42.jpg" />
-                        <AvatarFallback>JL</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className="text-sm font-medium">Sofia N.</div>
-                        <div className="text-xs text-muted-foreground">
-                          LETI, 3nd Year
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="space-y-4">
-                    <div className="flex gap-1">
-                      <Star className="size-4 text-yellow-500 fill-yellow-500" />
-                      <Star className="size-4 text-yellow-500 fill-yellow-500" />
-                      <Star className="size-4 text-yellow-500 fill-yellow-500" />
-                      <Star className="size-4 text-yellow-500 fill-yellow-500" />
-                      <Star className="size-4 text-yellow-500 fill-yellow-500" />
-                    </div>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      "Uni Feedback helps students pick the courses that will
-                      actually be useful in real life"
-                    </p>
-                    <div className="flex items-center gap-3 pt-2">
-                      <Avatar>
-                        <AvatarImage src="https://randomuser.me/api/portraits/women/67.jpg" />
-                        <AvatarFallback>EP</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className="text-sm font-medium">Emma P.</div>
-                        <div className="text-xs text-muted-foreground">
-                          Civil Eng., 4th Year
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                {TESTIMONIALS.map((testimonial, index) => (
+                  <Testimonial key={index} {...testimonial} />
+                ))}
               </div>
             </div>
           </div>
