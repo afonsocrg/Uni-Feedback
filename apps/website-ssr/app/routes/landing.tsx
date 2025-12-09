@@ -13,20 +13,20 @@ import {
   Separator
 } from '@uni-feedback/ui'
 import {
-  GraduationCap,
-  Book,
-  Pen,
-  Star,
   ArrowRight,
-  Search,
-  FileText,
-  PenSquare,
-  ShieldCheck,
-  UserX,
-  CheckCircle,
-  Lock,
+  Book,
   BookOpen,
-  Users
+  CheckCircle,
+  FileText,
+  GraduationCap,
+  Lock,
+  Pen,
+  PenSquare,
+  Search,
+  ShieldCheck,
+  Star,
+  Users,
+  UserX
 } from 'lucide-react'
 
 import type { Route } from './+types/landing'
@@ -73,7 +73,7 @@ export default function LandingPage() {
               FAQ
             </a>
           </nav>
-          <div className="flex items-center gap-3">
+          <div className="hidden md:flex items-center gap-3">
             <Button size="sm" variant="ghost">
               Browse Feedback
             </Button>
@@ -88,13 +88,137 @@ export default function LandingPage() {
       </header>
       <section className="container mx-auto px-4 py-16 md:py-24">
         <div className="max-w-4xl mx-auto text-center space-y-8">
-          <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-foreground">
+          <h1 className="font-heading text-xl sm:text-2xl lg:text-3xl font-semibold tracking-tight text-foreground mb-2">
             Honest, anonymous student feedback
             <br />
             to help you{' '}
             <span className="text-primary">find the right courses</span>
           </h1>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+          <div className="">
+            <p className="text-xs text-muted-foreground mb-4">Powered by</p>
+            <div className="flex items-center justify-center gap-8 opacity-60 overflow-x-auto">
+              <img
+                alt="Partner logo"
+                src="https://wqnmyfkavrotpmupbtou.supabase.co/storage/v1/object/public/generation-assets/placeholder/landscape.png"
+                className="h-8 grayscale"
+              />
+              <img
+                alt="Partner logo"
+                src="https://wqnmyfkavrotpmupbtou.supabase.co/storage/v1/object/public/generation-assets/placeholder/landscape.png"
+                className="h-8 grayscale"
+              />
+              <img
+                alt="Partner logo"
+                src="https://wqnmyfkavrotpmupbtou.supabase.co/storage/v1/object/public/generation-assets/placeholder/landscape.png"
+                className="h-8 grayscale"
+              />
+              <img
+                alt="Partner logo"
+                src="https://wqnmyfkavrotpmupbtou.supabase.co/storage/v1/object/public/generation-assets/placeholder/landscape.png"
+                className="h-8 grayscale"
+              />
+              <img
+                alt="Partner logo"
+                src="https://wqnmyfkavrotpmupbtou.supabase.co/storage/v1/object/public/generation-assets/placeholder/landscape.png"
+                className="h-8 grayscale"
+              />
+              <img
+                alt="Partner logo"
+                src="https://wqnmyfkavrotpmupbtou.supabase.co/storage/v1/object/public/generation-assets/placeholder/landscape.png"
+                className="h-8 grayscale"
+              />
+              <img
+                alt="Partner logo"
+                src="https://wqnmyfkavrotpmupbtou.supabase.co/storage/v1/object/public/generation-assets/placeholder/landscape.png"
+                className="h-8 grayscale"
+              />
+            </div>
+          </div>
+          <div className="container mx-auto px-4">
+            <div className="max-w-5xl mx-auto">
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <Card>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex gap-1">
+                        <Star className="size-5 text-yellow-500 fill-yellow-500" />
+                        <Star className="size-5 text-yellow-500 fill-yellow-500" />
+                        <Star className="size-5 text-yellow-500 fill-yellow-500" />
+                        <Star className="size-5 text-yellow-500 fill-yellow-500" />
+                        <Star className="size-5 text-yellow-500" />
+                      </div>
+                      <Badge variant="secondary" className="text-xs">
+                        Very Light
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+                      sed do eiusmod tempor incididunt ut labore et dolore magna
+                      aliqua. Ut enim ad minim veniam, quis nostrud exercitation
+                      ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex gap-1">
+                        <Star className="size-5 text-yellow-500 fill-yellow-500" />
+                        <Star className="size-5 text-yellow-500 fill-yellow-500" />
+                        <Star className="size-5 text-yellow-500 fill-yellow-500" />
+                        <Star className="size-5 text-yellow-500 fill-yellow-500" />
+                        <Star className="size-5 text-yellow-500" />
+                      </div>
+                      <Badge
+                        variant="secondary"
+                        className="text-xs bg-orange-100 text-orange-700"
+                      >
+                        Heavy
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+                      sed do eiusmod tempor incididunt ut labore et dolore magna
+                      aliqua. Ut enim ad minim veniam, quis nostrud exercitation
+                      ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex gap-1">
+                        <Star className="size-5 text-yellow-500 fill-yellow-500" />
+                        <Star className="size-5 text-yellow-500 fill-yellow-500" />
+                        <Star className="size-5 text-yellow-500 fill-yellow-500" />
+                        <Star className="size-5 text-yellow-500 fill-yellow-500" />
+                        <Star className="size-5 text-yellow-500" />
+                      </div>
+                      <Badge
+                        variant="secondary"
+                        className="text-xs bg-yellow-100 text-yellow-700"
+                      >
+                        Moderate
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+                      sed do eiusmod tempor incididunt ut labore et dolore magna
+                      aliqua. Ut enim ad minim veniam, quis nostrud exercitation
+                      ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+              <div className="text-center mt-8">
+                <Button size="lg" variant="outline">
+                  View More Feedback
+                  <ArrowRight className="size-5" />
+                </Button>
+              </div>
+            </div>
+          </div>
+          {/* <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
             <Button
               size="lg"
               className="shadow-lg shadow-primary/20 bg-gradient-to-br from-primary to-primary/90 text-lg px-8"
@@ -106,133 +230,19 @@ export default function LandingPage() {
               <Pen className="size-5" />
               Share Your Experience
             </Button>
-          </div>
-          <div className="pt-8">
-            <p className="text-sm text-muted-foreground mb-4">Powered by</p>
-            <div className="flex flex-wrap items-center justify-center gap-8 opacity-60">
-              <img
-                alt="Partner logo"
-                src="https://wqnmyfkavrotpmupbtou.supabase.co/storage/v1/object/public/generation-assets/placeholder/landscape.png"
-                className="h-8 grayscale"
-              />
-              <img
-                alt="Partner logo"
-                src="https://wqnmyfkavrotpmupbtou.supabase.co/storage/v1/object/public/generation-assets/placeholder/landscape.png"
-                className="h-8 grayscale"
-              />
-              <img
-                alt="Partner logo"
-                src="https://wqnmyfkavrotpmupbtou.supabase.co/storage/v1/object/public/generation-assets/placeholder/landscape.png"
-                className="h-8 grayscale"
-              />
-              <img
-                alt="Partner logo"
-                src="https://wqnmyfkavrotpmupbtou.supabase.co/storage/v1/object/public/generation-assets/placeholder/landscape.png"
-                className="h-8 grayscale"
-              />
-            </div>
-          </div>
+          </div> */}
         </div>
       </section>
-      <section className="bg-muted/30 py-16">
+      <section id="how-it-works" className="bg-muted/30 py-16 md:py-24">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
             <h2 className="font-heading text-3xl md:text-4xl font-semibold tracking-tight text-center mb-12">
-              Real Feedback from Real Students
-            </h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Card>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex gap-1">
-                      <Star className="size-5 text-yellow-500 fill-yellow-500" />
-                      <Star className="size-5 text-yellow-500 fill-yellow-500" />
-                      <Star className="size-5 text-yellow-500 fill-yellow-500" />
-                      <Star className="size-5 text-yellow-500 fill-yellow-500" />
-                      <Star className="size-5 text-yellow-500" />
-                    </div>
-                    <Badge variant="secondary" className="text-xs">
-                      Very Light
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                    do eiusmod tempor incididunt ut labore et dolore magna
-                    aliqua. Ut enim ad minim veniam, quis nostrud exercitation
-                    ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                  </p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex gap-1">
-                      <Star className="size-5 text-yellow-500 fill-yellow-500" />
-                      <Star className="size-5 text-yellow-500 fill-yellow-500" />
-                      <Star className="size-5 text-yellow-500 fill-yellow-500" />
-                      <Star className="size-5 text-yellow-500 fill-yellow-500" />
-                      <Star className="size-5 text-yellow-500" />
-                    </div>
-                    <Badge
-                      variant="secondary"
-                      className="text-xs bg-orange-100 text-orange-700"
-                    >
-                      Heavy
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                    do eiusmod tempor incididunt ut labore et dolore magna
-                    aliqua. Ut enim ad minim veniam, quis nostrud exercitation
-                    ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                  </p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex gap-1">
-                      <Star className="size-5 text-yellow-500 fill-yellow-500" />
-                      <Star className="size-5 text-yellow-500 fill-yellow-500" />
-                      <Star className="size-5 text-yellow-500 fill-yellow-500" />
-                      <Star className="size-5 text-yellow-500 fill-yellow-500" />
-                      <Star className="size-5 text-yellow-500" />
-                    </div>
-                    <Badge
-                      variant="secondary"
-                      className="text-xs bg-yellow-100 text-yellow-700"
-                    >
-                      Moderate
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                    do eiusmod tempor incididunt ut labore et dolore magna
-                    aliqua. Ut enim ad minim veniam, quis nostrud exercitation
-                    ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-            <div className="text-center mt-8">
-              <Button size="lg" variant="outline">
-                View More Feedback
-                <ArrowRight className="size-5" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
-      <section id="how-it-works" className="py-16 md:py-24">
-        <div className="container mx-auto px-4">
-          <div className="max-w-5xl mx-auto">
-            <h2 className="font-heading text-3xl md:text-4xl font-semibold tracking-tight text-center mb-4">
               How It Works
             </h2>
-            <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+            {/* <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
               Getting started is simple. Join thousands of students making
               informed decisions about their courses.
-            </p>
+            </p> */}
             <div className="grid md:grid-cols-3 gap-8 md:gap-12">
               <div className="text-center space-y-4">
                 <div className="mx-auto size-16 rounded-full bg-primary/10 flex items-center justify-center">
@@ -240,7 +250,7 @@ export default function LandingPage() {
                 </div>
                 <h3 className="text-xl font-semibold">Browse Courses</h3>
                 <p className="text-muted-foreground text-sm">
-                  Search through hundreds of courses and explore honest feedback
+                  Search through hundreds of courses and read honest feedback
                   from students who have taken them
                 </p>
               </div>
@@ -260,15 +270,15 @@ export default function LandingPage() {
                 </div>
                 <h3 className="text-xl font-semibold">Share Feedback</h3>
                 <p className="text-muted-foreground text-sm">
-                  Help future students by sharing your honest, anonymous
-                  feedback about courses you've completed
+                  Help future students by sharing your feedback about courses
+                  you've completed
                 </p>
               </div>
             </div>
           </div>
         </div>
       </section>
-      <section className="bg-muted/30 py-16 md:py-24">
+      <section id="trusted-and-secure" className="py-16 md:py-24">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
             <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -404,9 +414,9 @@ export default function LandingPage() {
                     <Star className="size-4 text-yellow-500 fill-yellow-500" />
                   </div>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    "This platform saved me from taking a course that would have
-                    been a disaster. The honest reviews helped me choose classes
-                    that aligned with my learning style."
+                    "Uni Feedback offers something we can’t find anywhere else:
+                    an organized collection of real student opinions and key
+                    course info, all in one convenient place"
                   </p>
                   <div className="flex items-center gap-3 pt-2">
                     <Avatar>
@@ -414,9 +424,9 @@ export default function LandingPage() {
                       <AvatarFallback>SM</AvatarFallback>
                     </Avatar>
                     <div>
-                      <div className="text-sm font-medium">Sarah M.</div>
+                      <div className="text-sm font-medium">Miguel F.</div>
                       <div className="text-xs text-muted-foreground">
-                        Computer Science, 3rd Year
+                        Computer Science, 5th Year
                       </div>
                     </div>
                   </div>
@@ -432,9 +442,9 @@ export default function LandingPage() {
                     <Star className="size-4 text-yellow-500 fill-yellow-500" />
                   </div>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    "I love that I can contribute anonymously. It's liberating
-                    to share honest feedback without worrying about
-                    consequences. This platform is exactly what students need."
+                    "Having all programs in one place, with both ratings and
+                    comments, makes it so much easier to understand each
+                    course’s feedback"
                   </p>
                   <div className="flex items-center gap-3 pt-2">
                     <Avatar>
@@ -442,9 +452,9 @@ export default function LandingPage() {
                       <AvatarFallback>JL</AvatarFallback>
                     </Avatar>
                     <div>
-                      <div className="text-sm font-medium">James L.</div>
+                      <div className="text-sm font-medium">Sofia N.</div>
                       <div className="text-xs text-muted-foreground">
-                        Business, 2nd Year
+                        LETI, 3nd Year
                       </div>
                     </div>
                   </div>
@@ -460,9 +470,8 @@ export default function LandingPage() {
                     <Star className="size-4 text-yellow-500 fill-yellow-500" />
                   </div>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    "Reading real student experiences helped me plan my entire
-                    semester. I knew exactly what to expect from each course and
-                    could balance my workload accordingly."
+                    "Uni Feedback helps students pick the courses that will
+                    actually be useful in real life"
                   </p>
                   <div className="flex items-center gap-3 pt-2">
                     <Avatar>
@@ -472,7 +481,7 @@ export default function LandingPage() {
                     <div>
                       <div className="text-sm font-medium">Emma P.</div>
                       <div className="text-xs text-muted-foreground">
-                        Engineering, 4th Year
+                        Civil Eng., 4th Year
                       </div>
                     </div>
                   </div>
@@ -733,8 +742,8 @@ export default function LandingPage() {
           </div>
           <Separator className="my-8" />
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-            <p>Built with love by @afonsocpg</p>
-            <p>© 2024 Uni Feedback. All rights reserved.</p>
+            <p>Built with ❤️ by @afonsocrg</p>
+            <p>© 2025 Uni Feedback. All rights reserved.</p>
           </div>
         </div>
       </footer>
