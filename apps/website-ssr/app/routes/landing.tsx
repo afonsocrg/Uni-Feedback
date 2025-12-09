@@ -78,7 +78,7 @@ export async function loader() {
   })
 
   const faculties = await db.query.faculties.findMany({
-    orderBy: (faculties, { asc }) => [asc(faculties.name)]
+    orderBy: (faculties, { asc }) => [asc(faculties.id)]
   })
 
   // Fetch 3 most recent approved feedbacks with comments
