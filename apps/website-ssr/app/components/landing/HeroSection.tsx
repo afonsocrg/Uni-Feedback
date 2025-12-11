@@ -1,6 +1,6 @@
 import { Button } from '@uni-feedback/ui'
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 import type { Feedback, StudentClub } from '@uni-feedback/db'
 import { getAssetUrl } from '../../utils'
@@ -113,7 +113,7 @@ export function HeroSection({
                       key={club.id}
                       alt={`${club.name} logo`}
                       src={logoUrl}
-                      className="h-8 flex-shrink-0 opacity-50 hover:opacity-100 transition-opacity"
+                      className="h-6 md:h-8 flex-shrink-0 opacity-50 hover:opacity-100 transition-opacity"
                     />
                   )
                 })}
