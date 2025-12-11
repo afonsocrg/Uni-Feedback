@@ -22,10 +22,10 @@ O Uni Feedback fornece algo que não conseguimos encontrar em mais nenhum lado, 
   {
     rating: 5,
     testimonial:
-      "Having all programs in one place, with both ratings and comments, makes it so much easier to understand each course's feedback",
-    name: 'Sofia N.',
-    course: 'LETI, 3rd Year',
-    avatarUrl: 'https://randomuser.me/api/portraits/men/42.jpg'
+      'Já não preciso de ser crente na altura de escolher as cadeiras! Chega de rezar para que o professor seja bom ou que não tenha muita carga horária. Graças a outros que já a experienciaram, agora consigo saber no que me estou a meter.',
+    name: 'João D.',
+    course: 'Electrical and Computers Engineering, 5th Year',
+    avatarUrl: getAssetUrl('testimonials/joao_duarte.png') || undefined
   },
   {
     rating: 4,
