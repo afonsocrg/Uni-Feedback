@@ -1,0 +1,59 @@
+import { TestimonialCard } from './TestimonialCard'
+
+interface Testimonial {
+  rating: number
+  testimonial: string
+  name: string
+  course: string
+  avatarUrl?: string
+}
+
+const TESTIMONIALS: Testimonial[] = [
+  {
+    rating: 5,
+    testimonial:
+      "Uni Feedback offers something we can't find anywhere else: an organized collection of real student opinions and key course info, all in one convenient place",
+    name: 'Miguel F.',
+    course: 'Computer Science, 5th Year',
+    avatarUrl: 'https://randomuser.me/api/portraits/women/23.jpg'
+  },
+  {
+    rating: 5,
+    testimonial:
+      "Having all programs in one place, with both ratings and comments, makes it so much easier to understand each course's feedback",
+    name: 'Sofia N.',
+    course: 'LETI, 3rd Year',
+    avatarUrl: 'https://randomuser.me/api/portraits/men/42.jpg'
+  },
+  {
+    rating: 4,
+    testimonial:
+      'Uni Feedback helps students pick the courses that will actually be useful in real life',
+    name: 'Emma P.',
+    course: 'Civil Eng., 4th Year',
+    avatarUrl: 'https://randomuser.me/api/portraits/women/67.jpg'
+  }
+]
+
+export function TestimonialsSection() {
+  return (
+    <section id="testimonials" className="bg-muted/30 py-16 md:py-24">
+      <div className="container mx-auto px-4">
+        <div className="max-w-5xl mx-auto">
+          <h2 className="font-heading text-3xl md:text-4xl font-semibold tracking-tight text-center mb-4">
+            What Students Say
+          </h2>
+          <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+            Hear from students who have used Uni Feedback to make better course
+            decisions
+          </p>
+          <div className="grid md:grid-cols-3 gap-6">
+            {TESTIMONIALS.map((testimonial, index) => (
+              <TestimonialCard key={index} {...testimonial} />
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}

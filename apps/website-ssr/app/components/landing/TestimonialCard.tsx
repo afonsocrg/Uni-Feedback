@@ -15,7 +15,7 @@ interface TestimonialProps {
   avatarUrl?: string
 }
 
-export function Testimonial({
+export function TestimonialCard({
   rating,
   testimonial,
   name,
