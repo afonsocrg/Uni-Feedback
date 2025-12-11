@@ -2,7 +2,8 @@ import {
   Accordion,
   AccordionContent,
   AccordionItem,
-  AccordionTrigger
+  AccordionTrigger,
+  Markdown
 } from '@uni-feedback/ui'
 
 interface FAQItem {
@@ -12,29 +13,24 @@ interface FAQItem {
 
 const FAQ_ITEMS: FAQItem[] = [
   {
-    question: 'How does Uni Feedback ensure reviews are authentic?',
+    question: 'Is Uni Feedback free to use?',
     answer:
-      'We verify that all reviewers are enrolled students through a secure authentication process. While feedback remains anonymous, we ensure only legitimate students can contribute reviews.'
+      'Yes, Uni Feedback is completely free for everyone. Our mission is to help students make better academic decisions, and we believe this information should be accessible to everyone.'
+  },
+  {
+    question: 'Why do I need to use my university email when giving feedback?',
+    answer:
+      'We require a university email solely to verify that feedback is coming from legitimate students. Your e-mail will never be displayed or shared with anyone.'
   },
   {
     question: 'Is my feedback really anonymous?',
     answer:
-      'Yes, absolutely. Your identity is never revealed to anyone, including professors, administrators, or other students. We take privacy seriously and use encryption to protect all user data.'
+      'Yes, absolutely. Your identity is never revealed to anyone, including professors, administrators, or other students. We take privacy seriously.'
   },
   {
-    question: 'Can I review any course from any university?',
+    question: 'Can I request that my university be added to Uni Feedback?',
     answer:
-      "Currently, we support courses from partner universities. If your university isn't listed, you can request to add it, and we'll work on expanding our coverage."
-  },
-  {
-    question: 'How can I trust the reviews are honest?',
-    answer:
-      "Anonymity encourages honesty. Students can share their genuine experiences without fear of repercussions. We also moderate reviews to ensure they meet our quality standards and aren't spam or abusive."
-  },
-  {
-    question: 'Is Uni Feedback free to use?',
-    answer:
-      'Yes, Uni Feedback is completely free for all students. Our mission is to help students make better academic decisions, and we believe this information should be accessible to everyone.'
+      "**Yes**! If your university isn't currently listed, you can easily submit a request [here](https://docs.google.com/forms/d/e/1FAIpQLSd2FBk_hbv6v0iW-y8wtY6DL-fDIE_GlyA8rSkamSJJfCjCFQ/viewform). We prioritize adding universities with the highest demand."
   }
 ]
 
@@ -50,7 +46,7 @@ export function FAQ() {
           <p className="text-center text-muted-foreground mb-12">
             Everything you need to know about Uni Feedback
           </p>
-          <Accordion type="single" className="space-y-4" collapsible>
+          <Accordion type="single" className="space-y-4 pb-4" collapsible>
             {items.map((item, index) => (
               <AccordionItem
                 key={index}
@@ -61,7 +57,7 @@ export function FAQ() {
                   {item.question}
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground">
-                  {item.answer}
+                  <Markdown>{item.answer}</Markdown>
                 </AccordionContent>
               </AccordionItem>
             ))}
