@@ -1,11 +1,10 @@
-import { Button, Card, CardContent, Separator } from '@uni-feedback/ui'
+import { Button, Card, CardContent } from '@uni-feedback/ui'
 import {
   ArrowRight,
   Book,
   BookOpen,
   CheckCircle,
   FileText,
-  GraduationCap,
   Lock,
   Pen,
   PenSquare,
@@ -17,7 +16,12 @@ import {
 
 import { database } from '@uni-feedback/db'
 import { LandingFeedbackCard } from '../components/feedback/LandingFeedbackCard'
-import { FAQ, TestimonialsSection } from '../components/landing'
+import {
+  FAQ,
+  LandingFooter,
+  LandingHeader,
+  TestimonialsSection
+} from '../components/landing'
 import { getAssetUrl } from '../utils'
 
 import type { Route } from './+types/landing'
@@ -88,47 +92,7 @@ export default function LandingPage({ loaderData }: Route.ComponentProps) {
         }
       `}</style>
       <div className="min-h-screen bg-background">
-        <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-          <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <GraduationCap className="size-8 text-primary" />
-              <span className="text-xl font-semibold text-foreground">
-                Uni Feedback
-              </span>
-            </div>
-            <nav className="hidden md:flex items-center gap-8">
-              <a
-                href="#how-it-works"
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                How It Works
-              </a>
-              <a
-                href="#testimonials"
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Testimonials
-              </a>
-              <a
-                href="#faq"
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                FAQ
-              </a>
-            </nav>
-            <div className="hidden md:flex items-center gap-3">
-              <Button size="sm" variant="ghost">
-                Browse Feedback
-              </Button>
-              <Button
-                size="sm"
-                className="shadow-lg shadow-primary/20 bg-gradient-to-br from-primary to-primary/90"
-              >
-                Give Feedback!
-              </Button>
-            </div>
-          </div>
-        </header>
+        <LandingHeader />
         <section className="container mx-auto px-4 py-16 md:py-24">
           <div className="max-w-4xl mx-auto text-center space-y-8">
             <h1 className="font-heading text-xl sm:text-2xl lg:text-3xl font-semibold tracking-tight text-foreground mb-2">
@@ -429,122 +393,7 @@ export default function LandingPage({ loaderData }: Route.ComponentProps) {
             </div>
           </div>
         </section>
-        <footer className="bg-muted/30 border-t border-border py-12">
-          <div className="container mx-auto px-4">
-            <div className="grid md:grid-cols-4 gap-8 mb-8">
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <GraduationCap className="size-6 text-primary" />
-                  <span className="text-lg font-semibold">Uni Feedback</span>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Helping students make better academic decisions through
-                  honest, anonymous course feedback.
-                </p>
-              </div>
-              <div>
-                <h3 className="font-semibold mb-4">Platform</h3>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li>
-                    <a
-                      href="#"
-                      className="hover:text-foreground transition-colors"
-                    >
-                      Browse Courses
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="#"
-                      className="hover:text-foreground transition-colors"
-                    >
-                      Give Feedback
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="#"
-                      className="hover:text-foreground transition-colors"
-                    >
-                      Open Source
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="#"
-                      className="hover:text-foreground transition-colors"
-                    >
-                      Partners
-                    </a>
-                  </li>
-                </ul>
-              </div>
-              <div>
-                <h3 className="font-semibold mb-4">Resources</h3>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li>
-                    <a
-                      href="#"
-                      className="hover:text-foreground transition-colors"
-                    >
-                      How It Works
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="#"
-                      className="hover:text-foreground transition-colors"
-                    >
-                      FAQ
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="#"
-                      className="hover:text-foreground transition-colors"
-                    >
-                      Get in Touch
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="#"
-                      className="hover:text-foreground transition-colors"
-                    >
-                      Sponsors
-                    </a>
-                  </li>
-                </ul>
-              </div>
-              <div>
-                <h3 className="font-semibold mb-4">Legal</h3>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li>
-                    <a
-                      href="#"
-                      className="hover:text-foreground transition-colors"
-                    >
-                      Terms and Conditions
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="#"
-                      className="hover:text-foreground transition-colors"
-                    >
-                      Privacy Policy
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </div>
-            <Separator className="my-8" />
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-              <p>Built with ❤️ by @afonsocrg</p>
-              <p>© 2025 Uni Feedback. All rights reserved.</p>
-            </div>
-          </div>
-        </footer>
+        <LandingFooter />
       </div>
     </>
   )

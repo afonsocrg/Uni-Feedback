@@ -1,3 +1,5 @@
 export * from './FAQ'
+export * from './LandingFooter'
+export * from './LandingHeader'
 export * from './TestimonialCard'
 export * from './TestimonialsSection'
