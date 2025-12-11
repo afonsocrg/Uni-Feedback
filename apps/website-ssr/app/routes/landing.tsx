@@ -3,15 +3,11 @@ import {
   ArrowRight,
   Book,
   BookOpen,
-  CheckCircle,
   FileText,
-  Lock,
   Pen,
   PenSquare,
   Search,
-  ShieldCheck,
-  Users,
-  UserX
+  Users
 } from 'lucide-react'
 
 import { database } from '@uni-feedback/db'
@@ -20,7 +16,8 @@ import {
   FAQ,
   LandingFooter,
   LandingHeader,
-  TestimonialsSection
+  TestimonialsSection,
+  TrustedSection
 } from '../components/landing'
 import { getAssetUrl } from '../utils'
 
@@ -215,75 +212,7 @@ export default function LandingPage({ loaderData }: Route.ComponentProps) {
             </div>
           </div>
         </section>
-        <section id="trusted-and-secure" className="py-16 md:py-24">
-          <div className="container mx-auto px-4">
-            <div className="max-w-5xl mx-auto">
-              <div className="grid md:grid-cols-2 gap-12 items-center">
-                <div className="space-y-6">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium">
-                    <ShieldCheck className="size-4" />
-                    Trusted & Secure
-                  </div>
-                  <h2 className="font-heading text-3xl md:text-4xl font-semibold tracking-tight">
-                    100% Anonymous, 100% Authentic
-                  </h2>
-                  <p className="text-muted-foreground text-lg leading-relaxed">
-                    Your privacy matters. Share honest feedback without
-                    revealing your identity, while we ensure every review is
-                    legitimate and helpful.
-                  </p>
-                  <div className="space-y-4 pt-4">
-                    <div className="flex gap-4">
-                      <div className="size-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                        <UserX className="size-6 text-primary" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold mb-1">
-                          Complete Anonymity
-                        </h3>
-                        <p className="text-sm text-muted-foreground">
-                          Your identity is always protected. Share honest
-                          opinions without concerns.
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex gap-4">
-                      <div className="size-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                        <CheckCircle className="size-6 text-primary" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold mb-1">Verified Reviews</h3>
-                        <p className="text-sm text-muted-foreground">
-                          Every review is authenticated to ensure quality and
-                          relevance.
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex gap-4">
-                      <div className="size-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                        <Lock className="size-6 text-primary" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold mb-1">Data Protection</h3>
-                        <p className="text-sm text-muted-foreground">
-                          Your data is never shared with third parties.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 to-transparent rounded-2xl" />
-                  <img
-                    alt="Students collaborating"
-                    src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=80"
-                    className="rounded-2xl shadow-2xl"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+        <TrustedSection />
         <section className="py-16 md:py-24">
           <div className="container mx-auto px-4">
             <div className="max-w-5xl mx-auto text-center">
