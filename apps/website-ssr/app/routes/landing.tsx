@@ -258,28 +258,29 @@ export default function LandingPage({ loaderData }: Route.ComponentProps) {
                   </div>
                   <h3 className="text-xl font-semibold">Browse Courses</h3>
                   <p className="text-muted-foreground text-sm">
-                    Search through hundreds of courses and read honest feedback
-                    from students who have taken them
+                    Search and filter hundreds of courses to find the ones that
+                    fit your interests and criteria.
                   </p>
                 </div>
                 <div className="text-center space-y-4">
                   <div className="mx-auto size-16 rounded-full bg-primary/10 flex items-center justify-center">
                     <FileText className="size-8 text-primary" />
                   </div>
-                  <h3 className="text-xl font-semibold">Read Reviews</h3>
+                  <h3 className="text-xl font-semibold">Read Feedback</h3>
                   <p className="text-muted-foreground text-sm">
-                    Get insights on workload, teaching quality, assessment
-                    methods, and overall experience
+                    See what past students say about the course, its contents,
+                    workload, teaching style, etc.
                   </p>
                 </div>
                 <div className="text-center space-y-4">
                   <div className="mx-auto size-16 rounded-full bg-primary/10 flex items-center justify-center">
                     <PenSquare className="size-8 text-primary" />
                   </div>
-                  <h3 className="text-xl font-semibold">Share Feedback</h3>
+                  <h3 className="text-xl font-semibold">
+                    Enroll With Confidence
+                  </h3>
                   <p className="text-muted-foreground text-sm">
-                    Help future students by sharing your feedback about courses
-                    you've completed
+                    Use what you learned to choose the right courses for you.
                   </p>
                 </div>
               </div>
