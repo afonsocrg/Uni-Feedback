@@ -152,10 +152,10 @@ export function HeroSection({
                 <button
                   onClick={handlePrev}
                   disabled={!canGoPrev}
-                  className="flex-shrink-0 bg-white shadow-lg rounded-full p-2 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+                  className="flex-shrink-0 disabled:opacity-30 disabled:cursor-not-allowed hover:opacity-70 transition-opacity"
                   aria-label="Previous feedback"
                 >
-                  <ChevronLeft className="size-6 text-gray-700" />
+                  <ChevronLeft className="size-8 text-gray-700" />
                 </button>
 
                 {/* Carousel Track */}
@@ -184,10 +184,10 @@ export function HeroSection({
                 <button
                   onClick={handleNext}
                   disabled={!canGoNext}
-                  className="flex-shrink-0 bg-white shadow-lg rounded-full p-2 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+                  className="flex-shrink-0 disabled:opacity-30 disabled:cursor-not-allowed hover:opacity-70 transition-opacity"
                   aria-label="Next feedback"
                 >
-                  <ChevronRight className="size-6 text-gray-700" />
+                  <ChevronRight className="size-8 text-gray-700" />
                 </button>
               </div>
 
