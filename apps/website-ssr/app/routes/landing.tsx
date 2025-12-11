@@ -34,7 +34,7 @@ export async function loader() {
     orderBy: (faculties, { asc }) => [asc(faculties.id)]
   })
 
-  // Fetch 3 most recent approved feedbacks with comments, including course and faculty info
+  // Fetch 6 most recent approved feedbacks with comments, including course and faculty info
   const recentFeedbacks = await db.query.feedback.findMany({
     where: (feedback, { and, isNotNull, ne }) =>
       and(
@@ -43,7 +43,7 @@ export async function loader() {
         ne(feedback.comment, '')
       ),
     orderBy: (feedbacks, { desc }) => [desc(feedbacks.approvedAt)],
-    limit: 3,
+    limit: 6,
     with: {
       course: {
         with: {

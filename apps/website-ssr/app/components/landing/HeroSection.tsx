@@ -1,9 +1,10 @@
 import { Button } from '@uni-feedback/ui'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
+import { useState, useEffect } from 'react'
 
 import type { Feedback, StudentClub } from '@uni-feedback/db'
-import { LandingFeedbackCard } from '../feedback/LandingFeedbackCard'
 import { getAssetUrl } from '../../utils'
+import { LandingFeedbackCard } from '../feedback/LandingFeedbackCard'
 
 interface HeroSectionProps {
   studentClubs: StudentClub[]
@@ -14,6 +15,43 @@ export function HeroSection({
   studentClubs,
   recentFeedbacks
 }: HeroSectionProps) {
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [isDesktop, setIsDesktop] = useState(true)
+
+  // Desktop shows 3, mobile shows 1
+  const itemsPerPage = {
+    mobile: 1,
+    desktop: 3
+  }
+
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsDesktop(window.innerWidth >= 768)
+    }
+
+    checkScreenSize()
+    window.addEventListener('resize', checkScreenSize)
+
+    return () => window.removeEventListener('resize', checkScreenSize)
+  }, [])
+
+  // Calculate max index: desktop stops one position past showing all items to reveal white space
+  // mobile goes to the last item
+  const maxIndex = isDesktop
+    ? recentFeedbacks.length - itemsPerPage.desktop + 1
+    : recentFeedbacks.length - 1
+
+  const handlePrev = () => {
+    setCurrentIndex((prev) => Math.max(0, prev - 1))
+  }
+
+  const handleNext = () => {
+    setCurrentIndex((prev) => Math.min(maxIndex, prev + 1))
+  }
+
+  const canGoPrev = currentIndex > 0
+  const canGoNext = currentIndex < maxIndex
+
   return (
     <>
       <style>{`
@@ -35,6 +73,22 @@ export function HeroSection({
           display: flex;
           gap: 2rem;
           width: max-content;
+        }
+
+        .feedback-carousel {
+          transition: transform 0.3s ease-in-out;
+        }
+
+        @media (max-width: 767px) {
+          .feedback-carousel {
+            transform: translateX(calc(var(--mobile-index) * (-100% - 1.5rem)));
+          }
+        }
+
+        @media (min-width: 768px) {
+          .feedback-carousel {
+            transform: translateX(calc(var(--desktop-index) * (-33.333% - 0.5rem)));
+          }
         }
       `}</style>
       <section className="container mx-auto px-4 py-16 md:py-24">
@@ -92,11 +146,51 @@ export function HeroSection({
                 </p>
               </div>
 
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {recentFeedbacks.map((feedback) => (
-                  <LandingFeedbackCard key={feedback.id} feedback={feedback} />
-                ))}
+              {/* Carousel Container */}
+              <div className="flex items-center gap-4">
+                {/* Left Navigation Arrow */}
+                <button
+                  onClick={handlePrev}
+                  disabled={!canGoPrev}
+                  className="flex-shrink-0 bg-white shadow-lg rounded-full p-2 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+                  aria-label="Previous feedback"
+                >
+                  <ChevronLeft className="size-6 text-gray-700" />
+                </button>
+
+                {/* Carousel Track */}
+                <div className="overflow-hidden flex-1">
+                  <div
+                    className="feedback-carousel flex gap-6"
+                    style={
+                      {
+                        '--mobile-index': currentIndex,
+                        '--desktop-index': currentIndex
+                      } as React.CSSProperties
+                    }
+                  >
+                    {recentFeedbacks.map((feedback) => (
+                      <div
+                        key={feedback.id}
+                        className="w-full md:w-1/3 flex-shrink-0"
+                      >
+                        <LandingFeedbackCard feedback={feedback} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Right Navigation Arrow */}
+                <button
+                  onClick={handleNext}
+                  disabled={!canGoNext}
+                  className="flex-shrink-0 bg-white shadow-lg rounded-full p-2 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+                  aria-label="Next feedback"
+                >
+                  <ChevronRight className="size-6 text-gray-700" />
+                </button>
               </div>
+
               <div className="text-center mt-8">
                 <Button size="lg" variant="outline">
                   View More Feedback
