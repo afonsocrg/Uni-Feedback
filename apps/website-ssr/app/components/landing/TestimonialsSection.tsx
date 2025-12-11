@@ -1,3 +1,4 @@
+import { getAssetUrl } from '~/utils'
 import { TestimonialCard } from './TestimonialCard'
 
 interface Testimonial {
@@ -11,11 +12,12 @@ interface Testimonial {
 const TESTIMONIALS: Testimonial[] = [
   {
     rating: 5,
-    testimonial:
-      "Uni Feedback offers something we can't find anywhere else: an organized collection of real student opinions and key course info, all in one convenient place",
+    testimonial: `O Fénix é uma floresta de termos técnicos e promessas de matéria interessante, que metade das vezes não reflete a experiência real dos alunos a tirar as cadeiras.
+
+O Uni Feedback fornece algo que não conseguimos encontrar em mais nenhum lado, uma coleção organizada das opiniões diretas dos alunos que tiveram a cadeira e de informação relevante do fénix, tudo num só conveniente site!`,
     name: 'Miguel F.',
     course: 'Computer Science, 5th Year',
-    avatarUrl: 'https://randomuser.me/api/portraits/women/23.jpg'
+    avatarUrl: getAssetUrl('testimonials/miguel_fernandes.png') || undefined
   },
   {
     rating: 5,
