@@ -25,7 +25,7 @@ export function LovedByStudentsSection({
                   key={faculty.id}
                   alt={`${faculty.name} logo`}
                   src={logoUrl}
-                  className="h-12 opacity-50 hover:opacity-100 transition-opacity"
+                  className="h-12"
                 />
               )
             })}
