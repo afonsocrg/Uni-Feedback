@@ -18,14 +18,17 @@ const FOOTER_LINK_GROUPS: FooterLinkGroup[] = [
     links: [
       { href: '#', label: 'Browse Courses' },
       { href: '#', label: 'Give Feedback' },
-      { href: '#', label: 'Open Source' },
-      { href: '#', label: 'Partners' }
+      {
+        href: 'https://github.com/afonsocrg/uni-feedback',
+        label: 'Open Source'
+      }
+      // { href: '#', label: 'Partners' }
     ]
   },
   {
     title: 'Resources',
     links: [
-      { href: '#', label: 'How It Works' },
+      { href: '/#how-it-works', label: 'How It Works' },
       { href: '#', label: 'FAQ' },
       { href: '#', label: 'Get in Touch' },
       { href: '#', label: 'Sponsors' }
@@ -34,8 +37,8 @@ const FOOTER_LINK_GROUPS: FooterLinkGroup[] = [
   {
     title: 'Legal',
     links: [
-      { href: '#', label: 'Terms and Conditions' },
-      { href: '#', label: 'Privacy Policy' }
+      { href: '/terms', label: 'Terms and Conditions' },
+      { href: '/privacy', label: 'Privacy Policy' }
     ]
   }
 ]
@@ -51,8 +54,8 @@ export function LandingFooter() {
               <span className="text-lg font-semibold">Uni Feedback</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              Helping students make better academic decisions through honest,
-              anonymous course feedback.
+              From students, for students. Your companion for building a better
+              and successful university experience.
             </p>
           </div>
           {FOOTER_LINK_GROUPS.map((group) => (
@@ -71,7 +74,9 @@ export function LandingFooter() {
         <Separator className="my-8" />
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
           <p>Built with ❤️ by @afonsocrg</p>
-          <p>© {new Date().getFullYear()} Uni Feedback. All rights reserved.</p>
+          <p>
+            © {new Date().getFullYear()} Uni Feedback. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>
