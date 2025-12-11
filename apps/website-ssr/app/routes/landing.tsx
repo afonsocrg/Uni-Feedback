@@ -4,8 +4,6 @@ import {
   FAQ,
   HeroSection,
   HowItWorksSection,
-  LandingFooter,
-  LandingHeader,
   LovedByStudentsSection,
   TestimonialsSection,
   TrustedSection
@@ -64,8 +62,7 @@ export async function loader() {
 
 export default function LandingPage({ loaderData }: Route.ComponentProps) {
   return (
-    <div className="min-h-screen bg-background">
-      <LandingHeader />
+    <>
       <HeroSection
         studentClubs={loaderData.studentClubs}
         recentFeedbacks={loaderData.recentFeedbacks}
@@ -76,7 +73,6 @@ export default function LandingPage({ loaderData }: Route.ComponentProps) {
       <LovedByStudentsSection faculties={loaderData.faculties} />
       <FAQ />
       <CTASection />
-      <LandingFooter />
-    </div>
+    </>
   )
 }

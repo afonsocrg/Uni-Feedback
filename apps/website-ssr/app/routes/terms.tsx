@@ -3,11 +3,9 @@ import { markdown } from '../../../../terms_of_service.md'
 
 export default function Terms() {
   return (
-    <div className="bg-gray-50 min-h-full">
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <div className="bg-white rounded-lg shadow-sm border p-8">
-          <Markdown className="prose-lg">{markdown}</Markdown>
-        </div>
+    <div className="min-h-full">
+      <div className="mx-auto px-4 py-8 max-w-2xl">
+        <Markdown className="prose-lg">{markdown}</Markdown>
       </div>
     </div>
   )
