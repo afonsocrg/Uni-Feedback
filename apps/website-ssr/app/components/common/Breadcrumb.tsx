@@ -15,11 +15,11 @@ export function Breadcrumb({
   degree
 }: BreadcrumbProps) {
   const handleHomeClick = () => {
-    // Clear user preferences so they stay on home page
+    // Clear user preferences and navigate to browse page
     userPreferences.set({
       lastSelectedFacultySlug: undefined,
       lastSelectedDegreeSlug: undefined,
-      lastVisitedPath: '/'
+      lastVisitedPath: '/browse'
     })
   }
 
@@ -33,15 +33,15 @@ export function Breadcrumb({
   }
 
   return (
-    <nav className={`flex items-center space-x-1 text-sm ${className}`}>
-      <BreadcrumbItem href="/" onClick={handleHomeClick}>
-        <Home className="h-4 w-4 mr-1" />
+    <nav className={`flex items-center space-x-1 text-xs text-gray-500 ${className}`}>
+      <BreadcrumbItem href="/browse" onClick={handleHomeClick}>
+        <Home className="h-3 w-3 mr-1" />
         Select Uni
       </BreadcrumbItem>
 
       {faculty && (
         <>
-          <ChevronRight className="h-4 w-4 text-gray-400 mx-1" />
+          <ChevronRight className="h-3 w-3 text-gray-400 mx-1" />
           <BreadcrumbItem
             href={`/${faculty.slug}`}
             onClick={handleFacultyClick}
@@ -53,7 +53,7 @@ export function Breadcrumb({
 
       {faculty && degree && (
         <>
-          <ChevronRight className="h-4 w-4 text-gray-400 mx-1" />
+          <ChevronRight className="h-3 w-3 text-gray-400 mx-1" />
           <BreadcrumbItem isActive>{degree.acronym}</BreadcrumbItem>
         </>
       )}

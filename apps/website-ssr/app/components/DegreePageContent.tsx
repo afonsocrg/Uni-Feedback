@@ -6,10 +6,13 @@ import type {
 } from '@uni-feedback/db/schema'
 import { Button, WarningAlert } from '@uni-feedback/ui'
 import { useMemo, useState } from 'react'
-import { SearchCourses } from '~/components'
+import { BrowsePageLayout, CourseCard } from '.'
+import { FilterButton } from './common/FilterButton'
+import { FilterDrawer } from './common/FilterDrawer'
+import { SearchInput } from './common/SearchInput'
+import { CourseFilters } from './filters/CourseFilters'
 import { useLocalStorage } from '~/hooks'
 import { insensitiveMatch, STORAGE_KEYS } from '~/utils'
-import { CourseCard, HeroSection } from '.'
 
 interface CourseWithFeedback extends Course {
   averageRating: number
@@ -39,8 +42,9 @@ export function DegreePageContent({
   courses,
   courseGroups
 }: DegreePageContentProps) {
-  // Search state
   const [searchQuery, setSearchQuery] = useState('')
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
+
   const [selectedTerm, setSelectedTerm] = useLocalStorage<string | null>(
     STORAGE_KEYS.FILTER_TERM,
     null
@@ -140,88 +144,106 @@ export function DegreePageContent({
     return `/courses/${course.id}`
   }
 
+  const handleClearFilters = () => {
+    setSearchQuery('')
+    setSelectedTerm(null)
+    setSelectedCourseGroupId(null)
+    setMandatoryExamFilter(null)
+    setSortBy('rating')
+  }
+
+  const activeFilterCount =
+    (selectedTerm ? 1 : 0) +
+    (selectedCourseGroupId ? 1 : 0) +
+    (mandatoryExamFilter !== null ? 1 : 0)
+
   return (
-    <div>
-      <HeroSection {...{ showBreadcrumb: true, faculty, degree }} />
-      <div className="container mx-auto px-4 py-8">
-        <div className="w-full max-w-6xl mx-auto">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              {degree.name}
-            </h1>
-            <p className="text-gray-600">
-              Browse courses from {degree.name} at {faculty.name}
-            </p>
-          </div>
-
-          <div className="mb-6">
-            <SearchCourses
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-              availableTerms={availableTerms}
-              selectedTerm={selectedTerm}
-              setSelectedTerm={setSelectedTerm}
-              selectedCourseGroupId={selectedCourseGroupId}
-              setSelectedCourseGroupId={setSelectedCourseGroupId}
-              sortBy={sortBy}
-              setSortBy={setSortBy}
-              courseGroups={courseGroups}
-              mandatoryExamFilter={mandatoryExamFilter}
-              setMandatoryExamFilter={setMandatoryExamFilter}
-            />
-          </div>
-
-          {!courses || courses.length === 0 ? (
-            <div className="text-center text-gray-500 py-8">
-              No courses found for this degree.
-            </div>
-          ) : filteredCourses.length === 0 ? (
-            <div className="text-center text-gray-500 py-8">
-              No courses match your search criteria.
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredCourses.map((course) => (
-                <CourseCard
-                  key={course.id}
-                  courseId={course.id}
-                  acronym={course.acronym}
-                  name={course.name}
-                  averageRating={course.averageRating}
-                  averageWorkload={course.averageWorkload}
-                  totalFeedbackCount={course.totalFeedbackCount}
-                  hasMandatoryExam={course.hasMandatoryExam}
-                  href={getCourseUrl(course)}
-                />
-              ))}
-            </div>
-          )}
-
-          <div className="mt-8">
-            <WarningAlert
-              message={
-                <>
-                  Missing a course?{' '}
-                  <Button
-                    variant="link"
-                    size="xs"
-                    asChild
-                    className="p-0 h-auto text-sm underline"
-                  >
-                    <a
-                      href={ADD_COURSE_FORM_URL}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Request it here
-                    </a>
-                  </Button>
-                </>
-              }
-            />
-          </div>
+    <BrowsePageLayout
+      title={degree.name}
+      faculty={faculty}
+      degree={degree}
+      searchBar={
+        <SearchInput
+          value={searchQuery}
+          onChange={setSearchQuery}
+          placeholder="Search by name or acronym..."
+        />
+      }
+      filterButton={
+        <FilterButton
+          onClick={() => setIsFilterOpen(true)}
+          activeCount={activeFilterCount}
+        />
+      }
+      actions={
+        <WarningAlert
+          message={
+            <>
+              Missing a course?{' '}
+              <Button
+                variant="link"
+                size="xs"
+                asChild
+                className="p-0 h-auto text-sm underline"
+              >
+                <a
+                  href={ADD_COURSE_FORM_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Request it here
+                </a>
+              </Button>
+            </>
+          }
+        />
+      }
+    >
+      {!courses || courses.length === 0 ? (
+        <div className="text-center text-gray-500 py-8">
+          No courses found for this degree.
         </div>
-      </div>
-    </div>
+      ) : filteredCourses.length === 0 ? (
+        <div className="text-center text-gray-500 py-8">
+          No courses match your search criteria.
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredCourses.map((course) => (
+            <CourseCard
+              key={course.id}
+              courseId={course.id}
+              acronym={course.acronym}
+              name={course.name}
+              averageRating={course.averageRating}
+              averageWorkload={course.averageWorkload}
+              totalFeedbackCount={course.totalFeedbackCount}
+              hasMandatoryExam={course.hasMandatoryExam}
+              href={getCourseUrl(course)}
+            />
+          ))}
+        </div>
+      )}
+
+      <FilterDrawer
+        open={isFilterOpen}
+        onClose={() => setIsFilterOpen(false)}
+        title="Filter Courses"
+        onClearFilters={handleClearFilters}
+      >
+        <CourseFilters
+          availableTerms={availableTerms}
+          selectedTerm={selectedTerm}
+          onTermChange={setSelectedTerm}
+          courseGroups={courseGroups}
+          selectedCourseGroupId={selectedCourseGroupId}
+          onCourseGroupChange={setSelectedCourseGroupId}
+          mandatoryExamFilter={mandatoryExamFilter}
+          onMandatoryExamChange={setMandatoryExamFilter}
+          sortBy={sortBy}
+          onSortByChange={setSortBy}
+        />
+      </FilterDrawer>
+    </BrowsePageLayout>
   )
 }

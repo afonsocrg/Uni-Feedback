@@ -3,6 +3,7 @@ import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 import type { Feedback, StudentClub } from '@uni-feedback/db'
+import { useLastVisitedPath } from '~/hooks/useLastVisitedPath'
 import { getAssetUrl } from '../../utils'
 import { LandingFeedbackCard } from '../feedback/LandingFeedbackCard'
 
@@ -15,6 +16,8 @@ export function HeroSection({
   studentClubs,
   recentFeedbacks
 }: HeroSectionProps) {
+  const lastVisitedPath = useLastVisitedPath()
+  const browseLink = lastVisitedPath !== '/' ? lastVisitedPath : '/browse'
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isDesktop, setIsDesktop] = useState(true)
 
@@ -152,7 +155,7 @@ export function HeroSection({
                 <button
                   onClick={handlePrev}
                   disabled={!canGoPrev}
-                  className="flex-shrink-0 disabled:opacity-30 disabled:cursor-not-allowed hover:opacity-70 transition-opacity"
+                  className="flex-shrink-0 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer hover:opacity-70 transition-opacity"
                   aria-label="Previous feedback"
                 >
                   <ChevronLeft className="size-8 text-gray-700" />
@@ -184,7 +187,7 @@ export function HeroSection({
                 <button
                   onClick={handleNext}
                   disabled={!canGoNext}
-                  className="flex-shrink-0 disabled:opacity-30 disabled:cursor-not-allowed hover:opacity-70 transition-opacity"
+                  className="flex-shrink-0 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer hover:opacity-70 transition-opacity"
                   aria-label="Next feedback"
                 >
                   <ChevronRight className="size-8 text-gray-700" />

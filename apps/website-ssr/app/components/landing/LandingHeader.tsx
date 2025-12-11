@@ -31,14 +31,15 @@ export function LandingHeader() {
           ))}
         </nav>
         <div className="hidden md:flex items-center gap-3">
-          <Button size="sm" variant="ghost">
-            Give Feedback!
+          <Button size="sm" variant="ghost" asChild>
+            <a href="/feedback/new">Give Feedback!</a>
           </Button>
           <Button
             size="sm"
             className="shadow-lg shadow-primary/20 bg-gradient-to-br from-primary to-primary/90"
+            asChild
           >
-            Browse Courses
+            <a href="/browse">Browse Courses</a>
           </Button>
         </div>
       </div>

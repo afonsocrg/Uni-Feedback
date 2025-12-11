@@ -16,8 +16,8 @@ const FOOTER_LINK_GROUPS: FooterLinkGroup[] = [
   {
     title: 'Platform',
     links: [
-      { href: '#', label: 'Browse Courses' },
-      { href: '#', label: 'Give Feedback' },
+      { href: '/browse', label: 'Browse Courses' },
+      { href: '/feedback/new', label: 'Give Feedback' },
       {
         href: 'https://github.com/afonsocrg/uni-feedback',
         label: 'Open Source'

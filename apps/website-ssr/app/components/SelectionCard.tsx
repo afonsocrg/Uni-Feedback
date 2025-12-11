@@ -5,6 +5,7 @@ import {
   CardHeader,
   CardTitle
 } from '@uni-feedback/ui'
+import { getAssetUrl } from '~/utils'
 
 interface SelectionCardProps {
   title: string
@@ -15,6 +16,7 @@ interface SelectionCardProps {
   className?: string
   children?: React.ReactElement
   icon?: React.ReactElement
+  logo?: string
 }
 
 export function SelectionCard({
@@ -25,7 +27,8 @@ export function SelectionCard({
   href,
   className = '',
   children,
-  icon
+  icon,
+  logo
 }: SelectionCardProps) {
   const cardContent = (
     <Card
@@ -33,15 +36,28 @@ export function SelectionCard({
       onClick={onClick}
     >
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg">{title}</CardTitle>
-          {icon && <div className="text-gray-400">{icon}</div>}
+        <div className="flex gap-4">
+          {logo && (
+            <div className="flex-shrink-0">
+              <img
+                src={getAssetUrl(logo) || ''}
+                alt={`${title} logo`}
+                className="h-16 w-16 object-contain"
+              />
+            </div>
+          )}
+          <div className="flex-1">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg">{title}</CardTitle>
+              {icon && <div className="text-gray-400">{icon}</div>}
+            </div>
+            {subtitle && (
+              <CardDescription className="text-sm font-medium">
+                {subtitle}
+              </CardDescription>
+            )}
+          </div>
         </div>
-        {subtitle && (
-          <CardDescription className="text-sm font-medium">
-            {subtitle}
-          </CardDescription>
-        )}
       </CardHeader>
       {(description || children) && (
         <CardContent className="flex-1 flex flex-col">

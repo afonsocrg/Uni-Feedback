@@ -10,14 +10,12 @@ export default [
   route('sitemap.xml', 'routes/sitemap[.]xml.ts'),
   layout('routes/landing-layout.tsx', [
     index('routes/landing.tsx'),
-    route('/terms', 'routes/terms.tsx'),
-    route('/privacy', 'routes/privacy.tsx')
-  ]),
-  layout('routes/layout.tsx', [
-    route('/legacy', 'routes/home.tsx'),
-    route('/feedback/new', 'routes/feedback.new.tsx'),
+    route('/browse', 'routes/browse.tsx'),
     route('/:facultySlug', 'routes/$facultySlug.tsx'),
     route('/:facultySlug/:degreeSlug', 'routes/$facultySlug.$degreeSlug.tsx'),
-    route('/courses/:courseId', 'routes/courses.$courseId.tsx')
+    route('/feedback/new', 'routes/feedback.new.tsx'),
+    route('/courses/:courseId', 'routes/courses.$courseId.tsx'),
+    route('/terms', 'routes/terms.tsx'),
+    route('/privacy', 'routes/privacy.tsx')
   ])
 ] satisfies RouteConfig
