@@ -20,7 +20,7 @@ export function CTASection() {
               className="text-lg px-8 shadow-xl"
             >
               <Book className="size-5" />
-              Browse Courses Now
+              Browse Courses
             </Button>
             <Button
               size="lg"
@@ -28,7 +28,7 @@ export function CTASection() {
               className="text-lg px-8 bg-transparent border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10"
             >
               <Pen className="size-5" />
-              Share Your Feedback
+              Give Feedback
             </Button>
           </div>
         </div>

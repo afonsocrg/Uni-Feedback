@@ -32,13 +32,13 @@ export function LandingHeader() {
         </nav>
         <div className="hidden md:flex items-center gap-3">
           <Button size="sm" variant="ghost">
-            Browse Feedback
+            Give Feedback!
           </Button>
           <Button
             size="sm"
             className="shadow-lg shadow-primary/20 bg-gradient-to-br from-primary to-primary/90"
           >
-            Give Feedback!
+            Browse Courses
           </Button>
         </div>
       </div>
