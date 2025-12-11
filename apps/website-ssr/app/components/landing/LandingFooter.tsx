@@ -71,7 +71,7 @@ export function LandingFooter() {
         <Separator className="my-8" />
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
           <p>Built with ❤️ by @afonsocrg</p>
-          <p>© 2025 Uni Feedback. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Uni Feedback. All rights reserved.</p>
         </div>
       </div>
     </footer>
