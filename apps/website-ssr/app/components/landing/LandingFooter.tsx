@@ -1,5 +1,44 @@
 import { Separator } from '@uni-feedback/ui'
 import { GraduationCap } from 'lucide-react'
+import { FooterLink } from './FooterLink'
+
+interface FooterLinkItem {
+  href: string
+  label: string
+}
+
+interface FooterLinkGroup {
+  title: string
+  links: FooterLinkItem[]
+}
+
+const FOOTER_LINK_GROUPS: FooterLinkGroup[] = [
+  {
+    title: 'Platform',
+    links: [
+      { href: '#', label: 'Browse Courses' },
+      { href: '#', label: 'Give Feedback' },
+      { href: '#', label: 'Open Source' },
+      { href: '#', label: 'Partners' }
+    ]
+  },
+  {
+    title: 'Resources',
+    links: [
+      { href: '#', label: 'How It Works' },
+      { href: '#', label: 'FAQ' },
+      { href: '#', label: 'Get in Touch' },
+      { href: '#', label: 'Sponsors' }
+    ]
+  },
+  {
+    title: 'Legal',
+    links: [
+      { href: '#', label: 'Terms and Conditions' },
+      { href: '#', label: 'Privacy Policy' }
+    ]
+  }
+]
 
 export function LandingFooter() {
   return (
@@ -16,71 +55,18 @@ export function LandingFooter() {
               anonymous course feedback.
             </p>
           </div>
-          <div>
-            <h3 className="font-semibold mb-4">Platform</h3>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>
-                <a href="#" className="hover:text-foreground transition-colors">
-                  Browse Courses
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-foreground transition-colors">
-                  Give Feedback
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-foreground transition-colors">
-                  Open Source
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-foreground transition-colors">
-                  Partners
-                </a>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h3 className="font-semibold mb-4">Resources</h3>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>
-                <a href="#" className="hover:text-foreground transition-colors">
-                  How It Works
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-foreground transition-colors">
-                  FAQ
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-foreground transition-colors">
-                  Get in Touch
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-foreground transition-colors">
-                  Sponsors
-                </a>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h3 className="font-semibold mb-4">Legal</h3>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>
-                <a href="#" className="hover:text-foreground transition-colors">
-                  Terms and Conditions
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-foreground transition-colors">
-                  Privacy Policy
-                </a>
-              </li>
-            </ul>
-          </div>
+          {FOOTER_LINK_GROUPS.map((group) => (
+            <div key={group.title}>
+              <h3 className="font-semibold mb-4">{group.title}</h3>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                {group.links.map((link) => (
+                  <li key={link.href + link.label}>
+                    <FooterLink href={link.href}>{link.label}</FooterLink>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
         <Separator className="my-8" />
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">

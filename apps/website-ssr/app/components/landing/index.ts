@@ -1,5 +1,7 @@
 export * from './FAQ'
+export * from './FooterLink'
 export * from './LandingFooter'
 export * from './LandingHeader'
+export * from './NavLink'
 export * from './TestimonialCard'
 export * from './TestimonialsSection'

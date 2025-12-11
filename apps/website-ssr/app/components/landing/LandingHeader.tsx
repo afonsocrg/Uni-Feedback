@@ -1,5 +1,17 @@
 import { Button } from '@uni-feedback/ui'
 import { GraduationCap } from 'lucide-react'
+import { NavLink } from './NavLink'
+
+interface NavItem {
+  href: string
+  label: string
+}
+
+const NAV_ITEMS: NavItem[] = [
+  { href: '#how-it-works', label: 'How It Works' },
+  { href: '#testimonials', label: 'Testimonials' },
+  { href: '#faq', label: 'FAQ' }
+]
 
 export function LandingHeader() {
   return (
@@ -12,24 +24,11 @@ export function LandingHeader() {
           </span>
         </div>
         <nav className="hidden md:flex items-center gap-8">
-          <a
-            href="#how-it-works"
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            How It Works
-          </a>
-          <a
-            href="#testimonials"
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Testimonials
-          </a>
-          <a
-            href="#faq"
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            FAQ
-          </a>
+          {NAV_ITEMS.map((item) => (
+            <NavLink key={item.href} href={item.href}>
+              {item.label}
+            </NavLink>
+          ))}
         </nav>
         <div className="hidden md:flex items-center gap-3">
           <Button size="sm" variant="ghost">
