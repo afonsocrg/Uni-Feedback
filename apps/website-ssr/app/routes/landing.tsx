@@ -7,7 +7,6 @@ import {
   LandingFooter,
   LandingHeader,
   LovedByStudentsSection,
-  OurImpactSection,
   TestimonialsSection,
   TrustedSection
 } from '../components/landing'
@@ -37,7 +36,7 @@ export async function loader() {
     orderBy: (faculties, { asc }) => [asc(faculties.id)]
   })
 
-  // Fetch 3 most recent approved feedbacks with comments
+  // Fetch 3 most recent approved feedbacks with comments, including course and faculty info
   const recentFeedbacks = await db.query.feedback.findMany({
     where: (feedback, { and, isNotNull, ne }) =>
       and(
@@ -46,7 +45,18 @@ export async function loader() {
         ne(feedback.comment, '')
       ),
     orderBy: (feedbacks, { desc }) => [desc(feedbacks.approvedAt)],
-    limit: 3
+    limit: 3,
+    with: {
+      course: {
+        with: {
+          degree: {
+            with: {
+              faculty: true
+            }
+          }
+        }
+      }
+    }
   })
 
   return { studentClubs, faculties, recentFeedbacks }
@@ -62,7 +72,6 @@ export default function LandingPage({ loaderData }: Route.ComponentProps) {
       />
       <HowItWorksSection />
       <TrustedSection />
-      <OurImpactSection />
       <TestimonialsSection />
       <LovedByStudentsSection faculties={loaderData.faculties} />
       <FAQ />
