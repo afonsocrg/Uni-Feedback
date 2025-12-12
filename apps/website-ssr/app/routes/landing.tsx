@@ -69,8 +69,8 @@ export default function LandingPage({ loaderData }: Route.ComponentProps) {
       />
       <HowItWorksSection />
       <TrustedSection />
-      <TestimonialsSection />
       <LovedByStudentsSection faculties={loaderData.faculties} />
+      <TestimonialsSection />
       <FAQ />
       <CTASection />
     </>

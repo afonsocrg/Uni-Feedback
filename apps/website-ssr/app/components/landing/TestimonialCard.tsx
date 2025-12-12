@@ -3,24 +3,23 @@ import {
   AvatarFallback,
   AvatarImage,
   Card,
-  CardContent,
-  StarRating
+  CardContent
 } from '@uni-feedback/ui'
 
 interface TestimonialProps {
-  rating: number
   testimonial: string
   name: string
   course: string
   avatarUrl?: string
+  url?: string
 }
 
 export function TestimonialCard({
-  rating,
   testimonial,
   name,
   course,
-  avatarUrl
+  avatarUrl,
+  url
 }: TestimonialProps) {
   // Generate initials from name
   const initials = name
@@ -32,7 +31,6 @@ export function TestimonialCard({
   return (
     <Card className="h-full">
       <CardContent className="flex flex-col h-full space-y-4">
-        <StarRating value={rating} size="sm" />
         <p className="text-sm text-muted-foreground leading-relaxed flex-1">
           "{testimonial}"
         </p>
@@ -42,7 +40,18 @@ export function TestimonialCard({
             <AvatarFallback>{initials}</AvatarFallback>
           </Avatar>
           <div>
-            <div className="text-sm font-medium">{name}</div>
+            {url ? (
+              <a
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm font-medium hover:underline"
+              >
+                {name}
+              </a>
+            ) : (
+              <div className="text-sm font-medium">{name}</div>
+            )}
             <div className="text-xs text-muted-foreground">{course}</div>
           </div>
         </div>
