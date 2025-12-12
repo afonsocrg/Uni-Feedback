@@ -44,7 +44,7 @@ export function LandingFeedbackCard({ feedback }: LandingFeedbackCardProps) {
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow h-full flex flex-col">
       {/* Course and faculty info */}
       <div className="mb-3">
-        <h3 className="font-semibold text-gray-900 text-base leading-tight mb-1">
+        <h3 className="font-medium text-gray-700 text-sm truncate mb-1">
           {feedback.course.name}
         </h3>
         <p className="text-xs text-gray-500">
