@@ -2,7 +2,6 @@ import type { Degree, Faculty } from '@uni-feedback/db/schema'
 import { Button, WarningAlert } from '@uni-feedback/ui'
 import { useMemo, useState } from 'react'
 import { BrowsePageLayout, DegreeCard } from '.'
-import { ClearFiltersChip } from './common/ClearFiltersChip'
 import { FilterChip } from './common/FilterChip'
 import { SearchInput } from './common/SearchInput'
 
@@ -58,12 +57,6 @@ export function FacultyPageContent({
     return `/${faculty.slug}/${degree.slug}`
   }
 
-  const handleClearFilters = () => {
-    setSelectedType(null)
-  }
-
-  const activeFilterCount = selectedType ? 1 : 0
-
   return (
     <BrowsePageLayout
       title="Select Your Degree"
@@ -86,11 +79,7 @@ export function FacultyPageContent({
               }))}
               selectedValue={selectedType}
               onValueChange={setSelectedType}
-              placeholder="All Types"
-            />
-            <ClearFiltersChip
-              onClick={handleClearFilters}
-              visible={activeFilterCount > 0}
+              placeholder="All Degree Types"
             />
           </div>
         ) : undefined

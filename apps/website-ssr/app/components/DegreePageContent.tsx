@@ -6,12 +6,11 @@ import type {
 } from '@uni-feedback/db/schema'
 import { Button, WarningAlert } from '@uni-feedback/ui'
 import { useMemo, useState } from 'react'
-import { BrowsePageLayout, CourseCard } from '.'
-import { ClearFiltersChip } from './common/ClearFiltersChip'
-import { FilterChip } from './common/FilterChip'
-import { SearchInput } from './common/SearchInput'
 import { useLocalStorage } from '~/hooks'
 import { insensitiveMatch, STORAGE_KEYS } from '~/utils'
+import { BrowsePageLayout, CourseCard } from '.'
+import { FilterChip } from './common/FilterChip'
+import { SearchInput } from './common/SearchInput'
 
 interface CourseWithFeedback extends Course {
   averageRating: number
@@ -84,8 +83,8 @@ export function DegreePageContent({
   }))
 
   const examTypeOptions = [
-    { value: 'true', label: 'Has Mandatory Exam' },
-    { value: 'false', label: 'No Mandatory Exam' }
+    { value: 'true', label: 'Exam: Mandatory' },
+    { value: 'false', label: 'Exam: Optional' }
   ]
 
   const sortOptions = [
@@ -165,18 +164,6 @@ export function DegreePageContent({
     return `/courses/${course.id}`
   }
 
-  const handleClearFilters = () => {
-    setSelectedTerm(null)
-    setSelectedCourseGroupId(null)
-    setMandatoryExamFilter(null)
-    setSortBy('reviews')
-  }
-
-  const activeFilterCount =
-    (selectedTerm ? 1 : 0) +
-    (selectedCourseGroupId ? 1 : 0) +
-    (mandatoryExamFilter !== null ? 1 : 0)
-
   return (
     <BrowsePageLayout
       title={degree.name}
@@ -221,19 +208,15 @@ export function DegreePageContent({
           )}
           {examTypeOptions.length > 0 && (
             <FilterChip
-              label="Exam Type"
+              label="Exam"
               options={examTypeOptions}
               selectedValue={mandatoryExamFilter?.toString() ?? null}
               onValueChange={(value) =>
                 setMandatoryExamFilter(value === null ? null : value === 'true')
               }
-              placeholder="All"
+              placeholder="Exam: Any"
             />
           )}
-          <ClearFiltersChip
-            onClick={handleClearFilters}
-            visible={activeFilterCount > 0}
-          />
         </div>
       }
       actions={
