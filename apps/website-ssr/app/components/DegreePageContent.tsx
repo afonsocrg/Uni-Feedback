@@ -192,6 +192,14 @@ export function DegreePageContent({
       filterChips={
         <div className="flex flex-wrap gap-2 items-center">
           <FilterChip
+            label="Sort By"
+            options={sortOptions}
+            selectedValue={sortBy}
+            onValueChange={(value) => setSortBy(value as SortOption)}
+            placeholder="Most Reviews"
+            variant="sort"
+          />
+          <FilterChip
             label="Term"
             options={termOptions}
             selectedValue={selectedTerm}
@@ -216,16 +224,9 @@ export function DegreePageContent({
             }
             placeholder="All"
           />
-          <FilterChip
-            label="Sort By"
-            options={sortOptions}
-            selectedValue={sortBy}
-            onValueChange={(value) => setSortBy(value as SortOption)}
-            placeholder="Most Reviews"
-          />
           <ClearFiltersChip
             onClick={handleClearFilters}
-            visible={activeFilterCount > 0 || sortBy !== 'reviews'}
+            visible={activeFilterCount > 0}
           />
         </div>
       }
