@@ -76,22 +76,24 @@ export function FacultyPageContent({
         />
       }
       filterChips={
-        <div className="flex flex-wrap gap-2 items-center">
-          <FilterChip
-            label="Degree Type"
-            options={availableTypes.map((type) => ({
-              value: type,
-              label: type
-            }))}
-            selectedValue={selectedType}
-            onValueChange={setSelectedType}
-            placeholder="All Types"
-          />
-          <ClearFiltersChip
-            onClick={handleClearFilters}
-            visible={activeFilterCount > 0}
-          />
-        </div>
+        availableTypes.length > 0 ? (
+          <div className="flex flex-wrap gap-2 items-center">
+            <FilterChip
+              label="Degree Type"
+              options={availableTypes.map((type) => ({
+                value: type,
+                label: type
+              }))}
+              selectedValue={selectedType}
+              onValueChange={setSelectedType}
+              placeholder="All Types"
+            />
+            <ClearFiltersChip
+              onClick={handleClearFilters}
+              visible={activeFilterCount > 0}
+            />
+          </div>
+        ) : undefined
       }
       actions={
         <WarningAlert

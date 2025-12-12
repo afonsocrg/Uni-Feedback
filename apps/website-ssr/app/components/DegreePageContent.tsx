@@ -199,31 +199,37 @@ export function DegreePageContent({
             placeholder="Most Reviews"
             variant="sort"
           />
-          <FilterChip
-            label="Term"
-            options={termOptions}
-            selectedValue={selectedTerm}
-            onValueChange={setSelectedTerm}
-            placeholder="All Terms"
-          />
-          <FilterChip
-            label="Course Group"
-            options={courseGroupOptions}
-            selectedValue={selectedCourseGroupId?.toString() ?? null}
-            onValueChange={(value) =>
-              setSelectedCourseGroupId(value ? Number(value) : null)
-            }
-            placeholder="All Groups"
-          />
-          <FilterChip
-            label="Exam Type"
-            options={examTypeOptions}
-            selectedValue={mandatoryExamFilter?.toString() ?? null}
-            onValueChange={(value) =>
-              setMandatoryExamFilter(value === null ? null : value === 'true')
-            }
-            placeholder="All"
-          />
+          {termOptions.length > 0 && (
+            <FilterChip
+              label="Term"
+              options={termOptions}
+              selectedValue={selectedTerm}
+              onValueChange={setSelectedTerm}
+              placeholder="All Terms"
+            />
+          )}
+          {courseGroupOptions.length > 0 && (
+            <FilterChip
+              label="Course Group"
+              options={courseGroupOptions}
+              selectedValue={selectedCourseGroupId?.toString() ?? null}
+              onValueChange={(value) =>
+                setSelectedCourseGroupId(value ? Number(value) : null)
+              }
+              placeholder="All Groups"
+            />
+          )}
+          {examTypeOptions.length > 0 && (
+            <FilterChip
+              label="Exam Type"
+              options={examTypeOptions}
+              selectedValue={mandatoryExamFilter?.toString() ?? null}
+              onValueChange={(value) =>
+                setMandatoryExamFilter(value === null ? null : value === 'true')
+              }
+              placeholder="All"
+            />
+          )}
           <ClearFiltersChip
             onClick={handleClearFilters}
             visible={activeFilterCount > 0}
