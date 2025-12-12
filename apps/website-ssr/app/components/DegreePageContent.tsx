@@ -7,10 +7,9 @@ import type {
 import { Button, WarningAlert } from '@uni-feedback/ui'
 import { useMemo, useState } from 'react'
 import { BrowsePageLayout, CourseCard } from '.'
-import { FilterButton } from './common/FilterButton'
-import { FilterDrawer } from './common/FilterDrawer'
+import { ClearFiltersChip } from './common/ClearFiltersChip'
+import { FilterChip } from './common/FilterChip'
 import { SearchInput } from './common/SearchInput'
-import { CourseFilters } from './filters/CourseFilters'
 import { useLocalStorage } from '~/hooks'
 import { insensitiveMatch, STORAGE_KEYS } from '~/utils'
 
@@ -43,7 +42,6 @@ export function DegreePageContent({
   courseGroups
 }: DegreePageContentProps) {
   const [searchQuery, setSearchQuery] = useState('')
-  const [isFilterOpen, setIsFilterOpen] = useState(false)
 
   const [selectedTerm, setSelectedTerm] = useLocalStorage<string | null>(
     STORAGE_KEYS.FILTER_TERM,
@@ -73,6 +71,29 @@ export function DegreePageContent({
     })
     return Array.from(terms).sort()
   }, [courses])
+
+  // Filter options
+  const termOptions = availableTerms.map((term) => ({
+    value: term,
+    label: term
+  }))
+
+  const courseGroupOptions = courseGroups.map((group) => ({
+    value: group.id.toString(),
+    label: group.name
+  }))
+
+  const examTypeOptions = [
+    { value: 'true', label: 'Has Mandatory Exam' },
+    { value: 'false', label: 'No Mandatory Exam' }
+  ]
+
+  const sortOptions = [
+    { value: 'rating', label: 'Highest Rating' },
+    { value: 'alphabetical', label: 'Alphabetical' },
+    { value: 'reviews', label: 'Most Reviews' },
+    { value: 'workload', label: 'Workload Rating' }
+  ]
 
   // Filtered courses based on search and filters
   const filteredCourses = useMemo(() => {
@@ -145,11 +166,10 @@ export function DegreePageContent({
   }
 
   const handleClearFilters = () => {
-    setSearchQuery('')
     setSelectedTerm(null)
     setSelectedCourseGroupId(null)
     setMandatoryExamFilter(null)
-    setSortBy('rating')
+    setSortBy('reviews')
   }
 
   const activeFilterCount =
@@ -169,11 +189,45 @@ export function DegreePageContent({
           placeholder="Search by name or acronym..."
         />
       }
-      filterButton={
-        <FilterButton
-          onClick={() => setIsFilterOpen(true)}
-          activeCount={activeFilterCount}
-        />
+      filterChips={
+        <div className="flex flex-wrap gap-2 items-center">
+          <FilterChip
+            label="Term"
+            options={termOptions}
+            selectedValue={selectedTerm}
+            onValueChange={setSelectedTerm}
+            placeholder="All Terms"
+          />
+          <FilterChip
+            label="Course Group"
+            options={courseGroupOptions}
+            selectedValue={selectedCourseGroupId?.toString() ?? null}
+            onValueChange={(value) =>
+              setSelectedCourseGroupId(value ? Number(value) : null)
+            }
+            placeholder="All Groups"
+          />
+          <FilterChip
+            label="Exam Type"
+            options={examTypeOptions}
+            selectedValue={mandatoryExamFilter?.toString() ?? null}
+            onValueChange={(value) =>
+              setMandatoryExamFilter(value === null ? null : value === 'true')
+            }
+            placeholder="All"
+          />
+          <FilterChip
+            label="Sort By"
+            options={sortOptions}
+            selectedValue={sortBy}
+            onValueChange={(value) => setSortBy(value as SortOption)}
+            placeholder="Most Reviews"
+          />
+          <ClearFiltersChip
+            onClick={handleClearFilters}
+            visible={activeFilterCount > 0 || sortBy !== 'reviews'}
+          />
+        </div>
       }
       actions={
         <WarningAlert
@@ -224,26 +278,6 @@ export function DegreePageContent({
           ))}
         </div>
       )}
-
-      <FilterDrawer
-        open={isFilterOpen}
-        onClose={() => setIsFilterOpen(false)}
-        title="Filter Courses"
-        onClearFilters={handleClearFilters}
-      >
-        <CourseFilters
-          availableTerms={availableTerms}
-          selectedTerm={selectedTerm}
-          onTermChange={setSelectedTerm}
-          courseGroups={courseGroups}
-          selectedCourseGroupId={selectedCourseGroupId}
-          onCourseGroupChange={setSelectedCourseGroupId}
-          mandatoryExamFilter={mandatoryExamFilter}
-          onMandatoryExamChange={setMandatoryExamFilter}
-          sortBy={sortBy}
-          onSortByChange={setSortBy}
-        />
-      </FilterDrawer>
     </BrowsePageLayout>
   )
 }

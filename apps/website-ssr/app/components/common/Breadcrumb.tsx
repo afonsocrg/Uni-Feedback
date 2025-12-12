@@ -33,7 +33,9 @@ export function Breadcrumb({
   }
 
   return (
-    <nav className={`flex items-center space-x-1 text-xs text-gray-500 ${className}`}>
+    <nav
+      className={`flex items-center space-x-1 text-xs text-gray-500 ${className}`}
+    >
       <BreadcrumbItem href="/browse" onClick={handleHomeClick}>
         <Home className="h-3 w-3 mr-1" />
         Select Uni

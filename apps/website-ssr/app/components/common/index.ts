@@ -1,4 +1,6 @@
 export * from './Breadcrumb'
 export * from './BreadcrumbItem'
+export * from './ClearFiltersChip'
 export * from './CopyButton'
+export * from './FilterChip'
 export * from './Tooltip'

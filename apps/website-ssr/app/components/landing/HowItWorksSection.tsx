@@ -33,9 +33,7 @@ export function HowItWorksSection() {
               <div className="mx-auto size-16 rounded-full bg-primary/10 flex items-center justify-center">
                 <PenSquare className="size-8 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold">
-                Enroll With Confidence
-              </h3>
+              <h3 className="text-xl font-semibold">Enroll With Confidence</h3>
               <p className="text-muted-foreground text-sm">
                 Use what you learned to choose the right courses for you.
               </p>

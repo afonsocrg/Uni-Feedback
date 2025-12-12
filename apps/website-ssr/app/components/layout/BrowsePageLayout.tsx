@@ -8,7 +8,7 @@ interface BrowsePageLayoutProps {
   faculty?: Faculty
   degree?: Degree
   searchBar?: ReactNode
-  filterButton?: ReactNode
+  filterChips?: ReactNode
   actions?: ReactNode
   children: ReactNode
 }
@@ -19,7 +19,7 @@ export function BrowsePageLayout({
   faculty,
   degree,
   searchBar,
-  filterButton,
+  filterChips,
   actions,
   children
 }: BrowsePageLayoutProps) {
@@ -41,15 +41,11 @@ export function BrowsePageLayout({
               </h1>
             </div>
 
-            {/* Search & Filter Bar */}
-            {(searchBar || filterButton) && (
-              <div className="mb-8">
-                <div className="flex gap-4">
-                  {searchBar}
-                  {filterButton}
-                </div>
-              </div>
-            )}
+            {/* Search Bar */}
+            {searchBar && <div className="mb-4">{searchBar}</div>}
+
+            {/* Filter Chips */}
+            {filterChips && <div className="mb-6">{filterChips}</div>}
 
             {/* Main Content Grid */}
             {children}

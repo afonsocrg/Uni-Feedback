@@ -2,10 +2,9 @@ import type { Degree, Faculty } from '@uni-feedback/db/schema'
 import { Button, WarningAlert } from '@uni-feedback/ui'
 import { useMemo, useState } from 'react'
 import { BrowsePageLayout, DegreeCard } from '.'
-import { FilterButton } from './common/FilterButton'
-import { FilterDrawer } from './common/FilterDrawer'
+import { ClearFiltersChip } from './common/ClearFiltersChip'
+import { FilterChip } from './common/FilterChip'
 import { SearchInput } from './common/SearchInput'
-import { DegreeFilters } from './filters/DegreeFilters'
 
 interface DegreeWithCounts extends Degree {
   courseCount: number
@@ -30,7 +29,6 @@ export function FacultyPageContent({
 }: FacultyPageContentProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedType, setSelectedType] = useState<string | null>(null)
-  const [isFilterOpen, setIsFilterOpen] = useState(false)
 
   const availableTypes = useMemo(() => {
     return [...new Set(degrees?.map((degree) => degree.type))].sort()
@@ -40,7 +38,10 @@ export function FacultyPageContent({
     return (
       degrees
         ?.filter((degree) => {
-          return insensitiveMatch(`${degree.name} ${degree.acronym}`, searchQuery)
+          return insensitiveMatch(
+            `${degree.name} ${degree.acronym}`,
+            searchQuery
+          )
         })
         .filter((degree) => {
           if (selectedType === null) return true
@@ -74,11 +75,23 @@ export function FacultyPageContent({
           placeholder="Search degrees..."
         />
       }
-      filterButton={
-        <FilterButton
-          onClick={() => setIsFilterOpen(true)}
-          activeCount={activeFilterCount}
-        />
+      filterChips={
+        <div className="flex flex-wrap gap-2 items-center">
+          <FilterChip
+            label="Degree Type"
+            options={availableTypes.map((type) => ({
+              value: type,
+              label: type
+            }))}
+            selectedValue={selectedType}
+            onValueChange={setSelectedType}
+            placeholder="All Types"
+          />
+          <ClearFiltersChip
+            onClick={handleClearFilters}
+            visible={activeFilterCount > 0}
+          />
+        </div>
       }
       actions={
         <WarningAlert
@@ -123,19 +136,6 @@ export function FacultyPageContent({
           ))}
         </div>
       )}
-
-      <FilterDrawer
-        open={isFilterOpen}
-        onClose={() => setIsFilterOpen(false)}
-        title="Filter Degrees"
-        onClearFilters={handleClearFilters}
-      >
-        <DegreeFilters
-          availableTypes={availableTypes}
-          selectedType={selectedType}
-          onTypeChange={setSelectedType}
-        />
-      </FilterDrawer>
     </BrowsePageLayout>
   )
 }
