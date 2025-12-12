@@ -31,12 +31,12 @@ export function BrowsePageLayout({
       </div>
 
       {/* Main Content Section */}
-      <section className="py-8 md:py-12">
+      <section className="py-4 md:py-6">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
             {/* Title */}
-            <div className="text-center mb-6">
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+            <div className="text-center mb-3">
+              <h1 className="text-base md:text-lg font-normal text-gray-500">
                 {title}
               </h1>
             </div>
