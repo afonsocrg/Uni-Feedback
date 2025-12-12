@@ -9,7 +9,7 @@ import { getAssetUrl } from '~/utils'
 
 interface SelectionCardProps {
   title: string
-  subtitle?: string
+  subtitle?: string | React.ReactNode
   description?: string
   onClick?: () => void
   href?: string

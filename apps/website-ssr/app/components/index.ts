@@ -1,6 +1,7 @@
 export * from './ActionButton'
 export * from './common'
 export * from './course'
+export * from './degree'
 export * from './DegreePageContent'
 export * from './ErrorPanel'
 export * from './FacultyPageContent'

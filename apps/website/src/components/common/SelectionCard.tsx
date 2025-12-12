@@ -9,7 +9,7 @@ import { ReactNode } from 'react'
 
 interface SelectionCardProps {
   title: string
-  subtitle?: string
+  subtitle?: string | ReactNode
   description?: string
   onClick: () => void
   className?: string
