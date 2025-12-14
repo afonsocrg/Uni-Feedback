@@ -5,6 +5,7 @@ import type {
   Faculty
 } from '@uni-feedback/db/schema'
 import { Button, WarningAlert } from '@uni-feedback/ui'
+import { toOrdinal } from '@uni-feedback/utils'
 import { useMemo, useState } from 'react'
 import { useLocalStorage } from '~/hooks'
 import { insensitiveMatch, STORAGE_KEYS } from '~/utils'
@@ -42,6 +43,9 @@ export function DegreePageContent({
 }: DegreePageContentProps) {
   const [searchQuery, setSearchQuery] = useState('')
 
+  const [selectedCurriculumYear, setSelectedCurriculumYear] = useLocalStorage<
+    number | null
+  >(STORAGE_KEYS.FILTER_CURRICULUM_YEAR, null)
   const [selectedTerm, setSelectedTerm] = useLocalStorage<string | null>(
     STORAGE_KEYS.FILTER_TERM,
     null
@@ -56,6 +60,20 @@ export function DegreePageContent({
     STORAGE_KEYS.FILTER_SORT_BY,
     'reviews'
   )
+
+  // Available curriculum years for filtering
+  const availableCurriculumYears = useMemo(() => {
+    const years = new Set<number>()
+    courses.forEach((course) => {
+      if (
+        course.curriculumYear !== null &&
+        course.curriculumYear !== undefined
+      ) {
+        years.add(course.curriculumYear)
+      }
+    })
+    return Array.from(years).sort((a, b) => a - b)
+  }, [courses])
 
   // Available terms for filtering
   const availableTerms = useMemo(() => {
@@ -77,6 +95,11 @@ export function DegreePageContent({
   }, [courses])
 
   // Filter options
+  const curriculumYearOptions = availableCurriculumYears.map((year) => ({
+    value: year.toString(),
+    label: `${toOrdinal(year)} year`
+  }))
+
   const termOptions = availableTerms.map((term) => ({
     value: term,
     label: term
@@ -108,6 +131,10 @@ export function DegreePageContent({
           searchQuery
         )
 
+        const matchesCurriculumYear =
+          selectedCurriculumYear === null ||
+          course.curriculumYear === selectedCurriculumYear
+
         const matchesTerm =
           !selectedTerm ||
           (Array.isArray(course.terms)
@@ -131,6 +158,7 @@ export function DegreePageContent({
 
         return (
           matchesSearch &&
+          matchesCurriculumYear &&
           matchesTerm &&
           matchesCourseGroup &&
           matchesMandatoryExam
@@ -158,6 +186,7 @@ export function DegreePageContent({
   }, [
     courses,
     searchQuery,
+    selectedCurriculumYear,
     selectedTerm,
     selectedCourseGroupId,
     sortBy,
@@ -191,6 +220,17 @@ export function DegreePageContent({
             placeholder="Most Reviews"
             variant="sort"
           />
+          {curriculumYearOptions.length > 0 && (
+            <FilterChip
+              label="Year"
+              options={curriculumYearOptions}
+              selectedValue={selectedCurriculumYear?.toString() ?? null}
+              onValueChange={(value) =>
+                setSelectedCurriculumYear(value ? Number(value) : null)
+              }
+              placeholder="All Years"
+            />
+          )}
           {termOptions.length > 0 && (
             <FilterChip
               label="Term"

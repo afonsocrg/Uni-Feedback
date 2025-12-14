@@ -57,6 +57,7 @@ export async function loader({ params }: Route.LoaderArgs) {
       url: schema.courses.url,
       terms: schema.courses.terms,
       hasMandatoryExam: schema.courses.hasMandatoryExam,
+      curriculumYear: schema.courses.curriculumYear,
       averageRating:
         sql<number>`coalesce(avg(${schema.feedback.rating})::numeric, 0)`.as(
           'average_rating'

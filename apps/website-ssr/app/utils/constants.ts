@@ -5,6 +5,7 @@ export const ADD_COURSE_FORM_URL =
 export const STORAGE_KEYS = {
   SELECTED_FACULTY_ID: 'selectedFacultyId',
   SELECTED_DEGREE_ID: 'selectedDegreeId',
+  FILTER_CURRICULUM_YEAR: 'selectedCurriculumYear',
   FILTER_TERM: 'selectedTerm',
   FILTER_COURSE_GROUP_ID: 'selectedCourseGroupId',
   FILTER_HAS_MANDATORY_EXAM: 'selectedHasMandatoryExam',
