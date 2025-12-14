@@ -5,6 +5,7 @@ import {
   StarRating,
   WorkloadRatingDisplay
 } from '@uni-feedback/ui'
+import { getRelativeTime } from '@uni-feedback/utils'
 import { motion } from 'framer-motion'
 import { GraduationCap } from 'lucide-react'
 import { useState } from 'react'
@@ -28,6 +29,7 @@ export function FeedbackItem({ feedback, variants }: FeedbackItemProps) {
   const characterLimit = 600
   const isLongComment =
     feedback.comment && feedback.comment.length > characterLimit
+  const relativeTime = getRelativeTime(feedback.createdAt)
 
   return (
     <motion.div
@@ -56,6 +58,7 @@ export function FeedbackItem({ feedback, variants }: FeedbackItemProps) {
               </Tooltip>
             )}
           </div>
+          <div className="text-xs text-gray-400">{relativeTime}</div>
         </div>
       </div>
 
