@@ -11,6 +11,21 @@ interface Testimonial {
 
 const TESTIMONIALS: Testimonial[] = [
   {
+    testimonial:
+      'Gostava de ter tido uma ferramenta como o Uni Feedback quando escolhi as minhas cadeiras. Saber a opinião de outros alunos sobre professores, projetos e dificuldade faz toda a diferença na preparação do ano.',
+    name: 'Martim P.',
+    course: 'Materials Eng., 5th Year',
+    avatarUrl: getAssetUrl('testimonials/martim_parreirao.png') || undefined,
+    url: 'https://www.linkedin.com/in/martim-parreirao/'
+  },
+  {
+    testimonial:
+      'Já não preciso de ser crente na altura de escolher as cadeiras! Chega de rezar para que o professor seja bom ou que não tenha muita carga horária. Graças a outros que já a experienciaram, agora consigo saber no que me estou a meter.',
+    name: 'João D.',
+    course: 'Electrical and Computers Engineering, 5th Year',
+    avatarUrl: getAssetUrl('testimonials/joao_duarte.png') || undefined
+  },
+  {
     testimonial: `O Fénix é uma floresta de termos técnicos e promessas de matéria interessante, que metade das vezes não reflete a experiência real dos alunos a tirar as cadeiras.
 
 O Uni Feedback fornece algo que não conseguimos encontrar em mais nenhum lado, uma coleção organizada das opiniões diretas dos alunos que tiveram a cadeira e de informação relevante do fénix, tudo num só conveniente site!`,
@@ -21,33 +36,11 @@ O Uni Feedback fornece algo que não conseguimos encontrar em mais nenhum lado, 
   },
   {
     testimonial:
-      'Gostava de ter tido uma ferramenta como o Uni Feedback quando escolhi as minhas cadeiras. Saber a opinião de outros alunos sobre professores, projetos e dificuldade faz toda a diferença na preparação do ano.',
-    name: 'Martim P.',
-    course: 'Materials Eng., 5th Year',
-    avatarUrl: getAssetUrl('testimonials/martim_parreirao.png') || undefined,
-    url: 'https://www.linkedin.com/in/martim-parreirao/'
-  },
-  {
-    testimonial:
       'Escolher cursos no primeiro semestre foi um verdadeiro caos. Não consegui entrar nos cursos que queria e acabei em cadeiras sobre as quais sabia quase nada para além do syllabus. O melhor que tínhamos era um Excel desorganizado a ser partilhado por grupos de WhatsApp. Com o Uni Feedback, finalmente podemos escolher os cursos sabendo ao que vamos e tomar decisões muito mais informadas.',
     name: 'Francisco P.',
     course: 'Management, 5th Year',
     avatarUrl: getAssetUrl('testimonials/francisco_palare.png') || undefined,
     url: 'https://www.linkedin.com/in/franciscofrancopalar%C3%A9/'
-  },
-  // {
-  //   testimonial:
-  //     'Uni Feedback helps students pick the courses that will actually be useful in real life',
-  //   name: 'Emma P.',
-  //   course: 'Civil Eng., 4th Year',
-  //   avatarUrl: 'https://randomuser.me/api/portraits/women/67.jpg'
-  // },
-  {
-    testimonial:
-      'Já não preciso de ser crente na altura de escolher as cadeiras! Chega de rezar para que o professor seja bom ou que não tenha muita carga horária. Graças a outros que já a experienciaram, agora consigo saber no que me estou a meter.',
-    name: 'João D.',
-    course: 'Electrical and Computers Engineering, 5th Year',
-    avatarUrl: getAssetUrl('testimonials/joao_duarte.png') || undefined
   }
 ]
 
