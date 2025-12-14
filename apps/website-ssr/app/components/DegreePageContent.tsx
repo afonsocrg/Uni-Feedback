@@ -71,6 +71,11 @@ export function DegreePageContent({
     return Array.from(terms).sort()
   }, [courses])
 
+  // Check if any course has exam information
+  const hasExamFilterOptions = useMemo(() => {
+    return courses.some((course) => course.hasMandatoryExam !== null)
+  }, [courses])
+
   // Filter options
   const termOptions = availableTerms.map((term) => ({
     value: term,
@@ -206,7 +211,7 @@ export function DegreePageContent({
               placeholder="All Groups"
             />
           )}
-          {examTypeOptions.length > 0 && (
+          {hasExamFilterOptions && (
             <FilterChip
               label="Exam"
               options={examTypeOptions}
