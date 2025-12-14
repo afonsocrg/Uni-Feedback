@@ -1,6 +1,8 @@
 import { database } from '@uni-feedback/db'
 import { Button, WarningAlert } from '@uni-feedback/ui'
+import { useEffect } from 'react'
 import { BrowsePageLayout, FacultySelector } from '../components'
+import { userPreferences } from '../utils/userPreferences'
 
 import type { Route } from './+types/browse'
 
@@ -29,6 +31,13 @@ export async function loader() {
 }
 
 export default function BrowsePage({ loaderData }: Route.ComponentProps) {
+  // Persist selection when component mounts
+  useEffect(() => {
+    userPreferences.set({
+      lastVisitedPath: '/browse'
+    })
+  }, [])
+
   return (
     <BrowsePageLayout
       title="Select Your University"

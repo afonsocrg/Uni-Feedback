@@ -134,3 +134,4 @@ cp apps/website-ssr/.env.example apps/website-ssr/.env
 - **NEVER** include author information in commit messages
 - **ALWAYS** run `bun run format` before committing
 - Use conventional commit format when possible
+- Do not use bun. Use pnpm

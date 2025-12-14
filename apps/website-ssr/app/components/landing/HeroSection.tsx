@@ -195,9 +195,11 @@ export function HeroSection({
               </div>
 
               <div className="text-center mt-8">
-                <Button size="lg" variant="outline">
-                  View More Feedback
-                  <ArrowRight className="size-5" />
+                <Button size="lg" variant="outline" asChild>
+                  <a href={browseLink}>
+                    View More Feedback
+                    <ArrowRight className="size-5" />
+                  </a>
                 </Button>
               </div>
             </div>

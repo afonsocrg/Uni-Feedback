@@ -1,4 +1,5 @@
 import type { Faculty } from '@uni-feedback/db/schema'
+import { userPreferences } from '~/utils/userPreferences'
 import { SelectionCard } from '.'
 
 interface FacultySelectorProps {
@@ -7,7 +8,15 @@ interface FacultySelectorProps {
 
 export function FacultySelector({ faculties }: FacultySelectorProps) {
   const getFacultyUrl = (faculty: Faculty) => {
-    return `/${faculty.slug || faculty.shortName}`
+    return `/${faculty.slug}`
+  }
+
+  const handleFacultyClick = (faculty: Faculty) => {
+    // Save to localStorage immediately when user clicks
+    userPreferences.set({
+      lastSelectedFacultySlug: faculty.slug,
+      lastVisitedPath: `/${faculty.slug}`
+    })
   }
 
   if (!faculties || faculties.length === 0) {
@@ -26,6 +35,7 @@ export function FacultySelector({ faculties }: FacultySelectorProps) {
           title={faculty.shortName}
           subtitle={faculty.name}
           href={getFacultyUrl(faculty)}
+          onClick={() => handleFacultyClick(faculty)}
           logo={faculty.logo ?? undefined}
         />
       ))}

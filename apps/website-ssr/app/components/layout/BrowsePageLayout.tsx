@@ -42,10 +42,10 @@ export function BrowsePageLayout({
             </div>
 
             {/* Search Bar */}
-            {searchBar && <div className="mb-4">{searchBar}</div>}
+            {searchBar && <div className="mb-2">{searchBar}</div>}
 
             {/* Filter Chips */}
-            {filterChips && <div className="mb-6">{filterChips}</div>}
+            {filterChips && <div className="mb-4">{filterChips}</div>}
 
             {/* Main Content Grid */}
             {children}

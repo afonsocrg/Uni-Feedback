@@ -1,7 +1,11 @@
 import { Button } from '@uni-feedback/ui'
-import { Book, Pen } from 'lucide-react'
+import { Book } from 'lucide-react'
+import { useLastVisitedPath } from '~/hooks/useLastVisitedPath'
 
 export function CTASection() {
+  const lastVisitedPath = useLastVisitedPath()
+  const browseLink = lastVisitedPath !== '/' ? lastVisitedPath : '/browse'
+
   return (
     <section className="py-16 md:py-24 bg-primary text-primary-foreground">
       <div className="container mx-auto px-4">
@@ -18,17 +22,12 @@ export function CTASection() {
               size="lg"
               variant="secondary"
               className="text-lg px-8 shadow-xl"
+              asChild
             >
-              <Book className="size-5" />
-              Browse Courses
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="text-lg px-8 bg-transparent border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10"
-            >
-              <Pen className="size-5" />
-              Give Feedback
+              <a href={browseLink}>
+                <Book className="size-5" />
+                Browse Courses
+              </a>
             </Button>
           </div>
         </div>

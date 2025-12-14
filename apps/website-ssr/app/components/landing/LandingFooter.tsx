@@ -1,5 +1,6 @@
 import { Separator } from '@uni-feedback/ui'
 import { GraduationCap } from 'lucide-react'
+import { useLastVisitedPath } from '~/hooks/useLastVisitedPath'
 import { FooterLink } from './FooterLink'
 
 interface FooterLinkItem {
@@ -12,38 +13,42 @@ interface FooterLinkGroup {
   links: FooterLinkItem[]
 }
 
-const FOOTER_LINK_GROUPS: FooterLinkGroup[] = [
-  {
-    title: 'Platform',
-    links: [
-      { href: '/browse', label: 'Browse Courses' },
-      { href: '/feedback/new', label: 'Give Feedback' },
-      {
-        href: 'https://github.com/afonsocrg/uni-feedback',
-        label: 'Open Source'
-      }
-      // { href: '#', label: 'Partners' }
-    ]
-  },
-  {
-    title: 'Resources',
-    links: [
-      { href: '/#how-it-works', label: 'How It Works' },
-      { href: '#', label: 'FAQ' },
-      { href: '#', label: 'Get in Touch' },
-      { href: '#', label: 'Sponsors' }
-    ]
-  },
-  {
-    title: 'Legal',
-    links: [
-      { href: '/terms', label: 'Terms and Conditions' },
-      { href: '/privacy', label: 'Privacy Policy' }
-    ]
-  }
-]
-
 export function LandingFooter() {
+  const lastVisitedPath = useLastVisitedPath()
+  const browseLink = lastVisitedPath !== '/' ? lastVisitedPath : '/browse'
+
+  const FOOTER_LINK_GROUPS: FooterLinkGroup[] = [
+    {
+      title: 'Platform',
+      links: [
+        { href: browseLink, label: 'Browse Courses' },
+        { href: '/feedback/new', label: 'Give Feedback' },
+        {
+          href: 'https://github.com/afonsocrg/uni-feedback',
+          label: 'Open Source'
+        }
+        // { href: '#', label: 'Partners' }
+      ]
+    },
+    {
+      title: 'Resources',
+      links: [
+        { href: '/#how-it-works', label: 'How It Works' },
+        { href: '/#testimonials', label: 'Testimonials' },
+        { href: '/#faq', label: 'FAQ' }
+        // { href: '#', label: 'Get in Touch' },
+        // { href: '#', label: 'Sponsors' }
+      ]
+    },
+    {
+      title: 'Legal',
+      links: [
+        { href: '/terms', label: 'Terms and Conditions' },
+        { href: '/privacy', label: 'Privacy Policy' }
+      ]
+    }
+  ]
+
   return (
     <footer className="bg-muted/30 border-t border-border py-12">
       <div className="container mx-auto px-4">

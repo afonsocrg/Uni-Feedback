@@ -1,6 +1,7 @@
 import type { Degree, Faculty } from '@uni-feedback/db/schema'
 import { Button, WarningAlert } from '@uni-feedback/ui'
 import { useMemo, useState } from 'react'
+import { userPreferences } from '~/utils/userPreferences'
 import { BrowsePageLayout, DegreeCard } from '.'
 import { FilterChip } from './common/FilterChip'
 import { SearchInput } from './common/SearchInput'
@@ -55,6 +56,15 @@ export function FacultyPageContent({
       throw new Error('Degree slug is missing ' + JSON.stringify(degree))
     }
     return `/${faculty.slug}/${degree.slug}`
+  }
+
+  const handleDegreeClick = (degree: Degree) => {
+    // Save to localStorage immediately when user clicks
+    userPreferences.set({
+      lastSelectedFacultySlug: faculty.slug,
+      lastSelectedDegreeSlug: degree.slug,
+      lastVisitedPath: `/${faculty.slug}/${degree.slug}`
+    })
   }
 
   return (
@@ -123,6 +133,7 @@ export function FacultyPageContent({
               key={degree.id}
               degree={degree}
               href={getDegreeUrl(degree)}
+              onClick={() => handleDegreeClick(degree)}
             />
           ))}
         </div>
