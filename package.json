@@ -9,7 +9,6 @@
   "scripts": {
     "build": "turbo build",
     "build:dashboard": "turbo build --filter=@uni-feedback/dashboard",
-    "build:website": "turbo build --filter=@uni-feedback/website",
     "build:website-ssr": "turbo build --filter=@uni-feedback/website-ssr",
     "dev": "pnpm run dev:all",
     "dev:all": "turbo dev:api dev:website dev:website-ssr dev:dashboard @uni-feedback/ui#dev db --parallel --ui=tui",

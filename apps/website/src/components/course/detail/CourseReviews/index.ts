@@ -1,7 +1,0 @@
-export * from './AskForFeedback'
-export * from './CourseReview'
-export * from './CourseReviewContentEmpty'
-export * from './CourseReviews'
-export * from './CourseReviewsContent'
-export * from './SchoolYearSection'
-export * from './SchoolYearSectionSkeleton'

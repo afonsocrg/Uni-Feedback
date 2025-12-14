@@ -1,7 +1,0 @@
-export * from './CourseAssessment'
-export * from './CourseBibliography'
-export * from './CourseDescription'
-export * from './CourseDetailSkeleton'
-export * from './CourseHeader'
-export * from './CourseInfoCard'
-export * from './CourseReviews'
