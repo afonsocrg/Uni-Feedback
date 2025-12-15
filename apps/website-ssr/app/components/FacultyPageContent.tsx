@@ -1,6 +1,6 @@
 import type { Degree, Faculty } from '@uni-feedback/db/schema'
 import { Button, WarningAlert } from '@uni-feedback/ui'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { userPreferences } from '~/utils/userPreferences'
 import { BrowsePageLayout, DegreeCard } from '.'
 import { FilterChip } from './common/FilterChip'
@@ -29,6 +29,38 @@ export function FacultyPageContent({
 }: FacultyPageContentProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedType, setSelectedType] = useState<string | null>(null)
+
+  // Read from localStorage after hydration (only if same faculty)
+  useEffect(() => {
+    try {
+      const storedFaculty = localStorage.getItem('degree-filter-faculty')
+      // Only load filter if it's for the current faculty
+      if (storedFaculty === faculty.slug) {
+        const stored = localStorage.getItem('degree-type-filter')
+        if (stored) {
+          setSelectedType(JSON.parse(stored))
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to read degree type filter from localStorage:', error)
+    }
+  }, [faculty.slug])
+
+  // Wrapper that persists to localStorage when filter changes
+  const handleTypeChange = (newType: string | null) => {
+    setSelectedType(newType)
+
+    try {
+      if (newType === null) {
+        localStorage.removeItem('degree-type-filter')
+      } else {
+        localStorage.setItem('degree-type-filter', JSON.stringify(newType))
+        localStorage.setItem('degree-filter-faculty', faculty.slug)
+      }
+    } catch (error) {
+      console.warn('Failed to persist degree type filter:', error)
+    }
+  }
 
   const availableTypes = useMemo(() => {
     return [...new Set(degrees?.map((degree) => degree.type))].sort()
@@ -88,7 +120,7 @@ export function FacultyPageContent({
                 label: type
               }))}
               selectedValue={selectedType}
-              onValueChange={setSelectedType}
+              onValueChange={handleTypeChange}
               placeholder="All Degree Types"
             />
           </div>
