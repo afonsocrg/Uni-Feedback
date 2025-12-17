@@ -7,7 +7,7 @@ const COPY = {
     {
       title: 'Verified Feedback',
       description:
-        'We manually review and approve every feedback submitted to ensure it comes from a student who actually took the course. This guarantees the information you read is real.'
+        'We manually review and approve every feedback to ensure it comes from a student who actually took the course.'
     },
     {
       title: '100% Anonymous',
