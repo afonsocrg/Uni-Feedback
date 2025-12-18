@@ -6,9 +6,9 @@ import type {
 } from '@uni-feedback/db/schema'
 import { Button, WarningAlert } from '@uni-feedback/ui'
 import { toOrdinal } from '@uni-feedback/utils'
-import { useMemo, useState } from 'react'
-import { useLocalStorage } from '~/hooks'
-import { insensitiveMatch, STORAGE_KEYS } from '~/utils'
+import { useEffect, useMemo, useState } from 'react'
+import { loadCourseFilters, saveCourseFilters } from '~/utils/filterStorage'
+import { insensitiveMatch } from '~/utils'
 import { BrowsePageLayout, CourseCard } from '.'
 import { FilterChip } from './common/FilterChip'
 import { SearchInput } from './common/SearchInput'
@@ -42,24 +42,52 @@ export function DegreePageContent({
   courseGroups
 }: DegreePageContentProps) {
   const [searchQuery, setSearchQuery] = useState('')
-
-  const [selectedCurriculumYear, setSelectedCurriculumYear] = useLocalStorage<
+  const [selectedCurriculumYear, setSelectedCurriculumYear] = useState<
     number | null
-  >(STORAGE_KEYS.FILTER_CURRICULUM_YEAR, null)
-  const [selectedTerm, setSelectedTerm] = useLocalStorage<string | null>(
-    STORAGE_KEYS.FILTER_TERM,
-    null
-  )
-  const [selectedCourseGroupId, setSelectedCourseGroupId] = useLocalStorage<
+  >(null)
+  const [selectedTerm, setSelectedTerm] = useState<string | null>(null)
+  const [selectedCourseGroupId, setSelectedCourseGroupId] = useState<
     number | null
-  >(STORAGE_KEYS.FILTER_COURSE_GROUP_ID, null)
-  const [mandatoryExamFilter, setMandatoryExamFilter] = useLocalStorage<
+  >(null)
+  const [mandatoryExamFilter, setMandatoryExamFilter] = useState<
     boolean | null
-  >(STORAGE_KEYS.FILTER_HAS_MANDATORY_EXAM, null)
-  const [sortBy, setSortBy] = useLocalStorage<SortOption>(
-    STORAGE_KEYS.FILTER_SORT_BY,
-    'reviews'
-  )
+  >(null)
+  const [sortBy, setSortBy] = useState<SortOption>('reviews')
+
+  // Load filters from localStorage on mount (only if faculty and degree match)
+  useEffect(() => {
+    if (!degree.slug) return
+
+    const savedFilters = loadCourseFilters(faculty.slug, degree.slug)
+    if (savedFilters) {
+      setSelectedCurriculumYear(savedFilters.curriculumYear)
+      setSelectedTerm(savedFilters.term)
+      setSelectedCourseGroupId(savedFilters.courseGroupId)
+      setMandatoryExamFilter(savedFilters.hasMandatoryExam)
+      setSortBy(savedFilters.sortBy as SortOption)
+    }
+  }, [faculty.slug, degree.slug])
+
+  // Save filters to localStorage whenever they change
+  useEffect(() => {
+    if (!degree.slug) return
+
+    saveCourseFilters(faculty.slug, degree.slug, {
+      curriculumYear: selectedCurriculumYear,
+      term: selectedTerm,
+      courseGroupId: selectedCourseGroupId,
+      hasMandatoryExam: mandatoryExamFilter,
+      sortBy
+    })
+  }, [
+    faculty.slug,
+    degree.slug,
+    selectedCurriculumYear,
+    selectedTerm,
+    selectedCourseGroupId,
+    mandatoryExamFilter,
+    sortBy
+  ])
 
   // Available curriculum years for filtering
   const availableCurriculumYears = useMemo(() => {
@@ -115,7 +143,7 @@ export function DegreePageContent({
     { value: 'false', label: 'Exam: Optional' }
   ]
 
-  const sortOptions = [
+  const sortOptions: { value: SortOption; label: string }[] = [
     { value: 'rating', label: 'Highest Rating' },
     { value: 'alphabetical', label: 'Alphabetical' },
     { value: 'reviews', label: 'Most Reviews' },

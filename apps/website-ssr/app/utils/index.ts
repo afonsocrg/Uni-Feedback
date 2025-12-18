@@ -1,6 +1,7 @@
 export * from './assets'
 export * from './constants'
 export * from './course'
+export * from './filterStorage'
 export * from './mobile'
 export * from './routes'
 export * from './string'

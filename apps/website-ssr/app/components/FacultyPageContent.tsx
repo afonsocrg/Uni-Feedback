@@ -1,6 +1,7 @@
 import type { Degree, Faculty } from '@uni-feedback/db/schema'
 import { Button, WarningAlert } from '@uni-feedback/ui'
 import { useEffect, useMemo, useState } from 'react'
+import { loadDegreeFilters, saveDegreeFilters } from '~/utils/filterStorage'
 import { userPreferences } from '~/utils/userPreferences'
 import { BrowsePageLayout, DegreeCard } from '.'
 import { FilterChip } from './common/FilterChip'
@@ -32,34 +33,16 @@ export function FacultyPageContent({
 
   // Read from localStorage after hydration (only if same faculty)
   useEffect(() => {
-    try {
-      const storedFaculty = localStorage.getItem('degree-filter-faculty')
-      // Only load filter if it's for the current faculty
-      if (storedFaculty === faculty.slug) {
-        const stored = localStorage.getItem('degree-type-filter')
-        if (stored) {
-          setSelectedType(JSON.parse(stored))
-        }
-      }
-    } catch (error) {
-      console.warn('Failed to read degree type filter from localStorage:', error)
+    const savedFilters = loadDegreeFilters(faculty.slug)
+    if (savedFilters) {
+      setSelectedType(savedFilters.degreeType)
     }
   }, [faculty.slug])
 
   // Wrapper that persists to localStorage when filter changes
   const handleTypeChange = (newType: string | null) => {
     setSelectedType(newType)
-
-    try {
-      if (newType === null) {
-        localStorage.removeItem('degree-type-filter')
-      } else {
-        localStorage.setItem('degree-type-filter', JSON.stringify(newType))
-        localStorage.setItem('degree-filter-faculty', faculty.slug)
-      }
-    } catch (error) {
-      console.warn('Failed to persist degree type filter:', error)
-    }
+    saveDegreeFilters(faculty.slug, { degreeType: newType })
   }
 
   const availableTypes = useMemo(() => {
