@@ -93,8 +93,8 @@ export function HeroSectionV2({
           }
         }
       `}</style>
-      <section className="min-h-screen container mx-auto px-4 py-16 md:py-24 flex items-center">
-        <div className="max-w-7xl mx-auto w-full">
+      <section className="min-h-screen container mx-auto px-4 pt-8 md:pt-12 pb-16 md:pb-24 flex items-center">
+        <div className="max-w-7xl mx-auto w-full -mt-12 md:-mt-16">
           {/* Two-column layout on desktop, stacked on mobile */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center mb-16">
             {/* Left Column: Header, Subtitle, CTA */}
