@@ -31,7 +31,6 @@
     "compression": "^1.8.0",
     "drizzle-orm": "^0.44.5",
     "express": "^5.1.0",
-    "framer-motion": "^12.23.22",
     "isbot": "^5.1.27",
     "lucide-react": "^0.525.0",
     "morgan": "^1.10.0",

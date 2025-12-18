@@ -6,22 +6,13 @@ import { FeedbackItem } from '~/components'
 interface SchoolYearSectionProps {
   schoolYear: number
   feedback: Feedback[]
-  variants: {
-    hidden: { opacity: number; y: number }
-    visible: {
-      opacity: number
-      y: number
-      transition: { type: string; stiffness: number }
-    }
-  }
 }
 
 const firstMEPPYear = 2021
 
 export function SchoolYearSection({
   schoolYear,
-  feedback,
-  variants
+  feedback
 }: SchoolYearSectionProps) {
   return (
     <div>
@@ -30,7 +21,7 @@ export function SchoolYearSection({
         {schoolYear < firstMEPPYear && <Chip label="Pre-MEPP" color="amber" />}
       </div>
       {feedback.map((f) => (
-        <FeedbackItem key={f.id} feedback={f} variants={variants} />
+        <FeedbackItem key={f.id} feedback={f} />
       ))}
     </div>
   )

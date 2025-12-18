@@ -6,7 +6,6 @@ import {
   WorkloadRatingDisplay
 } from '@uni-feedback/ui'
 import { getRelativeTime } from '@uni-feedback/utils'
-import { motion } from 'framer-motion'
 import { GraduationCap } from 'lucide-react'
 import { useState } from 'react'
 import { Tooltip } from '..'
@@ -14,17 +13,9 @@ import { getTruncatedText } from '../../lib/textUtils'
 
 interface FeedbackItemProps {
   feedback: Feedback
-  variants?: {
-    hidden: { opacity: number; y: number }
-    visible: {
-      opacity: number
-      y: number
-      transition: { type: string; stiffness: number }
-    }
-  }
 }
 
-export function FeedbackItem({ feedback, variants }: FeedbackItemProps) {
+export function FeedbackItem({ feedback }: FeedbackItemProps) {
   const [isExpanded, setIsExpanded] = useState(false)
   const characterLimit = 600
   const isLongComment =
@@ -32,10 +23,7 @@ export function FeedbackItem({ feedback, variants }: FeedbackItemProps) {
   const relativeTime = getRelativeTime(feedback.createdAt)
 
   return (
-    <motion.div
-      variants={variants}
-      className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-4 hover:shadow-md transition-shadow"
-    >
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-4 hover:shadow-md transition-shadow">
       {/* Header with rating and date */}
       <div className="mb-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -109,6 +97,6 @@ export function FeedbackItem({ feedback, variants }: FeedbackItemProps) {
           This user did not leave any comment
         </p>
       )}
-    </motion.div>
+    </div>
   )
 }
