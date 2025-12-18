@@ -74,13 +74,15 @@ export default function LandingPage({ loaderData }: Route.ComponentProps) {
   const heroVersion = searchParams.get('hero') || 'v1'
 
   const Hero =
-    heroVersion === 'v2'
-      ? HeroSectionV2
-      : heroVersion === 'v3'
-        ? HeroSectionV3
-        : heroVersion === 'v4'
-          ? HeroSectionV4
-          : HeroSection
+    heroVersion === 'v1'
+      ? HeroSection
+      : heroVersion === 'v2'
+        ? HeroSectionV2
+        : heroVersion === 'v3'
+          ? HeroSectionV3
+          : heroVersion === 'v4'
+            ? HeroSectionV4
+            : HeroSectionV2
 
   return (
     <>
