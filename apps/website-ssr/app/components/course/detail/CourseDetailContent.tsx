@@ -1,9 +1,8 @@
 import type { Course } from '@uni-feedback/db/schema'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@uni-feedback/ui'
-import { motion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
-import { CourseReviews } from '.'
 import { cn } from '~/utils'
+import { CourseReviews } from '.'
 import { Breadcrumb } from '../../common/Breadcrumb'
 import { CourseAssessment } from './CourseAssessment'
 import { CourseBibliography } from './CourseBibliography'
@@ -42,14 +41,6 @@ interface CourseDetailContentProps {
   }>
 }
 
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { type: 'spring', stiffness: 300 }
-  }
-}
 export function CourseDetailContent({
   course,
   feedback
@@ -75,16 +66,6 @@ export function CourseDetailContent({
     checkFades()
   }
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  }
-
   const tabClasses = cn(
     'px-6 py-3 cursor-pointer relative',
     'font-medium text-gray-600 transition-all duration-200',
@@ -95,26 +76,21 @@ export function CourseDetailContent({
   )
 
   return (
-    <motion.main
-      className="container mx-auto px-4 py-8 max-w-4xl"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      <motion.div variants={itemVariants}>
+    <main className="container mx-auto px-4 py-8 max-w-4xl">
+      <div>
         <Breadcrumb
           faculty={course.faculty ?? undefined}
           degree={course.degree ?? undefined}
           course={course}
           className="mb-4"
         />
-      </motion.div>
+      </div>
 
-      <motion.div variants={itemVariants}>
+      <div>
         <CourseInfoCard course={course} />
-      </motion.div>
+      </div>
 
-      <motion.div variants={itemVariants}>
+      <div>
         <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-6">
           <Tabs defaultValue="feedback">
             <div className="relative">
@@ -163,7 +139,7 @@ export function CourseDetailContent({
             </TabsContent>
           </Tabs>
         </div>
-      </motion.div>
-    </motion.main>
+      </div>
+    </main>
   )
 }
