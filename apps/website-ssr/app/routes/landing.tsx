@@ -34,6 +34,11 @@ export async function loader() {
     orderBy: (faculties, { asc }) => [asc(faculties.id)]
   })
 
+  const testimonials = await db.query.testimonials.findMany({
+    where: (testimonials, { eq }) => eq(testimonials.isActive, true),
+    orderBy: (testimonials, { asc }) => [asc(testimonials.createdAt)]
+  })
+
   // Fetch 6 most recent approved feedbacks with comments, including course and faculty info
   const recentFeedbacks = await db.query.feedback.findMany({
     where: (feedback, { and, isNotNull, ne }) =>
@@ -57,7 +62,7 @@ export async function loader() {
     }
   })
 
-  return { studentClubs, faculties, recentFeedbacks }
+  return { studentClubs, faculties, recentFeedbacks, testimonials }
 }
 
 export default function LandingPage({ loaderData }: Route.ComponentProps) {
@@ -70,7 +75,7 @@ export default function LandingPage({ loaderData }: Route.ComponentProps) {
       <HowItWorksSection />
       <TrustedSection />
       <LovedByStudentsSection faculties={loaderData.faculties} />
-      <TestimonialsSection />
+      <TestimonialsSection testimonials={loaderData.testimonials} />
       <FAQ />
       <CTASection />
     </>

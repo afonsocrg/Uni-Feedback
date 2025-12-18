@@ -1,66 +1,12 @@
+import type { Testimonial } from '@uni-feedback/db'
 import { getAssetUrl } from '~/utils'
 import { TestimonialCard } from './TestimonialCard'
 
-interface Testimonial {
-  testimonial: string
-  name: string
-  course: string
-  avatarUrl?: string
-  url?: string
+interface TestimonialsSectionProps {
+  testimonials: Testimonial[]
 }
 
-const TESTIMONIALS: Testimonial[] = [
-  {
-    testimonial:
-      'I found this platform really useful and easy to use. It’s great to have a space where students can share honest feedback about their courses, all in one place, alongside relevant academic information. It makes choosing courses much clearer and more informed!!',
-    name: 'M. Inês Gonçalves',
-    course: 'Nova SBE',
-    avatarUrl: getAssetUrl('testimonials/m_ines_goncalves.png'),
-    url: 'https://www.linkedin.com/in/mariainescrgoncalves/'
-  },
-  {
-    testimonial:
-      'Uni-Feedback has helped me not only understand which courses are the best, but also gain insight into professors and course difficulty. With all the condensed information in one place, it became extremely easy to navigate through course details and ratings and confidently decide which option is best for me.',
-    name: 'Francisco Morão',
-    course: 'IST'
-    // avatarUrl: getAssetUrl('testimonials/m_ines_goncalves.png'),
-    // url: 'https://www.linkedin.com/in/mariainescrgoncalves/'
-  },
-  {
-    testimonial:
-      'Gostava de ter tido uma ferramenta como o Uni Feedback quando escolhi as minhas cadeiras. Saber a opinião de outros alunos sobre professores, projetos e dificuldade faz toda a diferença na preparação do ano.',
-    name: 'Martim Parreirão',
-    course: 'IST',
-    avatarUrl: getAssetUrl('testimonials/martim_parreirao.png'),
-    url: 'https://www.linkedin.com/in/martim-parreirao/'
-  },
-  {
-    testimonial:
-      'Escolher cursos no primeiro semestre foi um verdadeiro caos. Não consegui entrar nos cursos que queria e acabei em cadeiras sobre as quais sabia quase nada para além do syllabus. O melhor que tínhamos era um Excel desorganizado a ser partilhado por grupos de WhatsApp. Com o Uni Feedback, finalmente podemos escolher os cursos sabendo ao que vamos e tomar decisões muito mais informadas.',
-    name: 'Francisco Palaré',
-    course: 'Nova SBE',
-    avatarUrl: getAssetUrl('testimonials/francisco_palare.png'),
-    url: 'https://www.linkedin.com/in/franciscofrancopalar%C3%A9/'
-  },
-  {
-    testimonial: `O Fénix é uma floresta de termos técnicos e promessas de matéria interessante, que metade das vezes não reflete a experiência real dos alunos a tirar as cadeiras.
-
-O Uni Feedback fornece algo que não conseguimos encontrar em mais nenhum lado, uma coleção organizada das opiniões diretas dos alunos que tiveram a cadeira e de informação relevante do fénix, tudo num só conveniente site!`,
-    name: 'Miguel Fernandes',
-    course: 'IST',
-    avatarUrl: getAssetUrl('testimonials/miguel_fernandes.png'),
-    url: 'https://www.linkedin.com/in/miguel-fernandes-60bbb8267/'
-  },
-  {
-    testimonial:
-      'Já não preciso de ser crente na altura de escolher as cadeiras! Chega de rezar para que o professor seja bom ou que não tenha muita carga horária. Graças a outros que já a experienciaram, agora consigo saber no que me estou a meter.',
-    name: 'João Duarte',
-    course: 'IST',
-    avatarUrl: getAssetUrl('testimonials/joao_duarte.png')
-  }
-]
-
-export function TestimonialsSection() {
+export function TestimonialsSection({ testimonials }: TestimonialsSectionProps) {
   return (
     <section id="testimonials" className="bg-muted/30 py-16 md:py-24">
       <div className="container mx-auto px-4">
@@ -73,9 +19,19 @@ export function TestimonialsSection() {
             decisions
           </p>
           <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
-            {TESTIMONIALS.map((testimonial, index) => (
-              <div key={index} className="break-inside-avoid mb-6">
-                <TestimonialCard {...testimonial} />
+            {testimonials.map((testimonial) => (
+              <div key={testimonial.id} className="break-inside-avoid mb-6">
+                <TestimonialCard
+                  testimonial={testimonial.testimonial}
+                  name={testimonial.name}
+                  course={testimonial.course}
+                  avatarUrl={
+                    testimonial.avatarUrl
+                      ? getAssetUrl(testimonial.avatarUrl)
+                      : undefined
+                  }
+                  url={testimonial.url ?? undefined}
+                />
               </div>
             ))}
           </div>
