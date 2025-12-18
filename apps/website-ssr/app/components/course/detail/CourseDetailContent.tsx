@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 import { CourseReviews } from '.'
 import { cn } from '~/utils'
+import { Breadcrumb } from '../../common/Breadcrumb'
 import { CourseAssessment } from './CourseAssessment'
 import { CourseBibliography } from './CourseBibliography'
 import { CourseDescription } from './CourseDescription'
@@ -17,11 +18,13 @@ export interface CourseDetail extends Course {
     id: number
     name: string
     acronym: string
-    faculty?: {
-      id: number
-      name: string
-      shortName: string
-    }
+    slug: string
+  } | null
+  faculty?: {
+    id: number
+    name: string
+    shortName: string
+    slug: string
   } | null
 }
 
@@ -98,6 +101,15 @@ export function CourseDetailContent({
       initial="hidden"
       animate="visible"
     >
+      <motion.div variants={itemVariants}>
+        <Breadcrumb
+          faculty={course.faculty ?? undefined}
+          degree={course.degree ?? undefined}
+          course={course}
+          className="mb-4"
+        />
+      </motion.div>
+
       <motion.div variants={itemVariants}>
         <CourseInfoCard course={course} />
       </motion.div>

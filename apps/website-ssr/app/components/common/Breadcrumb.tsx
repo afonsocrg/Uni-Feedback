@@ -1,4 +1,4 @@
-import type { Degree, Faculty } from '@uni-feedback/db/schema'
+import type { Course, Degree, Faculty } from '@uni-feedback/db/schema'
 import { ChevronRight, Home } from 'lucide-react'
 import { userPreferences } from '../../utils/userPreferences'
 import { BreadcrumbItem } from './BreadcrumbItem'
@@ -7,12 +7,14 @@ interface BreadcrumbProps {
   className?: string
   faculty?: Faculty
   degree?: Degree
+  course?: Course
 }
 
 export function Breadcrumb({
   className = '',
   faculty,
-  degree
+  degree,
+  course
 }: BreadcrumbProps) {
   const handleHomeClick = () => {
     // Clear user preferences and navigate to browse page
@@ -29,6 +31,15 @@ export function Breadcrumb({
       lastSelectedFacultySlug: faculty?.slug ?? undefined,
       lastSelectedDegreeSlug: undefined,
       lastVisitedPath: `/${faculty?.slug}`
+    })
+  }
+
+  const handleDegreeClick = () => {
+    // Update preferences to degree level
+    userPreferences.set({
+      lastSelectedFacultySlug: faculty?.slug ?? undefined,
+      lastSelectedDegreeSlug: degree?.slug ?? undefined,
+      lastVisitedPath: `/${faculty?.slug}/${degree?.slug}`
     })
   }
 
@@ -56,7 +67,20 @@ export function Breadcrumb({
       {faculty && degree && (
         <>
           <ChevronRight className="h-3 w-3 text-gray-400 mx-1" />
-          <BreadcrumbItem isActive>{degree.acronym}</BreadcrumbItem>
+          <BreadcrumbItem
+            isActive={!course}
+            href={course ? `/${faculty.slug}/${degree.slug}` : undefined}
+            onClick={course ? handleDegreeClick : undefined}
+          >
+            {degree.acronym}
+          </BreadcrumbItem>
+        </>
+      )}
+
+      {faculty && degree && course && (
+        <>
+          <ChevronRight className="h-3 w-3 text-gray-400 mx-1" />
+          <BreadcrumbItem isActive>{course.acronym}</BreadcrumbItem>
         </>
       )}
     </nav>
