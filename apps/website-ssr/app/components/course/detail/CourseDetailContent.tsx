@@ -67,50 +67,46 @@ export function CourseDetailContent({
   }
 
   const tabClasses = cn(
-    'px-6 py-3 cursor-pointer relative',
-    'font-medium text-gray-600 transition-all duration-200',
-    'rounded-t-lg border-b-2 border-transparent',
-    'hover:text-primaryBlue hover:bg-blue-50/50',
-    'data-[state=active]:bg-primaryBlue data-[state=active]:text-white',
-    'focus:outline-none transition-colors duration-200'
+    'px-4 py-3 cursor-pointer relative',
+    'font-medium text-gray-500 transition-all duration-200',
+    'border-0 border-b-2 border-transparent rounded-none bg-transparent shadow-none',
+    'hover:text-primaryBlue hover:bg-transparent',
+    'data-[state=active]:text-bold data-[state=active]:text-primaryBlue data-[state=active]:border-b-primaryBlue data-[state=active]:bg-transparent data-[state=active]:shadow-none',
+    'focus:outline-none transition-colors duration-400'
   )
 
   return (
-    <main className="container mx-auto px-4 py-8 max-w-4xl">
-      <div>
+    <main className="bg-gray-50/30 min-h-screen">
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
         <Breadcrumb
           faculty={course.faculty ?? undefined}
           degree={course.degree ?? undefined}
           course={course}
-          className="mb-4"
+          className="mb-8"
         />
-      </div>
 
-      <div>
         <CourseInfoCard course={course} />
-      </div>
 
-      <div>
-        <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-6">
+        <div className="mt-12">
           <Tabs defaultValue="feedback">
             <div className="relative">
               {/* Left gradient fade (opacity transitions) */}
               <div
-                className="pointer-events-none absolute left-0 top-0 h-full w-8 bg-gradient-to-r from-white via-white/90 to-transparent z-10 md:hidden transition-opacity duration-300"
+                className="pointer-events-none absolute left-0 top-0 h-full w-8 bg-gradient-to-r from-gray-50/30 via-gray-50/20 to-transparent z-10 md:hidden transition-opacity duration-300"
                 style={{ opacity: showLeftFade ? 1 : 0 }}
               />
               {/* Right gradient fade (opacity transitions) */}
               <div
-                className="pointer-events-none absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-white via-white/90 to-transparent z-10 md:hidden transition-opacity duration-300"
+                className="pointer-events-none absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-gray-50/30 via-gray-50/20 to-transparent z-10 md:hidden transition-opacity duration-300"
                 style={{ opacity: showRightFade ? 1 : 0 }}
               />
             </div>
             <div
               ref={tabsListRef}
               onScroll={handleScroll}
-              className="overflow-x-auto scrollbar-none mb-4"
+              className="overflow-x-auto scrollbar-none mb-8"
             >
-              <TabsList className="inline-flex justify-start bg-white border-b-2 border-gray-100 rounded-none min-w-ax gap-1 rounded-lg">
+              <TabsList className="inline-flex justify-start bg-transparent border-b-2 border-gray-200 rounded-none min-w-full gap-6 px-0">
                 <TabsTrigger value="feedback" className={tabClasses}>
                   Feedback
                 </TabsTrigger>

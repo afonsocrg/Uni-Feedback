@@ -23,7 +23,7 @@ export function FeedbackItem({ feedback }: FeedbackItemProps) {
   const relativeTime = getRelativeTime(feedback.createdAt)
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-4 hover:shadow-md transition-shadow">
+    <div className="bg-white rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] p-6 mb-6 hover:shadow-[0px_6px_24px_rgba(0,0,0,0.08)] transition-shadow">
       {/* Header with rating and date */}
       <div className="mb-6">
         <div className="flex flex-wrap items-center justify-between gap-3">

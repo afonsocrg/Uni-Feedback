@@ -15,14 +15,16 @@ export function SchoolYearSection({
   feedback
 }: SchoolYearSectionProps) {
   return (
-    <div>
-      <div className="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
+    <div className="mb-8">
+      <div className="text-lg font-semibold text-gray-700 mb-6 flex items-center gap-2">
         {formatSchoolYearString(schoolYear, { yearFormat: 'long' })}
         {schoolYear < firstMEPPYear && <Chip label="Pre-MEPP" color="amber" />}
       </div>
-      {feedback.map((f) => (
-        <FeedbackItem key={f.id} feedback={f} />
-      ))}
+      <div className="space-y-4">
+        {feedback.map((f) => (
+          <FeedbackItem key={f.id} feedback={f} />
+        ))}
+      </div>
     </div>
   )
 }
