@@ -8,7 +8,7 @@ interface TestimonialsSectionProps {
 
 export function TestimonialsSection({ testimonials }: TestimonialsSectionProps) {
   return (
-    <section id="testimonials" className="bg-muted/30 py-16 md:py-24">
+    <section id="testimonials" className="py-16 md:py-24">
       <div className="container mx-auto px-4">
         <div className="max-w-5xl mx-auto">
           <h2 className="font-heading text-3xl md:text-4xl font-semibold tracking-tight text-center mb-4">

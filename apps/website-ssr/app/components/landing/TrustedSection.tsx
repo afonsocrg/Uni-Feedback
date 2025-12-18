@@ -12,7 +12,7 @@ const COPY = {
     {
       title: '100% Anonymous',
       description:
-        'Your identity is completely protected. We never attach your name, email, or student ID to your feedback, and we do not disclose any personal information to the university, faculty, or any third party.'
+        'Your feedback is always anonymous, and we never disclose information about the students who submit it.'
     }
   ]
 }

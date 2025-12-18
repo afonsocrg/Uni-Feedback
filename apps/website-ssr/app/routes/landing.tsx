@@ -1,8 +1,12 @@
 import { database } from '@uni-feedback/db'
+import { useSearchParams } from 'react-router'
 import {
   CTASection,
   FAQ,
   HeroSection,
+  HeroSectionV2,
+  HeroSectionV3,
+  HeroSectionV4,
   HowItWorksSection,
   LovedByStudentsSection,
   TestimonialsSection,
@@ -66,9 +70,21 @@ export async function loader() {
 }
 
 export default function LandingPage({ loaderData }: Route.ComponentProps) {
+  const [searchParams] = useSearchParams()
+  const heroVersion = searchParams.get('hero') || 'v1'
+
+  const Hero =
+    heroVersion === 'v2'
+      ? HeroSectionV2
+      : heroVersion === 'v3'
+        ? HeroSectionV3
+        : heroVersion === 'v4'
+          ? HeroSectionV4
+          : HeroSection
+
   return (
     <>
-      <HeroSection
+      <Hero
         studentClubs={loaderData.studentClubs}
         recentFeedbacks={loaderData.recentFeedbacks}
       />
