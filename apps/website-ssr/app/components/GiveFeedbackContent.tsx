@@ -41,6 +41,7 @@ import { useEffect, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link } from 'react-router'
 import { z } from 'zod'
+import { useLastVisitedPath } from '~/hooks'
 import { useDegreeCourses, useFacultyDegrees } from '~/hooks/queries'
 import { cn } from '~/utils/tailwind'
 
@@ -113,6 +114,8 @@ export function GiveFeedbackContent({
   isSubmitting,
   isSuccess
 }: GiveFeedbackContentProps) {
+  const lastVisitedPath = useLastVisitedPath()
+  const browseLink = lastVisitedPath !== '/' ? lastVisitedPath : '/browse'
   const feedbackSchema = useMemo(
     () => createFeedbackSchema(faculties),
     [faculties]
@@ -236,15 +239,15 @@ export function GiveFeedbackContent({
             Feedback Received!
           </h2>
           <p className="text-gray-600 mb-6">
-            Thank you for sharing your course experience. Your feedback helps
-            fellow students make informed decisions.
+            Thanks for your feedback! It will help many students making better
+            decisions!
           </p>
           <div className="space-y-3">
             <Button onClick={handleReset} className="w-full">
-              Submit Another Review
+              Submit Another Feedback
             </Button>
             <Button variant="outline" asChild className="w-full">
-              <a href="/">Back to Courses</a>
+              <a href={browseLink}>Back to Courses</a>
             </Button>
           </div>
         </div>
