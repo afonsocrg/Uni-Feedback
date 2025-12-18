@@ -71,7 +71,7 @@ export async function loader() {
 
 export default function LandingPage({ loaderData }: Route.ComponentProps) {
   const [searchParams] = useSearchParams()
-  const heroVersion = searchParams.get('hero') || 'v1'
+  const heroVersion = searchParams.get('hero') || 'v2'
 
   const Hero =
     heroVersion === 'v1'
