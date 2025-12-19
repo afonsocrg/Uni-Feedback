@@ -29,9 +29,12 @@ export function LandingFeedbackCard({ feedback }: LandingFeedbackCardProps) {
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow h-full flex flex-col">
       {/* Course and faculty info */}
       <div className="mb-3">
-        <h3 className="font-medium text-gray-700 text-sm truncate mb-1">
+        <a
+          href={`/courses/${feedback.courseId}`}
+          className="font-medium text-gray-700 text-sm truncate mb-1 hover:text-primary hover:underline transition-colors block"
+        >
           {feedback.course.name}
-        </h3>
+        </a>
         <p className="text-xs text-gray-500">
           {feedback.course.degree?.faculty.shortName || 'University'}
         </p>
