@@ -21,12 +21,19 @@ export function LovedByStudentsSection({
               if (!logoUrl) return null
 
               return (
-                <img
+                <a
                   key={faculty.id}
-                  alt={`${faculty.name} logo`}
-                  src={logoUrl}
-                  className="h-12"
-                />
+                  href={faculty.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="transition-opacity hover:opacity-80"
+                >
+                  <img
+                    alt={`${faculty.name} logo`}
+                    src={logoUrl}
+                    className="h-12"
+                  />
+                </a>
               )
             })}
           </div>
