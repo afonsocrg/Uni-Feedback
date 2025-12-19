@@ -136,6 +136,12 @@ export function HeroSection({
                 })}
               </div>
             </div>
+            <a
+              href="/partners"
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors inline-block mt-2"
+            >
+              View all partners
+            </a>
           </div>
           <div className="container mx-auto px-4 mt-12">
             <div className="max-w-5xl mx-auto">

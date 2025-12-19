@@ -7,6 +7,7 @@ export const studentClubs = pgTable('student_clubs', {
   name: text('name').notNull(),
   shortName: text('short_name').notNull(),
   slug: text('slug').notNull(),
+  type: text('type').notNull().default('club'), // 'union' or 'club'
 
   // Images
   logo: text('logo'), // square logo

@@ -15,6 +15,7 @@ export default [
     route('/:facultySlug/:degreeSlug', 'routes/$facultySlug.$degreeSlug.tsx'),
     route('/feedback/new', 'routes/feedback.new.tsx'),
     route('/courses/:courseId', 'routes/courses.$courseId.tsx'),
+    route('/partners', 'routes/partners.tsx'),
     route('/terms', 'routes/terms.tsx'),
     route('/privacy', 'routes/privacy.tsx')
   ])

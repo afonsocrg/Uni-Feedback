@@ -112,6 +112,12 @@ export function HeroSectionV2({
                 })}
               </div>
             </div>
+            <a
+              href="/partners"
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors inline-block mt-2"
+            >
+              View all partners
+            </a>
           </div>
         </div>
       </section>
