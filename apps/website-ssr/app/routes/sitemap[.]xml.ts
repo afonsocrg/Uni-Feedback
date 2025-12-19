@@ -32,6 +32,46 @@ export async function loader({ request }: Route.LoaderArgs) {
     db.select({ id: schema.courses.id }).from(schema.courses)
   ])
 
+  // Static routes
+  const staticUrls: SitemapRoute[] = [
+    {
+      url: '/',
+      lastmod: new Date().toISOString(),
+      changefreq: 'weekly' as const,
+      priority: 1.0
+    },
+    {
+      url: '/browse',
+      lastmod: new Date().toISOString(),
+      changefreq: 'weekly' as const,
+      priority: 0.9
+    },
+    {
+      url: '/feedback/new',
+      lastmod: new Date().toISOString(),
+      changefreq: 'monthly' as const,
+      priority: 0.6
+    },
+    {
+      url: '/partners',
+      lastmod: new Date().toISOString(),
+      changefreq: 'monthly' as const,
+      priority: 0.5
+    },
+    {
+      url: '/terms',
+      lastmod: new Date().toISOString(),
+      changefreq: 'yearly' as const,
+      priority: 0.3
+    },
+    {
+      url: '/privacy',
+      lastmod: new Date().toISOString(),
+      changefreq: 'yearly' as const,
+      priority: 0.3
+    }
+  ]
+
   // Build dynamic URLs
   const dynamicUrls = [
     // Faculty pages
@@ -69,7 +109,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   // Generate sitemap with static routes from React Router + dynamic URLs
   const sitemap = await generateSitemap({
     domain: 'https://uni-feedback.com',
-    routes: [...dynamicUrls]
+    routes: [...staticUrls, ...dynamicUrls]
   })
 
   return new Response(sitemap, {
