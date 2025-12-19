@@ -23,7 +23,7 @@ export function LandingFeedbackCard({ feedback }: LandingFeedbackCardProps) {
       ? feedback.comment.slice(0, maxCommentLength).trim() + '...'
       : feedback.comment
 
-  const relativeTime = getRelativeTime(feedback.approvedAt)
+  const relativeTime = getRelativeTime(feedback.createdAt)
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow h-full flex flex-col">
