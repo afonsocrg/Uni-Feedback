@@ -1,3 +1,4 @@
+export * from './ContactSection'
 export * from './CTASection'
 export * from './FAQ'
 export * from './FooterLink'

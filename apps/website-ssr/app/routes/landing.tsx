@@ -1,6 +1,7 @@
 import { database } from '@uni-feedback/db'
 import { useSearchParams } from 'react-router'
 import {
+  ContactSection,
   CTASection,
   FAQ,
   HeroSection,
@@ -95,6 +96,7 @@ export default function LandingPage({ loaderData }: Route.ComponentProps) {
       <LovedByStudentsSection faculties={loaderData.faculties} />
       <TestimonialsSection testimonials={loaderData.testimonials} />
       <FAQ />
+      <ContactSection />
       <CTASection />
     </>
   )

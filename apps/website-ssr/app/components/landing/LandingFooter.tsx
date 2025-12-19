@@ -35,9 +35,8 @@ export function LandingFooter() {
       links: [
         { href: '/#how-it-works', label: 'How It Works' },
         { href: '/#testimonials', label: 'Testimonials' },
-        { href: '/#faq', label: 'FAQ' }
-        // { href: '#', label: 'Get in Touch' },
-        // { href: '#', label: 'Sponsors' }
+        { href: '/#faq', label: 'FAQ' },
+        { href: '/#contact', label: 'Get in Touch' }
       ]
     },
     {
