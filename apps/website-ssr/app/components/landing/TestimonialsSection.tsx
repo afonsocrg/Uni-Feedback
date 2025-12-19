@@ -6,7 +6,9 @@ interface TestimonialsSectionProps {
   testimonials: Testimonial[]
 }
 
-export function TestimonialsSection({ testimonials }: TestimonialsSectionProps) {
+export function TestimonialsSection({
+  testimonials
+}: TestimonialsSectionProps) {
   return (
     <section id="testimonials" className="py-16 md:py-24">
       <div className="container mx-auto px-4">
@@ -34,6 +36,19 @@ export function TestimonialsSection({ testimonials }: TestimonialsSectionProps) 
                 />
               </div>
             ))}
+          </div>
+
+          {/* Testimonial CTA */}
+          <div className="text-center mt-4 text-sm">
+            <p className="text-muted-foreground">
+              Want to share your experience?{' '}
+              <a
+                href="mailto:testimonials@uni-feedback.com"
+                className="text-primary hover:underline font-medium"
+              >
+                Send us your testimonial
+              </a>
+            </p>
           </div>
         </div>
       </div>
