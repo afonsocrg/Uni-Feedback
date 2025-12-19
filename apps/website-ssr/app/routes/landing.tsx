@@ -51,7 +51,7 @@ export async function loader() {
         isNotNull(feedback.comment),
         ne(feedback.comment, '')
       ),
-    orderBy: (feedbacks, { desc }) => [desc(feedbacks.approvedAt)],
+    orderBy: (feedbacks, { desc }) => [desc(feedbacks.createdAt)],
     limit: 6,
     with: {
       course: {
