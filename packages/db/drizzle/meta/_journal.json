@@ -5,36 +5,78 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1756955425026,
+      "when": 1728000000000,
       "tag": "0000_init_postgresql_schema",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1758179890639,
-      "tag": "0001_lazy_cobalt_man",
       "breakpoints": true
     },
     {
       "idx": 2,
       "version": "7",
-      "when": 1758180148408,
+      "when": 1728000001000,
       "tag": "0002_add-slug-columns",
       "breakpoints": true
     },
     {
       "idx": 3,
       "version": "7",
-      "when": 1758181628044,
+      "when": 1728000002000,
       "tag": "0003_drop-unique-constraints-on-slugs",
       "breakpoints": true
     },
     {
       "idx": 4,
       "version": "7",
-      "when": 1758532201156,
+      "when": 1728000003000,
       "tag": "0004_funny_molly_hayes",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1728000004000,
+      "tag": "0005_add_curriculum_year_to_courses",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1728000005000,
+      "tag": "0006_add_student_clubs_table",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1728000006000,
+      "tag": "0007_add_image_columns_to_faculties",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1728000007000,
+      "tag": "0008_add_testimonials_table",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1728000008000,
+      "tag": "0009_insert_initial_testimonials",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1728000009000,
+      "tag": "0010_add_type_column_to_student_clubs",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1728000010000,
+      "tag": "0011_add_magic_link_authentication",
       "breakpoints": true
     }
   ]

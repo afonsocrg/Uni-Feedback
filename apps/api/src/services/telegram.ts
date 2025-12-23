@@ -6,6 +6,15 @@ async function sendToTelegram(env: Env, message: string) {
   // Escape special characters for MarkdownV2 format
   message = message.replace(/([_*\[\]()~`>#+\-=|{}.!\\])/g, '\$1')
 
+  if (!env.TELEGRAM_BOT_TOKEN || !env.TELEGRAM_CHAT_ID) {
+    console.warn(
+      'TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID not set. Skipping telegram notification.'
+    )
+    console.log('Message:')
+    console.log(message)
+    return null
+  }
+
   const url = `https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage`
   const payload = {
     chat_id: env.TELEGRAM_CHAT_ID,
@@ -20,18 +29,11 @@ async function sendToTelegram(env: Env, message: string) {
     body: JSON.stringify(payload)
   }
 
-  if (env.NODE_ENV === 'development') {
-    console.log('Skipping telegram request in dev mode')
-    console.log('Message:')
-    console.log(payload.text)
-    return null
-  } else {
-    console.log('Sending telegram request', options)
-    const response = await fetch(url, options)
-    console.log('Got telegram response', response)
+  // console.log('Sending telegram request', options)
+  const response = await fetch(url, options)
+  // console.log('Got telegram response', response)
 
-    return response
-  }
+  return response
 }
 
 function getStarsString(rating: number) {
@@ -204,6 +206,21 @@ ${statusEmoji} EMAIL ${statusText} ${statusEmoji}
   }
 
   message = message.trim()
+
+  return sendToTelegram(env, message)
+}
+
+export async function sendNewSignupNotification(env: Env, email: string) {
+  const message = `
+🎉 NEW SIGNUP! 🎉}
+
+A new user has signed up on Uni Feedback!
+
+📧 Email: ${email}
+🕒 Timestamp: ${new Date().toISOString()}
+
+Welcome aboard! 🚀
+`.trim()
 
   return sendToTelegram(env, message)
 }

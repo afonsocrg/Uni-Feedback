@@ -3,17 +3,21 @@ import { TIME_MS, TIME_S } from '@uni-feedback/utils'
 // Token expiration configuration
 export const TOKEN_EXPIRATION_MS = {
   ACCESS_TOKEN: 15 * TIME_MS.MINUTE, // 15 minutes
-  REFRESH_TOKEN: 30 * TIME_MS.DAY, // 30 days
+  REFRESH_TOKEN_ADMIN: 30 * TIME_MS.DAY, // 30 days for admins
+  REFRESH_TOKEN_STUDENT: 60 * TIME_MS.DAY, // 60 days for students
   PASSWORD_RESET: 24 * TIME_MS.HOUR, // 24 hours
-  USER_CREATION: 7 * TIME_MS.DAY // 7 days
+  USER_CREATION: 7 * TIME_MS.DAY, // 7 days
+  MAGIC_LINK: 15 * TIME_MS.MINUTE // 15 minutes for magic links
 } as const
 
 // Token expiration in seconds (for cookies)
 export const TOKEN_EXPIRATION_S = {
   ACCESS_TOKEN: 15 * TIME_S.MINUTE, // 15 minutes
-  REFRESH_TOKEN: 30 * TIME_S.DAY, // 30 days
+  REFRESH_TOKEN_ADMIN: 30 * TIME_S.DAY, // 30 days for admins
+  REFRESH_TOKEN_STUDENT: 60 * TIME_S.DAY, // 60 days for students
   PASSWORD_RESET: 24 * TIME_S.HOUR, // 24 hours
-  USER_CREATION: 7 * TIME_S.DAY // 7 days
+  USER_CREATION: 7 * TIME_S.DAY, // 7 days
+  MAGIC_LINK: 15 * TIME_S.MINUTE // 15 minutes for magic links
 } as const
 
 // Password requirements
@@ -38,4 +42,12 @@ export const AUTH_CONFIG = {
     path: '/'
   },
   MAX_SESSIONS_PER_USER: null // Unlimited sessions as per spec
+} as const
+
+// Rate limiting configuration
+export const RATE_LIMIT_CONFIG = {
+  MAGIC_LINK: {
+    MAX_REQUESTS: 3, // Maximum requests per window
+    WINDOW_MINUTES: 60 // Time window in minutes
+  }
 } as const

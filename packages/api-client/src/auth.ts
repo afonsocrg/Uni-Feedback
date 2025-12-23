@@ -44,6 +44,23 @@ export interface User {
   updatedAt: string
 }
 
+export interface RequestMagicLinkRequest {
+  email: string
+}
+
+export interface VerifyMagicLinkRequest {
+  token: string
+}
+
+export interface MagicLinkLoginResponse {
+  user: {
+    id: number
+    email: string
+    username: string
+    role: string
+  }
+}
+
 /**
  * Login with email and password
  */
@@ -103,6 +120,28 @@ export async function inviteUser(
   data: InviteUserRequest
 ): Promise<{ message: string }> {
   return apiPost<{ message: string }>('/auth/invite', data)
+}
+
+/**
+ * Request magic link for email
+ */
+export async function requestMagicLink(
+  data: RequestMagicLinkRequest
+): Promise<{ message: string }> {
+  return apiPost<{ message: string }>('/auth/request-magic-link', data, {
+    requiresAuth: false
+  })
+}
+
+/**
+ * Verify magic link token and create session
+ */
+export async function verifyMagicLink(
+  data: VerifyMagicLinkRequest
+): Promise<MagicLinkLoginResponse> {
+  return apiPost<MagicLinkLoginResponse>('/auth/verify-magic-link', data, {
+    requiresAuth: false
+  })
 }
 
 /**

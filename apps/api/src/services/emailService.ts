@@ -9,11 +9,13 @@ export interface EmailTemplate {
 
 export class EmailService {
   private env: Env
-  private resend: Resend
+  private resend: Resend | null
 
   constructor(env: Env) {
     this.env = env
-    this.resend = new Resend(env.RESEND_API_KEY)
+    this.resend = this.env.RESEND_API_KEY
+      ? new Resend(this.env.RESEND_API_KEY)
+      : null
   }
 
   private async sendEmail(params: {
@@ -23,21 +25,20 @@ export class EmailService {
     html: string
     text: string
   }): Promise<void> {
-    const isDevelopment = this.env.NODE_ENV === 'development'
-
-    // In development mode, just log the email instead of sending
-    if (isDevelopment) {
+    if (!this.resend) {
       console.log('📧 EMAIL MOCK (Development Mode)')
       console.log('From:', params.from)
       console.log('To:', params.to)
       console.log('Subject:', params.subject)
       console.log('HTML length:', params.html.length)
       console.log('Text length:', params.text.length)
+      console.log('--- Email Content Start ---')
+      console.log(params.text)
+      console.log('--- Email Content End ---')
       console.log('---')
       return
     }
 
-    // In production, send the actual email
     try {
       await this.resend.emails.send(params)
       console.log(`✅ Email sent successfully to ${params.to}`)
@@ -179,6 +180,67 @@ This link expires in 7 days.
 
 Cheers,
 Afonso`
+    }
+
+    await this.sendEmail({
+      from: 'Uni Feedback <noreply@uni-feedback.com>',
+      to: email,
+      subject: template.subject,
+      html: template.html,
+      text: template.text
+    })
+  }
+
+  /**
+   * Send magic link email for passwordless sign in
+   */
+  async sendMagicLinkEmail(
+    email: string,
+    magicToken: string,
+    websiteUrl: string
+  ): Promise<void> {
+    const magicLink = `${websiteUrl}/auth/verify?token=${magicToken}`
+
+    const template: EmailTemplate = {
+      subject: 'Uni Feedback - Your Sign In Link',
+      html: `
+        <html>
+          <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+              <h2 style="color: #23729f;">Sign in to Uni Feedback</h2>
+
+              <p>Click the button below to sign in to your account:</p>
+
+              <p style="margin: 30px 0;">
+                <a href="${magicLink}"
+                   style="background-color: #23729f; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
+                  Sign In
+                </a>
+              </p>
+
+              <p>Or copy and paste this link into your browser:</p>
+              <p style="word-break: break-all; color: #666;">${magicLink}</p>
+
+              <p style="color: #666; font-size: 14px;">This link expires in 15 minutes.</p>
+
+              <p>If you didn't request this link, you can safely ignore this email.</p>
+
+              <p>Happy reviewing!<br>The Uni Feedback Team</p>
+            </div>
+          </body>
+        </html>
+      `,
+      text: `Sign in to Uni Feedback
+
+Click the link below to sign in to your account:
+${magicLink}
+
+This link expires in 15 minutes.
+
+If you didn't request this link, you can safely ignore this email.
+
+Happy reviewing!
+The Uni Feedback Team`
     }
 
     await this.sendEmail({

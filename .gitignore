@@ -47,3 +47,5 @@ afonsocrg/
 # Logs
 logs/
 *.log
+
+.claude/*

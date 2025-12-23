@@ -12,6 +12,21 @@ import postgres from 'postgres'
 // Global env variable storage (keeping the same pattern as before)
 let globalEnv: Env | null = null
 
+const requiredVars = [
+  'DATABASE_URL',
+  'DASHBOARD_URL',
+  'WEBSITE_URL',
+  'ALLOWED_ORIGINS'
+] as const
+
+// Required only in production
+const requiredProdVars = [
+  'RESEND_API_KEY',
+  'POSTHOG_API_KEY',
+  'TELEGRAM_BOT_TOKEN',
+  'TELEGRAM_CHAT_ID'
+] as const
+
 // Getter function to access env
 export function getEnv(): Env {
   if (!globalEnv) {
@@ -22,26 +37,50 @@ export function getEnv(): Env {
 
 // Create the env object from Node.js environment variables
 function createEnv(): Env {
-  const requiredVars = ['DATABASE_URL'] as const
+  const nodeEnv: 'development' | 'production' =
+    process.env.NODE_ENV === 'production' ? 'production' : 'development'
 
-  for (const varName of requiredVars) {
-    if (!process.env[varName]) {
-      throw new Error(`Missing required environment variable: ${varName}`)
-    }
+  let missingVars: string[] = []
+  missingVars = missingVars.concat(
+    requiredVars.filter((varName) => !process.env[varName])
+  )
+  if (nodeEnv === 'production') {
+    missingVars = missingVars.concat(
+      requiredProdVars.filter((varName) => !process.env[varName])
+    )
   }
 
-  return {
+  if (missingVars.length > 0) {
+    throw new Error(
+      `Missing required environment variables: ${missingVars.join(', ')}`
+    )
+  }
+
+  const env: Env = {
+    NODE_ENV: nodeEnv,
+    API_PORT: process.env.API_PORT ? parseInt(process.env.API_PORT) : 3001,
+
+    DASHBOARD_URL: process.env.DASHBOARD_URL!,
+    WEBSITE_URL: process.env.WEBSITE_URL!,
+
+    ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS!,
+
     DATABASE_URL: process.env.DATABASE_URL!,
-    NODE_ENV:
-      (process.env.NODE_ENV as 'development' | 'production') || 'development',
-    DASHBOARD_URL: process.env.DASHBOARD_URL || 'localhost:5174',
-    RESEND_API_KEY: process.env.RESEND_API_KEY || '',
+
+    RESEND_API_KEY: process.env.RESEND_API_KEY,
+
     POSTHOG_API_KEY: process.env.POSTHOG_API_KEY,
+
     TELEGRAM_BOT_TOKEN: process.env.TELEGRAM_BOT_TOKEN,
     TELEGRAM_CHAT_ID: process.env.TELEGRAM_CHAT_ID,
+
     VALIDATE_EMAIL_SUFFIX:
       process.env.VALIDATE_EMAIL_SUFFIX === 'true' ? true : false
   }
+
+  // console.log({ env })
+
+  return env
 }
 
 // Create a single connection pool that will be reused
@@ -89,7 +128,9 @@ const createFetchHandler = () => {
   }
 }
 
-const port = process.env.PORT ? parseInt(process.env.PORT) : 3001
+globalEnv = createEnv()
+
+const port = globalEnv.API_PORT
 const fetchHandler = createFetchHandler()
 
 // Create server adapter that converts Node.js requests to Web Requests

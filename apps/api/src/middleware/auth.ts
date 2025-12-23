@@ -37,7 +37,14 @@ export async function requireAdmin(request: Request, env: any, context: any) {
   const authResult = await authenticateUser(request, env, context)
   if (authResult) return authResult
 
-  // Logged in users are always admin
+  // Check if user has admin or super_admin role
+  const user = context.user
+  const isAdmin =
+    user?.role === 'admin' || user?.role === 'super_admin' || user?.superuser // Backward compatibility
+
+  if (!isAdmin) {
+    return Response.json({ error: 'Admin access required' }, { status: 403 })
+  }
 }
 
 export async function requireSuperuser(
@@ -49,8 +56,11 @@ export async function requireSuperuser(
   const authResult = await authenticateUser(request, env, context)
   if (authResult) return authResult
 
-  // Check if user is superuser
-  if (!context.user?.superuser) {
+  // Check if user has super_admin role
+  const user = context.user
+  const isSuperuser = user?.role === 'super_admin' || user?.superuser // Backward compatibility
+
+  if (!isSuperuser) {
     return Response.json(
       { error: 'Superuser access required' },
       { status: 403 }

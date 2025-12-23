@@ -8,8 +8,19 @@ type SessionWithTokens = Session & { accessToken: string; refreshToken: string }
 /**
  * Adds authentication cookies to a Response
  * Mutates the response by adding Set-Cookie headers
+ *
+ * @param response - Response object to add cookies to
+ * @param session - Session with tokens
  */
-export function setAuthCookies(response: Response, session: SessionWithTokens): void {
+export function setAuthCookies(
+  response: Response,
+  session: SessionWithTokens
+): void {
+  // Calculate refresh token maxAge from session expiry if not provided
+  const refreshMaxAge = Math.floor(
+    (session.expiresAt.getTime() - Date.now()) / 1000
+  )
+
   // Set access token cookie (sent to all API endpoints)
   response.headers.append(
     'Set-Cookie',
@@ -30,7 +41,7 @@ export function setAuthCookies(response: Response, session: SessionWithTokens): 
       secure: true,
       sameSite: 'Strict',
       path: '/auth/refresh',
-      maxAge: TOKEN_EXPIRATION_S.REFRESH_TOKEN
+      maxAge: refreshMaxAge
     })
   )
 }

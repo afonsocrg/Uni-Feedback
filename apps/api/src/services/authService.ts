@@ -1,10 +1,13 @@
-import { TOKEN_EXPIRATION_MS } from '@config/auth'
+import { RATE_LIMIT_CONFIG, TOKEN_EXPIRATION_MS } from '@config/auth'
 import { database } from '@uni-feedback/db'
 import {
+  magicLinkRateLimits,
+  magicLinkTokens,
   passwordResetTokens,
   sessions,
   userCreationTokens,
   users,
+  type MagicLinkToken,
   type NewUser,
   type PasswordResetToken,
   type Session,
@@ -18,6 +21,7 @@ import {
   verifyHash
 } from '@utils/auth'
 import { and, eq, gt, isNull, lt } from 'drizzle-orm'
+import { sendNewSignupNotification } from './telegram'
 
 export class AuthService {
   private env: Env
@@ -88,10 +92,11 @@ export class AuthService {
   }
 
   /**
-   * Create a new session
+   * Create a new session with role-based expiry
    */
   async createSession(
-    userId: number
+    userId: number,
+    userRole: 'student' | 'admin' | 'super_admin' = 'admin'
   ): Promise<Session & { accessToken: string; refreshToken: string }> {
     // Clean up expired sessions for this user
     await this.cleanupExpiredSessions(userId)
@@ -100,7 +105,14 @@ export class AuthService {
     const refreshToken = generateSecureToken(48)
     const accessTokenHash = await hashToken(accessToken)
     const refreshTokenHash = await hashToken(refreshToken)
-    const expiresAt = new Date(Date.now() + TOKEN_EXPIRATION_MS.ACCESS_TOKEN)
+
+    // Role-based refresh token expiry
+    const refreshExpiry =
+      userRole === 'student'
+        ? TOKEN_EXPIRATION_MS.REFRESH_TOKEN_STUDENT
+        : TOKEN_EXPIRATION_MS.REFRESH_TOKEN_ADMIN
+
+    const expiresAt = new Date(Date.now() + refreshExpiry)
 
     const [session] = await database()
       .insert(sessions)
@@ -416,5 +428,157 @@ export class AuthService {
   async deleteUser(userId: number): Promise<void> {
     // Foreign key constraints will handle cascading deletes
     await database().delete(users).where(eq(users.id, userId))
+  }
+
+  /**
+   * Create magic link token for email
+   */
+  async createMagicLinkToken(
+    email: string
+  ): Promise<MagicLinkToken & { token: string }> {
+    const token = generateSecureToken(32)
+    const tokenHash = await hashToken(token)
+    const expiresAt = new Date(Date.now() + TOKEN_EXPIRATION_MS.MAGIC_LINK)
+
+    const [magicToken] = await database()
+      .insert(magicLinkTokens)
+      .values({
+        email: email.toLowerCase(),
+        tokenHash,
+        expiresAt
+      })
+      .returning()
+
+    return {
+      ...magicToken,
+      token
+    }
+  }
+
+  /**
+   * Find valid magic link token
+   */
+  async findMagicLinkToken(token: string): Promise<MagicLinkToken | null> {
+    const tokenHash = await hashToken(token)
+
+    const [magicToken] = await database()
+      .select()
+      .from(magicLinkTokens)
+      .where(
+        and(
+          eq(magicLinkTokens.tokenHash, tokenHash),
+          gt(magicLinkTokens.expiresAt, new Date()),
+          isNull(magicLinkTokens.usedAt)
+        )
+      )
+      .limit(1)
+
+    return magicToken || null
+  }
+
+  /**
+   * Use magic link token - creates user if doesn't exist, returns session
+   */
+  async useMagicLinkToken(
+    token: string
+  ): Promise<
+    (Session & { accessToken: string; refreshToken: string; user: User }) | null
+  > {
+    const tokenData = await this.findMagicLinkToken(token)
+    if (!tokenData) return null
+
+    // Find or create user
+    let user = await this.findUserByEmail(tokenData.email)
+
+    if (!user) {
+      // Auto-create student user on first sign-in
+      const username = tokenData.email.split('@')[0] // Use email prefix as username
+      const [newUser] = await database()
+        .insert(users)
+        .values({
+          email: tokenData.email,
+          username,
+          passwordHash: null, // Students have no password
+          role: 'student',
+          superuser: false
+        })
+        .returning()
+      user = newUser
+
+      sendNewSignupNotification(this.env, user.email)
+    }
+
+    // Create session and mark token as used in transaction
+    const result = await database().transaction(async (tx) => {
+      const session = await this.createSession(user!.id, user!.role)
+
+      await tx
+        .update(magicLinkTokens)
+        .set({ usedAt: new Date() })
+        .where(eq(magicLinkTokens.id, tokenData.id))
+
+      return { ...session, user: user! }
+    })
+
+    return result
+  }
+
+  /**
+   * Check and update rate limit for email
+   * Returns true if request is allowed, false if rate limited
+   */
+  async checkMagicLinkRateLimit(email: string): Promise<boolean> {
+    const normalizedEmail = email.toLowerCase()
+    const now = new Date()
+    const windowStart = new Date(
+      now.getTime() - RATE_LIMIT_CONFIG.MAGIC_LINK.WINDOW_MINUTES * 60 * 1000
+    )
+
+    // Get or create rate limit record
+    const [rateLimitRecord] = await database()
+      .select()
+      .from(magicLinkRateLimits)
+      .where(eq(magicLinkRateLimits.email, normalizedEmail))
+      .limit(1)
+
+    if (!rateLimitRecord) {
+      // First request - create record
+      await database().insert(magicLinkRateLimits).values({
+        email: normalizedEmail,
+        requestCount: 1,
+        windowStart: now
+      })
+      return true
+    }
+
+    // Check if window has expired
+    if (rateLimitRecord.windowStart < windowStart) {
+      // Reset window
+      await database()
+        .update(magicLinkRateLimits)
+        .set({
+          requestCount: 1,
+          windowStart: now
+        })
+        .where(eq(magicLinkRateLimits.email, normalizedEmail))
+      return true
+    }
+
+    // Check if under limit
+    if (
+      rateLimitRecord.requestCount < RATE_LIMIT_CONFIG.MAGIC_LINK.MAX_REQUESTS
+    ) {
+      // Increment count
+      await database()
+        .update(magicLinkRateLimits)
+        .set({
+          requestCount: rateLimitRecord.requestCount + 1
+        })
+        .where(eq(magicLinkRateLimits.email, normalizedEmail))
+      return true
+    }
+
+    // Rate limited
+    return false
   }
 }

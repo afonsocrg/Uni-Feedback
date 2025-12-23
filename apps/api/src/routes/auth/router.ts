@@ -7,7 +7,9 @@ import { Invite } from './invite'
 import { Login } from './login'
 import { Logout } from './logout'
 import { Refresh } from './refresh'
+import { RequestMagicLink } from './requestMagicLink'
 import { ResetPassword } from './resetPassword'
+import { VerifyMagicLink } from './verifyMagicLink'
 
 const router = fromIttyRouter(AutoRouter({ base: '/auth' }))
 
@@ -17,6 +19,8 @@ router.post('/refresh', Refresh)
 router.post('/forgot-password', ForgotPassword)
 router.post('/reset-password', ResetPassword)
 router.post('/create-account', CreateAccount)
+router.post('/request-magic-link', RequestMagicLink)
+router.post('/verify-magic-link', VerifyMagicLink)
 
 // Invite route - Wrapped with superuser middleware
 class InviteWithAuth extends Invite {
