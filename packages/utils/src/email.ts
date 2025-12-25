@@ -89,3 +89,25 @@ export function maskEmails(
 ): string[] {
   return emails.map((email) => maskEmail(email, options))
 }
+
+/**
+ * Validates if a string is a valid email address format
+ *
+ * @param email - The email address to validate
+ * @returns true if the email is valid, false otherwise
+ *
+ * Examples:
+ * - isValidEmail('user@example.com') -> true
+ * - isValidEmail('invalid.email') -> false
+ * - isValidEmail('') -> false
+ */
+export function isValidEmail(email: string): boolean {
+  if (!email || typeof email !== 'string') {
+    return false
+  }
+
+  // Basic email validation regex
+  // Matches most common email formats
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  return emailRegex.test(email.trim())
+}

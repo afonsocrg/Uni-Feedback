@@ -58,7 +58,8 @@ export class VerifyMagicLink extends OpenAPIRoute {
       if (!sessionData) {
         return Response.json(
           {
-            error: 'Invalid or expired magic link. Please request a new one.'
+            error:
+              'The link you provided is invalid or has expired. Please request a new one.'
           },
           { status: 400 }
         )

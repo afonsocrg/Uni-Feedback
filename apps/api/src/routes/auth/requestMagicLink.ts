@@ -56,8 +56,7 @@ export class RequestMagicLink extends OpenAPIRoute {
       if (!isValid) {
         return Response.json(
           {
-            error:
-              'Email domain not recognized. Please use your university email address.'
+            error: 'Please use your university email address.'
           },
           { status: 400 }
         )

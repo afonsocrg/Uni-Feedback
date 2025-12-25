@@ -10,7 +10,7 @@ export interface LoginResponse {
     id: number
     email: string
     username: string
-    superuser: boolean
+    role: string
   }
 }
 
@@ -52,7 +52,7 @@ export interface VerifyMagicLinkRequest {
   token: string
 }
 
-export interface MagicLinkLoginResponse {
+export interface ProfileResponse {
   user: {
     id: number
     email: string
@@ -138,10 +138,8 @@ export async function requestMagicLink(
  */
 export async function verifyMagicLink(
   data: VerifyMagicLinkRequest
-): Promise<MagicLinkLoginResponse> {
-  return apiPost<MagicLinkLoginResponse>('/auth/verify-magic-link', data, {
-    requiresAuth: false
-  })
+): Promise<LoginResponse> {
+  return apiPost<LoginResponse>('/auth/verify-magic-link', data)
 }
 
 /**
@@ -149,4 +147,11 @@ export async function verifyMagicLink(
  */
 export async function getUsers(): Promise<User[]> {
   return apiGet<User[]>('/admin/users')
+}
+
+/**
+ * Get current user profile
+ */
+export async function getProfile(): Promise<ProfileResponse> {
+  return apiGet<ProfileResponse>('/auth/profile')
 }

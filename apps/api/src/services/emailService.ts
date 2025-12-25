@@ -199,7 +199,7 @@ Afonso`
     magicToken: string,
     websiteUrl: string
   ): Promise<void> {
-    const magicLink = `${websiteUrl}/auth/verify?token=${magicToken}`
+    const magicLink = `${websiteUrl}/login/${magicToken}`
 
     const template: EmailTemplate = {
       subject: 'Uni Feedback - Your Sign In Link',

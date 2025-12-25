@@ -6,6 +6,7 @@ import { ForgotPassword } from './forgotPassword'
 import { Invite } from './invite'
 import { Login } from './login'
 import { Logout } from './logout'
+import { GetProfile } from './profile'
 import { Refresh } from './refresh'
 import { RequestMagicLink } from './requestMagicLink'
 import { ResetPassword } from './resetPassword'
@@ -16,6 +17,7 @@ const router = fromIttyRouter(AutoRouter({ base: '/auth' }))
 router.post('/login', Login)
 router.post('/logout', Logout)
 router.post('/refresh', Refresh)
+router.get('/profile', GetProfile)
 router.post('/forgot-password', ForgotPassword)
 router.post('/reset-password', ResetPassword)
 router.post('/create-account', CreateAccount)

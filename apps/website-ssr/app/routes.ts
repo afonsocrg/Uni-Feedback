@@ -8,6 +8,9 @@ import {
 export default [
   // Sitemap route (outside layout for clean XML response)
   route('sitemap.xml', 'routes/sitemap[.]xml.ts'),
+  // Auth routes (outside layout for custom full-page design)
+  route('/login', 'routes/login.tsx'),
+  route('/login/:token', 'routes/login.$token.tsx'),
   layout('routes/landing-layout.tsx', [
     index('routes/landing.tsx'),
     route('/browse', 'routes/browse.tsx'),

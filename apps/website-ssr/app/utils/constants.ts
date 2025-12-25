@@ -9,5 +9,7 @@ export const STORAGE_KEYS = {
   FEEDBACK_DEGREE_ID: 'lastFeedbackDegreeId',
   FEEDBACK_FACULTY_ID: 'lastFeedbackFacultyId',
   DEGREE_FILTERS: 'degreeFilters',
-  COURSE_FILTERS: 'courseFilters'
+  COURSE_FILTERS: 'courseFilters',
+  LAST_LOGIN_EMAIL: 'uni-feedback-last-email',
+  AUTH_USER: 'uni-feedback-student-user'
 } as const

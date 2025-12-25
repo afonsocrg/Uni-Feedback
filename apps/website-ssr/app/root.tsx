@@ -15,6 +15,8 @@ import {
 } from 'react-router'
 import { Toaster } from 'sonner'
 import { NotFound } from '~/components'
+import { AuthProvider } from '~/providers/AuthProvider'
+import { AuthRefreshProvider } from '~/providers/AuthRefreshProvider'
 import { userPreferences } from '~/utils'
 import type { Route } from './+types/root'
 
@@ -135,19 +137,23 @@ export default function App() {
   }, [])
 
   return (
-    <PersistQueryClientProvider
-      client={queryClient}
-      persistOptions={{ persister }}
-    >
-      <Toaster position="top-right" richColors />
-      <Outlet />
-      {import.meta.env.DEV && (
-        <React.Suspense fallback={null}>
-          {/* @ts-ignore - dynamic import */}
-          <ReactQueryDevtools initialIsOpen={false} />
-        </React.Suspense>
-      )}
-    </PersistQueryClientProvider>
+    <AuthProvider>
+      <AuthRefreshProvider>
+        <PersistQueryClientProvider
+          client={queryClient}
+          persistOptions={{ persister }}
+        >
+          <Toaster position="top-right" richColors />
+          <Outlet />
+          {import.meta.env.DEV && (
+            <React.Suspense fallback={null}>
+              {/* @ts-ignore - dynamic import */}
+              <ReactQueryDevtools initialIsOpen={false} />
+            </React.Suspense>
+          )}
+        </PersistQueryClientProvider>
+      </AuthRefreshProvider>
+    </AuthProvider>
   )
 }
 
