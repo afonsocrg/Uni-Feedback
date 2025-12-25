@@ -86,6 +86,7 @@ export class AuthService {
   ): Promise<User | null> {
     const user = await this.findUserByEmail(email)
     if (!user) return null
+    if (!user.passwordHash) return null
 
     const isValid = await verifyHash(password, user.passwordHash)
     return isValid ? user : null
