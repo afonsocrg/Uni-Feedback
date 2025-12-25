@@ -16,7 +16,7 @@ prompt_database_start() {
     echo "❌ Database connection failed!"
     echo ""
     echo "The database might not be running. Would you like to:"
-    echo "1) Start the database (bun run start)"
+    echo "1) Start the database (pnpm run start)"
     echo "2) Check database status"
     echo "3) Continue anyway (might fail)"
     echo "4) Exit"
@@ -26,7 +26,7 @@ prompt_database_start() {
     case $choice in
         1)
             echo "Starting database..."
-            bun run start
+            pnpm run start
             sleep 3
             if check_database; then
                 echo "✅ Database is now running!"
@@ -72,7 +72,7 @@ if dotenv -- drizzle-kit migrate; then
 else
     echo "❌ Migration failed!"
     echo "Common issues:"
-    echo "- Database not running (try: bun run start)"
+    echo "- Database not running (try: pnpm start)"
     echo "- Database connection issues"
     echo "- Migration file errors"
     echo "- Database permission issues"
