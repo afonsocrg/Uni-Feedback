@@ -1,4 +1,5 @@
 import { RATE_LIMIT_CONFIG, TOKEN_EXPIRATION_MS } from '@config/auth'
+import { InternalServerError } from '@routes/utils/errorHandling'
 import { database } from '@uni-feedback/db'
 import {
   magicLinkRateLimits,
@@ -20,7 +21,7 @@ import {
   hashToken,
   verifyHash
 } from '@utils/auth'
-import { and, eq, gt, isNull, lt } from 'drizzle-orm'
+import { and, eq, gt, isNotNull, isNull, lt } from 'drizzle-orm'
 import { sendNewSignupNotification } from './telegram'
 
 export class AuthService {
@@ -435,17 +436,20 @@ export class AuthService {
    * Create magic link token for email
    */
   async createMagicLinkToken(
-    email: string
-  ): Promise<MagicLinkToken & { token: string }> {
+    email: string,
+    enablePolling: boolean = false
+  ): Promise<MagicLinkToken & { token: string; requestId: string | null }> {
     const token = generateSecureToken(32)
     const tokenHash = await hashToken(token)
     const expiresAt = new Date(Date.now() + TOKEN_EXPIRATION_MS.MAGIC_LINK)
+    const requestId = enablePolling ? generateSecureToken(32) : null
 
     const [magicToken] = await database()
       .insert(magicLinkTokens)
       .values({
         email: email.toLowerCase(),
         tokenHash,
+        requestId,
         expiresAt
       })
       .returning()
@@ -519,6 +523,61 @@ export class AuthService {
         .where(eq(magicLinkTokens.id, tokenData.id))
 
       return { ...session, user: user! }
+    })
+
+    return result
+  }
+
+  /**
+   * Verify a magic link via requestId (polling endpoint)
+   * If magic link has been used (email clicked) but not verified, creates session
+   * Returns null for all non-success cases to prevent timing attacks
+   */
+  async verifyMagicLinkByRequestId(requestId: string): Promise<
+    | (Session & {
+        accessToken: string
+        refreshToken: string
+        user: User
+      })
+    | null
+  > {
+    const [tokenData] = await database()
+      .select()
+      .from(magicLinkTokens)
+      .where(
+        and(
+          eq(magicLinkTokens.requestId, requestId),
+          gt(magicLinkTokens.expiresAt, new Date()),
+          isNotNull(magicLinkTokens.usedAt),
+          isNull(magicLinkTokens.verifiedAt)
+        )
+      )
+      .limit(1)
+
+    // Return null for: invalid requestId, not clicked yet, already consumed, or expired
+    if (!tokenData) {
+      return null
+    }
+
+    // Find or create user
+    let user = await this.findUserByEmail(tokenData.email)
+
+    if (!user) {
+      throw new InternalServerError(
+        'User should exist when verifying magic link by requestId'
+      )
+    }
+
+    // Create session and mark as verified via polling
+    const result = await database().transaction(async (tx) => {
+      const session = await this.createSession(user.id, user.role)
+
+      await tx
+        .update(magicLinkTokens)
+        .set({ verifiedAt: new Date() })
+        .where(eq(magicLinkTokens.id, tokenData.id))
+
+      return { ...session, user }
     })
 
     return result

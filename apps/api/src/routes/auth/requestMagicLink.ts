@@ -13,7 +13,8 @@ export class RequestMagicLink extends OpenAPIRoute {
         content: {
           'application/json': {
             schema: z.object({
-              email: z.string().email()
+              email: z.string().email(),
+              enablePolling: z.boolean().optional()
             })
           }
         }
@@ -26,7 +27,8 @@ export class RequestMagicLink extends OpenAPIRoute {
         content: {
           'application/json': {
             schema: z.object({
-              message: z.string()
+              message: z.string(),
+              requestId: z.string().optional()
             })
           }
         }
@@ -47,7 +49,7 @@ export class RequestMagicLink extends OpenAPIRoute {
   async handle(request: Request, env: Env, context: any) {
     try {
       const data = await this.getValidatedData<typeof this.schema>()
-      const { email } = data.body
+      const { email, enablePolling } = data.body
       const normalizedEmail = email.toLowerCase()
 
       // Validate email domain against faculty whitelist
@@ -67,10 +69,15 @@ export class RequestMagicLink extends OpenAPIRoute {
       const isAllowed =
         await authService.checkMagicLinkRateLimit(normalizedEmail)
 
+      let requestId: string | undefined
+
       if (isAllowed) {
         // Create magic link token
-        const magicToken =
-          await authService.createMagicLinkToken(normalizedEmail)
+        const magicToken = await authService.createMagicLinkToken(
+          normalizedEmail,
+          enablePolling
+        )
+        requestId = magicToken.requestId
 
         // Send magic link email
         const websiteUrl = env.WEBSITE_URL || 'http://localhost:5173'
@@ -85,7 +92,8 @@ export class RequestMagicLink extends OpenAPIRoute {
       // Always return success to prevent email enumeration
       return Response.json({
         message:
-          'If your email is valid, you will receive a sign-in link shortly.'
+          'If your email is valid, you will receive a sign-in link shortly.',
+        ...(requestId && { requestId })
       })
     } catch (error) {
       console.error('Request magic link error:', error)

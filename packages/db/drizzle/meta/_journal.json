@@ -85,6 +85,13 @@
       "when": 1766666873621,
       "tag": "0012_add_user_id_to_feedback",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1766695931895,
+      "tag": "0013_add_polling_to_magic_links",
+      "breakpoints": true
     }
   ]
 }

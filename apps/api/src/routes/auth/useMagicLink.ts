@@ -3,16 +3,16 @@ import { setAuthCookies } from '@utils/authCookies'
 import { OpenAPIRoute } from 'chanfana'
 import { z } from 'zod'
 
-export class VerifyMagicLink extends OpenAPIRoute {
+export class UseMagicLink extends OpenAPIRoute {
   schema = {
     tags: ['Auth'],
-    summary: 'Verify magic link with requestId (polling endpoint)',
+    summary: 'Use magic link token from email and create session',
     request: {
       body: {
         content: {
           'application/json': {
             schema: z.object({
-              requestId: z.string()
+              token: z.string().min(1)
             })
           }
         }
@@ -20,22 +20,27 @@ export class VerifyMagicLink extends OpenAPIRoute {
     },
     responses: {
       '200': {
-        description: 'Request status or session created',
+        description: 'Magic link verified, session created',
         content: {
           'application/json': {
-            schema: z.union([
-              z.object({
-                status: z.literal('pending')
-              }),
-              z.object({
-                user: z.object({
-                  id: z.number(),
-                  email: z.string(),
-                  username: z.string(),
-                  role: z.string()
-                })
+            schema: z.object({
+              user: z.object({
+                id: z.number(),
+                email: z.string(),
+                username: z.string(),
+                role: z.string()
               })
-            ])
+            })
+          }
+        }
+      },
+      '400': {
+        description: 'Invalid or expired token',
+        content: {
+          'application/json': {
+            schema: z.object({
+              error: z.string()
+            })
           }
         }
       }
@@ -45,18 +50,22 @@ export class VerifyMagicLink extends OpenAPIRoute {
   async handle(request: Request, env: any, context: any) {
     try {
       const data = await this.getValidatedData<typeof this.schema>()
-      const { requestId } = data.body
+      const { token } = data.body
 
       const authService = new AuthService(env)
-      const sessionData = await authService.verifyMagicLinkByRequestId(requestId)
+      const sessionData = await authService.useMagicLinkToken(token)
 
-      // Return pending for: invalid, expired, not clicked, or already consumed
-      // This prevents timing attacks and information leakage
       if (!sessionData) {
-        return Response.json({ status: 'pending' })
+        return Response.json(
+          {
+            error:
+              'The link you provided is invalid or has expired. Please request a new one.'
+          },
+          { status: 400 }
+        )
       }
 
-      // Session ready - return user data and set cookies
+      // Create response with user data
       const response = Response.json({
         user: {
           id: sessionData.user.id,
@@ -71,7 +80,7 @@ export class VerifyMagicLink extends OpenAPIRoute {
 
       return response
     } catch (error) {
-      console.error('Verify magic link by requestId error:', error)
+      console.error('Verify magic link error:', error)
       return Response.json({ error: 'Internal server error' }, { status: 500 })
     }
   }
