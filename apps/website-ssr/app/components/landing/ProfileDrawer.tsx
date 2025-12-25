@@ -5,7 +5,7 @@ import {
   SheetContent,
   SheetTrigger
 } from '@uni-feedback/ui'
-import { LogOut, User, UserCircle } from 'lucide-react'
+import { LogOut, User } from 'lucide-react'
 
 interface ProfileDrawerProps {
   isAuthenticated: boolean
@@ -25,11 +25,7 @@ export function ProfileDrawer({
     <Sheet>
       <SheetTrigger asChild>
         <Button size="sm" variant="ghost" className="size-9 p-0">
-          {isAuthenticated ? (
-            <User className="size-5" />
-          ) : (
-            <UserCircle className="size-5" />
-          )}
+          <User className="size-5" />
         </Button>
       </SheetTrigger>
       <SheetContent side="right" className="w-[300px] sm:w-[350px] p-0">

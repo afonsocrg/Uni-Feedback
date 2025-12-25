@@ -5,7 +5,7 @@ import {
   PopoverTrigger,
   Separator
 } from '@uni-feedback/ui'
-import { LogOut, User, UserCircle } from 'lucide-react'
+import { LogOut, User } from 'lucide-react'
 
 interface ProfilePopoverProps {
   isAuthenticated: boolean
@@ -24,16 +24,8 @@ export function ProfilePopover({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button
-          size="sm"
-          variant="ghost"
-          className="size-9 rounded-full p-0"
-        >
-          {isAuthenticated ? (
-            <User className="size-5" />
-          ) : (
-            <UserCircle className="size-5" />
-          )}
+        <Button size="sm" variant="ghost" className="size-9 rounded-full p-0">
+          <User className="size-5" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-56" align="end">
