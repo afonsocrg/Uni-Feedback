@@ -1,3 +1,4 @@
+import { authenticateUser } from '@middleware'
 import { sendCourseReviewReceived } from '@services/telegram'
 import { database } from '@uni-feedback/db'
 import { courses, degrees, faculties, feedback } from '@uni-feedback/db/schema'
@@ -46,6 +47,26 @@ export class SubmitFeedback extends OpenAPIRoute {
     return withErrorHandling(request, async () => {
       const courseId = parseInt(request.params.id)
       const { body } = await this.getValidatedData<typeof this.schema>()
+
+      // Feature flag: require authentication for feedback submission
+      const requireAuth = env.REQUIRE_FEEDBACK_AUTH
+
+      let userId: number | null = null
+      let email: string
+
+      if (requireAuth) {
+        // Authenticate user (required when feature flag is enabled)
+        const authCheck = await authenticateUser(request, env, context)
+        if (authCheck) return authCheck
+
+        // Use authenticated user's info
+        userId = context.user.id
+        email = context.user.email
+        // Note: We ignore body.email if provided
+      } else {
+        // Legacy behavior: use email from request body, no user_id
+        email = body.email
+      }
 
       // Validate school year
       const currentSchoolYear = getCurrentSchoolYear()
@@ -106,7 +127,7 @@ export class SubmitFeedback extends OpenAPIRoute {
         Array.isArray(faculty.emailSuffixes) &&
         faculty.emailSuffixes.length > 0
       ) {
-        const emailDomain = body.email.split('@')[1]?.toLowerCase()
+        const emailDomain = email.split('@')[1]?.toLowerCase()
         const emailSuffixes = faculty.emailSuffixes as string[]
         const isValidDomain = emailSuffixes.some(
           (suffix: string) => emailDomain === suffix.toLowerCase()
@@ -128,7 +149,8 @@ export class SubmitFeedback extends OpenAPIRoute {
 
       // Insert feedback
       const feedbackData = {
-        email: body.email,
+        userId: userId,
+        email: userId === null ? email : null,
         schoolYear: body.schoolYear,
         courseId: courseId,
         rating: body.rating,
@@ -151,7 +173,7 @@ export class SubmitFeedback extends OpenAPIRoute {
 
       await sendCourseReviewReceived(env, {
         id: feedbackId,
-        email: body.email,
+        email: email,
         schoolYear: body.schoolYear,
         degree,
         rating: body.rating,

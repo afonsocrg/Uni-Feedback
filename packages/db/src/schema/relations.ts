@@ -3,12 +3,17 @@ import { courses } from './course'
 import { degrees } from './degree'
 import { faculties } from './faculty'
 import { feedback } from './feedback'
+import { users } from './user'
 
 // Feedback relations
 export const feedbackRelations = relations(feedback, ({ one }) => ({
   course: one(courses, {
     fields: [feedback.courseId],
     references: [courses.id]
+  }),
+  user: one(users, {
+    fields: [feedback.userId],
+    references: [users.id]
   })
 }))
 
@@ -33,4 +38,9 @@ export const degreeRelations = relations(degrees, ({ one, many }) => ({
 // Faculty relations
 export const facultyRelations = relations(faculties, ({ many }) => ({
   degrees: many(degrees)
+}))
+
+// User relations
+export const userRelations = relations(users, ({ many }) => ({
+  feedbacks: many(feedback)
 }))

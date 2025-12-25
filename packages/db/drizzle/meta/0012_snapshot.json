@@ -1,6 +1,6 @@
 {
-  "id": "b597ca30-8d27-4124-a6f8-931bf7d7dddc",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "99da0aa1-e390-4797-a73d-b0653df869e9",
+  "prevId": "b597ca30-8d27-4124-a6f8-931bf7d7dddc",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -570,6 +570,12 @@
           "primaryKey": true,
           "notNull": true
         },
+        "user_id": {
+          "name": "user_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
         "email": {
           "name": "email",
           "type": "text",
@@ -628,6 +634,19 @@
       },
       "indexes": {},
       "foreignKeys": {
+        "feedback_user_id_users_id_fk": {
+          "name": "feedback_user_id_users_id_fk",
+          "tableFrom": "feedback",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
         "feedback_course_id_courses_id_fk": {
           "name": "feedback_course_id_courses_id_fk",
           "tableFrom": "feedback",

@@ -1,9 +1,15 @@
 import { integer, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core'
 import { sql } from 'drizzle-orm'
 import { courses } from './course'
+import { users } from './user'
 
 export const feedback = pgTable('feedback', {
   id: serial('id').primaryKey(),
+  // User ID for authenticated submissions (new)
+  // If null, the feedback was submitted anonymously (email-only, legacy)
+  userId: integer('user_id').references(() => users.id),
+  // Email field for backwards compatibility with anonymous submissions
+  // For authenticated users (userId != null), this should match the user's email
   email: text('email'),
   schoolYear: integer('school_year'),
   courseId: integer('course_id')

@@ -75,7 +75,9 @@ function createEnv(): Env {
     TELEGRAM_CHAT_ID: process.env.TELEGRAM_CHAT_ID,
 
     VALIDATE_EMAIL_SUFFIX:
-      process.env.VALIDATE_EMAIL_SUFFIX === 'true' ? true : false
+      process.env.VALIDATE_EMAIL_SUFFIX === 'true' ? true : false,
+    REQUIRE_FEEDBACK_AUTH:
+      process.env.REQUIRE_FEEDBACK_AUTH === 'false' ? false : true
   }
 
   // console.log({ env })

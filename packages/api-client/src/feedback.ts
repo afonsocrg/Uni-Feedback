@@ -1,6 +1,6 @@
-import { API_BASE_URL } from './config'
 import { MeicFeedbackAPIError } from './errors'
 import { Feedback } from './types'
+import { apiPost } from './utils'
 
 export type FeedbackSubmission = Omit<Feedback, 'id' | 'createdAt'>
 
@@ -12,13 +12,17 @@ export async function submitFeedback({
   workloadRating,
   comment
 }: FeedbackSubmission) {
-  const response = await fetch(`${API_BASE_URL}/courses/${courseId}/feedback`, {
-    method: 'POST',
-    body: JSON.stringify({ email, schoolYear, rating, workloadRating, comment })
-  })
-  if (!response.ok) {
-    const { error } = await response.json()
-    throw new MeicFeedbackAPIError(`Failed to submit feedback: ${error}`)
+  try {
+    return await apiPost(`/courses/${courseId}/feedback`, {
+      email,
+      schoolYear,
+      rating,
+      workloadRating,
+      comment
+    })
+  } catch (error) {
+    throw new MeicFeedbackAPIError(
+      `Failed to submit feedback: ${error instanceof Error ? error.message : 'Unknown error'}`
+    )
   }
-  return response.json()
 }
