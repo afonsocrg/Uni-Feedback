@@ -11,7 +11,6 @@ import { BusinessLogicError, NotFoundError, withErrorHandling } from '../utils'
 
 const FeedbackRequestSchema = z
   .object({
-    email: z.string().email(),
     schoolYear: z.number().int(),
     rating: z.number().int().min(1).max(5),
     workloadRating: z.number().int().min(1).max(5),
@@ -48,25 +47,13 @@ export class SubmitFeedback extends OpenAPIRoute {
       const courseId = parseInt(request.params.id)
       const { body } = await this.getValidatedData<typeof this.schema>()
 
-      // Feature flag: require authentication for feedback submission
-      const requireAuth = env.REQUIRE_FEEDBACK_AUTH
+      // Authenticate user (required for feedback submission)
+      const authCheck = await authenticateUser(request, env, context)
+      if (authCheck) return authCheck
 
-      let userId: number | null = null
-      let email: string
-
-      if (requireAuth) {
-        // Authenticate user (required when feature flag is enabled)
-        const authCheck = await authenticateUser(request, env, context)
-        if (authCheck) return authCheck
-
-        // Use authenticated user's info
-        userId = context.user.id
-        email = context.user.email
-        // Note: We ignore body.email if provided
-      } else {
-        // Legacy behavior: use email from request body, no user_id
-        email = body.email
-      }
+      // Use authenticated user's info
+      const userId = context.user.id
+      const email = context.user.email
 
       // Validate school year
       const currentSchoolYear = getCurrentSchoolYear()

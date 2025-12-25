@@ -16,7 +16,6 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-  Input,
   MarkdownTextarea,
   Popover,
   PopoverContent,
@@ -26,17 +25,13 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
   WorkloadRatingDisplay
 } from '@uni-feedback/ui'
 import {
   formatSchoolYearString,
   getCurrentSchoolYear
 } from '@uni-feedback/utils'
-import { Check, ChevronsUpDown, HelpCircle, Loader2, Send } from 'lucide-react'
+import { Check, ChevronsUpDown, Loader2, Send } from 'lucide-react'
 import { useEffect, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link } from 'react-router'
@@ -48,7 +43,6 @@ import { cn } from '~/utils/tailwind'
 interface GiveFeedbackContentProps {
   faculties: Faculty[]
   initialFormValues?: {
-    email: string
     facultyId: number
     degreeId: number
     courseId: number
@@ -59,52 +53,18 @@ interface GiveFeedbackContentProps {
   isSuccess: boolean
 }
 
-// Create form schema factory that validates email against faculty suffixes
-const createFeedbackSchema = (faculties: Faculty[]) =>
-  z
-    .object({
-      email: z.string().email('Invalid email address'),
-      schoolYear: z.number().min(2000, 'Invalid school year'),
-      facultyId: z.number().min(1, 'Faculty is required'),
-      degreeId: z.number().min(1, 'Degree is required'),
-      courseId: z.number().min(1, 'Course is required'),
-      rating: z.number().min(1, 'Rating is required').max(5),
-      workloadRating: z.number().min(1, 'Workload rating is required').max(5),
-      comment: z.string().optional()
-    })
-    .superRefine((data, ctx) => {
-      // Find the selected faculty
-      const selectedFaculty = faculties.find((f) => f.id === data.facultyId)
+// Create form schema
+const feedbackSchema = z.object({
+  schoolYear: z.number().min(2000, 'Invalid school year'),
+  facultyId: z.number().min(1, 'Faculty is required'),
+  degreeId: z.number().min(1, 'Degree is required'),
+  courseId: z.number().min(1, 'Course is required'),
+  rating: z.number().min(1, 'Rating is required').max(5),
+  workloadRating: z.number().min(1, 'Workload rating is required').max(5),
+  comment: z.string().optional()
+})
 
-      // If faculty has email suffix restrictions, validate the email
-      if (
-        selectedFaculty?.emailSuffixes &&
-        selectedFaculty.emailSuffixes.length > 0
-      ) {
-        const emailDomain = data.email.split('@')[1]?.toLowerCase()
-        const isValidDomain = selectedFaculty.emailSuffixes.some(
-          (suffix) => emailDomain === suffix.toLowerCase()
-        )
-
-        if (!isValidDomain) {
-          const suffixesWithAt = selectedFaculty.emailSuffixes.map(
-            (suffix) => `@${suffix}`
-          )
-          const errorMessage =
-            suffixesWithAt.length === 1
-              ? `Email must end with ${suffixesWithAt[0]}`
-              : `Email must end with one of: ${suffixesWithAt.join(', ')}`
-
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: errorMessage,
-            path: ['email']
-          })
-        }
-      }
-    })
-
-type FeedbackFormData = z.infer<ReturnType<typeof createFeedbackSchema>>
+type FeedbackFormData = z.infer<typeof feedbackSchema>
 
 export function GiveFeedbackContent({
   faculties,
@@ -116,16 +76,11 @@ export function GiveFeedbackContent({
 }: GiveFeedbackContentProps) {
   const lastVisitedPath = useLastVisitedPath()
   const browseLink = lastVisitedPath !== '/' ? lastVisitedPath : '/browse'
-  const feedbackSchema = useMemo(
-    () => createFeedbackSchema(faculties),
-    [faculties]
-  )
 
   const form = useForm({
     resolver: zodResolver(feedbackSchema),
     mode: 'onChange', // Validate on change to enable/disable submit button
     defaultValues: {
-      email: initialFormValues?.email || '',
       schoolYear: getCurrentSchoolYear(),
       facultyId: initialFormValues?.facultyId || 0,
       degreeId: initialFormValues?.degreeId || 0,
@@ -149,25 +104,11 @@ export function GiveFeedbackContent({
     selectedDegreeId > 0 ? selectedDegreeId : null
   )
 
-  // Find selected faculty for email placeholder
-  const selectedFaculty = useMemo(
-    () => faculties.find((f) => f.id === selectedFacultyId) || null,
-    [faculties, selectedFacultyId]
-  )
-
   // Generate school years
   const schoolYears = useMemo(
     () => Array.from({ length: 5 }, (_, i) => getCurrentSchoolYear() - i),
     []
   )
-
-  // Re-validate email when faculty changes (to check email suffix restrictions)
-  useEffect(() => {
-    const email = form.getValues('email')
-    if (email && selectedFacultyId > 0) {
-      form.trigger('email')
-    }
-  }, [selectedFacultyId, form])
 
   // Reset dependent selections when parent selections change
   useEffect(() => {
@@ -193,17 +134,6 @@ export function GiveFeedbackContent({
     }
   }, [courses, form])
 
-  // Get email placeholder
-  const emailPlaceholder = useMemo(() => {
-    if (
-      selectedFaculty?.emailSuffixes &&
-      selectedFaculty.emailSuffixes.length > 0
-    ) {
-      return `your.email@${selectedFaculty.emailSuffixes[0]}`
-    }
-    return 'your.email@university.com'
-  }, [selectedFaculty])
-
   // Conditional field visibility
   const showDegreeField = selectedFacultyId > 0
   const showCourseField =
@@ -212,13 +142,14 @@ export function GiveFeedbackContent({
   // Handle reset
   const handleReset = () => {
     form.reset()
+    form.setValue('courseId', 0)
     onReset?.()
   }
 
   // Show success state
   if (isSuccess) {
     return (
-      <main className="container mx-auto px-4 py-8 max-w-2xl">
+      <main className="container mx-auto px-4 py-8 max-w-2xl min-h-screen md:min-h-none">
         <div className="text-center">
           <div className="w-12 h-12 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
             <svg
@@ -264,58 +195,6 @@ export function GiveFeedbackContent({
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* Email */}
-            <FormField
-              name="email"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    <div className="flex items-center gap-2">
-                      <span>
-                        Email
-                        {!field.value && (
-                          <span className="text-red-500">*</span>
-                        )}
-                      </span>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button
-                              type="button"
-                              tabIndex={0}
-                              aria-label="Email info"
-                            >
-                              <HelpCircle className="w-4 h-4 text-gray-400 hover:text-gray-600" />
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent
-                            side="top"
-                            className="max-w-xs text-sm"
-                          >
-                            We ask for your email to verify you are a university
-                            student. We may contact you about your feedback if
-                            needed.
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </div>
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder={emailPlaceholder}
-                      {...field}
-                      className="bg-white"
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    We'll never share your email with anyone.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
             {/* School Year */}
             <div className="flex flex-wrap gap-2">
               <FormField

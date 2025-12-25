@@ -51,7 +51,7 @@ export interface CourseDetail extends Course {
 export interface Feedback {
   id: number
   courseId: number
-  email: string
+  email?: string
   schoolYear: number
   rating: number
   workloadRating: number

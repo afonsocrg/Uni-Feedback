@@ -60,13 +60,9 @@ export async function clientLoader({ request }: Route.ClientLoaderArgs) {
       Number(localStorage.getItem(STORAGE_KEYS.FEEDBACK_DEGREE_ID)) || 0
   }
 
-  // Email always comes from localStorage (not URL for privacy)
-  const savedEmail = localStorage.getItem(STORAGE_KEYS.FEEDBACK_EMAIL) || ''
-
   return {
     faculties,
     initialFormValues: {
-      email: savedEmail,
       facultyId,
       degreeId,
       courseId
@@ -92,7 +88,6 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
   const [isSuccess, setIsSuccess] = useState(false)
 
   const handleSubmit = async (values: {
-    email: string
     schoolYear: number
     facultyId: number
     degreeId: number
@@ -102,7 +97,6 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
     comment?: string
   }) => {
     // Store values in localStorage for next time
-    localStorage.setItem(STORAGE_KEYS.FEEDBACK_EMAIL, values.email)
     localStorage.setItem(
       STORAGE_KEYS.FEEDBACK_FACULTY_ID,
       values.facultyId.toString()
@@ -115,7 +109,6 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
     try {
       // Submit feedback using TanStack Query mutation
       await submitFeedbackMutation.mutateAsync({
-        email: values.email,
         schoolYear: values.schoolYear,
         courseId: values.courseId,
         rating: values.rating,

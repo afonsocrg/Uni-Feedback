@@ -1,11 +1,16 @@
 import { MeicFeedbackAPIError } from './errors'
-import { Feedback } from './types'
 import { apiPost } from './utils'
 
-export type FeedbackSubmission = Omit<Feedback, 'id' | 'createdAt'>
+// Authentication required - email comes from user session
+export type FeedbackSubmission = {
+  schoolYear: number
+  courseId: number
+  rating: number
+  workloadRating: number
+  comment?: string
+}
 
 export async function submitFeedback({
-  email,
   schoolYear,
   courseId,
   rating,
@@ -14,7 +19,6 @@ export async function submitFeedback({
 }: FeedbackSubmission) {
   try {
     return await apiPost(`/courses/${courseId}/feedback`, {
-      email,
       schoolYear,
       rating,
       workloadRating,
