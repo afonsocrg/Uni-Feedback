@@ -1,4 +1,5 @@
 import { API_BASE_URL } from './config'
+import { MeicFeedbackAPIError } from './errors'
 
 interface ApiOptions {
   requiresAuth?: boolean
@@ -67,9 +68,13 @@ async function apiFetch(
     const error = await response
       .json()
       .catch(() => ({ error: 'Request failed' }))
-    throw new Error(
-      error.error || `Request failed with status ${response.status}`
-    )
+    if (error.error) {
+      throw new MeicFeedbackAPIError(error.error, {
+        status: response.status,
+        requestId: error.requestId
+      })
+    }
+    throw new Error(`Request failed with status ${response.status}`)
   }
 
   return response

@@ -1,9 +1,9 @@
-import { verifyMagicLink } from '@uni-feedback/api-client'
+import { MeicFeedbackAPIError } from '@uni-feedback/api-client'
 import { Loader2, XCircle } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
 import { toast } from 'sonner'
-import { useAuth } from '~/hooks/useAuth'
+import { useAuth, useMagicLinkAuth } from '~/hooks'
 
 /**
  * Client-side magic link verification (SPA approach)
@@ -20,6 +20,8 @@ export default function LoginToken() {
   const { setUser } = useAuth()
   const [status, setStatus] = useState<'verifying' | 'error'>('verifying')
   const [errorMessage, setErrorMessage] = useState('')
+
+  const { useMagicLink } = useMagicLinkAuth()
 
   // Prevent double execution in React Strict Mode (development)
   const hasVerified = useRef(false)
@@ -42,13 +44,22 @@ export default function LoginToken() {
 
       try {
         // Call API directly from browser - cookies will be set correctly
-        const response = await verifyMagicLink({ token })
+        const response = await useMagicLink({ token })
 
         // Update client-side auth context
         setUser(response.user)
         toast.success('Successfully logged in!')
         navigate('/')
       } catch (error) {
+        // Check if this is an expired token with requestId
+        if (error instanceof MeicFeedbackAPIError && error.requestId) {
+          // Redirect to login page to continue polling
+          toast.info(error.message)
+          navigate('/login')
+          return
+        }
+
+        // Handle other errors
         setStatus('error')
         setErrorMessage(
           error instanceof Error ? error.message : 'Verification failed'
@@ -57,7 +68,7 @@ export default function LoginToken() {
     }
 
     verify()
-  }, [token, setUser, navigate])
+  }, [token, setUser, navigate, useMagicLink])
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">

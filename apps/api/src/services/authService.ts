@@ -1,4 +1,8 @@
-import { RATE_LIMIT_CONFIG, TOKEN_EXPIRATION_MS } from '@config/auth'
+import {
+  MAGIC_LINK_CONFIG,
+  RATE_LIMIT_CONFIG,
+  TOKEN_EXPIRATION_MS
+} from '@config/auth'
 import { InternalServerError } from '@routes/utils/errorHandling'
 import { database } from '@uni-feedback/db'
 import {
@@ -21,7 +25,7 @@ import {
   hashToken,
   verifyHash
 } from '@utils/auth'
-import { and, eq, gt, isNotNull, isNull, lt } from 'drizzle-orm'
+import { and, eq, gt, isNotNull, isNull, lt, min, or } from 'drizzle-orm'
 import { sendNewSignupNotification } from './telegram'
 
 export class AuthService {
@@ -434,15 +438,60 @@ export class AuthService {
 
   /**
    * Create magic link token for email
+   * If reuseRequestId is provided, validates it belongs to expired token with same email
+   * AND that the requestId was originally created within the reuse window
+   * This allows cross-device verification (mobile polling → desktop verification)
+   * while preventing indefinite requestId reuse
    */
   async createMagicLinkToken(
     email: string,
-    enablePolling: boolean = false
+    reuseRequestId?: string
   ): Promise<MagicLinkToken & { token: string; requestId: string | null }> {
     const token = generateSecureToken(32)
     const tokenHash = await hashToken(token)
     const expiresAt = new Date(Date.now() + TOKEN_EXPIRATION_MS.MAGIC_LINK)
-    const requestId = enablePolling ? generateSecureToken(32) : null
+
+    // Determine requestId: validate provided requestId, reuse from recent request, or generate new
+    let requestId: string | null = null
+
+    // If requestId provided, validate it belongs to expired token with same email
+    // if (enablePolling) {
+    if (reuseRequestId) {
+      // Get the earliest creation time for this requestId to prevent indefinite reuse
+      const [earliestToken] = await database()
+        .select({
+          earliestCreatedAt: min(magicLinkTokens.createdAt)
+        })
+        .from(magicLinkTokens)
+        .where(
+          and(
+            eq(magicLinkTokens.requestId, reuseRequestId),
+            eq(magicLinkTokens.email, email.toLowerCase())
+          )
+        )
+
+      // Validate:
+      // 1. RequestId exists
+      // 2. First token with this requestId was created within reuse window
+      const now = new Date()
+      const reuseWindowStart = new Date(
+        now.getTime() - MAGIC_LINK_CONFIG.REQUEST_ID_REUSE_WINDOW_MS
+      )
+
+      if (
+        earliestToken &&
+        earliestToken.earliestCreatedAt &&
+        earliestToken.earliestCreatedAt > reuseWindowStart
+      ) {
+        requestId = reuseRequestId
+      }
+    }
+
+    // If no valid requestId to reuse, generate a random one
+    if (!requestId) {
+      requestId = generateSecureToken(32)
+    }
+    // }
 
     const [magicToken] = await database()
       .insert(magicLinkTokens)
@@ -474,6 +523,29 @@ export class AuthService {
           eq(magicLinkTokens.tokenHash, tokenHash),
           gt(magicLinkTokens.expiresAt, new Date()),
           isNull(magicLinkTokens.usedAt)
+        )
+      )
+      .limit(1)
+
+    return magicToken || null
+  }
+
+  /**
+   * Find magic link token even if expired
+   * Used to retrieve requestId from expired tokens
+   */
+  async findMagicLinkTokenIncludingExpired(
+    token: string
+  ): Promise<MagicLinkToken | null> {
+    const tokenHash = await hashToken(token)
+
+    const [magicToken] = await database()
+      .select()
+      .from(magicLinkTokens)
+      .where(
+        and(
+          eq(magicLinkTokens.tokenHash, tokenHash),
+          isNull(magicLinkTokens.usedAt) // Still must be unused
         )
       )
       .limit(1)
@@ -530,8 +602,12 @@ export class AuthService {
 
   /**
    * Verify a magic link via requestId (polling endpoint)
-   * If magic link has been used (email clicked) but not verified, creates session
+   * If magic link has been used (email clicked), creates session
+   * Allows re-verification within idempotency window to support multiple devices
    * Returns null for all non-success cases to prevent timing attacks
+   *
+   * Note: Uses the EARLIEST usedAt timestamp across all tokens with this requestId
+   * to prevent extending the freshness window by requesting new tokens
    */
   async verifyMagicLinkByRequestId(requestId: string): Promise<
     | (Session & {
@@ -541,25 +617,67 @@ export class AuthService {
       })
     | null
   > {
+    const now = new Date()
+    const idempotencyWindowStart = new Date(
+      now.getTime() - MAGIC_LINK_CONFIG.VERIFICATION_IDEMPOTENCY_WINDOW_MS
+    )
+    const freshnessWindowStart = new Date(
+      now.getTime() - MAGIC_LINK_CONFIG.TOKEN_USAGE_FRESHNESS_WINDOW_MS
+    )
+
+    // First, get the earliest usedAt timestamp for this requestId
+    // This prevents the attack where someone continuously requests new tokens
+    // to extend the freshness window
+    const [earliestUsage] = await database()
+      .select({
+        earliestUsedAt: min(magicLinkTokens.usedAt)
+      })
+      .from(magicLinkTokens)
+      .where(
+        and(
+          eq(magicLinkTokens.requestId, requestId),
+          isNotNull(magicLinkTokens.usedAt)
+        )
+      )
+
+    // If no tokens have been used yet, or earliest usage is outside freshness window, return null
+    if (
+      !earliestUsage?.earliestUsedAt ||
+      earliestUsage.earliestUsedAt <= freshnessWindowStart
+    ) {
+      return null
+    }
+
+    // Now find a valid token that can be verified
+    // - Has been used (email link clicked)
+    // - Either not verified yet OR verified within idempotency window
     const [tokenData] = await database()
       .select()
       .from(magicLinkTokens)
       .where(
         and(
           eq(magicLinkTokens.requestId, requestId),
-          gt(magicLinkTokens.expiresAt, new Date()),
+          // Token must have been used within the freshness window
           isNotNull(magicLinkTokens.usedAt),
-          isNull(magicLinkTokens.verifiedAt)
+          gt(magicLinkTokens.usedAt, freshnessWindowStart),
+          // Token must have not been verified
+          // (or verified within idempotency window)
+          or(
+            // First verification
+            isNull(magicLinkTokens.verifiedAt),
+            // Or re-verification within idempotency window
+            gt(magicLinkTokens.verifiedAt, idempotencyWindowStart)
+          )
         )
       )
       .limit(1)
 
-    // Return null for: invalid requestId, not clicked yet, already consumed, or expired
+    // Return null for all failure cases
     if (!tokenData) {
       return null
     }
 
-    // Find or create user
+    // Find user (should exist because token was used)
     let user = await this.findUserByEmail(tokenData.email)
 
     if (!user) {
@@ -568,14 +686,19 @@ export class AuthService {
       )
     }
 
-    // Create session and mark as verified via polling
+    // Create session and mark as verified (if not verified already)
     const result = await database().transaction(async (tx) => {
       const session = await this.createSession(user.id, user.role)
 
       await tx
         .update(magicLinkTokens)
         .set({ verifiedAt: new Date() })
-        .where(eq(magicLinkTokens.id, tokenData.id))
+        .where(
+          and(
+            eq(magicLinkTokens.id, tokenData.id),
+            isNull(magicLinkTokens.verifiedAt)
+          )
+        )
 
       return { ...session, user }
     })

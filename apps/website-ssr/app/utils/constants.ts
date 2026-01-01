@@ -1,3 +1,5 @@
+import { TIME_MS } from '@uni-feedback/utils'
+
 export const ADD_COURSE_FORM_URL =
   'https://docs.google.com/forms/d/e/1FAIpQLSd2FBk_hbv6v0iW-y8wtY6DL-fDIE_GlyA8rSkamSJJfCjCFQ/viewform?usp=header'
 
@@ -11,5 +13,14 @@ export const STORAGE_KEYS = {
   DEGREE_FILTERS: 'degreeFilters',
   COURSE_FILTERS: 'courseFilters',
   LAST_LOGIN_EMAIL: 'uni-feedback-last-email',
-  AUTH_USER: 'uni-feedback-student-user'
+  AUTH_USER: 'uni-feedback-student-user',
+  MAGIC_LINK_REQUEST_ID: 'uni-feedback-magic-link-request-id'
+} as const
+
+// Email verification configuration
+export const VERIFICATION_CONFIG = {
+  POLL_INTERVAL_MS: 2 * TIME_MS.SECOND, // Poll every 2 seconds
+  MAX_POLL_DURATION_MS: 5 * TIME_MS.MINUTE, // 5 minutes timeout
+  SUCCESS_DISPLAY_MS: 500, // Brief success display before auto-submit
+  REQUEST_ID_FRESHNESS_MS: 5 * TIME_MS.MINUTE // RequestId expires after 5 minutes
 } as const

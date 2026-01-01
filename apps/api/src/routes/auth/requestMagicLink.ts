@@ -14,7 +14,8 @@ export class RequestMagicLink extends OpenAPIRoute {
           'application/json': {
             schema: z.object({
               email: z.string().email(),
-              enablePolling: z.boolean().optional()
+              enablePolling: z.boolean().optional(),
+              requestId: z.string().optional()
             })
           }
         }
@@ -49,7 +50,7 @@ export class RequestMagicLink extends OpenAPIRoute {
   async handle(request: Request, env: Env, context: any) {
     try {
       const data = await this.getValidatedData<typeof this.schema>()
-      const { email, enablePolling } = data.body
+      const { email, requestId: reuseRequestId } = data.body
       const normalizedEmail = email.toLowerCase()
 
       // Validate email domain against faculty whitelist
@@ -75,12 +76,12 @@ export class RequestMagicLink extends OpenAPIRoute {
         // Create magic link token
         const magicToken = await authService.createMagicLinkToken(
           normalizedEmail,
-          enablePolling
+          reuseRequestId // Pass requestId (undefined if not provided)
         )
-        requestId = magicToken.requestId
+        requestId = magicToken.requestId ?? undefined
 
         // Send magic link email
-        const websiteUrl = env.WEBSITE_URL || 'http://localhost:5173'
+        const websiteUrl = env.WEBSITE_URL
         const emailService = new EmailService(env)
         await emailService.sendMagicLinkEmail(
           normalizedEmail,

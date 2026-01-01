@@ -51,3 +51,26 @@ export const RATE_LIMIT_CONFIG = {
     WINDOW_MINUTES: 60 // Time window in minutes
   }
 } as const
+
+// Magic link configuration
+export const MAGIC_LINK_CONFIG = {
+  // Request ID reuse window
+  // When requesting a new magic link, reuse the requestId from recent requests
+  // This allows cross-device verification (mobile polling → desktop verification)
+  REQUEST_ID_REUSE_WINDOW_MS: 15 * TIME_MS.MINUTE,
+
+  // Verification idempotency window
+  // RequestId can be verified multiple times within this window after first verification
+  // This prevents race conditions when multiple devices poll for the same requestId
+  VERIFICATION_IDEMPOTENCY_WINDOW_MS: 30 * TIME_MS.SECOND,
+
+  // Expired token requestId exposure window
+  // Only return requestId from expired tokens if they were created within this window
+  // This prevents exposing requestIds from very old expired tokens
+  EXPIRED_TOKEN_REQUESTID_WINDOW_MS: 2 * TIME_MS.HOUR,
+
+  // Token usage freshness window for verification
+  // When verifying via requestId, the token must have been used within this window
+  // This prevents verifying tokens that were used a long time ago
+  TOKEN_USAGE_FRESHNESS_WINDOW_MS: 5 * TIME_MS.MINUTE
+} as const

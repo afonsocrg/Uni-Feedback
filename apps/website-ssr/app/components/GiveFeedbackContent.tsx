@@ -187,7 +187,7 @@ export function GiveFeedbackContent({
   }
 
   return (
-    <main className="container mx-auto px-4 py-8 max-w-2xl">
+    <main className="container mx-auto px-4 py-8 max-w-2xl min-h-screen">
       <div>
         <h1 className="text-xl font-bold text-gray-900 mb-6">
           Leave your Feedback!

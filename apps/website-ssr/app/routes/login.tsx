@@ -1,4 +1,3 @@
-import { requestMagicLink } from '@uni-feedback/api-client'
 import {
   Button,
   Card,
@@ -11,12 +10,15 @@ import { isValidEmail } from '@uni-feedback/utils'
 import { Info } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
+import { useMagicLinkAuth } from '~/hooks'
 import { STORAGE_KEYS } from '~/utils/constants'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [emailSent, setEmailSent] = useState(false)
+
+  const { requestMagicLink } = useMagicLinkAuth()
 
   // Load saved email from localStorage on mount
   useEffect(() => {

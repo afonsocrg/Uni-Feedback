@@ -46,9 +46,11 @@ export interface User {
 
 export interface RequestMagicLinkRequest {
   email: string
+  enablePolling?: boolean
+  requestId?: string
 }
 
-export interface VerifyMagicLinkRequest {
+export interface UseMagicLinkRequest {
   token: string
 }
 
@@ -127,19 +129,46 @@ export async function inviteUser(
  */
 export async function requestMagicLink(
   data: RequestMagicLinkRequest
-): Promise<{ message: string }> {
-  return apiPost<{ message: string }>('/auth/request-magic-link', data, {
-    requiresAuth: false
-  })
+): Promise<{ message: string; requestId?: string }> {
+  return apiPost<{ message: string; requestId?: string }>(
+    '/auth/magic-links',
+    data,
+    {
+      requiresAuth: false
+    }
+  )
 }
 
 /**
  * Verify magic link token and create session
  */
-export async function verifyMagicLink(
-  data: VerifyMagicLinkRequest
+export async function useMagicLink(
+  data: UseMagicLinkRequest
 ): Promise<LoginResponse> {
-  return apiPost<LoginResponse>('/auth/verify-magic-link', data)
+  return apiPost<LoginResponse>('/auth/magic-links/use', data)
+}
+
+export interface VerifyMagicLinkByRequestIdRequest {
+  requestId: string
+}
+
+export interface VerifyMagicLinkResponse {
+  status?: 'pending'
+  user?: {
+    id: number
+    email: string
+    username: string
+    role: string
+  }
+}
+
+/**
+ * Verify magic link by request ID (polling-based verification)
+ */
+export async function verifyMagicLinkByRequestId(
+  data: VerifyMagicLinkByRequestIdRequest
+): Promise<VerifyMagicLinkResponse> {
+  return apiPost<VerifyMagicLinkResponse>('/auth/magic-links/verify', data)
 }
 
 /**

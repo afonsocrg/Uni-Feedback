@@ -5,8 +5,10 @@ import {
 } from '@uni-feedback/api-client'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { GiveFeedbackContent } from '~/components'
+import { EmailVerificationModal, GiveFeedbackContent } from '~/components'
+import type { AuthUser } from '~/context/AuthContext'
 import { useSubmitFeedback } from '~/hooks/queries'
+import { useAuth } from '~/hooks/useAuth'
 import { STORAGE_KEYS } from '~/utils/constants'
 
 import type { Route } from './+types/feedback.new'
@@ -86,6 +88,17 @@ export function HydrateFallback() {
 export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
   const submitFeedbackMutation = useSubmitFeedback()
   const [isSuccess, setIsSuccess] = useState(false)
+  const { isAuthenticated, setUser } = useAuth()
+  const [showVerificationModal, setShowVerificationModal] = useState(false)
+  const [pendingFeedbackData, setPendingFeedbackData] = useState<{
+    schoolYear: number
+    facultyId: number
+    degreeId: number
+    courseId: number
+    rating: number
+    workloadRating: number
+    comment?: string
+  } | null>(null)
 
   const handleSubmit = async (values: {
     schoolYear: number
@@ -106,6 +119,16 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
       values.degreeId.toString()
     )
 
+    // Check authentication status
+    if (!isAuthenticated) {
+      // Store form data for later submission
+      setPendingFeedbackData(values)
+      // Show verification modal
+      setShowVerificationModal(true)
+      return
+    }
+
+    // User is authenticated - proceed with normal submission
     try {
       // Submit feedback using TanStack Query mutation
       await submitFeedbackMutation.mutateAsync({
@@ -129,14 +152,58 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
     }
   }
 
+  const handleVerificationSuccess = async (user: AuthUser) => {
+    // Update auth context
+    setUser(user)
+
+    // Close modal
+    setShowVerificationModal(false)
+
+    // Auto-submit the pending feedback
+    if (pendingFeedbackData) {
+      try {
+        await submitFeedbackMutation.mutateAsync({
+          schoolYear: pendingFeedbackData.schoolYear,
+          courseId: pendingFeedbackData.courseId,
+          rating: pendingFeedbackData.rating,
+          workloadRating: pendingFeedbackData.workloadRating,
+          comment: pendingFeedbackData.comment
+        })
+
+        setIsSuccess(true)
+        toast.success('Feedback submitted successfully!')
+        setPendingFeedbackData(null)
+      } catch (error) {
+        if (error instanceof MeicFeedbackAPIError) {
+          toast.error(error.message)
+        } else {
+          console.error('Failed to submit feedback:', error)
+          toast.error('Failed to submit feedback. Please try again.')
+        }
+      }
+    }
+  }
+
   return (
-    <GiveFeedbackContent
-      faculties={loaderData.faculties}
-      initialFormValues={loaderData.initialFormValues}
-      onSubmit={handleSubmit}
-      onReset={() => setIsSuccess(false)}
-      isSubmitting={submitFeedbackMutation.isPending}
-      isSuccess={isSuccess}
-    />
+    <>
+      <GiveFeedbackContent
+        faculties={loaderData.faculties}
+        initialFormValues={loaderData.initialFormValues}
+        onSubmit={handleSubmit}
+        onReset={() => setIsSuccess(false)}
+        isSubmitting={submitFeedbackMutation.isPending}
+        isSuccess={isSuccess}
+      />
+
+      <EmailVerificationModal
+        open={showVerificationModal}
+        onSuccess={handleVerificationSuccess}
+        onError={(error) => {
+          setShowVerificationModal(false)
+          toast.error(error)
+        }}
+        onClose={() => setShowVerificationModal(false)}
+      />
+    </>
   )
 }
