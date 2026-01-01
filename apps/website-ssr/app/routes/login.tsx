@@ -9,16 +9,19 @@ import {
 import { isValidEmail } from '@uni-feedback/utils'
 import { Info } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router'
 import { toast } from 'sonner'
 import { useMagicLinkAuth } from '~/hooks'
-import { STORAGE_KEYS } from '~/utils/constants'
+import { STORAGE_KEYS, VERIFICATION_CONFIG } from '~/utils/constants'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [emailSent, setEmailSent] = useState(false)
+  const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
 
-  const { requestMagicLink } = useMagicLinkAuth()
+  const { requestMagicLink, verifyMagicLinkByRequestId } = useMagicLinkAuth()
 
   // Load saved email from localStorage on mount
   useEffect(() => {
@@ -27,6 +30,39 @@ export default function LoginPage() {
       setEmail(savedEmail)
     }
   }, [])
+
+  // Polling logic - runs when email is sent
+  useEffect(() => {
+    if (!emailSent) return
+
+    const startTime = Date.now()
+    const redirectTo = searchParams.get('redirect') || '/'
+
+    const poll = async () => {
+      try {
+        const result = await verifyMagicLinkByRequestId()
+
+        if (result.user) {
+          clearInterval(pollInterval)
+          toast.success('Successfully logged in!')
+          navigate(redirectTo)
+        }
+
+        // Check timeout
+        if (Date.now() - startTime > VERIFICATION_CONFIG.MAX_POLL_DURATION_MS) {
+          clearInterval(pollInterval)
+        }
+      } catch (error) {
+        clearInterval(pollInterval)
+        console.error('Polling error:', error)
+      }
+    }
+
+    const pollInterval = setInterval(poll, VERIFICATION_CONFIG.POLL_INTERVAL_MS)
+    poll() // Initial poll
+
+    return () => clearInterval(pollInterval)
+  }, [emailSent, verifyMagicLinkByRequestId, navigate, searchParams])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -39,7 +75,7 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      await requestMagicLink({ email })
+      await requestMagicLink({ email, enablePolling: true })
       // Save email to localStorage for next time
       localStorage.setItem(STORAGE_KEYS.LAST_LOGIN_EMAIL, email)
       setEmailSent(true)
@@ -67,6 +103,9 @@ export default function LoginPage() {
               <div className="space-y-2">
                 <p>We've sent a login link to</p>
                 <p className="font-semibold">{email}</p>
+                <p className="text-xs mt-3">
+                  Don't see the email? Check your spam folder or trash bin.
+                </p>
               </div>
               <div className="flex gap-2 pt-2">
                 <Button
