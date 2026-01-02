@@ -18,8 +18,7 @@ RUN pnpm install --frozen-lockfile
 
 COPY --from=builder /app/out/full/ .
 COPY --from=builder /app/tsconfig.json .
-COPY --from=builder /app/terms_of_service.md .
-COPY --from=builder /app/privacy_policy.md .
+COPY legal/ ./legal
 
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 RUN pnpm dlx turbo@2.5.9-canary.3 run build --filter=@uni-feedback/website-ssr

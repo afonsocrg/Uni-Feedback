@@ -1,5 +1,5 @@
 import { Markdown } from '@uni-feedback/ui'
-import termsContent from '../../../../terms_of_service.md'
+import termsContent from '../../../../legal/terms_of_service.md'
 
 export function TermsPage() {
   return (

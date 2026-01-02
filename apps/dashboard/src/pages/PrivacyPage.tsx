@@ -1,5 +1,5 @@
 import { Markdown } from '@uni-feedback/ui'
-import privacyContent from '../../../../privacy_policy.md'
+import privacyContent from '../../../../legal/privacy_policy.md'
 
 export function PrivacyPage() {
   return (

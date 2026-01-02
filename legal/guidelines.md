@@ -1,5 +1,7 @@
 # Feedback Guidelines
 
+* **Last Updated:** December 29, 2025
+
 These are the official posting guidelines ("Site Guidelines") for Uni Feedback ("Site”). The Site is owned, operated and/or provided by Afonso Gonçalves ("Uni Feedback" "we," "us," or "our") and these Site Guidelines are a part of, and an Additional Terms under, our [Terms of Service](/terms).
 
 Uni Feedback is a website for students to research and rate university courses in Lisbon.
@@ -72,8 +74,3 @@ If you have any questions regarding these guidelines, a complaint about specific
 You can reach out to support@uni-feedback.com.
 
 We strive to respond to all inquiries as quickly as possible to ensure that Uni Feedback remains a useful and safe space for everyone.
-
----
-
-* **Effective Date:** December 29, 2025;
-* **Last Updated:** December 29, 2025;

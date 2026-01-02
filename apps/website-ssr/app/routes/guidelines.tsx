@@ -1,7 +1,7 @@
 import { Markdown } from '@uni-feedback/ui'
-import { markdown } from '../../../../legal/privacy_policy.md'
+import { markdown } from '../../../../legal/guidelines.md'
 
-export default function Privacy() {
+export default function Guidelines() {
   return (
     <div className="min-h-full">
       <div className="mx-auto px-4 py-8 max-w-2xl">

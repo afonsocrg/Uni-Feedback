@@ -11,4 +11,9 @@ declare global {
   }
 }
 
+// Type declarations for markdown files
+declare module '*.md' {
+  export const markdown: string
+}
+
 export {}

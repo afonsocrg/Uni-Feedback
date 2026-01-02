@@ -44,7 +44,8 @@ export function LandingFooter() {
       title: 'Legal',
       links: [
         { href: '/terms', label: 'Terms and Conditions' },
-        { href: '/privacy', label: 'Privacy Policy' }
+        { href: '/privacy', label: 'Privacy Policy' },
+        { href: '/guidelines', label: 'Guidelines' }
       ]
     }
   ]

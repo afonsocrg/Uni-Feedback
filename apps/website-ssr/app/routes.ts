@@ -22,6 +22,7 @@ export default [
     route('/partners', 'routes/partners.tsx'),
     route('/terms', 'routes/terms.tsx'),
     route('/privacy', 'routes/privacy.tsx'),
+    route('/guidelines', 'routes/guidelines.tsx'),
 
     // Protected routes (require authentication)
     layout('routes/auth-layout.tsx', [route('/profile', 'routes/profile.tsx')])
