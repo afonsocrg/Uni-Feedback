@@ -25,6 +25,9 @@ export default function LoginPage() {
 
   const { requestMagicLink, verifyMagicLinkByRequestId } = useMagicLinkAuth()
 
+  // Extract referral code from URL
+  const referralCode = searchParams.get('ref') || undefined
+
   // Load saved email from localStorage on mount
   useEffect(() => {
     const savedEmail = localStorage.getItem(STORAGE_KEYS.LAST_LOGIN_EMAIL)
@@ -79,7 +82,7 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      await requestMagicLink({ email, enablePolling: true })
+      await requestMagicLink({ email, enablePolling: true, referralCode })
       // Save email to localStorage for next time
       localStorage.setItem(STORAGE_KEYS.LAST_LOGIN_EMAIL, email)
       setEmailSent(true)
@@ -99,6 +102,11 @@ export default function LoginPage() {
           <h1 className="text-xl font-semibold text-center">
             Login or Sign up
           </h1>
+          {referralCode && (
+            <p className="text-sm text-muted-foreground">
+              You've been invited! Code: {referralCode}
+            </p>
+          )}
         </div>
 
         <Card className="p-6 shadow-lg border-border text-sm">

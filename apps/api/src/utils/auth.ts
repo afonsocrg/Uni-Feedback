@@ -1,5 +1,5 @@
+import { PASSWORD_REQUIREMENTS } from '@config/auth'
 import { randomBytes } from 'crypto'
-import { PASSWORD_REGEX, PASSWORD_REQUIREMENTS } from '@config/auth'
 
 /**
  * Validates password against security requirements

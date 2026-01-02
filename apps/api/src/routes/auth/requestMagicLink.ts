@@ -1,6 +1,5 @@
-import { AuthService } from '@services/authService'
-import { EmailService } from '@services/emailService'
-import { isUniversityEmail } from '@utils/emailValidation'
+import { AuthService, EmailService } from '@services'
+import { isUniversityEmail, validateReferralCodeFormat } from '@utils'
 import { OpenAPIRoute } from 'chanfana'
 import { z } from 'zod'
 
@@ -15,7 +14,8 @@ export class RequestMagicLink extends OpenAPIRoute {
             schema: z.object({
               email: z.string().email(),
               enablePolling: z.boolean().optional(),
-              requestId: z.string().optional()
+              requestId: z.string().optional(),
+              referralCode: z.string().optional()
             })
           }
         }
@@ -50,8 +50,13 @@ export class RequestMagicLink extends OpenAPIRoute {
   async handle(request: Request, env: Env, context: any) {
     try {
       const data = await this.getValidatedData<typeof this.schema>()
-      const { email, requestId: reuseRequestId } = data.body
+      let { email, requestId: reuseRequestId, referralCode } = data.body
       const normalizedEmail = email.toLowerCase()
+
+      // Validate referral code format if provided (silently ignore invalid)
+      if (referralCode && !validateReferralCodeFormat(referralCode)) {
+        referralCode = undefined
+      }
 
       // Validate email domain against faculty whitelist
       const isValid = await isUniversityEmail(normalizedEmail)
@@ -76,7 +81,8 @@ export class RequestMagicLink extends OpenAPIRoute {
         // Create magic link token
         const magicToken = await authService.createMagicLinkToken(
           normalizedEmail,
-          reuseRequestId // Pass requestId (undefined if not provided)
+          reuseRequestId, // Pass requestId (undefined if not provided)
+          referralCode // Pass referral code (undefined if not provided or invalid)
         )
         requestId = magicToken.requestId ?? undefined
 

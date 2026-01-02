@@ -18,7 +18,8 @@ export class GetProfile extends OpenAPIRoute {
                 email: z.string(),
                 username: z.string(),
                 role: z.string(),
-                superuser: z.boolean()
+                superuser: z.boolean(),
+                referralCode: z.string().nullable()
               })
             })
           }
@@ -51,7 +52,8 @@ export class GetProfile extends OpenAPIRoute {
           id: user.id,
           email: user.email,
           username: user.username,
-          role: user.role
+          role: user.role,
+          referralCode: user.referralCode
         }
       })
     } catch (error) {

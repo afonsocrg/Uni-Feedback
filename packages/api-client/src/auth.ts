@@ -48,6 +48,7 @@ export interface RequestMagicLinkRequest {
   email: string
   enablePolling?: boolean
   requestId?: string
+  referralCode?: string
 }
 
 export interface UseMagicLinkRequest {
@@ -60,6 +61,7 @@ export interface ProfileResponse {
     email: string
     username: string
     role: string
+    referralCode: string | null
   }
 }
 

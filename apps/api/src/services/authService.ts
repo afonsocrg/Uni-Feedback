@@ -26,6 +26,10 @@ import {
   hashToken,
   verifyHash
 } from '@utils/auth'
+import {
+  findUserByReferralCode,
+  generateUniqueReferralCode
+} from '@utils/referral'
 import { and, eq, gt, isNotNull, isNull, lt, min, or } from 'drizzle-orm'
 import { sendNewSignupNotification } from './telegram'
 
@@ -35,22 +39,50 @@ export class AuthService {
   constructor(env: Env) {
     this.env = env
   }
+
   /**
-   * Create a new user
+   * Create a new user (admin or student) with referral tracking
+   * @param userData User data (email, username, role, etc.)
+   * @param options Optional password and referral code
+   * @returns Created user
    */
   async createUser(
     userData: Omit<
       NewUser,
-      'id' | 'createdAt' | 'updatedAt' | 'passwordHash'
-    > & { password: string }
+      | 'id'
+      | 'createdAt'
+      | 'updatedAt'
+      | 'passwordHash'
+      | 'referralCode'
+      | 'referredByUserId'
+    >,
+    options?: { password?: string; referralCode?: string; role?: string }
   ): Promise<User> {
-    const passwordHash = await hashPassword(userData.password)
+    // Generate unique referral code for new user
+    const newUserReferralCode = await generateUniqueReferralCode()
+
+    // Lookup referrer if referral code was provided
+    let referredByUserId: number | null = null
+    if (options?.referralCode) {
+      const referrer = await findUserByReferralCode(options.referralCode)
+      if (referrer) {
+        referredByUserId = referrer.id
+      }
+      // Invalid referral codes are silently ignored
+    }
+
+    // Hash password if provided
+    const passwordHash = options?.password
+      ? await hashPassword(options.password)
+      : null
 
     const [user] = await database()
       .insert(users)
       .values({
         ...userData,
-        passwordHash
+        passwordHash,
+        referralCode: newUserReferralCode,
+        referredByUserId
       })
       .returning()
 
@@ -388,7 +420,7 @@ export class AuthService {
   }
 
   /**
-   * Use user creation token
+   * Use user creation token (for admin invitations)
    */
   async useUserCreationToken(
     token: string,
@@ -397,20 +429,19 @@ export class AuthService {
     const tokenData = await this.findUserCreationToken(token)
     if (!tokenData) return null
 
-    const passwordHash = await hashPassword(userData.password)
-
     // Create user and mark token as used in a transaction
     const newUser = await database().transaction(async (tx) => {
-      const [user] = await tx
-        .insert(users)
-        .values({
+      // Create user with referral code using unified createUser method
+      const user = await this.createUser(
+        {
           email: tokenData.email,
           username: userData.username,
-          passwordHash,
-          superuser: false
-        })
-        .returning()
+          role: 'admin' // Users created via invitation are admins
+        },
+        { password: userData.password }
+      )
 
+      // Mark token as used
       await tx
         .update(userCreationTokens)
         .set({ usedAt: new Date() })
@@ -446,7 +477,6 @@ export class AuthService {
    */
   async deleteUserAccount(userId: number): Promise<void> {
     await database().transaction(async (tx) => {
-      // Step 1: Insert new anonymized user
       const [anonymizedUser] = await tx
         .insert(users)
         .values({
@@ -454,7 +484,9 @@ export class AuthService {
           username: `deleted-user`,
           passwordHash: null,
           role: 'student',
-          superuser: false
+          superuser: false,
+          referralCode: null, // GDPR: Remove referral code
+          referredByUserId: null // Anonymized user has no referrer
         })
         .returning({ id: users.id })
 
@@ -471,6 +503,12 @@ export class AuthService {
         .set({ createdBy: anonymizedUser.id })
         .where(eq(userCreationTokens.createdBy, userId))
 
+      // Update referees to point to anonymized user (preserve referral relationships)
+      await tx
+        .update(users)
+        .set({ referredByUserId: anonymizedUser.id })
+        .where(eq(users.referredByUserId, userId))
+
       // Step 3: Delete original user (cascades to sessions, passwordResetTokens)
       await tx.delete(users).where(eq(users.id, userId))
     })
@@ -485,7 +523,8 @@ export class AuthService {
    */
   async createMagicLinkToken(
     email: string,
-    reuseRequestId?: string
+    reuseRequestId?: string,
+    referralCode?: string
   ): Promise<MagicLinkToken & { token: string; requestId: string | null }> {
     const token = generateSecureToken(32)
     const tokenHash = await hashToken(token)
@@ -539,6 +578,7 @@ export class AuthService {
         email: email.toLowerCase(),
         tokenHash,
         requestId,
+        referralCode: referralCode || null,
         expiresAt
       })
       .returning()
@@ -608,20 +648,16 @@ export class AuthService {
     let user = await this.findUserByEmail(tokenData.email)
 
     if (!user) {
-      // Auto-create student user on first sign-in
-      const username = tokenData.email.split('@')[0] // Use email prefix as username
-      const [newUser] = await database()
-        .insert(users)
-        .values({
+      // Auto-create student user on first sign-in with referral tracking
+      const username = tokenData.email.split('@')[0]
+      user = await this.createUser(
+        {
           email: tokenData.email,
           username,
-          passwordHash: null, // Students have no password
-          role: 'student',
-          superuser: false
-        })
-        .returning()
-      user = newUser
-
+          role: 'student'
+        },
+        { referralCode: tokenData.referralCode || undefined }
+      )
       sendNewSignupNotification(this.env, user.email)
     }
 
