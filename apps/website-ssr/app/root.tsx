@@ -173,7 +173,13 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
 
   if (isRouteErrorResponse(error)) {
     if (error.status === 404 || error.status === 400) {
-      return <NotFound />
+      return (
+        <AuthProvider>
+          <AuthRefreshProvider>
+            <NotFound />
+          </AuthRefreshProvider>
+        </AuthProvider>
+      )
     }
     message = 'Error'
     details = error.statusText || details

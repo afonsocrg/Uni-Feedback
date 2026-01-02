@@ -239,8 +239,8 @@ This link expires in 15 minutes.
 
 If you didn't request this link, you can safely ignore this email.
 
-Happy reviewing!
-The Uni Feedback Team`
+Have a great day!
+Afonso`
     }
 
     await this.sendEmail({

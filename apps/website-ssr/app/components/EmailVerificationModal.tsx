@@ -257,6 +257,10 @@ export function EmailVerificationModal({
                 <span className="font-semibold">{modalState.email}</span>.
                 <br />
                 Please check your email and click the link.
+                <br />
+                <span className="text-xs mt-2 block">
+                  Don't see the email? Check your spam folder or trash bin.
+                </span>
               </DialogDescription>
             </DialogHeader>
 
