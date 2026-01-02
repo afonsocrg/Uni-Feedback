@@ -6,6 +6,7 @@ import {
 import { InternalServerError } from '@routes/utils/errorHandling'
 import { database } from '@uni-feedback/db'
 import {
+  feedback,
   magicLinkRateLimits,
   magicLinkTokens,
   passwordResetTokens,
@@ -434,6 +435,45 @@ export class AuthService {
   async deleteUser(userId: number): Promise<void> {
     // Foreign key constraints will handle cascading deletes
     await database().delete(users).where(eq(users.id, userId))
+  }
+
+  /**
+   * Delete user account (GDPR-compliant soft delete)
+   * Anonymizes user by:
+   * 1. Creating a new anonymized user (auto-incremented ID)
+   * 2. Transferring all feedback and user creation tokens to the anonymized user
+   * 3. Deleting the original user (cascades to sessions, password reset tokens, etc.)
+   */
+  async deleteUserAccount(userId: number): Promise<void> {
+    await database().transaction(async (tx) => {
+      // Step 1: Insert new anonymized user
+      const [anonymizedUser] = await tx
+        .insert(users)
+        .values({
+          email: `deleted-user-${Date.now()}@deleted.local`,
+          username: `deleted-user`,
+          passwordHash: null,
+          role: 'student',
+          superuser: false
+        })
+        .returning({ id: users.id })
+
+      // Step 2: Update foreign keys to point to anonymized user
+      // Update feedback submissions
+      await tx
+        .update(feedback)
+        .set({ userId: anonymizedUser.id })
+        .where(eq(feedback.userId, userId))
+
+      // Update user creation tokens (for invites created by this user)
+      await tx
+        .update(userCreationTokens)
+        .set({ createdBy: anonymizedUser.id })
+        .where(eq(userCreationTokens.createdBy, userId))
+
+      // Step 3: Delete original user (cascades to sessions, passwordResetTokens)
+      await tx.delete(users).where(eq(users.id, userId))
+    })
   }
 
   /**
