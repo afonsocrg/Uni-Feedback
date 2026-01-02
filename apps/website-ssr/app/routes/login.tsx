@@ -8,10 +8,10 @@ import {
 } from '@uni-feedback/ui'
 import { isValidEmail } from '@uni-feedback/utils'
 import { Info } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import { toast } from 'sonner'
-import { useMagicLinkAuth } from '~/hooks'
+import { useAuth, useMagicLinkAuth } from '~/hooks'
 import { STORAGE_KEYS, VERIFICATION_CONFIG } from '~/utils/constants'
 
 export default function LoginPage() {
@@ -20,6 +20,8 @@ export default function LoginPage() {
   const [emailSent, setEmailSent] = useState(false)
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
+  const { setUser } = useAuth()
+  const verificationSucceeded = useRef(false)
 
   const { requestMagicLink, verifyMagicLinkByRequestId } = useMagicLinkAuth()
 
@@ -33,7 +35,7 @@ export default function LoginPage() {
 
   // Polling logic - runs when email is sent
   useEffect(() => {
-    if (!emailSent) return
+    if (!emailSent || verificationSucceeded.current) return
 
     const startTime = Date.now()
     const redirectTo = searchParams.get('redirect') || '/'
@@ -43,7 +45,9 @@ export default function LoginPage() {
         const result = await verifyMagicLinkByRequestId()
 
         if (result.user) {
+          verificationSucceeded.current = true
           clearInterval(pollInterval)
+          setUser(result.user)
           toast.success('Successfully logged in!')
           navigate(redirectTo)
         }
@@ -62,7 +66,7 @@ export default function LoginPage() {
     poll() // Initial poll
 
     return () => clearInterval(pollInterval)
-  }, [emailSent, verifyMagicLinkByRequestId, navigate, searchParams])
+  }, [emailSent, verifyMagicLinkByRequestId, navigate, searchParams, setUser])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -111,7 +115,10 @@ export default function LoginPage() {
                 <Button
                   type="submit"
                   className="w-full"
-                  onClick={() => setEmailSent(false)}
+                  onClick={() => {
+                    setEmailSent(false)
+                    verificationSucceeded.current = false
+                  }}
                 >
                   Try again
                 </Button>
