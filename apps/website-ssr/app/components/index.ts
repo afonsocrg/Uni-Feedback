@@ -1,4 +1,5 @@
 export * from './ActionButton'
+export * from './auth-guard'
 export * from './common'
 export * from './course'
 export * from './degree'

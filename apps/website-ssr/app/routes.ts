@@ -12,6 +12,7 @@ export default [
   route('/login', 'routes/login.tsx'),
   route('/login/:token', 'routes/login.$token.tsx'),
   layout('routes/landing-layout.tsx', [
+    // Public routes
     index('routes/landing.tsx'),
     route('/browse', 'routes/browse.tsx'),
     route('/:facultySlug', 'routes/$facultySlug.tsx'),
@@ -20,6 +21,9 @@ export default [
     route('/courses/:courseId', 'routes/courses.$courseId.tsx'),
     route('/partners', 'routes/partners.tsx'),
     route('/terms', 'routes/terms.tsx'),
-    route('/privacy', 'routes/privacy.tsx')
+    route('/privacy', 'routes/privacy.tsx'),
+
+    // Protected routes (require authentication)
+    layout('routes/auth-layout.tsx', [route('/profile', 'routes/profile.tsx')])
   ])
 ] satisfies RouteConfig

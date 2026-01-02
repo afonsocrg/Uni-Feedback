@@ -1,4 +1,4 @@
-import { apiGet, apiPost, apiPostVoid } from './utils'
+import { apiDelete, apiGet, apiPost, apiPostVoid } from './utils'
 
 export interface LoginRequest {
   email: string
@@ -183,4 +183,12 @@ export async function getUsers(): Promise<User[]> {
  */
 export async function getProfile(): Promise<ProfileResponse> {
   return apiGet<ProfileResponse>('/auth/profile')
+}
+
+/**
+ * Delete current user account (GDPR-compliant)
+ * Permanently deletes account by anonymizing personal data while preserving feedback
+ */
+export async function deleteAccount(): Promise<{ message: string }> {
+  return apiDelete<{ message: string }>('/auth/profile')
 }
