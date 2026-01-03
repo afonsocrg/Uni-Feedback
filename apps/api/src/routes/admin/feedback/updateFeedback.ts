@@ -1,3 +1,4 @@
+import { PointService } from '@services'
 import { database } from '@uni-feedback/db'
 import { feedback } from '@uni-feedback/db/schema'
 import { detectChanges, notifyAdminChange } from '@utils/notificationHelpers'
@@ -79,10 +80,10 @@ export class UpdateFeedback extends OpenAPIRoute {
   async handle(request: IRequest, env: any, context: any) {
     try {
       const { params, body } = await this.getValidatedData<typeof this.schema>()
-      const { id } = params
+      const { id: feedbackId } = params
       const updates = body
 
-      if (!id || isNaN(id)) {
+      if (!feedbackId || isNaN(feedbackId)) {
         return Response.json({ error: 'Invalid feedback ID' }, { status: 400 })
       }
 
@@ -93,12 +94,11 @@ export class UpdateFeedback extends OpenAPIRoute {
         )
       }
 
-
       // Check if feedback exists
       const existingFeedback = await database()
         .select()
         .from(feedback)
-        .where(eq(feedback.id, id))
+        .where(eq(feedback.id, feedbackId))
         .limit(1)
 
       if (!existingFeedback.length) {
@@ -157,26 +157,58 @@ export class UpdateFeedback extends OpenAPIRoute {
       ])
 
       // Perform update
-      await database().update(feedback).set(updateData).where(eq(feedback.id, id))
+      await database()
+        .update(feedback)
+        .set(updateData)
+        .where(eq(feedback.id, feedbackId))
+
+      // Handle point adjustments for approval changes (best-effort)
+      const userId = existingFeedback[0].userId
+      if (userId) {
+        try {
+          const pointService = new PointService(env)
+
+          if (updates.approved === false) {
+            // Zero out points when unapproved
+            await pointService.zeroOutFeedbackPoints(
+              userId,
+              feedbackId,
+              'Feedback unapproved by admin'
+            )
+          } else if (
+            updates.approved === true &&
+            existingFeedback[0].approvedAt === null
+          ) {
+            // Restore points when re-approved (only if was previously unapproved)
+            await pointService.restoreFeedbackPoints(userId, feedbackId)
+          }
+        } catch (pointError) {
+          console.error(
+            'Failed to adjust points for feedback:',
+            feedbackId,
+            pointError
+          )
+          // Continue - feedback update succeeded, points can be fixed manually
+        }
+      }
 
       // Get updated feedback
       const updatedFeedback = await database()
         .select()
         .from(feedback)
-        .where(eq(feedback.id, id))
+        .where(eq(feedback.id, feedbackId))
         .limit(1)
 
       const fb = updatedFeedback[0]
 
       // Send notification if changes were made
-      console.log(changes)
       if (changes.length > 0) {
         await notifyAdminChange({
           env,
           user: context.user,
           resourceType: 'feedback',
-          resourceId: id,
-          resourceName: `Feedback #${id}`,
+          resourceId: feedbackId,
+          resourceName: `Feedback #${feedbackId}`,
           action: 'updated',
           changes
         })
@@ -189,7 +221,7 @@ export class UpdateFeedback extends OpenAPIRoute {
         workloadRating: fb.workloadRating,
         comment: fb.comment,
         approved: fb.approvedAt !== null,
-        updatedAt: fb.createdAt?.toISOString() || '', // Use createdAt as fallback since updatedAt doesn't exist
+        updatedAt: fb.updatedAt,
         message: 'Feedback updated successfully'
       }
 

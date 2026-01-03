@@ -1,8 +1,17 @@
 import { authenticateUser } from '@middleware'
+import { PointService } from '@services'
 import { sendCourseReviewReceived } from '@services/telegram'
 import { database } from '@uni-feedback/db'
-import { courses, degrees, faculties, feedback } from '@uni-feedback/db/schema'
+import {
+  courses,
+  degrees,
+  faculties,
+  feedback,
+  feedbackAnalysis,
+  users
+} from '@uni-feedback/db/schema'
 import { getCurrentSchoolYear } from '@uni-feedback/utils'
+import { analyzeComment } from '@utils'
 import { contentJson, OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
@@ -157,6 +166,73 @@ export class SubmitFeedback extends OpenAPIRoute {
       }
 
       const feedbackId = insertResult[0].id
+
+      // Award points for feedback submission (best-effort)
+      try {
+        const pointService = new PointService(env)
+
+        // 1. Analyze comment
+        const analysis = analyzeComment(comment)
+
+        // 2. Insert analysis record
+        await database()
+          .insert(feedbackAnalysis)
+          .values({
+            feedbackId,
+            ...analysis
+          })
+
+        // 3. Calculate and award feedback points
+        const feedbackPoints = pointService.calculateFeedbackPoints(analysis)
+        if (feedbackPoints > 0) {
+          await pointService.awardFeedbackPoints(
+            userId,
+            feedbackId,
+            feedbackPoints
+          )
+        }
+
+        // 4. Check for referral bonus (first feedback only)
+        const isFirstFeedback = await pointService.isUserFirstFeedback(
+          userId,
+          feedbackId
+        )
+        if (isFirstFeedback) {
+          const [user] = await database()
+            .select({ referredByUserId: users.referredByUserId })
+            .from(users)
+            .where(eq(users.id, userId))
+            .limit(1)
+
+          if (user?.referredByUserId) {
+            const alreadyAwarded =
+              await pointService.hasReceivedReferralPointsFor(
+                user.referredByUserId,
+                userId
+              )
+
+            if (!alreadyAwarded) {
+              const referralCount = await pointService.getReferralCount(
+                user.referredByUserId
+              )
+              const referralPoints =
+                pointService.calculateReferralPoints(referralCount)
+              await pointService.awardReferralPoints(
+                user.referredByUserId,
+                userId,
+                referralPoints
+              )
+            }
+          }
+        }
+      } catch (pointError) {
+        console.error(
+          'Failed to award points for feedback:',
+          feedbackId,
+          pointError
+        )
+        // Continue - feedback was saved, points can be fixed later
+      }
 
       await sendCourseReviewReceived(env, {
         id: feedbackId,

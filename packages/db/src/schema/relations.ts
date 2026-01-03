@@ -3,6 +3,8 @@ import { courses } from './course'
 import { degrees } from './degree'
 import { faculties } from './faculty'
 import { feedback } from './feedback'
+import { feedbackAnalysis } from './feedbackAnalysis'
+import { pointRegistry } from './pointRegistry'
 import { users } from './user'
 
 // Feedback relations
@@ -14,6 +16,10 @@ export const feedbackRelations = relations(feedback, ({ one }) => ({
   user: one(users, {
     fields: [feedback.userId],
     references: [users.id]
+  }),
+  analysis: one(feedbackAnalysis, {
+    fields: [feedback.id],
+    references: [feedbackAnalysis.feedbackId]
   })
 }))
 
@@ -42,5 +48,22 @@ export const facultyRelations = relations(faculties, ({ many }) => ({
 
 // User relations
 export const userRelations = relations(users, ({ many }) => ({
-  feedbacks: many(feedback)
+  feedbacks: many(feedback),
+  points: many(pointRegistry)
+}))
+
+// Feedback Analysis relations
+export const feedbackAnalysisRelations = relations(feedbackAnalysis, ({ one }) => ({
+  feedback: one(feedback, {
+    fields: [feedbackAnalysis.feedbackId],
+    references: [feedback.id]
+  })
+}))
+
+// Point Registry relations
+export const pointRegistryRelations = relations(pointRegistry, ({ one }) => ({
+  user: one(users, {
+    fields: [pointRegistry.userId],
+    references: [users.id]
+  })
 }))

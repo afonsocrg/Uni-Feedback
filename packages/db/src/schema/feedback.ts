@@ -25,7 +25,10 @@ export const feedback = pgTable('feedback', {
   // and should not be shown in the public-facing pages
   approvedAt: timestamp('approved_at', { withTimezone: true }),
 
-  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow()
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true })
+    .defaultNow()
+    .$onUpdate(() => new Date())
 })
 
 export type Feedback = typeof feedback.$inferSelect
