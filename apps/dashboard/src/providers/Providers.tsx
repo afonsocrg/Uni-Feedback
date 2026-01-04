@@ -9,13 +9,13 @@ interface ProvidersProps {
 
 export function Providers({ children }: ProvidersProps) {
   return (
-    <QueryClientProvider>
-      <AuthProvider>
+    <AuthProvider>
+      <QueryClientProvider>
         <AuthRefreshProvider>
           {children}
           <Toaster position="top-right" richColors />
         </AuthRefreshProvider>
-      </AuthProvider>
-    </QueryClientProvider>
+      </QueryClientProvider>
+    </AuthProvider>
   )
 }
