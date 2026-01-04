@@ -31,7 +31,17 @@ import {
   findUserByReferralCode,
   generateUniqueReferralCode
 } from '@utils/referral'
-import { and, eq, gt, isNotNull, isNull, lt, min, or } from 'drizzle-orm'
+import {
+  and,
+  eq,
+  gt,
+  isNotNull,
+  isNull,
+  lt,
+  min,
+  notIlike,
+  or
+} from 'drizzle-orm'
 import { sendNewSignupNotification } from './telegram'
 
 export class AuthService {
@@ -458,7 +468,11 @@ export class AuthService {
    * Get all users (for admin)
    */
   async getAllUsers(): Promise<User[]> {
-    return await database().select().from(users).orderBy(users.createdAt)
+    return await database()
+      .select()
+      .from(users)
+      .where(notIlike(users.email, '%@deleted.local'))
+      .orderBy(users.createdAt)
   }
 
   /**
