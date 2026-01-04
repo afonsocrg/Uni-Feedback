@@ -52,8 +52,15 @@ export function FeedbackPage() {
   // Local state for pagination and filters
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(20)
-  const { facultyId, degreeId, courseId, setFaculty, setDegree, setCourse } =
-    useAdminFilters()
+  const {
+    facultyId,
+    degreeId,
+    courseId,
+    setFaculty,
+    setDegree,
+    setCourse,
+    resetAll: resetAdminFilters
+  } = useAdminFilters()
   const {
     approvedFilter,
     ratingFilter,
@@ -64,7 +71,8 @@ export function FeedbackPage() {
     setRatingFilter,
     setWorkloadRatingFilter,
     setHasCommentFilter,
-    setSchoolYearFilter
+    setSchoolYearFilter,
+    resetAll: resetFeedbackFilters
   } = useFeedbackFilters()
 
   const selectedFacultyId = facultyId?.toString() ?? 'all'
@@ -184,6 +192,15 @@ export function FeedbackPage() {
     setPage(1)
   }
 
+  // Handle clear all filters
+  const handleClearFilters = () => {
+    resetAdminFilters()
+    resetFeedbackFilters()
+    setDegreePopoverOpen(false)
+    setCoursePopoverOpen(false)
+    setPage(1)
+  }
+
   // Handle pagination
   const handlePageChange = (newPage: number) => {
     setPage(newPage)
@@ -263,268 +280,286 @@ export function FeedbackPage() {
           <CardTitle className="text-lg">Feedback</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col sm:flex-row gap-4 mb-6">
-            <Select
-              value={selectedFacultyId}
-              onValueChange={handleFacultyChange}
-            >
-              <SelectTrigger className="w-full sm:w-48">
-                <SelectValue placeholder="All faculties" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All faculties</SelectItem>
-                {faculties.map((faculty) => (
-                  <SelectItem key={faculty.id} value={faculty.id.toString()}>
-                    <Chip label={faculty.shortName} />
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="flex flex-col gap-4 mb-6">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Select
+                value={selectedFacultyId}
+                onValueChange={handleFacultyChange}
+              >
+                <SelectTrigger className="w-full sm:w-48">
+                  <SelectValue placeholder="All faculties" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All faculties</SelectItem>
+                  {faculties.map((faculty) => (
+                    <SelectItem key={faculty.id} value={faculty.id.toString()}>
+                      <Chip label={faculty.shortName} />
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
-            <Popover
-              open={degreePopoverOpen}
-              onOpenChange={setDegreePopoverOpen}
-            >
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  aria-expanded={degreePopoverOpen}
-                  className="w-full sm:w-48 justify-between font-normal"
-                  disabled={facultyId === null}
-                >
-                  {selectedDegreeId === 'all'
-                    ? facultyId === null
-                      ? 'Select faculty first'
-                      : 'All degrees'
-                    : (degrees.find((d) => d.id.toString() === selectedDegreeId)
-                        ?.acronym ?? 'Select degree')}
-                  <ChevronsUpDown className="opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-[280px] p-0">
-                <Command>
-                  <CommandInput
-                    placeholder="Search degrees..."
-                    className="h-9"
-                  />
-                  <CommandList>
-                    <CommandEmpty>No degrees found.</CommandEmpty>
-                    <CommandGroup>
-                      <CommandItem
-                        value="all"
-                        onSelect={() => {
-                          handleDegreeChange('all')
-                          setDegreePopoverOpen(false)
-                        }}
-                      >
-                        All degrees
-                        <Check
-                          className={cn(
-                            'ml-auto',
-                            selectedDegreeId === 'all'
-                              ? 'opacity-100'
-                              : 'opacity-0'
-                          )}
-                        />
-                      </CommandItem>
-                      {degrees.map((degree) => (
+              <Popover
+                open={degreePopoverOpen}
+                onOpenChange={setDegreePopoverOpen}
+              >
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={degreePopoverOpen}
+                    className="w-full sm:w-48 justify-between font-normal"
+                    disabled={facultyId === null}
+                  >
+                    {selectedDegreeId === 'all'
+                      ? facultyId === null
+                        ? 'Select faculty first'
+                        : 'All degrees'
+                      : (degrees.find(
+                          (d) => d.id.toString() === selectedDegreeId
+                        )?.acronym ?? 'Select degree')}
+                    <ChevronsUpDown className="opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[280px] p-0">
+                  <Command>
+                    <CommandInput
+                      placeholder="Search degrees..."
+                      className="h-9"
+                    />
+                    <CommandList>
+                      <CommandEmpty>No degrees found.</CommandEmpty>
+                      <CommandGroup>
                         <CommandItem
-                          value={`${degree.acronym} - ${degree.name}`}
-                          key={degree.id}
+                          value="all"
                           onSelect={() => {
-                            handleDegreeChange(degree.id.toString())
+                            handleDegreeChange('all')
                             setDegreePopoverOpen(false)
                           }}
                         >
-                          {degree.acronym} - {degree.name}
+                          All degrees
                           <Check
                             className={cn(
                               'ml-auto',
-                              degree.id.toString() === selectedDegreeId
+                              selectedDegreeId === 'all'
                                 ? 'opacity-100'
                                 : 'opacity-0'
                             )}
                           />
                         </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
+                        {degrees.map((degree) => (
+                          <CommandItem
+                            value={`${degree.acronym} - ${degree.name}`}
+                            key={degree.id}
+                            onSelect={() => {
+                              handleDegreeChange(degree.id.toString())
+                              setDegreePopoverOpen(false)
+                            }}
+                          >
+                            {degree.acronym} - {degree.name}
+                            <Check
+                              className={cn(
+                                'ml-auto',
+                                degree.id.toString() === selectedDegreeId
+                                  ? 'opacity-100'
+                                  : 'opacity-0'
+                              )}
+                            />
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
 
-            <Popover
-              open={coursePopoverOpen}
-              onOpenChange={setCoursePopoverOpen}
-            >
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  aria-expanded={coursePopoverOpen}
-                  className="w-full sm:w-48 justify-between font-normal"
-                  disabled={degreeId === null}
-                >
-                  {selectedCourseId === 'all'
-                    ? degreeId === null
-                      ? 'Select degree first'
-                      : 'All courses'
-                    : (courses.find((c) => c.id.toString() === selectedCourseId)
-                        ?.acronym ?? 'Select course')}
-                  <ChevronsUpDown className="opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-[280px] p-0">
-                <Command>
-                  <CommandInput
-                    placeholder="Search courses..."
-                    className="h-9"
-                  />
-                  <CommandList>
-                    <CommandEmpty>No courses found.</CommandEmpty>
-                    <CommandGroup>
-                      <CommandItem
-                        value="all"
-                        onSelect={() => {
-                          handleCourseChange('all')
-                          setCoursePopoverOpen(false)
-                        }}
-                      >
-                        All courses
-                        <Check
-                          className={cn(
-                            'ml-auto',
-                            selectedCourseId === 'all'
-                              ? 'opacity-100'
-                              : 'opacity-0'
-                          )}
-                        />
-                      </CommandItem>
-                      {courses.map((course) => (
+              <Popover
+                open={coursePopoverOpen}
+                onOpenChange={setCoursePopoverOpen}
+              >
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={coursePopoverOpen}
+                    className="w-full sm:w-48 justify-between font-normal"
+                    disabled={degreeId === null}
+                  >
+                    {selectedCourseId === 'all'
+                      ? degreeId === null
+                        ? 'Select degree first'
+                        : 'All courses'
+                      : (courses.find(
+                          (c) => c.id.toString() === selectedCourseId
+                        )?.acronym ?? 'Select course')}
+                    <ChevronsUpDown className="opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[280px] p-0">
+                  <Command>
+                    <CommandInput
+                      placeholder="Search courses..."
+                      className="h-9"
+                    />
+                    <CommandList>
+                      <CommandEmpty>No courses found.</CommandEmpty>
+                      <CommandGroup>
                         <CommandItem
-                          value={`${course.acronym} - ${course.name}`}
-                          key={course.id}
+                          value="all"
                           onSelect={() => {
-                            handleCourseChange(course.id.toString())
+                            handleCourseChange('all')
                             setCoursePopoverOpen(false)
                           }}
                         >
-                          {course.acronym} - {course.name}
+                          All courses
                           <Check
                             className={cn(
                               'ml-auto',
-                              course.id.toString() === selectedCourseId
+                              selectedCourseId === 'all'
                                 ? 'opacity-100'
                                 : 'opacity-0'
                             )}
                           />
                         </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
+                        {courses.map((course) => (
+                          <CommandItem
+                            value={`${course.acronym} - ${course.name}`}
+                            key={course.id}
+                            onSelect={() => {
+                              handleCourseChange(course.id.toString())
+                              setCoursePopoverOpen(false)
+                            }}
+                          >
+                            {course.acronym} - {course.name}
+                            <Check
+                              className={cn(
+                                'ml-auto',
+                                course.id.toString() === selectedCourseId
+                                  ? 'opacity-100'
+                                  : 'opacity-0'
+                              )}
+                            />
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
 
-            <Select
-              value={schoolYearFilter}
-              onValueChange={handleSchoolYearFilterChange}
-            >
-              <SelectTrigger className="w-full sm:w-40">
-                <SelectValue placeholder="All Years" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Years</SelectItem>
-                {Array.from({ length: 10 }, (_, i) => 2024 - i).map((year) => (
-                  <SelectItem key={year} value={year.toString()}>
-                    {year}/{year + 1}
+              <Select
+                value={schoolYearFilter}
+                onValueChange={handleSchoolYearFilterChange}
+              >
+                <SelectTrigger className="w-full sm:w-40">
+                  <SelectValue placeholder="All Years" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Years</SelectItem>
+                  {Array.from({ length: 10 }, (_, i) => 2024 - i).map(
+                    (year) => (
+                      <SelectItem key={year} value={year.toString()}>
+                        {year}/{year + 1}
+                      </SelectItem>
+                    )
+                  )}
+                </SelectContent>
+              </Select>
+
+              <Select
+                value={ratingFilter}
+                onValueChange={handleRatingFilterChange}
+              >
+                <SelectTrigger className="w-full sm:w-40">
+                  <SelectValue placeholder="All Ratings" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Ratings</SelectItem>
+                  <SelectItem value="5">
+                    <StarRating value={5} size="sm" />
                   </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+                  <SelectItem value="4">
+                    <StarRating value={4} size="sm" />
+                  </SelectItem>
+                  <SelectItem value="3">
+                    <StarRating value={3} size="sm" />
+                  </SelectItem>
+                  <SelectItem value="2">
+                    <StarRating value={2} size="sm" />
+                  </SelectItem>
+                  <SelectItem value="1">
+                    <StarRating value={1} size="sm" />
+                  </SelectItem>
+                </SelectContent>
+              </Select>
 
-            <Select
-              value={ratingFilter}
-              onValueChange={handleRatingFilterChange}
-            >
-              <SelectTrigger className="w-full sm:w-40">
-                <SelectValue placeholder="All Ratings" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Ratings</SelectItem>
-                <SelectItem value="5">
-                  <StarRating value={5} size="sm" />
-                </SelectItem>
-                <SelectItem value="4">
-                  <StarRating value={4} size="sm" />
-                </SelectItem>
-                <SelectItem value="3">
-                  <StarRating value={3} size="sm" />
-                </SelectItem>
-                <SelectItem value="2">
-                  <StarRating value={2} size="sm" />
-                </SelectItem>
-                <SelectItem value="1">
-                  <StarRating value={1} size="sm" />
-                </SelectItem>
-              </SelectContent>
-            </Select>
+              <Select
+                value={workloadRatingFilter}
+                onValueChange={handleWorkloadRatingFilterChange}
+              >
+                <SelectTrigger className="w-full sm:w-48">
+                  <SelectValue placeholder="All Workloads" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Workloads</SelectItem>
+                  <SelectItem value="5">
+                    <WorkloadRatingDisplay rating={5} />
+                  </SelectItem>
+                  <SelectItem value="4">
+                    <WorkloadRatingDisplay rating={4} />
+                  </SelectItem>
+                  <SelectItem value="3">
+                    <WorkloadRatingDisplay rating={3} />
+                  </SelectItem>
+                  <SelectItem value="2">
+                    <WorkloadRatingDisplay rating={2} />
+                  </SelectItem>
+                  <SelectItem value="1">
+                    <WorkloadRatingDisplay rating={1} />
+                  </SelectItem>
+                </SelectContent>
+              </Select>
 
-            <Select
-              value={workloadRatingFilter}
-              onValueChange={handleWorkloadRatingFilterChange}
-            >
-              <SelectTrigger className="w-full sm:w-48">
-                <SelectValue placeholder="All Workloads" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Workloads</SelectItem>
-                <SelectItem value="5">
-                  <WorkloadRatingDisplay rating={5} />
-                </SelectItem>
-                <SelectItem value="4">
-                  <WorkloadRatingDisplay rating={4} />
-                </SelectItem>
-                <SelectItem value="3">
-                  <WorkloadRatingDisplay rating={3} />
-                </SelectItem>
-                <SelectItem value="2">
-                  <WorkloadRatingDisplay rating={2} />
-                </SelectItem>
-                <SelectItem value="1">
-                  <WorkloadRatingDisplay rating={1} />
-                </SelectItem>
-              </SelectContent>
-            </Select>
+              <Select
+                value={hasCommentFilter}
+                onValueChange={handleHasCommentFilterChange}
+              >
+                <SelectTrigger className="w-full sm:w-48">
+                  <SelectValue placeholder="All Comments" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Comments</SelectItem>
+                  <SelectItem value="with">With Comments</SelectItem>
+                  <SelectItem value="without">Without Comments</SelectItem>
+                </SelectContent>
+              </Select>
 
-            <Select
-              value={hasCommentFilter}
-              onValueChange={handleHasCommentFilterChange}
-            >
-              <SelectTrigger className="w-full sm:w-48">
-                <SelectValue placeholder="All Comments" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Comments</SelectItem>
-                <SelectItem value="with">With Comments</SelectItem>
-                <SelectItem value="without">Without Comments</SelectItem>
-              </SelectContent>
-            </Select>
+              <Select
+                value={approvedFilter}
+                onValueChange={handleApprovedFilterChange}
+              >
+                <SelectTrigger className="w-full sm:w-40">
+                  <SelectValue placeholder="All Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="approved">Approved</SelectItem>
+                  <SelectItem value="pending">Not Approved</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-            <Select
-              value={approvedFilter}
-              onValueChange={handleApprovedFilterChange}
-            >
-              <SelectTrigger className="w-full sm:w-40">
-                <SelectValue placeholder="All Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="approved">Approved</SelectItem>
-                <SelectItem value="pending">Not Approved</SelectItem>
-              </SelectContent>
-            </Select>
+            {hasFilters && (
+              <div className="flex justify-end">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleClearFilters}
+                >
+                  Clear All Filters
+                </Button>
+              </div>
+            )}
           </div>
 
           {/* Loading State */}
