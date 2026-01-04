@@ -1,3 +1,5 @@
+import { countWords } from '@uni-feedback/utils'
+
 export interface AnalysisResult {
   hasTeaching: boolean
   hasAssessment: boolean
@@ -26,8 +28,8 @@ export function analyzeComment(comment: string | null): AnalysisResult {
     }
   }
 
-  // Count words (simple whitespace splitting)
-  const wordCount = comment.trim().split(/\s+/).length
+  // Count words using shared utility
+  const wordCount = countWords(comment)
 
   // STUB: Return random values for now (to be replaced with actual logic later)
   // TODO: Implement keyword-based or AI-based category detection

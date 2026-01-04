@@ -28,6 +28,7 @@ import {
   WorkloadRatingDisplay
 } from '@uni-feedback/ui'
 import {
+  countWords,
   formatSchoolYearString,
   getCurrentSchoolYear
 } from '@uni-feedback/utils'
@@ -94,6 +95,7 @@ export function GiveFeedbackContent({
   // Watch only the fields needed for conditional rendering and data fetching
   const selectedFacultyId = form.watch('facultyId')
   const selectedDegreeId = form.watch('degreeId')
+  const comment = form.watch('comment')
 
   // Fetch degrees and courses based on selections
   const { data: degrees = [], isLoading: isLoadingDegrees } = useFacultyDegrees(
@@ -528,6 +530,10 @@ export function GiveFeedbackContent({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Write your feedback</FormLabel>
+                    <p className="text-xs text-gray-700 mb-2">
+                      ️This field is optional, but it's the one that helps other
+                      students the most ❤️
+                    </p>
                     <FormControl>
                       <MarkdownTextarea
                         placeholder="What should others know about this course?"
@@ -535,9 +541,9 @@ export function GiveFeedbackContent({
                         {...field}
                       />
                     </FormControl>
-                    <FormDescription className="text-gray-500 pl-2">
-                      ❤️ This field is optional, but it's the one that helps
-                      other students the most!
+                    <FormDescription className="text-xs text-gray-700 text-right">
+                      {countWords(comment)}{' '}
+                      {countWords(comment) === 1 ? 'word' : 'words'}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
