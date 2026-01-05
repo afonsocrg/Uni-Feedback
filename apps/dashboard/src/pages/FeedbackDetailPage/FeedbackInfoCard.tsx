@@ -5,7 +5,12 @@ import {
   EditableWorkloadRating
 } from '@components'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { AdminFeedbackDetail, updateFeedback } from '@uni-feedback/api-client'
+import {
+  AdminFeedbackDetail,
+  approveFeedback,
+  unapproveFeedback,
+  updateFeedback
+} from '@uni-feedback/api-client'
 import {
   ApprovalStatusBadge,
   Badge,
@@ -57,12 +62,44 @@ export function FeedbackInfoCard({ feedback }: FeedbackInfoCardProps) {
     }
   })
 
+  const approveMutation = useMutation({
+    mutationFn: () => approveFeedback(feedbackId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['feedback-details', feedbackId]
+      })
+      queryClient.invalidateQueries({ queryKey: ['admin-feedback'] })
+      toast.success('Feedback approved successfully')
+    },
+    onError: (error) => {
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to approve feedback'
+      )
+    }
+  })
+
+  const unapproveMutation = useMutation({
+    mutationFn: () => unapproveFeedback(feedbackId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['feedback-details', feedbackId]
+      })
+      queryClient.invalidateQueries({ queryKey: ['admin-feedback'] })
+      toast.success('Feedback unapproved successfully')
+    },
+    onError: (error) => {
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to unapprove feedback'
+      )
+    }
+  })
+
   const handleApprove = async () => {
-    await updateMutation.mutateAsync({ approved: true })
+    await approveMutation.mutateAsync()
   }
 
   const handleDisapprove = async () => {
-    await updateMutation.mutateAsync({ approved: false })
+    await unapproveMutation.mutateAsync()
   }
 
   // Generate 5 most recent school years
@@ -188,7 +225,7 @@ export function FeedbackInfoCard({ feedback }: FeedbackInfoCardProps) {
                         size="sm"
                         variant="outline"
                         onClick={open}
-                        disabled={updateMutation.isPending}
+                        disabled={unapproveMutation.isPending}
                       >
                         <X className="h-4 w-4 mr-1" />
                         Unapprove
@@ -208,7 +245,7 @@ export function FeedbackInfoCard({ feedback }: FeedbackInfoCardProps) {
                         size="sm"
                         variant="outline"
                         onClick={open}
-                        disabled={updateMutation.isPending}
+                        disabled={approveMutation.isPending}
                       >
                         <Check className="h-4 w-4 mr-1" />
                         Approve

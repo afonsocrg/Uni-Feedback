@@ -39,7 +39,7 @@ export interface User {
   id: number
   email: string
   username: string
-  superuser: boolean
+  role: string
   createdAt: string
   updatedAt: string
 }

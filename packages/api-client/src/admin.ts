@@ -293,7 +293,6 @@ export interface FeedbackUpdateData {
   rating?: number
   workloadRating?: number | null
   comment?: string | null
-  approved?: boolean
 }
 
 // API Functions
@@ -696,4 +695,38 @@ export async function updateFeedback(
     updatedAt: string
     message: string
   }>(`/admin/feedback/${feedbackId}`, updates)
+}
+
+/**
+ * Approve feedback
+ */
+export async function approveFeedback(feedbackId: number): Promise<{
+  id: number
+  approved: boolean
+  approvedAt: string
+  message: string
+}> {
+  return apiPost<{
+    id: number
+    approved: boolean
+    approvedAt: string
+    message: string
+  }>(`/admin/feedback/${feedbackId}/approved`, {})
+}
+
+/**
+ * Unapprove feedback
+ */
+export async function unapproveFeedback(feedbackId: number): Promise<{
+  id: number
+  approved: boolean
+  approvedAt: null
+  message: string
+}> {
+  return apiDelete<{
+    id: number
+    approved: boolean
+    approvedAt: null
+    message: string
+  }>(`/admin/feedback/${feedbackId}/approved`)
 }

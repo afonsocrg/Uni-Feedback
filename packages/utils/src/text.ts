@@ -12,3 +12,10 @@ export function countWords(text: string | null | undefined): number {
 
   return text.trim().split(/\s+/).length
 }
+
+export function initCap(text: string): string {
+  if (text.length === 0) return text
+  return text.toLowerCase().replace(/(?:^|\s)[a-z]/g, function (m) {
+    return m.toUpperCase()
+  })
+}

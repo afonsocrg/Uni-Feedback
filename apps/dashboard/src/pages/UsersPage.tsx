@@ -16,6 +16,7 @@ import {
   TableHeader,
   TableRow
 } from '@uni-feedback/ui'
+import { initCap } from '@uni-feedback/utils'
 import { Ellipsis, Plus, Search, Shield, Users } from 'lucide-react'
 import { useState } from 'react'
 import { InviteUserDialog } from '../components/InviteUserDialog'
@@ -154,7 +155,7 @@ export function UsersPage() {
                         {user.email}
                       </TableCell>
                       <TableCell>
-                        {user.superuser ? (
+                        {user.role === 'super_admin' ? (
                           <Badge
                             variant="secondary"
                             className="bg-amber-50 text-amber-700"
@@ -163,7 +164,7 @@ export function UsersPage() {
                             Super Admin
                           </Badge>
                         ) : (
-                          <Badge variant="outline">Admin</Badge>
+                          <Badge variant="outline">{initCap(user.role)}</Badge>
                         )}
                       </TableCell>
                       <TableCell>

@@ -1,4 +1,3 @@
-import { PointService } from '@services'
 import { database } from '@uni-feedback/db'
 import { feedback } from '@uni-feedback/db/schema'
 import { detectChanges, notifyAdminChange } from '@utils/notificationHelpers'
@@ -15,8 +14,7 @@ const FeedbackUpdateBodySchema = z.object({
   schoolYear: z.number().nullable().optional(),
   rating: z.number().min(1).max(5).optional(),
   workloadRating: z.number().min(1).max(5).nullable().optional(),
-  comment: z.string().nullable().optional(),
-  approved: z.boolean().optional()
+  comment: z.string().nullable().optional()
 })
 
 const FeedbackUpdateResponseSchema = z.object({
@@ -124,36 +122,22 @@ export class UpdateFeedback extends OpenAPIRoute {
         updateData.comment = updates.comment
       }
 
-      if (updates.approved !== undefined) {
-        if (updates.approved) {
-          updateData.approvedAt = new Date()
-        } else {
-          updateData.approvedAt = null
-        }
-      }
-
       // Detect changes for notification (compare with original feedback fields)
       const originalData = {
         schoolYear: existingFeedback[0].schoolYear,
         rating: existingFeedback[0].rating,
         workloadRating: existingFeedback[0].workloadRating,
-        comment: existingFeedback[0].comment,
-        approved: existingFeedback[0].approvedAt !== null
+        comment: existingFeedback[0].comment
       }
       const newData = {
         ...originalData,
-        ...updates,
-        approved:
-          updates.approved !== undefined
-            ? updates.approved
-            : originalData.approved
+        ...updates
       }
       const changes = detectChanges(originalData, newData, [
         'schoolYear',
         'rating',
         'workloadRating',
-        'comment',
-        'approved'
+        'comment'
       ])
 
       // Perform update
@@ -161,36 +145,6 @@ export class UpdateFeedback extends OpenAPIRoute {
         .update(feedback)
         .set(updateData)
         .where(eq(feedback.id, feedbackId))
-
-      // Handle point adjustments for approval changes (best-effort)
-      const userId = existingFeedback[0].userId
-      if (userId) {
-        try {
-          const pointService = new PointService(env)
-
-          if (updates.approved === false) {
-            // Zero out points when unapproved
-            await pointService.zeroOutFeedbackPoints(
-              userId,
-              feedbackId,
-              'Feedback unapproved by admin'
-            )
-          } else if (
-            updates.approved === true &&
-            existingFeedback[0].approvedAt === null
-          ) {
-            // Restore points when re-approved (only if was previously unapproved)
-            await pointService.restoreFeedbackPoints(userId, feedbackId)
-          }
-        } catch (pointError) {
-          console.error(
-            'Failed to adjust points for feedback:',
-            feedbackId,
-            pointError
-          )
-          // Continue - feedback update succeeded, points can be fixed manually
-        }
-      }
 
       // Get updated feedback
       const updatedFeedback = await database()
