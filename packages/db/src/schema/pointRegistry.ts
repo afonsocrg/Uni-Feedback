@@ -8,6 +8,8 @@ import {
 } from 'drizzle-orm/pg-core'
 import { users } from './user'
 
+export type PointSourceType = 'submit_feedback' | 'referral'
+
 export const pointSourceTypeEnum = pgEnum('point_source_type', [
   'submit_feedback',
   'referral'

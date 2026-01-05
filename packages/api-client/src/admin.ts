@@ -241,6 +241,14 @@ export interface AdminFacultiesQuery {
 }
 
 // Admin Feedback Types
+export interface FeedbackAnalysis {
+  hasTeaching: boolean
+  hasAssessment: boolean
+  hasMaterials: boolean
+  hasTips: boolean
+  wordCount: number
+}
+
 export interface AdminFeedback {
   id: number
   email: string | null
@@ -260,6 +268,8 @@ export interface AdminFeedback {
   facultyId: number
   facultyName: string
   facultyShortName: string
+  analysis: FeedbackAnalysis | null
+  points: number | null
 }
 
 export interface AdminFeedbackDetail extends AdminFeedback {
@@ -286,6 +296,7 @@ export interface AdminFeedbackQuery {
   workload_rating?: number
   has_comment?: boolean
   school_year?: number
+  created_after?: string
 }
 
 export interface FeedbackUpdateData {
@@ -293,6 +304,13 @@ export interface FeedbackUpdateData {
   rating?: number
   workloadRating?: number | null
   comment?: string | null
+}
+
+export interface FeedbackAnalysisUpdateData {
+  hasTeaching: boolean
+  hasAssessment: boolean
+  hasMaterials: boolean
+  hasTips: boolean
 }
 
 // API Functions
@@ -653,6 +671,7 @@ export async function getAdminFeedbackNew(
     params.set('has_comment', query.has_comment.toString())
   if (query?.school_year)
     params.set('school_year', query.school_year.toString())
+  if (query?.created_after) params.set('created_after', query.created_after)
 
   const url = params.toString()
     ? `/admin/feedback?${params}`
@@ -729,4 +748,24 @@ export async function unapproveFeedback(feedbackId: number): Promise<{
     approvedAt: null
     message: string
   }>(`/admin/feedback/${feedbackId}/approved`)
+}
+
+/**
+ * Update or create feedback analysis
+ */
+export async function updateFeedbackAnalysis(
+  feedbackId: number,
+  analysis: FeedbackAnalysisUpdateData
+): Promise<{
+  feedbackId: number
+  analysis: FeedbackAnalysis
+  pointsAwarded: number | null
+  message: string
+}> {
+  return apiPut<{
+    feedbackId: number
+    analysis: FeedbackAnalysis
+    pointsAwarded: number | null
+    message: string
+  }>(`/admin/feedback/${feedbackId}/analysis`, analysis)
 }

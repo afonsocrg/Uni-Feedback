@@ -224,3 +224,106 @@ Welcome aboard! 🚀
 
   return sendToTelegram(env, message)
 }
+
+interface SendAnalysisUpdateNotificationArgs {
+  env: Env
+  adminEmail: string
+  feedbackId: number
+  oldAnalysis: {
+    hasTeaching: boolean
+    hasAssessment: boolean
+    hasMaterials: boolean
+    hasTips: boolean
+    wordCount: number
+  } | null
+  newAnalysis: {
+    hasTeaching: boolean
+    hasAssessment: boolean
+    hasMaterials: boolean
+    hasTips: boolean
+    wordCount: number
+  }
+  oldPoints: number | null
+  newPoints: number | null
+  dashboardLink: string
+}
+
+export async function sendAnalysisUpdateNotification(
+  args: SendAnalysisUpdateNotificationArgs
+) {
+  const {
+    env,
+    adminEmail,
+    feedbackId,
+    oldAnalysis,
+    newAnalysis,
+    oldPoints,
+    newPoints,
+    dashboardLink
+  } = args
+
+  const isNewAnalysis = oldAnalysis === null
+
+  // Build analysis changes text
+  let analysisChanges = ''
+  if (isNewAnalysis) {
+    analysisChanges = `
+📊 Analysis Created:
+• Teaching: ${newAnalysis.hasTeaching ? '✅' : '❌'}
+• Assessment: ${newAnalysis.hasAssessment ? '✅' : '❌'}
+• Materials: ${newAnalysis.hasMaterials ? '✅' : '❌'}
+• Tips: ${newAnalysis.hasTips ? '✅' : '❌'}
+• Word Count: ${newAnalysis.wordCount}`
+  } else {
+    const changes = []
+    if (oldAnalysis.hasTeaching !== newAnalysis.hasTeaching) {
+      changes.push(
+        `• Teaching: ${oldAnalysis.hasTeaching ? '✅' : '❌'} → ${newAnalysis.hasTeaching ? '✅' : '❌'}`
+      )
+    }
+    if (oldAnalysis.hasAssessment !== newAnalysis.hasAssessment) {
+      changes.push(
+        `• Assessment: ${oldAnalysis.hasAssessment ? '✅' : '❌'} → ${newAnalysis.hasAssessment ? '✅' : '❌'}`
+      )
+    }
+    if (oldAnalysis.hasMaterials !== newAnalysis.hasMaterials) {
+      changes.push(
+        `• Materials: ${oldAnalysis.hasMaterials ? '✅' : '❌'} → ${newAnalysis.hasMaterials ? '✅' : '❌'}`
+      )
+    }
+    if (oldAnalysis.hasTips !== newAnalysis.hasTips) {
+      changes.push(
+        `• Tips: ${oldAnalysis.hasTips ? '✅' : '❌'} → ${newAnalysis.hasTips ? '✅' : '❌'}`
+      )
+    }
+
+    if (changes.length > 0) {
+      analysisChanges = '\n\n📝 Analysis Changes:\n' + changes.join('\n')
+    }
+  }
+
+  // Build points changes text
+  let pointsText = ''
+  if (newPoints !== null) {
+    if (oldPoints === null) {
+      pointsText = `\n\n💰 Points Awarded: ${newPoints} points`
+    } else if (oldPoints !== newPoints) {
+      pointsText = `\n\n💰 Points Updated: ${oldPoints} → ${newPoints} points (${newPoints > oldPoints ? '+' : ''}${newPoints - oldPoints})`
+    }
+  }
+
+  const message = `
+🔍 FEEDBACK ANALYSIS ${isNewAnalysis ? 'CREATED' : 'UPDATED'}! 🔍
+
+An admin just ${isNewAnalysis ? 'created' : 'updated'} feedback analysis.
+
+👤 Admin: ${adminEmail}
+📋 Feedback ID: #${feedbackId}${analysisChanges}${pointsText}
+
+🔗 View Feedback: ${dashboardLink}
+
+🕒 Timestamp: ${new Date().toISOString()}
+`.trim()
+
+  return sendToTelegram(env, message)
+}

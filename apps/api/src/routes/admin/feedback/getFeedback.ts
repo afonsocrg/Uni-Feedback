@@ -1,12 +1,19 @@
-import { database } from '@uni-feedback/db'
-import { courses, degrees, faculties, feedback } from '@uni-feedback/db/schema'
 import {
   PaginatedResponse,
   PaginationQuerySchema,
   getPaginatedSchema
 } from '@types'
+import { database } from '@uni-feedback/db'
+import {
+  courses,
+  degrees,
+  faculties,
+  feedback,
+  feedbackAnalysis,
+  pointRegistry
+} from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
-import { and, count, desc, eq, isNotNull, isNull, sql } from 'drizzle-orm'
+import { and, count, desc, eq, gt, isNotNull, isNull, sql } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
 import { z } from 'zod'
 import { withErrorHandling } from '../../utils'
@@ -52,7 +59,11 @@ const FeedbackQuerySchema = PaginationQuerySchema.extend({
   school_year: z
     .string()
     .optional()
-    .transform((val) => (val ? parseInt(val, 10) : undefined))
+    .transform((val) => (val ? parseInt(val, 10) : undefined)),
+  created_after: z
+    .string()
+    .optional()
+    .transform((val) => (val ? new Date(val) : undefined))
 })
 
 const AdminFeedbackSchema = z.object({
@@ -73,7 +84,17 @@ const AdminFeedbackSchema = z.object({
   degreeAcronym: z.string(),
   facultyId: z.number(),
   facultyName: z.string(),
-  facultyShortName: z.string()
+  facultyShortName: z.string(),
+  analysis: z
+    .object({
+      hasTeaching: z.boolean(),
+      hasAssessment: z.boolean(),
+      hasMaterials: z.boolean(),
+      hasTips: z.boolean(),
+      wordCount: z.number()
+    })
+    .nullable(),
+  points: z.number().nullable()
 })
 
 const PaginatedFeedbackResponseSchema = getPaginatedSchema(AdminFeedbackSchema)
@@ -112,9 +133,20 @@ export class GetFeedback extends OpenAPIRoute {
   async handle(request: IRequest, env: any, context: any) {
     return withErrorHandling(request, async () => {
       const { query } = await this.getValidatedData<typeof this.schema>()
-      const { page, limit, course_id, degree_id, faculty_id, email, approved, rating, workload_rating, has_comment, school_year } =
-        query
-
+      const {
+        page,
+        limit,
+        course_id,
+        degree_id,
+        faculty_id,
+        email,
+        approved,
+        rating,
+        workload_rating,
+        has_comment,
+        school_year,
+        created_after
+      } = query
 
       // Build where conditions
       const conditions = []
@@ -169,6 +201,11 @@ export class GetFeedback extends OpenAPIRoute {
         conditions.push(eq(feedback.schoolYear, school_year))
       }
 
+      if (created_after !== undefined) {
+        // conditions.push(sql`${feedback.createdAt} >= ${created_after}`)
+        conditions.push(gt(feedback.createdAt, created_after))
+      }
+
       const whereClause = conditions.length > 0 ? and(...conditions) : undefined
 
       // Get total count
@@ -178,13 +215,24 @@ export class GetFeedback extends OpenAPIRoute {
         .leftJoin(courses, eq(feedback.courseId, courses.id))
         .leftJoin(degrees, eq(courses.degreeId, degrees.id))
         .leftJoin(faculties, eq(degrees.facultyId, faculties.id))
+        .leftJoin(
+          feedbackAnalysis,
+          eq(feedback.id, feedbackAnalysis.feedbackId)
+        )
+        .leftJoin(
+          pointRegistry,
+          and(
+            eq(pointRegistry.referenceId, feedback.id),
+            eq(pointRegistry.sourceType, 'submit_feedback')
+          )
+        )
         .where(whereClause)
 
       const total = totalResult[0].count
       const totalPages = Math.ceil(total / limit)
       const offset = (page - 1) * limit
 
-      // Get feedback with course, degree, and faculty info
+      // Get feedback with course, degree, faculty, analysis, and points info
       const feedbackResult = await database()
         .select({
           id: feedback.id,
@@ -203,12 +251,29 @@ export class GetFeedback extends OpenAPIRoute {
           degreeAcronym: degrees.acronym,
           facultyId: faculties.id,
           facultyName: faculties.name,
-          facultyShortName: faculties.shortName
+          facultyShortName: faculties.shortName,
+          analysisHasTeaching: feedbackAnalysis.hasTeaching,
+          analysisHasAssessment: feedbackAnalysis.hasAssessment,
+          analysisHasMaterials: feedbackAnalysis.hasMaterials,
+          analysisHasTips: feedbackAnalysis.hasTips,
+          analysisWordCount: feedbackAnalysis.wordCount,
+          pointsAmount: pointRegistry.amount
         })
         .from(feedback)
         .leftJoin(courses, eq(feedback.courseId, courses.id))
         .leftJoin(degrees, eq(courses.degreeId, degrees.id))
         .leftJoin(faculties, eq(degrees.facultyId, faculties.id))
+        .leftJoin(
+          feedbackAnalysis,
+          eq(feedback.id, feedbackAnalysis.feedbackId)
+        )
+        .leftJoin(
+          pointRegistry,
+          and(
+            eq(pointRegistry.referenceId, feedback.id),
+            eq(pointRegistry.sourceType, 'submit_feedback')
+          )
+        )
         .where(whereClause)
         .orderBy(desc(feedback.createdAt))
         .limit(limit)
@@ -216,10 +281,35 @@ export class GetFeedback extends OpenAPIRoute {
 
       const response: PaginatedResponse<any> = {
         data: feedbackResult.map((fb) => ({
-          ...fb,
+          id: fb.id,
+          email: fb.email,
+          schoolYear: fb.schoolYear,
+          rating: fb.rating,
+          workloadRating: fb.workloadRating,
+          comment: fb.comment,
           approved: fb.approvedAt !== null,
           approvedAt: fb.approvedAt?.toISOString() || null,
-          createdAt: fb.createdAt?.toISOString() || ''
+          createdAt: fb.createdAt?.toISOString() || '',
+          courseId: fb.courseId,
+          courseName: fb.courseName,
+          courseAcronym: fb.courseAcronym,
+          degreeId: fb.degreeId,
+          degreeName: fb.degreeName,
+          degreeAcronym: fb.degreeAcronym,
+          facultyId: fb.facultyId,
+          facultyName: fb.facultyName,
+          facultyShortName: fb.facultyShortName,
+          analysis:
+            fb.analysisHasTeaching !== null
+              ? {
+                  hasTeaching: fb.analysisHasTeaching,
+                  hasAssessment: fb.analysisHasAssessment!,
+                  hasMaterials: fb.analysisHasMaterials!,
+                  hasTips: fb.analysisHasTips!,
+                  wordCount: fb.analysisWordCount!
+                }
+              : null,
+          points: fb.pointsAmount !== null ? fb.pointsAmount : null
         })),
         total,
         page,

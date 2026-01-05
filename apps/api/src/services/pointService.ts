@@ -2,7 +2,8 @@ import { database } from '@uni-feedback/db'
 import {
   feedback,
   feedbackAnalysis,
-  pointRegistry
+  pointRegistry,
+  type PointSourceType
 } from '@uni-feedback/db/schema'
 import { and, count, eq, ne, sum } from 'drizzle-orm'
 import { AnalysisResult } from '../utils/contentAnalysis'
@@ -151,7 +152,7 @@ export class PointService {
     }
 
     // Recalculate points
-    const points = PointService.calculateFeedbackPoints(analysis)
+    const points = this.calculateFeedbackPoints(analysis)
 
     // Update the point registry
     await database()
@@ -167,6 +168,68 @@ export class PointService {
           eq(pointRegistry.referenceId, feedbackId)
         )
       )
+  }
+
+  /**
+   * Update points for a feedback submission based on new analysis.
+   * Creates a point registry entry if it doesn't exist, updates it if it does.
+   *
+   * @param userId - The user who submitted the feedback
+   * @param feedbackId - The ID of the feedback
+   * @param newAnalysis - The updated analysis result
+   * @returns The number of points awarded
+   */
+  async updateFeedbackPoints(
+    userId: number,
+    feedbackId: number,
+    newAnalysis: AnalysisResult
+  ): Promise<number> {
+    // Calculate points based on new analysis
+    const points = this.calculateFeedbackPoints(newAnalysis)
+
+    // Check if point registry entry exists
+    const existingEntry = await database()
+      .select()
+      .from(pointRegistry)
+      .where(
+        and(
+          eq(pointRegistry.userId, userId),
+          eq(pointRegistry.sourceType, 'submit_feedback'),
+          eq(pointRegistry.referenceId, feedbackId)
+        )
+      )
+      .limit(1)
+
+    if (existingEntry.length > 0) {
+      // Update existing entry
+      await database()
+        .update(pointRegistry)
+        .set({
+          amount: points,
+          updatedAt: new Date(),
+          comment: `Updated to ${points} points after analysis change`
+        })
+        .where(
+          and(
+            eq(pointRegistry.userId, userId),
+            eq(pointRegistry.sourceType, 'submit_feedback'),
+            eq(pointRegistry.referenceId, feedbackId)
+          )
+        )
+    } else {
+      // Create new entry
+      await database()
+        .insert(pointRegistry)
+        .values({
+          userId,
+          amount: points,
+          sourceType: 'submit_feedback',
+          referenceId: feedbackId,
+          comment: `Awarded ${points} points for feedback #${feedbackId}`
+        })
+    }
+
+    return points
   }
 
   /**
@@ -263,5 +326,41 @@ export class PointService {
         referenceId: newUserId,
         comment: `Referral #${referralCount + 1}`
       })
+  }
+
+  /**
+   * Get the points amount for a specific point registry entry.
+   *
+   * @param userId - The user's ID (if null, returns null)
+   * @param sourceType - The type of the point source (e.g., 'submit_feedback', 'referral')
+   * @param referenceId - The reference ID (e.g., feedbackId for submit_feedback)
+   * @returns The points amount, or null if the entry doesn't exist
+   */
+  async getPointsForEntry(
+    userId: number | null,
+    sourceType: PointSourceType,
+    referenceId: number
+  ): Promise<number | null> {
+    if (!userId || !sourceType || !referenceId) return null
+
+    try {
+      const result = await database()
+        .select({
+          amount: pointRegistry.amount
+        })
+        .from(pointRegistry)
+        .where(
+          and(
+            eq(pointRegistry.userId, userId),
+            eq(pointRegistry.referenceId, referenceId),
+            eq(pointRegistry.sourceType, sourceType)
+          )
+        )
+        .limit(1)
+
+      return result[0]?.amount || null
+    } catch {
+      return null
+    }
   }
 }

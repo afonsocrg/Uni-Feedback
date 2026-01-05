@@ -13,6 +13,7 @@ import {
 import {
   BookOpen,
   Building2,
+  Gift,
   GraduationCap,
   Home,
   MessageSquare,
@@ -52,6 +53,11 @@ const items = [
     title: 'Feedback',
     url: '/feedback',
     icon: MessageSquare
+  },
+  {
+    title: 'Giveaway',
+    url: '/giveaway',
+    icon: Gift
   }
 ]
 

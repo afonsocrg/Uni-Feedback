@@ -14,7 +14,8 @@ import {
   CoursesPage,
   CourseDetailPage,
   FeedbackPage,
-  FeedbackDetailPage
+  FeedbackDetailPage,
+  GiveawayPage
 } from '@pages'
 import { TermsPage } from './pages/TermsPage'
 import { PrivacyPage } from './pages/PrivacyPage'
@@ -56,6 +57,7 @@ function App() {
               <Route path="courses/:id" element={<CourseDetailPage />} />
               <Route path="feedback" element={<FeedbackPage />} />
               <Route path="feedback/:id" element={<FeedbackDetailPage />} />
+              <Route path="giveaway" element={<GiveawayPage />} />
               {/* <Route path="profile" element={<ProfilePage />} /> */}
             </Route>
 
