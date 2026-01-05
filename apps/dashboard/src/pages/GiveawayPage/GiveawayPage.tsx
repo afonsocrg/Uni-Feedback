@@ -1,9 +1,7 @@
-import { ConfirmationDialog, DatePicker, PaginationControls } from '@components'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { DatePicker, PaginationControls, TriboolIcon } from '@components'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import {
-  approveFeedback,
   getAdminFeedbackNew,
-  unapproveFeedback,
   type AdminFeedback
 } from '@uni-feedback/api-client'
 import {
@@ -25,9 +23,8 @@ import {
   TableHeader,
   TableRow
 } from '@uni-feedback/ui'
-import { Check, Edit, Trash2, X } from 'lucide-react'
+import { Edit } from 'lucide-react'
 import { useState } from 'react'
-import { toast } from 'sonner'
 import { AnalysisEditDialog } from './AnalysisEditDialog'
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50, 100]
@@ -42,6 +39,7 @@ export function GiveawayPage() {
   // Filter state
   const [createdAfter, setCreatedAfter] = useState<Date | undefined>(undefined)
   const [approvedFilter, setApprovedFilter] = useState<string>('all')
+  const [reviewedFilter, setReviewedFilter] = useState<string>('all')
 
   // Dialog state
   const [editingFeedback, setEditingFeedback] = useState<AdminFeedback | null>(
@@ -55,7 +53,8 @@ export function GiveawayPage() {
       page,
       pageSize,
       createdAfter?.toISOString(),
-      approvedFilter
+      approvedFilter,
+      reviewedFilter
     ],
     queryFn: () =>
       getAdminFeedbackNew({
@@ -68,38 +67,21 @@ export function GiveawayPage() {
             ? true
             : approvedFilter === 'unapproved'
               ? false
+              : undefined,
+        reviewed:
+          reviewedFilter === 'reviewed'
+            ? true
+            : reviewedFilter === 'unreviewed'
+              ? false
               : undefined
       })
-  })
-
-  // Approve mutation
-  const approveMutation = useMutation({
-    mutationFn: (feedbackId: number) => approveFeedback(feedbackId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-feedback-giveaway'] })
-      toast.success('Feedback approved successfully')
-    },
-    onError: () => {
-      toast.error('Failed to approve feedback')
-    }
-  })
-
-  // Unapprove mutation
-  const unapproveMutation = useMutation({
-    mutationFn: (feedbackId: number) => unapproveFeedback(feedbackId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-feedback-giveaway'] })
-      toast.success('Feedback unapproved successfully')
-    },
-    onError: () => {
-      toast.error('Failed to unapprove feedback')
-    }
   })
 
   // Clear filters
   const handleClearFilters = () => {
     setCreatedAfter(undefined)
     setApprovedFilter('all')
+    setReviewedFilter('all')
     setPage(1)
   }
 
@@ -114,13 +96,20 @@ export function GiveawayPage() {
     setPage(1)
   }
 
+  const handleReviewedFilterChange = (value: string) => {
+    setReviewedFilter(value)
+    setPage(1)
+  }
+
   const handlePageSizeChange = (newPageSize: number) => {
     setPageSize(newPageSize)
     setPage(1)
   }
 
   const hasActiveFilters =
-    createdAfter !== undefined || approvedFilter !== 'all'
+    createdAfter !== undefined ||
+    approvedFilter !== 'all' ||
+    reviewedFilter !== 'all'
 
   return (
     <div className="space-y-4">
@@ -131,6 +120,24 @@ export function GiveawayPage() {
         <CardContent className="space-y-4">
           {/* Filters */}
           <div className="flex flex-wrap items-end gap-4">
+            <div className="flex-1 min-w-[200px]">
+              <label className="text-sm font-medium mb-2 block">
+                Review Status
+              </label>
+              <Select
+                value={reviewedFilter}
+                onValueChange={handleReviewedFilterChange}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="All" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="reviewed">Reviewed</SelectItem>
+                  <SelectItem value="unreviewed">Unreviewed</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <div className="flex-1 min-w-[200px]">
               <label className="text-sm font-medium mb-2 block">
                 Created After
@@ -171,8 +178,8 @@ export function GiveawayPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="text-center">Approved</TableHead>
                   <TableHead className="min-w-[300px]">Comment</TableHead>
+                  <TableHead className="text-center">Approved</TableHead>
                   <TableHead className="text-center">Teaching</TableHead>
                   <TableHead className="text-center">Assessment</TableHead>
                   <TableHead className="text-center">Materials</TableHead>
@@ -207,153 +214,81 @@ export function GiveawayPage() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  data?.data.map((feedback: AdminFeedback) => (
-                    <TableRow
-                      key={feedback.id}
-                      className={
-                        feedback.analysis === null ? 'bg-muted/20' : undefined
-                      }
-                    >
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          {feedback.approved ? (
-                            <Check className="h-4 w-4 text-green-600" />
-                          ) : (
-                            <X className="h-4 w-4 text-red-600 inline" />
+                  data?.data.map((feedback: AdminFeedback) => {
+                    const needsReview =
+                      feedback.analysis === null ||
+                      feedback.analysis.reviewedAt === null
+
+                    return (
+                      <TableRow
+                        key={feedback.id}
+                        className={
+                          needsReview
+                            ? 'bg-amber-50/50 hover:bg-amber-100/50'
+                            : undefined
+                        }
+                      >
+                        <TableCell className="whitespace-pre-wrap">
+                          {feedback.comment || '--'}
+                          {feedback.comment && feedback.analysis?.wordCount && (
+                            <span className="ml-2 text-xs text-muted-foreground mt-1">
+                              ({feedback.analysis.wordCount} words)
+                            </span>
                           )}
-                        </div>
-                      </TableCell>
-                      <TableCell className="whitespace-pre-wrap">
-                        {feedback.comment || '--'}
-                        {feedback.comment && feedback.analysis?.wordCount && (
-                          <span className="ml-2 text-xs text-muted-foreground mt-1">
-                            ({feedback.analysis.wordCount} words)
-                          </span>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {feedback.analysis ? (
-                          feedback.analysis.hasTeaching ? (
-                            <Check className="h-4 w-4 text-green-600 inline" />
-                          ) : (
-                            <X className="h-4 w-4 text-red-600 inline" />
-                          )
-                        ) : (
-                          <span className="text-muted-foreground text-sm">
-                            --
-                          </span>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {feedback.analysis ? (
-                          feedback.analysis.hasAssessment ? (
-                            <Check className="h-4 w-4 text-green-600 inline" />
-                          ) : (
-                            <X className="h-4 w-4 text-red-600 inline" />
-                          )
-                        ) : (
-                          <span className="text-muted-foreground text-sm">
-                            --
-                          </span>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {feedback.analysis ? (
-                          feedback.analysis.hasMaterials ? (
-                            <Check className="h-4 w-4 text-green-600 inline" />
-                          ) : (
-                            <X className="h-4 w-4 text-red-600 inline" />
-                          )
-                        ) : (
-                          <span className="text-muted-foreground text-sm">
-                            --
-                          </span>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {feedback.analysis ? (
-                          feedback.analysis.hasTips ? (
-                            <Check className="h-4 w-4 text-green-600 inline" />
-                          ) : (
-                            <X className="h-4 w-4 text-red-600 inline" />
-                          )
-                        ) : (
-                          <span className="text-muted-foreground text-sm">
-                            --
-                          </span>
-                        )}
-                      </TableCell>
-                      {/* <TableCell className="text-center">
-                        {feedback.analysis?.wordCount ?? (
-                          <span className="text-muted-foreground text-sm">
-                            --
-                          </span>
-                        )}
-                      </TableCell> */}
-                      <TableCell className="text-center font-semibold">
-                        {feedback.points !== null ? (
-                          feedback.points
-                        ) : (
-                          <span className="text-muted-foreground text-sm">
-                            --
-                          </span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-2">
-                          {feedback.approved ? (
-                            <ConfirmationDialog
-                              title="Unapprove Feedback"
-                              message="Are you sure you want to unapprove this feedback?"
-                              confirmText="Unapprove"
-                              variant="destructive"
-                              onConfirm={() =>
-                                unapproveMutation.mutate(feedback.id)
-                              }
-                            >
-                              {({ open }) => (
-                                <Button
-                                  variant="destructive"
-                                  size="sm"
-                                  onClick={open}
-                                  disabled={unapproveMutation.isPending}
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <TriboolIcon value={feedback.approved} />
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <TriboolIcon value={feedback.analysis?.hasTeaching} />
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <TriboolIcon
+                            value={feedback.analysis?.hasAssessment}
+                          />
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <TriboolIcon
+                            value={feedback.analysis?.hasMaterials}
+                          />
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <TriboolIcon value={feedback.analysis?.hasTips} />
+                        </TableCell>
+
+                        <TableCell className="text-center">
+                          <div className="flex items-center justify-center gap-2">
+                            <span className="font-semibold">
+                              {feedback.points !== null ? (
+                                feedback.points
+                              ) : (
+                                <span className="text-muted-foreground text-sm">
+                                  --
+                                </span>
                               )}
-                            </ConfirmationDialog>
-                          ) : (
-                            <ConfirmationDialog
-                              title="Approve Feedback"
-                              message="Are you sure you want to approve this feedback?"
-                              confirmText="Approve"
-                              onConfirm={() =>
-                                approveMutation.mutate(feedback.id)
-                              }
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-2 items-center">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setEditingFeedback(feedback)}
                             >
-                              {({ open }) => (
-                                <Button
-                                  variant="default"
-                                  size="sm"
-                                  onClick={open}
-                                  disabled={approveMutation.isPending}
-                                >
-                                  <Check className="h-4 w-4" />
-                                </Button>
-                              )}
-                            </ConfirmationDialog>
-                          )}
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setEditingFeedback(feedback)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            {needsReview && (
+                              <span
+                                className="inline-flex h-2 w-2 rounded-full bg-amber-500"
+                                title="Needs review"
+                              />
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })
                 )}
               </TableBody>
             </Table>

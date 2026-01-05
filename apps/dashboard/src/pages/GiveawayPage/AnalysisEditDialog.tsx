@@ -1,6 +1,8 @@
 import { useMutation } from '@tanstack/react-query'
 import {
   updateFeedbackAnalysis,
+  approveFeedback,
+  unapproveFeedback,
   type AdminFeedback
 } from '@uni-feedback/api-client'
 import {
@@ -14,8 +16,10 @@ import {
   DialogTitle,
   Label
 } from '@uni-feedback/ui'
+import { Check, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
+import { ConfirmationDialog } from '@components'
 
 interface AnalysisEditDialogProps {
   feedback: AdminFeedback
@@ -42,7 +46,7 @@ export function AnalysisEditDialog({
   )
   const [hasTips, setHasTips] = useState(feedback.analysis?.hasTips ?? false)
 
-  const mutation = useMutation({
+  const updateMutation = useMutation({
     mutationFn: () =>
       updateFeedbackAnalysis(feedback.id, {
         hasTeaching,
@@ -63,9 +67,31 @@ export function AnalysisEditDialog({
     }
   })
 
+  const approveMutation = useMutation({
+    mutationFn: () => approveFeedback(feedback.id),
+    onSuccess: () => {
+      toast.success('Feedback approved successfully')
+      onSuccess()
+    },
+    onError: () => {
+      toast.error('Failed to approve feedback')
+    }
+  })
+
+  const unapproveMutation = useMutation({
+    mutationFn: () => unapproveFeedback(feedback.id),
+    onSuccess: () => {
+      toast.success('Feedback unapproved successfully')
+      onSuccess()
+    },
+    onError: () => {
+      toast.error('Failed to unapprove feedback')
+    }
+  })
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    mutation.mutate()
+    updateMutation.mutate()
   }
 
   return (
@@ -168,22 +194,66 @@ export function AnalysisEditDialog({
             </div>
           </div>
 
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={mutation.isPending}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending
-                ? 'Saving...'
-                : feedback.analysis
-                  ? 'Update Analysis'
-                  : 'Create Analysis'}
-            </Button>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <div className="flex gap-2 flex-1">
+              {feedback.approved ? (
+                <ConfirmationDialog
+                  title="Unapprove Feedback"
+                  message="Are you sure you want to unapprove this feedback?"
+                  confirmText="Unapprove"
+                  variant="destructive"
+                  onConfirm={() => unapproveMutation.mutate()}
+                >
+                  {({ open }) => (
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      onClick={open}
+                      disabled={unapproveMutation.isPending}
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Unapprove
+                    </Button>
+                  )}
+                </ConfirmationDialog>
+              ) : (
+                <ConfirmationDialog
+                  title="Approve Feedback"
+                  message="Are you sure you want to approve this feedback?"
+                  confirmText="Approve"
+                  onConfirm={() => approveMutation.mutate()}
+                >
+                  {({ open }) => (
+                    <Button
+                      type="button"
+                      variant="default"
+                      onClick={open}
+                      disabled={approveMutation.isPending}
+                    >
+                      <Check className="h-4 w-4 mr-2" />
+                      Approve
+                    </Button>
+                  )}
+                </ConfirmationDialog>
+              )}
+            </div>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                disabled={updateMutation.isPending}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={updateMutation.isPending}>
+                {updateMutation.isPending
+                  ? 'Saving...'
+                  : feedback.analysis
+                    ? 'Update Analysis'
+                    : 'Create Analysis'}
+              </Button>
+            </div>
           </DialogFooter>
         </form>
       </DialogContent>

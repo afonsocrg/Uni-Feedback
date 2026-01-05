@@ -63,7 +63,8 @@ const FeedbackQuerySchema = PaginationQuerySchema.extend({
   created_after: z
     .string()
     .optional()
-    .transform((val) => (val ? new Date(val) : undefined))
+    .transform((val) => (val ? new Date(val) : undefined)),
+  reviewed: z.boolean().optional()
 })
 
 const AdminFeedbackSchema = z.object({
@@ -145,7 +146,8 @@ export class GetFeedback extends OpenAPIRoute {
         workload_rating,
         has_comment,
         school_year,
-        created_after
+        created_after,
+        reviewed
       } = query
 
       // Build where conditions
@@ -206,6 +208,14 @@ export class GetFeedback extends OpenAPIRoute {
         conditions.push(gt(feedback.createdAt, created_after))
       }
 
+      if (reviewed !== undefined) {
+        if (reviewed) {
+          conditions.push(isNotNull(feedbackAnalysis.reviewedAt))
+        } else {
+          conditions.push(isNull(feedbackAnalysis.reviewedAt))
+        }
+      }
+
       const whereClause = conditions.length > 0 ? and(...conditions) : undefined
 
       // Get total count
@@ -257,6 +267,9 @@ export class GetFeedback extends OpenAPIRoute {
           analysisHasMaterials: feedbackAnalysis.hasMaterials,
           analysisHasTips: feedbackAnalysis.hasTips,
           analysisWordCount: feedbackAnalysis.wordCount,
+          analysisCreatedAt: feedbackAnalysis.createdAt,
+          analysisReviewedAt: feedbackAnalysis.reviewedAt,
+          analysisUpdatedAt: feedbackAnalysis.updatedAt,
           pointsAmount: pointRegistry.amount
         })
         .from(feedback)
@@ -306,7 +319,10 @@ export class GetFeedback extends OpenAPIRoute {
                   hasAssessment: fb.analysisHasAssessment!,
                   hasMaterials: fb.analysisHasMaterials!,
                   hasTips: fb.analysisHasTips!,
-                  wordCount: fb.analysisWordCount!
+                  wordCount: fb.analysisWordCount!,
+                  createdAt: fb.analysisCreatedAt?.toISOString(),
+                  reviewedAt: fb.analysisReviewedAt?.toISOString() || null,
+                  updatedAt: fb.analysisUpdatedAt?.toISOString()
                 }
               : null,
           points: fb.pointsAmount !== null ? fb.pointsAmount : null

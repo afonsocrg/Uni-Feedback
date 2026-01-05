@@ -247,6 +247,9 @@ export interface FeedbackAnalysis {
   hasMaterials: boolean
   hasTips: boolean
   wordCount: number
+  createdAt?: string
+  reviewedAt?: string | null
+  updatedAt?: string
 }
 
 export interface AdminFeedback {
@@ -297,6 +300,7 @@ export interface AdminFeedbackQuery {
   has_comment?: boolean
   school_year?: number
   created_after?: string
+  reviewed?: boolean
 }
 
 export interface FeedbackUpdateData {
@@ -672,6 +676,8 @@ export async function getAdminFeedbackNew(
   if (query?.school_year)
     params.set('school_year', query.school_year.toString())
   if (query?.created_after) params.set('created_after', query.created_after)
+  if (query?.reviewed !== undefined)
+    params.set('reviewed', query.reviewed.toString())
 
   const url = params.toString()
     ? `/admin/feedback?${params}`

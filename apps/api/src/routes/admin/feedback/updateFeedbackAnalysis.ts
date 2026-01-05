@@ -119,6 +119,7 @@ export class UpdateFeedbackAnalysis extends OpenAPIRoute {
         .where(eq(feedbackAnalysis.feedbackId, feedbackId))
         .limit(1)
 
+      const now = new Date()
       const analysisData = {
         feedbackId,
         hasTeaching,
@@ -126,17 +127,24 @@ export class UpdateFeedbackAnalysis extends OpenAPIRoute {
         hasMaterials,
         hasTips,
         wordCount,
-        analyzedAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: now,
+        reviewedAt: undefined as Date | undefined // to be set conditionally
       }
 
       // Update or insert analysis
       if (oldAnalysis.length > 0) {
+        // If this is the first time a moderator reviews this analysis, set reviewedAt
+        if (oldAnalysis[0].reviewedAt === null) {
+          analysisData.reviewedAt = now
+        }
+
         await database()
           .update(feedbackAnalysis)
           .set(analysisData)
           .where(eq(feedbackAnalysis.feedbackId, feedbackId))
       } else {
+        // New analysis created by moderator - set reviewedAt immediately
+        analysisData.reviewedAt = now
         await database().insert(feedbackAnalysis).values(analysisData)
       }
 
