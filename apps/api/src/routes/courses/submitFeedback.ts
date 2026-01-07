@@ -168,6 +168,7 @@ export class SubmitFeedback extends OpenAPIRoute {
       const feedbackId = insertResult[0].id
 
       // Award points for feedback submission (best-effort)
+      let feedbackPoints = 0
       try {
         const pointService = new PointService(env)
 
@@ -183,7 +184,7 @@ export class SubmitFeedback extends OpenAPIRoute {
           })
 
         // 3. Calculate and award feedback points
-        const feedbackPoints = pointService.calculateFeedbackPoints(analysis)
+        feedbackPoints = pointService.calculateFeedbackPoints(analysis)
         if (feedbackPoints > 0) {
           await pointService.awardFeedbackPoints(
             userId,
@@ -250,7 +251,8 @@ export class SubmitFeedback extends OpenAPIRoute {
 
       return Response.json(
         {
-          message: 'Feedback submitted successfully'
+          message: 'Feedback submitted successfully',
+          pointsEarned: feedbackPoints
         },
         { status: 201 }
       )

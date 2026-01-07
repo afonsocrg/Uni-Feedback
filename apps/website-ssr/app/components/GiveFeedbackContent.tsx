@@ -52,6 +52,7 @@ interface GiveFeedbackContentProps {
   onReset?: () => void
   isSubmitting: boolean
   isSuccess: boolean
+  pointsEarned?: number
 }
 
 // Create form schema
@@ -73,7 +74,8 @@ export function GiveFeedbackContent({
   onSubmit,
   onReset,
   isSubmitting,
-  isSuccess
+  isSuccess,
+  pointsEarned
 }: GiveFeedbackContentProps) {
   const lastVisitedPath = useLastVisitedPath()
   const browseLink = lastVisitedPath !== '/' ? lastVisitedPath : '/browse'
@@ -171,10 +173,20 @@ export function GiveFeedbackContent({
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
             Feedback Received!
           </h2>
-          <p className="text-gray-600 mb-6">
+          <p className="text-gray-600 mb-2">
             Thanks for your feedback! It will help many students making better
             decisions!
           </p>
+          {pointsEarned !== undefined && pointsEarned > 0 && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+              <p className="text-lg font-semibold text-gray-900 mb-1">
+                Points Earned: {pointsEarned} points
+              </p>
+              <p className="text-sm text-gray-600">
+                These points are subject to manual review and approval
+              </p>
+            </div>
+          )}
           <div className="space-y-3">
             <Button onClick={handleReset} className="w-full">
               Submit Another Feedback

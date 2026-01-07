@@ -88,6 +88,7 @@ export function HydrateFallback() {
 export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
   const submitFeedbackMutation = useSubmitFeedback()
   const [isSuccess, setIsSuccess] = useState(false)
+  const [pointsEarned, setPointsEarned] = useState<number | undefined>(undefined)
   const { isAuthenticated, setUser } = useAuth()
   const [showVerificationModal, setShowVerificationModal] = useState(false)
   const [pendingFeedbackData, setPendingFeedbackData] = useState<{
@@ -131,7 +132,7 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
     // User is authenticated - proceed with normal submission
     try {
       // Submit feedback using TanStack Query mutation
-      await submitFeedbackMutation.mutateAsync({
+      const response = await submitFeedbackMutation.mutateAsync({
         schoolYear: values.schoolYear,
         courseId: values.courseId,
         rating: values.rating,
@@ -139,6 +140,7 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
         comment: values.comment
       })
 
+      setPointsEarned(response.pointsEarned)
       setIsSuccess(true)
       toast.success('Feedback submitted successfully!')
     } catch (error) {
@@ -162,7 +164,7 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
     // Auto-submit the pending feedback
     if (pendingFeedbackData) {
       try {
-        await submitFeedbackMutation.mutateAsync({
+        const response = await submitFeedbackMutation.mutateAsync({
           schoolYear: pendingFeedbackData.schoolYear,
           courseId: pendingFeedbackData.courseId,
           rating: pendingFeedbackData.rating,
@@ -170,6 +172,7 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
           comment: pendingFeedbackData.comment
         })
 
+        setPointsEarned(response.pointsEarned)
         setIsSuccess(true)
         toast.success('Feedback submitted successfully!')
         setPendingFeedbackData(null)
@@ -190,9 +193,13 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
         faculties={loaderData.faculties}
         initialFormValues={loaderData.initialFormValues}
         onSubmit={handleSubmit}
-        onReset={() => setIsSuccess(false)}
+        onReset={() => {
+          setIsSuccess(false)
+          setPointsEarned(undefined)
+        }}
         isSubmitting={submitFeedbackMutation.isPending}
         isSuccess={isSuccess}
+        pointsEarned={pointsEarned}
       />
 
       <EmailVerificationModal

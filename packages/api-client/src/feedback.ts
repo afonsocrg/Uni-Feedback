@@ -10,13 +10,18 @@ export type FeedbackSubmission = {
   comment?: string
 }
 
+export type SubmitFeedbackResponse = {
+  message: string
+  pointsEarned: number
+}
+
 export async function submitFeedback({
   schoolYear,
   courseId,
   rating,
   workloadRating,
   comment
-}: FeedbackSubmission) {
+}: FeedbackSubmission): Promise<SubmitFeedbackResponse> {
   try {
     return await apiPost(`/courses/${courseId}/feedback`, {
       schoolYear,
