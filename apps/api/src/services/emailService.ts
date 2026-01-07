@@ -251,4 +251,45 @@ Afonso`
       text: template.text
     })
   }
+
+  /**
+   * Send feedback unapproval email
+   */
+  async sendFeedbackUnapprovalEmail(
+    email: string,
+    message: string
+  ): Promise<void> {
+    // Use the message as-is
+    const subject = 'Uni Feedback: Atualiza o teu feedback 📝'
+    const messageBody = message
+
+    // Convert markdown-style formatting to HTML
+    const htmlBody = messageBody
+      .replace(/\n\n/g, '</p><p>')
+      .replace(/\n/g, '<br>')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\[(.+?)\]/g, '<strong>$1</strong>')
+
+    const template: EmailTemplate = {
+      subject,
+      html: `
+        <html>
+          <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+              <p>${htmlBody}</p>
+            </div>
+          </body>
+        </html>
+      `,
+      text: `${messageBody}`
+    }
+
+    await this.sendEmail({
+      from: 'Uni Feedback <afonso@uni-feedback.com>',
+      to: email,
+      subject: template.subject,
+      html: template.html,
+      text: template.text
+    })
+  }
 }

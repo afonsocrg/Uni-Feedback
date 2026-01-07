@@ -2,7 +2,8 @@ import {
   ConfirmationDialog,
   EditableSelect,
   EditableStarRatingField,
-  EditableWorkloadRating
+  EditableWorkloadRating,
+  UnapprovalMessageDialog
 } from '@components'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {
@@ -42,6 +43,7 @@ export function FeedbackInfoCard({ feedback }: FeedbackInfoCardProps) {
 
   const [editValues, setEditValues] = useState<Record<string, any>>({})
   const [isRatingDialogOpen, setIsRatingDialogOpen] = useState(false)
+  const [unapprovalDialogOpen, setUnapprovalDialogOpen] = useState(false)
 
   const feedbackId = id ? parseInt(id, 10) : 0
 
@@ -79,13 +81,13 @@ export function FeedbackInfoCard({ feedback }: FeedbackInfoCardProps) {
   })
 
   const unapproveMutation = useMutation({
-    mutationFn: () => unapproveFeedback(feedbackId),
+    mutationFn: (message: string) => unapproveFeedback(feedbackId, message),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ['feedback-details', feedbackId]
       })
       queryClient.invalidateQueries({ queryKey: ['admin-feedback'] })
-      toast.success('Feedback unapproved successfully')
+      toast.success('Feedback unapproved and email sent successfully')
     },
     onError: (error) => {
       toast.error(
@@ -98,8 +100,8 @@ export function FeedbackInfoCard({ feedback }: FeedbackInfoCardProps) {
     await approveMutation.mutateAsync()
   }
 
-  const handleDisapprove = async () => {
-    await unapproveMutation.mutateAsync()
+  const handleUnapprove = async (message: string) => {
+    await unapproveMutation.mutateAsync(message)
   }
 
   // Generate 5 most recent school years
@@ -213,25 +215,24 @@ export function FeedbackInfoCard({ feedback }: FeedbackInfoCardProps) {
                 )}
 
                 {feedback.approved ? (
-                  <ConfirmationDialog
-                    onConfirm={handleDisapprove}
-                    message="Are you sure you want to unapprove this feedback? This will hide it from students."
-                    title="Unapprove Feedback"
-                    confirmText="Unapprove"
-                    variant="destructive"
-                  >
-                    {({ open }) => (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={open}
-                        disabled={unapproveMutation.isPending}
-                      >
-                        <X className="h-4 w-4 mr-1" />
-                        Unapprove
-                      </Button>
-                    )}
-                  </ConfirmationDialog>
+                  <>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setUnapprovalDialogOpen(true)}
+                      disabled={unapproveMutation.isPending}
+                    >
+                      <X className="h-4 w-4 mr-1" />
+                      Unapprove
+                    </Button>
+                    <UnapprovalMessageDialog
+                      open={unapprovalDialogOpen}
+                      onConfirm={handleUnapprove}
+                      onCancel={() => setUnapprovalDialogOpen(false)}
+                      courseName={feedback.courseName || feedback.courseAcronym}
+                      feedbackComment={feedback.comment || undefined}
+                    />
+                  </>
                 ) : (
                   <ConfirmationDialog
                     onConfirm={handleApprove}

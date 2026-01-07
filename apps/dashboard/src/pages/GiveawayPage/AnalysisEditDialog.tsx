@@ -1,8 +1,9 @@
+import { ConfirmationDialog, UnapprovalMessageDialog } from '@components'
 import { useMutation } from '@tanstack/react-query'
 import {
-  updateFeedbackAnalysis,
   approveFeedback,
   unapproveFeedback,
+  updateFeedbackAnalysis,
   type AdminFeedback
 } from '@uni-feedback/api-client'
 import {
@@ -19,7 +20,6 @@ import {
 import { Check, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { ConfirmationDialog } from '@components'
 
 interface AnalysisEditDialogProps {
   feedback: AdminFeedback
@@ -45,6 +45,7 @@ export function AnalysisEditDialog({
     feedback.analysis?.hasMaterials ?? false
   )
   const [hasTips, setHasTips] = useState(feedback.analysis?.hasTips ?? false)
+  const [unapprovalDialogOpen, setUnapprovalDialogOpen] = useState(false)
 
   const updateMutation = useMutation({
     mutationFn: () =>
@@ -79,13 +80,15 @@ export function AnalysisEditDialog({
   })
 
   const unapproveMutation = useMutation({
-    mutationFn: () => unapproveFeedback(feedback.id),
+    mutationFn: (message: string) => unapproveFeedback(feedback.id, message),
     onSuccess: () => {
-      toast.success('Feedback unapproved successfully')
+      toast.success('Feedback unapproved and email sent successfully')
       onSuccess()
     },
-    onError: () => {
-      toast.error('Failed to unapprove feedback')
+    onError: (error) => {
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to unapprove feedback'
+      )
     }
   })
 
@@ -197,25 +200,26 @@ export function AnalysisEditDialog({
           <DialogFooter className="flex-col sm:flex-row gap-2">
             <div className="flex gap-2 flex-1">
               {feedback.approved ? (
-                <ConfirmationDialog
-                  title="Unapprove Feedback"
-                  message="Are you sure you want to unapprove this feedback?"
-                  confirmText="Unapprove"
-                  variant="destructive"
-                  onConfirm={() => unapproveMutation.mutate()}
-                >
-                  {({ open }) => (
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      onClick={open}
-                      disabled={unapproveMutation.isPending}
-                    >
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Unapprove
-                    </Button>
-                  )}
-                </ConfirmationDialog>
+                <>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    onClick={() => setUnapprovalDialogOpen(true)}
+                    disabled={unapproveMutation.isPending}
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Unapprove
+                  </Button>
+                  <UnapprovalMessageDialog
+                    open={unapprovalDialogOpen}
+                    onCancel={() => setUnapprovalDialogOpen(false)}
+                    courseName={feedback.courseName || feedback.courseAcronym}
+                    feedbackComment={feedback.comment || undefined}
+                    onConfirm={(message: string) =>
+                      unapproveMutation.mutate(message)
+                    }
+                  />
+                </>
               ) : (
                 <ConfirmationDialog
                   title="Approve Feedback"

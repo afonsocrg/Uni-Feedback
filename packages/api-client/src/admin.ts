@@ -742,7 +742,10 @@ export async function approveFeedback(feedbackId: number): Promise<{
 /**
  * Unapprove feedback
  */
-export async function unapproveFeedback(feedbackId: number): Promise<{
+export async function unapproveFeedback(
+  feedbackId: number,
+  message: string
+): Promise<{
   id: number
   approved: boolean
   approvedAt: null
@@ -753,7 +756,7 @@ export async function unapproveFeedback(feedbackId: number): Promise<{
     approved: boolean
     approvedAt: null
     message: string
-  }>(`/admin/feedback/${feedbackId}/approved`)
+  }>(`/admin/feedback/${feedbackId}/approved`, { message })
 }
 
 /**

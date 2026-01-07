@@ -1,6 +1,6 @@
-import { PointService } from '@services'
+import { EmailService, PointService } from '@services'
 import { database } from '@uni-feedback/db'
-import { feedback } from '@uni-feedback/db/schema'
+import { feedback, users } from '@uni-feedback/db/schema'
 import { notifyAdminChange } from '@utils/notificationHelpers'
 import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
@@ -9,6 +9,10 @@ import { z } from 'zod'
 
 const UnapproveFeedbackParamsSchema = z.object({
   id: z.string().transform((val) => parseInt(val, 10))
+})
+
+const UnapproveFeedbackBodySchema = z.object({
+  message: z.string().min(1, 'Message is required')
 })
 
 const UnapproveFeedbackResponseSchema = z.object({
@@ -22,9 +26,17 @@ export class UnapproveFeedback extends OpenAPIRoute {
   schema = {
     tags: ['Admin - Feedback'],
     summary: 'Unapprove feedback',
-    description: 'Unapprove a feedback entry and zero out points for the user if applicable',
+    description:
+      'Unapprove a feedback entry, send unapproval email, and zero out points for the user if applicable',
     request: {
-      params: UnapproveFeedbackParamsSchema
+      params: UnapproveFeedbackParamsSchema,
+      body: {
+        content: {
+          'application/json': {
+            schema: UnapproveFeedbackBodySchema
+          }
+        }
+      }
     },
     responses: {
       '200': {
@@ -60,21 +72,26 @@ export class UnapproveFeedback extends OpenAPIRoute {
 
   async handle(request: IRequest, env: any, context: any) {
     try {
-      const { params } = await this.getValidatedData<typeof this.schema>()
+      const { params, body } = await this.getValidatedData<typeof this.schema>()
       const { id: feedbackId } = params
+      const { message } = body
 
       if (!feedbackId || isNaN(feedbackId)) {
         return Response.json({ error: 'Invalid feedback ID' }, { status: 400 })
       }
 
-      // Get feedback data
+      // Get feedback data with user and course information
       const existingFeedback = await database()
         .select({
           id: feedback.id,
           userId: feedback.userId,
-          approvedAt: feedback.approvedAt
+          email: feedback.email,
+          approvedAt: feedback.approvedAt,
+          courseId: feedback.courseId,
+          userEmail: users.email
         })
         .from(feedback)
+        .leftJoin(users, eq(feedback.userId, users.id))
         .where(eq(feedback.id, feedbackId))
         .limit(1)
 
@@ -93,6 +110,34 @@ export class UnapproveFeedback extends OpenAPIRoute {
           approvedAt: null,
           message: 'Feedback is already unapproved'
         })
+      }
+
+      // Get the user's email (either from user table or legacy email field)
+      const recipientEmail = feedbackData.userEmail || feedbackData.email
+
+      // Send unapproval email before unapproving
+      if (recipientEmail) {
+        try {
+          const emailService = new EmailService(env)
+          await emailService.sendFeedbackUnapprovalEmail(recipientEmail, message)
+        } catch (emailError) {
+          console.error(
+            `Failed to send unapproval email for feedback ${feedbackId}:`,
+            emailError
+          )
+          // If email fails, cancel the unapproval
+          return Response.json(
+            {
+              error:
+                'Failed to send unapproval email. Unapproval cancelled. Please try again.'
+            },
+            { status: 500 }
+          )
+        }
+      } else {
+        console.log(
+          `Feedback ${feedbackId} has no email - skipping unapproval email`
+        )
       }
 
       // Update approval status

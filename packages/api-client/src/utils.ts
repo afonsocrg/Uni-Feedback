@@ -131,10 +131,12 @@ export async function apiPut<T>(
  */
 export async function apiDelete<T>(
   endpoint: string,
+  data?: any,
   options: ApiOptions = {}
 ): Promise<T> {
   const response = await apiFetch(endpoint, {
     method: 'DELETE',
+    body: data ? JSON.stringify(data) : undefined,
     ...options
   })
   return response.json()
