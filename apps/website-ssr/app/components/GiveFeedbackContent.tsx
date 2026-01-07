@@ -37,6 +37,7 @@ import { useEffect, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link } from 'react-router'
 import { z } from 'zod'
+import { FeedbackSubmitSuccess } from '~/components/feedback/FeedbackSubmitSuccess'
 import { useLastVisitedPath } from '~/hooks'
 import { useDegreeCourses, useFacultyDegrees } from '~/hooks/queries'
 import { cn } from '~/utils/tailwind'
@@ -153,50 +154,11 @@ export function GiveFeedbackContent({
   // Show success state
   if (isSuccess) {
     return (
-      <main className="container mx-auto px-4 py-8 max-w-2xl min-h-screen md:min-h-none">
-        <div className="text-center">
-          <div className="w-12 h-12 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
-            <svg
-              className="w-6 h-6 text-green-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            Feedback Received!
-          </h2>
-          <p className="text-gray-600 mb-2">
-            Thanks for your feedback! It will help many students making better
-            decisions!
-          </p>
-          {pointsEarned !== undefined && pointsEarned > 0 && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-              <p className="text-lg font-semibold text-gray-900 mb-1">
-                Points Earned: {pointsEarned} points
-              </p>
-              <p className="text-sm text-gray-600">
-                These points are subject to manual review and approval
-              </p>
-            </div>
-          )}
-          <div className="space-y-3">
-            <Button onClick={handleReset} className="w-full">
-              Submit Another Feedback
-            </Button>
-            <Button variant="outline" asChild className="w-full">
-              <a href={browseLink}>Back to Courses</a>
-            </Button>
-          </div>
-        </div>
-      </main>
+      <FeedbackSubmitSuccess
+        pointsEarned={pointsEarned}
+        onSubmitAnother={handleReset}
+        browseLink={browseLink}
+      />
     )
   }
 

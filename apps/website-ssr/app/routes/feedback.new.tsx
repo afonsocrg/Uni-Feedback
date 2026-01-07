@@ -88,7 +88,9 @@ export function HydrateFallback() {
 export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
   const submitFeedbackMutation = useSubmitFeedback()
   const [isSuccess, setIsSuccess] = useState(false)
-  const [pointsEarned, setPointsEarned] = useState<number | undefined>(undefined)
+  const [pointsEarned, setPointsEarned] = useState<number | undefined>(
+    undefined
+  )
   const { isAuthenticated, setUser } = useAuth()
   const [showVerificationModal, setShowVerificationModal] = useState(false)
   const [pendingFeedbackData, setPendingFeedbackData] = useState<{
