@@ -32,12 +32,13 @@ import {
   formatSchoolYearString,
   getCurrentSchoolYear
 } from '@uni-feedback/utils'
-import { Check, ChevronsUpDown, Loader2, Send } from 'lucide-react'
-import { useEffect, useMemo } from 'react'
+import { Check, ChevronsUpDown, Lightbulb, Loader2, Send } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link } from 'react-router'
 import { z } from 'zod'
 import { FeedbackSubmitSuccess } from '~/components/feedback/FeedbackSubmitSuccess'
+import { ReviewTipsDialog } from '~/components/ReviewTipsDialog'
 import { useLastVisitedPath } from '~/hooks'
 import { useDegreeCourses, useFacultyDegrees } from '~/hooks/queries'
 import { cn } from '~/utils/tailwind'
@@ -80,6 +81,7 @@ export function GiveFeedbackContent({
 }: GiveFeedbackContentProps) {
   const lastVisitedPath = useLastVisitedPath()
   const browseLink = lastVisitedPath !== '/' ? lastVisitedPath : '/browse'
+  const [showReviewTips, setShowReviewTips] = useState(false)
 
   const form = useForm({
     resolver: zodResolver(feedbackSchema),
@@ -503,7 +505,17 @@ export function GiveFeedbackContent({
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Write your feedback</FormLabel>
+                    <div className="flex items-center justify-between mb-2">
+                      <FormLabel>Write your feedback</FormLabel>
+                      <button
+                        type="button"
+                        onClick={() => setShowReviewTips(true)}
+                        className="text-sm text-primaryBlue hover:text-primaryBlue/80 flex items-center gap-1 font-medium cursor-pointer"
+                      >
+                        <Lightbulb className="size-4" />
+                        Feedback tips
+                      </button>
+                    </div>
                     <p className="text-xs text-gray-700 mb-2">
                       ️This field is optional, but it's the one that helps other
                       students the most ❤️
@@ -562,6 +574,12 @@ export function GiveFeedbackContent({
               .
             </p>
           </form>
+
+          {/* Review Tips Dialog */}
+          <ReviewTipsDialog
+            open={showReviewTips}
+            onOpenChange={setShowReviewTips}
+          />
         </Form>
       </div>
     </main>
