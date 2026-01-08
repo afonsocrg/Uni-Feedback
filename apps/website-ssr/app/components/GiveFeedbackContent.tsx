@@ -37,10 +37,12 @@ import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link } from 'react-router'
 import { z } from 'zod'
+import { FeedbackCategoryChips } from '~/components/feedback/FeedbackCategoryChips'
 import { FeedbackSubmitSuccess } from '~/components/feedback/FeedbackSubmitSuccess'
 import { ReviewTipsDialog } from '~/components/ReviewTipsDialog'
 import { useLastVisitedPath } from '~/hooks'
 import { useDegreeCourses, useFacultyDegrees } from '~/hooks/queries'
+import { useFeedbackCategorization } from '~/hooks/useFeedbackCategorization'
 import { cn } from '~/utils/tailwind'
 
 interface GiveFeedbackContentProps {
@@ -101,6 +103,15 @@ export function GiveFeedbackContent({
   const selectedFacultyId = form.watch('facultyId')
   const selectedDegreeId = form.watch('degreeId')
   const comment = form.watch('comment')
+
+  // Categorize feedback in real-time
+  const { categories, isLoading: isCategorizing } = useFeedbackCategorization(
+    comment || '',
+    {
+      debounceMs: 1000,
+      minCharacters: 5
+    }
+  )
 
   // Fetch degrees and courses based on selections
   const { data: degrees = [], isLoading: isLoadingDegrees } = useFacultyDegrees(
@@ -516,6 +527,10 @@ export function GiveFeedbackContent({
                         Feedback tips
                       </button>
                     </div>
+                    <FeedbackCategoryChips
+                      categories={categories}
+                      isLoading={isCategorizing}
+                    />
                     <FormControl>
                       <MarkdownTextarea
                         placeholder="What should others know about this course?"
@@ -524,7 +539,7 @@ export function GiveFeedbackContent({
                       />
                     </FormControl>
                     <FormDescription className="text-xs text-gray-700 text-right flex gap-2">
-                      <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-start justify-between gap-4 w-full">
                         <p className="text-xs text-gray-700 mb-2 flex-1 text-start">
                           This field is optional, but it's the one that helps
                           other students the most ❤️
@@ -543,11 +558,20 @@ export function GiveFeedbackContent({
             </div>
 
             {/* Submit Button */}
-            <Button type="submit" className="w-full mt-6 mb-0">
+            <Button
+              type="submit"
+              className="w-full mt-6 mb-0"
+              disabled={isSubmitting || isCategorizing}
+            >
               {isSubmitting ? (
                 <>
                   <Loader2 className="size-4 animate-spin" />
                   <span>Submitting...</span>
+                </>
+              ) : isCategorizing ? (
+                <>
+                  <Loader2 className="size-4 animate-spin" />
+                  <span>Categorizing...</span>
                 </>
               ) : (
                 <>

@@ -15,6 +15,33 @@ export type SubmitFeedbackResponse = {
   pointsEarned: number
 }
 
+export type FeedbackCategories = {
+  hasTeaching: boolean
+  hasAssessment: boolean
+  hasMaterials: boolean
+  hasTips: boolean
+}
+
+export type CategorizeFeedbackResponse = {
+  categories: FeedbackCategories
+}
+
+export async function categorizeFeedbackPreview(
+  comment: string
+): Promise<FeedbackCategories> {
+  try {
+    const response: CategorizeFeedbackResponse = await apiPost(
+      '/feedback/categorize-preview',
+      { comment }
+    )
+    return response.categories
+  } catch (error) {
+    throw new MeicFeedbackAPIError(
+      `Failed to categorize feedback: ${error instanceof Error ? error.message : 'Unknown error'}`
+    )
+  }
+}
+
 export async function submitFeedback({
   schoolYear,
   courseId,
