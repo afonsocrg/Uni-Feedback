@@ -516,10 +516,6 @@ export function GiveFeedbackContent({
                         Feedback tips
                       </button>
                     </div>
-                    <p className="text-xs text-gray-700 mb-2">
-                      ️This field is optional, but it's the one that helps other
-                      students the most ❤️
-                    </p>
                     <FormControl>
                       <MarkdownTextarea
                         placeholder="What should others know about this course?"
@@ -527,9 +523,18 @@ export function GiveFeedbackContent({
                         {...field}
                       />
                     </FormControl>
-                    <FormDescription className="text-xs text-gray-700 text-right">
-                      {countWords(comment)}{' '}
-                      {countWords(comment) === 1 ? 'word' : 'words'}
+                    <FormDescription className="text-xs text-gray-700 text-right flex gap-2">
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="text-xs text-gray-700 mb-2 flex-1 text-start">
+                          This field is optional, but it's the one that helps
+                          other students the most ❤️
+                        </p>
+
+                        <p className="text-xs text-gray-700 whitespace-nowrap flex-shrink-0">
+                          {countWords(comment)}{' '}
+                          {countWords(comment) === 1 ? 'word' : 'words'}
+                        </p>
+                      </div>
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
