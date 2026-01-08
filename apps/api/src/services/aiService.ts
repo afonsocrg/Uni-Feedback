@@ -63,7 +63,8 @@ export class AIService {
    */
   async categorizeFeedback(comment: string): Promise<FeedbackCategories> {
     const payload = {
-      model: 'openai/gpt-4o-mini',
+      // model: 'openai/gpt-4o-mini',
+      model: 'openai/gpt-oss-20b',
       messages: [
         {
           role: 'system',
