@@ -6,7 +6,14 @@ import {
   type PointSourceType
 } from '@uni-feedback/db/schema'
 import { and, count, eq, ne, sum } from 'drizzle-orm'
-import { AnalysisResult } from '../utils/contentAnalysis'
+
+export interface AnalysisResult {
+  hasTeaching: boolean
+  hasAssessment: boolean
+  hasMaterials: boolean
+  hasTips: boolean
+  wordCount: number
+}
 
 export class PointService {
   private env?: Env

@@ -74,6 +74,8 @@ function createEnv(): Env {
     TELEGRAM_BOT_TOKEN: process.env.TELEGRAM_BOT_TOKEN,
     TELEGRAM_CHAT_ID: process.env.TELEGRAM_CHAT_ID,
 
+    OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY,
+
     VALIDATE_EMAIL_SUFFIX:
       process.env.VALIDATE_EMAIL_SUFFIX === 'true' ? true : false,
     REQUIRE_FEEDBACK_AUTH:

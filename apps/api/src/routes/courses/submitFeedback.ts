@@ -1,5 +1,5 @@
 import { authenticateUser } from '@middleware'
-import { PointService } from '@services'
+import { AIService, PointService } from '@services'
 import { sendCourseReviewReceived } from '@services/telegram'
 import { database } from '@uni-feedback/db'
 import {
@@ -10,8 +10,7 @@ import {
   feedbackAnalysis,
   users
 } from '@uni-feedback/db/schema'
-import { getCurrentSchoolYear } from '@uni-feedback/utils'
-import { analyzeComment } from '@utils'
+import { countWords, getCurrentSchoolYear } from '@uni-feedback/utils'
 import { contentJson, OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
@@ -172,8 +171,36 @@ export class SubmitFeedback extends OpenAPIRoute {
       try {
         const pointService = new PointService(env)
 
-        // 1. Analyze comment
-        const analysis = analyzeComment(comment)
+        // 1. Analyze comment with AI (fallback to conservative defaults on error)
+        let analysis
+        if (comment) {
+          const aiService = new AIService(env)
+          try {
+            const categories = await aiService.categorizeFeedback(comment)
+            const wordCount = countWords(comment)
+            analysis = { ...categories, wordCount }
+          } catch (aiError) {
+            console.warn(
+              'AI categorization failed, using conservative defaults:',
+              aiError
+            )
+            analysis = {
+              hasTeaching: false,
+              hasAssessment: false,
+              hasMaterials: false,
+              hasTips: false,
+              wordCount: countWords(comment)
+            }
+          }
+        } else {
+          analysis = {
+            hasTeaching: false,
+            hasAssessment: false,
+            hasMaterials: false,
+            hasTips: false,
+            wordCount: 0
+          }
+        }
 
         // 2. Insert analysis record
         await database()

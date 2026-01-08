@@ -1,3 +1,4 @@
+export * from './aiService'
 export * from './authService'
 export * from './courseFeedbackService'
 export * from './courseService'

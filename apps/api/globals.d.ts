@@ -26,6 +26,9 @@ declare global {
     TELEGRAM_BOT_TOKEN?: string
     TELEGRAM_CHAT_ID?: string
 
+    // AI
+    OPENROUTER_API_KEY?: string
+
     // Feature flags
     VALIDATE_EMAIL_SUFFIX: boolean
     REQUIRE_FEEDBACK_AUTH: boolean
