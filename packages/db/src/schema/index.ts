@@ -1,3 +1,4 @@
+export * from './aiCategorizationCache'
 export * from './course'
 export * from './courseGroup'
 export * from './courseGroupsCourses'
