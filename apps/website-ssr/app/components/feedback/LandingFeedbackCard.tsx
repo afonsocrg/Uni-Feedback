@@ -1,6 +1,8 @@
 import type { Feedback } from '@uni-feedback/db/schema'
 import { StarRating, WorkloadRatingDisplay } from '@uni-feedback/ui'
 import { getRelativeTime } from '@uni-feedback/utils'
+import { getTruncatedText } from '~/lib/textUtils'
+import { FeedbackMarkdown } from './FeedbackMarkdown'
 
 interface LandingFeedbackCardProps {
   feedback: Feedback & {
@@ -20,7 +22,7 @@ export function LandingFeedbackCard({ feedback }: LandingFeedbackCardProps) {
 
   const truncatedComment =
     feedback.comment && feedback.comment.length > maxCommentLength
-      ? feedback.comment.slice(0, maxCommentLength).trim() + '...'
+      ? getTruncatedText(feedback.comment, maxCommentLength) + '...'
       : feedback.comment
 
   const relativeTime = getRelativeTime(feedback.createdAt)
@@ -41,19 +43,22 @@ export function LandingFeedbackCard({ feedback }: LandingFeedbackCardProps) {
       </div>
 
       {/* Header with rating and workload */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-wrap items-center mb-4 gap-2">
         <StarRating value={feedback.rating} size="sm" />
         {feedback.workloadRating && (
-          <WorkloadRatingDisplay rating={feedback.workloadRating} />
+          <div className="inline-flex items-center text-xs text-gray-500 font-medium">
+            <span className="mr-1">Workload:</span>
+            <WorkloadRatingDisplay rating={feedback.workloadRating} />
+          </div>
         )}
       </div>
 
       {/* Comment preview */}
       <div className="flex-1">
         {truncatedComment ? (
-          <p className="text-sm text-gray-700 leading-relaxed line-clamp-4 text-start">
-            {truncatedComment}
-          </p>
+          <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed line-clamp-4 text-start">
+            <FeedbackMarkdown>{truncatedComment}</FeedbackMarkdown>
+          </div>
         ) : (
           <p className="text-gray-500 italic text-sm">
             This user did not leave any comment

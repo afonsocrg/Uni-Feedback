@@ -3,6 +3,7 @@ import { fromIttyRouter } from 'chanfana'
 import { AutoRouter, IRequest } from 'itty-router'
 import { CreateAccount } from './createAccount'
 import { DeleteAccount } from './deleteAccount'
+import { GetUserFeedback } from './feedback'
 import { ForgotPassword } from './forgotPassword'
 import { Invite } from './invite'
 import { Login } from './login'
@@ -11,6 +12,7 @@ import { GetProfile } from './profile'
 import { Refresh } from './refresh'
 import { RequestMagicLink } from './requestMagicLink'
 import { ResetPassword } from './resetPassword'
+import { GetUserStats } from './stats'
 import { UseMagicLink } from './useMagicLink'
 import { VerifyMagicLink } from './verifyMagicLink'
 
@@ -19,14 +21,17 @@ const router = fromIttyRouter(AutoRouter({ base: '/auth' }))
 router.post('/login', Login)
 router.post('/logout', Logout)
 router.post('/refresh', Refresh)
-router.get('/profile', GetProfile)
-router.delete('/profile', DeleteAccount)
 router.post('/forgot-password', ForgotPassword)
 router.post('/reset-password', ResetPassword)
 router.post('/create-account', CreateAccount)
 router.post('/magic-links', RequestMagicLink)
 router.post('/magic-links/use', UseMagicLink)
 router.post('/magic-links/verify', VerifyMagicLink)
+
+router.get('/profile', GetProfile)
+router.delete('/profile', DeleteAccount)
+router.get('/profile/stats', GetUserStats)
+router.get('/profile/feedback', GetUserFeedback)
 
 // Invite route - Wrapped with superuser middleware
 class InviteWithAuth extends Invite {

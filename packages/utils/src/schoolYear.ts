@@ -68,7 +68,7 @@ export function getCurrentSchoolYear({
  */
 export function formatSchoolYearString(
   schoolYear: number,
-  { separator = '/', yearFormat = 'short' }: SchoolYearFormatConfig = {}
+  { separator = '/', yearFormat = 'long' }: SchoolYearFormatConfig = {}
 ): string {
   const startYear = schoolYear
   const endYear = schoolYear + 1

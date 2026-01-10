@@ -2,7 +2,7 @@ import { MeicFeedbackAPIError } from './errors'
 import { apiPost } from './utils'
 
 // Authentication required - email comes from user session
-export type FeedbackSubmission = {
+export type CreateFeedbackRequest = {
   schoolYear: number
   courseId: number
   rating: number
@@ -10,7 +10,7 @@ export type FeedbackSubmission = {
   comment?: string
 }
 
-export type SubmitFeedbackResponse = {
+export type CreateFeedbackResponse = {
   message: string
   pointsEarned: number
 }
@@ -48,7 +48,7 @@ export async function submitFeedback({
   rating,
   workloadRating,
   comment
-}: FeedbackSubmission): Promise<SubmitFeedbackResponse> {
+}: CreateFeedbackRequest): Promise<CreateFeedbackResponse> {
   try {
     return await apiPost(`/courses/${courseId}/feedback`, {
       schoolYear,

@@ -5,6 +5,7 @@ import { CategoryChip } from '~/components/common/CategoryChip'
 interface FeedbackCategoryChipsProps {
   categories: FeedbackCategories | null
   isLoading: boolean
+  orientation?: 'horizontal' | 'vertical'
 }
 
 const CATEGORY_CONFIG: Record<keyof FeedbackCategories, { label: string }> = {
@@ -16,11 +17,16 @@ const CATEGORY_CONFIG: Record<keyof FeedbackCategories, { label: string }> = {
 
 export function FeedbackCategoryChips({
   categories,
-  isLoading
+  isLoading,
+  orientation = 'horizontal'
 }: FeedbackCategoryChipsProps) {
   return (
     <div
-      className="flex flex-wrap gap-2 items-center mb-2"
+      className={
+        orientation === 'vertical'
+          ? 'flex flex-col gap-2'
+          : 'flex flex-wrap gap-2 items-center'
+      }
       role="status"
       aria-live="polite"
       aria-label="Feedback categories"

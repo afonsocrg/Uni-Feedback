@@ -1,8 +1,8 @@
+import { AUTH_CONFIG } from '@config/auth'
+import { AuthService } from '@services/authService'
+import { setAuthCookies } from '@utils/authCookies'
 import { OpenAPIRoute } from 'chanfana'
 import { z } from 'zod'
-import { AuthService } from '@services/authService'
-import { AUTH_CONFIG } from '@config/auth'
-import { setAuthCookies } from '@utils/authCookies'
 
 export class Refresh extends OpenAPIRoute {
   schema = {
@@ -18,7 +18,8 @@ export class Refresh extends OpenAPIRoute {
                 id: z.number(),
                 email: z.string(),
                 username: z.string(),
-                superuser: z.boolean()
+                superuser: z.boolean(),
+                referralCode: z.string()
               })
             })
           }
@@ -77,7 +78,8 @@ export class Refresh extends OpenAPIRoute {
           id: sessionWithUser.user.id,
           email: sessionWithUser.user.email,
           username: sessionWithUser.user.username,
-          superuser: sessionWithUser.user.superuser
+          superuser: sessionWithUser.user.superuser,
+          referralCode: sessionWithUser.user.referralCode
         }
       })
 

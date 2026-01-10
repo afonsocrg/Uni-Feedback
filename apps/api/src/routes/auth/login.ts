@@ -29,7 +29,8 @@ export class Login extends OpenAPIRoute {
                 id: z.number(),
                 email: z.string(),
                 username: z.string(),
-                superuser: z.boolean()
+                superuser: z.boolean(),
+                referralCode: z.string()
               })
             })
           }
@@ -82,7 +83,8 @@ export class Login extends OpenAPIRoute {
           id: user.id,
           email: user.email,
           username: user.username,
-          superuser: user.superuser
+          superuser: user.superuser,
+          referralCode: user.referralCode
         }
       })
 

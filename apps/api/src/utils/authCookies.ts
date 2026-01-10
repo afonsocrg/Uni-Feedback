@@ -16,11 +16,6 @@ export function setAuthCookies(
   response: Response,
   session: SessionWithTokens
 ): void {
-  // Calculate refresh token maxAge from session expiry if not provided
-  const refreshMaxAge = Math.floor(
-    (session.expiresAt.getTime() - Date.now()) / 1000
-  )
-
   // Set access token cookie (sent to all API endpoints)
   response.headers.append(
     'Set-Cookie',
@@ -41,7 +36,7 @@ export function setAuthCookies(
       secure: true,
       sameSite: 'Strict',
       path: '/auth/refresh',
-      maxAge: refreshMaxAge
+      maxAge: TOKEN_EXPIRATION_S.REFRESH_TOKEN_STUDENT
     })
   )
 }

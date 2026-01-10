@@ -11,6 +11,7 @@ export interface LoginResponse {
     email: string
     username: string
     role: string
+    referralCode: string
   }
 }
 
@@ -63,6 +64,41 @@ export interface ProfileResponse {
     role: string
     referralCode: string | null
   }
+}
+
+export interface UserStatsResponse {
+  stats: {
+    totalPoints: number
+    feedbackCount: number
+    feedbackPoints: number
+    referralCount: number
+    referralPoints: number
+  }
+}
+
+export interface UserFeedback {
+  id: number
+  courseId: number
+  courseName: string
+  courseCode: string
+  schoolYear: number | null
+  rating: number
+  workloadRating: number | null
+  comment: string | null
+  points: number | null
+  approvedAt: string | null
+  createdAt: string
+  analysis: {
+    hasTeaching: boolean
+    hasAssessment: boolean
+    hasMaterials: boolean
+    hasTips: boolean
+    wordCount: number
+  } | null
+}
+
+export interface UserFeedbackResponse {
+  feedback: UserFeedback[]
 }
 
 /**
@@ -193,4 +229,20 @@ export async function getProfile(): Promise<ProfileResponse> {
  */
 export async function deleteAccount(): Promise<{ message: string }> {
   return apiDelete<{ message: string }>('/auth/profile')
+}
+
+/**
+ * Get current user statistics (points, referrals, feedback count)
+ */
+export async function getUserStats(): Promise<UserStatsResponse> {
+  return apiGet<UserStatsResponse>('/auth/profile/stats')
+}
+
+/**
+ * Get current user's feedback
+ */
+export async function getUserFeedback(): Promise<UserFeedbackResponse> {
+  const result = apiGet<UserFeedbackResponse>('/auth/profile/feedback')
+  console.log('getUserFeedback', result)
+  return result
 }

@@ -1,7 +1,7 @@
 import type { Feedback } from '@uni-feedback/db/schema'
 import { Chip } from '@uni-feedback/ui'
 import { formatSchoolYearString } from '@uni-feedback/utils'
-import { FeedbackItem } from '~/components'
+import { CoursePageFeedbackCard } from '~/components'
 
 interface SchoolYearSectionProps {
   schoolYear: number
@@ -22,7 +22,7 @@ export function SchoolYearSection({
       </div>
       <div className="space-y-4">
         {feedback.map((f) => (
-          <FeedbackItem key={f.id} feedback={f} />
+          <CoursePageFeedbackCard key={f.id} feedback={f} />
         ))}
       </div>
     </div>

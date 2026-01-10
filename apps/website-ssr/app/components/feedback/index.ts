@@ -1,4 +1,6 @@
-export * from './FeedbackItem'
+export * from './CoursePageFeedbackCard'
+export * from './FeedbackMarkdown'
 export * from './FeedbackSkeleton'
 export * from './LandingFeedbackCard'
+export * from './ProfileFeedbackCard'
 export * from './StarRatingWithLabel'

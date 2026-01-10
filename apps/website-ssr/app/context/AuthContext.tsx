@@ -5,6 +5,7 @@ export interface AuthUser {
   email: string
   username: string
   role: string
+  referralCode: string
 }
 
 export interface AuthContextType {
