@@ -17,7 +17,7 @@ import {
   Input,
   Separator
 } from '@uni-feedback/ui'
-import { AlertTriangle, Check, Copy, Share2, User } from 'lucide-react'
+import { AlertTriangle, Check, Copy, User } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router'
@@ -65,19 +65,6 @@ export default function ProfilePage() {
 
   const stats = statsData?.stats
 
-  const handleCopyReferralCode = async () => {
-    if (!user.referralCode) return
-
-    try {
-      await navigator.clipboard.writeText(user.referralCode)
-      setCopiedReferral(true)
-      toast.success('Referral code copied!')
-      setTimeout(() => setCopiedReferral(false), 2000)
-    } catch (error) {
-      toast.error('Failed to copy referral code')
-    }
-  }
-
   const handleShareReferralLink = async () => {
     if (!user.referralCode) return
 
@@ -85,7 +72,9 @@ export default function ProfilePage() {
 
     try {
       await navigator.clipboard.writeText(referralUrl)
+      setCopiedReferral(true)
       toast.success('Referral link copied!')
+      setTimeout(() => setCopiedReferral(false), 2000)
     } catch (error) {
       toast.error('Failed to copy referral link')
     }
@@ -126,103 +115,92 @@ export default function ProfilePage() {
       <div className="mx-auto px-4 py-8 max-w-4xl">
         {/* Top Section: User Info + Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-          {/* Left: User Info & Referral */}
+          {/* Left: User Info & Stats */}
           <div className="space-y-6">
-            {/* User Avatar & Email */}
+            {/* User Avatar & Email with Total Points */}
             <div className="flex items-center gap-4">
               <div className="size-16 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                 <User className="size-8 text-primary" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="break-all">{user.email}</p>
-              </div>
-            </div>
-
-            {/* Referral Code Section */}
-            {user.referralCode && (
-              <div className="space-y-3">
-                <div>
-                  <p className="text-sm font-semibold mb-2">Referral Code</p>
-                  <div className="flex gap-2">
-                    <Input
-                      value={user.referralCode}
-                      readOnly
-                      className="flex-1 font-mono"
-                    />
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={handleCopyReferralCode}
-                      className="flex-shrink-0"
-                      title="Copy referral code"
-                    >
-                      {copiedReferral ? (
-                        <Check className="size-4" />
-                      ) : (
-                        <Copy className="size-4" />
-                      )}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={handleShareReferralLink}
-                      className="flex-shrink-0"
-                      title="Share referral link"
-                    >
-                      <Share2 className="size-4" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Right: Stats */}
-          <div className="space-y-4">
-            {isStatsLoading ? (
-              <div className="text-center py-8">
-                <p className="text-sm text-muted-foreground">
-                  Loading stats...
+                <p className="break-all text-sm font-medium text-gray-700">
+                  {user.email}
                 </p>
-              </div>
-            ) : stats ? (
-              <>
-                <div className="">
-                  <p className="text-3xl font-bold text-primaryBlue">
+                {isStatsLoading ? (
+                  <p className="text-sm text-muted-foreground">
+                    Loading stats...
+                  </p>
+                ) : stats ? (
+                  <p className="text-2xl font-bold text-primaryBlue">
                     {stats.totalPoints}{' '}
                     <span className="text-sm text-muted-foreground font-normal">
                       points
                     </span>
                   </p>
-                  {/* <p className="text-sm text-muted-foreground">Total Points</p> */}
-                </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    Failed to load stats
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Point Breakdown */}
+            {stats && (
+              <div className="space-y-2 text-sm">
                 <Separator />
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">
-                      {stats.feedbackCount} Feedback
-                      {stats.feedbackCount !== 1 ? 's' : ''}
-                    </span>
-                    <span className="font-medium">
-                      {stats.feedbackPoints} pts
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">
-                      {stats.referralCount} Referral
-                      {stats.referralCount !== 1 ? 's' : ''}
-                    </span>
-                    <span className="font-medium">
-                      {stats.referralPoints} pts
-                    </span>
-                  </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">
+                    {stats.feedbackCount} Feedback
+                    {stats.feedbackCount !== 1 ? 's' : ''}
+                  </span>
+                  <span className="font-medium">
+                    {stats.feedbackPoints} pts
+                  </span>
                 </div>
-              </>
-            ) : (
-              <div className="text-center py-8">
-                <p className="text-sm text-muted-foreground">
-                  Failed to load stats
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">
+                    {stats.referralCount} Referral
+                    {stats.referralCount !== 1 ? 's' : ''}
+                  </span>
+                  <span className="font-medium">
+                    {stats.referralPoints} pts
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Right: Referral Section */}
+          <div className="space-y-3">
+            {user.referralCode && (
+              <div>
+                <p className="text-sm font-semibold mb-1">
+                  Invite your friends!
                 </p>
+                <p className="text-xs text-muted-foreground mb-3">
+                  Earn points for every friend who posts their first feedback
+                </p>
+                <div className="relative">
+                  <Input
+                    value={`${window.location.origin}/login?ref=${user.referralCode}`}
+                    readOnly
+                    className="pr-10 text-sm"
+                  />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleShareReferralLink}
+                    className="absolute right-1 top-1/2 -translate-y-1/2 size-8"
+                    title="Copy referral link"
+                  >
+                    {copiedReferral ? (
+                      <Check className="size-4" />
+                    ) : (
+                      <Copy className="size-4" />
+                    )}
+                  </Button>
+                </div>
               </div>
             )}
           </div>
