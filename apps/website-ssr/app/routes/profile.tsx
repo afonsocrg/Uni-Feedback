@@ -185,7 +185,7 @@ export default function ProfilePage() {
                   <Input
                     value={`${window.location.origin}/login?ref=${user.referralCode}`}
                     readOnly
-                    className="pr-10 text-sm"
+                    className="pr-10 text-sm bg-white"
                   />
                   <Button
                     variant="ghost"
