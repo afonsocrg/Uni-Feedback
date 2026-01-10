@@ -44,8 +44,6 @@ export function ProfileFeedbackCard({ feedback }: ProfileFeedbackCardProps) {
     feedback.comment && feedback.comment.length > characterLimit
   const relativeTime = getRelativeTime(new Date(feedback.createdAt))
 
-  console.log({ feedback })
-
   return (
     <div className="bg-white rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] p-6 mb-6 hover:shadow-[0px_6px_24px_rgba(0,0,0,0.08)] transition-shadow">
       {/* Header */}
