@@ -1,5 +1,5 @@
 import { MeicFeedbackAPIError } from './errors'
-import { apiPost } from './utils'
+import { apiPost, apiPut } from './utils'
 
 // Authentication required - email comes from user session
 export type CreateFeedbackRequest = {
@@ -59,6 +59,57 @@ export async function submitFeedback({
   } catch (error) {
     throw new MeicFeedbackAPIError(
       `Failed to submit feedback: ${error instanceof Error ? error.message : 'Unknown error'}`
+    )
+  }
+}
+
+export type EditFeedbackRequest = {
+  rating: number
+  workloadRating: number
+  comment?: string
+}
+
+export type FeedbackAnalysis = {
+  feedbackId: number
+  hasTeaching: boolean
+  hasAssessment: boolean
+  hasMaterials: boolean
+  hasTips: boolean
+  wordCount: number
+  createdAt: string
+  reviewedAt: string | null
+  updatedAt: string
+}
+
+export type EditFeedbackResponse = {
+  message: string
+  feedback: {
+    id: number
+    userId: number | null
+    email: string | null
+    schoolYear: number | null
+    courseId: number
+    rating: number
+    workloadRating: number | null
+    comment: string | null
+    originalComment: string | null
+    approvedAt: string | null
+    createdAt: string | null
+    updatedAt: string | null
+  }
+  analysis: FeedbackAnalysis | null
+  points: number
+}
+
+export async function editFeedback(
+  feedbackId: number,
+  data: EditFeedbackRequest
+): Promise<EditFeedbackResponse> {
+  try {
+    return await apiPut(`/feedback/${feedbackId}`, data)
+  } catch (error) {
+    throw new MeicFeedbackAPIError(
+      `Failed to edit feedback: ${error instanceof Error ? error.message : 'Unknown error'}`
     )
   }
 }

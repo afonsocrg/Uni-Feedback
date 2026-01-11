@@ -25,6 +25,9 @@ export default [
     route('/guidelines', 'routes/guidelines.tsx'),
 
     // Protected routes (require authentication)
-    layout('routes/auth-layout.tsx', [route('/profile', 'routes/profile.tsx')])
+    layout('routes/auth-layout.tsx', [
+      route('/profile', 'routes/profile.tsx'),
+      route('/feedback/:id/edit', 'routes/feedback.$id.edit.tsx')
+    ])
   ])
 ] satisfies RouteConfig

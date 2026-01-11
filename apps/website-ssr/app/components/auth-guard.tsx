@@ -16,7 +16,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
     // Only redirect after auth has been checked (not loading)
     if (!isLoading && (!isAuthenticated || !user)) {
       // Show toast notification
-      toast.error('Please log in to access this page')
+      toast.error('Whoops! This page is for legends only. Log in to continue')
 
       // Redirect to login with current location as redirect parameter
       // Use replace: true to avoid adding to history (prevents back button issues)

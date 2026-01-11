@@ -14,12 +14,12 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  EditableStarRating
+  EditableStarRating,
+  WorkloadRatingSelect
 } from '@uni-feedback/ui'
 import { getCurrentSchoolYear } from '@uni-feedback/utils'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { WorkloadRatingSelect } from '../../components/WorkloadRatingSelect'
 
 interface EditFeedbackDialogProps {
   open: boolean

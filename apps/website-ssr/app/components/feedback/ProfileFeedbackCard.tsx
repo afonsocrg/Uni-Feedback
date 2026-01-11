@@ -80,15 +80,16 @@ export function ProfileFeedbackCard({ feedback }: ProfileFeedbackCardProps) {
                     Open Course Page
                   </Button>
                 </Link>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="w-full justify-start"
-                  disabled
-                >
-                  <Pencil className="size-4 mr-2" />
-                  Edit
-                </Button>
+                <Link to={`/feedback/${feedback.id}/edit`}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full justify-start"
+                  >
+                    <Pencil className="size-4 mr-2" />
+                    Edit
+                  </Button>
+                </Link>
                 <Button
                   variant="ghost"
                   size="sm"

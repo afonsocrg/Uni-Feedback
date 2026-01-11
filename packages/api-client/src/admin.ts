@@ -768,13 +768,13 @@ export async function updateFeedbackAnalysis(
 ): Promise<{
   feedbackId: number
   analysis: FeedbackAnalysis
-  pointsAwarded: number | null
+  points: number | null
   message: string
 }> {
   return apiPut<{
     feedbackId: number
     analysis: FeedbackAnalysis
-    pointsAwarded: number | null
+    points: number | null
     message: string
   }>(`/admin/feedback/${feedbackId}/analysis`, analysis)
 }

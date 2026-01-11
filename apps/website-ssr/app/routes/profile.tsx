@@ -23,7 +23,7 @@ import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import { z } from 'zod'
-import { ProfileFeedbackCard } from '~/components/feedback/ProfileFeedbackCard'
+import { GenericBreadcrumb, ProfileFeedbackCard } from '~/components'
 import { useRequiredAuth } from '~/hooks'
 import { useProfileFeedback, useProfileStats } from '~/hooks/queries'
 import { STORAGE_KEYS } from '~/utils/constants'
@@ -112,6 +112,9 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-full bg-gray-50/30">
+      <div className="container mx-auto px-4 pt-6">
+        <GenericBreadcrumb items={[{ label: 'Profile', isActive: true }]} />
+      </div>
       <div className="mx-auto px-4 py-8 max-w-4xl">
         {/* Top Section: User Info + Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">

@@ -34,9 +34,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link } from 'react-router'
 import { z } from 'zod'
-import { CommentSection } from '~/components/feedback/CommentSection'
-import { FeedbackSubmitSuccess } from '~/components/feedback/FeedbackSubmitSuccess'
-import { ReviewTipsDialog } from '~/components/ReviewTipsDialog'
+import { CommentSection, SubmitFeedbackSuccess } from '~/components'
 import { useLastVisitedPath } from '~/hooks'
 import { useDegreeCourses, useFacultyDegrees } from '~/hooks/queries'
 import { cn } from '~/utils/tailwind'
@@ -79,7 +77,6 @@ export function GiveFeedbackContent({
 }: GiveFeedbackContentProps) {
   const lastVisitedPath = useLastVisitedPath()
   const browseLink = lastVisitedPath !== '/' ? lastVisitedPath : '/browse'
-  const [showReviewTips, setShowReviewTips] = useState(false)
 
   const form = useForm({
     resolver: zodResolver(feedbackSchema),
@@ -153,7 +150,7 @@ export function GiveFeedbackContent({
   // Show success state
   if (isSuccess) {
     return (
-      <FeedbackSubmitSuccess
+      <SubmitFeedbackSuccess
         pointsEarned={pointsEarned}
         onSubmitAnother={handleReset}
         browseLink={browseLink}
@@ -497,11 +494,7 @@ export function GiveFeedbackContent({
 
             {/* Comment Section - Isolated to prevent parent re-renders */}
             <div className="space-y-6">
-              <CommentSection
-                control={form.control}
-                showReviewTips={showReviewTips}
-                setShowReviewTips={setShowReviewTips}
-              />
+              <CommentSection control={form.control} />
             </div>
 
             {/* Submit Button */}
@@ -545,12 +538,6 @@ export function GiveFeedbackContent({
               .
             </p>
           </form>
-
-          {/* Review Tips Dialog */}
-          <ReviewTipsDialog
-            open={showReviewTips}
-            onOpenChange={setShowReviewTips}
-          />
         </Form>
       </div>
     </main>

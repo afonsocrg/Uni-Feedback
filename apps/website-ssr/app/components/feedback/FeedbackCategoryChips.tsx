@@ -1,6 +1,6 @@
 import type { FeedbackCategories } from '@uni-feedback/api-client'
 import { Loader2 } from 'lucide-react'
-import { CategoryChip } from '~/components/common/CategoryChip'
+import { CategoryChip } from '~/components'
 
 interface FeedbackCategoryChipsProps {
   categories: FeedbackCategories | null

@@ -19,6 +19,7 @@ import { AuthProvider } from '~/providers/AuthProvider'
 import { AuthRefreshProvider } from '~/providers/AuthRefreshProvider'
 import { userPreferences } from '~/utils'
 import type { Route } from './+types/root'
+import { LandingLayout } from './components/landing'
 
 export const links: Route.LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -176,7 +177,9 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
       return (
         <AuthProvider>
           <AuthRefreshProvider>
-            <NotFound />
+            <LandingLayout>
+              <NotFound />
+            </LandingLayout>
           </AuthRefreshProvider>
         </AuthProvider>
       )

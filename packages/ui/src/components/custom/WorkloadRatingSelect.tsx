@@ -5,9 +5,9 @@ import {
   SelectItem,
   SelectLabel,
   SelectTrigger,
-  SelectValue,
-  WorkloadRatingDisplay
-} from '@uni-feedback/ui'
+  SelectValue
+} from '../shadcn/select'
+import { WorkloadRatingDisplay } from './WorkloadRatingDisplay'
 
 interface WorkloadRatingSelectProps {
   value: number | null

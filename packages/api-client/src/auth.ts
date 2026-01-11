@@ -243,6 +243,5 @@ export async function getUserStats(): Promise<UserStatsResponse> {
  */
 export async function getUserFeedback(): Promise<UserFeedbackResponse> {
   const result = apiGet<UserFeedbackResponse>('/auth/profile/feedback')
-  console.log('getUserFeedback', result)
   return result
 }

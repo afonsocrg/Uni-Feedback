@@ -1,7 +1,10 @@
-import { Button, WorkloadRatingDisplay } from '@uni-feedback/ui'
+import {
+  Button,
+  WorkloadRatingDisplay,
+  WorkloadRatingSelect
+} from '@uni-feedback/ui'
 import { Check, Edit3, X } from 'lucide-react'
 import { useState } from 'react'
-import { WorkloadRatingSelect } from './WorkloadRatingSelect'
 
 interface EditableWorkloadRatingProps {
   label: string
