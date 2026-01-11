@@ -16,7 +16,7 @@ interface UnapprovalMessageDialogProps {
   onConfirm: (message: string) => void | Promise<void>
   onCancel: () => void
   courseName?: string
-  feedbackComment?: string
+  feedback: { id: number; comment?: string | null }
 }
 
 const DEFAULT_TEMPLATE = `Olá!
@@ -27,7 +27,9 @@ Depois de revermos o teu feedback, decidimos removê-lo do nosso site porque
 
 <CAUSA>
 
-Se quiseres alterar o teu feedback, podes responder a este e-mail com a nova versão :)
+Se quiseres alterar o teu feedback, podes fazê-lo no link em baixo:
+
+[Link]
 
 Muito obrigado pela tua compreensão e tem um bom dia!
 Afonso`
@@ -41,17 +43,24 @@ export function UnapprovalMessageDialog({
   onConfirm,
   onCancel,
   courseName,
-  feedbackComment
+  feedback
 }: UnapprovalMessageDialogProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState('')
 
   useEffect(() => {
+    let template = DEFAULT_TEMPLATE
     if (courseName) {
-      const template = DEFAULT_TEMPLATE.replace('[Course Name]', courseName)
-      setMessage(template)
+      template = DEFAULT_TEMPLATE.replace('[Course Name]', courseName)
     }
-  }, [courseName])
+    if (feedback.id) {
+      template = template.replace(
+        '[Link]',
+        `https://uni-feedback.com/feedback/${feedback.id}/edit`
+      )
+    }
+    setMessage(template)
+  }, [courseName, feedback])
 
   const handleConfirm = async () => {
     if (!message.trim()) {
@@ -78,11 +87,11 @@ export function UnapprovalMessageDialog({
         </DialogHeader>
 
         <div className="space-y-4">
-          {feedbackComment && (
+          {feedback.comment && (
             <div>
               <Label className="mb-2 block">Original Comment</Label>
               <Textarea
-                value={feedbackComment}
+                value={feedback.comment}
                 disabled
                 className="h-[120px] text-sm bg-muted resize-none"
               />

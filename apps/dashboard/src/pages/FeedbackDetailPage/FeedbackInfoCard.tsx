@@ -230,7 +230,7 @@ export function FeedbackInfoCard({ feedback }: FeedbackInfoCardProps) {
                       onConfirm={handleUnapprove}
                       onCancel={() => setUnapprovalDialogOpen(false)}
                       courseName={feedback.courseName || feedback.courseAcronym}
-                      feedbackComment={feedback.comment || undefined}
+                      feedback={feedback}
                     />
                   </>
                 ) : (

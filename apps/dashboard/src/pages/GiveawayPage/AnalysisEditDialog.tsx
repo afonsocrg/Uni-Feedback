@@ -214,7 +214,7 @@ export function AnalysisEditDialog({
                     open={unapprovalDialogOpen}
                     onCancel={() => setUnapprovalDialogOpen(false)}
                     courseName={feedback.courseName || feedback.courseAcronym}
-                    feedbackComment={feedback.comment || undefined}
+                    feedback={feedback}
                     onConfirm={(message: string) =>
                       unapproveMutation.mutate(message)
                     }
