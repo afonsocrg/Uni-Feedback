@@ -1,8 +1,17 @@
-import { integer, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core'
+import { isNull } from 'drizzle-orm'
+import {
+  integer,
+  pgTable,
+  pgView,
+  serial,
+  text,
+  timestamp
+} from 'drizzle-orm/pg-core'
 import { courses } from './course'
 import { users } from './user'
 
-export const feedback = pgTable('feedback', {
+// The actual feedback table with all rows (including soft-deleted)
+export const feedbackFull = pgTable('feedback_full', {
   id: serial('id').primaryKey(),
   // User ID for authenticated submissions (new)
   // If null, the feedback was submitted anonymously (email-only, legacy)
@@ -27,8 +36,20 @@ export const feedback = pgTable('feedback', {
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true })
     .defaultNow()
-    .$onUpdate(() => new Date())
+    .$onUpdate(() => new Date()),
+
+  // Soft deletion timestamp
+  // If not null, the feedback has been deleted by the user
+  deletedAt: timestamp('deleted_at', { withTimezone: true })
 })
 
+// A view that filters out soft-deleted feedback
+// This is what most code will use to query feedback
+// Note: We define the view with explicit columns (excluding deletedAt)
+export const feedback = pgView('feedback').as((qb) =>
+  qb.select().from(feedbackFull).where(isNull(feedbackFull.deletedAt))
+)
+
+export type FeedbackFull = typeof feedbackFull.$inferSelect
 export type Feedback = typeof feedback.$inferSelect
-export type NewFeedback = typeof feedback.$inferInsert
+export type NewFeedback = typeof feedbackFull.$inferInsert

@@ -1,6 +1,6 @@
 import { EmailService, PointService } from '@services'
 import { database } from '@uni-feedback/db'
-import { feedback, users } from '@uni-feedback/db/schema'
+import { feedback, feedbackFull, users } from '@uni-feedback/db/schema'
 import { notifyAdminChange } from '@utils/notificationHelpers'
 import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
@@ -142,9 +142,9 @@ export class UnapproveFeedback extends OpenAPIRoute {
 
       // Update approval status
       await database()
-        .update(feedback)
+        .update(feedbackFull)
         .set({ approvedAt: null })
-        .where(eq(feedback.id, feedbackId))
+        .where(eq(feedbackFull.id, feedbackId))
 
       // Handle point zeroing for authenticated users (best-effort)
       const userId = feedbackData.userId

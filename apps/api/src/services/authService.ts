@@ -6,7 +6,7 @@ import {
 import { InternalServerError } from '@routes/utils/errorHandling'
 import { database } from '@uni-feedback/db'
 import {
-  feedback,
+  feedbackFull,
   magicLinkRateLimits,
   magicLinkTokens,
   passwordResetTokens,
@@ -508,9 +508,9 @@ export class AuthService {
       // Step 2: Update foreign keys to point to anonymized user
       // Update feedback submissions
       await tx
-        .update(feedback)
+        .update(feedbackFull)
         .set({ userId: anonymizedUser.id })
-        .where(eq(feedback.userId, userId))
+        .where(eq(feedbackFull.userId, userId))
 
       // Update point registry (transfer points to anonymized user)
       await tx

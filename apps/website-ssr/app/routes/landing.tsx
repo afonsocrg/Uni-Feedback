@@ -12,7 +12,7 @@ import {
   LovedByStudentsSection,
   TestimonialsSection,
   TrustedSection
-} from '../components/landing'
+} from '~/components'
 
 import type { Route } from './+types/landing'
 
@@ -45,9 +45,10 @@ export async function loader() {
   })
 
   // Fetch 6 most recent approved feedbacks with comments, including course and faculty info
-  const recentFeedbacks = await db.query.feedback.findMany({
-    where: (feedback, { and, isNotNull, ne }) =>
+  const recentFeedbacks = await db.query.feedbackFull.findMany({
+    where: (feedback, { and, isNotNull, isNull, ne }) =>
       and(
+        isNull(feedback.deletedAt),
         isNotNull(feedback.approvedAt),
         isNotNull(feedback.comment),
         ne(feedback.comment, '')

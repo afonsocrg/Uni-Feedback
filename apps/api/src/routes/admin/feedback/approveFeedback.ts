@@ -1,6 +1,6 @@
 import { PointService } from '@services'
 import { database } from '@uni-feedback/db'
-import { feedback } from '@uni-feedback/db/schema'
+import { feedback, feedbackFull } from '@uni-feedback/db/schema'
 import { notifyAdminChange } from '@utils/notificationHelpers'
 import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
@@ -98,9 +98,9 @@ export class ApproveFeedback extends OpenAPIRoute {
       // Update approval status
       const approvalDate = new Date()
       await database()
-        .update(feedback)
+        .update(feedbackFull)
         .set({ approvedAt: approvalDate })
-        .where(eq(feedback.id, feedbackId))
+        .where(eq(feedbackFull.id, feedbackId))
 
       // Handle point restoration for authenticated users (best-effort)
       const userId = feedbackData.userId

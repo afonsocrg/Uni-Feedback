@@ -1,16 +1,26 @@
 import {
   Button,
   Chip,
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
   Popover,
   PopoverContent,
   PopoverTrigger,
   StarRating,
   WorkloadRatingDisplay
 } from '@uni-feedback/ui'
+import { deleteFeedback } from '@uni-feedback/api-client'
 import { getRelativeTime } from '@uni-feedback/utils'
+import { useQueryClient } from '@tanstack/react-query'
 import { EllipsisVertical, ExternalLink, Pencil, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router'
+import { toast } from 'sonner'
 import { getTruncatedText } from '~/lib/textUtils'
 import { FeedbackCategoryChips } from './FeedbackCategoryChips'
 import { FeedbackMarkdown } from './FeedbackMarkdown'
@@ -39,10 +49,32 @@ interface ProfileFeedbackCardProps {
 
 export function ProfileFeedbackCard({ feedback }: ProfileFeedbackCardProps) {
   const [isExpanded, setIsExpanded] = useState(false)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const queryClient = useQueryClient()
+
   const characterLimit = 600
   const isLongComment =
     feedback.comment && feedback.comment.length > characterLimit
   const relativeTime = getRelativeTime(new Date(feedback.createdAt))
+
+  const handleDelete = async () => {
+    setIsDeleting(true)
+    try {
+      await deleteFeedback(feedback.id)
+      toast.success('Feedback deleted successfully')
+      setIsDeleteDialogOpen(false)
+      // Invalidate queries to refresh the feedback list and stats
+      await queryClient.invalidateQueries({ queryKey: ['user', 'feedback'] })
+      await queryClient.invalidateQueries({ queryKey: ['user', 'stats'] })
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to delete feedback'
+      )
+    } finally {
+      setIsDeleting(false)
+    }
+  }
 
   return (
     <div className="bg-white rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] p-6 mb-6 hover:shadow-[0px_6px_24px_rgba(0,0,0,0.08)] transition-shadow">
@@ -94,7 +126,7 @@ export function ProfileFeedbackCard({ feedback }: ProfileFeedbackCardProps) {
                   variant="ghost"
                   size="sm"
                   className="w-full justify-start text-destructive hover:text-destructive"
-                  disabled
+                  onClick={() => setIsDeleteDialogOpen(true)}
                 >
                   <Trash2 className="size-4 mr-2" />
                   Delete
@@ -178,6 +210,34 @@ export function ProfileFeedbackCard({ feedback }: ProfileFeedbackCardProps) {
       <div className="mt-3 pt-3 border-t border-gray-100">
         <p className="text-xs text-gray-400">{relativeTime}</p>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Feedback</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this feedback? Once deleted, this
+              feedback will be removed from the platform and will no longer be
+              visible to other students.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline" disabled={isDeleting}>
+                Cancel
+              </Button>
+            </DialogClose>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={isDeleting}
+            >
+              {isDeleting ? 'Deleting...' : 'Delete'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

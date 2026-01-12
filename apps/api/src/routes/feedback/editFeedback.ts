@@ -1,7 +1,11 @@
 import { authenticateUser } from '@middleware'
 import { AIService, PointService } from '@services'
 import { database } from '@uni-feedback/db'
-import { feedback, feedbackAnalysis } from '@uni-feedback/db/schema'
+import {
+  feedback,
+  feedbackAnalysis,
+  feedbackFull
+} from '@uni-feedback/db/schema'
 import { countWords } from '@uni-feedback/utils'
 import { contentJson, OpenAPIRoute } from 'chanfana'
 import { and, desc, eq } from 'drizzle-orm'
@@ -149,14 +153,14 @@ export class EditFeedback extends OpenAPIRoute {
 
       // Update feedback (preserve approvedAt)
       await database()
-        .update(feedback)
+        .update(feedbackFull)
         .set({
           rating: body.rating,
           workloadRating: body.workloadRating,
           comment: newComment,
           updatedAt: new Date()
         })
-        .where(eq(feedback.id, feedbackId))
+        .where(eq(feedbackFull.id, feedbackId))
 
       // Fetch updated feedback
       const [updatedFeedback] = await database()

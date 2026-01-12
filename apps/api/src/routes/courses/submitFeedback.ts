@@ -8,6 +8,7 @@ import {
   faculties,
   feedback,
   feedbackAnalysis,
+  feedbackFull,
   users
 } from '@uni-feedback/db/schema'
 import { countWords, getCurrentSchoolYear } from '@uni-feedback/utils'
@@ -202,7 +203,7 @@ export class SubmitFeedback extends OpenAPIRoute {
       }
 
       const insertResult = await database()
-        .insert(feedback)
+        .insert(feedbackFull)
         .values(feedbackData)
         .returning()
 

@@ -1,10 +1,10 @@
 import { boolean, integer, pgTable, timestamp } from 'drizzle-orm/pg-core'
-import { feedback } from './feedback'
+import { feedbackFull } from './feedback'
 
 export const feedbackAnalysis = pgTable('feedback_analysis', {
   feedbackId: integer('feedback_id')
     .primaryKey()
-    .references(() => feedback.id, { onDelete: 'cascade' }),
+    .references(() => feedbackFull.id),
   hasTeaching: boolean('has_teaching').notNull().default(false),
   hasAssessment: boolean('has_assessment').notNull().default(false),
   hasMaterials: boolean('has_materials').notNull().default(false),

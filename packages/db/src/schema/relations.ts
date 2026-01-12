@@ -2,12 +2,12 @@ import { relations } from 'drizzle-orm'
 import { courses } from './course'
 import { degrees } from './degree'
 import { faculties } from './faculty'
-import { feedback } from './feedback'
+import { feedback, feedbackFull } from './feedback'
 import { feedbackAnalysis } from './feedbackAnalysis'
 import { pointRegistry } from './pointRegistry'
 import { users } from './user'
 
-// Feedback relations
+// Feedback relations (view - automatically excludes deleted feedback)
 export const feedbackRelations = relations(feedback, ({ one }) => ({
   course: one(courses, {
     fields: [feedback.courseId],
@@ -19,6 +19,23 @@ export const feedbackRelations = relations(feedback, ({ one }) => ({
   }),
   analysis: one(feedbackAnalysis, {
     fields: [feedback.id],
+    references: [feedbackAnalysis.feedbackId]
+  })
+}))
+
+// FeedbackFull relations (table - includes deleted feedback)
+// Use this when you need to see all feedback including soft-deleted ones
+export const feedbackFullRelations = relations(feedbackFull, ({ one }) => ({
+  course: one(courses, {
+    fields: [feedbackFull.courseId],
+    references: [courses.id]
+  }),
+  user: one(users, {
+    fields: [feedbackFull.userId],
+    references: [users.id]
+  }),
+  analysis: one(feedbackAnalysis, {
+    fields: [feedbackFull.id],
     references: [feedbackAnalysis.feedbackId]
   })
 }))
@@ -53,12 +70,16 @@ export const userRelations = relations(users, ({ many }) => ({
 }))
 
 // Feedback Analysis relations
-export const feedbackAnalysisRelations = relations(feedbackAnalysis, ({ one }) => ({
-  feedback: one(feedback, {
-    fields: [feedbackAnalysis.feedbackId],
-    references: [feedback.id]
+// References feedbackFull because analysis exists even for soft-deleted feedback
+export const feedbackAnalysisRelations = relations(
+  feedbackAnalysis,
+  ({ one }) => ({
+    feedback: one(feedbackFull, {
+      fields: [feedbackAnalysis.feedbackId],
+      references: [feedbackFull.id]
+    })
   })
-}))
+)
 
 // Point Registry relations
 export const pointRegistryRelations = relations(pointRegistry, ({ one }) => ({

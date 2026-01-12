@@ -11,7 +11,7 @@ import {
 } from './courses'
 import { GetDegreeCourseGroups, GetDegreeCourses, GetDegrees } from './degrees'
 import { GetFaculties, GetFacultyDegrees, GetFacultyDetails } from './faculties'
-import { CategorizeFeedback, EditFeedback } from './feedback'
+import { CategorizeFeedback, DeleteFeedback, EditFeedback } from './feedback'
 import { CreateFeedbackDraft, GetFeedbackDraft } from './feedbackDrafts'
 
 const { preflight, corsify } = cors({
@@ -56,6 +56,7 @@ router.get('/feedback-drafts/:code', GetFeedbackDraft)
 
 router.post('/feedback/categorize-preview', CategorizeFeedback)
 router.put('/feedback/:id', EditFeedback)
+router.delete('/feedback/:id', DeleteFeedback)
 
 // ---------------------------------------------------------
 // Nested routers

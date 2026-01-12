@@ -1,5 +1,5 @@
 import { MeicFeedbackAPIError } from './errors'
-import { apiPost, apiPut } from './utils'
+import { apiDelete, apiPost, apiPut } from './utils'
 
 // Authentication required - email comes from user session
 export type CreateFeedbackRequest = {
@@ -114,6 +114,22 @@ export async function editFeedback(
   } catch (error) {
     throw new MeicFeedbackAPIError(
       `Failed to edit feedback: ${error instanceof Error ? error.message : 'Unknown error'}`
+    )
+  }
+}
+
+export type DeleteFeedbackResponse = {
+  message: string
+}
+
+export async function deleteFeedback(
+  feedbackId: number
+): Promise<DeleteFeedbackResponse> {
+  try {
+    return await apiDelete(`/feedback/${feedbackId}`)
+  } catch (error) {
+    throw new MeicFeedbackAPIError(
+      `Failed to delete feedback: ${error instanceof Error ? error.message : 'Unknown error'}`
     )
   }
 }
