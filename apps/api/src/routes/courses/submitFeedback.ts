@@ -12,7 +12,7 @@ import {
 } from '@uni-feedback/db/schema'
 import { countWords, getCurrentSchoolYear } from '@uni-feedback/utils'
 import { contentJson, OpenAPIRoute } from 'chanfana'
-import { eq } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
 import { z } from 'zod'
 import { BusinessLogicError, NotFoundError, withErrorHandling } from '../utils'
@@ -46,6 +46,9 @@ export class SubmitFeedback extends OpenAPIRoute {
       },
       '404': {
         description: 'Course not found'
+      },
+      '409': {
+        description: 'Feedback already exists for this course'
       }
     }
   }
@@ -137,6 +140,25 @@ export class SubmitFeedback extends OpenAPIRoute {
 
           throw new BusinessLogicError(errorMessage)
         }
+      }
+
+      // Check if user has already submitted feedback for this course
+      const existingFeedback = await database()
+        .select({ id: feedback.id })
+        .from(feedback)
+        .where(
+          and(eq(feedback.userId, userId), eq(feedback.courseId, courseId))
+        )
+        .limit(1)
+
+      if (existingFeedback.length > 0) {
+        return Response.json(
+          {
+            error: 'You have already submitted feedback for this course',
+            existingFeedbackId: existingFeedback[0].id
+          },
+          { status: 409 }
+        )
       }
 
       // Ignore empty comments

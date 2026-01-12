@@ -57,6 +57,10 @@ export async function submitFeedback({
       comment
     })
   } catch (error) {
+    if (error instanceof MeicFeedbackAPIError) {
+      // Re-throw MeicFeedbackAPIError as is
+      throw error
+    }
     throw new MeicFeedbackAPIError(
       `Failed to submit feedback: ${error instanceof Error ? error.message : 'Unknown error'}`
     )

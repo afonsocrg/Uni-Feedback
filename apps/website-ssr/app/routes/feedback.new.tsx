@@ -3,9 +3,15 @@ import {
   getFaculties,
   MeicFeedbackAPIError
 } from '@uni-feedback/api-client'
+import { Edit, RotateCcw } from 'lucide-react'
 import { useState } from 'react'
+import { useNavigate } from 'react-router'
 import { toast } from 'sonner'
-import { EmailVerificationModal, GiveFeedbackContent } from '~/components'
+import {
+  EmailVerificationModal,
+  GiveFeedbackContent,
+  MessagePage
+} from '~/components'
 import type { AuthUser } from '~/context/AuthContext'
 import { useSubmitFeedback } from '~/hooks/queries'
 import { useAuth } from '~/hooks/useAuth'
@@ -87,12 +93,17 @@ export function HydrateFallback() {
 
 export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
   const submitFeedbackMutation = useSubmitFeedback()
+  const navigate = useNavigate()
   const [isSuccess, setIsSuccess] = useState(false)
   const [pointsEarned, setPointsEarned] = useState<number | undefined>(
     undefined
   )
   const { isAuthenticated, setUser } = useAuth()
   const [showVerificationModal, setShowVerificationModal] = useState(false)
+  const [duplicateFeedbackId, setDuplicateFeedbackId] = useState<number | null>(
+    null
+  )
+
   const [pendingFeedbackData, setPendingFeedbackData] = useState<{
     schoolYear: number
     facultyId: number
@@ -102,6 +113,45 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
     workloadRating: number
     comment?: string
   } | null>(null)
+
+  const submitFeedback = async (values: {
+    schoolYear: number
+    facultyId: number
+    degreeId: number
+    courseId: number
+    rating: number
+    workloadRating: number
+    comment?: string
+  }) => {
+    try {
+      // Submit feedback using TanStack Query mutation
+      const response = await submitFeedbackMutation.mutateAsync({
+        schoolYear: values.schoolYear,
+        courseId: values.courseId,
+        rating: values.rating,
+        workloadRating: values.workloadRating,
+        comment: values.comment
+      })
+
+      setPointsEarned(response.pointsEarned)
+      setIsSuccess(true)
+      toast.success('Feedback submitted successfully!')
+    } catch (error) {
+      if (error instanceof MeicFeedbackAPIError) {
+        // Check if this is a duplicate feedback error (409 Conflict)
+        console.log({ error, data: error.data })
+        if (error.status === 409 && error.data.existingFeedbackId) {
+          setDuplicateFeedbackId(error.data.existingFeedbackId)
+          return // Don't re-throw, we're handling it gracefully
+        }
+        toast.error(error.message)
+      } else {
+        console.error('Failed to submit feedback:', error)
+        toast.error('Failed to submit feedback. Please try again.')
+      }
+      throw error // Re-throw so the form can handle it
+    }
+  }
 
   const handleSubmit = async (values: {
     schoolYear: number
@@ -132,28 +182,7 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
     }
 
     // User is authenticated - proceed with normal submission
-    try {
-      // Submit feedback using TanStack Query mutation
-      const response = await submitFeedbackMutation.mutateAsync({
-        schoolYear: values.schoolYear,
-        courseId: values.courseId,
-        rating: values.rating,
-        workloadRating: values.workloadRating,
-        comment: values.comment
-      })
-
-      setPointsEarned(response.pointsEarned)
-      setIsSuccess(true)
-      toast.success('Feedback submitted successfully!')
-    } catch (error) {
-      if (error instanceof MeicFeedbackAPIError) {
-        toast.error(error.message)
-      } else {
-        console.error('Failed to submit feedback:', error)
-        toast.error('Failed to submit feedback. Please try again.')
-      }
-      throw error // Re-throw so the form can handle it
-    }
+    submitFeedback(values)
   }
 
   const handleVerificationSuccess = async (user: AuthUser) => {
@@ -165,28 +194,41 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
 
     // Auto-submit the pending feedback
     if (pendingFeedbackData) {
-      try {
-        const response = await submitFeedbackMutation.mutateAsync({
-          schoolYear: pendingFeedbackData.schoolYear,
-          courseId: pendingFeedbackData.courseId,
-          rating: pendingFeedbackData.rating,
-          workloadRating: pendingFeedbackData.workloadRating,
-          comment: pendingFeedbackData.comment
-        })
-
-        setPointsEarned(response.pointsEarned)
-        setIsSuccess(true)
-        toast.success('Feedback submitted successfully!')
-        setPendingFeedbackData(null)
-      } catch (error) {
-        if (error instanceof MeicFeedbackAPIError) {
-          toast.error(error.message)
-        } else {
-          console.error('Failed to submit feedback:', error)
-          toast.error('Failed to submit feedback. Please try again.')
-        }
-      }
+      submitFeedback(pendingFeedbackData)
+      setPendingFeedbackData(null)
     }
+  }
+
+  // Show duplicate feedback message page if detected
+  console.log({ duplicateFeedbackId })
+  if (duplicateFeedbackId) {
+    return (
+      <MessagePage
+        heading="You’ve already reviewed this course"
+        buttons={[
+          {
+            label: 'Edit Feedback',
+            icon: Edit,
+            onClick: () => navigate(`/feedback/${duplicateFeedbackId}/edit`)
+          },
+          {
+            label: 'Review Another Course',
+            icon: RotateCcw,
+            variant: 'outline',
+            onClick: () => {
+              setDuplicateFeedbackId(null)
+              // Reset course selection to allow new course
+            }
+          }
+        ]}
+      >
+        <p>
+          Looks like you’ve already shared feedback for this course this school
+          year. You can update your existing feedback or submit one for a
+          different course.
+        </p>
+      </MessagePage>
+    )
   }
 
   return (
