@@ -30,12 +30,11 @@ import {
   getCurrentSchoolYear
 } from '@uni-feedback/utils'
 import { Check, ChevronsUpDown, Loader2, Send } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link } from 'react-router'
 import { z } from 'zod'
-import { CommentSection, SubmitFeedbackSuccess } from '~/components'
-import { useLastVisitedPath } from '~/hooks'
+import { CommentSection } from '~/components'
 import { useDegreeCourses, useFacultyDegrees } from '~/hooks/queries'
 import { cn } from '~/utils/tailwind'
 
@@ -47,10 +46,7 @@ interface GiveFeedbackContentProps {
     courseId: number
   }
   onSubmit: (values: FeedbackFormData) => Promise<void>
-  onReset?: () => void
   isSubmitting: boolean
-  isSuccess: boolean
-  pointsEarned?: number
 }
 
 // Create form schema
@@ -70,14 +66,8 @@ export function GiveFeedbackContent({
   faculties,
   initialFormValues,
   onSubmit,
-  onReset,
-  isSubmitting,
-  isSuccess,
-  pointsEarned
+  isSubmitting
 }: GiveFeedbackContentProps) {
-  const lastVisitedPath = useLastVisitedPath()
-  const browseLink = lastVisitedPath !== '/' ? lastVisitedPath : '/browse'
-
   const form = useForm({
     resolver: zodResolver(feedbackSchema),
     mode: 'onChange', // Validate on change to enable/disable submit button
@@ -139,24 +129,6 @@ export function GiveFeedbackContent({
   const showDegreeField = selectedFacultyId > 0
   const showCourseField =
     selectedDegreeId > 0 && degrees?.some((d) => d.id === selectedDegreeId)
-
-  // Handle reset
-  const handleReset = () => {
-    form.reset()
-    form.setValue('courseId', 0)
-    onReset?.()
-  }
-
-  // Show success state
-  if (isSuccess) {
-    return (
-      <SubmitFeedbackSuccess
-        pointsEarned={pointsEarned}
-        onSubmitAnother={handleReset}
-        browseLink={browseLink}
-      />
-    )
-  }
 
   return (
     <main className="container mx-auto px-4 py-8 max-w-2xl min-h-screen">

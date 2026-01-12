@@ -1,26 +1,23 @@
 import type { Feedback } from '@uni-feedback/db/schema'
-import {
-  Button,
-  Markdown,
-  StarRating,
-  WorkloadRatingDisplay
-} from '@uni-feedback/ui'
+import { Button, StarRating, WorkloadRatingDisplay } from '@uni-feedback/ui'
 import { getRelativeTime } from '@uni-feedback/utils'
 import { GraduationCap } from 'lucide-react'
 import { useState } from 'react'
-import { Tooltip } from '..'
+import { FeedbackMarkdown, Tooltip } from '..'
 import { getTruncatedText } from '../../lib/textUtils'
 
 interface CoursePageFeedbackCardProps {
   feedback: Feedback
 }
 
-export function CoursePageFeedbackCard({ feedback }: CoursePageFeedbackCardProps) {
+export function CoursePageFeedbackCard({
+  feedback
+}: CoursePageFeedbackCardProps) {
   const [isExpanded, setIsExpanded] = useState(false)
   const characterLimit = 600
   const isLongComment =
     feedback.comment && feedback.comment.length > characterLimit
-  const relativeTime = getRelativeTime(feedback.createdAt)
+  const relativeTime = getRelativeTime(new Date(feedback.createdAt))
 
   return (
     <div className="bg-white rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] p-6 mb-6 hover:shadow-[0px_6px_24px_rgba(0,0,0,0.08)] transition-shadow">
@@ -51,32 +48,11 @@ export function CoursePageFeedbackCard({ feedback }: CoursePageFeedbackCardProps
       {feedback.comment ? (
         <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed">
           <div className="transition-all duration-300 ease-in-out">
-            <Markdown
-              components={{
-                h1: ({ ...props }) => (
-                  <h1
-                    {...props}
-                    className="text-xl font-semibold text-gray-900 mt-4 mb-3"
-                  />
-                ),
-                h2: ({ ...props }) => (
-                  <h2
-                    {...props}
-                    className="text-lg font-semibold text-gray-900 mt-3 mb-2"
-                  />
-                ),
-                h3: ({ ...props }) => (
-                  <h3
-                    {...props}
-                    className="text-lg font-semibold text-gray-900 mt-2 mb-1"
-                  />
-                )
-              }}
-            >
+            <FeedbackMarkdown>
               {isLongComment && !isExpanded
                 ? getTruncatedText(feedback.comment, characterLimit) + '...'
                 : feedback.comment}
-            </Markdown>
+            </FeedbackMarkdown>
           </div>
           {isLongComment && (
             <Button

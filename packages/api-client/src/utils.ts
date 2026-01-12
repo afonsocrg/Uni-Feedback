@@ -72,7 +72,7 @@ async function apiFetch(
       throw new MeicFeedbackAPIError(error.error, {
         status: response.status,
         requestId: error.requestId,
-        data: error
+        data: error.data
       })
     }
     throw new Error(`Request failed with status ${response.status}`)

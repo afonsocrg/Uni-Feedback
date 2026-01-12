@@ -1,18 +1,21 @@
 import {
+  editFeedback,
   getCourse,
   getFaculties,
-  MeicFeedbackAPIError
+  MeicFeedbackAPIError,
+  type DuplicateFeedbackDetail
 } from '@uni-feedback/api-client'
-import { Edit, RotateCcw } from 'lucide-react'
 import { useState } from 'react'
-import { useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import {
+  DuplicateFeedbackResolution,
   EmailVerificationModal,
   GiveFeedbackContent,
-  MessagePage
+  SubmitFeedbackSuccess,
+  UpdateFeedbackSuccess
 } from '~/components'
 import type { AuthUser } from '~/context/AuthContext'
+import { useLastVisitedPath } from '~/hooks'
 import { useSubmitFeedback } from '~/hooks/queries'
 import { useAuth } from '~/hooks/useAuth'
 import { STORAGE_KEYS } from '~/utils/constants'
@@ -93,16 +96,18 @@ export function HydrateFallback() {
 
 export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
   const submitFeedbackMutation = useSubmitFeedback()
-  const navigate = useNavigate()
-  const [isSuccess, setIsSuccess] = useState(false)
+  const [isSubmitSuccess, setIsSubmitSuccess] = useState(false)
+  const [isEditSuccess, setIsEditSuccess] = useState(false)
   const [pointsEarned, setPointsEarned] = useState<number | undefined>(
     undefined
   )
   const { isAuthenticated, setUser } = useAuth()
   const [showVerificationModal, setShowVerificationModal] = useState(false)
-  const [duplicateFeedbackId, setDuplicateFeedbackId] = useState<number | null>(
-    null
-  )
+  const [duplicateFeedback, setDuplicateFeedback] =
+    useState<DuplicateFeedbackDetail | null>(null)
+
+  const lastVisitedPath = useLastVisitedPath()
+  const browseLink = lastVisitedPath !== '/' ? lastVisitedPath : '/browse'
 
   const [pendingFeedbackData, setPendingFeedbackData] = useState<{
     schoolYear: number
@@ -134,15 +139,15 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
       })
 
       setPointsEarned(response.pointsEarned)
-      setIsSuccess(true)
+      setIsSubmitSuccess(true)
       toast.success('Feedback submitted successfully!')
     } catch (error) {
       if (error instanceof MeicFeedbackAPIError) {
         // Check if this is a duplicate feedback error (409 Conflict)
-        console.log({ error, data: error.data })
-        if (error.status === 409 && error.data.existingFeedbackId) {
-          setDuplicateFeedbackId(error.data.existingFeedbackId)
-          return // Don't re-throw, we're handling it gracefully
+        if (error.status === 409 && error.data.feedback) {
+          setDuplicateFeedback(error.data.feedback)
+          setPendingFeedbackData(values)
+          return
         }
         toast.error(error.message)
       } else {
@@ -185,11 +190,37 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
     submitFeedback(values)
   }
 
-  const handleVerificationSuccess = async (user: AuthUser) => {
-    // Update auth context
-    setUser(user)
+  const handleEdit = async (values: {
+    rating: number
+    workloadRating: number
+    comment?: string
+  }) => {
+    if (!duplicateFeedback) {
+      console.error('No duplicate feedback to edit.')
+      return
+    }
+    try {
+      const response = await editFeedback(duplicateFeedback.id, {
+        rating: values.rating,
+        workloadRating: values.workloadRating,
+        comment: values.comment
+      })
 
-    // Close modal
+      toast.success('Feedback updated successfully!')
+      setDuplicateFeedback(null)
+      setPendingFeedbackData(null)
+      setIsEditSuccess(true)
+      setPointsEarned(response.points)
+    } catch (error) {
+      if (error instanceof MeicFeedbackAPIError) {
+        toast.error(error.message)
+      } else {
+        toast.error('Failed to update feedback. Please try again.')
+      }
+    }
+  }
+  const handleAuthenticationSuccess = async (user: AuthUser) => {
+    setUser(user)
     setShowVerificationModal(false)
 
     // Auto-submit the pending feedback
@@ -199,35 +230,48 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
     }
   }
 
-  // Show duplicate feedback message page if detected
-  console.log({ duplicateFeedbackId })
-  if (duplicateFeedbackId) {
+  const handleSubmitAnother = () => {
+    setIsSubmitSuccess(false)
+    setIsEditSuccess(false)
+    setPointsEarned(undefined)
+    setPendingFeedbackData(null)
+  }
+
+  // Show submit success screen if feedback was submitted
+  if (isSubmitSuccess) {
     return (
-      <MessagePage
-        heading="You’ve already reviewed this course"
-        buttons={[
-          {
-            label: 'Edit Feedback',
-            icon: Edit,
-            onClick: () => navigate(`/feedback/${duplicateFeedbackId}/edit`)
-          },
-          {
-            label: 'Review Another Course',
-            icon: RotateCcw,
-            variant: 'outline',
-            onClick: () => {
-              setDuplicateFeedbackId(null)
-              // Reset course selection to allow new course
-            }
-          }
-        ]}
-      >
-        <p>
-          Looks like you’ve already shared feedback for this course this school
-          year. You can update your existing feedback or submit one for a
-          different course.
-        </p>
-      </MessagePage>
+      <SubmitFeedbackSuccess
+        pointsEarned={pointsEarned}
+        onSubmitAnother={handleSubmitAnother}
+        browseLink={browseLink}
+      />
+    )
+  }
+
+  // Show edit success screen if feedback was updated
+  if (isEditSuccess) {
+    return (
+      <UpdateFeedbackSuccess
+        points={pointsEarned}
+        onSubmitAnother={handleSubmitAnother}
+      />
+    )
+  }
+
+  // Show duplicate feedback resolution screen if detected
+  if (duplicateFeedback) {
+    return (
+      <DuplicateFeedbackResolution
+        existingFeedback={duplicateFeedback}
+        pendingFeedbackData={pendingFeedbackData}
+        onSubmit={handleEdit}
+        onCancel={() => {
+          setDuplicateFeedback(null)
+          setPendingFeedbackData(null)
+          // Form selections preserved in state
+        }}
+        isSubmitting={submitFeedbackMutation.isPending}
+      />
     )
   }
 
@@ -237,18 +281,12 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
         faculties={loaderData.faculties}
         initialFormValues={loaderData.initialFormValues}
         onSubmit={handleSubmit}
-        onReset={() => {
-          setIsSuccess(false)
-          setPointsEarned(undefined)
-        }}
         isSubmitting={submitFeedbackMutation.isPending}
-        isSuccess={isSuccess}
-        pointsEarned={pointsEarned}
       />
 
       <EmailVerificationModal
         open={showVerificationModal}
-        onSuccess={handleVerificationSuccess}
+        onSuccess={handleAuthenticationSuccess}
         onError={(error) => {
           setShowVerificationModal(false)
           toast.error(error)

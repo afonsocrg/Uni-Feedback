@@ -144,8 +144,30 @@ export class SubmitFeedback extends OpenAPIRoute {
 
       // Check if user has already submitted feedback for this course
       const existingFeedback = await database()
-        .select({ id: feedback.id })
+        .select({
+          id: feedback.id,
+          courseId: feedback.courseId,
+          rating: feedback.rating,
+          workloadRating: feedback.workloadRating,
+          comment: feedback.comment,
+          schoolYear: feedback.schoolYear,
+          createdAt: feedback.createdAt,
+          approvedAt: feedback.approvedAt,
+          updatedAt: feedback.updatedAt,
+          course: {
+            id: courses.id,
+            name: courses.name,
+            acronym: courses.acronym
+          },
+          degree: {
+            id: degrees.id,
+            name: degrees.name,
+            acronym: degrees.acronym
+          }
+        })
         .from(feedback)
+        .innerJoin(courses, eq(feedback.courseId, courses.id))
+        .innerJoin(degrees, eq(courses.degreeId, degrees.id))
         .where(
           and(eq(feedback.userId, userId), eq(feedback.courseId, courseId))
         )
@@ -155,7 +177,9 @@ export class SubmitFeedback extends OpenAPIRoute {
         return Response.json(
           {
             error: 'You have already submitted feedback for this course',
-            existingFeedbackId: existingFeedback[0].id
+            data: {
+              feedback: existingFeedback[0]
+            }
           },
           { status: 409 }
         )

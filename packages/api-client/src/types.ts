@@ -69,3 +69,25 @@ export interface Feedback {
   }
   isFromDifferentCourse: boolean
 }
+
+export interface DuplicateFeedbackDetail {
+  id: number
+  courseId: number
+  rating: number
+  workloadRating: number
+  comment: string | null
+  schoolYear: number
+  createdAt: string
+  approvedAt: string | null
+  updatedAt: string
+  course: {
+    id: number
+    name: string
+    acronym: string
+  }
+  degree: {
+    id: number
+    name: string
+    acronym: string
+  }
+}
