@@ -12,19 +12,7 @@ ALTER TABLE "feedback" RENAME TO "feedback_full";
 
 -- Step 3: Create a view that filters out deleted feedback
 CREATE VIEW "feedback" AS
-SELECT
-  id,
-  user_id,
-  email,
-  school_year,
-  course_id,
-  rating,
-  workload_rating,
-  comment,
-  original_comment,
-  approved_at,
-  created_at,
-  updated_at
+SELECT *
 FROM "feedback_full"
 WHERE deleted_at IS NULL;
 

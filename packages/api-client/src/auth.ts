@@ -88,6 +88,7 @@ export interface UserFeedback {
   points: number | null
   approvedAt: string | null
   createdAt: string
+  updatedAt: string
   analysis: {
     hasTeaching: boolean
     hasAssessment: boolean

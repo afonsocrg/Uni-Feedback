@@ -34,6 +34,7 @@ export class GetUserFeedback extends OpenAPIRoute {
                   points: z.number().nullable(),
                   approvedAt: z.date().nullable(),
                   createdAt: z.date(),
+                  updatedAt: z.date(),
                   analysis: z
                     .object({
                       hasTeaching: z.boolean(),
@@ -83,6 +84,7 @@ export class GetUserFeedback extends OpenAPIRoute {
           comment: feedback.comment,
           approvedAt: feedback.approvedAt,
           createdAt: feedback.createdAt,
+          updatedAt: feedback.updatedAt,
           // Analysis fields
           hasTeaching: feedbackAnalysis.hasTeaching,
           hasAssessment: feedbackAnalysis.hasAssessment,

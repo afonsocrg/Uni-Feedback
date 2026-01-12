@@ -1,3 +1,5 @@
+import { useQueryClient } from '@tanstack/react-query'
+import { deleteFeedback } from '@uni-feedback/api-client'
 import {
   Button,
   Chip,
@@ -14,9 +16,7 @@ import {
   StarRating,
   WorkloadRatingDisplay
 } from '@uni-feedback/ui'
-import { deleteFeedback } from '@uni-feedback/api-client'
 import { getRelativeTime } from '@uni-feedback/utils'
-import { useQueryClient } from '@tanstack/react-query'
 import { EllipsisVertical, ExternalLink, Pencil, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router'
@@ -43,7 +43,8 @@ interface ProfileFeedbackCardProps {
       hasTips: boolean
     } | null
     points: number | null
-    createdAt: Date
+    createdAt: string
+    updatedAt: string
   }
 }
 

@@ -1,5 +1,5 @@
 import { database, queries, schema } from '@uni-feedback/db'
-import { eq, sql } from 'drizzle-orm'
+import { desc, eq, sql } from 'drizzle-orm'
 import { CourseDetailContent } from '~/components'
 
 import type { Route } from './+types/courses.$courseId'
@@ -140,6 +140,7 @@ export async function loader({ params }: Route.LoaderArgs) {
       workloadRating: schema.feedback.workloadRating,
       comment: schema.feedback.comment,
       createdAt: schema.feedback.createdAt,
+      updatedAt: schema.feedback.updatedAt,
       course: {
         id: schema.courses.id,
         name: schema.courses.name,
@@ -159,7 +160,7 @@ export async function loader({ params }: Route.LoaderArgs) {
     .innerJoin(schema.courses, eq(schema.feedback.courseId, schema.courses.id))
     .innerJoin(schema.degrees, eq(schema.courses.degreeId, schema.degrees.id))
     .where(queries.getFeedbackWhereCondition(courseIdNum))
-    .orderBy(sql`${schema.feedback.createdAt} DESC`)
+    .orderBy(desc(schema.feedback.createdAt))
 
   return {
     course: {

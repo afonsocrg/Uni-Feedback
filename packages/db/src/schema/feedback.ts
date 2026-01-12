@@ -34,9 +34,7 @@ export const feedbackFull = pgTable('feedback_full', {
   approvedAt: timestamp('approved_at', { withTimezone: true }),
 
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true })
-    .defaultNow()
-    .$onUpdate(() => new Date()),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
 
   // Soft deletion timestamp
   // If not null, the feedback has been deleted by the user
@@ -45,7 +43,6 @@ export const feedbackFull = pgTable('feedback_full', {
 
 // A view that filters out soft-deleted feedback
 // This is what most code will use to query feedback
-// Note: We define the view with explicit columns (excluding deletedAt)
 export const feedback = pgView('feedback').as((qb) =>
   qb.select().from(feedbackFull).where(isNull(feedbackFull.deletedAt))
 )
