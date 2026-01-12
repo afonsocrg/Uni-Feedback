@@ -4,6 +4,7 @@ import {
   TOKEN_EXPIRATION_MS
 } from '@config/auth'
 import { InternalServerError } from '@routes/utils/errorHandling'
+import { PointService } from '@services/pointService'
 import { database } from '@uni-feedback/db'
 import {
   feedbackFull,
@@ -40,7 +41,8 @@ import {
   lt,
   min,
   notIlike,
-  or
+  or,
+  sql
 } from 'drizzle-orm'
 import { sendNewSignupNotification } from './telegram'
 
@@ -96,6 +98,62 @@ export class AuthService {
         referredByUserId
       })
       .returning()
+
+    // Link any existing feedback submitted with this email to the new user account
+    // This handles cases where a user submitted feedback before creating an account
+    try {
+      const linkedFeedback = await database()
+        .update(feedbackFull)
+        .set({ userId: user.id })
+        .where(
+          and(
+            eq(
+              sql<string>`lower(${feedbackFull.email})`,
+              userData.email.toLowerCase()
+            ),
+            isNull(feedbackFull.userId)
+          )
+        )
+        .returning({ id: feedbackFull.id })
+
+      // Process each linked feedback: analyze and award points
+      if (linkedFeedback.length > 0) {
+        const pointService = new PointService(this.env)
+
+        for (const fb of linkedFeedback) {
+          try {
+            await pointService.analyzeAndAwardPointsForFeedback(fb.id, user.id)
+          } catch (feedbackPointError) {
+            console.error(
+              'Failed to analyze/award points for feedback:',
+              fb.id,
+              feedbackPointError
+            )
+            // Continue processing other feedback
+          }
+        }
+
+        // Check and award referral points if applicable
+        // (will only award if user has feedback and was referred)
+        try {
+          await pointService.checkAndAwardReferralPoints(user.id)
+        } catch (pointError) {
+          console.error(
+            'Failed to award referral points for user:',
+            user.id,
+            pointError
+          )
+          // Continue - user was created, points can be fixed later
+        }
+      }
+    } catch (linkError) {
+      console.error(
+        'Failed to link existing feedback for user:',
+        user.id,
+        linkError
+      )
+      // Continue - user was created, linking can be fixed later
+    }
 
     return user
   }

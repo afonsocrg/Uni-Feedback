@@ -3,9 +3,12 @@ import {
   feedback,
   feedbackAnalysis,
   pointRegistry,
+  users,
   type PointSourceType
 } from '@uni-feedback/db/schema'
+import { countWords } from '@uni-feedback/utils'
 import { and, count, eq, ne, sum } from 'drizzle-orm'
+import { AIService } from './aiService'
 
 export interface AnalysisResult {
   hasTeaching: boolean
@@ -369,5 +372,183 @@ export class PointService {
     } catch {
       return null
     }
+  }
+
+  /**
+   * Analyze feedback and award points if not already done.
+   * This is used when linking existing feedback to a newly created user account.
+   *
+   * @param feedbackId - The feedback ID to process
+   * @param userId - The user who owns this feedback
+   * @returns Number of points awarded (0 if already processed or no comment)
+   */
+  async analyzeAndAwardPointsForFeedback(
+    feedbackId: number,
+    userId: number
+  ): Promise<number> {
+    // Check if analysis already exists
+    const existingAnalysis = await database()
+      .select()
+      .from(feedbackAnalysis)
+      .where(eq(feedbackAnalysis.feedbackId, feedbackId))
+      .limit(1)
+
+    // If analysis exists, check if points were already awarded
+    if (existingAnalysis.length > 0) {
+      const existingPoints = await this.getPointsForEntry(
+        userId,
+        'submit_feedback',
+        feedbackId
+      )
+
+      // Points already awarded, nothing to do
+      if (existingPoints !== null) {
+        return 0
+      }
+
+      // Analysis exists but points weren't awarded - calculate and award
+      const points = this.calculateFeedbackPoints(existingAnalysis[0])
+      if (points > 0) {
+        await this.awardFeedbackPoints(userId, feedbackId, points)
+      }
+      return points
+    }
+
+    // No analysis exists - need to analyze the feedback
+    const [feedbackRecord] = await database()
+      .select({ comment: feedback.comment })
+      .from(feedback)
+      .where(eq(feedback.id, feedbackId))
+      .limit(1)
+
+    if (!feedbackRecord) {
+      return 0
+    }
+
+    const comment = feedbackRecord.comment
+
+    // No comment means no points
+    if (!comment) {
+      // Still create an empty analysis record
+      await database().insert(feedbackAnalysis).values({
+        feedbackId,
+        hasTeaching: false,
+        hasAssessment: false,
+        hasMaterials: false,
+        hasTips: false,
+        wordCount: 0
+      })
+      return 0
+    }
+
+    // Analyze the comment
+    let analysis: AnalysisResult
+    if (this.env) {
+      const aiService = new AIService(this.env)
+
+      try {
+        const categories = await aiService.categorizeFeedback(comment)
+        const wordCount = countWords(comment)
+        analysis = { ...categories, wordCount }
+      } catch (aiError) {
+        console.warn(
+          'AI categorization failed, using conservative defaults:',
+          aiError
+        )
+        const { countWords } = await import('@uni-feedback/utils')
+        analysis = {
+          hasTeaching: false,
+          hasAssessment: false,
+          hasMaterials: false,
+          hasTips: false,
+          wordCount: countWords(comment)
+        }
+      }
+    } else {
+      // No env means no AI service - use conservative defaults
+      const { countWords } = await import('@uni-feedback/utils')
+      analysis = {
+        hasTeaching: false,
+        hasAssessment: false,
+        hasMaterials: false,
+        hasTips: false,
+        wordCount: countWords(comment)
+      }
+    }
+
+    // Insert analysis
+    await database()
+      .insert(feedbackAnalysis)
+      .values({
+        feedbackId,
+        ...analysis
+      })
+
+    // Award points
+    const points = this.calculateFeedbackPoints(analysis)
+    if (points > 0) {
+      await this.awardFeedbackPoints(userId, feedbackId, points)
+    }
+
+    return points
+  }
+
+  /**
+   * Check if user has a referrer and award referral points if applicable.
+   * This is called when a user submits feedback or when a new user account is created.
+   *
+   * Conditions for awarding points (all must be true):
+   * - User must have submitted at least one feedback
+   * - User must have a referrer (referredByUserId set)
+   * - Points must not have been awarded already for this referral
+   *
+   * Points are tiered based on referrer's total referral count.
+   *
+   * @param userId - The user to check for referral point eligibility
+   * @returns True if points were awarded, false otherwise
+   */
+  async checkAndAwardReferralPoints(userId: number): Promise<boolean> {
+    // 1. Get user's referrer
+    const [user] = await database()
+      .select({ referredByUserId: users.referredByUserId })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1)
+
+    // No referrer? No points to award
+    if (!user?.referredByUserId) {
+      return false
+    }
+
+    // 2. Check if user has submitted any feedback
+    const feedbackCount = await database()
+      .select({ count: count() })
+      .from(feedback)
+      .where(eq(feedback.userId, userId))
+
+    if ((feedbackCount[0]?.count || 0) === 0) {
+      return false
+    }
+
+    // 3. Check if points were already awarded
+    const alreadyAwarded = await this.hasReceivedReferralPointsFor(
+      user.referredByUserId,
+      userId
+    )
+
+    if (alreadyAwarded) {
+      return false
+    }
+
+    // 4. Award tiered points based on referrer's referral count
+    const referralCount = await this.getReferralCount(user.referredByUserId)
+    const referralPoints = this.calculateReferralPoints(referralCount)
+    await this.awardReferralPoints(
+      user.referredByUserId,
+      userId,
+      referralPoints
+    )
+
+    return true
   }
 }

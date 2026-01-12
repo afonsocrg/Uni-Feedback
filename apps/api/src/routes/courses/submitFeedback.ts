@@ -8,8 +8,7 @@ import {
   faculties,
   feedback,
   feedbackAnalysis,
-  feedbackFull,
-  users
+  feedbackFull
 } from '@uni-feedback/db/schema'
 import { countWords, getCurrentSchoolYear } from '@uni-feedback/utils'
 import { contentJson, OpenAPIRoute } from 'chanfana'
@@ -267,39 +266,8 @@ export class SubmitFeedback extends OpenAPIRoute {
           )
         }
 
-        // 4. Check for referral bonus (first feedback only)
-        const isFirstFeedback = await pointService.isUserFirstFeedback(
-          userId,
-          feedbackId
-        )
-        if (isFirstFeedback) {
-          const [user] = await database()
-            .select({ referredByUserId: users.referredByUserId })
-            .from(users)
-            .where(eq(users.id, userId))
-            .limit(1)
-
-          if (user?.referredByUserId) {
-            const alreadyAwarded =
-              await pointService.hasReceivedReferralPointsFor(
-                user.referredByUserId,
-                userId
-              )
-
-            if (!alreadyAwarded) {
-              const referralCount = await pointService.getReferralCount(
-                user.referredByUserId
-              )
-              const referralPoints =
-                pointService.calculateReferralPoints(referralCount)
-              await pointService.awardReferralPoints(
-                user.referredByUserId,
-                userId,
-                referralPoints
-              )
-            }
-          }
-        }
+        // 4. Check for referral bonus (awarded on first feedback submission)
+        await pointService.checkAndAwardReferralPoints(userId)
       } catch (pointError) {
         console.error(
           'Failed to award points for feedback:',

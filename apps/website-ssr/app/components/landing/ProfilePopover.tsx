@@ -33,7 +33,7 @@ export function ProfilePopover({
           <div className="space-y-3">
             <div className="space-y-1">
               <p className="text-sm font-medium">{user?.username}</p>
-              <p className="text-xs text-muted-foreground">{user?.email}</p>
+              <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
             </div>
             <Separator />
             <div className="space-y-1">
