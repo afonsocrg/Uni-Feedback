@@ -54,9 +54,11 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
--- Create triggers to automatically update updated_at on row changes
-CREATE TRIGGER update_feedback_updated_at BEFORE UPDATE ON "public"."feedback"
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+-- -- Create triggers to automatically update updated_at on row changes
+-- CREATE TRIGGER update_feedback_updated_at BEFORE UPDATE ON "public"."feedback"
+--     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+--
+-- DROP TRIGGER IF EXISTS update_feedback_updated_at ON feedback_analysis;
 
 CREATE TRIGGER update_feedback_analysis_updated_at BEFORE UPDATE ON "public"."feedback_analysis"
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
