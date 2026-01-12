@@ -1,4 +1,6 @@
 import { type DuplicateFeedbackDetail } from '@uni-feedback/api-client'
+import { type UseFormReturn } from 'react-hook-form'
+import type { FeedbackFormData } from '~/routes/feedback.new'
 import { CoursePageFeedbackCard } from './CoursePageFeedbackCard'
 import {
   InlineFeedbackEdit,
@@ -7,13 +9,7 @@ import {
 
 interface DuplicateFeedbackResolutionProps {
   existingFeedback: DuplicateFeedbackDetail
-  pendingFeedbackData: {
-    facultyId: number
-    degreeId: number
-    rating: number
-    workloadRating: number
-    comment?: string
-  } | null
+  form: UseFormReturn<FeedbackFormData>
   onSubmit: (values: EditFeedbackFormData) => Promise<void>
   onCancel: () => void
   isSubmitting: boolean
@@ -21,7 +17,7 @@ interface DuplicateFeedbackResolutionProps {
 
 export function DuplicateFeedbackResolution({
   existingFeedback,
-  pendingFeedbackData,
+  form,
   onSubmit,
   onCancel,
   isSubmitting
@@ -45,13 +41,9 @@ export function DuplicateFeedbackResolution({
           <CoursePageFeedbackCard feedback={existingFeedback} />
         </div>
 
-        {/* Inline edit form - pre-filled with the NEW data user just submitted */}
+        {/* Inline edit form - form already contains the NEW data user just submitted */}
         <InlineFeedbackEdit
-          initialValues={{
-            rating: pendingFeedbackData?.rating,
-            workloadRating: pendingFeedbackData?.workloadRating,
-            comment: pendingFeedbackData?.comment || null
-          }}
+          form={form}
           onSubmit={onSubmit}
           onCancel={onCancel}
           isSubmitting={isSubmitting}

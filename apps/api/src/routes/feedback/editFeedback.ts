@@ -4,7 +4,7 @@ import { database } from '@uni-feedback/db'
 import { feedback, feedbackAnalysis } from '@uni-feedback/db/schema'
 import { countWords } from '@uni-feedback/utils'
 import { contentJson, OpenAPIRoute } from 'chanfana'
-import { and, eq } from 'drizzle-orm'
+import { and, desc, eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
 import { z } from 'zod'
 import { UnauthorizedError, withErrorHandling } from '../utils'
@@ -48,6 +48,7 @@ export class EditFeedback extends OpenAPIRoute {
         .select()
         .from(feedback)
         .where(and(eq(feedback.id, feedbackId), eq(feedback.userId, userId)))
+        .orderBy(desc(feedback.updatedAt))
         .limit(1)
 
       // Check ownership

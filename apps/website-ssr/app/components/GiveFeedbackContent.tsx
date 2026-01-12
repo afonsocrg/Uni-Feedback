@@ -1,4 +1,3 @@
-import { zodResolver } from '@hookform/resolvers/zod'
 import { type Faculty } from '@uni-feedback/api-client'
 import {
   Button,
@@ -31,57 +30,26 @@ import {
 } from '@uni-feedback/utils'
 import { Check, ChevronsUpDown, Loader2, Send } from 'lucide-react'
 import { useEffect, useMemo } from 'react'
-import { useForm } from 'react-hook-form'
+import { type UseFormReturn } from 'react-hook-form'
 import { Link } from 'react-router'
-import { z } from 'zod'
 import { CommentSection } from '~/components'
 import { useDegreeCourses, useFacultyDegrees } from '~/hooks/queries'
+import type { FeedbackFormData } from '~/routes/feedback.new'
 import { cn } from '~/utils/tailwind'
 
 interface GiveFeedbackContentProps {
   faculties: Faculty[]
-  initialFormValues?: {
-    facultyId: number
-    degreeId: number
-    courseId: number
-  }
+  form: UseFormReturn<FeedbackFormData>
   onSubmit: (values: FeedbackFormData) => Promise<void>
   isSubmitting: boolean
 }
 
-// Create form schema
-const feedbackSchema = z.object({
-  schoolYear: z.number().min(2000, 'Invalid school year'),
-  facultyId: z.number().min(1, 'Faculty is required'),
-  degreeId: z.number().min(1, 'Degree is required'),
-  courseId: z.number().min(1, 'Course is required'),
-  rating: z.number().min(1, 'Rating is required').max(5),
-  workloadRating: z.number().min(1, 'Workload rating is required').max(5),
-  comment: z.string().optional()
-})
-
-type FeedbackFormData = z.infer<typeof feedbackSchema>
-
 export function GiveFeedbackContent({
   faculties,
-  initialFormValues,
+  form,
   onSubmit,
   isSubmitting
 }: GiveFeedbackContentProps) {
-  const form = useForm({
-    resolver: zodResolver(feedbackSchema),
-    mode: 'onChange', // Validate on change to enable/disable submit button
-    defaultValues: {
-      schoolYear: getCurrentSchoolYear(),
-      facultyId: initialFormValues?.facultyId || 0,
-      degreeId: initialFormValues?.degreeId || 0,
-      courseId: initialFormValues?.courseId || 0,
-      rating: 0,
-      workloadRating: 0,
-      comment: ''
-    }
-  })
-
   // Watch only the fields needed for conditional rendering and data fetching
   const selectedFacultyId = form.watch('facultyId')
   const selectedDegreeId = form.watch('degreeId')

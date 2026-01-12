@@ -1,3 +1,4 @@
+import { zodResolver } from '@hookform/resolvers/zod'
 import {
   editFeedback,
   getCourse,
@@ -5,8 +6,11 @@ import {
   MeicFeedbackAPIError,
   type DuplicateFeedbackDetail
 } from '@uni-feedback/api-client'
+import { getCurrentSchoolYear } from '@uni-feedback/utils'
 import { useState } from 'react'
+import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
+import { z } from 'zod'
 import {
   DuplicateFeedbackResolution,
   EmailVerificationModal,
@@ -21,6 +25,19 @@ import { useAuth } from '~/hooks/useAuth'
 import { STORAGE_KEYS } from '~/utils/constants'
 
 import type { Route } from './+types/feedback.new'
+
+// Form schema for feedback submission
+const feedbackSchema = z.object({
+  schoolYear: z.number().min(2000, 'Invalid school year'),
+  facultyId: z.number().min(1, 'Faculty is required'),
+  degreeId: z.number().min(1, 'Degree is required'),
+  courseId: z.number().min(1, 'Course is required'),
+  rating: z.number().min(1, 'Rating is required').max(5),
+  workloadRating: z.number().min(1, 'Workload rating is required').max(5),
+  comment: z.string().optional()
+})
+
+export type FeedbackFormData = z.infer<typeof feedbackSchema>
 
 export function meta() {
   return [
@@ -109,25 +126,22 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
   const lastVisitedPath = useLastVisitedPath()
   const browseLink = lastVisitedPath !== '/' ? lastVisitedPath : '/browse'
 
-  const [pendingFeedbackData, setPendingFeedbackData] = useState<{
-    schoolYear: number
-    facultyId: number
-    degreeId: number
-    courseId: number
-    rating: number
-    workloadRating: number
-    comment?: string
-  } | null>(null)
+  // Create form at parent level - single source of truth
+  const form = useForm<FeedbackFormData>({
+    resolver: zodResolver(feedbackSchema),
+    mode: 'onChange',
+    defaultValues: {
+      schoolYear: getCurrentSchoolYear(),
+      facultyId: loaderData.initialFormValues.facultyId || 0,
+      degreeId: loaderData.initialFormValues.degreeId || 0,
+      courseId: loaderData.initialFormValues.courseId || 0,
+      rating: 0,
+      workloadRating: 0,
+      comment: ''
+    }
+  })
 
-  const submitFeedback = async (values: {
-    schoolYear: number
-    facultyId: number
-    degreeId: number
-    courseId: number
-    rating: number
-    workloadRating: number
-    comment?: string
-  }) => {
+  const submitFeedback = async (values: FeedbackFormData) => {
     try {
       // Submit feedback using TanStack Query mutation
       const response = await submitFeedbackMutation.mutateAsync({
@@ -146,7 +160,6 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
         // Check if this is a duplicate feedback error (409 Conflict)
         if (error.status === 409 && error.data.feedback) {
           setDuplicateFeedback(error.data.feedback)
-          setPendingFeedbackData(values)
           return
         }
         toast.error(error.message)
@@ -158,15 +171,7 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
     }
   }
 
-  const handleSubmit = async (values: {
-    schoolYear: number
-    facultyId: number
-    degreeId: number
-    courseId: number
-    rating: number
-    workloadRating: number
-    comment?: string
-  }) => {
+  const handleSubmit = async (values: FeedbackFormData) => {
     // Store values in localStorage for next time
     localStorage.setItem(
       STORAGE_KEYS.FEEDBACK_FACULTY_ID,
@@ -179,9 +184,6 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
 
     // Check authentication status
     if (!isAuthenticated) {
-      // Store form data for later submission
-      setPendingFeedbackData(values)
-      // Show verification modal
       setShowVerificationModal(true)
       return
     }
@@ -196,7 +198,7 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
     comment?: string
   }) => {
     if (!duplicateFeedback) {
-      console.error('No duplicate feedback to edit.')
+      console.error('No duplicate feedback to edit')
       return
     }
     try {
@@ -208,9 +210,8 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
 
       toast.success('Feedback updated successfully!')
       setDuplicateFeedback(null)
-      setPendingFeedbackData(null)
-      setIsEditSuccess(true)
       setPointsEarned(response.points)
+      setIsEditSuccess(true)
     } catch (error) {
       if (error instanceof MeicFeedbackAPIError) {
         toast.error(error.message)
@@ -219,22 +220,27 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
       }
     }
   }
+
   const handleAuthenticationSuccess = async (user: AuthUser) => {
     setUser(user)
     setShowVerificationModal(false)
 
-    // Auto-submit the pending feedback
-    if (pendingFeedbackData) {
-      submitFeedback(pendingFeedbackData)
-      setPendingFeedbackData(null)
-    }
+    // Auto-submit the feedback using current form values
+    const values = form.getValues()
+    submitFeedback(values)
   }
 
   const handleSubmitAnother = () => {
     setIsSubmitSuccess(false)
     setIsEditSuccess(false)
     setPointsEarned(undefined)
-    setPendingFeedbackData(null)
+    setDuplicateFeedback(null)
+
+    // Reset form ratings and comment, but preserve faculty/degree selections
+    form.setValue('rating', 0)
+    form.setValue('workloadRating', 0)
+    form.setValue('comment', '')
+    form.setValue('courseId', 0)
   }
 
   // Show submit success screen if feedback was submitted
@@ -263,12 +269,10 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
     return (
       <DuplicateFeedbackResolution
         existingFeedback={duplicateFeedback}
-        pendingFeedbackData={pendingFeedbackData}
+        form={form}
         onSubmit={handleEdit}
         onCancel={() => {
           setDuplicateFeedback(null)
-          setPendingFeedbackData(null)
-          // Form selections preserved in state
         }}
         isSubmitting={submitFeedbackMutation.isPending}
       />
@@ -279,7 +283,7 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
     <>
       <GiveFeedbackContent
         faculties={loaderData.faculties}
-        initialFormValues={loaderData.initialFormValues}
+        form={form}
         onSubmit={handleSubmit}
         isSubmitting={submitFeedbackMutation.isPending}
       />

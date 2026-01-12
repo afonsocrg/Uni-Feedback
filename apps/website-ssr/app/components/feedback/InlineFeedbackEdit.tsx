@@ -1,4 +1,3 @@
-import { zodResolver } from '@hookform/resolvers/zod'
 import {
   Button,
   EditableStarRating,
@@ -11,45 +10,29 @@ import {
   WorkloadRatingSelect
 } from '@uni-feedback/ui'
 import { Loader2, Save, X } from 'lucide-react'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
+import { type UseFormReturn } from 'react-hook-form'
+import type { FeedbackFormData } from '~/routes/feedback.new'
 import { CommentSection } from './CommentSection'
 
+export type EditFeedbackFormData = {
+  rating: number
+  workloadRating: number
+  comment?: string
+}
+
 interface InlineFeedbackEditProps {
-  initialValues: {
-    rating?: number
-    workloadRating?: number
-    comment?: string | null
-  }
+  form: UseFormReturn<FeedbackFormData>
   onSubmit: (values: EditFeedbackFormData) => Promise<void>
   onCancel: () => void
   isSubmitting: boolean
 }
 
-const editFeedbackSchema = z.object({
-  rating: z.number().min(1).max(5),
-  workloadRating: z.number().min(1).max(5),
-  comment: z.string().optional()
-})
-
-export type EditFeedbackFormData = z.infer<typeof editFeedbackSchema>
-
 export function InlineFeedbackEdit({
-  initialValues,
+  form,
   onSubmit,
   onCancel,
   isSubmitting
 }: InlineFeedbackEditProps) {
-  const form = useForm({
-    resolver: zodResolver(editFeedbackSchema),
-    mode: 'onChange',
-    defaultValues: {
-      rating: initialValues.rating,
-      workloadRating: initialValues.workloadRating,
-      comment: initialValues.comment || ''
-    }
-  })
-
   return (
     <div className="p-6 ">
       <h2 className="text-lg font-semibold text-gray-900 mb-4">
