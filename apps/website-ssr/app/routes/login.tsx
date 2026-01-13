@@ -8,7 +8,7 @@ import {
   PopoverTrigger
 } from '@uni-feedback/ui'
 import { isValidEmail } from '@uni-feedback/utils'
-import { Info } from 'lucide-react'
+import { HelpCircle } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import { toast } from 'sonner'
@@ -220,14 +220,33 @@ export default function LoginPage() {
                         type="button"
                         className="text-muted-foreground hover:text-foreground transition-colors"
                       >
-                        <Info className="size-4" />
+                        <HelpCircle className="size-4" />
                       </button>
                     </PopoverTrigger>
                     <PopoverContent className="w-80">
-                      <p className="text-sm text-muted-foreground">
-                        We require a university email to ensure only verified
-                        students can submit feedback.
-                      </p>
+                      <div className="space-y-3 text-sm">
+                        <div>
+                          <p className="font-medium mb-1">
+                            University Email Required
+                          </p>
+                          <p className="text-muted-foreground">
+                            We require a university email to ensure only
+                            verified students can submit feedback.
+                          </p>
+                        </div>
+                        <div className="pt-2 border-t">
+                          <p className="font-medium mb-1">Need Help?</p>
+                          <p className="text-muted-foreground">
+                            Email us at{' '}
+                            <a
+                              href="mailto:support@uni-feedback.com"
+                              className="underline hover:text-foreground transition-colors"
+                            >
+                              support@uni-feedback.com
+                            </a>
+                          </p>
+                        </div>
+                      </div>
                     </PopoverContent>
                   </Popover>
                 </div>
@@ -252,16 +271,6 @@ export default function LoginPage() {
               >
                 {isLoading ? 'Sending...' : 'Email me Login Link'}
               </Button>
-
-              <p className="text-xs text-muted-foreground text-center">
-                Can't log in? Email us at{' '}
-                <a
-                  href="mailto:support@uni-feedback.com"
-                  className="underline hover:text-foreground transition-colors"
-                >
-                  support@uni-feedback.com
-                </a>
-              </p>
             </form>
           )}
         </Card>
