@@ -19,9 +19,9 @@ export interface AnalysisResult {
 }
 
 export class PointService {
-  private env?: Env
+  private env: Env
 
-  constructor(env?: Env) {
+  constructor(env: Env) {
     this.env = env
   }
 
@@ -386,105 +386,101 @@ export class PointService {
     feedbackId: number,
     userId: number
   ): Promise<number> {
-    // Check if analysis already exists
-    const existingAnalysis = await database()
+    // Step 1: Get analysis
+    let analysisRecords = await database()
       .select()
       .from(feedbackAnalysis)
       .where(eq(feedbackAnalysis.feedbackId, feedbackId))
       .limit(1)
 
-    // If analysis exists, check if points were already awarded
-    if (existingAnalysis.length > 0) {
-      const existingPoints = await this.getPointsForEntry(
-        userId,
-        'submit_feedback',
-        feedbackId
-      )
+    // Step 2: If analysis doesn't exist, create one
+    if (analysisRecords.length === 0) {
+      // Get the feedback comment
+      const [feedbackRecord] = await database()
+        .select({ comment: feedback.comment })
+        .from(feedback)
+        .where(eq(feedback.id, feedbackId))
+        .limit(1)
 
-      // Points already awarded, nothing to do
-      if (existingPoints !== null) {
+      if (!feedbackRecord) {
         return 0
       }
 
-      // Analysis exists but points weren't awarded - calculate and award
-      const points = this.calculateFeedbackPoints(existingAnalysis[0])
-      if (points > 0) {
-        await this.awardFeedbackPoints(userId, feedbackId, points)
-      }
-      return points
-    }
+      const comment = feedbackRecord.comment
 
-    // No analysis exists - need to analyze the feedback
-    const [feedbackRecord] = await database()
-      .select({ comment: feedback.comment })
-      .from(feedback)
-      .where(eq(feedback.id, feedbackId))
-      .limit(1)
+      let analysisResult: AnalysisResult
 
-    if (!feedbackRecord) {
-      return 0
-    }
-
-    const comment = feedbackRecord.comment
-
-    // No comment means no points
-    if (!comment) {
-      // Still create an empty analysis record
-      await database().insert(feedbackAnalysis).values({
-        feedbackId,
-        hasTeaching: false,
-        hasAssessment: false,
-        hasMaterials: false,
-        hasTips: false,
-        wordCount: 0
-      })
-      return 0
-    }
-
-    // Analyze the comment
-    let analysis: AnalysisResult
-    if (this.env) {
-      const aiService = new AIService(this.env)
-
-      try {
-        const categories = await aiService.categorizeFeedback(comment)
-        const wordCount = countWords(comment)
-        analysis = { ...categories, wordCount }
-      } catch (aiError) {
-        console.warn(
-          'AI categorization failed, using conservative defaults:',
-          aiError
-        )
-        const { countWords } = await import('@uni-feedback/utils')
-        analysis = {
+      // If no comment, create empty analysis
+      if (!comment) {
+        analysisResult = {
           hasTeaching: false,
           hasAssessment: false,
           hasMaterials: false,
           hasTips: false,
-          wordCount: countWords(comment)
+          wordCount: 0
+        }
+      } else {
+        // Analyze the comment with AI or conservative defaults
+        const aiService = new AIService(this.env)
+        try {
+          const categories = await aiService.categorizeFeedback(comment)
+          const wordCount = countWords(comment)
+          analysisResult = { ...categories, wordCount }
+        } catch (aiError) {
+          console.warn(
+            'AI categorization failed, using conservative defaults:',
+            aiError
+          )
+          analysisResult = {
+            hasTeaching: false,
+            hasAssessment: false,
+            hasMaterials: false,
+            hasTips: false,
+            wordCount: countWords(comment)
+          }
         }
       }
-    } else {
-      // No env means no AI service - use conservative defaults
-      const { countWords } = await import('@uni-feedback/utils')
-      analysis = {
-        hasTeaching: false,
-        hasAssessment: false,
-        hasMaterials: false,
-        hasTips: false,
-        wordCount: countWords(comment)
-      }
+
+      // Insert analysis
+      await database()
+        .insert(feedbackAnalysis)
+        .values({
+          feedbackId,
+          ...analysisResult
+        })
+
+      // Fetch the newly created analysis
+      analysisRecords = await database()
+        .select()
+        .from(feedbackAnalysis)
+        .where(eq(feedbackAnalysis.feedbackId, feedbackId))
+        .limit(1)
     }
 
-    // Insert analysis
-    await database()
-      .insert(feedbackAnalysis)
-      .values({
-        feedbackId,
-        ...analysis
-      })
+    // Step 3: Now analysis exists for sure
+    if (analysisRecords.length === 0) {
+      // This should never happen, but handle it gracefully
+      console.error(
+        `Failed to create or fetch analysis for feedback ${feedbackId}`
+      )
+      return 0
+    }
 
-    // Award points
+    const analysis = analysisRecords[0]
+
+    // Step 4: Check if points were already awarded
+    const existingPoints = await this.getPointsForEntry(
+      userId,
+      'submit_feedback',
+      feedbackId
+    )
+
+    // If points already awarded, nothing to do
+    if (existingPoints !== null) {
+      return 0
+    }
+
+    // Calculate and award points
     const points = this.calculateFeedbackPoints(analysis)
     if (points > 0) {
       await this.awardFeedbackPoints(userId, feedbackId, points)

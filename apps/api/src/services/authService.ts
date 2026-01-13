@@ -104,6 +104,7 @@ export class AuthService {
     try {
       const linkedFeedback = await database()
         .update(feedbackFull)
+        // Keep email set, so that we can know which feedbacks were submitted before login
         .set({ userId: user.id })
         .where(
           and(

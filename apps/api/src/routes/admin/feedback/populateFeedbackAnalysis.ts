@@ -3,7 +3,7 @@ import { database } from '@uni-feedback/db'
 import { feedback, feedbackAnalysis } from '@uni-feedback/db/schema'
 import { countWords } from '@uni-feedback/utils'
 import { OpenAPIRoute } from 'chanfana'
-import { eq, isNull } from 'drizzle-orm'
+import { and, eq, isNotNull, isNull } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
 import { z } from 'zod'
 
@@ -53,7 +53,10 @@ export class PopulateFeedbackAnalysis extends OpenAPIRoute {
           feedbackAnalysis,
           eq(feedback.id, feedbackAnalysis.feedbackId)
         )
-        .where(isNull(feedbackAnalysis.feedbackId))
+        .where(
+          // We only want to analyze feedbacks that have an email
+          and(isNull(feedbackAnalysis.feedbackId), isNotNull(feedback.email))
+        )
 
       if (feedbacksWithoutAnalysis.length === 0) {
         return Response.json({
@@ -119,7 +122,9 @@ export class PopulateFeedbackAnalysis extends OpenAPIRoute {
             })
 
           successCount++
-          console.log(`✓ Processed feedback ${fb.id} (${successCount}/${feedbacksWithoutAnalysis.length})`)
+          console.log(
+            `✓ Processed feedback ${fb.id} (${successCount}/${feedbacksWithoutAnalysis.length})`
+          )
         } catch (error) {
           errorCount++
           console.error(`✗ Failed to process feedback ${fb.id}:`, error)
@@ -127,9 +132,10 @@ export class PopulateFeedbackAnalysis extends OpenAPIRoute {
         }
       }
 
-      const message = errorCount > 0
-        ? `Created ${successCount} analysis record${successCount === 1 ? '' : 's'} (${errorCount} failed)`
-        : `Successfully created ${successCount} feedback analysis record${successCount === 1 ? '' : 's'} using AI categorization`
+      const message =
+        errorCount > 0
+          ? `Created ${successCount} analysis record${successCount === 1 ? '' : 's'} (${errorCount} failed)`
+          : `Successfully created ${successCount} feedback analysis record${successCount === 1 ? '' : 's'} using AI categorization`
 
       return Response.json({
         created: successCount,
