@@ -27,11 +27,14 @@ export class EditFeedback extends OpenAPIRoute {
     summary: 'Edit user feedback',
     description: 'Edit your own feedback submission',
     request: {
-      params: z.object({ id: z.number() }),
+      params: z.object({
+        id: z.coerce.number().int().positive().max(2147483647)
+      }),
       body: contentJson(EditFeedbackRequestSchema)
     },
     responses: {
       '200': { description: 'Feedback updated' },
+      '400': { description: 'Invalid feedback ID' },
       '403': { description: 'Not authorized' },
       '404': { description: 'Feedback not found' }
     }
@@ -39,8 +42,8 @@ export class EditFeedback extends OpenAPIRoute {
 
   async handle(request: IRequest, env: Env, context: any) {
     return withErrorHandling(request, async () => {
-      const feedbackId = parseInt(request.params.id)
-      const { body } = await this.getValidatedData<typeof this.schema>()
+      const { params, body } = await this.getValidatedData<typeof this.schema>()
+      const feedbackId = params.id
 
       // Authenticate
       const authCheck = await authenticateUser(request, env, context)
