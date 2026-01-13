@@ -1,8 +1,9 @@
 import { ChevronRight } from 'lucide-react'
+import type { ReactNode } from 'react'
 import { BreadcrumbItem } from './BreadcrumbItem'
 
 export interface BreadcrumbItemData {
-  label: string
+  label: ReactNode
   href?: string
   isActive?: boolean
   onClick?: () => void

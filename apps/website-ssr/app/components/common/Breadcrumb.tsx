@@ -1,7 +1,7 @@
 import type { Course, Degree, Faculty } from '@uni-feedback/db/schema'
-import { ChevronRight, Home } from 'lucide-react'
+import { Home } from 'lucide-react'
 import { userPreferences } from '../../utils/userPreferences'
-import { BreadcrumbItem } from './BreadcrumbItem'
+import { GenericBreadcrumb, type BreadcrumbItemData } from './GenericBreadcrumb'
 
 interface BreadcrumbProps {
   className?: string
@@ -43,46 +43,42 @@ export function Breadcrumb({
     })
   }
 
-  return (
-    <nav
-      className={`flex items-center space-x-1 text-xs text-gray-500 ${className}`}
-    >
-      <BreadcrumbItem href="/browse" onClick={handleHomeClick}>
-        <Home className="h-3 w-3 mr-1" />
-        Select Uni
-      </BreadcrumbItem>
-
-      {faculty && (
+  const items: BreadcrumbItemData[] = [
+    {
+      label: (
         <>
-          <ChevronRight className="h-3 w-3 text-gray-400 mx-1" />
-          <BreadcrumbItem
-            href={`/${faculty.slug}`}
-            onClick={handleFacultyClick}
-          >
-            {faculty.shortName}
-          </BreadcrumbItem>
+          <Home className="h-3 w-3 mr-1" />
+          Select Uni
         </>
-      )}
+      ),
+      href: '/browse',
+      onClick: handleHomeClick
+    }
+  ]
 
-      {faculty && degree && (
-        <>
-          <ChevronRight className="h-3 w-3 text-gray-400 mx-1" />
-          <BreadcrumbItem
-            isActive={!course}
-            href={course ? `/${faculty.slug}/${degree.slug}` : undefined}
-            onClick={course ? handleDegreeClick : undefined}
-          >
-            {degree.acronym}
-          </BreadcrumbItem>
-        </>
-      )}
+  if (faculty) {
+    items.push({
+      label: faculty.shortName,
+      href: `/${faculty.slug}`,
+      onClick: handleFacultyClick
+    })
+  }
 
-      {faculty && degree && course && (
-        <>
-          <ChevronRight className="h-3 w-3 text-gray-400 mx-1" />
-          <BreadcrumbItem isActive>{course.acronym}</BreadcrumbItem>
-        </>
-      )}
-    </nav>
-  )
+  if (faculty && degree) {
+    items.push({
+      label: degree.acronym,
+      href: course ? `/${faculty.slug}/${degree.slug}` : undefined,
+      onClick: course ? handleDegreeClick : undefined,
+      isActive: !course
+    })
+  }
+
+  if (faculty && degree && course) {
+    items.push({
+      label: course.acronym,
+      isActive: true
+    })
+  }
+
+  return <GenericBreadcrumb items={items} className={className} />
 }
