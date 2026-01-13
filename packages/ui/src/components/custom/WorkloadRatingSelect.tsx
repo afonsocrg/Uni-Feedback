@@ -1,3 +1,4 @@
+import { Badge } from '../shadcn'
 import {
   Select,
   SelectContent,
@@ -35,7 +36,9 @@ export function WorkloadRatingSelect({
       <SelectContent>
         <SelectGroup>
           <SelectLabel>Workload Rating</SelectLabel>
-          <SelectItem value="none">No rating</SelectItem>
+          <SelectItem value="none">
+            <Badge variant="secondary">No rating</Badge>
+          </SelectItem>
           {[5, 4, 3, 2, 1].map((rating) => (
             <SelectItem key={rating} value={rating.toString()}>
               <WorkloadRatingDisplay rating={rating} />
