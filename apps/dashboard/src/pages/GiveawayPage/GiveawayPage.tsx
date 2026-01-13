@@ -1,7 +1,8 @@
 import { DatePicker, PaginationControls, TriboolIcon } from '@components'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   getAdminFeedbackNew,
+  populateFeedbackAnalysis,
   type AdminFeedback
 } from '@uni-feedback/api-client'
 import {
@@ -23,14 +24,29 @@ import {
   TableHeader,
   TableRow
 } from '@uni-feedback/ui'
-import { Edit } from 'lucide-react'
+import { Database, Edit } from 'lucide-react'
 import { useState } from 'react'
+import { toast } from 'sonner'
 import { AnalysisEditDialog } from './AnalysisEditDialog'
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50, 100]
 
 export function GiveawayPage() {
   const queryClient = useQueryClient()
+
+  // Mutation for populating analysis records
+  const populateMutation = useMutation({
+    mutationFn: populateFeedbackAnalysis,
+    onSuccess: (data) => {
+      toast.success(data.message)
+      queryClient.invalidateQueries({
+        queryKey: ['admin-feedback-giveaway']
+      })
+    },
+    onError: (error: any) => {
+      toast.error(error.message || 'Failed to populate analysis records')
+    }
+  })
 
   // Pagination state
   const [page, setPage] = useState(1)
@@ -115,7 +131,20 @@ export function GiveawayPage() {
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle>Giveaway Management</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>Giveaway Management</CardTitle>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => populateMutation.mutate()}
+              disabled={populateMutation.isPending}
+            >
+              <Database className="h-4 w-4 mr-2" />
+              {populateMutation.isPending
+                ? 'Populating...'
+                : 'Populate Missing Analysis'}
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Filters */}

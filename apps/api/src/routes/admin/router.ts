@@ -34,7 +34,8 @@ import {
   UpdateFeedback,
   ApproveFeedback,
   UnapproveFeedback,
-  UpdateFeedbackAnalysis
+  UpdateFeedbackAnalysis,
+  PopulateFeedbackAnalysis
 } from './feedback'
 import { GetDegreeSuggestions } from './suggestions'
 import { GetUsers } from './users'
@@ -77,6 +78,7 @@ router.put('/feedback/:id', UpdateFeedback)
 router.post('/feedback/:id/approved', ApproveFeedback)
 router.delete('/feedback/:id/approved', UnapproveFeedback)
 router.put('/feedback/:id/analysis', UpdateFeedbackAnalysis)
+router.post('/feedback/populate-analysis', PopulateFeedbackAnalysis)
 
 // Suggestions routes
 router.get('/suggestions/degrees', GetDegreeSuggestions)

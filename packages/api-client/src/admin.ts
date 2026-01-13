@@ -778,3 +778,17 @@ export async function updateFeedbackAnalysis(
     message: string
   }>(`/admin/feedback/${feedbackId}/analysis`, analysis)
 }
+
+/**
+ * Populate missing feedback analysis records
+ * Creates feedbackAnalysis records for all feedbacks that don't have one
+ */
+export async function populateFeedbackAnalysis(): Promise<{
+  created: number
+  message: string
+}> {
+  return apiPost<{
+    created: number
+    message: string
+  }>('/admin/feedback/populate-analysis', {})
+}

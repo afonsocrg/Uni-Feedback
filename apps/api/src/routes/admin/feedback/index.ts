@@ -1,6 +1,7 @@
 export { ApproveFeedback } from './approveFeedback'
 export { GetFeedback } from './getFeedback'
 export { GetFeedbackDetails } from './getFeedbackDetails'
+export { PopulateFeedbackAnalysis } from './populateFeedbackAnalysis'
 export { UnapproveFeedback } from './unapproveFeedback'
 export { UpdateFeedback } from './updateFeedback'
 export { UpdateFeedbackAnalysis } from './updateFeedbackAnalysis'
