@@ -25,13 +25,20 @@ export default function LoginPage() {
   const [countdown, setCountdown] = useState<string>('')
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const { setUser } = useAuth()
+  const { user, setUser } = useAuth()
   const verificationSucceeded = useRef(false)
 
   const { requestMagicLink, verifyMagicLinkByRequestId } = useMagicLinkAuth()
 
   // Extract referral code from URL
   const referralCode = searchParams.get('ref') || undefined
+
+  // Redirect to profile if user is already logged in
+  useEffect(() => {
+    if (user) {
+      navigate('/profile')
+    }
+  }, [user, navigate])
 
   // Load saved email from localStorage on mount
   useEffect(() => {
