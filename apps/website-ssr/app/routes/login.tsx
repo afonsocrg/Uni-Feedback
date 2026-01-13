@@ -1,3 +1,4 @@
+import { MeicFeedbackAPIError } from '@uni-feedback/api-client'
 import {
   Button,
   Card,
@@ -11,13 +12,17 @@ import { Info } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import { toast } from 'sonner'
-import { useAuth, useMagicLinkAuth } from '~/hooks'
+import { useAuth, useLocalStorage, useMagicLinkAuth } from '~/hooks'
 import { STORAGE_KEYS, VERIFICATION_CONFIG } from '~/utils/constants'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [emailSent, setEmailSent] = useState(false)
+  const [rateLimitResetAtISO, setRateLimitResetAtISO] = useLocalStorage<
+    string | null
+  >(STORAGE_KEYS.MAGIC_LINK_RATE_LIMIT_RESET, null)
+  const [countdown, setCountdown] = useState<string>('')
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const { setUser } = useAuth()
@@ -35,6 +40,47 @@ export default function LoginPage() {
       setEmail(savedEmail)
     }
   }, [])
+
+  // Compute rate limit date from stored ISO string
+  const rateLimitResetAt =
+    rateLimitResetAtISO && new Date(rateLimitResetAtISO).getTime() > Date.now()
+      ? new Date(rateLimitResetAtISO)
+      : null
+
+  // Clear expired rate limit
+  useEffect(() => {
+    if (rateLimitResetAtISO && !rateLimitResetAt) {
+      setRateLimitResetAtISO(null)
+    }
+  }, [rateLimitResetAtISO, rateLimitResetAt, setRateLimitResetAtISO])
+
+  // Countdown timer for rate limit
+  useEffect(() => {
+    if (!rateLimitResetAt) {
+      setCountdown('')
+      return
+    }
+
+    const updateCountdown = () => {
+      const now = new Date()
+      const timeLeft = rateLimitResetAt.getTime() - now.getTime()
+
+      if (timeLeft <= 0) {
+        setRateLimitResetAtISO(null)
+        setCountdown('')
+        return
+      }
+
+      const minutes = Math.floor(timeLeft / 60000)
+      const seconds = Math.floor((timeLeft % 60000) / 1000)
+      setCountdown(`${minutes}:${seconds.toString().padStart(2, '0')}`)
+    }
+
+    updateCountdown()
+    const interval = setInterval(updateCountdown, 1000)
+
+    return () => clearInterval(interval)
+  }, [rateLimitResetAt, setRateLimitResetAtISO])
 
   // Polling logic - runs when email is sent
   useEffect(() => {
@@ -83,14 +129,25 @@ export default function LoginPage() {
 
     try {
       await requestMagicLink({ email, enablePolling: true, referralCode })
+      // Clear any previous rate limit state on success
+      setRateLimitResetAtISO(null)
       // Save email to localStorage for next time
       localStorage.setItem(STORAGE_KEYS.LAST_LOGIN_EMAIL, email)
       setEmailSent(true)
       toast.success('Check your email for the login link!')
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : 'Failed to send login link'
-      )
+      // Handle rate limit error with countdown
+      if (error instanceof MeicFeedbackAPIError && error.status === 429) {
+        const resetAt = error.data?.resetAt
+        if (resetAt) {
+          setRateLimitResetAtISO(resetAt)
+        }
+      } else {
+        // Other errors - display message
+        toast.error(
+          error instanceof Error ? error.message : 'Failed to send login link'
+        )
+      }
     }
 
     setIsLoading(false)
@@ -134,6 +191,17 @@ export default function LoginPage() {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
+              {rateLimitResetAt && (
+                <div className="mt-2 px-4 text-center space-y-2">
+                  <p className="text-sm font-medium text-foreground">
+                    Hold on a sec ⏳
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    You’ve requested too many links. Try again in{' '}
+                  </p>
+                  <div className="font-bold text-gray-700">{countdown}</div>
+                </div>
+              )}
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <label htmlFor="email" className="text-sm font-medium">
@@ -171,10 +239,22 @@ export default function LoginPage() {
               <Button
                 type="submit"
                 className="w-full"
-                disabled={isLoading || !isValidEmail(email)}
+                disabled={
+                  isLoading || !isValidEmail(email) || !!rateLimitResetAt
+                }
               >
                 {isLoading ? 'Sending...' : 'Email me Login Link'}
               </Button>
+
+              <p className="text-xs text-muted-foreground text-center">
+                Can't log in? Email us at{' '}
+                <a
+                  href="mailto:support@uni-feedback.com"
+                  className="underline hover:text-foreground transition-colors"
+                >
+                  support@uni-feedback.com
+                </a>
+              </p>
             </form>
           )}
         </Card>

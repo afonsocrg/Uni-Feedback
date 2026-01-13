@@ -14,7 +14,8 @@ export const STORAGE_KEYS = {
   COURSE_FILTERS: 'courseFilters',
   LAST_LOGIN_EMAIL: 'uni-feedback-last-email',
   AUTH_USER: 'uni-feedback-student-user',
-  MAGIC_LINK_REQUEST_ID: 'uni-feedback-magic-link-request-id'
+  MAGIC_LINK_REQUEST_ID: 'uni-feedback-magic-link-request-id',
+  MAGIC_LINK_RATE_LIMIT_RESET: 'uni-feedback-magic-link-rate-limit-reset'
 } as const
 
 // Email verification configuration

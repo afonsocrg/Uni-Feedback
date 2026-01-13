@@ -48,7 +48,7 @@ export const AUTH_CONFIG = {
 export const RATE_LIMIT_CONFIG = {
   MAGIC_LINK: {
     MAX_REQUESTS: 3, // Maximum requests per window
-    WINDOW_MINUTES: 60 // Time window in minutes
+    WINDOW_MINUTES: 5 // Time window in minutes
   }
 } as const
 

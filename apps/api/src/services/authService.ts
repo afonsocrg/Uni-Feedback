@@ -863,9 +863,11 @@ export class AuthService {
 
   /**
    * Check and update rate limit for email
-   * Returns true if request is allowed, false if rate limited
+   * Returns object with allowed status and resetAt timestamp
    */
-  async checkMagicLinkRateLimit(email: string): Promise<boolean> {
+  async checkMagicLinkRateLimit(
+    email: string
+  ): Promise<{ allowed: boolean; resetAt?: Date }> {
     const normalizedEmail = email.toLowerCase()
     const now = new Date()
     const windowStart = new Date(
@@ -886,7 +888,7 @@ export class AuthService {
         requestCount: 1,
         windowStart: now
       })
-      return true
+      return { allowed: true }
     }
 
     // Check if window has expired
@@ -899,7 +901,7 @@ export class AuthService {
           windowStart: now
         })
         .where(eq(magicLinkRateLimits.email, normalizedEmail))
-      return true
+      return { allowed: true }
     }
 
     // Check if under limit
@@ -913,10 +915,14 @@ export class AuthService {
           requestCount: rateLimitRecord.requestCount + 1
         })
         .where(eq(magicLinkRateLimits.email, normalizedEmail))
-      return true
+      return { allowed: true }
     }
 
-    // Rate limited
-    return false
+    // Rate limited - calculate when window resets
+    const resetAt = new Date(
+      rateLimitRecord.windowStart.getTime() +
+        RATE_LIMIT_CONFIG.MAGIC_LINK.WINDOW_MINUTES * 60 * 1000
+    )
+    return { allowed: false, resetAt }
   }
 }

@@ -23,8 +23,7 @@ export class RequestMagicLink extends OpenAPIRoute {
     },
     responses: {
       '200': {
-        description:
-          'Magic link sent (or rate limited - same response for security)',
+        description: 'Magic link sent successfully',
         content: {
           'application/json': {
             schema: z.object({
@@ -40,6 +39,19 @@ export class RequestMagicLink extends OpenAPIRoute {
           'application/json': {
             schema: z.object({
               error: z.string()
+            })
+          }
+        }
+      },
+      '429': {
+        description: 'Rate limit exceeded',
+        content: {
+          'application/json': {
+            schema: z.object({
+              error: z.string(),
+              data: z.object({
+                resetAt: z.string()
+              })
             })
           }
         }
@@ -72,31 +84,39 @@ export class RequestMagicLink extends OpenAPIRoute {
 
       // Check rate limit
       const authService = new AuthService(env)
-      const isAllowed =
+      const rateLimitResult =
         await authService.checkMagicLinkRateLimit(normalizedEmail)
 
-      let requestId: string | undefined
-
-      if (isAllowed) {
-        // Create magic link token
-        const magicToken = await authService.createMagicLinkToken(
-          normalizedEmail,
-          reuseRequestId, // Pass requestId (undefined if not provided)
-          referralCode // Pass referral code (undefined if not provided or invalid)
-        )
-        requestId = magicToken.requestId ?? undefined
-
-        // Send magic link email
-        const websiteUrl = env.WEBSITE_URL
-        const emailService = new EmailService(env)
-        await emailService.sendMagicLinkEmail(
-          normalizedEmail,
-          magicToken.token,
-          websiteUrl
+      if (!rateLimitResult.allowed) {
+        return Response.json(
+          {
+            error: 'Too many requests. Please try again later.',
+            data: {
+              resetAt: rateLimitResult.resetAt!.toISOString()
+            }
+          },
+          { status: 429 }
         )
       }
 
-      // Always return success to prevent email enumeration
+      // Create magic link token
+      const magicToken = await authService.createMagicLinkToken(
+        normalizedEmail,
+        reuseRequestId, // Pass requestId (undefined if not provided)
+        referralCode // Pass referral code (undefined if not provided or invalid)
+      )
+      const requestId = magicToken.requestId ?? undefined
+
+      // Send magic link email
+      const websiteUrl = env.WEBSITE_URL
+      const emailService = new EmailService(env)
+      await emailService.sendMagicLinkEmail(
+        normalizedEmail,
+        magicToken.token,
+        websiteUrl
+      )
+
+      // Return success
       return Response.json({
         message:
           'If your email is valid, you will receive a sign-in link shortly.',
