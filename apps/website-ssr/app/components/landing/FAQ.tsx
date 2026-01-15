@@ -55,12 +55,12 @@ export function FAQ({
             {title}
           </h2>
           <p className="text-center text-muted-foreground mb-12">{subtitle}</p>
-          <Accordion type="single" className="space-y-4 pb-4" collapsible>
+          <Accordion type="single" className="pb-4" collapsible>
             {items.map((item, index) => (
               <AccordionItem
                 key={index}
                 value={`item-${index + 1}`}
-                className="bg-background rounded-lg px-6 border"
+                className="px-6 border-b border-x-0 border-t-0"
               >
                 <AccordionTrigger className="text-left font-semibold hover:no-underline">
                   {item.question}
