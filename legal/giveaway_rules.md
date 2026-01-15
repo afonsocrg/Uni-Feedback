@@ -5,6 +5,10 @@ By taking part, you agree to the rules below.
 
 ## 1. Eligibility
 
+### Minimum age
+
+Participants must be at least 18 years of age at the time of entry.
+
 ### University status
 You must be an **enrolled student** at
 * Instituto Superior Técnico (IST)
@@ -21,6 +25,10 @@ You must log in to Uni Feedback using your university email address.
 ### One account per student
 
 Only one account per student is allowed. Multiple accounts, shared accounts, or variations of the same email address will result in disqualification.
+
+### Proof of enrollment
+
+Upon winning, you may be required to provide proof of enrollment (e.g., a valid student ID card or enrollment certificate) before the prize is issued.
 
 ## 2. Giveaway Period
 
@@ -70,8 +78,12 @@ For this giveaway, we will only consider points earned from:
 
 ### The prize
 
-One (1) NOS Alive Festival – 1-Day Pass for the July 10th 2026.
+One (1) NOS Alive Festival – 1-Day Pass for July 10th 2026.
 The prize is awarded as is and has no cash alternative.
+
+### Prize delivery
+
+The ticket will be sent digitally to the winner's verified university email address.
 
 ### Notification
 
@@ -107,8 +119,20 @@ Uni Feedback reserves the right to review, audit, and disqualify accounts at any
 
 For information about how your data is handled, please see our [Privacy Policy](/privacy).
 
+### Modification & cancellation
+
+Uni Feedback reserves the right to modify, suspend, or cancel the giveaway if technical failures, fraud, or unforeseen circumstances compromise the integrity of the draw.
+
+### Limitation of liability
+
+Uni Feedback is not responsible for any issues arising from the festival's organization, including cancellations, rescheduling, or entry refusal. We are not liable for lost or stolen digital tickets once delivered.
+
+### Sponsorship disclaimer
+
+This giveaway is not sponsored, endorsed, or administered by NOS Alive or Everything is New. All trademarks are the property of their respective owners.
+
 All decisions related to feedback approval, point allocation, disqualification, and winner selection are final.
 
 ---
 
-Got questions about the giveaway rules? Email us at support@uni-feedback.com
+Got questions about the giveaway rules? Email us at help@uni-feedback.com
