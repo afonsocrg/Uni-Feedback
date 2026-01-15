@@ -134,7 +134,8 @@ export default function PointsPage() {
             We look for these four things because they're what students actually
             care about.
             <br />
-            Mention them naturally in your feedback to unlock bonus points:
+            Mention them <em>naturally</em> in your feedback to unlock bonus
+            points:
           </p>
 
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">

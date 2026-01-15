@@ -62,7 +62,7 @@ To activate your points for this giveaway, you must log in to the platform befor
 
 The winner is selected through a random weighted draw.
 
-### 1 point = 1 entry in the draw
+**1 point = 1 entry in the draw**
 
 ### Points calculation
 
