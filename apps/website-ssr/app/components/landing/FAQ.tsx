@@ -6,12 +6,12 @@ import {
   Markdown
 } from '@uni-feedback/ui'
 
-interface FAQItem {
+export interface FAQItem {
   question: string
   answer: string
 }
 
-const FAQ_ITEMS: FAQItem[] = [
+const DEFAULT_FAQ_ITEMS: FAQItem[] = [
   {
     question: 'Is Uni Feedback free to use?',
     answer:
@@ -34,18 +34,27 @@ const FAQ_ITEMS: FAQItem[] = [
   }
 ]
 
-export function FAQ() {
-  const items = FAQ_ITEMS
+interface FAQProps {
+  items?: FAQItem[]
+  title?: string
+  subtitle?: string
+  className?: string
+}
+
+export function FAQ({
+  items = DEFAULT_FAQ_ITEMS,
+  title = 'Frequently Asked Questions',
+  subtitle = 'Everything you need to know about Uni Feedback',
+  className = 'bg-muted/30'
+}: FAQProps) {
   return (
-    <section id="faq" className="bg-muted/30 py-16 md:py-24">
+    <section id="faq" className={`${className} py-16 md:py-24`}>
       <div className="container mx-auto px-4">
         <div className="max-w-3xl mx-auto">
           <h2 className="font-heading text-3xl md:text-4xl font-semibold tracking-tight text-center mb-4">
-            Frequently Asked Questions
+            {title}
           </h2>
-          <p className="text-center text-muted-foreground mb-12">
-            Everything you need to know about Uni Feedback
-          </p>
+          <p className="text-center text-muted-foreground mb-12">{subtitle}</p>
           <Accordion type="single" className="space-y-4 pb-4" collapsible>
             {items.map((item, index) => (
               <AccordionItem

@@ -15,6 +15,8 @@ export default [
     // Public routes
     index('routes/landing.tsx'),
     route('/browse', 'routes/browse.tsx'),
+    route('/giveaway', 'routes/giveaway.tsx'),
+    route('/giveaway/rules', 'routes/giveaway.rules.tsx'),
     route('/:facultySlug', 'routes/$facultySlug.tsx'),
     route('/:facultySlug/:degreeSlug', 'routes/$facultySlug.$degreeSlug.tsx'),
     route('/feedback/new', 'routes/feedback.new.tsx'),
@@ -23,6 +25,7 @@ export default [
     route('/terms', 'routes/terms.tsx'),
     route('/privacy', 'routes/privacy.tsx'),
     route('/guidelines', 'routes/guidelines.tsx'),
+    route('/points', 'routes/points.tsx'),
 
     // Protected routes (require authentication)
     layout('routes/auth-layout.tsx', [
