@@ -23,12 +23,13 @@ export function LandingFooter() {
       links: [
         { href: browseLink, label: 'Browse Courses' },
         { href: '/feedback/new', label: 'Give Feedback' },
+        { href: '/giveaway', label: 'Giveaway' },
+        { href: '/points', label: 'Points' },
         { href: '/partners', label: 'Partners' },
         {
           href: 'https://github.com/afonsocrg/uni-feedback',
           label: 'Open Source'
         }
-        // { href: '#', label: 'Partners' }
       ]
     },
     {
