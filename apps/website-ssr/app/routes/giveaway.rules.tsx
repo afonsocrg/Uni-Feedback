@@ -325,12 +325,11 @@ function MarkdownVersion() {
             />
           ),
           ul: ({ ...props }) => (
-            <ul {...props} className="list-disc pl-6 space-y-1 my-2" />
+            <ul
+              {...props}
+              className="ml-6 list-disc space-y-1 text-muted-foreground"
+            />
           ),
-          ol: ({ ...props }) => (
-            <ol {...props} className="list-decimal pl-6 space-y-1 my-2" />
-          ),
-          li: ({ ...props }) => <li {...props} />,
           p: ({ ...props }) => <p {...props} className="mt-2" />,
           hr: () => <hr className="my-8 border-t border-gray-200" />,
           strong: ({ ...props }) => (
