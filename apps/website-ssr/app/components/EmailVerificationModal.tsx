@@ -145,7 +145,7 @@ export function EmailVerificationModal({
       console.error('Magic link request error:', error)
 
       let errorMessage =
-        'Something went wrong. Please contact support@uni-feedback.com'
+        'Something went wrong. Please contact help@uni-feedback.com'
 
       if (error instanceof MeicFeedbackAPIError) {
         errorMessage = error.message

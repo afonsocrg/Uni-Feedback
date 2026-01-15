@@ -179,7 +179,7 @@ You agree to indemnify and hold us harmless from claims arising from:
 
 ### 14.1 By You
 
-You may stop using the Platform at any time. For account-related questions, contact us at support@uni-feedback.com.
+You may stop using the Platform at any time. For account-related questions, contact us at help@uni-feedback.com.
 
 ### 14.2 By Us
 

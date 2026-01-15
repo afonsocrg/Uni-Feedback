@@ -71,6 +71,6 @@ The Site reserves the right to remove, provide to authorities or otherwise take 
 ---
 
 If you have any questions regarding these guidelines, a complaint about specific content, or any other inquiries related to the platform, we are here to help.
-You can reach out to support@uni-feedback.com.
+You can reach out to help@uni-feedback.com.
 
 We strive to respond to all inquiries as quickly as possible to ensure that Uni Feedback remains a useful and safe space for everyone.

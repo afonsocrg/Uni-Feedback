@@ -178,7 +178,7 @@ Upon request, we can provide you with a copy of your personal information in a c
 
 ### 7.3 Account Deletion
 
-**Administrator Users:** You may request account deletion by emailing support@uni-feedback.com. We will process deletion requests within 7 days.
+**Administrator Users:** You may request account deletion by emailing help@uni-feedback.com. We will process deletion requests within 7 days.
 
 **Student Users:** Contact us for information about data deletion options. Note that published reviews may remain on the Platform as they become part of our educational content database, but your identity will never be disclosed.
 

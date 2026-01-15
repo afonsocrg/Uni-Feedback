@@ -239,10 +239,10 @@ export default function LoginPage() {
                           <p className="text-muted-foreground">
                             Email us at{' '}
                             <a
-                              href="mailto:support@uni-feedback.com"
+                              href="mailto:help@uni-feedback.com"
                               className="underline hover:text-foreground transition-colors"
                             >
-                              support@uni-feedback.com
+                              help@uni-feedback.com
                             </a>
                           </p>
                         </div>
