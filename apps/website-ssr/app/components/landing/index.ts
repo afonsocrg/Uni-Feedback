@@ -1,3 +1,4 @@
+export * from './AnnouncementBanner'
 export * from './ContactSection'
 export * from './CTASection'
 export * from './FAQ'
