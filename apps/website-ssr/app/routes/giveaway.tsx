@@ -1,3 +1,5 @@
+import { Link } from 'react-router'
+
 import { GiveawayHeroSection, HowToWinSection } from '~/components/giveaway'
 import { FAQ, type FAQItem } from '~/components/landing'
 
@@ -62,7 +64,17 @@ export default function GiveawayPage() {
         title="Everything You Need to Know"
         subtitle="Frequently asked questions about the giveaway"
       />
-      {/* <GiveawayCTASection /> */}
+      <div className="bg-muted/30 pb-16 text-center">
+        <p className="text-muted-foreground">
+          Want the full details?{' '}
+          <Link
+            to="/giveaway/rules"
+            className="underline hover:text-foreground"
+          >
+            Check out the official rules
+          </Link>
+        </p>
+      </div>
     </>
   )
 }
