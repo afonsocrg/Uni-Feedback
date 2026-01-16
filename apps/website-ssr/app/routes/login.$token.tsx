@@ -1,8 +1,9 @@
 import { MeicFeedbackAPIError } from '@uni-feedback/api-client'
-import { Loader2, XCircle } from 'lucide-react'
+import { CheckCircle, Home, Loader2, User, XCircle } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
 import { toast } from 'sonner'
+import { MessagePage } from '~/components'
 import { useAuth, useMagicLinkAuth } from '~/hooks'
 
 /**
@@ -18,7 +19,9 @@ export default function LoginToken() {
   const { token } = useParams()
   const navigate = useNavigate()
   const { setUser } = useAuth()
-  const [status, setStatus] = useState<'verifying' | 'error'>('verifying')
+  const [status, setStatus] = useState<'verifying' | 'success' | 'error'>(
+    'verifying'
+  )
   const [errorMessage, setErrorMessage] = useState('')
 
   const { useMagicLink } = useMagicLinkAuth()
@@ -48,8 +51,7 @@ export default function LoginToken() {
 
         // Update client-side auth context
         setUser(response.user)
-        toast.success('Successfully logged in!')
-        navigate('/')
+        setStatus('success')
       } catch (error) {
         // Check if this is an expired token with requestId
         if (error instanceof MeicFeedbackAPIError && error.requestId) {
@@ -70,41 +72,67 @@ export default function LoginToken() {
     verify()
   }, [token, setUser, navigate, useMagicLink])
 
+  if (status === 'success') {
+    return (
+      <MessagePage
+        heading="You're logged in!"
+        buttons={[
+          {
+            label: 'Go to Home',
+            href: '/',
+            icon: Home
+          },
+          {
+            label: 'View Profile',
+            href: '/profile',
+            variant: 'outline',
+            icon: User
+          }
+        ]}
+      >
+        <div className="flex justify-center">
+          <CheckCircle className="size-16 text-green-500" />
+        </div>
+        <p>
+          You have successfully logged in.
+          <br />
+          You can safely close this page.
+        </p>
+      </MessagePage>
+    )
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-md space-y-6">
         {status === 'verifying' && (
-          <>
-            <div className="flex flex-col items-center space-y-4">
-              <Loader2 className="size-16 text-primary animate-spin" />
-              <h1 className="text-2xl font-bold text-center">
-                Verifying your link...
-              </h1>
-              <p className="text-center text-muted-foreground">
-                Please wait a moment
-              </p>
-            </div>
-          </>
+          <div className="flex flex-col items-center space-y-4">
+            <Loader2 className="size-16 text-primary animate-spin" />
+            <h1 className="text-2xl font-bold text-center">
+              Verifying your link...
+            </h1>
+            <p className="text-center text-muted-foreground">
+              Please wait a moment
+            </p>
+          </div>
         )}
 
         {status === 'error' && (
-          <>
-            <div className="flex flex-col items-center space-y-4">
-              <XCircle className="size-16 text-red-500" />
-              <h1 className="text-2xl font-bold text-center">
-                Verification failed
-              </h1>
-              <div className="text-center space-y-4">
-                <p className="text-muted-foreground">{errorMessage}</p>
-                <Link
-                  to="/login"
-                  className="text-primary hover:underline inline-block"
-                >
-                  Request a new link
-                </Link>
-              </div>
+          <div className="flex flex-col items-center space-y-4">
+            <XCircle className="size-16 text-red-500" />
+            <h1 className="text-2xl font-bold text-center">
+              Verification failed
+            </h1>
+            <div className="text-center space-y-4">
+              <p className="text-muted-foreground">{errorMessage}</p>
+              <Link
+                to="/login"
+                className="text-primary hover:underline inline-block"
+              >
+                Request a new link
+              </Link>
             </div>
-          </>
+          </div>
         )}
       </div>
     </div>
