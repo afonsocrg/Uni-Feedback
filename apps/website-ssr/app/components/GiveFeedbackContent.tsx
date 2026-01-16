@@ -29,11 +29,12 @@ import {
   getCurrentSchoolYear
 } from '@uni-feedback/utils'
 import { Check, ChevronsUpDown, Loader2, Send } from 'lucide-react'
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { type UseFormReturn } from 'react-hook-form'
 import { Link } from 'react-router'
 import { CommentSection } from '~/components'
 import { useDegreeCourses, useFacultyDegrees } from '~/hooks/queries'
+import { useAuth } from '~/hooks/useAuth'
 import type { FeedbackFormData } from '~/routes/feedback.new'
 import { cn } from '~/utils/tailwind'
 
@@ -50,6 +51,13 @@ export function GiveFeedbackContent({
   onSubmit,
   isSubmitting
 }: GiveFeedbackContentProps) {
+  const { user } = useAuth()
+
+  // Popover open states
+  const [facultyOpen, setFacultyOpen] = useState(false)
+  const [degreeOpen, setDegreeOpen] = useState(false)
+  const [courseOpen, setCourseOpen] = useState(false)
+
   // Watch only the fields needed for conditional rendering and data fetching
   const selectedFacultyId = form.watch('facultyId')
   const selectedDegreeId = form.watch('degreeId')
@@ -97,6 +105,34 @@ export function GiveFeedbackContent({
   const showDegreeField = selectedFacultyId > 0
   const showCourseField =
     selectedDegreeId > 0 && degrees?.some((d) => d.id === selectedDegreeId)
+
+  // Check if logged-in user's email matches the selected faculty
+  const universityMismatchWarning = useMemo(() => {
+    if (!user || !selectedFacultyId) return null
+
+    const selectedFaculty = faculties.find((f) => f.id === selectedFacultyId)
+    if (!selectedFaculty?.emailSuffixes?.length) return null
+
+    const userEmailDomain = user.email.split('@')[1]?.toLowerCase()
+    if (!userEmailDomain) return null
+
+    const isValidDomain = selectedFaculty.emailSuffixes.some(
+      (suffix) => userEmailDomain === suffix.toLowerCase()
+    )
+
+    if (isValidDomain) return null
+
+    // Find the user's actual faculty
+    const userFaculty = faculties.find((f) =>
+      f.emailSuffixes?.some(
+        (suffix) => userEmailDomain === suffix.toLowerCase()
+      )
+    )
+
+    return userFaculty
+      ? `You can only submit feedback to ${userFaculty.shortName} (your university).`
+      : `Your email domain (@${userEmailDomain}) doesn't match this university.`
+  }, [user, selectedFacultyId, faculties])
 
   return (
     <main className="container mx-auto px-4 py-8 max-w-2xl min-h-screen">
@@ -148,14 +184,14 @@ export function GiveFeedbackContent({
                   name="facultyId"
                   control={form.control}
                   render={({ field }) => (
-                    <FormItem className="flex flex-col">
+                    <FormItem className="flex flex-col w-[200px]">
                       <FormLabel>
                         University
                         {!selectedFacultyId && (
                           <span className="text-red-500">*</span>
                         )}
                       </FormLabel>
-                      <Popover>
+                      <Popover open={facultyOpen} onOpenChange={setFacultyOpen}>
                         <PopoverTrigger asChild>
                           <FormControl>
                             <Button
@@ -191,6 +227,7 @@ export function GiveFeedbackContent({
                                       form.setValue('facultyId', f.id)
                                       form.setValue('degreeId', 0)
                                       form.setValue('courseId', 0)
+                                      setFacultyOpen(false)
                                     }}
                                   >
                                     {f.shortName}
@@ -209,6 +246,11 @@ export function GiveFeedbackContent({
                           </Command>
                         </PopoverContent>
                       </Popover>
+                      {universityMismatchWarning && (
+                        <p className="text-sm text-amber-600">
+                          {universityMismatchWarning}
+                        </p>
+                      )}
                       <FormMessage />
                     </FormItem>
                   )}
@@ -227,7 +269,7 @@ export function GiveFeedbackContent({
                             <span className="text-red-500">*</span>
                           )}
                         </FormLabel>
-                        <Popover>
+                        <Popover open={degreeOpen} onOpenChange={setDegreeOpen}>
                           <PopoverTrigger asChild>
                             <FormControl>
                               <Button
@@ -260,6 +302,7 @@ export function GiveFeedbackContent({
                                       onSelect={() => {
                                         form.setValue('degreeId', d.id)
                                         form.setValue('courseId', 0)
+                                        setDegreeOpen(false)
                                       }}
                                     >
                                       {d.acronym} - {d.name}
@@ -297,7 +340,7 @@ export function GiveFeedbackContent({
                             <span className="text-red-500">*</span>
                           )}
                         </FormLabel>
-                        <Popover>
+                        <Popover open={courseOpen} onOpenChange={setCourseOpen}>
                           <PopoverTrigger asChild>
                             <FormControl>
                               <Button
@@ -331,6 +374,7 @@ export function GiveFeedbackContent({
                                       key={c.id}
                                       onSelect={() => {
                                         form.setValue('courseId', c.id)
+                                        setCourseOpen(false)
                                       }}
                                     >
                                       {c.acronym} - {c.name}

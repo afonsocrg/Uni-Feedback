@@ -34,6 +34,10 @@ interface EmailVerificationModalProps {
   onSuccess: (user: AuthUser) => void
   onError?: (error: string) => void
   onClose?: () => void
+  /** If provided, only emails with these domain suffixes will be accepted */
+  allowedEmailSuffixes?: string[]
+  /** Name of the university/faculty for display purposes */
+  universityName?: string
 }
 
 const emailSchema = z.object({
@@ -42,11 +46,113 @@ const emailSchema = z.object({
 
 type EmailFormData = z.infer<typeof emailSchema>
 
+interface InputStageProps {
+  form: ReturnType<typeof useForm<EmailFormData>>
+  modalState: { stage: 'input'; isSubmitting: boolean }
+  onSubmit: (values: EmailFormData) => Promise<void>
+  allowedEmailSuffixes?: string[]
+  universityName?: string
+  validateEmailDomain: (email: string) => boolean
+}
+
+function InputStage({
+  form,
+  modalState,
+  onSubmit,
+  allowedEmailSuffixes,
+  universityName,
+  validateEmailDomain
+}: InputStageProps) {
+  const email = form.watch('email')
+  const isValidEmail = email && email.includes('@')
+  const isValidDomain = validateEmailDomain(email)
+  const showDomainError = isValidEmail && !isValidDomain
+
+  // Format allowed suffixes for display
+  const formattedSuffixes = allowedEmailSuffixes?.length
+    ? allowedEmailSuffixes.map((s) => `@${s}`).join(' or ')
+    : null
+
+  return (
+    <>
+      <DialogHeader>
+        <DialogTitle>You're almost there!</DialogTitle>
+        <DialogDescription>
+          {universityName ? (
+            <>
+              Enter your <span className="font-semibold">{universityName}</span>{' '}
+              email to verify you're a student.
+            </>
+          ) : (
+            <>
+              To keep our feedback authentic, we need to verify you're a student
+              with your university email.
+            </>
+          )}
+        </DialogDescription>
+      </DialogHeader>
+
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>University Email</FormLabel>
+                <FormControl>
+                  <Input
+                    type="email"
+                    className="text-sm"
+                    placeholder={
+                      allowedEmailSuffixes?.length
+                        ? `your.email@${allowedEmailSuffixes[0]}`
+                        : 'your.email@university.edu'
+                    }
+                    {...field}
+                    disabled={modalState.isSubmitting}
+                  />
+                </FormControl>
+                {showDomainError && formattedSuffixes && (
+                  <p className="text-sm text-amber-600">
+                    Please use an email ending with {formattedSuffixes}
+                  </p>
+                )}
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={modalState.isSubmitting || showDomainError}
+          >
+            {modalState.isSubmitting ? (
+              <>
+                <Loader2 className="size-4 animate-spin" />
+                <span>Sending...</span>
+              </>
+            ) : (
+              <>
+                <Mail className="size-4" />
+                <span>Send verification link</span>
+              </>
+            )}
+          </Button>
+        </form>
+      </Form>
+    </>
+  )
+}
+
 export function EmailVerificationModal({
   open,
   onSuccess,
   onError,
-  onClose
+  onClose,
+  allowedEmailSuffixes,
+  universityName
 }: EmailVerificationModalProps) {
   const [modalState, setModalState] = useState<ModalState>({
     stage: 'input',
@@ -54,6 +160,16 @@ export function EmailVerificationModal({
   })
 
   const { requestMagicLink, verifyMagicLinkByRequestId } = useMagicLinkAuth()
+
+  // Check if email domain matches allowed suffixes
+  const validateEmailDomain = (email: string): boolean => {
+    if (!allowedEmailSuffixes?.length) return true
+    const emailDomain = email.split('@')[1]?.toLowerCase()
+    if (!emailDomain) return false
+    return allowedEmailSuffixes.some(
+      (suffix) => emailDomain === suffix.toLowerCase()
+    )
+  }
 
   const form = useForm<EmailFormData>({
     resolver: zodResolver(emailSchema),
@@ -191,60 +307,14 @@ export function EmailVerificationModal({
         }}
       >
         {modalState.stage === 'input' && (
-          <>
-            <DialogHeader>
-              <DialogTitle>You're almost there!</DialogTitle>
-              <DialogDescription>
-                To keep our feedback authentic, we need to verify you're a
-                student with your university email.
-              </DialogDescription>
-            </DialogHeader>
-
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(handleEmailSubmit)}
-                className="space-y-4"
-              >
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>University Email</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="email"
-                          className="text-sm"
-                          placeholder="your.email@university.edu"
-                          {...field}
-                          disabled={modalState.isSubmitting}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={modalState.isSubmitting}
-                >
-                  {modalState.isSubmitting ? (
-                    <>
-                      <Loader2 className="size-4 animate-spin" />
-                      <span>Sending...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Mail className="size-4" />
-                      <span>Send verification link</span>
-                    </>
-                  )}
-                </Button>
-              </form>
-            </Form>
-          </>
+          <InputStage
+            form={form}
+            modalState={modalState}
+            onSubmit={handleEmailSubmit}
+            allowedEmailSuffixes={allowedEmailSuffixes}
+            universityName={universityName}
+            validateEmailDomain={validateEmailDomain}
+          />
         )}
 
         {modalState.stage === 'polling' && (

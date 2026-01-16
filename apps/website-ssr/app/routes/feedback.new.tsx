@@ -296,6 +296,14 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
           toast.error(error)
         }}
         onClose={() => setShowVerificationModal(false)}
+        allowedEmailSuffixes={
+          loaderData.faculties.find((f) => f.id === form.getValues('facultyId'))
+            ?.emailSuffixes
+        }
+        universityName={
+          loaderData.faculties.find((f) => f.id === form.getValues('facultyId'))
+            ?.shortName
+        }
       />
     </>
   )
