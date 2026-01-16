@@ -241,7 +241,7 @@ export interface AdminFacultiesQuery {
 }
 
 // Admin Feedback Types
-export interface FeedbackAnalysis {
+export interface AdminFeedbackAnalysis {
   hasTeaching: boolean
   hasAssessment: boolean
   hasMaterials: boolean
@@ -271,7 +271,7 @@ export interface AdminFeedback {
   facultyId: number
   facultyName: string
   facultyShortName: string
-  analysis: FeedbackAnalysis | null
+  analysis: AdminFeedbackAnalysis | null
   points: number | null
 }
 
@@ -767,13 +767,13 @@ export async function updateFeedbackAnalysis(
   analysis: FeedbackAnalysisUpdateData
 ): Promise<{
   feedbackId: number
-  analysis: FeedbackAnalysis
+  analysis: AdminFeedbackAnalysis
   points: number | null
   message: string
 }> {
   return apiPut<{
     feedbackId: number
-    analysis: FeedbackAnalysis
+    analysis: AdminFeedbackAnalysis
     points: number | null
     message: string
   }>(`/admin/feedback/${feedbackId}/analysis`, analysis)
@@ -791,4 +791,22 @@ export async function populateFeedbackAnalysis(): Promise<{
     created: number
     message: string
   }>('/admin/feedback/populate-analysis', {})
+}
+
+/**
+ * Recalculate points for all feedback using the current formula
+ * Creates point entries if they don't exist, updates them if they do
+ */
+export async function recalculateAllPoints(): Promise<{
+  created: number
+  updated: number
+  unchanged: number
+  message: string
+}> {
+  return apiPost<{
+    created: number
+    updated: number
+    unchanged: number
+    message: string
+  }>('/admin/feedback/recalculate-points', {})
 }

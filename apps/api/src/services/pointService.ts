@@ -44,25 +44,26 @@ export class PointService {
    * Calculate points to award for a feedback submission based on analysis.
    *
    * Rules:
-   * - If word count < 20: 0 points
-   * - Otherwise: 4 base points + 4 points per category detected
-   * - Maximum: 20 points (4 base + 4×4 categories)
+   * - Base: 1 point for submitting feedback
+   * - +4 points per category detected (teaching, assessment, materials, tips)
+   * - +3 bonus points if ALL 4 categories are mentioned
+   * - Maximum: 1 + (4×4) + 3 = 20 points
    *
    * @param analysis - The analysis result from analyzeComment
-   * @returns Number of points to award (0-20)
+   * @returns Number of points to award (1-20)
    */
   calculateFeedbackPoints(analysis: AnalysisResult): number {
-    if (analysis.wordCount < 20) {
-      return 0
-    }
-
     const categoryCount =
       (analysis.hasTeaching ? 1 : 0) +
       (analysis.hasAssessment ? 1 : 0) +
       (analysis.hasMaterials ? 1 : 0) +
       (analysis.hasTips ? 1 : 0)
 
-    return 4 + categoryCount * 4
+    let points = 1 + categoryCount * 4
+    if (categoryCount === 4) {
+      points += 3
+    }
+    return points
   }
 
   /**

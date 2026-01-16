@@ -147,34 +147,31 @@ export function ProfileFeedbackCard({ feedback }: ProfileFeedbackCardProps) {
               </div>
             )}
           </div>
-          {feedback.comment &&
-            feedback.analysis !== null &&
-            feedback.points !== null &&
-            feedback.points > 0 && (
-              <div className="flex-shrink-0">
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button className="text-sm font-semibold text-primary hover:underline cursor-pointer">
-                      +{feedback.points} pts
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto">
-                    {feedback.analysis && (
-                      <FeedbackCategoryChips
-                        orientation="vertical"
-                        categories={{
-                          hasTeaching: feedback.analysis.hasTeaching,
-                          hasAssessment: feedback.analysis.hasAssessment,
-                          hasMaterials: feedback.analysis.hasMaterials,
-                          hasTips: feedback.analysis.hasTips
-                        }}
-                        isLoading={false}
-                      />
-                    )}
-                  </PopoverContent>
-                </Popover>
-              </div>
-            )}
+          {feedback.points !== null && feedback.points > 0 && (
+            <div className="flex-shrink-0">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button className="text-sm font-semibold text-primary hover:underline cursor-pointer">
+                    +{feedback.points} pts
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto">
+                  {feedback.analysis && (
+                    <FeedbackCategoryChips
+                      orientation="vertical"
+                      categories={{
+                        hasTeaching: feedback.analysis.hasTeaching,
+                        hasAssessment: feedback.analysis.hasAssessment,
+                        hasMaterials: feedback.analysis.hasMaterials,
+                        hasTips: feedback.analysis.hasTips
+                      }}
+                      isLoading={false}
+                    />
+                  )}
+                </PopoverContent>
+              </Popover>
+            </div>
+          )}
         </div>
       </div>
 

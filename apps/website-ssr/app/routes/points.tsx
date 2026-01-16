@@ -90,11 +90,15 @@ export default function PointsPage() {
               </p>
               <ul className="mt-2 ml-4 list-disc space-y-1 text-muted-foreground">
                 <li>
-                  <strong>+4 points</strong> for writing 20+ words;
+                  <strong>+1 point</strong> base for submitting feedback;
                 </li>
                 <li>
                   <strong>+4 points</strong> for each category you mention (see
-                  below).
+                  below);
+                </li>
+                <li>
+                  <strong>+3 bonus points</strong> if you cover all 4
+                  categories.
                 </li>
               </ul>
             </div>
@@ -135,7 +139,7 @@ export default function PointsPage() {
             care about.
             <br />
             Mention them <em>naturally</em> in your feedback to unlock bonus
-            points:
+            points. Cover all four to get an extra 3-point bonus!
           </p>
 
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">

@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   getAdminFeedbackNew,
   populateFeedbackAnalysis,
+  recalculateAllPoints,
   type AdminFeedback
 } from '@uni-feedback/api-client'
 import {
@@ -24,7 +25,7 @@ import {
   TableHeader,
   TableRow
 } from '@uni-feedback/ui'
-import { Database, Edit } from 'lucide-react'
+import { Database, Edit, RefreshCw } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { AnalysisEditDialog } from './AnalysisEditDialog'
@@ -45,6 +46,20 @@ export function GiveawayPage() {
     },
     onError: (error: any) => {
       toast.error(error.message || 'Failed to populate analysis records')
+    }
+  })
+
+  // Mutation for recalculating points
+  const recalculateMutation = useMutation({
+    mutationFn: recalculateAllPoints,
+    onSuccess: (data) => {
+      toast.success(data.message)
+      queryClient.invalidateQueries({
+        queryKey: ['admin-feedback-giveaway']
+      })
+    },
+    onError: (error: any) => {
+      toast.error(error.message || 'Failed to recalculate points')
     }
   })
 
@@ -133,17 +148,30 @@ export function GiveawayPage() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>Giveaway Management</CardTitle>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => populateMutation.mutate()}
-              disabled={populateMutation.isPending}
-            >
-              <Database className="h-4 w-4 mr-2" />
-              {populateMutation.isPending
-                ? 'Populating...'
-                : 'Populate Missing Analysis'}
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => populateMutation.mutate()}
+                disabled={populateMutation.isPending}
+              >
+                <Database className="h-4 w-4 mr-2" />
+                {populateMutation.isPending
+                  ? 'Populating...'
+                  : 'Populate Missing Analysis'}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => recalculateMutation.mutate()}
+                disabled={recalculateMutation.isPending}
+              >
+                <RefreshCw className="h-4 w-4 mr-2" />
+                {recalculateMutation.isPending
+                  ? 'Recalculating...'
+                  : 'Recalculate Points'}
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">

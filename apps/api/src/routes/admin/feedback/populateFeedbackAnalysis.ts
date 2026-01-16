@@ -54,8 +54,8 @@ export class PopulateFeedbackAnalysis extends OpenAPIRoute {
           eq(feedback.id, feedbackAnalysis.feedbackId)
         )
         .where(
-          // We only want to analyze feedbacks that have an email
-          and(isNull(feedbackAnalysis.feedbackId), isNotNull(feedback.email))
+          // We only want to analyze feedbacks that have a userId (for points)
+          and(isNull(feedbackAnalysis.feedbackId), isNotNull(feedback.userId))
         )
 
       if (feedbacksWithoutAnalysis.length === 0) {

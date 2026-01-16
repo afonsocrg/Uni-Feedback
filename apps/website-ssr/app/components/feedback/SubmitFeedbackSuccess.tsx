@@ -36,7 +36,7 @@ export function SubmitFeedbackSuccess({
         <div>
           <div className="text-sm text-gray-600">You got</div>
           <div className="text-xl font-bold text-primaryBlue">
-            +{pointsEarned} points
+            +{pointsEarned} point{pointsEarned != 1 ? 's' : ''}
           </div>
         </div>
       )}
