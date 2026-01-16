@@ -34,7 +34,7 @@ const GIVEAWAY_FAQ_ITEMS: FAQItem[] = [
   {
     question: 'Do all reviews count?',
     answer:
-      'To keep the community helpful, reviews must be for courses taken in the 2025/2026 school year and must be approved by our team (no spam or AI-generated low-effort text). However, the more feedback you give, the more you help other students!'
+      "For fairness, only feedback on courses taken this year counts for the giveaway. You'll still earn points for feedback from previous years."
   },
   {
     question: "I'm doing Erasmus in Lisbon, can I participate?",
