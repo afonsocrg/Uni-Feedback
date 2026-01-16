@@ -1,9 +1,12 @@
 import { X } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
+import { Link } from 'react-router'
 
 interface AnnouncementBannerProps {
   bannerId: string
   children: React.ReactNode
+  /** If provided, the entire banner becomes clickable */
+  href?: string
   /** If set, the banner will reappear after this duration (in milliseconds) */
   showAgainAfterMs?: number
 }
@@ -30,6 +33,7 @@ function isDismissed(bannerId: string, showAgainAfterMs?: number): boolean {
 export function AnnouncementBanner({
   bannerId,
   children,
+  href,
   showAgainAfterMs
 }: AnnouncementBannerProps) {
   const [shouldRender, setShouldRender] = useState(false)
@@ -63,6 +67,9 @@ export function AnnouncementBanner({
 
   if (!shouldRender) return null
 
+  const Wrapper = href ? Link : 'div'
+  const wrapperProps = href ? { to: href } : {}
+
   return (
     <div
       className={`relative overflow-hidden bg-gradient-to-r from-[#1a5a7a] via-[#23729f] to-[#1a5a7a] transition-all duration-300 ease-out ${
@@ -72,29 +79,41 @@ export function AnnouncementBanner({
       }`}
     >
       {/* Animated shine effect on the border */}
-      <div className="absolute inset-0 overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute inset-0 animate-[shine_3s_ease-in-out_infinite] bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full" />
       </div>
 
       {/* Top metallic highlight */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent pointer-events-none" />
 
       {/* Bottom metallic shadow */}
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-black/20 to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-black/20 to-transparent pointer-events-none" />
 
-      <div className="relative flex items-center justify-center py-2 pl-4 pr-10">
-        <div className="text-center text-sm font-medium text-white/95">
+      <Wrapper
+        {...wrapperProps}
+        className="relative flex items-center justify-center py-2 pl-4 pr-10 cursor-pointer"
+      >
+        {/* Desktop: static text */}
+        <div className="hidden sm:block text-center text-sm font-medium text-white/95">
           {children}
         </div>
 
-        <button
-          onClick={handleDismiss}
-          className="absolute right-2 p-1 text-white/60 hover:text-white hover:bg-white/10 rounded transition-colors cursor-pointer"
-          aria-label="Dismiss announcement"
-        >
-          <X className="size-4" />
-        </button>
-      </div>
+        {/* Mobile: marquee animation */}
+        <div className="sm:hidden overflow-hidden w-full">
+          <div className="animate-marquee flex whitespace-nowrap text-sm font-medium text-white/95">
+            <span className="mx-8">{children}</span>
+            <span className="mx-8">{children}</span>
+          </div>
+        </div>
+      </Wrapper>
+
+      <button
+        onClick={handleDismiss}
+        className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-white/60 hover:text-white hover:bg-white/10 rounded transition-colors cursor-pointer z-10"
+        aria-label="Dismiss announcement"
+      >
+        <X className="size-4" />
+      </button>
     </div>
   )
 }
