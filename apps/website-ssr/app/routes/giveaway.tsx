@@ -37,7 +37,7 @@ const GIVEAWAY_FAQ_ITEMS: FAQItem[] = [
       'To keep the community helpful, reviews must be for courses taken in the 2025/2026 school year and must be approved by our team (no spam or AI-generated low-effort text). However, the more feedback you give, the more you help other students!'
   },
   {
-    question: "I'm an Erasmus/Master's student—can I participate?",
+    question: "I'm doing Erasmus in Lisbon, can I participate?",
     answer:
       "If you have a valid @tecnico.ulisboa.pt, @novasbe.pt, @fct.unl.pt, or @novaims.unl.pt email address and are currently enrolled, you're in!"
   },
