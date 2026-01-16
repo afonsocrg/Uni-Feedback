@@ -9,10 +9,12 @@ interface LandingLayoutProps {
 export function LandingLayout({ children }: LandingLayoutProps) {
   const { pathname } = useLocation()
   const isGiveawayPage = pathname.startsWith('/giveaway')
+  const isLandingPage = pathname === '/'
+  const showAnnouncementBanner = !isGiveawayPage && !isLandingPage
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {!isGiveawayPage && (
+      {showAnnouncementBanner && (
         <AnnouncementBanner bannerId="nos-alive-2026-giveaway">
           <a
             href="/giveaway"

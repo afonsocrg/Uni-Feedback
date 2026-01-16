@@ -4,6 +4,7 @@ import {
   ContactSection,
   CTASection,
   FAQ,
+  GiveawayPromoSection,
   HeroSection,
   HeroSectionV2,
   HeroSectionV3,
@@ -88,6 +89,7 @@ export default function LandingPage({ loaderData }: Route.ComponentProps) {
 
   return (
     <>
+      <GiveawayPromoSection />
       <Hero
         studentClubs={loaderData.studentClubs}
         recentFeedbacks={loaderData.recentFeedbacks}
