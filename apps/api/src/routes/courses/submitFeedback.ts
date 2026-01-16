@@ -117,10 +117,8 @@ export class SubmitFeedback extends OpenAPIRoute {
       }
       const faculty = facultyResult[0]
 
-      // Validate email suffix if faculty has restrictions (controlled by feature flag)
-      const validateEmailSuffix = env.VALIDATE_EMAIL_SUFFIX
+      // Validate email suffix if faculty has restrictions
       if (
-        validateEmailSuffix &&
         faculty.emailSuffixes &&
         Array.isArray(faculty.emailSuffixes) &&
         faculty.emailSuffixes.length > 0
