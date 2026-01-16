@@ -180,7 +180,9 @@ export default function LoginPage() {
                 <p>We've sent a login link to</p>
                 <p className="font-semibold">{email}</p>
                 <p className="text-xs mt-3">
-                  Don't see the email? Check your spam folder or trash bin.
+                  Don't see the email? Check your spam folder or try searching
+                  for <span className="font-medium">@uni-feedback.com</span> in
+                  your inbox.
                 </p>
               </div>
               <div className="flex gap-2 pt-2">
