@@ -15,9 +15,12 @@ import {
   FormLabel,
   FormMessage,
   Input,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
   Separator
 } from '@uni-feedback/ui'
-import { AlertTriangle, Check, Copy, User } from 'lucide-react'
+import { AlertTriangle, Check, Copy, HelpCircle, User } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router'
@@ -134,11 +137,35 @@ export default function ProfilePage() {
                     Loading stats...
                   </p>
                 ) : stats ? (
-                  <p className="text-2xl font-bold text-primaryBlue">
+                  <p className="text-2xl font-bold text-primaryBlue flex items-center gap-1">
                     {stats.totalPoints}{' '}
                     <span className="text-sm text-muted-foreground font-normal">
                       points
                     </span>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button
+                          type="button"
+                          className="cursor-pointer"
+                          aria-label="How do points work?"
+                        >
+                          <HelpCircle className="size-4 text-muted-foreground hover:text-primary transition-colors" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-64 text-sm">
+                        <p className="font-medium mb-2">How do points work?</p>
+                        <p className="text-muted-foreground mb-3">
+                          Earn points by submitting feedback and referring
+                          friends. Points unlock rewards and recognition!
+                        </p>
+                        <Link
+                          to="/points"
+                          className="text-primary hover:underline text-xs font-medium"
+                        >
+                          Learn more &rarr;
+                        </Link>
+                      </PopoverContent>
+                    </Popover>
                   </p>
                 ) : (
                   <p className="text-sm text-muted-foreground">
