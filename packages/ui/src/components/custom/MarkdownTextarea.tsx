@@ -1,15 +1,14 @@
 import { CircleHelp } from 'lucide-react'
 import * as React from 'react'
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
-  Textarea,
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
+  Textarea
 } from '../shadcn'
 import { Markdown } from './Markdown'
 
@@ -24,7 +23,7 @@ export function MarkdownTextarea({
   return (
     <div className="w-full border rounded-md bg-white">
       <Tabs defaultValue="markdown" className="gap-0">
-        <div className="flex items-center justify-between py-1 px-3">
+        <div className="flex items-center py-1 px-3">
           <TabsList className="flex space-x-1 rounded-none bg-transparent">
             <TabsTrigger
               value="markdown"
@@ -36,26 +35,59 @@ export function MarkdownTextarea({
               value="preview"
               className="px-4 py-2 font-medium rounded-full data-[state=active]:bg-gray-100 cursor-pointer  hover:border-gray-200"
             >
-              Markdown Preview
+              Preview
             </TabsTrigger>
           </TabsList>
-          <span className="text-gray-500 text-sm">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <a
-                    href="https://www.markdownguide.org/cheat-sheet/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <CircleHelp className="size-4 text-gray-500" />
-                  </a>
-                </TooltipTrigger>
-                <TooltipContent>Learn Markdown!</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </span>
+          <Popover>
+            <PopoverTrigger asChild>
+              <button
+                type="button"
+                onClick={(e) => e.stopPropagation()}
+                className="ml-1 cursor-pointer"
+              >
+                <CircleHelp className="size-4 text-gray-500" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-72 text-sm">
+              <p className="font-semibold mb-2">What's this?</p>
+              <p className="text-gray-600 mb-3">
+                You can format your text to make it easier to read.
+              </p>
+              <p className="text-gray-600 mb-3">
+                You write normally. A few simple symbols turn into formatting
+                when you hit Preview.
+              </p>
+              <p className="font-medium mb-2">Examples:</p>
+              <div className="space-y-1 font-mono text-xs mb-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-gray-600">**Bold text**</span>
+                  <span className="text-gray-400">→</span>
+                  <span className="font-bold">Bold text</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-gray-600">*Italic text*</span>
+                  <span className="text-gray-400">→</span>
+                  <span className="italic">Italic text</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-gray-600">- Item</span>
+                  <span className="text-gray-400">→</span>
+                  <span>• Item</span>
+                </div>
+              </div>
+              <p className="text-gray-600 mb-3">
+                This formatting is called Markdown.
+              </p>
+              <a
+                href="https://www.markdownguide.org/cheat-sheet/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 block text-primaryBlue hover:text-primaryBlue/80 font-medium text-xs"
+              >
+                Learn More
+              </a>
+            </PopoverContent>
+          </Popover>
         </div>
         <TabsContent value="markdown">
           <Textarea
