@@ -1,3 +1,4 @@
+import { PenSquare, Users } from 'lucide-react'
 import { Link } from 'react-router'
 
 import { GiveawayHeroSection, HowToWinSection } from '~/components/giveaway'
@@ -14,7 +15,7 @@ const GIVEAWAY_FAQ_ITEMS: FAQItem[] = [
   {
     question: 'How do I get more points?',
     answer:
-      'You earn up to 20 points for each approved course review you submit. You can also share your referral link from your profile—when a friend signs up and submits their first approved feedback, you get bonus points! More info [here](/points).'
+      'You earn up to 20 points for each approved course review you submit. You can also share your referral link from your profile. When a friend signs up and submits their first approved feedback, you get bonus points! More info [here](/points).'
   },
   {
     question: 'When will I know if I won?',
@@ -64,10 +65,71 @@ export default function GiveawayPage() {
     <>
       <GiveawayHeroSection />
       <HowToWinSection />
+
+      {/* How Points Work Section */}
+      <section className="bg-muted/30 py-16">
+        <div className="container mx-auto px-4">
+          <div className="mx-auto max-w-5xl">
+            <div className="mb-8">
+              <h2 className="font-heading text-3xl md:text-4xl font-semibold tracking-tight text-center mb-8">
+                How points work
+              </h2>
+              <p className="text-muted-foreground">
+                Points decide your chances in the giveaway. The more points you
+                earn, the more chances you get to win.
+              </p>
+            </div>
+
+            <div className="grid gap-12 md:grid-cols-2">
+              {/* Give Feedback */}
+              <div>
+                <div className="mb-4 flex items-center gap-3">
+                  <div className="flex size-10 items-center justify-center rounded-full bg-background">
+                    <PenSquare className="size-5 text-muted-foreground" />
+                  </div>
+                  <h3 className="text-xl font-semibold">Give Feedback</h3>
+                </div>
+                <p className="text-muted-foreground">
+                  Write helpful feedback for courses you took.
+                  <br />
+                  Better, more detailed feedback earns more points (up to 20
+                  points per review).
+                </p>
+              </div>
+
+              {/* Invite Friends */}
+              <div>
+                <div className="mb-4 flex items-center gap-3">
+                  <div className="flex size-10 items-center justify-center rounded-full bg-background">
+                    <Users className="size-5 text-muted-foreground" />
+                  </div>
+                  <h3 className="text-xl font-semibold">Invite Friends</h3>
+                </div>
+                <p className="text-muted-foreground">
+                  Share Uni Feedback with your friends.
+                  <br />
+                  You get +10 points for every friend who joins with your link.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-8 text-center">
+              <Link
+                to="/points"
+                className="font-medium text-primary hover:underline"
+              >
+                Learn more about points
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <FAQ
         items={GIVEAWAY_FAQ_ITEMS}
         title="Everything You Need to Know"
         subtitle="Frequently asked questions about the giveaway"
+        className="bg-white"
       />
       <div className="bg-muted/30 pb-16 text-center">
         <p className="text-muted-foreground">

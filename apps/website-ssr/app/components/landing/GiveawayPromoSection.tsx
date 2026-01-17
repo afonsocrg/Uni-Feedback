@@ -26,7 +26,7 @@ export function GiveawayPromoSection() {
                 Win a ticket to NOS Alive 2026!
               </h2>
               <p className="text-sm md:text-base text-white/80">
-                Share your course feedback and enter our giveaway
+                Share your feedback to enter our giveaway
               </p>
             </div>
           </div>

@@ -29,8 +29,8 @@ export function GiveawayHeroSection() {
               className="text-lg px-8 bg-white text-black hover:bg-white/90 shadow-xl"
               asChild
             >
-              <a href="/feedback/new">
-                Give Feedback
+              <a href="#how-to-win">
+                How to Win
                 <ArrowRight className="size-5" />
               </a>
             </Button>
