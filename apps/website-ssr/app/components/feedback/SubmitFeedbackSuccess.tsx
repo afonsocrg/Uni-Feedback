@@ -1,3 +1,4 @@
+import { Link } from 'react-router'
 import { MessagePage } from '~/components'
 
 interface FeedbackSubmitSuccessProps {
@@ -38,6 +39,12 @@ export function SubmitFeedbackSuccess({
           <div className="text-xl font-bold text-primaryBlue">
             +{pointsEarned} point{pointsEarned != 1 ? 's' : ''}
           </div>
+          <Link
+            to="/points"
+            className="mt-2 inline-block text-sm text-gray-500 underline hover:text-primaryBlue"
+          >
+            How do points work?
+          </Link>
         </div>
       )}
     </MessagePage>
