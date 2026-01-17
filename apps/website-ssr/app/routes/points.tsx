@@ -82,13 +82,13 @@ export default function PointsPage() {
                 If your feedback follows our{' '}
                 <Link
                   to="/guidelines"
-                  className="font-medium text-primary hover:underline"
+                  className="font-medium underline hover:text-foreground"
                 >
                   guidelines
                 </Link>
                 , you'll earn points based on how helpful it is:
               </p>
-              <ul className="mt-2 ml-4 list-disc space-y-1 text-muted-foreground">
+              <ul className="mt-2 ml-4 list-disc space-y-1 text-muted-foreground mb-3">
                 <li>
                   <strong>+1 point</strong> base for submitting feedback;
                 </li>
@@ -101,6 +101,15 @@ export default function PointsPage() {
                   categories.
                 </li>
               </ul>
+              <p className="text-muted-foreground">
+                Ready to share your experience?{' '}
+                <Link
+                  to="/feedback/new"
+                  className="font-medium text-primary hover:underline"
+                >
+                  Give feedback
+                </Link>
+              </p>
             </div>
 
             {/* Invite Friends */}
@@ -116,7 +125,7 @@ export default function PointsPage() {
                 <br />
                 You get points once they sign up and post their first feedback:
               </p>
-              <ul className="mt-2 ml-4 list-disc space-y-1 text-muted-foreground">
+              <ul className="mt-2 ml-4 list-disc space-y-1 text-muted-foreground mb-3">
                 <li>
                   <strong>+10 points</strong> for each of your first 5 friends
                 </li>
@@ -127,6 +136,15 @@ export default function PointsPage() {
                   <strong>+1 point</strong> for each friend after that
                 </li>
               </ul>
+              <p className="text-muted-foreground">
+                You can invite friends from your{' '}
+                <Link
+                  to="/profile"
+                  className="font-medium text-primary hover:underline"
+                >
+                  profile page
+                </Link>
+              </p>
             </div>
           </div>
         </section>
