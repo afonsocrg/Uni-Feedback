@@ -35,16 +35,23 @@ export function HowToWinSection() {
           <h2 className="font-heading text-3xl md:text-4xl font-semibold tracking-tight text-center mb-8">
             How to Win
           </h2>
-          <div className="grid md:grid-cols-3 gap-8 md:gap-12 mb-12">
+          <div className="grid md:grid-cols-3 gap-6 md:gap-12 mb-12">
             {STEPS.map((step, index) => (
-              <div key={index} className="text-center space-y-4">
-                <div className="mx-auto size-16 rounded-full bg-primary/10 flex items-center justify-center">
-                  <step.icon className="size-8 text-primary" />
+              <div
+                key={index}
+                className="flex items-start gap-4 md:flex-col md:items-center md:text-center md:gap-4"
+              >
+                <div className="shrink-0 size-12 md:size-16 rounded-full bg-primary/10 flex items-center justify-center">
+                  <step.icon className="size-6 md:size-8 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold">{step.title}</h3>
-                <p className="text-muted-foreground text-sm">
-                  {step.description}
-                </p>
+                <div>
+                  <h3 className="text-lg md:text-xl font-semibold">
+                    {step.title}
+                  </h3>
+                  <p className="text-muted-foreground text-sm mt-1 md:mt-2">
+                    {step.description}
+                  </p>
+                </div>
               </div>
             ))}
           </div>
