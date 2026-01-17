@@ -1,4 +1,4 @@
-# Official Uni Feedback Giveaway Rules
+# Uni Feedback Giveaway Rules
 
 This page sets out the official rules for the Uni Feedback Giveaway.
 By taking part, you agree to the rules below.

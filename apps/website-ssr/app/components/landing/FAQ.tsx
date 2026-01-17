@@ -11,68 +11,27 @@ export interface FAQItem {
   answer: string
 }
 
-const DEFAULT_FAQ_ITEMS: FAQItem[] = [
-  {
-    question: 'Is Uni Feedback free to use?',
-    answer:
-      'Yes, Uni Feedback is completely free for everyone. Our mission is to help students make better academic decisions, and we believe this information should be accessible to everyone.'
-  },
-  {
-    question: 'Why do I need to use my university email when giving feedback?',
-    answer:
-      'We require a university email solely to verify that feedback is coming from legitimate students. Your e-mail will never be displayed or shared with anyone.'
-  },
-  {
-    question: 'Is my feedback really anonymous?',
-    answer:
-      'Yes, absolutely. Your identity is never revealed to anyone, including professors, administrators, or other students. We take privacy seriously.'
-  },
-  {
-    question: 'Can I request that my university be added to Uni Feedback?',
-    answer:
-      "**Yes**! If your university isn't currently listed, you can easily submit a request [here](https://docs.google.com/forms/d/e/1FAIpQLSd2FBk_hbv6v0iW-y8wtY6DL-fDIE_GlyA8rSkamSJJfCjCFQ/viewform). We prioritize adding universities with the highest demand."
-  }
-]
-
 interface FAQProps {
-  items?: FAQItem[]
-  title?: string
-  subtitle?: string
-  className?: string
+  items: FAQItem[]
 }
 
-export function FAQ({
-  items = DEFAULT_FAQ_ITEMS,
-  title = 'Frequently Asked Questions',
-  subtitle = 'Everything you need to know about Uni Feedback',
-  className = 'bg-muted/30'
-}: FAQProps) {
+export function FAQ({ items }: FAQProps) {
   return (
-    <section id="faq" className={`${className} py-16 md:py-24`}>
-      <div className="container mx-auto px-4">
-        <div className="max-w-3xl mx-auto">
-          <h2 className="font-heading text-3xl md:text-4xl font-semibold tracking-tight text-center mb-4">
-            {title}
-          </h2>
-          <p className="text-center text-muted-foreground mb-12">{subtitle}</p>
-          <Accordion type="single" className="pb-4" collapsible>
-            {items.map((item, index) => (
-              <AccordionItem
-                key={index}
-                value={`item-${index + 1}`}
-                className="px-6 border-b border-x-0 border-t-0"
-              >
-                <AccordionTrigger className="text-left font-semibold hover:no-underline cursor-pointer">
-                  {item.question}
-                </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground">
-                  <Markdown>{item.answer}</Markdown>
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </div>
-      </div>
-    </section>
+    <Accordion type="single" className="pb-4" collapsible>
+      {items.map((item, index) => (
+        <AccordionItem
+          key={index}
+          value={`item-${index + 1}`}
+          className="px-6 border-b border-x-0 border-t-0"
+        >
+          <AccordionTrigger className="text-left font-semibold hover:no-underline cursor-pointer">
+            {item.question}
+          </AccordionTrigger>
+          <AccordionContent className="text-muted-foreground">
+            <Markdown>{item.answer}</Markdown>
+          </AccordionContent>
+        </AccordionItem>
+      ))}
+    </Accordion>
   )
 }

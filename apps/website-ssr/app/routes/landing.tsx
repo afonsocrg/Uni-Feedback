@@ -3,13 +3,13 @@ import { useSearchParams } from 'react-router'
 import {
   ContactSection,
   CTASection,
-  FAQ,
   GiveawayPromoSection,
   HeroSection,
   HeroSectionV2,
   HeroSectionV3,
   HeroSectionV4,
   HowItWorksSection,
+  LandingFAQSection,
   LovedByStudentsSection,
   TestimonialsSection,
   TrustedSection
@@ -98,7 +98,7 @@ export default function LandingPage({ loaderData }: Route.ComponentProps) {
       <TrustedSection />
       <LovedByStudentsSection faculties={loaderData.faculties} />
       <TestimonialsSection testimonials={loaderData.testimonials} />
-      <FAQ />
+      <LandingFAQSection />
       <ContactSection />
       <CTASection />
     </>

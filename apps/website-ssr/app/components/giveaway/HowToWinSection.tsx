@@ -22,11 +22,7 @@ const STEPS = [
     icon: Trophy,
     title: 'Earn Points',
     description: (
-      <p>
-        Every feedback gives you points.
-        <br />
-        More points = More chances to win!
-      </p>
+      <p>The winner is picked at random. More points give you more chances.</p>
     )
   }
 ]
