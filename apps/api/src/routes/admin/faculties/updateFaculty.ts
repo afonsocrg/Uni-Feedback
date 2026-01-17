@@ -118,7 +118,6 @@ export class UpdateFaculty extends OpenAPIRoute {
         )
       }
 
-
       // Check if faculty exists
       const existingFaculty = await database()
         .select()

@@ -42,7 +42,6 @@ export class GetDegreeTypes extends OpenAPIRoute {
       const { query } = await this.getValidatedData<typeof this.schema>()
       const { faculty_id } = query
 
-
       // Build where conditions
       const conditions = [
         sql`${degrees.type} IS NOT NULL AND ${degrees.type} != ''`

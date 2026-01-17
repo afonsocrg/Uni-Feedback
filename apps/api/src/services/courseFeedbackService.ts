@@ -36,7 +36,9 @@ export class CourseFeedbackService {
   }> {
     const result = await database()
       .select({
-        averageRating: sql<number>`COALESCE(avg(${feedback.rating}), 0)`.as('average_rating'),
+        averageRating: sql<number>`COALESCE(avg(${feedback.rating}), 0)`.as(
+          'average_rating'
+        ),
         totalFeedbackCount: sql<number>`COALESCE(count(${feedback.id}), 0)`.as(
           'total_feedback_count'
         ),

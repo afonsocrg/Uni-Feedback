@@ -103,7 +103,6 @@ export class UpdateCourseGroup extends OpenAPIRoute {
         )
       }
 
-
       // Check if course group exists
       const existingCourseGroup = await database()
         .select()

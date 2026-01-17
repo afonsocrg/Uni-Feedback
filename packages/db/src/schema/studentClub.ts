@@ -1,4 +1,11 @@
-import { boolean, integer, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core'
+import {
+  boolean,
+  integer,
+  pgTable,
+  serial,
+  text,
+  timestamp
+} from 'drizzle-orm/pg-core'
 import { degrees } from './degree'
 import { faculties } from './faculty'
 

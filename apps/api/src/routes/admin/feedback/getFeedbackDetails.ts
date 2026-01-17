@@ -80,7 +80,6 @@ export class GetFeedbackDetails extends OpenAPIRoute {
         return Response.json({ error: 'Invalid feedback ID' }, { status: 400 })
       }
 
-
       // Get feedback with course, degree, and faculty info
       const feedbackResult = await database()
         .select({

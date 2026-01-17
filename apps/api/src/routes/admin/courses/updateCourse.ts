@@ -126,7 +126,6 @@ export class UpdateCourse extends OpenAPIRoute {
         )
       }
 
-
       // Check if course exists
       const existingCourse = await database()
         .select()

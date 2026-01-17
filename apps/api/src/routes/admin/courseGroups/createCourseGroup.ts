@@ -106,7 +106,6 @@ export class CreateCourseGroup extends OpenAPIRoute {
         )
       }
 
-
       // Check if degree exists
       const existingDegree = await database()
         .select()

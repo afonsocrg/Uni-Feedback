@@ -119,7 +119,10 @@ export class UnapproveFeedback extends OpenAPIRoute {
       if (recipientEmail) {
         try {
           const emailService = new EmailService(env)
-          await emailService.sendFeedbackUnapprovalEmail(recipientEmail, message)
+          await emailService.sendFeedbackUnapprovalEmail(
+            recipientEmail,
+            message
+          )
         } catch (emailError) {
           console.error(
             `Failed to send unapproval email for feedback ${feedbackId}:`,

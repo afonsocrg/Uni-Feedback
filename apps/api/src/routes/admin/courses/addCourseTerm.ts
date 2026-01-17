@@ -73,7 +73,6 @@ export class AddCourseTerm extends OpenAPIRoute {
       const { id } = params
       const { term } = body
 
-
       // Get current course and terms
       const course = await database()
         .select({

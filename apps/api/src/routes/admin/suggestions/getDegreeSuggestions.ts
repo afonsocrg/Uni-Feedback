@@ -56,7 +56,6 @@ export class GetDegreeSuggestions extends OpenAPIRoute {
       const { query } = await this.getValidatedData<typeof this.schema>()
       const { faculty_id } = query
 
-
       // Build where conditions
       const conditions = []
 

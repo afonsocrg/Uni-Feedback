@@ -58,7 +58,6 @@ export class RemoveCourseTerm extends OpenAPIRoute {
       const { params } = await this.getValidatedData<typeof this.schema>()
       const { id, term } = params
 
-
       // Get current course and terms
       const course = await database()
         .select({

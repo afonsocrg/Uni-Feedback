@@ -52,7 +52,6 @@ export class GetAllTerms extends OpenAPIRoute {
       const { query } = await this.getValidatedData<typeof this.schema>()
       const { faculty_id } = query
 
-
       // Build query for courses with terms
       const coursesResult = faculty_id
         ? await database()

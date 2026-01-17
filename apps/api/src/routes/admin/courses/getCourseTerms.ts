@@ -47,7 +47,6 @@ export class GetCourseTerms extends OpenAPIRoute {
       const { params } = await this.getValidatedData<typeof this.schema>()
       const { id } = params
 
-
       // Get course terms
       const courseResult = await database()
         .select({

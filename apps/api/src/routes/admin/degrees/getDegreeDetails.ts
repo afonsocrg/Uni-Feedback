@@ -57,7 +57,6 @@ export class GetDegreeDetails extends OpenAPIRoute {
       const { params } = await this.getValidatedData<typeof this.schema>()
       const { id } = params
 
-
       // Get degree with faculty info and course count
       const degreeResult = await database()
         .select({

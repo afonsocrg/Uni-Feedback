@@ -37,7 +37,6 @@ export class DeleteCourseGroup extends OpenAPIRoute {
       const { params } = await this.getValidatedData<typeof this.schema>()
       const { id } = params
 
-
       // Check if course group exists
       const existingCourseGroup = await database()
         .select()

@@ -48,7 +48,8 @@ export class VerifyMagicLink extends OpenAPIRoute {
       const { requestId } = data.body
 
       const authService = new AuthService(env)
-      const sessionData = await authService.verifyMagicLinkByRequestId(requestId)
+      const sessionData =
+        await authService.verifyMagicLinkByRequestId(requestId)
 
       // Return pending for: invalid, expired, not clicked, or already consumed
       // This prevents timing attacks and information leakage

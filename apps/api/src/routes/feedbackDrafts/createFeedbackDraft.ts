@@ -89,12 +89,14 @@ export class CreateFeedbackDraft extends OpenAPIRoute {
         'unknown'
 
       // Insert feedback draft
-      await database().insert(feedbackDrafts).values({
-        code,
-        data: JSON.stringify(body),
-        expiresAt,
-        ipAddress
-      })
+      await database()
+        .insert(feedbackDrafts)
+        .values({
+          code,
+          data: JSON.stringify(body),
+          expiresAt,
+          ipAddress
+        })
 
       return Response.json(
         {

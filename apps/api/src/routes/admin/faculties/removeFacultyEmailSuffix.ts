@@ -62,7 +62,6 @@ export class RemoveFacultyEmailSuffix extends OpenAPIRoute {
       // URL decode the suffix parameter to handle special characters
       const decodedSuffix = decodeURIComponent(suffix)
 
-
       // Get current faculty and email suffixes
       const faculty = await database()
         .select({

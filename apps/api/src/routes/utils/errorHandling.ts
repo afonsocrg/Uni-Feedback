@@ -1,5 +1,4 @@
-import { StatusError } from 'itty-router'
-import { IRequest } from 'itty-router'
+import { IRequest, StatusError } from 'itty-router'
 
 // ============================================================================
 // ERROR CLASSES
@@ -176,7 +175,7 @@ export function handleError(
 /**
  * Helper function to create standardized error handling for route handlers
  * Usage in route handle method:
- * 
+ *
  * async handle(request: IRequest, env: any, context: any) {
  *   return withErrorHandling(request, async () => {
  *     // Your route logic here
@@ -210,21 +209,24 @@ export async function withErrorHandling<T>(
 /**
  * Alternative approach: Create error handler function that can be called from catch blocks
  * Usage in route handle method:
- * 
+ *
  * async handle(request: IRequest, env: any, context: any) {
  *   const errorHandler = createErrorHandler(request)
- *   
+ *
  *   try {
- *     // Your route logic here  
+ *     // Your route logic here
  *     return Response.json(result)
  *   } catch (error) {
  *     return errorHandler(error)
  *   }
  * }
  */
-export function createErrorHandler(request: IRequest, startTime: number = Date.now()) {
+export function createErrorHandler(
+  request: IRequest,
+  startTime: number = Date.now()
+) {
   const requestContext = extractRequestContext(request)
-  
+
   return (error: any, customMessage?: string) => {
     const enrichedContext = {
       ...requestContext,

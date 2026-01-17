@@ -22,7 +22,8 @@ export class ApproveFeedback extends OpenAPIRoute {
   schema = {
     tags: ['Admin - Feedback'],
     summary: 'Approve feedback',
-    description: 'Approve a feedback entry and restore points for the user if applicable',
+    description:
+      'Approve a feedback entry and restore points for the user if applicable',
     request: {
       params: ApproveFeedbackParamsSchema
     },

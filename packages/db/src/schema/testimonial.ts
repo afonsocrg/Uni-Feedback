@@ -10,7 +10,9 @@ export const testimonials = pgTable('testimonials', {
 
   // Metadata
   isActive: boolean('is_active').notNull().default(true),
-  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow()
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .notNull()
+    .defaultNow()
 })
 
 export type Testimonial = typeof testimonials.$inferSelect

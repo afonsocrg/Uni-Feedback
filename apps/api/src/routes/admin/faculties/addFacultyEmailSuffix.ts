@@ -74,7 +74,6 @@ export class AddFacultyEmailSuffix extends OpenAPIRoute {
       const { id } = params
       const { suffix } = body
 
-
       // Get current faculty and email suffixes
       const faculty = await database()
         .select({
