@@ -131,8 +131,9 @@ Uni Feedback is not responsible for any issues arising from the festival's organ
 
 This giveaway is not sponsored, endorsed, or administered by NOS Alive or Everything is New. All trademarks are the property of their respective owners.
 
-All decisions related to feedback approval, point allocation, disqualification, and winner selection are final.
 
 ---
+
+All decisions related to feedback approval, point allocation, disqualification, and winner selection are final.
 
 Got questions about the giveaway rules? Email us at help@uni-feedback.com
