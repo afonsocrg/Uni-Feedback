@@ -71,8 +71,8 @@ How points are earned for feedback and referrals is explained on the [Point Syst
 ### Giveaway-specific limits
 
 For this giveaway, we will only consider points earned from:
-* Referrals, and/or
-* Feedback for courses taken during the 2025/2026 academic year
+* Feedback for courses **taken during the 2025/2026 academic year**
+* Referrals
 
 ## 5. Winner Announcement & Prize
 
