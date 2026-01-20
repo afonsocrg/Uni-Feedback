@@ -18,6 +18,7 @@ RUN pnpm install --frozen-lockfile
 
 COPY --from=builder /app/out/full/ .
 COPY --from=builder /app/tsconfig.json .
+COPY legal/ ./legal
 
 # Build the dashboard
 ARG VITE_API_BASE_URL
