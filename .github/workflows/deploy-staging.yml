@@ -1,14 +1,14 @@
-name: Deploy to VPS
+name: Deploy to Staging
 
 on:
   push:
     branches:
-      - prod
+      - staging
   workflow_dispatch:
 
 jobs:
   deploy:
-    name: Deploy to Production VPS
+    name: Deploy to Staging VPS
     runs-on: ubuntu-latest
 
     steps:
@@ -21,19 +21,19 @@ jobs:
           port: ${{ secrets.VPS_PORT }}
           script: |
             set -e
-            echo "Starting deployment..."
+            echo "Starting staging deployment..."
 
             # Navigate to project directory
             cd ~/docs/uni-feedback
 
             # Pull latest changes
-            echo "Pulling latest code from prod branch..."
-            git fetch origin prod
-            git checkout prod
-            git reset --hard origin/prod
+            echo "Pulling latest code from staging branch..."
+            git fetch origin staging
+            git checkout staging
+            git reset --hard origin/staging
 
             # Run deployment script
-            echo "Running deployment script..."
-            ./ops/deploy/deploy-prod.sh
+            echo "Running staging deployment script..."
+            ./ops/deploy/deploy-staging.sh
 
-            echo "Deployment completed successfully!"
+            echo "Staging deployment completed successfully!"

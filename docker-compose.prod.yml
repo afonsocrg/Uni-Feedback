@@ -1,0 +1,103 @@
+# Production Docker Compose Configuration
+# Deploy with: docker compose -f docker-compose.prod.yml up --build -d
+#
+
+services:
+  db:
+    image: postgres:15
+    restart: always
+    container_name: uni-feedback-db
+    environment:
+      POSTGRES_DB: uni-feedback
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${PGPASSWORD}
+    ports:
+      - "5432:5432"
+    networks:
+      - uni_feedback_network
+    volumes:
+      - uni_feedback_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  api:
+    image: uni-feedback-api:latest
+    container_name: uni-feedback-api
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    ports:
+      - "3001:3001"
+    networks:
+      - uni_feedback_network
+    env_file:
+      - apps/api/.env.docker
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "http.get('http://localhost:3001/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  website-ssr:
+    image: uni-feedback-website-ssr:latest
+    container_name: uni-feedback-website-ssr
+    build:
+      context: .
+      dockerfile: apps/website-ssr/Dockerfile
+    ports:
+      - "3000:3000"
+    networks:
+      - uni_feedback_network
+    env_file:
+      - apps/website-ssr/.env.docker
+    depends_on:
+      db:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "http.get('http://localhost:3000', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  dashboard:
+    image: uni-feedback-dashboard:latest
+    container_name: uni-feedback-dashboard
+    build:
+      context: .
+      dockerfile: apps/dashboard/Dockerfile
+      args:
+        VITE_API_BASE_URL: https://api.uni-feedback.com
+    ports:
+      - "3002:80"
+    networks:
+      - uni_feedback_network
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  uni_feedback_postgres_data:
+
+networks:
+  uni_feedback_network:
+    name: uni-feedback-network
