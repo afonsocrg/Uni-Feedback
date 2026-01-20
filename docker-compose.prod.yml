@@ -1,6 +1,6 @@
 # Production Docker Compose Configuration
 # Deploy with: docker compose -f docker-compose.prod.yml up --build -d
-#
+# Uses PGPASSWORD environment variable for database password
 
 services:
   db:
