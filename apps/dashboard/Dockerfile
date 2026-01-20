@@ -23,6 +23,7 @@ COPY legal/ ./legal
 # Build the dashboard
 ARG VITE_API_BASE_URL
 ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 RUN pnpm dlx turbo@2.5.9-canary.3 run build --filter=@uni-feedback/dashboard
 
 FROM nginx:alpine AS runner
