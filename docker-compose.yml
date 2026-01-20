@@ -31,7 +31,7 @@ services:
     networks:
       - uni_feedback_network
     env_file:
-      - apps/api/.env.docker
+      - apps/api/.env.prod
     depends_on:
       db:
         condition: service_healthy
@@ -54,7 +54,7 @@ services:
     networks:
       - uni_feedback_network
     env_file:
-      - apps/website-ssr/.env.docker
+      - apps/website-ssr/.env.prod
     depends_on:
       db:
         condition: service_healthy

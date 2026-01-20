@@ -38,7 +38,7 @@ We leverage React Router 7's SSR capabilities to inject environment variables at
 VITE_API_BASE_URL="http://localhost:3001"
 ```
 
-### Docker (.env.docker)
+### Docker (.env.prod)
 ```bash
 VITE_API_BASE_URL="http://api:3001"
 ```
@@ -63,7 +63,7 @@ The `docker-compose.yml` loads environment variables via `env_file`:
 ```yaml
 website-ssr:
   env_file:
-    - apps/website-ssr/.env.docker
+    - apps/website-ssr/.env.prod
 ```
 
 These variables are available as `process.env` in Node.js and get injected into the HTML for client-side access.
