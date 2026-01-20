@@ -1,5 +1,10 @@
 # Production Docker Compose Configuration
-# Deploy with: docker compose -f docker-compose.prod.yml up --build -d
+# Deploy with: ./ops/deploy/deploy-prod.sh
+# Or build sequentially to avoid high CPU usage:
+#   docker compose -f docker-compose.prod.yml build api
+#   docker compose -f docker-compose.prod.yml build website-ssr
+#   docker compose -f docker-compose.prod.yml build dashboard
+#   docker compose -f docker-compose.prod.yml up -d
 # Uses PGPASSWORD environment variable for database password
 
 services:

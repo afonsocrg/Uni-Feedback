@@ -20,9 +20,15 @@ git checkout prod
 echo -e "${YELLOW}📥 Ensuring latest code...${NC}"
 git pull origin prod
 
-# Build and deploy with zero downtime
-echo -e "${YELLOW}🔨 Building and deploying containers...${NC}"
-docker compose -f docker-compose.prod.yml up --build -d
+# Build images sequentially to avoid high CPU usage
+echo -e "${YELLOW}🔨 Building images sequentially...${NC}"
+docker compose -f docker-compose.prod.yml build api
+docker compose -f docker-compose.prod.yml build website-ssr
+docker compose -f docker-compose.prod.yml build dashboard
+
+# Deploy with zero downtime
+echo -e "${YELLOW}🚢 Starting containers...${NC}"
+docker compose -f docker-compose.prod.yml up -d
 
 # Wait for services to be healthy
 echo -e "${YELLOW}⏳ Waiting for services to stabilize...${NC}"

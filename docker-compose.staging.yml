@@ -1,5 +1,10 @@
 # Staging Docker Compose Configuration
-# Deploy with: docker compose -f docker-compose.staging.yml up --build -d
+# Deploy with: ./ops/deploy/deploy-staging.sh
+# Or build sequentially to avoid high CPU usage:
+#   docker compose -f docker-compose.staging.yml build api-staging
+#   docker compose -f docker-compose.staging.yml build website-ssr-staging
+#   docker compose -f docker-compose.staging.yml build dashboard-staging
+#   docker compose -f docker-compose.staging.yml up -d
 # Uses PGPASSWORD_STAGING environment variable for database password
 
 services:

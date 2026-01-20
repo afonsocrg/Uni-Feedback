@@ -20,9 +20,15 @@ git checkout staging
 echo -e "${YELLOW}📥 Ensuring latest code...${NC}"
 git pull origin staging
 
-# Build and deploy with zero downtime
-echo -e "${YELLOW}🔨 Building and deploying staging containers...${NC}"
-docker compose -f docker-compose.staging.yml up --build -d
+# Build images sequentially to avoid high CPU usage
+echo -e "${YELLOW}🔨 Building images sequentially...${NC}"
+docker compose -f docker-compose.staging.yml build api-staging
+docker compose -f docker-compose.staging.yml build website-ssr-staging
+docker compose -f docker-compose.staging.yml build dashboard-staging
+
+# Deploy with zero downtime
+echo -e "${YELLOW}🚢 Starting containers...${NC}"
+docker compose -f docker-compose.staging.yml up -d
 
 # Wait for services to be healthy
 echo -e "${YELLOW}⏳ Waiting for services to stabilize...${NC}"
