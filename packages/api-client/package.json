@@ -13,6 +13,9 @@
     "type-check": "tsc --noEmit",
     "clean": "rm -rf node_modules"
   },
+  "dependencies": {
+    "@uni-feedback/db": "workspace:*"
+  },
   "devDependencies": {
     "typescript": "^5.8.3"
   }

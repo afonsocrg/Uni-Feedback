@@ -1,3 +1,3 @@
-export * from "./context";
-export * as schema from "./schema";
-export * as queries from "./queries";
+export * from './context'
+export * as queries from './queries'
+export * as schema from './schema'

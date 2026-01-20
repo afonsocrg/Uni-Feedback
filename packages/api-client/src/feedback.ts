@@ -1,5 +1,18 @@
+import { type ReportCategory } from '@uni-feedback/db/schema'
 import { MeicFeedbackAPIError } from './errors'
 import { apiDelete, apiPost, apiPut } from './utils'
+
+// Re-export report category types from db package
+export {
+  REPORT_CATEGORIES,
+  REPORT_CATEGORY_LABELS,
+  type ReportCategory
+} from '@uni-feedback/db/schema'
+
+export type ReportFeedbackRequest = {
+  category: ReportCategory
+  details: string
+}
 
 // Authentication required - email comes from user session
 export type CreateFeedbackRequest = {
@@ -130,6 +143,53 @@ export async function deleteFeedback(
   } catch (error) {
     throw new MeicFeedbackAPIError(
       `Failed to delete feedback: ${error instanceof Error ? error.message : 'Unknown error'}`
+    )
+  }
+}
+
+// Helpful vote types and functions
+export type HelpfulVoteResponse = {
+  message: string
+}
+
+export async function addHelpfulVote(
+  feedbackId: number
+): Promise<HelpfulVoteResponse> {
+  try {
+    return await apiPost(`/feedback/${feedbackId}/helpful`, {})
+  } catch (error) {
+    throw new MeicFeedbackAPIError(
+      `Failed to add helpful vote: ${error instanceof Error ? error.message : 'Unknown error'}`
+    )
+  }
+}
+
+export async function removeHelpfulVote(
+  feedbackId: number
+): Promise<HelpfulVoteResponse> {
+  try {
+    return await apiDelete(`/feedback/${feedbackId}/helpful`)
+  } catch (error) {
+    throw new MeicFeedbackAPIError(
+      `Failed to remove helpful vote: ${error instanceof Error ? error.message : 'Unknown error'}`
+    )
+  }
+}
+
+// Report types and functions
+export type ReportFeedbackResponse = {
+  message: string
+}
+
+export async function reportFeedback(
+  feedbackId: number,
+  data: ReportFeedbackRequest
+): Promise<ReportFeedbackResponse> {
+  try {
+    return await apiPost(`/feedback/${feedbackId}/report`, data)
+  } catch (error) {
+    throw new MeicFeedbackAPIError(
+      `Failed to report feedback: ${error instanceof Error ? error.message : 'Unknown error'}`
     )
   }
 }

@@ -198,6 +198,7 @@ export interface VerifyMagicLinkResponse {
     email: string
     username: string
     role: string
+    referralCode: string
   }
 }
 

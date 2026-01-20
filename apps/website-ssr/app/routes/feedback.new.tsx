@@ -13,15 +13,12 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 import {
   DuplicateFeedbackResolution,
-  EmailVerificationModal,
   GiveFeedbackContent,
   SubmitFeedbackSuccess,
   UpdateFeedbackSuccess
 } from '~/components'
-import type { AuthUser } from '~/context/AuthContext'
 import { useLastVisitedPath } from '~/hooks'
 import { useSubmitFeedback } from '~/hooks/queries'
-import { useAuth } from '~/hooks/useAuth'
 import { STORAGE_KEYS } from '~/utils/constants'
 
 import type { Route } from './+types/feedback.new'
@@ -118,8 +115,6 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
   const [pointsEarned, setPointsEarned] = useState<number | undefined>(
     undefined
   )
-  const { isAuthenticated, setUser } = useAuth()
-  const [showVerificationModal, setShowVerificationModal] = useState(false)
   const [duplicateFeedback, setDuplicateFeedback] =
     useState<DuplicateFeedbackDetail | null>(null)
 
@@ -182,13 +177,7 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
       values.degreeId.toString()
     )
 
-    // Check authentication status
-    if (!isAuthenticated) {
-      setShowVerificationModal(true)
-      return
-    }
-
-    // User is authenticated - proceed with normal submission
+    // AuthenticatedButton ensures user is authenticated before this is called
     submitFeedback(values)
   }
 
@@ -219,15 +208,6 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
         toast.error('Failed to update feedback. Please try again.')
       }
     }
-  }
-
-  const handleAuthenticationSuccess = async (user: AuthUser) => {
-    setUser(user)
-    setShowVerificationModal(false)
-
-    // Auto-submit the feedback using current form values
-    const values = form.getValues()
-    submitFeedback(values)
   }
 
   const handleSubmitAnother = () => {
@@ -280,31 +260,11 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
   }
 
   return (
-    <>
-      <GiveFeedbackContent
-        faculties={loaderData.faculties}
-        form={form}
-        onSubmit={handleSubmit}
-        isSubmitting={submitFeedbackMutation.isPending}
-      />
-
-      <EmailVerificationModal
-        open={showVerificationModal}
-        onSuccess={handleAuthenticationSuccess}
-        onError={(error) => {
-          setShowVerificationModal(false)
-          toast.error(error)
-        }}
-        onClose={() => setShowVerificationModal(false)}
-        allowedEmailSuffixes={
-          loaderData.faculties.find((f) => f.id === form.getValues('facultyId'))
-            ?.emailSuffixes
-        }
-        universityName={
-          loaderData.faculties.find((f) => f.id === form.getValues('facultyId'))
-            ?.shortName
-        }
-      />
-    </>
+    <GiveFeedbackContent
+      faculties={loaderData.faculties}
+      form={form}
+      onSubmit={handleSubmit}
+      isSubmitting={submitFeedbackMutation.isPending}
+    />
   )
 }

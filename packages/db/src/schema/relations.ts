@@ -4,7 +4,9 @@ import { degrees } from './degree'
 import { faculties } from './faculty'
 import { feedback, feedbackFull } from './feedback'
 import { feedbackAnalysis } from './feedbackAnalysis'
+import { helpfulVotes } from './helpfulVote'
 import { pointRegistry } from './pointRegistry'
+import { reports } from './report'
 import { users } from './user'
 
 // Feedback relations (view - automatically excludes deleted feedback)
@@ -66,7 +68,9 @@ export const facultyRelations = relations(faculties, ({ many }) => ({
 // User relations
 export const userRelations = relations(users, ({ many }) => ({
   feedbacks: many(feedback),
-  points: many(pointRegistry)
+  points: many(pointRegistry),
+  helpfulVotes: many(helpfulVotes),
+  reports: many(reports)
 }))
 
 // Feedback Analysis relations
@@ -86,5 +90,29 @@ export const pointRegistryRelations = relations(pointRegistry, ({ one }) => ({
   user: one(users, {
     fields: [pointRegistry.userId],
     references: [users.id]
+  })
+}))
+
+// Helpful Vote relations
+export const helpfulVoteRelations = relations(helpfulVotes, ({ one }) => ({
+  user: one(users, {
+    fields: [helpfulVotes.userId],
+    references: [users.id]
+  }),
+  feedback: one(feedbackFull, {
+    fields: [helpfulVotes.feedbackId],
+    references: [feedbackFull.id]
+  })
+}))
+
+// Report relations
+export const reportRelations = relations(reports, ({ one }) => ({
+  user: one(users, {
+    fields: [reports.userId],
+    references: [users.id]
+  }),
+  feedback: one(feedbackFull, {
+    fields: [reports.feedbackId],
+    references: [feedbackFull.id]
   })
 }))

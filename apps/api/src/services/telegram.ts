@@ -1,4 +1,9 @@
-import { Course, Degree } from '@uni-feedback/db/schema'
+import {
+  Course,
+  Degree,
+  REPORT_CATEGORY_LABELS,
+  type ReportCategory
+} from '@uni-feedback/db/schema'
 import { formatSchoolYearString } from '@uni-feedback/utils'
 
 // Telegram
@@ -246,6 +251,55 @@ interface SendAnalysisUpdateNotificationArgs {
   oldPoints: number | null
   newPoints: number | null
   dashboardLink: string
+}
+
+interface SendReportNotificationArgs {
+  reportId: number
+  feedbackId: number
+  category: ReportCategory
+  details: string
+  reporterId: number
+  feedbackComment: string | null
+}
+
+export async function sendReportNotification(
+  env: Env,
+  args: SendReportNotificationArgs
+) {
+  const {
+    reportId,
+    feedbackId,
+    category,
+    details,
+    reporterId,
+    feedbackComment
+  } = args
+
+  const categoryLabel = REPORT_CATEGORY_LABELS[category] || category
+  const truncatedDetails =
+    details.length > 200 ? details.slice(0, 200) + '...' : details
+  const manageFeedbackUrl = `https://admin.uni-feedback.com/feedback/${feedbackId}`
+
+  const message = `
+🚨 FEEDBACK REPORT!
+
+A user has reported feedback for moderation.
+
+📋 Report ID: #${reportId}
+📋 Feedback ID: #${feedbackId}
+👤 Reporter ID: #${reporterId}
+🏷️ Category: ${categoryLabel}
+
+💬 Details: ${truncatedDetails}
+
+🕒 Timestamp: ${new Date().toISOString()}
+
+🔗 Review Feedback: ${manageFeedbackUrl}
+
+📝 Feedback Comment: ${feedbackComment}
+`.trim()
+
+  return sendToTelegram(env, message)
 }
 
 export async function sendAnalysisUpdateNotification(

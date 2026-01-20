@@ -1,13 +1,7 @@
 import { editFeedback, MeicFeedbackAPIError } from '@uni-feedback/api-client'
 import { database } from '@uni-feedback/db'
-import {
-  courses,
-  degrees,
-  faculties,
-  feedback,
-  sessions
-} from '@uni-feedback/db/schema'
-import { and, eq, gt } from 'drizzle-orm'
+import { courses, degrees, faculties, feedback } from '@uni-feedback/db/schema'
+import { and, eq } from 'drizzle-orm'
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { toast } from 'sonner'
@@ -19,19 +13,8 @@ import {
   type BreadcrumbItemData,
   type EditFeedbackFormData
 } from '~/components'
+import { getCurrentUserId } from '~/lib/auth.server'
 import type { Route } from './+types/feedback.$id.edit'
-
-// Hash token using SHA-256 (same as API)
-async function hashToken(token: string): Promise<string> {
-  const encoder = new TextEncoder()
-  const data = encoder.encode(token)
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
-  const hashArray = new Uint8Array(hashBuffer)
-
-  return Array.from(hashArray)
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('')
-}
 
 export function meta({ data }: Route.MetaArgs) {
   if (!data || 'error' in data) {
@@ -63,38 +46,13 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   }
 
   try {
-    // Get access token from cookie
-    const cookies = request.headers.get('Cookie') || ''
-    const accessTokenMatch = cookies.match(/uni-feedback-auth-access=([^;]+)/)
-    const accessToken = accessTokenMatch?.[1]
+    const userId = await getCurrentUserId(request)
 
-    if (!accessToken) {
+    if (!userId) {
       return unauthorizedError
     }
 
     const db = database()
-
-    // Hash the access token and find the session
-    const accessTokenHash = await hashToken(accessToken)
-    const [sessionData] = await db
-      .select({
-        userId: sessions.userId,
-        expiresAt: sessions.expiresAt
-      })
-      .from(sessions)
-      .where(
-        and(
-          eq(sessions.accessTokenHash, accessTokenHash),
-          gt(sessions.expiresAt, new Date())
-        )
-      )
-      .limit(1)
-
-    if (!sessionData) {
-      return unauthorizedError
-    }
-
-    const userId = sessionData.userId
 
     // Query feedback with course, degree, and faculty info
     const [result] = await db

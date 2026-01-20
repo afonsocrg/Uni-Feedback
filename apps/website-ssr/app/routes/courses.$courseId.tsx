@@ -1,6 +1,7 @@
 import { database, queries, schema } from '@uni-feedback/db'
 import { desc, eq, sql } from 'drizzle-orm'
 import { CourseDetailContent } from '~/components'
+import { getCurrentUserId } from '~/lib/auth.server'
 
 import type { Route } from './+types/courses.$courseId'
 
@@ -69,7 +70,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
   ]
 }
 
-export async function loader({ params }: Route.LoaderArgs) {
+export async function loader({ params, request }: Route.LoaderArgs) {
   const { courseId } = params
   const courseIdNum = parseInt(courseId, 10)
 
@@ -78,6 +79,9 @@ export async function loader({ params }: Route.LoaderArgs) {
   }
 
   const db = database()
+
+  // Get current user ID (if logged in)
+  const currentUserId = await getCurrentUserId(request)
 
   // Get course details
   const course = await db.query.courses.findFirst({
@@ -154,7 +158,16 @@ export async function loader({ params }: Route.LoaderArgs) {
       isFromDifferentCourse:
         sql<number>`${schema.feedback.courseId} != ${courseIdNum}`.as(
           'is_from_different_course'
-        )
+        ),
+      helpfulVoteCount:
+        sql<number>`(SELECT COUNT(*) FROM helpful_votes WHERE feedback_id = ${schema.feedback.id})::integer`.as(
+          'helpful_vote_count'
+        ),
+      hasVoted: currentUserId
+        ? sql<boolean>`EXISTS (SELECT 1 FROM helpful_votes WHERE feedback_id = ${schema.feedback.id} AND user_id = ${currentUserId})`.as(
+            'has_voted'
+          )
+        : sql<boolean>`false`.as('has_voted')
     })
     .from(schema.feedback)
     .innerJoin(schema.courses, eq(schema.feedback.courseId, schema.courses.id))

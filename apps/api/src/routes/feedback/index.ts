@@ -1,3 +1,6 @@
+export { AddHelpfulVote } from './addHelpfulVote'
 export * from './categorizeFeedback'
 export { DeleteFeedback } from './deleteFeedback'
 export { EditFeedback } from './editFeedback'
+export { RemoveHelpfulVote } from './removeHelpfulVote'
+export { ReportFeedback } from './reportFeedback'

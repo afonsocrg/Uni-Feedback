@@ -33,6 +33,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { type UseFormReturn } from 'react-hook-form'
 import { Link } from 'react-router'
 import { CommentSection } from '~/components'
+import { AuthenticatedButton } from '~/components/common'
 import { useDegreeCourses, useFacultyDegrees } from '~/hooks/queries'
 import { useAuth } from '~/hooks/useAuth'
 import type { FeedbackFormData } from '~/routes/feedback.new'
@@ -61,6 +62,12 @@ export function GiveFeedbackContent({
   // Watch only the fields needed for conditional rendering and data fetching
   const selectedFacultyId = form.watch('facultyId')
   const selectedDegreeId = form.watch('degreeId')
+
+  // Get the selected faculty for auth modal customization
+  const selectedFaculty = useMemo(
+    () => faculties.find((f) => f.id === selectedFacultyId),
+    [faculties, selectedFacultyId]
+  )
 
   // Fetch degrees and courses based on selections
   const { data: degrees = [], isLoading: isLoadingDegrees } = useFacultyDegrees(
@@ -482,10 +489,15 @@ export function GiveFeedbackContent({
             </div>
 
             {/* Submit Button */}
-            <Button
+            <AuthenticatedButton
               type="submit"
               className="w-full mt-6 mb-0"
               disabled={isSubmitting}
+              authModalProps={{
+                allowedEmailSuffixes: selectedFaculty?.emailSuffixes,
+                universityName: selectedFaculty?.shortName,
+                successDescription: 'Submitting your feedback...'
+              }}
             >
               {isSubmitting ? (
                 <>
@@ -498,7 +510,7 @@ export function GiveFeedbackContent({
                   <span>Submit</span>
                 </>
               )}
-            </Button>
+            </AuthenticatedButton>
 
             <p className="text-xs text-gray-500 text-center mt-1">
               By submitting this review, you agree to our{' '}

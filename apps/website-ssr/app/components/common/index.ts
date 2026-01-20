@@ -1,3 +1,4 @@
+export * from './AuthenticatedButton'
 export * from './Breadcrumb'
 export * from './BreadcrumbItem'
 export * from './CategoryChip'
