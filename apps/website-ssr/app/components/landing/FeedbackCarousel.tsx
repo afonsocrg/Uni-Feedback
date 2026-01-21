@@ -2,7 +2,7 @@ import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 import type { Feedback } from '@uni-feedback/db'
-import { LandingFeedbackCard } from '../feedback/LandingFeedbackCard'
+import { LandingFeedbackCard } from '~/components'
 
 interface FeedbackCarouselProps {
   feedbacks: Feedback[]

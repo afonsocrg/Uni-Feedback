@@ -12,8 +12,8 @@ import { Lightbulb } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import type { Control } from 'react-hook-form'
 import { useWatch } from 'react-hook-form'
+import { ReviewTipsDialog } from '~/components'
 import { useFeedbackCategorization } from '~/hooks/useFeedbackCategorization'
-import { ReviewTipsDialog } from '../ReviewTipsDialog'
 import { FeedbackCategoryChips } from './FeedbackCategoryChips'
 
 interface CommentSectionProps {

@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router'
-import { userPreferences } from '../utils/userPreferences'
+import { userPreferences } from '~/utils'
 
 export function useLastVisitedPath() {
   const [lastVisitedPath, setLastVisitedPath] = useState<string>('/')

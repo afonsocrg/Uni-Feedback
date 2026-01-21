@@ -1,8 +1,8 @@
 import { database, queries, schema } from '@uni-feedback/db'
 import { eq, sql } from 'drizzle-orm'
 import { useEffect } from 'react'
-import { FacultyPageContent } from '../components'
-import { userPreferences } from '../utils/userPreferences'
+import { FacultyPageContent } from '~/components'
+import { userPreferences } from '~/utils'
 
 import type { Route } from './+types/$facultySlug'
 

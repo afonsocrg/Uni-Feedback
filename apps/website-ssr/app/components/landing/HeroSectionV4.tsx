@@ -3,9 +3,9 @@ import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 import type { Feedback, StudentClub } from '@uni-feedback/db'
+import { LandingFeedbackCard } from '~/components'
 import { useLastVisitedPath } from '~/hooks/useLastVisitedPath'
-import { getAssetUrl } from '../../utils'
-import { LandingFeedbackCard } from '../feedback/LandingFeedbackCard'
+import { getAssetUrl } from '~/utils'
 
 interface HeroSectionProps {
   studentClubs: StudentClub[]

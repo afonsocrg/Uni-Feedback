@@ -1,5 +1,5 @@
 import type { Faculty } from '@uni-feedback/db'
-import { getAssetUrl } from '../../utils'
+import { getAssetUrl } from '~/utils'
 
 interface LovedByStudentsSectionProps {
   faculties: Faculty[]

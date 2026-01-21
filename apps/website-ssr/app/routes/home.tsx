@@ -1,8 +1,8 @@
 import { database } from '@uni-feedback/db'
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router'
-import { FacultySelector, HeroSection } from '../components'
-import { userPreferences } from '../utils/userPreferences'
+import { FacultySelector, HeroSection } from '~/components'
+import { userPreferences } from '~/utils'
 
 import type { Route } from './+types/home'
 

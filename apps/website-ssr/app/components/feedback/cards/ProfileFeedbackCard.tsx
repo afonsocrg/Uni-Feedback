@@ -21,9 +21,8 @@ import { EllipsisVertical, ExternalLink, Pencil, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router'
 import { toast } from 'sonner'
+import { FeedbackCategoryChips, FeedbackMarkdown } from '~/components'
 import { getTruncatedText } from '~/lib/textUtils'
-import { FeedbackCategoryChips } from './FeedbackCategoryChips'
-import { FeedbackMarkdown } from './FeedbackMarkdown'
 
 interface ProfileFeedbackCardProps {
   feedback: {

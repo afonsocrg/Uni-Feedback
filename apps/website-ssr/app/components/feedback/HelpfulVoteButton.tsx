@@ -3,7 +3,7 @@ import { cn } from '@uni-feedback/ui/utils'
 import { ThumbsUp } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { AuthenticatedButton } from '../common'
+import { AuthenticatedButton } from '~/components'
 
 interface HelpfulVoteButtonProps {
   feedbackId: number

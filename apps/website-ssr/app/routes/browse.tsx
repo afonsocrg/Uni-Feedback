@@ -1,8 +1,8 @@
 import { database } from '@uni-feedback/db'
 import { Button, WarningAlert } from '@uni-feedback/ui'
 import { useEffect } from 'react'
-import { BrowsePageLayout, FacultySelector } from '../components'
-import { userPreferences } from '../utils/userPreferences'
+import { BrowsePageLayout, FacultySelector } from '~/components'
+import { userPreferences } from '~/utils'
 
 import type { Route } from './+types/browse'
 

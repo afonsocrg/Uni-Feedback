@@ -1,7 +1,7 @@
 import { StarRating, WorkloadRatingDisplay } from '@uni-feedback/ui'
 import { getRelativeTime } from '@uni-feedback/utils'
 import { GraduationCap } from 'lucide-react'
-import { FeedbackMarkdown, Tooltip } from '..'
+import { FeedbackMarkdown, Tooltip } from '~/components'
 
 interface ReportFeedbackFeedbackCardProps {
   feedback: {

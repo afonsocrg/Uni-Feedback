@@ -1,8 +1,8 @@
 import { Button, type ButtonProps } from '@uni-feedback/ui'
 import { useRef, useState } from 'react'
+import { AuthDialog, type AuthDialogProps } from '~/components'
 import type { AuthUser } from '~/context/AuthContext'
 import { useAuth } from '~/hooks/useAuth'
-import { AuthDialog, type AuthDialogProps } from '../AuthDialog'
 
 interface AuthenticatedButtonProps extends ButtonProps {
   /** Props to customize the authentication modal */

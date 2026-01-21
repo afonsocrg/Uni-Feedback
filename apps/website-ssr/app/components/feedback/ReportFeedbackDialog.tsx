@@ -30,8 +30,7 @@ import { useForm } from 'react-hook-form'
 import { Link } from 'react-router'
 import { toast } from 'sonner'
 import { z } from 'zod'
-import { AuthenticatedButton } from '../common'
-import { ReportFeedbackFeedbackCard } from './ReportFeedbackFeedbackCard'
+import { AuthenticatedButton, ReportFeedbackFeedbackCard } from '~/components'
 
 const reportFormSchema = z.object({
   category: z.enum(REPORT_CATEGORIES),

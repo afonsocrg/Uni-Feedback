@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react'
-import { useAuth } from '../hooks/useAuth'
+import { useAuth } from '~/hooks'
 
 const REFRESH_INTERVAL = 14 * 60 * 1000 // 14 minutes (before 15min token expires)
 

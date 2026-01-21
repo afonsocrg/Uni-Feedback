@@ -5,13 +5,13 @@ import {
   type ProfileResponse
 } from '@uni-feedback/api-client'
 import React, { useEffect, useState } from 'react'
+import { useLocalStorage } from '~/hooks'
 import { STORAGE_KEYS } from '~/utils/constants'
 import {
   AuthContext,
   type AuthContextType,
   type AuthUser
 } from '../context/AuthContext'
-import { useLocalStorage } from '../hooks/useLocalStorage'
 
 interface AuthProviderProps {
   children: React.ReactNode

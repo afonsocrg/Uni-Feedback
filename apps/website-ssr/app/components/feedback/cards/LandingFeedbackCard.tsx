@@ -1,8 +1,8 @@
 import type { Feedback } from '@uni-feedback/db/schema'
 import { StarRating, WorkloadRatingDisplay } from '@uni-feedback/ui'
 import { getRelativeTime } from '@uni-feedback/utils'
+import { FeedbackMarkdown } from '~/components'
 import { getTruncatedText } from '~/lib/textUtils'
-import { FeedbackMarkdown } from './FeedbackMarkdown'
 
 interface LandingFeedbackCardProps {
   feedback: Feedback & {

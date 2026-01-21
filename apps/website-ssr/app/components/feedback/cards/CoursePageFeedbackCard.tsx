@@ -2,10 +2,13 @@ import { Button, StarRating, WorkloadRatingDisplay } from '@uni-feedback/ui'
 import { getRelativeTime } from '@uni-feedback/utils'
 import { Flag, GraduationCap } from 'lucide-react'
 import { useState } from 'react'
-import { FeedbackMarkdown, Tooltip } from '..'
-import { getTruncatedText } from '../../lib/textUtils'
-import { HelpfulVoteButton } from './HelpfulVoteButton'
-import { ReportFeedbackDialog } from './ReportFeedbackDialog'
+import {
+  FeedbackMarkdown,
+  HelpfulVoteButton,
+  ReportFeedbackDialog,
+  Tooltip
+} from '~/components'
+import { getTruncatedText } from '~/lib/textUtils'
 
 interface CourseFeedback {
   id: number

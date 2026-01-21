@@ -1,13 +1,15 @@
 import type { Course } from '@uni-feedback/db/schema'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@uni-feedback/ui'
 import { useEffect, useRef, useState } from 'react'
+import {
+  Breadcrumb,
+  CourseAssessment,
+  CourseBibliography,
+  CourseDescription,
+  CourseInfoCard
+} from '~/components'
 import { cn } from '~/utils'
 import { CourseReviews } from '.'
-import { Breadcrumb } from '../../common/Breadcrumb'
-import { CourseAssessment } from './CourseAssessment'
-import { CourseBibliography } from './CourseBibliography'
-import { CourseDescription } from './CourseDescription'
-import { CourseInfoCard } from './CourseInfoCard'
 
 export interface CourseDetail extends Course {
   averageRating: number

@@ -3,7 +3,7 @@ import { ArrowRight } from 'lucide-react'
 
 import type { Feedback, StudentClub } from '@uni-feedback/db'
 import { useLastVisitedPath } from '~/hooks/useLastVisitedPath'
-import { getAssetUrl } from '../../utils'
+import { getAssetUrl } from '~/utils'
 import { FeedbackCarousel } from './FeedbackCarousel'
 
 interface HeroSectionProps {

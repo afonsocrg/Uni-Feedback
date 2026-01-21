@@ -1,6 +1,6 @@
 import type { Course, Degree, Faculty } from '@uni-feedback/db/schema'
 import { Home } from 'lucide-react'
-import { userPreferences } from '../../utils/userPreferences'
+import { userPreferences } from '~/utils'
 import { GenericBreadcrumb, type BreadcrumbItemData } from './GenericBreadcrumb'
 
 interface BreadcrumbProps {

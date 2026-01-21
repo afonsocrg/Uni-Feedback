@@ -1,7 +1,7 @@
 import { type DuplicateFeedbackDetail } from '@uni-feedback/api-client'
 import { type UseFormReturn } from 'react-hook-form'
 import type { FeedbackFormData } from '~/routes/feedback.new'
-import { CoursePageFeedbackCard } from './CoursePageFeedbackCard'
+import { SimpleFeedbackCard } from './cards'
 import {
   InlineFeedbackEdit,
   type EditFeedbackFormData
@@ -38,7 +38,7 @@ export function DuplicateFeedbackResolution({
           <h2 className="text-sm font-semibold text-gray-700 mb-3">
             Your Current Feedback
           </h2>
-          <CoursePageFeedbackCard feedback={existingFeedback} />
+          <SimpleFeedbackCard feedback={existingFeedback} />
         </div>
 
         {/* Inline edit form - form already contains the NEW data user just submitted */}

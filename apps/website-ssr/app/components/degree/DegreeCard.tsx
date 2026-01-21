@@ -1,7 +1,7 @@
 import type { Degree } from '@uni-feedback/db/schema'
 import { Chip } from '@uni-feedback/ui'
 import { BookOpen, MessageSquare } from 'lucide-react'
-import { SelectionCard } from '../SelectionCard'
+import { SelectionCard } from '~/components'
 
 interface DegreeCardProps {
   degree: Degree & {

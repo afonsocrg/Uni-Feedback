@@ -1,6 +1,6 @@
 import type { Degree, Faculty } from '@uni-feedback/db/schema'
 import type { ReactNode } from 'react'
-import { Breadcrumb } from '../common/Breadcrumb'
+import { Breadcrumb } from '~/components'
 
 interface BrowsePageLayoutProps {
   title: string
