@@ -150,39 +150,6 @@ export function GiveFeedbackContent({
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* School Year */}
-            <div className="flex flex-wrap gap-2">
-              <FormField
-                name="schoolYear"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>School Year</FormLabel>
-                    <FormControl>
-                      <Select
-                        onValueChange={(val) => field.onChange(Number(val))}
-                        value={field.value.toString()}
-                      >
-                        <SelectTrigger className="w-[200px] bg-white">
-                          <SelectValue placeholder="Select a school year" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {schoolYears.map((year) => (
-                            <SelectItem key={year} value={year.toString()}>
-                              {formatSchoolYearString(year, {
-                                yearFormat: 'long'
-                              })}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
             {/* Faculty, Degree, Course */}
             <div className="flex flex-wrap gap-2">
               <div className="flex flex-wrap gap-2 justify-start">
@@ -408,6 +375,38 @@ export function GiveFeedbackContent({
               </div>
             </div>
 
+            {/* School Year */}
+            <div className="flex flex-wrap gap-2">
+              <FormField
+                name="schoolYear"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>When did you take this course?</FormLabel>
+                    <FormControl>
+                      <Select
+                        onValueChange={(val) => field.onChange(Number(val))}
+                        value={field.value.toString()}
+                      >
+                        <SelectTrigger className="w-[200px] bg-white">
+                          <SelectValue placeholder="Select a school year" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {schoolYears.map((year) => (
+                            <SelectItem key={year} value={year.toString()}>
+                              {formatSchoolYearString(year, {
+                                yearFormat: 'long'
+                              })}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
             {/* Ratings */}
             <div className="space-y-6">
               <div className="flex flex-wrap gap-4">
