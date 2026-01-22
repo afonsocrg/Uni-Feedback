@@ -12,6 +12,7 @@ export interface AuthContextType {
   user: AuthUser | null
   isLoading: boolean
   isAuthenticated: boolean
+  isLoggingOut: boolean
   logout: () => Promise<void>
   refreshAuth: () => Promise<void>
   setUser: (user: AuthUser | null) => void

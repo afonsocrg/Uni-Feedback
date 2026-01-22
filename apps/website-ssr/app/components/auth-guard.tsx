@@ -8,11 +8,16 @@ interface AuthGuardProps {
 }
 
 export function AuthGuard({ children }: AuthGuardProps) {
-  const { isAuthenticated, user, isLoading } = useAuth()
+  const { isAuthenticated, user, isLoading, isLoggingOut } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
 
   useEffect(() => {
+    // Skip redirect if user is actively logging out
+    if (isLoggingOut) {
+      return
+    }
+
     // Only redirect after auth has been checked (not loading)
     if (!isLoading && (!isAuthenticated || !user)) {
       // Show toast notification
@@ -25,10 +30,10 @@ export function AuthGuard({ children }: AuthGuardProps) {
         replace: true
       })
     }
-  }, [isLoading, isAuthenticated, user, navigate, location])
+  }, [isLoading, isAuthenticated, user, isLoggingOut, navigate, location])
 
-  // Show loading animation while checking auth or redirecting
-  if (isLoading || !isAuthenticated || !user) {
+  // Show loading animation while checking auth, redirecting, or logging out
+  if (isLoading || isLoggingOut || !isAuthenticated || !user) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="flex flex-col items-center gap-3">
