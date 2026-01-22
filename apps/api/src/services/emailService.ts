@@ -42,13 +42,6 @@ export class EmailService {
     try {
       await this.resend.emails.send(params)
       console.log(`✅ Email sent successfully to ${params.to}`)
-
-      // Send telegram notification for successful email
-      await sendEmailStatusNotification(this.env, {
-        email: params.to,
-        emailType: params.subject,
-        success: true
-      })
     } catch (error) {
       console.error('❌ Failed to send email:', error)
 
