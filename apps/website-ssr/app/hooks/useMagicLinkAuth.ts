@@ -17,6 +17,8 @@ interface StoredRequestIdData {
 
 /**
  * Hook to manage magic link authentication flow with automatic requestId handling
+ *
+ * @deprecated Use useOtpAuth instead. Magic links are being replaced by OTP authentication.
  */
 export function useMagicLinkAuth() {
   /**

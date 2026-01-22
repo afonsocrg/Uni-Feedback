@@ -1,5 +1,6 @@
 import {
   MAGIC_LINK_CONFIG,
+  OTP_CONFIG,
   RATE_LIMIT_CONFIG,
   TOKEN_EXPIRATION_MS
 } from '@config/auth'
@@ -10,6 +11,8 @@ import {
   feedbackFull,
   magicLinkRateLimits,
   magicLinkTokens,
+  otpRateLimits,
+  otpTokens,
   passwordResetTokens,
   pointRegistry,
   sessions,
@@ -17,6 +20,7 @@ import {
   users,
   type MagicLinkToken,
   type NewUser,
+  type OtpToken,
   type PasswordResetToken,
   type Session,
   type User,
@@ -600,6 +604,8 @@ export class AuthService {
    * AND that the requestId was originally created within the reuse window
    * This allows cross-device verification (mobile polling → desktop verification)
    * while preventing indefinite requestId reuse
+   *
+   * @deprecated Use createOtpToken instead. Magic links are being replaced by OTP authentication.
    */
   async createMagicLinkToken(
     email: string,
@@ -671,6 +677,8 @@ export class AuthService {
 
   /**
    * Find valid magic link token
+   *
+   * @deprecated Magic links are being replaced by OTP authentication.
    */
   async findMagicLinkToken(token: string): Promise<MagicLinkToken | null> {
     const tokenHash = await hashToken(token)
@@ -693,6 +701,8 @@ export class AuthService {
   /**
    * Find magic link token even if expired
    * Used to retrieve requestId from expired tokens
+   *
+   * @deprecated Magic links are being replaced by OTP authentication.
    */
   async findMagicLinkTokenIncludingExpired(
     token: string
@@ -715,6 +725,8 @@ export class AuthService {
 
   /**
    * Use magic link token - creates user if doesn't exist, returns session
+   *
+   * @deprecated Use verifyOtpToken instead. Magic links are being replaced by OTP authentication.
    */
   async useMagicLinkToken(
     token: string
@@ -764,6 +776,8 @@ export class AuthService {
    *
    * Note: Uses the EARLIEST usedAt timestamp across all tokens with this requestId
    * to prevent extending the freshness window by requesting new tokens
+   *
+   * @deprecated Magic links are being replaced by OTP authentication.
    */
   async verifyMagicLinkByRequestId(requestId: string): Promise<
     | (Session & {
@@ -865,6 +879,8 @@ export class AuthService {
   /**
    * Check and update rate limit for email
    * Returns object with allowed status and resetAt timestamp
+   *
+   * @deprecated Use checkOtpRateLimit instead. Magic links are being replaced by OTP authentication.
    */
   async checkMagicLinkRateLimit(
     email: string
@@ -925,5 +941,198 @@ export class AuthService {
         RATE_LIMIT_CONFIG.MAGIC_LINK.WINDOW_MINUTES * 60 * 1000
     )
     return { allowed: false, resetAt }
+  }
+
+  // ============================================
+  // OTP Authentication Methods
+  // ============================================
+
+  /**
+   * Generate a random 6-digit OTP code
+   */
+  generateOtp(): string {
+    // Generate a random 6-digit number (100000-999999)
+    const min = Math.pow(10, OTP_CONFIG.CODE_LENGTH - 1)
+    const max = Math.pow(10, OTP_CONFIG.CODE_LENGTH) - 1
+    const otp = Math.floor(Math.random() * (max - min + 1)) + min
+    return otp.toString()
+  }
+
+  /**
+   * Check OTP rate limit (60 second cooldown between requests)
+   * Returns object with allowed status and retryAfterSeconds
+   */
+  async checkOtpRateLimit(
+    email: string
+  ): Promise<{ allowed: boolean; retryAfterSeconds?: number }> {
+    const normalizedEmail = email.toLowerCase()
+    const now = new Date()
+
+    // Get rate limit record
+    const [rateLimitRecord] = await database()
+      .select()
+      .from(otpRateLimits)
+      .where(eq(otpRateLimits.email, normalizedEmail))
+      .limit(1)
+
+    if (!rateLimitRecord) {
+      // First request - create record
+      await database().insert(otpRateLimits).values({
+        email: normalizedEmail,
+        lastRequestAt: now
+      })
+      return { allowed: true }
+    }
+
+    // Check if cooldown has passed
+    const cooldownEnd = new Date(
+      rateLimitRecord.lastRequestAt.getTime() +
+        OTP_CONFIG.RATE_LIMIT_SECONDS * 1000
+    )
+
+    if (now >= cooldownEnd) {
+      // Cooldown passed - update last request time
+      await database()
+        .update(otpRateLimits)
+        .set({ lastRequestAt: now })
+        .where(eq(otpRateLimits.email, normalizedEmail))
+      return { allowed: true }
+    }
+
+    // Still in cooldown
+    const retryAfterSeconds = Math.ceil(
+      (cooldownEnd.getTime() - now.getTime()) / 1000
+    )
+    return { allowed: false, retryAfterSeconds }
+  }
+
+  /**
+   * Create OTP token for email
+   * Deletes any existing active OTP tokens for the email
+   */
+  async createOtpToken(
+    email: string,
+    referralCode?: string
+  ): Promise<OtpToken & { otp: string }> {
+    const normalizedEmail = email.toLowerCase()
+    const otp = this.generateOtp()
+    const otpHash = await hashToken(otp)
+    const expiresAt = new Date(Date.now() + OTP_CONFIG.EXPIRATION_MS)
+
+    // Delete any existing active OTP tokens for this email
+    await database()
+      .delete(otpTokens)
+      .where(
+        and(
+          eq(otpTokens.email, normalizedEmail),
+          isNull(otpTokens.usedAt),
+          gt(otpTokens.expiresAt, new Date())
+        )
+      )
+
+    // Create new OTP token
+    const [otpToken] = await database()
+      .insert(otpTokens)
+      .values({
+        email: normalizedEmail,
+        otpHash,
+        referralCode: referralCode || null,
+        expiresAt
+      })
+      .returning()
+
+    return {
+      ...otpToken,
+      otp
+    }
+  }
+
+  /**
+   * Verify OTP token and create session
+   * Tracks attempts and returns attemptsRemaining on failure
+   */
+  async verifyOtpToken(
+    email: string,
+    otp: string
+  ): Promise<
+    | (Session & { accessToken: string; refreshToken: string; user: User })
+    | { error: string; attemptsRemaining?: number }
+  > {
+    const normalizedEmail = email.toLowerCase()
+    const now = new Date()
+
+    // Find the most recent valid (unexpired, unused) OTP token for this email
+    const [otpToken] = await database()
+      .select()
+      .from(otpTokens)
+      .where(
+        and(
+          eq(otpTokens.email, normalizedEmail),
+          gt(otpTokens.expiresAt, now),
+          isNull(otpTokens.usedAt),
+          lt(otpTokens.attempts, OTP_CONFIG.MAX_ATTEMPTS)
+        )
+      )
+      .orderBy(otpTokens.createdAt)
+      .limit(1)
+
+    if (!otpToken) {
+      return { error: 'Invalid or expired code. Please request a new one.' }
+    }
+
+    // Verify the OTP hash
+    const otpHash = await hashToken(otp)
+    const isValid = otpToken.otpHash === otpHash
+
+    if (!isValid) {
+      // Increment attempts
+      const newAttempts = otpToken.attempts + 1
+      await database()
+        .update(otpTokens)
+        .set({ attempts: newAttempts })
+        .where(eq(otpTokens.id, otpToken.id))
+
+      const attemptsRemaining = OTP_CONFIG.MAX_ATTEMPTS - newAttempts
+
+      if (attemptsRemaining <= 0) {
+        return { error: 'Too many failed attempts. Please request a new code.' }
+      }
+
+      return {
+        error: 'Invalid code. Please try again.',
+        attemptsRemaining
+      }
+    }
+
+    // OTP is valid - find or create user
+    let user = await this.findUserByEmail(normalizedEmail)
+
+    if (!user) {
+      // Auto-create student user on first sign-in with referral tracking
+      const username = normalizedEmail.split('@')[0]
+      user = await this.createUser(
+        {
+          email: normalizedEmail,
+          username,
+          role: 'student'
+        },
+        { referralCode: otpToken.referralCode || undefined }
+      )
+      sendNewSignupNotification(this.env, user.email)
+    }
+
+    // Create session and mark OTP as used in transaction
+    const result = await database().transaction(async (tx) => {
+      const session = await this.createSession(user!.id, user!.role)
+
+      await tx
+        .update(otpTokens)
+        .set({ usedAt: new Date() })
+        .where(eq(otpTokens.id, otpToken.id))
+
+      return { ...session, user: user! }
+    })
+
+    return result
   }
 }

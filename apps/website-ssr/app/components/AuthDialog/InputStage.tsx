@@ -120,7 +120,7 @@ export function InputStage({
             ) : (
               <>
                 <Mail className="size-4" />
-                <span>Send verification link</span>
+                <span>Send verification code</span>
               </>
             )}
           </Button>

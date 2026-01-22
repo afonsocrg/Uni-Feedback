@@ -4,9 +4,19 @@ import { FAQ, type FAQItem } from '~/components/landing'
 
 const GIVEAWAY_FAQ_ITEMS: FAQItem[] = [
   {
+    question: 'Until when is the giveaway running?',
+    answer:
+      'You can earn points until February 27. After that, entries close and we pick a winner.'
+  },
+  {
+    question: 'How is the winner selected?',
+    answer:
+      'The winner is picked at random. Having more points gives you more chances to win.'
+  },
+  {
     question: 'How do I enter and get more points?',
     answer:
-      'You earn up to 20 points for each feedback you submit. You can also share your referral link from your profile. When a friend signs up and submits their first feedback, you get bonus points! More info [here](/points).'
+      'You earn up to 20 points for each feedback you submit. You can also share your referral link from your profile. When a friend signs up and submits their first feedback, you get bonus points! More info about points [here](/points).'
   },
   {
     question: 'Does feedback from previous years still count?',
@@ -17,12 +27,7 @@ const GIVEAWAY_FAQ_ITEMS: FAQItem[] = [
     // REPHRASED: More "relatable"
     question: 'I submitted feedback before the giveaway. Does that count?',
     answer:
-      "You're one of our OGs! If you've submitted feedback for the first term of 2025/2026, it will count for the giveaway. You just need to [log in](/login) at least once before February 27th to activate your entry for the giveaway."
-  },
-  {
-    question: 'How exactly is the winner selected?',
-    answer:
-      'The winner is picked at random. Having more points gives you more chances to win.'
+      "You're one of our OGs! All feedbacks give points to your profile. However, only feedback for courses taken during the first term of 2025/2026 counts as entries for this giveaway."
   },
   {
     question: 'Can Erasmus or international students participate?',

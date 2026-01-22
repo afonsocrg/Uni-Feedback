@@ -1,21 +1,32 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { MeicFeedbackAPIError } from '@uni-feedback/api-client'
 import { Dialog, DialogContent } from '@uni-feedback/ui'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import type { AuthUser } from '~/context/AuthContext'
-import { useMagicLinkAuth } from '~/hooks'
-import { STORAGE_KEYS, VERIFICATION_CONFIG } from '~/utils/constants'
+import { useOtpAuth } from '~/hooks'
+import {
+  OTP_CONFIG,
+  STORAGE_KEYS,
+  VERIFICATION_CONFIG
+} from '~/utils/constants'
 import { ErrorStage } from './ErrorStage'
 import type { EmailFormData } from './InputStage'
 import { InputStage } from './InputStage'
-import { PollingStage } from './PollingStage'
+import { OtpInputStage } from './OtpInputStage'
 import { SuccessStage } from './SuccessStage'
 
 export type ModalState =
   | { stage: 'input'; isSubmitting: boolean }
-  | { stage: 'polling'; email: string }
+  | {
+      stage: 'otp_input'
+      email: string
+      referralCode?: string
+      isVerifying: boolean
+      error?: string
+      attemptsRemaining?: number
+    }
   | { stage: 'success'; user: AuthUser }
   | { stage: 'error'; error: string }
 
@@ -58,8 +69,9 @@ export function AuthDialog({
     stage: 'input',
     isSubmitting: false
   })
+  const [cooldownSeconds, setCooldownSeconds] = useState(0)
 
-  const { requestMagicLink, verifyMagicLinkByRequestId } = useMagicLinkAuth()
+  const { requestOtp, verifyOtp } = useOtpAuth()
 
   const form = useForm<EmailFormData>({
     resolver: zodResolver(emailSchema),
@@ -72,6 +84,7 @@ export function AuthDialog({
   useEffect(() => {
     if (!open) {
       setModalState({ stage: 'input', isSubmitting: false })
+      setCooldownSeconds(0)
       form.reset()
     } else {
       // Load saved email from localStorage when modal opens
@@ -82,73 +95,40 @@ export function AuthDialog({
     }
   }, [open, form])
 
-  // Polling logic
-  useEffect(() => {
-    if (modalState.stage !== 'polling') return
-
-    const startTime = Date.now()
-
-    const poll = async () => {
-      try {
-        const result = await verifyMagicLinkByRequestId()
-
-        if (result.user) {
-          clearInterval(pollInterval)
-          setModalState({ stage: 'success', user: result.user })
-          setTimeout(() => {
-            onSuccess(result.user!)
-          }, VERIFICATION_CONFIG.SUCCESS_DISPLAY_MS)
-        }
-
-        // Check timeout
-        if (Date.now() - startTime > VERIFICATION_CONFIG.MAX_POLL_DURATION_MS) {
-          clearInterval(pollInterval)
-          // setModalState({
-          //   stage: 'error',
-          //   error: 'Verification timed out. Please request a new link.'
-          // })
-        }
-      } catch (error) {
-        clearInterval(pollInterval)
-        console.error('Polling error:', error)
-        setModalState({
-          stage: 'error',
-          error: 'Network error during verification. Please try again.'
-        })
-      }
-    }
-
-    const pollInterval = setInterval(poll, VERIFICATION_CONFIG.POLL_INTERVAL_MS)
-    poll() // Initial poll
-
-    return () => clearInterval(pollInterval)
-  }, [modalState, onSuccess, verifyMagicLinkByRequestId])
-
   const handleEmailSubmit = async (values: EmailFormData) => {
     setModalState({ stage: 'input', isSubmitting: true })
 
     try {
-      const response = await requestMagicLink({
-        email: values.email,
-        enablePolling: true
-      })
+      const result = await requestOtp({ email: values.email })
 
-      if (response.requestId) {
+      if (result.success) {
         // Save email to localStorage for next time
         localStorage.setItem(STORAGE_KEYS.LAST_LOGIN_EMAIL, values.email)
-        // Hook automatically stored the requestId, just transition to polling
+        // Set initial cooldown
+        setCooldownSeconds(OTP_CONFIG.COOLDOWN_SECONDS)
+        // Transition to OTP input
         setModalState({
-          stage: 'polling',
-          email: values.email
+          stage: 'otp_input',
+          email: values.email,
+          isVerifying: false
+        })
+      } else if (result.retryAfterSeconds) {
+        // Rate limited
+        setCooldownSeconds(result.retryAfterSeconds)
+        setModalState({
+          stage: 'otp_input',
+          email: values.email,
+          isVerifying: false,
+          error: result.error
         })
       } else {
         setModalState({
           stage: 'error',
-          error: 'Failed to request verification link. Please try again.'
+          error: result.error || 'Failed to send verification code.'
         })
       }
     } catch (error) {
-      console.error('Magic link request error:', error)
+      console.error('OTP request error:', error)
 
       let errorMessage =
         'Something went wrong. Please contact help@uni-feedback.com'
@@ -161,29 +141,95 @@ export function AuthDialog({
     }
   }
 
-  const handleTryAgain = () => {
-    setModalState({ stage: 'input', isSubmitting: false })
-  }
+  const handleVerifyOtp = useCallback(
+    async (otp: string) => {
+      if (modalState.stage !== 'otp_input') return
 
-  const handleManualPollCheck = async () => {
-    if (modalState.stage !== 'polling') return
+      setModalState((prev) => {
+        if (prev.stage !== 'otp_input') return prev
+        return { ...prev, isVerifying: true, error: undefined }
+      })
+
+      try {
+        const result = await verifyOtp({
+          email: modalState.email,
+          otp
+        })
+
+        if (result.success && result.user !== undefined) {
+          setModalState({ stage: 'success', user: result.user })
+          setTimeout(() => {
+            onSuccess(result.user!)
+          }, VERIFICATION_CONFIG.SUCCESS_DISPLAY_MS)
+        } else {
+          setModalState((prev) => {
+            if (prev.stage !== 'otp_input') return prev
+            return {
+              ...prev,
+              isVerifying: false,
+              error: result.error,
+              attemptsRemaining: result.attemptsRemaining
+            }
+          })
+        }
+      } catch (error) {
+        console.error('OTP verification error:', error)
+        setModalState((prev) => {
+          if (prev.stage !== 'otp_input') return prev
+          return {
+            ...prev,
+            isVerifying: false,
+            error: 'Verification failed. Please try again.'
+          }
+        })
+      }
+    },
+    [modalState, verifyOtp, onSuccess]
+  )
+
+  const handleResendOtp = useCallback(async () => {
+    if (modalState.stage !== 'otp_input') return
+
+    setModalState((prev) => {
+      if (prev.stage !== 'otp_input') return prev
+      return { ...prev, error: undefined, attemptsRemaining: undefined }
+    })
 
     try {
-      const result = await verifyMagicLinkByRequestId()
+      const result = await requestOtp({
+        email: modalState.email,
+        referralCode: modalState.referralCode
+      })
 
-      if (result.user) {
-        setModalState({ stage: 'success', user: result.user })
-        setTimeout(() => {
-          onSuccess(result.user!)
-        }, VERIFICATION_CONFIG.SUCCESS_DISPLAY_MS)
+      if (result.success) {
+        setCooldownSeconds(OTP_CONFIG.COOLDOWN_SECONDS)
+      } else if (result.retryAfterSeconds) {
+        setCooldownSeconds(result.retryAfterSeconds)
+        setModalState((prev) => {
+          if (prev.stage !== 'otp_input') return prev
+          return { ...prev, error: result.error }
+        })
       }
     } catch (error) {
-      console.error('Manual poll check error:', error)
+      console.error('OTP resend error:', error)
     }
+  }, [modalState, requestOtp])
+
+  const handleTryAgain = () => {
+    setModalState({ stage: 'input', isSubmitting: false })
+    setCooldownSeconds(0)
+  }
+
+  const handleChangeEmail = () => {
+    setModalState({ stage: 'input', isSubmitting: false })
+    setCooldownSeconds(0)
   }
 
   // Determine if modal should be closable
-  const canClose = modalState.stage !== 'polling'
+  const canClose =
+    modalState.stage === 'input' ||
+    modalState.stage === 'error' ||
+    modalState.stage === 'success'
 
   return (
     <Dialog open={open} onOpenChange={canClose ? onClose : () => {}}>
@@ -208,11 +254,16 @@ export function AuthDialog({
           />
         )}
 
-        {modalState.stage === 'polling' && (
-          <PollingStage
+        {modalState.stage === 'otp_input' && (
+          <OtpInputStage
             email={modalState.email}
-            onManualCheck={handleManualPollCheck}
-            onTryAgain={handleTryAgain}
+            isVerifying={modalState.isVerifying}
+            error={modalState.error}
+            attemptsRemaining={modalState.attemptsRemaining}
+            cooldownSeconds={cooldownSeconds}
+            onVerify={handleVerifyOtp}
+            onResend={handleResendOtp}
+            onChangeEmail={handleChangeEmail}
           />
         )}
 

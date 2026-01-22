@@ -3,22 +3,16 @@ import { isUniversityEmail, validateReferralCodeFormat } from '@utils'
 import { OpenAPIRoute } from 'chanfana'
 import { z } from 'zod'
 
-/**
- * @deprecated Use RequestOtp instead. Magic links are being replaced by OTP authentication.
- * This endpoint is kept for backward compatibility only.
- */
-export class RequestMagicLink extends OpenAPIRoute {
+export class RequestOtp extends OpenAPIRoute {
   schema = {
     tags: ['Auth'],
-    summary: 'Request magic link for passwordless login',
+    summary: 'Request OTP code for passwordless login',
     request: {
       body: {
         content: {
           'application/json': {
             schema: z.object({
               email: z.string().email(),
-              enablePolling: z.boolean().optional(),
-              requestId: z.string().optional(),
               referralCode: z.string().optional()
             })
           }
@@ -27,12 +21,11 @@ export class RequestMagicLink extends OpenAPIRoute {
     },
     responses: {
       '200': {
-        description: 'Magic link sent successfully',
+        description: 'OTP sent successfully',
         content: {
           'application/json': {
             schema: z.object({
-              message: z.string(),
-              requestId: z.string().optional()
+              message: z.string()
             })
           }
         }
@@ -53,9 +46,7 @@ export class RequestMagicLink extends OpenAPIRoute {
           'application/json': {
             schema: z.object({
               error: z.string(),
-              data: z.object({
-                resetAt: z.string()
-              })
+              retryAfterSeconds: z.number()
             })
           }
         }
@@ -66,7 +57,7 @@ export class RequestMagicLink extends OpenAPIRoute {
   async handle(request: Request, env: Env, context: any) {
     try {
       const data = await this.getValidatedData<typeof this.schema>()
-      let { email, requestId: reuseRequestId, referralCode } = data.body
+      let { email, referralCode } = data.body
       const normalizedEmail = email.toLowerCase()
 
       // Validate referral code format if provided (silently ignore invalid)
@@ -86,48 +77,38 @@ export class RequestMagicLink extends OpenAPIRoute {
         )
       }
 
-      // Check rate limit
+      // Check rate limit (60 second cooldown)
       const authService = new AuthService(env)
       const rateLimitResult =
-        await authService.checkMagicLinkRateLimit(normalizedEmail)
+        await authService.checkOtpRateLimit(normalizedEmail)
 
       if (!rateLimitResult.allowed) {
         return Response.json(
           {
-            error: 'Too many requests. Please try again later.',
-            data: {
-              resetAt: rateLimitResult.resetAt!.toISOString()
-            }
+            error: 'Please wait before requesting another code.',
+            retryAfterSeconds: rateLimitResult.retryAfterSeconds!
           },
           { status: 429 }
         )
       }
 
-      // Create magic link token
-      const magicToken = await authService.createMagicLinkToken(
+      // Create OTP token
+      const otpToken = await authService.createOtpToken(
         normalizedEmail,
-        reuseRequestId, // Pass requestId (undefined if not provided)
-        referralCode // Pass referral code (undefined if not provided or invalid)
+        referralCode
       )
-      const requestId = magicToken.requestId ?? undefined
 
-      // Send magic link email
-      const websiteUrl = env.WEBSITE_URL
+      // Send OTP email
       const emailService = new EmailService(env)
-      await emailService.sendMagicLinkEmail(
-        normalizedEmail,
-        magicToken.token,
-        websiteUrl
-      )
+      await emailService.sendOtpEmail(normalizedEmail, otpToken.otp)
 
       // Return success
       return Response.json({
         message:
-          'If your email is valid, you will receive a sign-in link shortly.',
-        ...(requestId && { requestId })
+          'If your email is valid, you will receive a verification code shortly.'
       })
     } catch (error) {
-      console.error('Request magic link error:', error)
+      console.error('Request OTP error:', error)
       return Response.json({ error: 'Internal server error' }, { status: 500 })
     }
   }

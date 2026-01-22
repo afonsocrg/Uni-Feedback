@@ -11,6 +11,11 @@ export interface PollingStageProps {
   onManualCheck: () => void
   onTryAgain: () => void
 }
+
+/**
+ * @deprecated Magic links are being replaced by OTP authentication.
+ * Use OtpInputStage instead. This component is kept for backward compatibility only.
+ */
 export function PollingStage({
   email,
   onManualCheck,

@@ -10,11 +10,10 @@ import { Login } from './login'
 import { Logout } from './logout'
 import { GetProfile } from './profile'
 import { Refresh } from './refresh'
-import { RequestMagicLink } from './requestMagicLink'
+import { RequestOtp } from './requestOtp'
 import { ResetPassword } from './resetPassword'
 import { GetUserStats } from './stats'
-import { UseMagicLink } from './useMagicLink'
-import { VerifyMagicLink } from './verifyMagicLink'
+import { VerifyOtp } from './verifyOtp'
 
 const router = fromIttyRouter(AutoRouter({ base: '/auth' }))
 
@@ -24,9 +23,14 @@ router.post('/refresh', Refresh)
 router.post('/forgot-password', ForgotPassword)
 router.post('/reset-password', ResetPassword)
 router.post('/create-account', CreateAccount)
-router.post('/magic-links', RequestMagicLink)
-router.post('/magic-links/use', UseMagicLink)
-router.post('/magic-links/verify', VerifyMagicLink)
+// @deprecated Magic link routes - kept for backward compatibility
+// router.post('/magic-links', RequestMagicLink)
+// router.post('/magic-links/use', UseMagicLink)
+// router.post('/magic-links/verify', VerifyMagicLink)
+
+// OTP authentication routes
+router.post('/otp/request', RequestOtp)
+router.post('/otp/verify', VerifyOtp)
 
 router.get('/profile', GetProfile)
 router.delete('/profile', DeleteAccount)

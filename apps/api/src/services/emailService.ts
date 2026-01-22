@@ -22,7 +22,7 @@ export class EmailService {
     from: string
     to: string
     subject: string
-    html: string
+    html?: string
     text: string
   }): Promise<void> {
     if (!this.resend) {
@@ -30,7 +30,7 @@ export class EmailService {
       console.log('From:', params.from)
       console.log('To:', params.to)
       console.log('Subject:', params.subject)
-      console.log('HTML length:', params.html.length)
+      console.log('HTML length:', params.html?.length ?? 0)
       console.log('Text length:', params.text.length)
       console.log('--- Email Content Start ---')
       console.log(params.text)
@@ -185,7 +185,33 @@ Afonso`
   }
 
   /**
+   * Send OTP verification code email
+   */
+  async sendOtpEmail(email: string, otp: string): Promise<void> {
+    // Format OTP with space in middle for readability: "123 456"
+    const formattedOtp = `${otp.slice(0, 3)} ${otp.slice(3)}`
+
+    const text = `Your login code is: ${formattedOtp}
+This code expires in 20 minutes.
+
+If you have a sec, replying 'Got it!' to this email helps future logins reach your inbox instantly.
+It also helps other students receive their codes without delays!
+
+Have a great day!
+Afonso`
+
+    await this.sendEmail({
+      from: 'Uni Feedback <afonso@uni-feedback.com>',
+      to: email,
+      subject: 'Login Code for Uni Feedback',
+      text: text
+    })
+  }
+
+  /**
    * Send magic link email for passwordless sign in
+   *
+   * @deprecated Use sendOtpEmail instead. Magic links are being replaced by OTP authentication.
    */
   async sendMagicLinkEmail(
     email: string,

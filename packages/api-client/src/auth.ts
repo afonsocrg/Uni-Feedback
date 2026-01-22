@@ -52,6 +52,32 @@ export interface RequestMagicLinkRequest {
   referralCode?: string
 }
 
+// OTP Authentication Types
+export interface RequestOtpRequest {
+  email: string
+  referralCode?: string
+}
+
+export interface VerifyOtpRequest {
+  email: string
+  otp: string
+}
+
+export interface VerifyOtpResponse {
+  user: {
+    id: number
+    email: string
+    username: string
+    role: string
+    referralCode: string
+  }
+}
+
+export interface VerifyOtpErrorResponse {
+  error: string
+  attemptsRemaining?: number
+}
+
 export interface UseMagicLinkRequest {
   token: string
 }
@@ -165,6 +191,8 @@ export async function inviteUser(
 
 /**
  * Request magic link for email
+ *
+ * @deprecated Use requestOtp instead. Magic links are being replaced by OTP authentication.
  */
 export async function requestMagicLink(
   data: RequestMagicLinkRequest
@@ -180,6 +208,8 @@ export async function requestMagicLink(
 
 /**
  * Verify magic link token and create session
+ *
+ * @deprecated Magic links are being replaced by OTP authentication.
  */
 export async function useMagicLink(
   data: UseMagicLinkRequest
@@ -204,11 +234,39 @@ export interface VerifyMagicLinkResponse {
 
 /**
  * Verify magic link by request ID (polling-based verification)
+ *
+ * @deprecated Magic links are being replaced by OTP authentication.
  */
 export async function verifyMagicLinkByRequestId(
   data: VerifyMagicLinkByRequestIdRequest
 ): Promise<VerifyMagicLinkResponse> {
   return apiPost<VerifyMagicLinkResponse>('/auth/magic-links/verify', data)
+}
+
+// ============================================
+// OTP Authentication Functions
+// ============================================
+
+/**
+ * Request OTP code for email
+ */
+export async function requestOtp(
+  data: RequestOtpRequest
+): Promise<{ message: string }> {
+  return apiPost<{ message: string }>('/auth/otp/request', data, {
+    requiresAuth: false
+  })
+}
+
+/**
+ * Verify OTP code and create session
+ */
+export async function verifyOtp(
+  data: VerifyOtpRequest
+): Promise<VerifyOtpResponse> {
+  return apiPost<VerifyOtpResponse>('/auth/otp/verify', data, {
+    requiresAuth: true
+  })
 }
 
 /**

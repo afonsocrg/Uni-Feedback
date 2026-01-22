@@ -1,4 +1,3 @@
-import { MeicFeedbackAPIError } from '@uni-feedback/api-client'
 import {
   Button,
   Card,
@@ -9,26 +8,28 @@ import {
 } from '@uni-feedback/ui'
 import { isValidEmail } from '@uni-feedback/utils'
 import { HelpCircle } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import { toast } from 'sonner'
-import { useAuth, useLocalStorage, useMagicLinkAuth } from '~/hooks'
-import { STORAGE_KEYS, VERIFICATION_CONFIG } from '~/utils/constants'
+import { OtpInputStage } from '~/components/AuthDialog/OtpInputStage'
+import { useAuth, useOtpAuth } from '~/hooks'
+import { OTP_CONFIG, STORAGE_KEYS } from '~/utils/constants'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [emailSent, setEmailSent] = useState(false)
-  const [rateLimitResetAtISO, setRateLimitResetAtISO] = useLocalStorage<
-    string | null
-  >(STORAGE_KEYS.MAGIC_LINK_RATE_LIMIT_RESET, null)
-  const [countdown, setCountdown] = useState<string>('')
+  const [showOtpInput, setShowOtpInput] = useState(false)
+  const [isVerifying, setIsVerifying] = useState(false)
+  const [otpError, setOtpError] = useState<string | null>(null)
+  const [attemptsRemaining, setAttemptsRemaining] = useState<
+    number | undefined
+  >()
+  const [cooldownSeconds, setCooldownSeconds] = useState(0)
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const { user, setUser } = useAuth()
-  const verificationSucceeded = useRef(false)
 
-  const { requestMagicLink, verifyMagicLinkByRequestId } = useMagicLinkAuth()
+  const { requestOtp, verifyOtp } = useOtpAuth()
 
   // Extract referral code from URL
   const referralCode = searchParams.get('ref') || undefined
@@ -48,81 +49,16 @@ export default function LoginPage() {
     }
   }, [])
 
-  // Compute rate limit date from stored ISO string
-  const rateLimitResetAt =
-    rateLimitResetAtISO && new Date(rateLimitResetAtISO).getTime() > Date.now()
-      ? new Date(rateLimitResetAtISO)
-      : null
-
-  // Clear expired rate limit
+  // Countdown timer for cooldown
   useEffect(() => {
-    if (rateLimitResetAtISO && !rateLimitResetAt) {
-      setRateLimitResetAtISO(null)
-    }
-  }, [rateLimitResetAtISO, rateLimitResetAt, setRateLimitResetAtISO])
+    if (cooldownSeconds <= 0) return
 
-  // Countdown timer for rate limit
-  useEffect(() => {
-    if (!rateLimitResetAt) {
-      setCountdown('')
-      return
-    }
+    const timer = setInterval(() => {
+      setCooldownSeconds((prev) => Math.max(0, prev - 1))
+    }, 1000)
 
-    const updateCountdown = () => {
-      const now = new Date()
-      const timeLeft = rateLimitResetAt.getTime() - now.getTime()
-
-      if (timeLeft <= 0) {
-        setRateLimitResetAtISO(null)
-        setCountdown('')
-        return
-      }
-
-      const minutes = Math.floor(timeLeft / 60000)
-      const seconds = Math.floor((timeLeft % 60000) / 1000)
-      setCountdown(`${minutes}:${seconds.toString().padStart(2, '0')}`)
-    }
-
-    updateCountdown()
-    const interval = setInterval(updateCountdown, 1000)
-
-    return () => clearInterval(interval)
-  }, [rateLimitResetAt, setRateLimitResetAtISO])
-
-  // Polling logic - runs when email is sent
-  useEffect(() => {
-    if (!emailSent || verificationSucceeded.current) return
-
-    const startTime = Date.now()
-    const redirectTo = searchParams.get('redirect') || '/'
-
-    const poll = async () => {
-      try {
-        const result = await verifyMagicLinkByRequestId()
-
-        if (result.user) {
-          verificationSucceeded.current = true
-          clearInterval(pollInterval)
-          setUser(result.user)
-          toast.success('Successfully logged in!')
-          navigate(redirectTo)
-        }
-
-        // Check timeout
-        if (Date.now() - startTime > VERIFICATION_CONFIG.MAX_POLL_DURATION_MS) {
-          clearInterval(pollInterval)
-        }
-      } catch (error) {
-        clearInterval(pollInterval)
-        console.error('Polling error:', error)
-      }
-    }
-
-    const pollInterval = setInterval(poll, VERIFICATION_CONFIG.POLL_INTERVAL_MS)
-    poll() // Initial poll
-
-    return () => clearInterval(pollInterval)
-  }, [emailSent, verifyMagicLinkByRequestId, navigate, searchParams, setUser])
+    return () => clearInterval(timer)
+  }, [cooldownSeconds])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -135,30 +71,90 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      await requestMagicLink({ email, enablePolling: true, referralCode })
-      // Clear any previous rate limit state on success
-      setRateLimitResetAtISO(null)
-      // Save email to localStorage for next time
-      localStorage.setItem(STORAGE_KEYS.LAST_LOGIN_EMAIL, email)
-      setEmailSent(true)
-      toast.success('Check your email for the login link!')
-    } catch (error) {
-      // Handle rate limit error with countdown
-      if (error instanceof MeicFeedbackAPIError && error.status === 429) {
-        const resetAt = error.data?.resetAt
-        if (resetAt) {
-          setRateLimitResetAtISO(resetAt)
-        }
-      } else {
-        // Other errors - display message
+      const result = await requestOtp({ email, referralCode })
+
+      if (result.success) {
+        // Save email to localStorage for next time
+        localStorage.setItem(STORAGE_KEYS.LAST_LOGIN_EMAIL, email)
+        setCooldownSeconds(OTP_CONFIG.COOLDOWN_SECONDS)
+        setShowOtpInput(true)
+        setOtpError(null)
+        setAttemptsRemaining(undefined)
+        toast.success('Check your email for the verification code!')
+      } else if (result.retryAfterSeconds) {
+        setCooldownSeconds(result.retryAfterSeconds)
         toast.error(
-          error instanceof Error ? error.message : 'Failed to send login link'
+          result.error || 'Please wait before requesting another code.'
         )
+      } else {
+        toast.error(result.error || 'Failed to send verification code')
       }
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : 'Failed to send verification code'
+      )
     }
 
     setIsLoading(false)
   }
+
+  const handleVerifyOtp = async (otp: string) => {
+    if (otp.length !== OTP_CONFIG.CODE_LENGTH) return
+
+    setIsVerifying(true)
+    setOtpError(null)
+
+    try {
+      const redirectTo = searchParams.get('redirect') || '/'
+      const result = await verifyOtp({ email, otp })
+
+      if (result.success && result.user) {
+        setUser(result.user)
+        toast.success('Successfully logged in!')
+        navigate(redirectTo)
+      } else {
+        setOtpError(result.error || 'Invalid code')
+        setAttemptsRemaining(result.attemptsRemaining)
+      }
+    } catch (error) {
+      setOtpError('Verification failed. Please try again.')
+    }
+
+    setIsVerifying(false)
+  }
+
+  const handleResendOtp = async () => {
+    if (cooldownSeconds > 0) return
+
+    setOtpError(null)
+    setAttemptsRemaining(undefined)
+
+    try {
+      const result = await requestOtp({ email, referralCode })
+
+      if (result.success) {
+        setCooldownSeconds(OTP_CONFIG.COOLDOWN_SECONDS)
+        toast.success('New verification code sent!')
+      } else if (result.retryAfterSeconds) {
+        setCooldownSeconds(result.retryAfterSeconds)
+        toast.error(
+          result.error || 'Please wait before requesting another code.'
+        )
+      }
+    } catch (error) {
+      toast.error('Failed to resend code')
+    }
+  }
+
+  const handleTryAgain = () => {
+    setShowOtpInput(false)
+    setOtpError(null)
+    setAttemptsRemaining(undefined)
+    setCooldownSeconds(0)
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-md space-y-6">
@@ -174,41 +170,40 @@ export default function LoginPage() {
         </div>
 
         <Card className="p-6 shadow-lg border-border text-sm">
-          {emailSent ? (
-            <div className="text-center space-y-4 text-muted-foreground">
-              <div className="space-y-2">
-                <p>We've sent a login link to</p>
-                <p className="font-semibold">{email}</p>
-                <p className="text-xs mt-3">
-                  Don't see the email? Check your spam folder or try searching
-                  for <span className="font-medium">@uni-feedback.com</span> in
-                  your inbox.
+          {showOtpInput ? (
+            <div className="space-y-4">
+              <div className="text-center space-y-2">
+                <p className="text-muted-foreground">
+                  We sent a verification code to
                 </p>
+                <p className="font-semibold">{email}</p>
               </div>
-              <div className="flex gap-2 pt-2">
-                <Button
-                  type="submit"
-                  className="w-full"
-                  onClick={() => {
-                    setEmailSent(false)
-                    verificationSucceeded.current = false
-                  }}
-                >
-                  Try again
-                </Button>
-              </div>
+
+              <OtpInputStage
+                email={email}
+                isVerifying={isVerifying}
+                error={otpError || undefined}
+                attemptsRemaining={attemptsRemaining}
+                cooldownSeconds={cooldownSeconds}
+                onVerify={handleVerifyOtp}
+                onResend={handleResendOtp}
+                onChangeEmail={handleTryAgain}
+                showHeader={false}
+              />
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
-              {rateLimitResetAt && (
+              {cooldownSeconds > 0 && (
                 <div className="mt-2 px-4 text-center space-y-2">
                   <p className="text-sm font-medium text-foreground">
-                    Hold on a sec ⏳
+                    Hold on a sec
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    You’ve requested too many links. Try again in{' '}
+                    You can request another code in{' '}
                   </p>
-                  <div className="font-bold text-gray-700">{countdown}</div>
+                  <div className="font-bold text-gray-700">
+                    {cooldownSeconds}s
+                  </div>
                 </div>
               )}
               <div className="space-y-2">
@@ -268,10 +263,10 @@ export default function LoginPage() {
                 type="submit"
                 className="w-full"
                 disabled={
-                  isLoading || !isValidEmail(email) || !!rateLimitResetAt
+                  isLoading || !isValidEmail(email) || cooldownSeconds > 0
                 }
               >
-                {isLoading ? 'Sending...' : 'Email me Login Link'}
+                {isLoading ? 'Sending...' : 'Send verification code'}
               </Button>
             </form>
           )}

@@ -15,7 +15,14 @@ export const STORAGE_KEYS = {
   LAST_LOGIN_EMAIL: 'uni-feedback-last-email',
   AUTH_USER: 'uni-feedback-student-user',
   MAGIC_LINK_REQUEST_ID: 'uni-feedback-magic-link-request-id',
-  MAGIC_LINK_RATE_LIMIT_RESET: 'uni-feedback-magic-link-rate-limit-reset'
+  MAGIC_LINK_RATE_LIMIT_RESET: 'uni-feedback-magic-link-rate-limit-reset',
+  OTP_COOLDOWN_END: 'uni-feedback-otp-cooldown-end'
+} as const
+
+// OTP configuration (frontend constants)
+export const OTP_CONFIG = {
+  COOLDOWN_SECONDS: 60,
+  CODE_LENGTH: 6
 } as const
 
 // Email verification configuration

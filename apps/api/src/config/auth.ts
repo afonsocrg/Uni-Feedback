@@ -52,6 +52,14 @@ export const RATE_LIMIT_CONFIG = {
   }
 } as const
 
+// OTP configuration
+export const OTP_CONFIG = {
+  CODE_LENGTH: 6,
+  EXPIRATION_MS: 20 * TIME_MS.MINUTE,
+  RATE_LIMIT_SECONDS: 60,
+  MAX_ATTEMPTS: 5
+} as const
+
 // Magic link configuration
 export const MAGIC_LINK_CONFIG = {
   // Request ID reuse window

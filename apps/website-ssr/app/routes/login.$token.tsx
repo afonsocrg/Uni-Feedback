@@ -14,6 +14,9 @@ import { useAuth, useMagicLinkAuth } from '~/hooks'
  * - Auth pages are SPA for simplicity and dynamic UX
  * - No SSR complexity for auth state
  * - Clean separation: public = SSR, private = SPA
+ *
+ * @deprecated Magic links are being replaced by OTP authentication.
+ * This route is kept for backward compatibility only.
  */
 export default function LoginToken() {
   const { token } = useParams()

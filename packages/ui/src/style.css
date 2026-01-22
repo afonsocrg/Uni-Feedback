@@ -164,6 +164,22 @@
   animation: marquee 12s linear infinite;
 }
 
+@keyframes caret-blink {
+  0%,
+  70%,
+  100% {
+    opacity: 1;
+  }
+  20%,
+  50% {
+    opacity: 0;
+  }
+}
+
+.animate-caret-blink {
+  animation: caret-blink 1.25s ease-out infinite;
+}
+
 .markdown-compact {
   font-size: 0.85rem;
 }

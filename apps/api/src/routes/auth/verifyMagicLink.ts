@@ -3,6 +3,10 @@ import { setAuthCookies } from '@utils/authCookies'
 import { OpenAPIRoute } from 'chanfana'
 import { z } from 'zod'
 
+/**
+ * @deprecated Magic links are being replaced by OTP authentication.
+ * This endpoint is kept for backward compatibility only.
+ */
 export class VerifyMagicLink extends OpenAPIRoute {
   schema = {
     tags: ['Auth'],
