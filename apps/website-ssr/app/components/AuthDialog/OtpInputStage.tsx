@@ -9,62 +9,109 @@ import {
   InputOTPSlot
 } from '@uni-feedback/ui'
 import { Loader2 } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import type { AuthUser } from '~/context/AuthContext'
+import { useOtpAuth } from '~/hooks'
 import { OTP_CONFIG } from '~/utils/constants'
 
 export interface OtpInputStageProps {
   email: string
-  isVerifying: boolean
-  error?: string
-  attemptsRemaining?: number
-  cooldownSeconds: number
-  onVerify: (otp: string) => void
-  onResend: () => void
+  onSuccess: (user: AuthUser) => void
   onChangeEmail: () => void
   showHeader?: boolean
 }
 
 export function OtpInputStage({
   email,
-  isVerifying,
-  error,
-  attemptsRemaining,
-  cooldownSeconds,
-  onVerify,
-  onResend,
+  onSuccess,
   onChangeEmail,
   showHeader = true
 }: OtpInputStageProps) {
   const [otp, setOtp] = useState('')
-  const [countdown, setCountdown] = useState(cooldownSeconds)
+  const [isVerifying, setIsVerifying] = useState(false)
+  const [error, setError] = useState<string>()
+  const [attemptsRemaining, setAttemptsRemaining] = useState<number>()
+  const [cooldownSeconds, setCooldownSeconds] = useState(
+    OTP_CONFIG.COOLDOWN_SECONDS
+  )
+  const lastSubmittedOtp = useRef<string>('')
 
-  // Update countdown when cooldownSeconds changes
-  useEffect(() => {
-    setCountdown(cooldownSeconds)
-  }, [cooldownSeconds])
+  const { verifyOtp, requestOtp } = useOtpAuth()
 
   // Countdown timer
   useEffect(() => {
-    if (countdown <= 0) return
+    if (cooldownSeconds <= 0) return
 
     const timer = setInterval(() => {
-      setCountdown((prev) => Math.max(0, prev - 1))
+      setCooldownSeconds((prev) => Math.max(0, prev - 1))
     }, 1000)
 
     return () => clearInterval(timer)
-  }, [countdown])
+  }, [cooldownSeconds])
 
-  // Auto-submit when OTP is complete
+  const handleVerifyOtp = useCallback(
+    async (otpCode: string) => {
+      setIsVerifying(true)
+      setError(undefined)
+
+      try {
+        const result = await verifyOtp({
+          email,
+          otp: otpCode
+        })
+
+        if (result.success && result.user) {
+          onSuccess(result.user)
+        } else {
+          setError(result.error)
+          setAttemptsRemaining(result.attemptsRemaining)
+          setTimeout(() => setOtp(''), 400)
+        }
+      } catch (error) {
+        console.error('OTP verification error:', error)
+        setError('Verification failed. Please try again.')
+      } finally {
+        setIsVerifying(false)
+      }
+    },
+    [email, verifyOtp, onSuccess]
+  )
+
+  // Auto-submit when OTP is complete (with a small delay for UX)
   useEffect(() => {
-    if (otp.length === OTP_CONFIG.CODE_LENGTH && !isVerifying) {
-      onVerify(otp)
-    }
-  }, [otp, isVerifying, onVerify])
+    if (
+      otp.length === OTP_CONFIG.CODE_LENGTH &&
+      !isVerifying &&
+      otp !== lastSubmittedOtp.current
+    ) {
+      const timer = setTimeout(() => {
+        lastSubmittedOtp.current = otp
+        handleVerifyOtp(otp)
+      }, 400)
 
-  const handleResend = () => {
+      return () => clearTimeout(timer)
+    }
+  }, [otp, isVerifying, handleVerifyOtp])
+
+  const handleResend = useCallback(async () => {
     setOtp('')
-    onResend()
-  }
+    lastSubmittedOtp.current = ''
+    setError(undefined)
+    setAttemptsRemaining(undefined)
+
+    try {
+      const result = await requestOtp({ email })
+
+      if (result.success) {
+        setCooldownSeconds(OTP_CONFIG.COOLDOWN_SECONDS)
+      } else if (result.retryAfterSeconds) {
+        setCooldownSeconds(result.retryAfterSeconds)
+        setError(result.error)
+      }
+    } catch (error) {
+      console.error('OTP resend error:', error)
+    }
+  }, [email, requestOtp])
 
   const handlePaste = (e: React.ClipboardEvent) => {
     e.preventDefault()
@@ -137,9 +184,11 @@ export function OtpInputStage({
             variant="outline"
             size="sm"
             onClick={handleResend}
-            disabled={countdown > 0 || isVerifying}
+            disabled={cooldownSeconds > 0 || isVerifying}
           >
-            {countdown > 0 ? `Resend code (${countdown}s)` : 'Resend code'}
+            {cooldownSeconds > 0
+              ? `Resend code (${cooldownSeconds}s)`
+              : 'Resend code'}
           </Button>
           <Button size="sm" onClick={onChangeEmail} disabled={isVerifying}>
             Use a different email

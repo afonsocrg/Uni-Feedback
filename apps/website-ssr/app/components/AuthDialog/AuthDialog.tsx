@@ -1,16 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { MeicFeedbackAPIError } from '@uni-feedback/api-client'
 import { Dialog, DialogContent } from '@uni-feedback/ui'
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import type { AuthUser } from '~/context/AuthContext'
 import { useOtpAuth } from '~/hooks'
-import {
-  OTP_CONFIG,
-  STORAGE_KEYS,
-  VERIFICATION_CONFIG
-} from '~/utils/constants'
+import { STORAGE_KEYS, VERIFICATION_CONFIG } from '~/utils/constants'
 import { ErrorStage } from './ErrorStage'
 import type { EmailFormData } from './InputStage'
 import { InputStage } from './InputStage'
@@ -22,10 +18,6 @@ export type ModalState =
   | {
       stage: 'otp_input'
       email: string
-      referralCode?: string
-      isVerifying: boolean
-      error?: string
-      attemptsRemaining?: number
     }
   | { stage: 'success'; user: AuthUser }
   | { stage: 'error'; error: string }
@@ -69,9 +61,8 @@ export function AuthDialog({
     stage: 'input',
     isSubmitting: false
   })
-  const [cooldownSeconds, setCooldownSeconds] = useState(0)
 
-  const { requestOtp, verifyOtp } = useOtpAuth()
+  const { requestOtp } = useOtpAuth()
 
   const form = useForm<EmailFormData>({
     resolver: zodResolver(emailSchema),
@@ -84,7 +75,6 @@ export function AuthDialog({
   useEffect(() => {
     if (!open) {
       setModalState({ stage: 'input', isSubmitting: false })
-      setCooldownSeconds(0)
       form.reset()
     } else {
       // Load saved email from localStorage when modal opens
@@ -101,25 +91,13 @@ export function AuthDialog({
     try {
       const result = await requestOtp({ email: values.email })
 
-      if (result.success) {
+      if (result.success || result.retryAfterSeconds) {
         // Save email to localStorage for next time
         localStorage.setItem(STORAGE_KEYS.LAST_LOGIN_EMAIL, values.email)
-        // Set initial cooldown
-        setCooldownSeconds(OTP_CONFIG.COOLDOWN_SECONDS)
-        // Transition to OTP input
+        // Transition to OTP input (component will handle cooldown internally)
         setModalState({
           stage: 'otp_input',
-          email: values.email,
-          isVerifying: false
-        })
-      } else if (result.retryAfterSeconds) {
-        // Rate limited
-        setCooldownSeconds(result.retryAfterSeconds)
-        setModalState({
-          stage: 'otp_input',
-          email: values.email,
-          isVerifying: false,
-          error: result.error
+          email: values.email
         })
       } else {
         setModalState({
@@ -141,88 +119,19 @@ export function AuthDialog({
     }
   }
 
-  const handleVerifyOtp = useCallback(
-    async (otp: string) => {
-      if (modalState.stage !== 'otp_input') return
-
-      setModalState((prev) => {
-        if (prev.stage !== 'otp_input') return prev
-        return { ...prev, isVerifying: true, error: undefined }
-      })
-
-      try {
-        const result = await verifyOtp({
-          email: modalState.email,
-          otp
-        })
-
-        if (result.success && result.user !== undefined) {
-          setModalState({ stage: 'success', user: result.user })
-          setTimeout(() => {
-            onSuccess(result.user!)
-          }, VERIFICATION_CONFIG.SUCCESS_DISPLAY_MS)
-        } else {
-          setModalState((prev) => {
-            if (prev.stage !== 'otp_input') return prev
-            return {
-              ...prev,
-              isVerifying: false,
-              error: result.error,
-              attemptsRemaining: result.attemptsRemaining
-            }
-          })
-        }
-      } catch (error) {
-        console.error('OTP verification error:', error)
-        setModalState((prev) => {
-          if (prev.stage !== 'otp_input') return prev
-          return {
-            ...prev,
-            isVerifying: false,
-            error: 'Verification failed. Please try again.'
-          }
-        })
-      }
-    },
-    [modalState, verifyOtp, onSuccess]
-  )
-
-  const handleResendOtp = useCallback(async () => {
-    if (modalState.stage !== 'otp_input') return
-
-    setModalState((prev) => {
-      if (prev.stage !== 'otp_input') return prev
-      return { ...prev, error: undefined, attemptsRemaining: undefined }
-    })
-
-    try {
-      const result = await requestOtp({
-        email: modalState.email,
-        referralCode: modalState.referralCode
-      })
-
-      if (result.success) {
-        setCooldownSeconds(OTP_CONFIG.COOLDOWN_SECONDS)
-      } else if (result.retryAfterSeconds) {
-        setCooldownSeconds(result.retryAfterSeconds)
-        setModalState((prev) => {
-          if (prev.stage !== 'otp_input') return prev
-          return { ...prev, error: result.error }
-        })
-      }
-    } catch (error) {
-      console.error('OTP resend error:', error)
-    }
-  }, [modalState, requestOtp])
+  const handleOtpSuccess = (user: AuthUser) => {
+    setModalState({ stage: 'success', user })
+    setTimeout(() => {
+      onSuccess(user)
+    }, VERIFICATION_CONFIG.SUCCESS_DISPLAY_MS)
+  }
 
   const handleTryAgain = () => {
     setModalState({ stage: 'input', isSubmitting: false })
-    setCooldownSeconds(0)
   }
 
   const handleChangeEmail = () => {
     setModalState({ stage: 'input', isSubmitting: false })
-    setCooldownSeconds(0)
   }
 
   // Determine if modal should be closable
@@ -257,12 +166,7 @@ export function AuthDialog({
         {modalState.stage === 'otp_input' && (
           <OtpInputStage
             email={modalState.email}
-            isVerifying={modalState.isVerifying}
-            error={modalState.error}
-            attemptsRemaining={modalState.attemptsRemaining}
-            cooldownSeconds={cooldownSeconds}
-            onVerify={handleVerifyOtp}
-            onResend={handleResendOtp}
+            onSuccess={handleOtpSuccess}
             onChangeEmail={handleChangeEmail}
           />
         )}

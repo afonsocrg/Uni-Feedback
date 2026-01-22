@@ -12,24 +12,19 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import { toast } from 'sonner'
 import { OtpInputStage } from '~/components/AuthDialog/OtpInputStage'
+import type { AuthUser } from '~/context/AuthContext'
 import { useAuth, useOtpAuth } from '~/hooks'
-import { OTP_CONFIG, STORAGE_KEYS } from '~/utils/constants'
+import { STORAGE_KEYS } from '~/utils/constants'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [showOtpInput, setShowOtpInput] = useState(false)
-  const [isVerifying, setIsVerifying] = useState(false)
-  const [otpError, setOtpError] = useState<string | null>(null)
-  const [attemptsRemaining, setAttemptsRemaining] = useState<
-    number | undefined
-  >()
-  const [cooldownSeconds, setCooldownSeconds] = useState(0)
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const { user, setUser } = useAuth()
 
-  const { requestOtp, verifyOtp } = useOtpAuth()
+  const { requestOtp } = useOtpAuth()
 
   // Extract referral code from URL
   const referralCode = searchParams.get('ref') || undefined
@@ -49,17 +44,6 @@ export default function LoginPage() {
     }
   }, [])
 
-  // Countdown timer for cooldown
-  useEffect(() => {
-    if (cooldownSeconds <= 0) return
-
-    const timer = setInterval(() => {
-      setCooldownSeconds((prev) => Math.max(0, prev - 1))
-    }, 1000)
-
-    return () => clearInterval(timer)
-  }, [cooldownSeconds])
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -73,19 +57,11 @@ export default function LoginPage() {
     try {
       const result = await requestOtp({ email, referralCode })
 
-      if (result.success) {
+      if (result.success || result.retryAfterSeconds) {
         // Save email to localStorage for next time
         localStorage.setItem(STORAGE_KEYS.LAST_LOGIN_EMAIL, email)
-        setCooldownSeconds(OTP_CONFIG.COOLDOWN_SECONDS)
         setShowOtpInput(true)
-        setOtpError(null)
-        setAttemptsRemaining(undefined)
         toast.success('Check your email for the verification code!')
-      } else if (result.retryAfterSeconds) {
-        setCooldownSeconds(result.retryAfterSeconds)
-        toast.error(
-          result.error || 'Please wait before requesting another code.'
-        )
       } else {
         toast.error(result.error || 'Failed to send verification code')
       }
@@ -100,59 +76,15 @@ export default function LoginPage() {
     setIsLoading(false)
   }
 
-  const handleVerifyOtp = async (otp: string) => {
-    if (otp.length !== OTP_CONFIG.CODE_LENGTH) return
-
-    setIsVerifying(true)
-    setOtpError(null)
-
-    try {
-      const redirectTo = searchParams.get('redirect') || '/'
-      const result = await verifyOtp({ email, otp })
-
-      if (result.success && result.user) {
-        setUser(result.user)
-        toast.success('Successfully logged in!')
-        navigate(redirectTo)
-      } else {
-        setOtpError(result.error || 'Invalid code')
-        setAttemptsRemaining(result.attemptsRemaining)
-      }
-    } catch (error) {
-      setOtpError('Verification failed. Please try again.')
-    }
-
-    setIsVerifying(false)
-  }
-
-  const handleResendOtp = async () => {
-    if (cooldownSeconds > 0) return
-
-    setOtpError(null)
-    setAttemptsRemaining(undefined)
-
-    try {
-      const result = await requestOtp({ email, referralCode })
-
-      if (result.success) {
-        setCooldownSeconds(OTP_CONFIG.COOLDOWN_SECONDS)
-        toast.success('New verification code sent!')
-      } else if (result.retryAfterSeconds) {
-        setCooldownSeconds(result.retryAfterSeconds)
-        toast.error(
-          result.error || 'Please wait before requesting another code.'
-        )
-      }
-    } catch (error) {
-      toast.error('Failed to resend code')
-    }
+  const handleOtpSuccess = (user: AuthUser) => {
+    const redirectTo = searchParams.get('redirect') || '/'
+    setUser(user)
+    toast.success('Successfully logged in!')
+    navigate(redirectTo)
   }
 
   const handleTryAgain = () => {
     setShowOtpInput(false)
-    setOtpError(null)
-    setAttemptsRemaining(undefined)
-    setCooldownSeconds(0)
   }
 
   return (
@@ -181,31 +113,13 @@ export default function LoginPage() {
 
               <OtpInputStage
                 email={email}
-                isVerifying={isVerifying}
-                error={otpError || undefined}
-                attemptsRemaining={attemptsRemaining}
-                cooldownSeconds={cooldownSeconds}
-                onVerify={handleVerifyOtp}
-                onResend={handleResendOtp}
+                onSuccess={handleOtpSuccess}
                 onChangeEmail={handleTryAgain}
                 showHeader={false}
               />
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
-              {cooldownSeconds > 0 && (
-                <div className="mt-2 px-4 text-center space-y-2">
-                  <p className="text-sm font-medium text-foreground">
-                    Hold on a sec
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    You can request another code in{' '}
-                  </p>
-                  <div className="font-bold text-gray-700">
-                    {cooldownSeconds}s
-                  </div>
-                </div>
-              )}
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <label htmlFor="email" className="text-sm font-medium">
@@ -262,9 +176,7 @@ export default function LoginPage() {
               <Button
                 type="submit"
                 className="w-full"
-                disabled={
-                  isLoading || !isValidEmail(email) || cooldownSeconds > 0
-                }
+                disabled={isLoading || !isValidEmail(email)}
               >
                 {isLoading ? 'Sending...' : 'Send verification code'}
               </Button>
