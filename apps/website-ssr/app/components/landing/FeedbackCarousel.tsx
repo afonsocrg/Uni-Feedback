@@ -29,18 +29,14 @@ export function FeedbackCarousel({
 
   // Add 1 to account for the placeholder card
   const totalItems = feedbacks.length + 1
-  const maxIndex = totalItems - 1
 
   const handlePrev = () => {
-    setCurrentIndex((prev) => Math.max(0, prev - 1))
+    setCurrentIndex((prev) => (prev - 1 + totalItems) % totalItems)
   }
 
   const handleNext = () => {
-    setCurrentIndex((prev) => Math.min(maxIndex, prev + 1))
+    setCurrentIndex((prev) => (prev + 1) % totalItems)
   }
-
-  const canGoPrev = currentIndex > 0
-  const canGoNext = currentIndex < maxIndex
 
   return (
     <>
@@ -67,8 +63,7 @@ export function FeedbackCarousel({
           {/* Left Navigation Arrow */}
           <button
             onClick={handlePrev}
-            disabled={!canGoPrev}
-            className="flex-shrink-0 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer hover:opacity-70 transition-opacity"
+            className="flex-shrink-0 cursor-pointer hover:opacity-70 transition-opacity"
             aria-label="Previous feedback"
           >
             <ChevronLeft className="size-8 text-gray-700" />
@@ -116,8 +111,7 @@ export function FeedbackCarousel({
           {/* Right Navigation Arrow */}
           <button
             onClick={handleNext}
-            disabled={!canGoNext}
-            className="flex-shrink-0 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer hover:opacity-70 transition-opacity"
+            className="flex-shrink-0 cursor-pointer hover:opacity-70 transition-opacity"
             aria-label="Next feedback"
           >
             <ChevronRight className="size-8 text-gray-700" />

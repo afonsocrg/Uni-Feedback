@@ -5,9 +5,6 @@ import {
   CTASection,
   GiveawayPromoSection,
   HeroSection,
-  HeroSectionV2,
-  HeroSectionV3,
-  HeroSectionV4,
   HowItWorksSection,
   LandingFAQSection,
   LovedByStudentsSection,
@@ -19,7 +16,7 @@ import type { Route } from './+types/landing'
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: 'Uni Feedback - Landing Page' },
+    { title: 'Uni Feedback' },
     {
       name: 'description',
       content:
@@ -74,23 +71,11 @@ export async function loader() {
 
 export default function LandingPage({ loaderData }: Route.ComponentProps) {
   const [searchParams] = useSearchParams()
-  const heroVersion = searchParams.get('hero') || 'v2'
-
-  const Hero =
-    heroVersion === 'v1'
-      ? HeroSection
-      : heroVersion === 'v2'
-        ? HeroSectionV2
-        : heroVersion === 'v3'
-          ? HeroSectionV3
-          : heroVersion === 'v4'
-            ? HeroSectionV4
-            : HeroSectionV2
 
   return (
     <>
       <GiveawayPromoSection />
-      <Hero
+      <HeroSection
         studentClubs={loaderData.studentClubs}
         recentFeedbacks={loaderData.recentFeedbacks}
       />
