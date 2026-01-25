@@ -57,7 +57,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [location.pathname, isLoggingOut])
 
   const isAuthenticated = !!user
-  console.log({ location })
 
   const logout = async (): Promise<void> => {
     setIsLoading(true)
@@ -69,8 +68,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const isOnProtectedRoute =
       location.pathname === '/profile' ||
       location.pathname.match(/^\/feedback\/\d+\/edit\/?.*$/) !== null
-
-    console.log({ isOnProtectedRoute })
 
     try {
       await apiLogout()
