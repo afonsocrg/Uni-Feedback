@@ -17,7 +17,13 @@ import {
   WorkloadRatingDisplay
 } from '@uni-feedback/ui'
 import { getRelativeTime } from '@uni-feedback/utils'
-import { EllipsisVertical, ExternalLink, Pencil, Trash2 } from 'lucide-react'
+import {
+  EllipsisVertical,
+  ExternalLink,
+  HelpCircle,
+  Pencil,
+  Trash2
+} from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router'
 import { toast } from 'sonner'
@@ -150,23 +156,41 @@ export function ProfileFeedbackCard({ feedback }: ProfileFeedbackCardProps) {
             <div className="flex-shrink-0">
               <Popover>
                 <PopoverTrigger asChild>
-                  <button className="text-sm font-semibold text-primary hover:underline cursor-pointer">
-                    +{feedback.points} pts
-                  </button>
+                  <div className="flex items-center gap-2 text-sm font-semibold text-primary cursor-pointer">
+                    <span>+{feedback.points} pts</span>
+                    <HelpCircle className="size-4 text-muted-foreground" />
+                  </div>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto">
-                  {feedback.analysis && (
-                    <FeedbackCategoryChips
-                      orientation="vertical"
-                      categories={{
-                        hasTeaching: feedback.analysis.hasTeaching,
-                        hasAssessment: feedback.analysis.hasAssessment,
-                        hasMaterials: feedback.analysis.hasMaterials,
-                        hasTips: feedback.analysis.hasTips
-                      }}
-                      isLoading={false}
-                    />
-                  )}
+                <PopoverContent className="w-80">
+                  <div className="space-y-4">
+                    <p className="text-sm font-medium">
+                      You earned {feedback.points} points for giving this
+                      feedback
+                    </p>
+                    {feedback.analysis && (
+                      <div>
+                        <p className="text-xs text-gray-500 mb-2">
+                          Categories covered:
+                        </p>
+                        <FeedbackCategoryChips
+                          orientation="vertical"
+                          categories={{
+                            hasTeaching: feedback.analysis.hasTeaching,
+                            hasAssessment: feedback.analysis.hasAssessment,
+                            hasMaterials: feedback.analysis.hasMaterials,
+                            hasTips: feedback.analysis.hasTips
+                          }}
+                          isLoading={false}
+                        />
+                      </div>
+                    )}
+                    <Link
+                      to="/points"
+                      className="text-sm text-primary hover:underline inline-block"
+                    >
+                      Learn more about points →
+                    </Link>
+                  </div>
                 </PopoverContent>
               </Popover>
             </div>
