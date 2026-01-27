@@ -16,6 +16,7 @@ import {
   CategorizeFeedback,
   DeleteFeedback,
   EditFeedback,
+  GetFeedbackForEdit,
   RemoveHelpfulVote,
   ReportFeedback
 } from './feedback'
@@ -62,6 +63,7 @@ router.post('/feedback-drafts', CreateFeedbackDraft)
 router.get('/feedback-drafts/:code', GetFeedbackDraft)
 
 router.post('/feedback/categorize-preview', CategorizeFeedback)
+router.get('/feedback/:id/edit', GetFeedbackForEdit)
 router.put('/feedback/:id', EditFeedback)
 router.delete('/feedback/:id', DeleteFeedback)
 router.post('/feedback/:id/helpful', AddHelpfulVote)

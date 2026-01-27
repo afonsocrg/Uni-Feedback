@@ -1,6 +1,6 @@
 import { type ReportCategory } from '@uni-feedback/db/schema'
 import { MeicFeedbackAPIError } from './errors'
-import { apiDelete, apiPost, apiPut } from './utils'
+import { apiDelete, apiGet, apiPost, apiPut } from './utils'
 
 // Re-export report category types from db package
 export {
@@ -51,6 +51,38 @@ export async function categorizeFeedbackPreview(
   } catch (error) {
     throw new MeicFeedbackAPIError(
       `Failed to categorize feedback: ${error instanceof Error ? error.message : 'Unknown error'}`
+    )
+  }
+}
+
+export type FeedbackForEdit = {
+  id: number
+  userId: number
+  rating: number
+  workloadRating: number
+  comment: string | null
+  schoolYear: number | null
+  approvedAt: string | null
+  courseName: string
+  courseCode: string
+  courseId: number
+  facultyShortName: string
+}
+
+export type GetFeedbackForEditResponse = {
+  feedback: FeedbackForEdit
+}
+
+export async function getFeedbackForEdit(
+  feedbackId: number
+): Promise<GetFeedbackForEditResponse> {
+  try {
+    return await apiGet<GetFeedbackForEditResponse>(
+      `/feedback/${feedbackId}/edit`
+    )
+  } catch (error) {
+    throw new MeicFeedbackAPIError(
+      error instanceof Error ? error.message : 'Failed to fetch feedback'
     )
   }
 }

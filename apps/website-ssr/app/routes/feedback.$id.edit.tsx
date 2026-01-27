@@ -1,9 +1,8 @@
+import { useQueryClient } from '@tanstack/react-query'
 import { editFeedback, MeicFeedbackAPIError } from '@uni-feedback/api-client'
-import { database } from '@uni-feedback/db'
-import { courses, degrees, faculties, feedback } from '@uni-feedback/db/schema'
-import { and, eq } from 'drizzle-orm'
+import { Loader2 } from 'lucide-react'
 import { useState } from 'react'
-import { useNavigate } from 'react-router'
+import { useNavigate, useParams } from 'react-router'
 import { toast } from 'sonner'
 import {
   EditFeedbackContent,
@@ -13,109 +12,63 @@ import {
   type BreadcrumbItemData,
   type EditFeedbackFormData
 } from '~/components'
-import { getCurrentUserId } from '~/lib/auth.server'
-import type { Route } from './+types/feedback.$id.edit'
+import { useFeedbackForEdit } from '~/hooks/queries'
 
-export function meta({ data }: Route.MetaArgs) {
-  if (!data || 'error' in data) {
-    return [{ title: 'Error - Uni Feedback' }]
-  }
-
-  return [
-    {
-      title: `Edit Feedback - ${data.feedback.courseName} - Uni Feedback`
-    }
-  ]
-}
-
-const unauthorizedError = {
-  error: 'unauthorized',
-  message: 'You need to be logged in to edit feedback.'
-}
-
-const forbiddenError = {
-  error: 'forbidden',
-  message: 'Nice try! You can only edit your own feedback.'
-}
-
-export async function loader({ params, request }: Route.LoaderArgs) {
-  const feedbackId = parseInt(params.id)
-
-  if (isNaN(feedbackId)) {
-    return forbiddenError
-  }
-
-  try {
-    const userId = await getCurrentUserId(request)
-
-    if (!userId) {
-      return unauthorizedError
-    }
-
-    const db = database()
-
-    // Query feedback with course, degree, and faculty info
-    const [result] = await db
-      .select({
-        id: feedback.id,
-        userId: feedback.userId,
-        rating: feedback.rating,
-        workloadRating: feedback.workloadRating,
-        comment: feedback.comment,
-        schoolYear: feedback.schoolYear,
-        approvedAt: feedback.approvedAt,
-        courseName: courses.name,
-        courseCode: courses.acronym,
-        courseId: courses.id,
-        facultyShortName: faculties.shortName
-      })
-      .from(feedback)
-      .innerJoin(courses, eq(feedback.courseId, courses.id))
-      .innerJoin(degrees, eq(courses.degreeId, degrees.id))
-      .innerJoin(faculties, eq(degrees.facultyId, faculties.id))
-      .where(and(eq(feedback.id, feedbackId), eq(feedback.userId, userId)))
-      .limit(1)
-
-    if (!result) {
-      return forbiddenError
-    }
-
-    return { feedback: result }
-  } catch (error) {
-    console.error('Failed to load feedback:', error)
-    return {
-      error: 'notFound',
-      message: 'Something went wrong loading your feedback. Try again?'
-    }
-  }
-}
-
-export default function EditFeedbackPage({ loaderData }: Route.ComponentProps) {
+export default function EditFeedbackPage() {
   const navigate = useNavigate()
+  const params = useParams()
+  const queryClient = useQueryClient()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const [points, setPoints] = useState(0)
 
-  if ('error' in loaderData) {
+  // Parse feedbackId from params
+  const feedbackId = params.id ? parseInt(params.id) : null
+
+  // Fetch feedback for editing
+  const { data, isLoading, error } = useFeedbackForEdit(feedbackId)
+
+  const breadcrumbItems: BreadcrumbItemData[] = [
+    { label: 'Profile', href: '/profile' },
+    { label: 'Edit Feedback', isActive: true }
+  ]
+
+  // Loading state
+  if (isLoading) {
     return (
       <>
         <div className="container mx-auto px-4 py-6">
-          <GenericBreadcrumb
-            items={[
-              { label: 'Profile', href: '/profile' },
-              { label: 'Edit Feedback', isActive: true }
-            ]}
-          />
+          <GenericBreadcrumb items={breadcrumbItems} />
+        </div>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <Loader2 className="size-8 animate-spin text-primary" />
+          <p className="ml-3 text-muted-foreground">Loading feedback...</p>
+        </div>
+      </>
+    )
+  }
+
+  // Error state
+  if (error || !data) {
+    const errorMessage =
+      error instanceof MeicFeedbackAPIError
+        ? error.message
+        : "We couldn't find that feedback or you don't have permission to edit it."
+
+    return (
+      <>
+        <div className="container mx-auto px-4 py-6">
+          <GenericBreadcrumb items={breadcrumbItems} />
         </div>
         <PermissionError
-          message={loaderData.message || "We couldn't find that feedback."}
+          message={errorMessage}
           onBackToProfile={() => navigate('/profile')}
         />
       </>
     )
   }
 
-  const { feedback } = loaderData
+  const { feedback } = data
 
   const handleSubmit = async (values: EditFeedbackFormData) => {
     setIsSubmitting(true)
@@ -130,6 +83,15 @@ export default function EditFeedbackPage({ loaderData }: Route.ComponentProps) {
       setPoints(response.points)
       setIsSuccess(true)
       toast.success('Feedback updated successfully!')
+
+      // Invalidate queries to refetch updated data
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ['feedback', feedbackId, 'edit']
+        }),
+        queryClient.invalidateQueries({ queryKey: ['user', 'feedback'] }),
+        queryClient.invalidateQueries({ queryKey: ['user', 'stats'] })
+      ])
     } catch (error) {
       if (error instanceof MeicFeedbackAPIError) {
         toast.error(error.message)
@@ -140,11 +102,6 @@ export default function EditFeedbackPage({ loaderData }: Route.ComponentProps) {
       setIsSubmitting(false)
     }
   }
-
-  const breadcrumbItems: BreadcrumbItemData[] = [
-    { label: 'Profile', href: '/profile' },
-    { label: 'Edit Feedback', isActive: true }
-  ]
 
   if (isSuccess) {
     return (

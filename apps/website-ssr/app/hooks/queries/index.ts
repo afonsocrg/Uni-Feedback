@@ -1,5 +1,6 @@
 export * from './useFaculties'
 export * from './useDegreeCourses'
+export * from './useFeedbackForEdit'
 export * from './useSubmitFeedback'
 export * from './useUserStats'
 export * from './config'
