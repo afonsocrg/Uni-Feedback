@@ -77,28 +77,28 @@ services:
       retries: 3
       start_period: 40s
 
-  dashboard-staging:
-    image: uni-feedback-dashboard-staging:latest
-    container_name: uni-feedback-dashboard-staging
-    build:
-      context: .
-      dockerfile: apps/dashboard/Dockerfile
-      args:
-        VITE_API_BASE_URL: https://staging-api.uni-feedback.com
-    ports:
-      - "3012:80"
-    networks:
-      - uni_feedback_staging_network
-    depends_on:
-      api-staging:
-        condition: service_healthy
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
+  # dashboard-staging:
+  #   image: uni-feedback-dashboard-staging:latest
+  #   container_name: uni-feedback-dashboard-staging
+  #   build:
+  #     context: .
+  #     dockerfile: apps/dashboard/Dockerfile
+  #     args:
+  #       VITE_API_BASE_URL: https://staging-api.uni-feedback.com
+  #   ports:
+  #     - "3012:80"
+  #   networks:
+  #     - uni_feedback_staging_network
+  #   depends_on:
+  #     api-staging:
+  #       condition: service_healthy
+  #   restart: unless-stopped
+  #   healthcheck:
+  #     test: ["CMD", "wget", "-q", "--spider", "http://localhost/health"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #     start_period: 10s
 
 volumes:
   uni_feedback_staging_postgres_data:

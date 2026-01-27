@@ -77,28 +77,28 @@ services:
       retries: 3
       start_period: 40s
 
-  dashboard:
-    image: uni-feedback-dashboard:latest
-    container_name: uni-feedback-dashboard
-    build:
-      context: .
-      dockerfile: apps/dashboard/Dockerfile
-      args:
-        VITE_API_BASE_URL: https://api.uni-feedback.com
-    ports:
-      - "3002:80"
-    networks:
-      - uni_feedback_network
-    depends_on:
-      api:
-        condition: service_healthy
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
+  # dashboard:
+  #   image: uni-feedback-dashboard:latest
+  #   container_name: uni-feedback-dashboard
+  #   build:
+  #     context: .
+  #     dockerfile: apps/dashboard/Dockerfile
+  #     args:
+  #       VITE_API_BASE_URL: https://api.uni-feedback.com
+  #   ports:
+  #     - "3002:80"
+  #   networks:
+  #     - uni_feedback_network
+  #   depends_on:
+  #     api:
+  #       condition: service_healthy
+  #   restart: unless-stopped
+  #   healthcheck:
+  #     test: ["CMD", "wget", "-q", "--spider", "http://localhost/health"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #     start_period: 10s
 
 volumes:
   uni_feedback_postgres_data:
