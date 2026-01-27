@@ -24,7 +24,7 @@ git pull origin staging
 echo -e "${YELLOW}🔨 Building images sequentially...${NC}"
 docker compose -f docker-compose.staging.yml build api-staging
 docker compose -f docker-compose.staging.yml build website-ssr-staging
-docker compose -f docker-compose.staging.yml build dashboard-staging
+# docker compose -f docker-compose.staging.yml build dashboard-staging
 
 # Deploy with zero downtime
 echo -e "${YELLOW}🚢 Starting containers...${NC}"

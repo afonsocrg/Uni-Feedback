@@ -24,7 +24,7 @@ git pull origin prod
 echo -e "${YELLOW}🔨 Building images sequentially...${NC}"
 docker compose -f docker-compose.prod.yml build api
 docker compose -f docker-compose.prod.yml build website-ssr
-docker compose -f docker-compose.prod.yml build dashboard
+# docker compose -f docker-compose.prod.yml build dashboard
 
 # Deploy with zero downtime
 echo -e "${YELLOW}🚢 Starting containers...${NC}"
