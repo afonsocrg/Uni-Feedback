@@ -92,7 +92,7 @@ export function HeroSection({
                       key={club.id}
                       alt={`${club.name} logo`}
                       src={logoUrl}
-                      className="h-6 md:h-8 flex-shrink-0 opacity-50 hover:opacity-100 transition-opacity"
+                      className="h-6 md:h-8 flex-shrink-0 opacity-50 hover:opacity-100 grayscale hover:grayscale-0 transition-all"
                     />
                   )
                 })}
@@ -106,7 +106,7 @@ export function HeroSection({
                       key={`duplicate-${club.id}`}
                       alt={`${club.name} logo`}
                       src={logoUrl}
-                      className="h-8 flex-shrink-0 opacity-50 hover:opacity-100 transition-opacity"
+                      className="h-8 flex-shrink-0 opacity-50 hover:opacity-100 grayscale hover:grayscale-0 transition-all"
                     />
                   )
                 })}
