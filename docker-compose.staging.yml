@@ -1,10 +1,6 @@
 # Staging Docker Compose Configuration
 # Deploy with: ./ops/deploy/deploy-staging.sh
-# Or build sequentially to avoid high CPU usage:
-#   docker compose -f docker-compose.staging.yml build api-staging
-#   docker compose -f docker-compose.staging.yml build website-ssr-staging
-#   docker compose -f docker-compose.staging.yml build dashboard-staging
-#   docker compose -f docker-compose.staging.yml up -d
+# Images are built in GitHub Actions and pulled from GHCR
 # Uses PGPASSWORD_STAGING environment variable for database password
 
 services:
@@ -30,11 +26,8 @@ services:
       start_period: 10s
 
   api-staging:
-    image: uni-feedback-api-staging:latest
+    image: ghcr.io/afonsocrg/uni-feedback-api:staging-latest
     container_name: uni-feedback-api-staging
-    build:
-      context: .
-      dockerfile: apps/api/Dockerfile
     ports:
       - "3011:3001"
     networks:
@@ -53,11 +46,8 @@ services:
       start_period: 40s
 
   website-ssr-staging:
-    image: uni-feedback-website-ssr-staging:latest
+    image: ghcr.io/afonsocrg/uni-feedback-website-ssr:staging-latest
     container_name: uni-feedback-website-ssr-staging
-    build:
-      context: .
-      dockerfile: apps/website-ssr/Dockerfile
     ports:
       - "3010:3000"
     networks:
@@ -77,28 +67,23 @@ services:
       retries: 3
       start_period: 40s
 
-  # dashboard-staging:
-  #   image: uni-feedback-dashboard-staging:latest
-  #   container_name: uni-feedback-dashboard-staging
-  #   build:
-  #     context: .
-  #     dockerfile: apps/dashboard/Dockerfile
-  #     args:
-  #       VITE_API_BASE_URL: https://staging-api.uni-feedback.com
-  #   ports:
-  #     - "3012:80"
-  #   networks:
-  #     - uni_feedback_staging_network
-  #   depends_on:
-  #     api-staging:
-  #       condition: service_healthy
-  #   restart: unless-stopped
-  #   healthcheck:
-  #     test: ["CMD", "wget", "-q", "--spider", "http://localhost/health"]
-  #     interval: 30s
-  #     timeout: 10s
-  #     retries: 3
-  #     start_period: 10s
+  dashboard-staging:
+    image: ghcr.io/afonsocrg/uni-feedback-dashboard:staging-latest
+    container_name: uni-feedback-dashboard-staging
+    ports:
+      - "3012:80"
+    networks:
+      - uni_feedback_staging_network
+    depends_on:
+      api-staging:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
 
 volumes:
   uni_feedback_staging_postgres_data:

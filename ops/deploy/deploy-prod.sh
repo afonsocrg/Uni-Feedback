@@ -20,11 +20,14 @@ git checkout prod
 echo -e "${YELLOW}📥 Ensuring latest code...${NC}"
 git pull origin prod
 
-# Build images sequentially to avoid high CPU usage
-echo -e "${YELLOW}🔨 Building images sequentially...${NC}"
-docker compose -f docker-compose.prod.yml build api
-docker compose -f docker-compose.prod.yml build website-ssr
-# docker compose -f docker-compose.prod.yml build dashboard
+# Login to GHCR
+echo -e "${YELLOW}🔐 Authenticating with GHCR...${NC}"
+source .env.docker
+echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GITHUB_USERNAME" --password-stdin
+
+# Pull latest images from GHCR
+echo -e "${YELLOW}📥 Pulling images from GHCR...${NC}"
+docker compose -f docker-compose.prod.yml pull
 
 # Deploy with zero downtime
 echo -e "${YELLOW}🚢 Starting containers...${NC}"
