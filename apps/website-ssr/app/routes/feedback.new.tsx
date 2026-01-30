@@ -7,7 +7,7 @@ import {
   type DuplicateFeedbackDetail
 } from '@uni-feedback/api-client'
 import { getCurrentSchoolYear } from '@uni-feedback/utils'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -17,8 +17,9 @@ import {
   SubmitFeedbackSuccess,
   UpdateFeedbackSuccess
 } from '~/components'
-import { useLastVisitedPath } from '~/hooks'
+import { useAuth, useLastVisitedPath } from '~/hooks'
 import { useSubmitFeedback } from '~/hooks/queries'
+import { analytics } from '~/utils/analytics'
 import { STORAGE_KEYS } from '~/utils/constants'
 
 import type { Route } from './+types/feedback.new'
@@ -110,6 +111,7 @@ export function HydrateFallback() {
 
 export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
   const submitFeedbackMutation = useSubmitFeedback()
+  const { isAuthenticated } = useAuth()
   const [isSubmitSuccess, setIsSubmitSuccess] = useState(false)
   const [isEditSuccess, setIsEditSuccess] = useState(false)
   const [pointsEarned, setPointsEarned] = useState<number | undefined>(
@@ -117,6 +119,7 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
   )
   const [duplicateFeedback, setDuplicateFeedback] =
     useState<DuplicateFeedbackDetail | null>(null)
+  const [formLoadTime] = useState<number>(() => Date.now())
 
   const lastVisitedPath = useLastVisitedPath()
   const browseLink = lastVisitedPath !== '/' ? lastVisitedPath : '/browse'
@@ -136,6 +139,20 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
     }
   })
 
+  // Track feedback form view
+  useEffect(() => {
+    const courseId = loaderData.initialFormValues.courseId
+    // Determine source: if courseId is pre-filled from URL, source is likely a course page
+    // Otherwise, it's a direct navigation to the feedback form
+    const source = courseId ? 'course_page' : 'direct_url'
+
+    analytics.feedback.formViewed({
+      courseId,
+      source,
+      isAuthenticated
+    })
+  }, [loaderData.initialFormValues.courseId, isAuthenticated])
+
   const submitFeedback = async (values: FeedbackFormData) => {
     try {
       // Submit feedback using TanStack Query mutation
@@ -147,6 +164,13 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
         comment: values.comment
       })
 
+      // Track successful submission
+      analytics.feedback.submitted({
+        courseId: values.courseId,
+        hasComment: !!values.comment,
+        commentLength: values.comment?.length
+      })
+
       setPointsEarned(response.pointsEarned)
       setIsSubmitSuccess(true)
       toast.success('Feedback submitted successfully!')
@@ -155,10 +179,30 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
         // Check if this is a duplicate feedback error (409 Conflict)
         if (error.status === 409 && error.data.feedback) {
           setDuplicateFeedback(error.data.feedback)
+          // Track duplicate feedback shown event
+          analytics.trackEvent('duplicate_feedback_shown', {
+            courseId: values.courseId,
+            existingFeedbackId: error.data.feedback.id
+          })
           return
         }
+
+        // Track submission failure
+        analytics.feedback.failed({
+          courseId: values.courseId,
+          errorType: error.status === 400 ? 'validation' : 'api_error',
+          errorMessage: error.message
+        })
+
         toast.error(error.message)
       } else {
+        // Track generic failure
+        analytics.feedback.failed({
+          courseId: values.courseId,
+          errorType: 'network',
+          errorMessage: error instanceof Error ? error.message : 'Unknown error'
+        })
+
         console.error('Failed to submit feedback:', error)
         toast.error('Failed to submit feedback. Please try again.')
       }
@@ -167,6 +211,14 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
   }
 
   const handleSubmit = async (values: FeedbackFormData) => {
+    // Track submit click (before auth check)
+    const formCompletionTime = Math.round((Date.now() - formLoadTime) / 1000)
+    analytics.feedback.submitClicked({
+      courseId: values.courseId,
+      formCompletionTime,
+      isAuthenticated
+    })
+
     // Store values in localStorage for next time
     localStorage.setItem(
       STORAGE_KEYS.FEEDBACK_FACULTY_ID,
@@ -195,6 +247,18 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
         rating: values.rating,
         workloadRating: values.workloadRating,
         comment: values.comment
+      })
+
+      // Track existing feedback update
+      const createdAt = new Date(duplicateFeedback.createdAt)
+      const daysSinceOriginal = Math.floor(
+        (Date.now() - createdAt.getTime()) / (1000 * 60 * 60 * 24)
+      )
+      analytics.feedback.existingUpdated({
+        feedbackId: duplicateFeedback.id,
+        daysSinceOriginal,
+        ratingChanged: values.rating !== duplicateFeedback.rating,
+        commentChanged: values.comment !== duplicateFeedback.comment
       })
 
       toast.success('Feedback updated successfully!')

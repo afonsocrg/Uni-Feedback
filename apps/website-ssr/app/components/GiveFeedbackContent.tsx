@@ -29,7 +29,7 @@ import {
   getCurrentSchoolYear
 } from '@uni-feedback/utils'
 import { Check, ChevronsUpDown, Loader2, Send } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { type UseFormReturn } from 'react-hook-form'
 import { Link } from 'react-router'
 import { CommentSection } from '~/components'
@@ -37,6 +37,7 @@ import { AuthenticatedButton } from '~/components/common'
 import { useDegreeCourses, useFacultyDegrees } from '~/hooks/queries'
 import { useAuth } from '~/hooks/useAuth'
 import type { FeedbackFormData } from '~/routes/feedback.new'
+import { analytics } from '~/utils/analytics'
 import { cn } from '~/utils/tailwind'
 
 interface GiveFeedbackContentProps {
@@ -59,9 +60,14 @@ export function GiveFeedbackContent({
   const [degreeOpen, setDegreeOpen] = useState(false)
   const [courseOpen, setCourseOpen] = useState(false)
 
+  // Track if ratings have been tracked to prevent duplicates
+  const ratingsTrackedRef = useRef(false)
+
   // Watch only the fields needed for conditional rendering and data fetching
   const selectedFacultyId = form.watch('facultyId')
   const selectedDegreeId = form.watch('degreeId')
+  const rating = form.watch('rating')
+  const workloadRating = form.watch('workloadRating')
 
   // Get the selected faculty for auth modal customization
   const selectedFaculty = useMemo(
@@ -83,6 +89,21 @@ export function GiveFeedbackContent({
     () => Array.from({ length: 5 }, (_, i) => getCurrentSchoolYear() - i),
     []
   )
+
+  // Track when both ratings are entered
+  useEffect(() => {
+    if (
+      rating > 0 &&
+      workloadRating > 0 &&
+      !ratingsTrackedRef.current
+    ) {
+      analytics.feedback.ratingsEntered({
+        rating,
+        workloadRating
+      })
+      ratingsTrackedRef.current = true
+    }
+  }, [rating, workloadRating])
 
   // Reset dependent selections when parent selections change
   useEffect(() => {
@@ -202,6 +223,12 @@ export function GiveFeedbackContent({
                                       form.setValue('degreeId', 0)
                                       form.setValue('courseId', 0)
                                       setFacultyOpen(false)
+
+                                      // Track faculty selection
+                                      analytics.feedback.facultySelected({
+                                        facultyId: f.id,
+                                        facultyName: f.shortName
+                                      })
                                     }}
                                   >
                                     {f.shortName}
@@ -277,6 +304,13 @@ export function GiveFeedbackContent({
                                         form.setValue('degreeId', d.id)
                                         form.setValue('courseId', 0)
                                         setDegreeOpen(false)
+
+                                        // Track degree selection
+                                        analytics.feedback.degreeSelected({
+                                          degreeId: d.id,
+                                          degreeName: d.acronym,
+                                          facultyId: selectedFacultyId
+                                        })
                                       }}
                                     >
                                       {d.acronym} - {d.name}
@@ -349,6 +383,13 @@ export function GiveFeedbackContent({
                                       onSelect={() => {
                                         form.setValue('courseId', c.id)
                                         setCourseOpen(false)
+
+                                        // Track course selection
+                                        analytics.feedback.courseSelected({
+                                          courseId: c.id,
+                                          courseName: c.acronym,
+                                          degreeId: selectedDegreeId
+                                        })
                                       }}
                                     >
                                       {c.acronym} - {c.name}

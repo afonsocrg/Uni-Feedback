@@ -12,6 +12,7 @@ import { Loader2 } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { AuthUser } from '~/context/AuthContext'
 import { useOtpAuth } from '~/hooks'
+import { analytics } from '~/utils/analytics'
 import { OTP_CONFIG } from '~/utils/constants'
 
 export interface OtpInputStageProps {
@@ -54,6 +55,9 @@ export function OtpInputStage({
       setIsVerifying(true)
       setError(undefined)
 
+      // Track OTP entered
+      analytics.auth.otpEntered()
+
       try {
         const result = await verifyOtp({
           email,
@@ -63,12 +67,25 @@ export function OtpInputStage({
         if (result.success && result.user) {
           onSuccess(result.user)
         } else {
+          // Track OTP verification failure
+          analytics.auth.failed({
+            step: 'otp_verification',
+            errorType: 'invalid_code'
+          })
+
           setError(result.error)
           setAttemptsRemaining(result.attemptsRemaining)
           setTimeout(() => setOtp(''), 400)
         }
       } catch (error) {
         console.error('OTP verification error:', error)
+
+        // Track OTP verification failure
+        analytics.auth.failed({
+          step: 'otp_verification',
+          errorType: 'network'
+        })
+
         setError('Verification failed. Please try again.')
       } finally {
         setIsVerifying(false)

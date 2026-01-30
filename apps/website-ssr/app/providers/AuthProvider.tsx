@@ -7,6 +7,7 @@ import {
 import React, { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 import { useLocalStorage } from '~/hooks'
+import { identifyUser, resetUser } from '~/utils/analytics'
 import { STORAGE_KEYS } from '~/utils/constants'
 import {
   AuthContext,
@@ -21,7 +22,7 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: AuthProviderProps) {
   const navigate = useNavigate()
   const location = useLocation()
-  const [user, setUser] = useLocalStorage<AuthUser | null>(
+  const [user, setUserInternal] = useLocalStorage<AuthUser | null>(
     STORAGE_KEYS.AUTH_USER,
     null
   )
@@ -31,12 +32,35 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // Track previous pathname to detect actual navigation changes
   const prevPathnameRef = useRef(location.pathname)
 
+  // Wrapper for setUser that also identifies in PostHog
+  const setUser = (newUser: AuthUser | null) => {
+    setUserInternal(newUser)
+    if (newUser) {
+      identifyUser(newUser.id.toString(), {
+        email: newUser.email,
+        username: newUser.username,
+        role: newUser.role
+      })
+    } else {
+      resetUser()
+    }
+  }
+
   // Fetch user from session on mount (client-side only)
   useEffect(() => {
     const checkAuth = async () => {
       try {
         const response: ProfileResponse = await getProfile()
         setUser(response.user)
+
+        // Identify user in PostHog for user-level analytics
+        if (response.user) {
+          identifyUser(response.user.id.toString(), {
+            email: response.user.email,
+            username: response.user.username,
+            role: response.user.role
+          })
+        }
       } catch (error) {
         // Not logged in or session expired
         setUser(null)
@@ -77,6 +101,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setUser(null)
       setIsLoading(false)
 
+      // Reset PostHog user identification
+      resetUser()
+
       // Navigate away from protected routes after clearing auth state
       if (isOnProtectedRoute) {
         navigate('/')
@@ -90,6 +117,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       const response = await apiRefreshToken()
       setUser(response.user)
+
+      // Identify user in PostHog after refresh
+      if (response.user) {
+        identifyUser(response.user.id.toString(), {
+          email: response.user.email,
+          username: response.user.username,
+          role: response.user.role
+        })
+      }
     } catch (error) {
       console.error('Token refresh failed:', error)
       setUser(null)

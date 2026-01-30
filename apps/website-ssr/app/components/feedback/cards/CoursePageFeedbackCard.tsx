@@ -1,7 +1,7 @@
 import { Button, StarRating, WorkloadRatingDisplay } from '@uni-feedback/ui'
 import { getRelativeTime } from '@uni-feedback/utils'
 import { Flag, GraduationCap } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   FeedbackMarkdown,
   HelpfulVoteButton,
@@ -9,6 +9,7 @@ import {
   Tooltip
 } from '~/components'
 import { getTruncatedText } from '~/lib/textUtils'
+import { analytics } from '~/utils/analytics'
 
 interface CourseFeedback {
   id: number
@@ -36,13 +37,45 @@ export function CoursePageFeedbackCard({
 }: CoursePageFeedbackCardProps) {
   const [isExpanded, setIsExpanded] = useState(false)
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false)
+  const cardRef = useRef<HTMLDivElement>(null)
+  const hasBeenViewedRef = useRef(false)
+
   const characterLimit = 600
   const isLongComment =
     feedback.comment && feedback.comment.length > characterLimit
   const relativeTime = getRelativeTime(new Date(feedback.createdAt))
 
+  // Track when feedback item becomes visible (intersection observer)
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !hasBeenViewedRef.current) {
+          analytics.feedback.itemViewed({
+            feedbackId: feedback.id,
+            courseId: feedback.courseId
+          })
+          hasBeenViewedRef.current = true
+        }
+      },
+      { threshold: 0.5 } // Trigger when 50% of card is visible
+    )
+
+    if (cardRef.current) {
+      observer.observe(cardRef.current)
+    }
+
+    return () => {
+      if (cardRef.current) {
+        observer.unobserve(cardRef.current)
+      }
+    }
+  }, [feedback.id, feedback.courseId])
+
   return (
-    <div className="bg-white rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] p-6 mb-6 hover:shadow-[0px_6px_24px_rgba(0,0,0,0.08)] transition-shadow">
+    <div
+      ref={cardRef}
+      className="bg-white rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] p-6 mb-6 hover:shadow-[0px_6px_24px_rgba(0,0,0,0.08)] transition-shadow"
+    >
       {/* Header with rating and date */}
       <div className="mb-6">
         <div className="flex flex-wrap items-center justify-between gap-3">

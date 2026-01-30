@@ -25,12 +25,13 @@ import {
   Textarea
 } from '@uni-feedback/ui'
 import { AlertTriangle, Loader2 } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link } from 'react-router'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { AuthenticatedButton, ReportFeedbackFeedbackCard } from '~/components'
+import { analytics } from '~/utils/analytics'
 
 const reportFormSchema = z.object({
   category: z.enum(REPORT_CATEGORIES),
@@ -74,6 +75,13 @@ export function ReportFeedbackDialog({
     }
   })
 
+  // Track when report dialog is opened
+  useEffect(() => {
+    if (open) {
+      analytics.engagement.reportOpened({ feedbackId: feedback.id })
+    }
+  }, [open, feedback.id])
+
   const handleSubmit = async (data: ReportFormData) => {
     setIsSubmitting(true)
     try {
@@ -81,6 +89,13 @@ export function ReportFeedbackDialog({
         category: data.category as ReportCategory,
         details: data.details
       })
+
+      // Track successful report submission
+      analytics.engagement.reportSubmitted({
+        feedbackId: feedback.id,
+        reason: data.category
+      })
+
       setIsSuccess(true)
       toast.success('Report submitted successfully')
     } catch (error) {

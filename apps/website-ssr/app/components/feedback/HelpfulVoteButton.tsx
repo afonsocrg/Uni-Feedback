@@ -4,6 +4,8 @@ import { ThumbsUp } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { AuthenticatedButton } from '~/components'
+import { useAuth } from '~/hooks/useAuth'
+import { analytics } from '~/utils/analytics'
 
 interface HelpfulVoteButtonProps {
   feedbackId: number
@@ -18,6 +20,7 @@ export function HelpfulVoteButton({
   initialHasVoted = false,
   className
 }: HelpfulVoteButtonProps) {
+  const { isAuthenticated } = useAuth()
   const [hasVoted, setHasVoted] = useState(initialHasVoted)
   const [voteCount, setVoteCount] = useState(initialVoteCount)
   const [isLoading, setIsLoading] = useState(false)
@@ -25,8 +28,16 @@ export function HelpfulVoteButton({
   const handleToggleVote = async () => {
     if (isLoading) return
 
-    // Optimistic update
+    // Track upvote click (only for adding vote, not removing)
     const wasVoted = hasVoted
+    if (!wasVoted) {
+      analytics.engagement.upvoteClicked({
+        feedbackId,
+        isAuthenticated
+      })
+    }
+
+    // Optimistic update
     const prevCount = voteCount
     setHasVoted(!wasVoted)
     setVoteCount(wasVoted ? prevCount - 1 : prevCount + 1)
@@ -37,6 +48,8 @@ export function HelpfulVoteButton({
         await removeHelpfulVote(feedbackId)
       } else {
         await addHelpfulVote(feedbackId)
+        // Track successful upvote completion
+        analytics.engagement.upvoteCompleted({ feedbackId })
       }
     } catch (error) {
       // Revert on error

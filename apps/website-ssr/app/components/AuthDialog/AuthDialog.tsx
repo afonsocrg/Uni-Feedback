@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import type { AuthUser } from '~/context/AuthContext'
 import { useOtpAuth } from '~/hooks'
+import { analytics } from '~/utils/analytics'
 import { STORAGE_KEYS, VERIFICATION_CONFIG } from '~/utils/constants'
 import { ErrorStage } from './ErrorStage'
 import type { EmailFormData } from './InputStage'
@@ -77,6 +78,9 @@ export function AuthDialog({
       setModalState({ stage: 'input', isSubmitting: false })
       form.reset()
     } else {
+      // Track auth dialog shown
+      analytics.auth.dialogShown({ trigger: 'feedback_submission' })
+
       // Load saved email from localStorage when modal opens
       const savedEmail = localStorage.getItem(STORAGE_KEYS.LAST_LOGIN_EMAIL)
       if (savedEmail) {
@@ -88,10 +92,17 @@ export function AuthDialog({
   const handleEmailSubmit = async (values: EmailFormData) => {
     setModalState({ stage: 'input', isSubmitting: true })
 
+    // Track email entered
+    const emailDomain = values.email.split('@')[1]
+    analytics.auth.emailEntered({ emailDomain })
+
     try {
       const result = await requestOtp({ email: values.email })
 
       if (result.success || result.retryAfterSeconds) {
+        // Track OTP requested successfully
+        analytics.auth.otpRequested()
+
         // Save email to localStorage for next time
         localStorage.setItem(STORAGE_KEYS.LAST_LOGIN_EMAIL, values.email)
         // Transition to OTP input (component will handle cooldown internally)
@@ -100,6 +111,12 @@ export function AuthDialog({
           email: values.email
         })
       } else {
+        // Track auth failure
+        analytics.auth.failed({
+          step: 'otp_request',
+          errorType: 'api_error'
+        })
+
         setModalState({
           stage: 'error',
           error: result.error || 'Failed to send verification code.'
@@ -115,11 +132,20 @@ export function AuthDialog({
         errorMessage = error.message
       }
 
+      // Track auth failure
+      analytics.auth.failed({
+        step: 'otp_request',
+        errorType: 'network'
+      })
+
       setModalState({ stage: 'error', error: errorMessage })
     }
   }
 
   const handleOtpSuccess = (user: AuthUser) => {
+    // Track successful authentication
+    analytics.auth.completed({ authMethod: 'otp' })
+
     setModalState({ stage: 'success', user })
     setTimeout(() => {
       onSuccess(user)
