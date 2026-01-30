@@ -66,16 +66,16 @@ export function CommentSection({ control }: CommentSectionProps) {
               />
             </FormControl>
             <FormDescription className="text-xs text-gray-700 text-right flex gap-2">
-              <div className="flex items-start justify-between gap-4 w-full">
-                <p className="text-xs text-gray-700 mb-2 flex-1 text-start">
+              <span className="flex items-start justify-between gap-4 w-full">
+                <span className="text-xs text-gray-700 mb-2 flex-1 text-start">
                   This field is optional, but it's the one that helps other
                   students the most ❤️
-                </p>
+                </span>
 
-                <p className="text-xs text-gray-700 whitespace-nowrap flex-shrink-0">
+                <span className="text-xs text-gray-700 whitespace-nowrap flex-shrink-0">
                   {wordCount} {wordCount === 1 ? 'word' : 'words'}
-                </p>
-              </div>
+                </span>
+              </span>
             </FormDescription>
             <FormMessage />
           </FormItem>

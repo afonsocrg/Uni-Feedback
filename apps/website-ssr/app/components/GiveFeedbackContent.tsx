@@ -66,8 +66,26 @@ export function GiveFeedbackContent({
   // Watch only the fields needed for conditional rendering and data fetching
   const selectedFacultyId = form.watch('facultyId')
   const selectedDegreeId = form.watch('degreeId')
+  const selectedCourseId = form.watch('courseId')
   const rating = form.watch('rating')
   const workloadRating = form.watch('workloadRating')
+
+  // Check if all required fields are filled
+  const isFormValid = useMemo(() => {
+    return (
+      selectedFacultyId > 0 &&
+      selectedDegreeId > 0 &&
+      selectedCourseId > 0 &&
+      rating > 0 &&
+      workloadRating > 0
+    )
+  }, [
+    selectedFacultyId,
+    selectedDegreeId,
+    selectedCourseId,
+    rating,
+    workloadRating
+  ])
 
   // Get the selected faculty for auth modal customization
   const selectedFaculty = useMemo(
@@ -92,11 +110,7 @@ export function GiveFeedbackContent({
 
   // Track when both ratings are entered
   useEffect(() => {
-    if (
-      rating > 0 &&
-      workloadRating > 0 &&
-      !ratingsTrackedRef.current
-    ) {
+    if (rating > 0 && workloadRating > 0 && !ratingsTrackedRef.current) {
       analytics.feedback.ratingsEntered({
         rating,
         workloadRating
@@ -532,7 +546,7 @@ export function GiveFeedbackContent({
             <AuthenticatedButton
               type="submit"
               className="w-full mt-6 mb-0"
-              disabled={isSubmitting}
+              disabled={isSubmitting || !isFormValid}
               authModalProps={{
                 allowedEmailSuffixes: selectedFaculty?.emailSuffixes,
                 universityName: selectedFaculty?.shortName,

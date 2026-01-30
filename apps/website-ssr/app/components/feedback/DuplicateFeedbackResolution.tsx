@@ -1,4 +1,5 @@
 import { type DuplicateFeedbackDetail } from '@uni-feedback/api-client'
+import { useEffect } from 'react'
 import { type UseFormReturn } from 'react-hook-form'
 import type { FeedbackFormData } from '~/routes/feedback.new'
 import { SimpleFeedbackCard } from './cards'
@@ -22,6 +23,11 @@ export function DuplicateFeedbackResolution({
   onCancel,
   isSubmitting
 }: DuplicateFeedbackResolutionProps) {
+  // Scroll to top and show toast when component mounts
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [])
+
   return (
     <main className="container mx-auto px-4 py-8 max-w-2xl min-h-screen">
       <div>

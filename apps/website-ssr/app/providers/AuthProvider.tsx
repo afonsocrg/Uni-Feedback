@@ -4,7 +4,7 @@ import {
   getProfile,
   type ProfileResponse
 } from '@uni-feedback/api-client'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 import { useLocalStorage } from '~/hooks'
 import { identifyUser, resetUser } from '~/utils/analytics'
@@ -33,7 +33,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const prevPathnameRef = useRef(location.pathname)
 
   // Wrapper for setUser that also identifies in PostHog
-  const setUser = (newUser: AuthUser | null) => {
+  const setUser = useCallback((newUser: AuthUser | null) => {
     setUserInternal(newUser)
     if (newUser) {
       identifyUser(newUser.id.toString(), {
@@ -44,7 +44,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     } else {
       resetUser()
     }
-  }
+  }, [setUserInternal])
 
   // Fetch user from session on mount (client-side only)
   useEffect(() => {

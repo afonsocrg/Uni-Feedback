@@ -90,6 +90,14 @@ export const analytics = {
 			ratingChanged: boolean
 			commentChanged: boolean
 		}) => trackEvent('existing_feedback_updated', props),
+
+		/**
+		 * Track when duplicate feedback dialog is shown
+		 */
+		duplicateShown: (props: {
+			courseId: number
+			existingFeedbackId: number
+		}) => trackEvent('duplicate_feedback_shown', props),
 	},
 
 	auth: {

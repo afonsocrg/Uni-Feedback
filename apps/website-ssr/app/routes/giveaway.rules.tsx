@@ -76,7 +76,7 @@ function StructuredVersion() {
           <p>
             The giveaway runs until{' '}
             <strong className="text-foreground">
-              February 27th 2026, 23:59:59 (Lisbon time)
+              February 27 2026, 23:59:59 (Lisbon time)
             </strong>
             .
           </p>

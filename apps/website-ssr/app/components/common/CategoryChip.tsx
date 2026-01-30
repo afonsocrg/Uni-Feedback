@@ -1,10 +1,11 @@
 import { Badge } from '@uni-feedback/ui'
-import { Check } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { cn } from '~/utils'
 
 interface CategoryChipProps {
   label: string
   isActive: boolean
+  icon?: LucideIcon
   className?: string
 }
 
@@ -27,6 +28,7 @@ const ACTIVE_COLORS = {
 export function CategoryChip({
   label,
   isActive,
+  icon: Icon,
   className
 }: CategoryChipProps) {
   const colors = isActive ? ACTIVE_COLORS : MUTED_COLORS
@@ -45,7 +47,7 @@ export function CategoryChip({
         borderColor: colors.border
       }}
     >
-      {isActive && <Check />}
+      {Icon && <Icon className="size-3.5" />}
       {label}
     </Badge>
   )

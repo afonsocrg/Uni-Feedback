@@ -93,8 +93,14 @@ export default function PointsPage() {
                   <strong>+1 point</strong> base for submitting feedback;
                 </li>
                 <li>
-                  <strong>+4 points</strong> for each category you mention (see
-                  below);
+                  <strong>+4 points</strong> for each feedback category you mention (
+                  <a
+                    href="#feedback-categories"
+                    className="font-medium underline hover:text-foreground"
+                  >
+                    see below
+                  </a>
+                  );
                 </li>
                 <li>
                   <strong>+3 bonus points</strong> if you cover all 4
@@ -147,10 +153,22 @@ export default function PointsPage() {
               </p>
             </div>
           </div>
+
+          <div className="mt-8 text-center">
+            <p className="text-muted-foreground">
+              You can check your current points on your{' '}
+              <Link
+                to="/profile"
+                className="font-medium text-primary hover:underline"
+              >
+                profile page
+              </Link>
+            </p>
+          </div>
         </section>
 
         {/* Feedback Categories */}
-        <section className="mb-16">
+        <section id="feedback-categories" className="mb-16">
           <h2 className="mb-2 text-2xl font-semibold">Feedback categories</h2>
           <p className="mb-8 text-muted-foreground">
             We look for these four things because they're what students actually

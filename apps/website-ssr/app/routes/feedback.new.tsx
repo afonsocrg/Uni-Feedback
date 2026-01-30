@@ -180,7 +180,13 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
         if (error.status === 409 && error.data.feedback) {
           setDuplicateFeedback(error.data.feedback)
           // Track duplicate feedback shown event
-          analytics.trackEvent('duplicate_feedback_shown', {
+          toast.info(
+            `You've already submitted feedback for ${error.data.feedback.course.name}`,
+            {
+              description: 'You can update your existing feedback below.'
+            }
+          )
+          analytics.feedback.duplicateShown({
             courseId: values.courseId,
             existingFeedbackId: error.data.feedback.id
           })

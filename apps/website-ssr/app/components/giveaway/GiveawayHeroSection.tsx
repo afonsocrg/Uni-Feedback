@@ -1,5 +1,6 @@
 import { Button } from '@uni-feedback/ui'
 import { ArrowRight } from 'lucide-react'
+import { Link } from 'react-router'
 
 export function GiveawayHeroSection() {
   return (
@@ -23,7 +24,7 @@ export function GiveawayHeroSection() {
           <p className="text-xl md:text-2xl text-white/90 drop-shadow-md">
             Share your feedback. Help others choose better!
           </p>
-          <div className="pt-4">
+          <div className="pt-4 space-y-3">
             <Button
               size="lg"
               className="text-lg px-8 bg-white text-black hover:bg-white/90 shadow-xl"
@@ -34,6 +35,14 @@ export function GiveawayHeroSection() {
                 <ArrowRight className="size-5" />
               </a>
             </Button>
+            <div>
+              <Link
+                to="/giveaway/rules"
+                className="text-sm text-white/90 hover:text-white underline"
+              >
+                View Official Rules
+              </Link>
+            </div>
           </div>
         </div>
       </div>

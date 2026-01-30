@@ -36,7 +36,7 @@ export function InlineFeedbackEdit({
   return (
     <div className="p-6 ">
       <h2 className="text-lg font-semibold text-gray-900 mb-4">
-        Edit Your Feedback
+        Update Your Feedback
       </h2>
 
       <Form {...form}>

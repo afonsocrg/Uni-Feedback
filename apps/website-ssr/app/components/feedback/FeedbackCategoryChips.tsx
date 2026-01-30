@@ -1,5 +1,12 @@
 import type { FeedbackCategories } from '@uni-feedback/api-client'
-import { Loader2 } from 'lucide-react'
+import {
+  BookOpen,
+  ClipboardCheck,
+  GraduationCap,
+  Lightbulb,
+  Loader2,
+  type LucideIcon
+} from 'lucide-react'
 import { CategoryChip } from '~/components'
 
 interface FeedbackCategoryChipsProps {
@@ -8,11 +15,14 @@ interface FeedbackCategoryChipsProps {
   orientation?: 'horizontal' | 'vertical'
 }
 
-const CATEGORY_CONFIG: Record<keyof FeedbackCategories, { label: string }> = {
-  hasTeaching: { label: 'Teaching' },
-  hasAssessment: { label: 'Assessment' },
-  hasMaterials: { label: 'Materials' },
-  hasTips: { label: 'Tips' }
+const CATEGORY_CONFIG: Record<
+  keyof FeedbackCategories,
+  { label: string; icon: LucideIcon }
+> = {
+  hasTeaching: { label: 'Teaching', icon: GraduationCap },
+  hasAssessment: { label: 'Assessment', icon: ClipboardCheck },
+  hasMaterials: { label: 'Materials', icon: BookOpen },
+  hasTips: { label: 'Tips', icon: Lightbulb }
 }
 
 export function FeedbackCategoryChips({
@@ -35,14 +45,15 @@ export function FeedbackCategoryChips({
       {(
         Object.entries(CATEGORY_CONFIG) as [
           keyof FeedbackCategories,
-          { label: string }
+          { label: string; icon: LucideIcon }
         ][]
-      ).map(([key, { label }]) => {
+      ).map(([key, { label, icon }]) => {
         const isActive = categories?.[key] ?? false
         return (
           <CategoryChip
             key={key}
             label={label}
+            icon={icon}
             isActive={isActive}
             aria-label={`Category: ${label}${isActive ? ' (active)' : ''}`}
           />

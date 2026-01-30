@@ -91,8 +91,10 @@ The winner will be notified via their university email address.
 
 ### Public announcement
 
-For transparency, the winner will be publicly announced as:
+For transparency, the winner will be publicly announced on our [Instagram page](https://www.instagram.com/unifeedback) as:
 [First Name] [Last Initial] from [University] (e.g. João M. from IST).
+
+The winner will also be contacted directly via their university email address.
 
 All course feedback remains fully anonymous.
 

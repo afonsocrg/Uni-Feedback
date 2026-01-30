@@ -6,7 +6,7 @@ const GIVEAWAY_FAQ_ITEMS: FAQItem[] = [
   {
     question: 'Until when is the giveaway running?',
     answer:
-      'You can earn points until February 27. After that, entries close and we pick a winner.'
+      'You can earn points until **February 27**. After that, entries close and we pick a winner.'
   },
   {
     question: 'How is the winner selected?',
@@ -19,15 +19,20 @@ const GIVEAWAY_FAQ_ITEMS: FAQItem[] = [
       'You earn up to 20 points for each feedback you submit. You can also share your referral link from your profile. When a friend signs up and submits their first feedback, you get bonus points! More info about points [here](/points).'
   },
   {
+    question: 'Where can I see my points?',
+    answer:
+      'You can view your current points total on your [profile page](/profile). Your profile shows all your earned points and feedback submissions.'
+  },
+  {
     question: 'Does feedback from previous years still count?',
     answer:
-      'To keep things fair, only feedback for courses taken during the first term of 2025/2026 counts as entries for this giveaway. However, you still earn permanent points on your profile for older courses!'
+      'To keep things fair, only feedback for courses taken during the first semester of 2025/2026 counts as entries for this giveaway. However, you still earn permanent points on your profile for older courses!'
   },
   {
     // REPHRASED: More "relatable"
     question: 'I submitted feedback before the giveaway. Does that count?',
     answer:
-      "You're one of our OGs! All feedbacks give points to your profile. However, only feedback for courses taken during the first term of 2025/2026 counts as entries for this giveaway."
+      "You're one of our OGs! All feedbacks give points to your profile. However, only feedback for courses taken during the first semester of 2025/2026 counts as entries for this giveaway."
   },
   {
     question: 'Can Erasmus or international students participate?',
@@ -47,7 +52,7 @@ const GIVEAWAY_FAQ_ITEMS: FAQItem[] = [
   {
     question: 'When will the winner be announced?',
     answer:
-      'The giveaway ends on **February 27th at 23:59**. We will contact the winner via university email and announce them on our [Instagram](https://www.instagram.com/unifeedback/) on **March 2nd**. Check your spam folder!'
+      'The giveaway ends on **February 27 at 23:59**. We will contact the winner via university email and announce them on our [Instagram](https://www.instagram.com/unifeedback/) on **March 2nd**. Check your spam folder!'
   }
 ]
 
