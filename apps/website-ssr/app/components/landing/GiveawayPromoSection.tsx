@@ -17,15 +17,15 @@ export function GiveawayPromoSection() {
       {/* Content */}
       <div className="relative z-10 container mx-auto px-4 py-16 md:py-24 lg:py-32">
         <div className="flex flex-col md:flex-row items-center justify-between gap-8 md:gap-12 text-white">
-          <div className="flex items-center gap-6 text-center md:text-left">
-            <div className="flex items-center justify-center size-16 md:size-20 rounded-full bg-white/10 backdrop-blur-sm">
+          <div className="flex items-center gap-4 md:gap-6 text-center md:text-left">
+            <div className="hidden sm:flex items-center justify-center size-16 md:size-20 rounded-full bg-white/10 backdrop-blur-sm">
               <Gift className="size-8 md:size-10" />
             </div>
             <div>
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-2">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-2">
                 Win a ticket to NOS Alive 2026!
               </h2>
-              <p className="text-lg md:text-xl lg:text-2xl text-white/90">
+              <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-white/90">
                 Share your feedback to enter our giveaway
               </p>
             </div>
