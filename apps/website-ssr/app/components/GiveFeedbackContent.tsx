@@ -87,6 +87,23 @@ export function GiveFeedbackContent({
     workloadRating
   ])
 
+  // Get list of missing required fields
+  const missingFields = useMemo(() => {
+    const missing: string[] = []
+    if (selectedFacultyId === 0) missing.push('University')
+    if (selectedDegreeId === 0) missing.push('Degree')
+    if (selectedCourseId === 0) missing.push('Course')
+    if (rating === 0) missing.push('Overall Rating')
+    if (workloadRating === 0) missing.push('Workload')
+    return missing
+  }, [
+    selectedFacultyId,
+    selectedDegreeId,
+    selectedCourseId,
+    rating,
+    workloadRating
+  ])
+
   // Get the selected faculty for auth modal customization
   const selectedFaculty = useMemo(
     () => faculties.find((f) => f.id === selectedFacultyId),
@@ -543,28 +560,40 @@ export function GiveFeedbackContent({
             </div>
 
             {/* Submit Button */}
-            <AuthenticatedButton
-              type="submit"
-              className="w-full mt-6 mb-0"
-              disabled={isSubmitting || !isFormValid}
-              authModalProps={{
-                allowedEmailSuffixes: selectedFaculty?.emailSuffixes,
-                universityName: selectedFaculty?.shortName,
-                successDescription: 'Submitting your feedback...'
-              }}
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="size-4 animate-spin" />
-                  <span>Submitting...</span>
-                </>
-              ) : (
-                <>
-                  <Send className="size-4" />
-                  <span>Submit</span>
-                </>
+            <div className="mt-6 mb-0 space-y-4">
+              {/* Validation feedback */}
+              {!isFormValid && missingFields.length > 0 && (
+                <div className="text-sm text-muted-foreground text-center">
+                  Please fill in the following required fields:{' '}
+                  <span className="font-semibold">
+                    {missingFields.join(', ')}
+                  </span>
+                </div>
               )}
-            </AuthenticatedButton>
+
+              <AuthenticatedButton
+                type="submit"
+                className="w-full"
+                disabled={isSubmitting || !isFormValid}
+                authModalProps={{
+                  allowedEmailSuffixes: selectedFaculty?.emailSuffixes,
+                  universityName: selectedFaculty?.shortName,
+                  successDescription: 'Submitting your feedback...'
+                }}
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="size-4 animate-spin" />
+                    <span>Submitting...</span>
+                  </>
+                ) : (
+                  <>
+                    <Send className="size-4" />
+                    <span>Submit</span>
+                  </>
+                )}
+              </AuthenticatedButton>
+            </div>
 
             <p className="text-xs text-gray-500 text-center mt-1">
               By submitting this review, you agree to our{' '}

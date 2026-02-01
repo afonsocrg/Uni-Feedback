@@ -117,6 +117,12 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
   const [pointsEarned, setPointsEarned] = useState<number | undefined>(
     undefined
   )
+  const [submittedCourseId, setSubmittedCourseId] = useState<number | undefined>(
+    undefined
+  )
+  const [submittedFeedbackId, setSubmittedFeedbackId] = useState<
+    number | undefined
+  >(undefined)
   const [duplicateFeedback, setDuplicateFeedback] =
     useState<DuplicateFeedbackDetail | null>(null)
   const [formLoadTime] = useState<number>(() => Date.now())
@@ -172,6 +178,8 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
       })
 
       setPointsEarned(response.pointsEarned)
+      setSubmittedCourseId(values.courseId)
+      setSubmittedFeedbackId(response.feedbackId)
       setIsSubmitSuccess(true)
       toast.success('Feedback submitted successfully!')
     } catch (error) {
@@ -268,6 +276,8 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
       })
 
       toast.success('Feedback updated successfully!')
+      setSubmittedCourseId(duplicateFeedback.courseId)
+      setSubmittedFeedbackId(duplicateFeedback.id)
       setDuplicateFeedback(null)
       setPointsEarned(response.points)
       setIsEditSuccess(true)
@@ -284,6 +294,8 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
     setIsSubmitSuccess(false)
     setIsEditSuccess(false)
     setPointsEarned(undefined)
+    setSubmittedCourseId(undefined)
+    setSubmittedFeedbackId(undefined)
     setDuplicateFeedback(null)
 
     // Reset form ratings and comment, but preserve faculty/degree selections
@@ -298,6 +310,8 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
     return (
       <SubmitFeedbackSuccess
         pointsEarned={pointsEarned}
+        courseId={submittedCourseId}
+        feedbackId={submittedFeedbackId}
         onSubmitAnother={handleSubmitAnother}
         browseLink={browseLink}
       />
@@ -309,6 +323,8 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
     return (
       <UpdateFeedbackSuccess
         points={pointsEarned}
+        courseId={submittedCourseId}
+        feedbackId={submittedFeedbackId}
         onSubmitAnother={handleSubmitAnother}
       />
     )

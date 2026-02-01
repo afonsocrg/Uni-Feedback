@@ -19,19 +19,19 @@ interface UnapprovalMessageDialogProps {
   feedback: { id: number; comment?: string | null }
 }
 
-const DEFAULT_TEMPLATE = `Olá!
+const DEFAULT_TEMPLATE = `Hello!
 
-Muito obrigado por teres submetido feedback para [Course Name].
+Thank you for submitting feedback for [Course Name].
 
-Depois de revermos o teu feedback, decidimos removê-lo do nosso site porque
+After reviewing your feedback, we've decided to remove it from our website because
 
-<CAUSA>
+<REASON>
 
-Se quiseres alterar o teu feedback, podes fazê-lo no link em baixo:
+If you'd like to update your feedback, you can do so at the link below:
 
 [Link]
 
-Muito obrigado pela tua compreensão e tem um bom dia!
+Thank you for your understanding and have a great day!
 Afonso`
 
 const title = 'Unapprove Feedback'

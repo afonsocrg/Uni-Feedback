@@ -3,29 +3,43 @@ import { MessagePage } from '~/components'
 
 interface FeedbackSubmitSuccessProps {
   pointsEarned?: number
+  courseId?: number
+  feedbackId?: number
   onSubmitAnother: () => void
   browseLink: string
 }
 
 export function SubmitFeedbackSuccess({
   pointsEarned,
+  courseId,
+  feedbackId,
   onSubmitAnother,
   browseLink
 }: FeedbackSubmitSuccessProps) {
   const hasPoints = pointsEarned !== undefined && pointsEarned > 0
+  const feedbackUrl =
+    courseId && feedbackId
+      ? `/courses/${courseId}#feedback-${feedbackId}`
+      : courseId
+        ? `/courses/${courseId}`
+        : undefined
 
   return (
     <MessagePage
       heading="Legend move 😎!"
       buttons={[
+        ...(feedbackUrl
+          ? [
+              {
+                label: 'View your feedback',
+                href: feedbackUrl
+              }
+            ]
+          : []),
         {
-          label: 'Submit Another Feedback',
-          onClick: onSubmitAnother
-        },
-        {
-          label: 'Back to Courses',
-          href: browseLink,
-          variant: 'outline'
+          label: 'Submit for another course',
+          onClick: onSubmitAnother,
+          variant: 'outline' as const
         }
       ]}
     >

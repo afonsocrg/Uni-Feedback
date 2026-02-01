@@ -1,5 +1,6 @@
 import './app.css'
 
+import Clarity from '@microsoft/clarity'
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister'
 import { QueryClient } from '@tanstack/react-query'
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
@@ -62,7 +63,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
           API_BASE_URL:
             process.env.VITE_API_BASE_URL || 'http://localhost:3001',
           POSTHOG_KEY: process.env.VITE_PUBLIC_POSTHOG_KEY || '',
-          POSTHOG_HOST: process.env.VITE_PUBLIC_POSTHOG_HOST || ''
+          POSTHOG_HOST: process.env.VITE_PUBLIC_POSTHOG_HOST || '',
+          CLARITY_PROJECT_ID: process.env.VITE_PUBLIC_CLARITY_PROJECT_ID || ''
         })};`
       : ''
 
@@ -134,6 +136,34 @@ export default function App() {
       }
     } else if (import.meta.env.DEV) {
       console.log('[PostHog] Disabled in development mode')
+    }
+
+    // Initialize Microsoft Clarity (client-side only, disabled in development)
+    if (typeof window !== 'undefined' && !import.meta.env.DEV) {
+      // Read from runtime injection (Docker/SSR) or fallback to build-time
+      const clarityProjectId =
+        (window as any).ENV?.CLARITY_PROJECT_ID ||
+        import.meta.env.VITE_PUBLIC_CLARITY_PROJECT_ID
+
+      if (
+        !clarityProjectId ||
+        clarityProjectId === 'your_clarity_project_id_here'
+      ) {
+        console.warn(
+          '[Clarity] Clarity Project ID is not configured. Session recording will not be tracked. ' +
+            'Set VITE_PUBLIC_CLARITY_PROJECT_ID in your .env file.'
+        )
+        return
+      }
+
+      try {
+        Clarity.init(clarityProjectId)
+        console.log('[Clarity] Successfully initialized')
+      } catch (error) {
+        console.error('[Clarity] Failed to initialize:', error)
+      }
+    } else if (import.meta.env.DEV) {
+      console.log('[Clarity] Disabled in development mode')
     }
   }, [])
 

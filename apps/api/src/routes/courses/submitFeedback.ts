@@ -292,6 +292,7 @@ export class SubmitFeedback extends OpenAPIRoute {
       return Response.json(
         {
           message: 'Feedback submitted successfully',
+          feedbackId: feedbackId,
           pointsEarned: feedbackPoints
         },
         { status: 201 }

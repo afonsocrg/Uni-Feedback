@@ -1,29 +1,41 @@
 import { MessagePage } from '~/components'
-import { useLastVisitedPath } from '~/hooks'
 
 interface UpdateFeedbackSuccessProps {
   points?: number
+  courseId?: number
+  feedbackId?: number
   onSubmitAnother: () => void
 }
 
 export function UpdateFeedbackSuccess({
   points,
+  courseId,
+  feedbackId,
   onSubmitAnother
 }: UpdateFeedbackSuccessProps) {
-  const lastVisitedPath = useLastVisitedPath()
-  const browseLink = lastVisitedPath !== '/' ? lastVisitedPath : '/browse'
+  const feedbackUrl =
+    courseId && feedbackId
+      ? `/courses/${courseId}#feedback-${feedbackId}`
+      : courseId
+        ? `/courses/${courseId}`
+        : undefined
+
   return (
     <MessagePage
       heading="🎉 All set!!"
       buttons={[
+        ...(feedbackUrl
+          ? [
+              {
+                label: 'View your feedback',
+                href: feedbackUrl
+              }
+            ]
+          : []),
         {
-          label: 'Submit Another Feedback',
-          onClick: onSubmitAnother
-        },
-        {
-          label: 'Back to Courses',
-          href: browseLink,
-          variant: 'outline'
+          label: 'Submit for another course',
+          onClick: onSubmitAnother,
+          variant: 'outline' as const
         }
       ]}
     >
@@ -35,7 +47,7 @@ export function UpdateFeedbackSuccess({
             Your feedback is now worth
           </div>
           <div className="text-xl font-bold text-primaryBlue">
-            {points} points
+            {points} point{points !== 1 ? 's' : ''}
           </div>
         </>
       )}

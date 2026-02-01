@@ -1,6 +1,6 @@
 import { Button, StarRating, WorkloadRatingDisplay } from '@uni-feedback/ui'
 import { getRelativeTime } from '@uni-feedback/utils'
-import { Flag, GraduationCap } from 'lucide-react'
+import { Flag, GraduationCap, Link } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import {
   FeedbackMarkdown,
@@ -37,6 +37,8 @@ export function CoursePageFeedbackCard({
 }: CoursePageFeedbackCardProps) {
   const [isExpanded, setIsExpanded] = useState(false)
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false)
+  const [isHighlighted, setIsHighlighted] = useState(false)
+  const [isCopied, setIsCopied] = useState(false)
   const cardRef = useRef<HTMLDivElement>(null)
   const hasBeenViewedRef = useRef(false)
 
@@ -44,6 +46,37 @@ export function CoursePageFeedbackCard({
   const isLongComment =
     feedback.comment && feedback.comment.length > characterLimit
   const relativeTime = getRelativeTime(new Date(feedback.createdAt))
+
+  const feedbackAnchorId = `feedback-${feedback.id}`
+
+  const handleCopyPermalink = async () => {
+    try {
+      const permalink = `${window.location.origin}/courses/${feedback.courseId}#${feedbackAnchorId}`
+      await navigator.clipboard.writeText(permalink)
+      setIsCopied(true)
+      setTimeout(() => setIsCopied(false), 2000)
+    } catch (error) {
+      console.error('Failed to copy permalink:', error)
+    }
+  }
+
+  // Scroll to and highlight feedback if it matches the URL anchor
+  useEffect(() => {
+    const hash = window.location.hash
+
+    if (hash === `#${feedbackAnchorId}` && cardRef.current) {
+      cardRef.current.scrollIntoView({
+        behavior: 'instant',
+        block: 'center'
+      })
+      setIsHighlighted(true)
+
+      // Remove highlight after 3 seconds
+      setTimeout(() => {
+        setIsHighlighted(false)
+      }, 3000)
+    }
+  }, [feedback.id])
 
   // Track when feedback item becomes visible (intersection observer)
   useEffect(() => {
@@ -73,8 +106,13 @@ export function CoursePageFeedbackCard({
 
   return (
     <div
+      id={feedbackAnchorId}
       ref={cardRef}
-      className="bg-white rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] p-6 mb-6 hover:shadow-[0px_6px_24px_rgba(0,0,0,0.08)] transition-shadow"
+      className={`bg-white rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] p-6 mb-6 hover:shadow-[0px_6px_24px_rgba(0,0,0,0.08)] transition-all duration-500 ${
+        isHighlighted
+          ? 'ring-2 ring-primaryBlue ring-offset-2 shadow-[0px_8px_32px_rgba(35,114,159,0.15)]'
+          : ''
+      }`}
     >
       {/* Header with rating and date */}
       <div className="mb-6">
@@ -136,14 +174,27 @@ export function CoursePageFeedbackCard({
           initialVoteCount={feedback.helpfulVoteCount}
           initialHasVoted={feedback.hasVoted}
         />
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setIsReportDialogOpen(true)}
-          className="h-8 px-2 text-gray-400 hover:text-gray-600"
-        >
-          <Flag className="size-4" />
-        </Button>
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleCopyPermalink}
+            className="h-8 px-2 text-gray-400 hover:text-gray-600"
+          >
+            {isCopied && (
+              <span className="text-xs font-medium mr-1">Copied!</span>
+            )}
+            <Link className="size-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsReportDialogOpen(true)}
+            className="h-8 px-2 text-gray-400 hover:text-gray-600"
+          >
+            <Flag className="size-4" />
+          </Button>
+        </div>
       </div>
 
       <ReportFeedbackDialog

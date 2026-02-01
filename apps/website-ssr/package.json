@@ -16,6 +16,7 @@
     "@emnapi/wasi-threads": "^1.1.0",
     "@forge42/seo-tools": "^1.4.5",
     "@hookform/resolvers": "^5.2.2",
+    "@microsoft/clarity": "^1.0.2",
     "@napi-rs/wasm-runtime": "^1.1.1",
     "@react-router/express": "^7.13.0",
     "@react-router/node": "^7.13.0",

@@ -279,7 +279,7 @@ Afonso`
     message: string
   ): Promise<void> {
     // Use the message as-is
-    const subject = 'Uni Feedback: Atualiza o teu feedback 📝'
+    const subject = 'Uni Feedback: Please Update Your Feedback 📝'
     const messageBody = message
 
     // Convert markdown-style formatting to HTML

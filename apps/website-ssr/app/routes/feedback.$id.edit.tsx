@@ -111,6 +111,8 @@ export default function EditFeedbackPage() {
         </div>
         <EditFeedbackSuccess
           points={points}
+          courseId={feedback.courseId}
+          feedbackId={feedback.id}
           onBackToProfile={() => navigate('/profile')}
         />
       </>

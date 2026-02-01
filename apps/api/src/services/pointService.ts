@@ -184,6 +184,7 @@ export class PointService {
   /**
    * Update points for a feedback submission based on new analysis.
    * Creates a point registry entry if it doesn't exist, updates it if it does.
+   * Automatically gives 0 points if the feedback is not approved.
    *
    * @param userId - The user who submitted the feedback
    * @param feedbackId - The ID of the feedback
@@ -195,8 +196,16 @@ export class PointService {
     feedbackId: number,
     newAnalysis: AnalysisResult
   ): Promise<number> {
-    // Calculate points based on new analysis
-    const points = this.calculateFeedbackPoints(newAnalysis)
+    // Check if feedback is approved
+    const [feedbackRecord] = await database()
+      .select({ approvedAt: feedback.approvedAt })
+      .from(feedback)
+      .where(eq(feedback.id, feedbackId))
+      .limit(1)
+
+    // If feedback is not approved, give 0 points
+    const isApproved = feedbackRecord?.approvedAt !== null
+    const points = isApproved ? this.calculateFeedbackPoints(newAnalysis) : 0
 
     // Check if point registry entry exists
     const existingEntry = await database()
@@ -378,35 +387,45 @@ export class PointService {
   /**
    * Analyze feedback and award points if not already done.
    * This is used when linking existing feedback to a newly created user account.
+   * Only awards points if the feedback is approved.
    *
    * @param feedbackId - The feedback ID to process
    * @param userId - The user who owns this feedback
-   * @returns Number of points awarded (0 if already processed or no comment)
+   * @returns Number of points awarded (0 if already processed, no comment, or not approved)
    */
   async analyzeAndAwardPointsForFeedback(
     feedbackId: number,
     userId: number
   ): Promise<number> {
-    // Step 1: Get analysis
+    // Step 1: Get feedback and check if it's approved
+    const [feedbackRecord] = await database()
+      .select({
+        comment: feedback.comment,
+        approvedAt: feedback.approvedAt
+      })
+      .from(feedback)
+      .where(eq(feedback.id, feedbackId))
+      .limit(1)
+
+    if (!feedbackRecord) {
+      return 0
+    }
+
+    // If feedback is not approved, give 0 points
+    const isApproved = feedbackRecord.approvedAt !== null
+    if (!isApproved) {
+      return 0
+    }
+
+    // Step 2: Get analysis
     let analysisRecords = await database()
       .select()
       .from(feedbackAnalysis)
       .where(eq(feedbackAnalysis.feedbackId, feedbackId))
       .limit(1)
 
-    // Step 2: If analysis doesn't exist, create one
+    // Step 3: If analysis doesn't exist, create one
     if (analysisRecords.length === 0) {
-      // Get the feedback comment
-      const [feedbackRecord] = await database()
-        .select({ comment: feedback.comment })
-        .from(feedback)
-        .where(eq(feedback.id, feedbackId))
-        .limit(1)
-
-      if (!feedbackRecord) {
-        return 0
-      }
-
       const comment = feedbackRecord.comment
 
       let analysisResult: AnalysisResult
@@ -458,7 +477,7 @@ export class PointService {
         .limit(1)
     }
 
-    // Step 3: Now analysis exists for sure
+    // Step 4: Now analysis exists for sure
     if (analysisRecords.length === 0) {
       // This should never happen, but handle it gracefully
       console.error(
@@ -469,7 +488,7 @@ export class PointService {
 
     const analysis = analysisRecords[0]
 
-    // Step 4: Check if points were already awarded
+    // Step 5: Check if points were already awarded
     const existingPoints = await this.getPointsForEntry(
       userId,
       'submit_feedback',
