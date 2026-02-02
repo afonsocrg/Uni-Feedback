@@ -1,6 +1,7 @@
 import { Button } from '@uni-feedback/ui'
 import { useAuth } from '~/hooks/useAuth'
 import { useLastVisitedPath } from '~/hooks/useLastVisitedPath'
+import { analytics, getPageName } from '~/utils/analytics'
 import { Logo } from './Logo'
 import { NavigationDrawer } from './NavigationDrawer'
 import { ProfileDrawer } from './ProfileDrawer'
@@ -20,7 +21,17 @@ export function LandingHeader() {
 
           <div className="flex items-center gap-3">
             <Button size="sm" variant="ghost" asChild>
-              <a href="/feedback/new">Give Feedback!</a>
+              <a
+                href="/feedback/new"
+                onClick={() => {
+                  analytics.navigation.feedbackFormLinkClicked({
+                    source: 'navbar',
+                    referrerPage: getPageName(window.location.pathname)
+                  })
+                }}
+              >
+                Give Feedback!
+              </a>
             </Button>
             <Button
               size="sm"

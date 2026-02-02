@@ -1,11 +1,13 @@
 import { Separator } from '@uni-feedback/ui'
 import { GraduationCap } from 'lucide-react'
 import { useLastVisitedPath } from '~/hooks/useLastVisitedPath'
+import { analytics, getPageName } from '~/utils/analytics'
 import { FooterLink } from './FooterLink'
 
 interface FooterLinkItem {
   href: string
   label: string
+  onClick?: () => void
 }
 
 interface FooterLinkGroup {
@@ -22,7 +24,16 @@ export function LandingFooter() {
       title: 'Explore',
       links: [
         { href: browseLink, label: 'Browse Courses' },
-        { href: '/feedback/new', label: 'Give Feedback' }
+        {
+          href: '/feedback/new',
+          label: 'Give Feedback',
+          onClick: () => {
+            analytics.navigation.feedbackFormLinkClicked({
+              source: 'footer',
+              referrerPage: getPageName(window.location.pathname)
+            })
+          }
+        }
       ]
     },
     {
@@ -83,7 +94,9 @@ export function LandingFooter() {
                 <ul className="space-y-2 text-sm text-muted-foreground">
                   {group.links.map((link) => (
                     <li key={link.href + link.label}>
-                      <FooterLink href={link.href}>{link.label}</FooterLink>
+                      <FooterLink href={link.href} onClick={link.onClick}>
+                        {link.label}
+                      </FooterLink>
                     </li>
                   ))}
                 </ul>

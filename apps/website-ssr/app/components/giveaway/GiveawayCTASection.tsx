@@ -1,5 +1,6 @@
 import { Button } from '@uni-feedback/ui'
 import { PenSquare } from 'lucide-react'
+import { analytics, getPageName } from '~/utils/analytics'
 
 export function GiveawayCTASection() {
   return (
@@ -19,7 +20,15 @@ export function GiveawayCTASection() {
               className="text-lg px-8 shadow-xl"
               asChild
             >
-              <a href="/feedback/new">
+              <a
+                href="/feedback/new"
+                onClick={() => {
+                  analytics.navigation.feedbackFormLinkClicked({
+                    source: 'giveaway_cta',
+                    referrerPage: getPageName(window.location.pathname)
+                  })
+                }}
+              >
                 <PenSquare className="size-5" />
                 Give Feedback
               </a>

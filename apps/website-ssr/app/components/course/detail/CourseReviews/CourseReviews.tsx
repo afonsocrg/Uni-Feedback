@@ -1,6 +1,5 @@
 import type { Feedback } from '@uni-feedback/db/schema'
 import { Button } from '@uni-feedback/ui'
-import posthog from 'posthog-js'
 import { useMemo } from 'react'
 import { Link } from 'react-router'
 import {
@@ -8,6 +7,7 @@ import {
   CourseReviewsContent,
   type CourseDetail
 } from '~/components'
+import { analytics, getPageName } from '~/utils/analytics'
 import { getFullUrl } from '~/utils'
 
 interface CourseReviewsProps {
@@ -36,9 +36,10 @@ export function CourseReviews({ course, feedback }: CourseReviewsProps) {
               <Link
                 to={reviewFormUrl}
                 onClick={() => {
-                  posthog.capture('review_form_open', {
-                    source: 'course_detail_page.add_review',
-                    course_id: course.id
+                  analytics.navigation.feedbackFormLinkClicked({
+                    source: 'course_page_cta',
+                    referrerPage: getPageName(window.location.pathname),
+                    courseId: course.id
                   })
                 }}
               >

@@ -28,6 +28,7 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 import { GenericBreadcrumb, ProfileFeedbackCard } from '~/components'
 import { useRequiredAuth } from '~/hooks'
+import { analytics, getPageName } from '~/utils/analytics'
 import { useProfileFeedback, useProfileStats } from '~/hooks/queries'
 import { STORAGE_KEYS } from '~/utils/constants'
 
@@ -240,7 +241,15 @@ export default function ProfilePage() {
         <div className="mb-12">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold">Your Feedback</h2>
-            <Link to="/feedback/new">
+            <Link
+              to="/feedback/new"
+              onClick={() => {
+                analytics.navigation.feedbackFormLinkClicked({
+                  source: 'profile_page',
+                  referrerPage: getPageName(window.location.pathname)
+                })
+              }}
+            >
               <Button>Give Feedback!</Button>
             </Link>
           </div>

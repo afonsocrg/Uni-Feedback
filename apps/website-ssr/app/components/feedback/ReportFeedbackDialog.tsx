@@ -31,7 +31,7 @@ import { Link } from 'react-router'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { AuthenticatedButton, ReportFeedbackFeedbackCard } from '~/components'
-import { analytics } from '~/utils/analytics'
+import { analytics, getPageName } from '~/utils/analytics'
 
 const reportFormSchema = z.object({
   category: z.enum(REPORT_CATEGORIES),
@@ -172,6 +172,13 @@ export function ReportFeedbackDialog({
               <Link
                 to={`/feedback/new?courseId=${feedback.courseId}`}
                 className="font-medium text-primary hover:underline"
+                onClick={() => {
+                  analytics.navigation.feedbackFormLinkClicked({
+                    source: 'report_dialog',
+                    referrerPage: getPageName(window.location.pathname),
+                    courseId: feedback.courseId
+                  })
+                }}
               >
                 share your own experience
               </Link>{' '}

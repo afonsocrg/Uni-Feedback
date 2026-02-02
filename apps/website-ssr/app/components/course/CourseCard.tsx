@@ -1,6 +1,7 @@
 import { Button, StarRating, WorkloadRatingDisplay } from '@uni-feedback/ui'
 import { useNavigate } from 'react-router'
 import { SelectionCard } from '~/components'
+import { analytics, getPageName } from '~/utils/analytics'
 
 interface CourseCardProps {
   courseId: number
@@ -46,6 +47,11 @@ export function CourseCard({
             onClick={(e) => {
               e.stopPropagation()
               e.preventDefault()
+              analytics.navigation.feedbackFormLinkClicked({
+                source: 'course_card_first_feedback',
+                referrerPage: getPageName(window.location.pathname),
+                courseId
+              })
               navigate(`/feedback/new?courseId=${courseId}`)
             }}
           >

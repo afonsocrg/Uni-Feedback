@@ -6,6 +6,7 @@ import {
   SheetTrigger
 } from '@uni-feedback/ui'
 import { Menu } from 'lucide-react'
+import { analytics, getPageName } from '~/utils/analytics'
 
 interface NavigationDrawerProps {
   browseLink: string
@@ -39,7 +40,17 @@ export function NavigationDrawer({ browseLink }: NavigationDrawerProps) {
                 className="w-full justify-start h-12 text-base px-4"
                 asChild
               >
-                <a href="/feedback/new">Give Feedback</a>
+                <a
+                  href="/feedback/new"
+                  onClick={() => {
+                    analytics.navigation.feedbackFormLinkClicked({
+                      source: 'mobile_menu',
+                      referrerPage: getPageName(window.location.pathname)
+                    })
+                  }}
+                >
+                  Give Feedback
+                </a>
               </Button>
             </div>
           </nav>

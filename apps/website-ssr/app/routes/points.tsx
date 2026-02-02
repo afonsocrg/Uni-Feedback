@@ -7,6 +7,7 @@ import {
   Users
 } from 'lucide-react'
 import { Link } from 'react-router'
+import { analytics, getPageName } from '~/utils/analytics'
 
 export function meta() {
   return [
@@ -112,6 +113,12 @@ export default function PointsPage() {
                 <Link
                   to="/feedback/new"
                   className="font-medium text-primary hover:underline"
+                  onClick={() => {
+                    analytics.navigation.feedbackFormLinkClicked({
+                      source: 'points_page',
+                      referrerPage: getPageName(window.location.pathname)
+                    })
+                  }}
                 >
                   Give feedback
                 </Link>

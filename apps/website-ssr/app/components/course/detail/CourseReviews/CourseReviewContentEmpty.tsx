@@ -1,7 +1,7 @@
 import { Button } from '@uni-feedback/ui'
-import posthog from 'posthog-js'
 import { Link } from 'react-router'
 import { AskForFeedback, type CourseDetail } from '~/components'
+import { analytics, getPageName } from '~/utils/analytics'
 import { getFullUrl } from '~/utils'
 
 interface CourseReviewContentEmptyProps {
@@ -34,9 +34,10 @@ export function CourseReviewContentEmpty({
           <Link
             to={reviewFormUrl}
             onClick={() => {
-              posthog.capture('review_form_open', {
-                source: 'course_detail_page.add_first_review',
-                course_id: courseId
+              analytics.navigation.feedbackFormLinkClicked({
+                source: 'course_page_empty_state',
+                referrerPage: getPageName(window.location.pathname),
+                courseId: course.id
               })
             }}
           >

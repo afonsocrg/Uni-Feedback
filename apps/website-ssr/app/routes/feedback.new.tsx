@@ -19,7 +19,7 @@ import {
 } from '~/components'
 import { useAuth, useLastVisitedPath } from '~/hooks'
 import { useSubmitFeedback } from '~/hooks/queries'
-import { analytics } from '~/utils/analytics'
+import { analytics, getPageName } from '~/utils/analytics'
 import { STORAGE_KEYS } from '~/utils/constants'
 
 import type { Route } from './+types/feedback.new'
@@ -117,9 +117,9 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
   const [pointsEarned, setPointsEarned] = useState<number | undefined>(
     undefined
   )
-  const [submittedCourseId, setSubmittedCourseId] = useState<number | undefined>(
-    undefined
-  )
+  const [submittedCourseId, setSubmittedCourseId] = useState<
+    number | undefined
+  >(undefined)
   const [submittedFeedbackId, setSubmittedFeedbackId] = useState<
     number | undefined
   >(undefined)
@@ -147,14 +147,7 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
 
   // Track feedback form view
   useEffect(() => {
-    const courseId = loaderData.initialFormValues.courseId
-    // Determine source: if courseId is pre-filled from URL, source is likely a course page
-    // Otherwise, it's a direct navigation to the feedback form
-    const source = courseId ? 'course_page' : 'direct_url'
-
     analytics.feedback.formViewed({
-      courseId,
-      source,
       isAuthenticated
     })
   }, [loaderData.initialFormValues.courseId, isAuthenticated])
@@ -291,6 +284,12 @@ export default function GiveFeedbackPage({ loaderData }: Route.ComponentProps) {
   }
 
   const handleSubmitAnother = () => {
+    // Track "submit another" click from success modal
+    analytics.navigation.feedbackFormLinkClicked({
+      source: 'success_modal',
+      referrerPage: getPageName(window.location.pathname)
+    })
+
     setIsSubmitSuccess(false)
     setIsEditSuccess(false)
     setPointsEarned(undefined)

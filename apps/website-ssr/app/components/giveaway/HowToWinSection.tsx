@@ -1,5 +1,6 @@
 import { Button } from '@uni-feedback/ui'
 import { ArrowRight, LogIn, PenSquare, Trophy } from 'lucide-react'
+import { analytics, getPageName } from '~/utils/analytics'
 
 const STEPS = [
   {
@@ -57,7 +58,15 @@ export function HowToWinSection() {
           </div>
           <div className="text-center">
             <Button size="lg" className="text-lg px-8" asChild>
-              <a href="/feedback/new">
+              <a
+                href="/feedback/new"
+                onClick={() => {
+                  analytics.navigation.feedbackFormLinkClicked({
+                    source: 'giveaway_how_to_win',
+                    referrerPage: getPageName(window.location.pathname)
+                  })
+                }}
+              >
                 Give Feedback
                 <ArrowRight className="size-5" />
               </a>
