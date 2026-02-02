@@ -230,8 +230,7 @@ export const analytics = {
       source: string
       referrerPage?: string
       courseId?: number
-      // }) => trackEvent('feedback_form_link_clicked', props)
-    }) => console.log(props)
+    }) => trackEvent('feedback_form_link_clicked', props)
   }
 }
 
