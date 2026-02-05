@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; -webkit-print-color-adjust: exact; }
+        .page-break { page-break-after: always; }
+        /* Matching the site's star style */
+        .star-active { color: #000000; }
+        .star-inactive { color: #D1D5DB; }
+    </style>
+</head>
+<body class="bg-slate-50 text-[#111827]">
+
+    <div class="max-w-[800px] mx-auto bg-white min-h-screen shadow-sm border-x border-slate-100">
+        
+        <header class="p-10 border-b border-slate-100 bg-white">
+            <div class="flex justify-between items-start mb-6">
+                <div class="bg-black text-white px-4 py-1.5 rounded-lg font-bold text-sm tracking-tight">
+                    Uni Feedback
+                </div>
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest"><%= data.schoolYear %> REPORT</span>
+            </div>
+            
+            <h1 class="text-4xl font-extrabold tracking-tight mb-2"><%= data.courseName %></h1>
+            <div class="flex items-center gap-3 text-slate-500 font-medium">
+                <span class="bg-slate-100 px-3 py-1 rounded-full text-xs text-slate-700 font-bold tracking-tight uppercase"><%= data.courseCode %></span>
+                <span>•</span>
+                <span><%= data.ects %> ECTS</span>
+                <span>•</span>
+                <span class="text-black font-semibold"><%= data.degree %></span>
+            </div>
+        </header>
+
+        <div class="p-10 grid grid-cols-1 md:grid-cols-2 gap-8 bg-white">
+            <div class="space-y-4">
+                <h3 class="text-sm font-bold uppercase tracking-widest text-slate-400">Student Rating</h3>
+                <div class="flex items-baseline gap-3">
+                    <span class="text-5xl font-black italic">★ <%= data.avgRating %></span>
+                    <span class="text-slate-400 font-medium">/ 5.0</span>
+                </div>
+                <div class="space-y-1.5 pt-2">
+                    <% [5,4,3,2,1].forEach(star => { 
+                       const count = data.distribution[star] || 0;
+                       const percentage = (count / data.totalResponses) * 100;
+                    %>
+                    <div class="flex items-center gap-3">
+                        <span class="text-[10px] font-bold w-2"><%= star %></span>
+                        <div class="flex-1 bg-slate-100 h-2 rounded-full overflow-hidden">
+                            <div class="bg-black h-full rounded-full" style="width: <%= percentage %>%"></div>
+                        </div>
+                        <span class="text-[10px] font-bold text-slate-400 w-6 text-right"><%= count %></span>
+                    </div>
+                    <% }) %>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <h3 class="text-sm font-bold uppercase tracking-widest text-slate-400">Avg Workload</h3>
+                <div>
+                    <span class="bg-black text-white px-6 py-2 rounded-full text-lg font-bold">
+                        <%= data.avgWorkloadText %>
+                    </span>
+                </div>
+                <p class="text-sm text-slate-500 pt-2 leading-relaxed italic text-balance">
+                    Based on <%= data.totalResponses %> anonymous student contributions.
+                </p>
+            </div>
+        </div>
+
+        <section class="mx-10 mb-10 p-8 bg-black rounded-[2rem] text-white relative overflow-hidden">
+            <div class="relative z-10">
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="text-[10px] font-black uppercase tracking-[0.2em] bg-white/20 px-3 py-1 rounded-full">AI Executive Summary</span>
+                </div>
+                <p class="text-lg leading-relaxed font-medium mb-8">
+                    <%= data.aiSummary %>
+                </p>
+                
+                <div class="grid grid-cols-2 gap-6 pt-6 border-t border-white/10">
+                    <div>
+                        <h4 class="text-[10px] font-black text-white/50 uppercase mb-3">Top Sentiment</h4>
+                        <div class="flex flex-wrap gap-2">
+                            <% data.emotions.forEach(emotion => { %>
+                                <span class="text-xs font-bold border border-white/20 px-3 py-1 rounded-lg"><%= emotion %></span>
+                            <% }) %>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-[10px] font-black text-white/50 uppercase mb-3">The "Student Persona"</h4>
+                        <p class="text-xs leading-relaxed text-white/80">"<%= data.persona %>"</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="mx-10 mb-12 grid grid-cols-2 gap-8">
+            <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                <h4 class="font-bold text-sm mb-4 uppercase tracking-widest text-green-600">✓ The Highlights</h4>
+                <ul class="text-sm space-y-3 font-medium text-slate-700">
+                    <% data.pros.forEach(pro => { %> <li class="flex gap-2"><span>•</span> <%= pro %></li> <% }) %>
+                </ul>
+            </div>
+            <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                <h4 class="font-bold text-sm mb-4 uppercase tracking-widest text-slate-400">⚠ Things to know</h4>
+                <ul class="text-sm space-y-3 font-medium text-slate-700">
+                    <% data.cons.forEach(con => { %> <li class="flex gap-2"><span>•</span> <%= con %></li> <% }) %>
+                </ul>
+            </div>
+        </div>
+
+        <footer class="p-10 text-center border-t border-slate-100">
+            <p class="text-xs font-bold text-slate-300 uppercase tracking-widest leading-loose">
+                Generated by Uni-Feedback.com<br>
+                Empowering students with honest, anonymous insights.
+            </p>
+        </footer>
+    </div>
+
+    <div class="page-break"></div>
+    <div class="max-w-[800px] mx-auto bg-white min-h-screen p-10 border-x border-slate-100">
+        <h2 class="text-2xl font-black tracking-tight mb-8">Raw Student Feedback</h2>
+        <div class="space-y-4">
+            <% data.submissions.forEach(sub => { %>
+                <div class="p-6 rounded-2xl border border-slate-100 bg-white">
+                    <div class="flex justify-between items-center mb-3">
+                        <div class="flex gap-4 items-center">
+                            <span class="font-black text-lg">★ <%= sub.rating %></span>
+                            <span class="text-[10px] font-bold uppercase tracking-widest bg-slate-100 px-2 py-0.5 rounded text-slate-500 italic">Workload: <%= sub.workload %></span>
+                        </div>
+                        <span class="text-[10px] font-bold text-slate-300 uppercase"><%= sub.date %></span>
+                    </div>
+                    <p class="text-sm leading-relaxed text-slate-600">
+                        <%= sub.comment || "This user did not leave any comment" %>
+                    </p>
+                </div>
+            <% }) %>
+        </div>
+    </div>
+</body>
+</html>

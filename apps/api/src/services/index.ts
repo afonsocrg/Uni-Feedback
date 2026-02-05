@@ -1,6 +1,7 @@
 export * from './aiService'
 export * from './authService'
 export * from './courseFeedbackService'
+export * from './courseReportService'
 export * from './courseService'
 export * from './degreeService'
 export * from './emailService'

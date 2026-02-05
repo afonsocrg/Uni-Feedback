@@ -9,6 +9,14 @@ export interface FeedbackCategories {
   hasTips: boolean
 }
 
+export interface CourseReportSummary {
+  aiSummary: string      // 2-3 sentence executive summary
+  emotions: string[]      // Exactly 3 single-word emotions
+  persona: string         // One sentence describing typical student
+  pros: string[]          // 3-5 course strengths
+  cons: string[]          // 3-5 areas for improvement
+}
+
 /**
  * Normalizes comment text for consistent hashing.
  * - Trims whitespace
@@ -212,5 +220,130 @@ export class AIService {
       .catch((err) => console.warn('Failed to cache categorization:', err))
 
     return categories
+  }
+
+  /**
+   * Generate comprehensive course report summary using AI analysis.
+   * Analyzes student comments to extract insights about course quality, emotions, and patterns.
+   *
+   * @param comments - Array of student comments to analyze
+   * @param courseContext - Course metadata for context (name, acronym, avgRating)
+   * @returns Structured summary with AI-generated insights
+   */
+  async generateCourseReportSummary(
+    comments: string[],
+    courseContext: { name: string; acronym: string; avgRating: number }
+  ): Promise<CourseReportSummary> {
+    // Handle empty comments case
+    if (comments.length === 0) {
+      return {
+        aiSummary: 'No feedback available to analyze for this course.',
+        emotions: ['N/A', 'N/A', 'N/A'],
+        persona: 'No student feedback available for analysis.',
+        pros: ['No feedback available'],
+        cons: ['No feedback available']
+      }
+    }
+
+    // Token management: truncate to first 100 comments
+    let commentsToAnalyze = comments.length > 100 ? comments.slice(0, 100) : comments
+
+    // Estimate tokens (rough: 4 chars = 1 token)
+    const joinedComments = commentsToAnalyze.join('\n')
+    const estimatedTokens = joinedComments.length / 4
+
+    // Further truncate if estimated tokens > 6000 (leaving room for prompt and response)
+    if (estimatedTokens > 6000) {
+      const avgTokensPerComment = estimatedTokens / commentsToAnalyze.length
+      const maxComments = Math.floor(6000 / avgTokensPerComment)
+      commentsToAnalyze = commentsToAnalyze.slice(0, maxComments)
+    }
+
+    const systemPrompt = `You are an academic data analyst specializing in synthesizing student course feedback.
+Your task is to analyze multiple student comments about a university course and extract key insights in a structured format.
+
+Focus on:
+- Overall sentiment and recurring themes
+- Teaching quality, course structure, workload, materials
+- Student satisfaction patterns
+- Actionable insights for future students
+
+Course context:
+- Name: ${courseContext.name}
+- Code: ${courseContext.acronym}
+- Average Rating: ${courseContext.avgRating.toFixed(1)}/5`
+
+    const userPrompt = `Analyze the following ${commentsToAnalyze.length} student feedback comments and provide a comprehensive summary:\n\n${commentsToAnalyze.join('\n\n---\n\n')}`
+
+    const payload = {
+      model: 'openai/gpt-4o',
+      temperature: 0.3,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ],
+      response_format: {
+        type: 'json_schema',
+        json_schema: {
+          name: 'course_report_summary',
+          strict: true,
+          schema: {
+            type: 'object',
+            properties: {
+              aiSummary: { type: 'string' },
+              emotions: {
+                type: 'array',
+                items: { type: 'string' },
+                minItems: 3,
+                maxItems: 3
+              },
+              persona: { type: 'string' },
+              pros: {
+                type: 'array',
+                items: { type: 'string' },
+                minItems: 3,
+                maxItems: 5
+              },
+              cons: {
+                type: 'array',
+                items: { type: 'string' },
+                minItems: 3,
+                maxItems: 5
+              }
+            },
+            required: ['aiSummary', 'emotions', 'persona', 'pros', 'cons'],
+            additionalProperties: false
+          }
+        }
+      }
+    }
+
+    try {
+      const data = await this.callOpenRouter(payload)
+
+      if (!data.choices?.[0]?.message?.content) {
+        throw new Error('OpenRouter API returned unexpected response format')
+      }
+
+      const content = JSON.parse(data.choices[0].message.content)
+
+      return {
+        aiSummary: content.aiSummary || 'Unable to generate summary',
+        emotions: content.emotions || ['N/A', 'N/A', 'N/A'],
+        persona: content.persona || 'Unable to determine typical student persona',
+        pros: content.pros || ['Unable to extract pros'],
+        cons: content.cons || ['Unable to extract cons']
+      }
+    } catch (error) {
+      console.error('AI summary generation failed:', error)
+      // Return fallback data on AI failure
+      return {
+        aiSummary: 'Unable to generate AI analysis due to technical issues. Please review the individual feedback submissions below.',
+        emotions: ['N/A', 'N/A', 'N/A'],
+        persona: 'Unable to determine typical student persona due to technical issues.',
+        pros: ['Analysis unavailable'],
+        cons: ['Analysis unavailable']
+      }
+    }
   }
 }

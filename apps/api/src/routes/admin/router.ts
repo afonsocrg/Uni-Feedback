@@ -40,6 +40,7 @@ import {
 } from './feedback'
 import { GetDegreeSuggestions } from './suggestions'
 import { GetUsers } from './users'
+import { GenerateCourseReport } from './reports'
 
 const router = fromIttyRouter(
   AutoRouter({ before: [requireAdmin], base: '/admin' })
@@ -84,6 +85,9 @@ router.post('/feedback/recalculate-points', RecalculatePoints)
 
 // Suggestions routes
 router.get('/suggestions/degrees', GetDegreeSuggestions)
+
+// Report routes
+router.post('/reports/course', GenerateCourseReport)
 
 // User routes - Wrapped with superuser middleware
 class GetUsersWithAuth extends GetUsers {
