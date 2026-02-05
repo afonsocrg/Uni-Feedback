@@ -1,11 +1,12 @@
 import { database } from '@uni-feedback/db'
 import { courses, degrees, feedback } from '@uni-feedback/db/schema'
 import { getWorkloadLabel } from '@uni-feedback/utils'
-import { and, eq, isNotNull } from 'drizzle-orm'
+import { and, desc, eq, isNotNull } from 'drizzle-orm'
 import ejs from 'ejs'
 import { marked } from 'marked'
 import * as path from 'path'
 import puppeteer, { type Browser } from 'puppeteer'
+import QRCode from 'qrcode'
 import { AIService } from './aiService'
 import { NotFoundError } from './errors'
 
@@ -13,6 +14,7 @@ interface ReportData {
   schoolYear: number
   courseName: string
   courseCode: string
+  courseId: number
   ects: number
   degree: string
   avgRating: string
@@ -26,10 +28,14 @@ interface ReportData {
   persona: string
   pros: string[]
   cons: string[]
+  websiteUrl: string
+  generatedDate: string
+  qrCodeDataUrl: string
   submissions: Array<{
+    id: number
     rating: number
     workload: string
-    date: string
+    date: string | null
     comment: string | null
   }>
 }
@@ -162,7 +168,7 @@ export class CourseReportService {
         rating: feedback.rating,
         workloadRating: feedback.workloadRating,
         comment: feedback.comment,
-        approvedAt: feedback.approvedAt
+        createdAt: feedback.createdAt
       })
       .from(feedback)
       .where(
@@ -172,6 +178,7 @@ export class CourseReportService {
           isNotNull(feedback.approvedAt)
         )
       )
+      .orderBy(desc(feedback.createdAt))
 
     const totalResponses = feedbackResults.length
 
@@ -213,25 +220,46 @@ export class CourseReportService {
     const avgWorkloadText = getWorkloadLabel(avgWorkload)
 
     // Format submissions with date formatting and markdown conversion
-    const submissions = feedbackResults.map((fb) => ({
-      rating: fb.rating,
-      workload: fb.workloadRating
-        ? getWorkloadLabel(fb.workloadRating)
-        : 'Not specified',
-      date: fb.approvedAt
-        ? new Date(fb.approvedAt).toLocaleDateString('en-US', {
+    const submissions = feedbackResults.map((fb) => {
+      // Handle null, 0, or Unix epoch (Jan 1, 1970) dates
+      let formattedDate = null
+      if (fb.createdAt) {
+        const date = new Date(fb.createdAt)
+        // Check if date is valid and not Unix epoch (timestamp 0)
+        const timestamp = date.getTime()
+        if (timestamp > 0 && !isNaN(timestamp)) {
+          formattedDate = date.toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'short',
             day: 'numeric'
           })
-        : 'Unknown',
-      comment: fb.comment ? (marked(fb.comment) as string) : null
-    }))
+        }
+      }
+
+      return {
+        id: fb.id,
+        rating: fb.rating,
+        workload: fb.workloadRating
+          ? getWorkloadLabel(fb.workloadRating)
+          : 'Not specified',
+        date: formattedDate,
+        comment: fb.comment ? (marked(fb.comment) as string) : null
+      }
+    })
+
+    // Generate QR code for course URL
+    const courseUrl = `${this.env.WEBSITE_URL}/courses/${courseId}`
+    const qrCodeDataUrl = await QRCode.toDataURL(courseUrl, {
+      errorCorrectionLevel: 'M',
+      margin: 1,
+      width: 200
+    })
 
     return {
       schoolYear: schoolYear,
       courseName: course.courseName,
       courseCode: course.courseCode,
+      courseId: courseId,
       ects: course.ects ?? 0,
       degree: course.degreeName ?? 'Unknown Degree',
       avgRating,
@@ -240,6 +268,13 @@ export class CourseReportService {
       avgWorkloadText,
       workloadDistribution,
       totalWorkloadResponses: workloadCount,
+      websiteUrl: this.env.WEBSITE_URL,
+      generatedDate: new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      }),
+      qrCodeDataUrl,
       aiSummary: '', // Will be filled by AI service
       emotions: [], // Will be filled by AI service
       persona: '', // Will be filled by AI service

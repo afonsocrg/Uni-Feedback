@@ -10,7 +10,7 @@ export interface FeedbackCategories {
 }
 
 export interface CourseReportSummary {
-  aiSummary: string      // 2-3 sentence executive summary
+  aiSummary: string      // 2-3 sentence executive summary (100-500 characters)
   emotions: string[]      // Exactly 3 single-word emotions
   persona: string         // One sentence describing typical student
   pros: string[]          // 3-5 course strengths
@@ -268,6 +268,9 @@ Focus on:
 - Student satisfaction patterns
 - Actionable insights for future students
 
+Important constraints:
+- The aiSummary MUST be 100-500 characters (2-3 concise sentences)
+
 Course context:
 - Name: ${courseContext.name}
 - Code: ${courseContext.acronym}
@@ -290,7 +293,11 @@ Course context:
           schema: {
             type: 'object',
             properties: {
-              aiSummary: { type: 'string' },
+              aiSummary: {
+                type: 'string',
+                minLength: 100,
+                maxLength: 500
+              },
               emotions: {
                 type: 'array',
                 items: { type: 'string' },
