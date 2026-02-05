@@ -18,6 +18,8 @@ interface ReportData {
   distribution: { [key: number]: number }
   totalResponses: number
   avgWorkloadText: string
+  workloadDistribution: { [key: number]: number }
+  totalWorkloadResponses: number
   aiSummary: string
   emotions: string[]
   persona: string
@@ -180,6 +182,13 @@ export class CourseReportService {
       4: 0,
       5: 0
     }
+    const workloadDistribution: { [key: number]: number } = {
+      1: 0,
+      2: 0,
+      3: 0,
+      4: 0,
+      5: 0
+    }
 
     feedbackResults.forEach((fb) => {
       sumRating += fb.rating
@@ -188,6 +197,8 @@ export class CourseReportService {
       if (fb.workloadRating !== null) {
         sumWorkload += fb.workloadRating
         workloadCount++
+        workloadDistribution[fb.workloadRating] =
+          (workloadDistribution[fb.workloadRating] || 0) + 1
       }
     })
 
@@ -223,6 +234,8 @@ export class CourseReportService {
       distribution,
       totalResponses,
       avgWorkloadText,
+      workloadDistribution,
+      totalWorkloadResponses: workloadCount,
       aiSummary: '', // Will be filled by AI service
       emotions: [], // Will be filled by AI service
       persona: '', // Will be filled by AI service
