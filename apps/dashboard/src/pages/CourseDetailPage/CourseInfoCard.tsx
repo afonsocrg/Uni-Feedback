@@ -13,13 +13,14 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@uni-feedback/ui'
-import { Edit3, ExternalLink, HelpCircle } from 'lucide-react'
+import { Edit3, ExternalLink, FileText, HelpCircle } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { openCourseInWebsite } from '../../utils'
 import { AddTermDialog } from './AddTermDialog'
 import { CourseEditDialog } from './CourseEditDialog'
+import { GenerateReportDialog } from './GenerateReportDialog'
 import { RemoveTermConfirmationDialog } from './RemoveTermConfirmationDialog'
 
 // Utility function to get consistent colors like Chip component
@@ -59,6 +60,8 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
   const [isAddTermDialogOpen, setIsAddTermDialogOpen] = useState(false)
   const [isRemoveTermDialogOpen, setIsRemoveTermDialogOpen] = useState(false)
   const [isCourseEditDialogOpen, setIsCourseEditDialogOpen] = useState(false)
+  const [isGenerateReportDialogOpen, setIsGenerateReportDialogOpen] =
+    useState(false)
   const [termToRemove, setTermToRemove] = useState<string>('')
 
   const courseId = id ? parseInt(id, 10) : 0
@@ -95,6 +98,14 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
           <CardTitle className="flex items-center justify-between">
             Course Information
             <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setIsGenerateReportDialogOpen(true)}
+              >
+                <FileText className="h-4 w-4 mr-2" />
+                Generate Report
+              </Button>
               <Button
                 size="sm"
                 variant="outline"
@@ -230,6 +241,13 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
         course={course}
         open={isCourseEditDialogOpen}
         onOpenChange={setIsCourseEditDialogOpen}
+      />
+
+      <GenerateReportDialog
+        open={isGenerateReportDialogOpen}
+        onOpenChange={setIsGenerateReportDialogOpen}
+        courseId={courseId}
+        courseName={course.name}
       />
     </>
   )

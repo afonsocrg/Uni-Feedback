@@ -1,3 +1,4 @@
+import { API_BASE_URL } from './config'
 import { apiDelete, apiGet, apiPost, apiPut } from './utils'
 
 // Generic Pagination Types
@@ -809,4 +810,31 @@ export async function recalculateAllPoints(): Promise<{
     unchanged: number
     message: string
   }>('/admin/feedback/recalculate-points', {})
+}
+
+/**
+ * Generate a PDF report for a course
+ * Returns a Blob that can be used to download or view the PDF
+ */
+export async function generateCourseReport(
+  courseId: number,
+  schoolYear: number
+): Promise<Blob> {
+  const response = await fetch(`${API_BASE_URL}/admin/reports/course`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    credentials: 'include',
+    body: JSON.stringify({ courseId, schoolYear })
+  })
+
+  if (!response.ok) {
+    const error = await response
+      .json()
+      .catch(() => ({ error: 'Failed to generate report' }))
+    throw new Error(error.error || 'Failed to generate report')
+  }
+
+  return response.blob()
 }
