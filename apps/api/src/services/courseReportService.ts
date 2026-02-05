@@ -3,6 +3,7 @@ import { courses, degrees, feedback } from '@uni-feedback/db/schema'
 import { getWorkloadLabel } from '@uni-feedback/utils'
 import { and, eq, isNotNull } from 'drizzle-orm'
 import ejs from 'ejs'
+import { marked } from 'marked'
 import * as path from 'path'
 import puppeteer, { type Browser } from 'puppeteer'
 import { AIService } from './aiService'
@@ -76,7 +77,10 @@ export class CourseReportService {
     const finalData: ReportData = {
       ...reportData,
       aiSummary: aiSummary.aiSummary,
-      emotions: aiSummary.emotions,
+      emotions: aiSummary.emotions.map(
+        // Convert first letter to upper case
+        (e) => e.charAt(0).toUpperCase() + e.slice(1)
+      ),
       persona: aiSummary.persona,
       pros: aiSummary.pros,
       cons: aiSummary.cons
@@ -103,7 +107,7 @@ export class CourseReportService {
       const pdfBuffer = await page.pdf({
         format: 'A4',
         printBackground: true,
-        margin: { top: 0, right: 0, bottom: 0, left: 0 }
+        margin: { top: '20mm', right: '15mm', bottom: '20mm', left: '15mm' }
       })
 
       return Buffer.from(pdfBuffer)
@@ -208,7 +212,7 @@ export class CourseReportService {
       workloadCount > 0 ? Math.round(sumWorkload / workloadCount) : 3
     const avgWorkloadText = getWorkloadLabel(avgWorkload)
 
-    // Format submissions with date formatting
+    // Format submissions with date formatting and markdown conversion
     const submissions = feedbackResults.map((fb) => ({
       rating: fb.rating,
       workload: fb.workloadRating
@@ -221,7 +225,7 @@ export class CourseReportService {
             day: 'numeric'
           })
         : 'Unknown',
-      comment: fb.comment
+      comment: fb.comment ? (marked(fb.comment) as string) : null
     }))
 
     return {

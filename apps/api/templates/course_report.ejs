@@ -7,9 +7,102 @@
     <style>
         body { font-family: 'Inter', sans-serif; -webkit-print-color-adjust: exact; }
         .page-break { page-break-after: always; }
+
+        /* Better page break handling for feedback cards */
+        .feedback-card {
+            margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
+            /* Make broken cards render as separate boxes on each page */
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+            /* Enhanced shadow and border for print-friendly design */
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+
+        /* Remove top margin from first feedback card */
+        .feedback-card:first-child {
+            margin-top: 0;
+        }
+
+        /* Prevent awkward single-line orphans/widows in feedback content */
+        .feedback-content, .feedback-content p {
+            orphans: 3;
+            widows: 3;
+        }
+
+        /* Markdown styles for feedback comments */
+        .feedback-content h1 {
+            font-size: 1.25rem; /* text-xl */
+            font-weight: 600; /* font-semibold */
+            color: #111827; /* text-gray-900 */
+            margin-top: 1rem; /* mt-4 */
+            margin-bottom: 0.75rem; /* mb-3 */
+        }
+        .feedback-content h2 {
+            font-size: 1.125rem; /* text-lg */
+            font-weight: 600; /* font-semibold */
+            color: #111827; /* text-gray-900 */
+            margin-top: 0.75rem; /* mt-3 */
+            margin-bottom: 0.5rem; /* mb-2 */
+        }
+        .feedback-content h3 {
+            font-size: 1.125rem; /* text-lg */
+            font-weight: 600; /* font-semibold */
+            color: #111827; /* text-gray-900 */
+            margin-top: 0.5rem; /* mt-2 */
+            margin-bottom: 0.25rem; /* mb-1 */
+        }
+        .feedback-content p {
+            margin-bottom: 0.5rem;
+        }
+        .feedback-content ul, .feedback-content ol {
+            margin-left: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .feedback-content ul {
+            list-style-type: disc;
+        }
+        .feedback-content ol {
+            list-style-type: decimal;
+        }
+        .feedback-content li {
+            margin-bottom: 0.25rem;
+        }
+        .feedback-content strong {
+            font-weight: 600;
+        }
+        .feedback-content em {
+            font-style: italic;
+        }
+        .feedback-content code {
+            background-color: #f3f4f6;
+            padding: 0.125rem 0.25rem;
+            border-radius: 0.25rem;
+            font-family: monospace;
+            font-size: 0.875rem;
+        }
+        .feedback-content pre {
+            background-color: #f3f4f6;
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            overflow-x: auto;
+            margin-bottom: 0.5rem;
+        }
+        .feedback-content pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        .feedback-content blockquote {
+            border-left: 4px solid #d1d5db;
+            padding-left: 1rem;
+            margin-left: 0;
+            margin-bottom: 0.5rem;
+            color: #6b7280;
+        }
     </style>
 </head>
-<body class="bg-slate-50 text-[#111827]">
+<body class="text-[#111827]">
 
     <div class="max-w-[800px] mx-auto bg-white min-h-screen shadow-sm border-x border-slate-100">
 
@@ -143,13 +236,13 @@
 
         <!-- Pros and Cons -->
         <div class="p-10 grid grid-cols-2 gap-8 bg-white">
-            <div class="bg-slate-50 p-6 rounded-xl border border-slate-100">
+            <div class="p-6 rounded-xl border-2 border-slate-200">
                 <h4 class="font-bold text-sm mb-4 uppercase tracking-widest text-green-600">✓ The Highlights</h4>
                 <ul class="text-sm space-y-2.5 font-medium text-slate-700">
                     <% data.pros.forEach(pro => { %> <li class="flex gap-2 leading-snug"><span>•</span> <span><%= pro %></span></li> <% }) %>
                 </ul>
             </div>
-            <div class="bg-slate-50 p-6 rounded-xl border border-slate-100">
+            <div class="p-6 rounded-xl border-2 border-slate-200">
                 <h4 class="font-bold text-sm mb-4 uppercase tracking-widest text-slate-400">⚠ Things to know</h4>
                 <ul class="text-sm space-y-2.5 font-medium text-slate-700">
                     <% data.cons.forEach(con => { %> <li class="flex gap-2 leading-snug"><span>•</span> <span><%= con %></span></li> <% }) %>
@@ -164,10 +257,8 @@
         </footer>
     </div>
 
-    <div class="page-break"></div>
-
     <!-- Raw Feedback Section -->
-    <div class="max-w-[800px] mx-auto bg-white min-h-screen p-10 border-x border-slate-100">
+    <div class="max-w-[800px] mx-auto bg-white min-h-screen px-10 pt-16 pb-10 border-x border-slate-100">
         <h2 class="text-2xl font-black tracking-tight mb-8">Student Feedback</h2>
         <div class="space-y-6">
             <% data.submissions.forEach(sub => {
@@ -182,7 +273,7 @@
                 };
                 const workloadColor = workloadColors[sub.workload] || 'bg-gray-100 text-gray-600 border-gray-200';
             %>
-                <div class="bg-white rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] p-6">
+                <div class="bg-white rounded-xl p-6 feedback-card">
                     <!-- Header with rating and date -->
                     <div class="mb-4">
                         <div class="flex flex-wrap items-center justify-between gap-3">
@@ -211,8 +302,8 @@
 
                     <!-- Comment section -->
                     <% if (sub.comment) { %>
-                        <div class="text-sm text-gray-700 leading-relaxed">
-                            <%= sub.comment %>
+                        <div class="text-sm text-gray-700 leading-relaxed feedback-content">
+                            <%- sub.comment %>
                         </div>
                     <% } else { %>
                         <p class="text-gray-500 italic text-sm">
