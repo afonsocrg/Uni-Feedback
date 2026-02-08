@@ -76,8 +76,13 @@ export class CourseReportService {
    */
   async generateReportWithCache(
     courseId: number,
-    schoolYear: number
+    schoolYear: number,
+    ignoreCache = false
   ): Promise<string> {
+    if (ignoreCache) {
+      return await this.generateAndCacheReport(courseId, schoolYear)
+    }
+
     // Get existing cache entry
     const cache = await this.cacheService.getCacheEntry(courseId, schoolYear)
 
@@ -182,7 +187,10 @@ export class CourseReportService {
       const pdfBuffer = await page.pdf({
         format: 'A4',
         printBackground: true,
-        margin: { top: '20mm', right: '15mm', bottom: '20mm', left: '15mm' }
+        margin: { top: '20mm', right: '15mm', bottom: '20mm', left: '15mm' },
+        displayHeaderFooter: true,
+        headerTemplate: '<div></div>',
+        footerTemplate: `<div style="width:100%;font-size:9px;color:#94a3b8;font-family:Arial,sans-serif;display:flex;justify-content:space-between;padding:0 15mm;box-sizing:border-box;"><span>Created by <a href="${finalData.websiteUrl}" target="_blank" style="color:inherit;">Uni Feedback</a> &middot; Empowering students with honest, anonymous insights.</span><span>${finalData.generatedDate}</span></div>`
       })
 
       return Buffer.from(pdfBuffer)
@@ -515,7 +523,10 @@ export class CourseReportService {
       const pdfBuffer = await page.pdf({
         format: 'A4',
         printBackground: true,
-        margin: { top: '20mm', right: '15mm', bottom: '20mm', left: '15mm' }
+        margin: { top: '20mm', right: '15mm', bottom: '20mm', left: '15mm' },
+        displayHeaderFooter: true,
+        headerTemplate: '<div></div>',
+        footerTemplate: `<div style="width:100%;font-size:9px;color:#94a3b8;font-family:Arial,sans-serif;display:flex;justify-content:space-between;padding:0 15mm;box-sizing:border-box;"><span>Created by <a href="${data.websiteUrl}" target="_blank" style="color:inherit;">Uni Feedback</a> &middot; Empowering students with honest, anonymous insights.</span><span>${data.generatedDate}</span></div>`
       })
 
       return Buffer.from(pdfBuffer)

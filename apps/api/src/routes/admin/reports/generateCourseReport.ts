@@ -78,7 +78,11 @@ export class GenerateCourseReport extends OpenAPIRoute {
       const { courseId, schoolYear } = validatedBody
 
       const reportService = new CourseReportService(env)
-      const presignedUrl = await reportService.generateReportWithCache(courseId, schoolYear)
+      const presignedUrl = await reportService.generateReportWithCache(
+        courseId,
+        schoolYear
+        // true
+      )
 
       return Response.json({
         success: true,
@@ -96,7 +100,10 @@ export class GenerateCourseReport extends OpenAPIRoute {
       // Handle race condition (409 Conflict)
       if (error.message && error.message.includes('already in progress')) {
         return Response.json(
-          { error: 'Report generation already in progress. Please try again in a few moments.' },
+          {
+            error:
+              'Report generation already in progress. Please try again in a few moments.'
+          },
           { status: 409 }
         )
       }
