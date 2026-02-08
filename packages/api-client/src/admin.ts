@@ -814,12 +814,12 @@ export async function recalculateAllPoints(): Promise<{
 
 /**
  * Generate a PDF report for a course
- * Returns a Blob that can be used to download or view the PDF
+ * Returns a presigned URL that can be used to download the PDF
  */
 export async function generateCourseReport(
   courseId: number,
   schoolYear: number
-): Promise<Blob> {
+): Promise<string> {
   const response = await fetch(`${API_BASE_URL}/admin/reports/course`, {
     method: 'POST',
     headers: {
@@ -836,5 +836,6 @@ export async function generateCourseReport(
     throw new Error(error.error || 'Failed to generate report')
   }
 
-  return response.blob()
+  const data = await response.json()
+  return data.presignedUrl
 }

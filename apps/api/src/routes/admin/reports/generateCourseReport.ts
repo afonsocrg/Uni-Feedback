@@ -14,7 +14,7 @@ export class GenerateCourseReport extends OpenAPIRoute {
     tags: ['Admin - Reports'],
     summary: 'Generate PDF report for a course',
     description:
-      'Generates a comprehensive PDF report including AI-powered analysis of student feedback. Returns a PDF file as binary data.',
+      'Generates a comprehensive PDF report including AI-powered analysis of student feedback. Returns a presigned URL to download the PDF. Uses R2 caching for cost optimization.',
     request: {
       body: {
         content: {
@@ -26,10 +26,13 @@ export class GenerateCourseReport extends OpenAPIRoute {
     },
     responses: {
       '200': {
-        description: 'PDF report generated successfully (binary data)',
+        description: 'PDF report generated successfully',
         content: {
           'application/json': {
             schema: z.object({
+              success: z.boolean(),
+              presignedUrl: z.string(),
+              expiresIn: z.number(),
               message: z.string()
             })
           }
@@ -37,6 +40,16 @@ export class GenerateCourseReport extends OpenAPIRoute {
       },
       '404': {
         description: 'Course not found',
+        content: {
+          'application/json': {
+            schema: z.object({
+              error: z.string()
+            })
+          }
+        }
+      },
+      '409': {
+        description: 'Report generation already in progress',
         content: {
           'application/json': {
             schema: z.object({
@@ -65,21 +78,27 @@ export class GenerateCourseReport extends OpenAPIRoute {
       const { courseId, schoolYear } = validatedBody
 
       const reportService = new CourseReportService(env)
-      const pdfBuffer = await reportService.generateReport(courseId, schoolYear)
+      const presignedUrl = await reportService.generateReportWithCache(courseId, schoolYear)
 
-      // Convert Buffer to Uint8Array for Response
-      return new Response(new Uint8Array(pdfBuffer), {
-        headers: {
-          'Content-Type': 'application/pdf',
-          'Content-Disposition': `attachment; filename="Report_Course${courseId}_${schoolYear}.pdf"`,
-          'Content-Length': pdfBuffer.length.toString()
-        }
+      return Response.json({
+        success: true,
+        presignedUrl: presignedUrl,
+        expiresIn: 3600,
+        message: 'Report generated successfully'
       })
-    } catch (error) {
+    } catch (error: any) {
       console.error('Generate course report error:', error)
 
       if (error instanceof NotFoundError) {
         return Response.json({ error: error.message }, { status: 404 })
+      }
+
+      // Handle race condition (409 Conflict)
+      if (error.message && error.message.includes('already in progress')) {
+        return Response.json(
+          { error: 'Report generation already in progress. Please try again in a few moments.' },
+          { status: 409 }
+        )
       }
 
       return Response.json(

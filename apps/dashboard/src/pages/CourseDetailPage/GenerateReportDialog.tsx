@@ -71,22 +71,13 @@ export function GenerateReportDialog({
     setCurrentMessageIndex(0)
 
     try {
-      const blob = await generateCourseReport(courseId, parseInt(selectedYear))
+      const presignedUrl = await generateCourseReport(
+        courseId,
+        parseInt(selectedYear)
+      )
 
-      // Create a URL for the blob
-      const url = window.URL.createObjectURL(blob)
-
-      // Create an anchor element to open in new tab (avoids pop-up blocker)
-      const a = document.createElement('a')
-      a.href = url
-      a.target = '_blank'
-      a.rel = 'noopener noreferrer'
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-
-      // Clean up the URL after a short delay
-      setTimeout(() => window.URL.revokeObjectURL(url), 100)
+      // Open the presigned URL in a new tab
+      window.open(presignedUrl, '_blank', 'noopener,noreferrer')
 
       toast.success('Report generated successfully')
 

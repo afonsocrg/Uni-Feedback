@@ -1,5 +1,10 @@
 import { database } from '@uni-feedback/db'
-import { courses, degrees, feedback } from '@uni-feedback/db/schema'
+import {
+  courseReports,
+  courses,
+  degrees,
+  feedback
+} from '@uni-feedback/db/schema'
 import { getWorkloadLabel } from '@uni-feedback/utils'
 import { and, desc, eq, isNotNull } from 'drizzle-orm'
 import ejs from 'ejs'
@@ -8,7 +13,13 @@ import * as path from 'path'
 import puppeteer, { type Browser } from 'puppeteer'
 import QRCode from 'qrcode'
 import { AIService } from './aiService'
+import { CourseReportCacheService } from './courseReportCacheService'
 import { NotFoundError } from './errors'
+import { R2Service } from './r2Service'
+import {
+  sendReportGenerationAlert,
+  sendReportRaceConditionAlert
+} from './telegram'
 
 interface ReportData {
   schoolYear: number
@@ -43,13 +54,71 @@ interface ReportData {
 export class CourseReportService {
   private env: Env
   private aiService: AIService
+  private r2Service: R2Service
+  private cacheService: CourseReportCacheService
 
   constructor(env: Env) {
     this.env = env
     this.aiService = new AIService(env)
+    this.r2Service = new R2Service(env)
+    this.cacheService = new CourseReportCacheService(env)
   }
 
   /**
+   * Generate a PDF report for a course and academic year with caching.
+   * Main entry point that handles cache checking, staleness detection, and regeneration.
+   *
+   * @param courseId - The course ID to generate the report for
+   * @param schoolYear - The academic year (e.g., 2024)
+   * @returns Presigned URL to download the PDF
+   * @throws NotFoundError if course doesn't exist
+   * @throws Error with 409 if another generation is already in progress
+   */
+  async generateReportWithCache(
+    courseId: number,
+    schoolYear: number
+  ): Promise<string> {
+    // Get existing cache entry
+    const cache = await this.cacheService.getCacheEntry(courseId, schoolYear)
+
+    // Handle GENERATING status (race condition)
+    if (cache && cache.status === 'GENERATING') {
+      await sendReportRaceConditionAlert(this.env, {
+        courseId,
+        schoolYear,
+        attemptNumber: cache.generationAttempts + 1
+      })
+      throw new Error(
+        'Report generation already in progress. Please try again later.'
+      )
+    }
+
+    // Handle READY status (check for staleness)
+    if (cache && cache.status === 'READY') {
+      const snapshot = await this.cacheService.getFeedbackSnapshot(
+        courseId,
+        schoolYear
+      )
+      const stalenessCheck = this.cacheService.isStale(cache, snapshot)
+      console.log({ snapshot, stalenessCheck, cache })
+
+      // Cache is fresh - return presigned URL immediately
+      if (!stalenessCheck.isStale) {
+        this.cacheService.updateLastAccessed(courseId, schoolYear)
+        return await this.r2Service.getPresignedUrl(cache.r2Key)
+      }
+
+      // Cache is stale - regenerate everything (AI + PDF)
+      console.log(`Cache stale (${stalenessCheck.reason}), regenerating report`)
+      // Fall through to full generation
+    }
+
+    // No cache or FAILED status - do full generation
+    return await this.generateAndCacheReport(courseId, schoolYear)
+  }
+
+  /**
+   * Original method for backward compatibility.
    * Generate a PDF report for a course and academic year.
    *
    * @param courseId - The course ID to generate the report for
@@ -281,6 +350,182 @@ export class CourseReportService {
       pros: [], // Will be filled by AI service
       cons: [], // Will be filled by AI service
       submissions
+    }
+  }
+
+  /**
+   * Full report generation with AI analysis and caching.
+   *
+   * @param courseId - The course ID
+   * @param schoolYear - The academic year
+   * @returns Presigned URL to download the PDF
+   */
+  private async generateAndCacheReport(
+    courseId: number,
+    schoolYear: number
+  ): Promise<string> {
+    const r2Key = this.r2Service.generateKey(courseId, schoolYear)
+    const snapshot = await this.cacheService.getFeedbackSnapshot(
+      courseId,
+      schoolYear
+    )
+
+    // Delete existing entry to avoid unique constraint violation
+    await database()
+      .delete(courseReports)
+      .where(
+        and(
+          eq(courseReports.courseId, courseId),
+          eq(courseReports.schoolYear, schoolYear)
+        )
+      )
+
+    // Try to acquire generation lock
+    const lockAcquired = await this.cacheService.tryLockGeneration(
+      courseId,
+      schoolYear,
+      r2Key,
+      snapshot
+    )
+
+    if (!lockAcquired) {
+      // Race condition - another request is already generating
+      await sendReportRaceConditionAlert(this.env, {
+        courseId,
+        schoolYear,
+        attemptNumber: 2
+      })
+      throw new Error(
+        'Report generation already in progress. Please try again later.'
+      )
+    }
+
+    try {
+      // Fetch all report data
+      const reportData = await this.fetchReportData(courseId, schoolYear)
+
+      // Extract comments for AI analysis
+      const comments = reportData.submissions
+        .map((sub) => sub.comment)
+        .filter(
+          (comment): comment is string =>
+            comment !== null && comment.trim() !== ''
+        )
+
+      // Generate AI summary
+      const aiSummary = await this.aiService.generateCourseReportSummary(
+        comments,
+        {
+          name: reportData.courseName,
+          acronym: reportData.courseCode,
+          avgRating: parseFloat(reportData.avgRating)
+        }
+      )
+
+      // Merge AI results into report data
+      const finalData: ReportData = {
+        ...reportData,
+        aiSummary: aiSummary.aiSummary,
+        emotions: aiSummary.emotions.map(
+          (e) => e.charAt(0).toUpperCase() + e.slice(1)
+        ),
+        persona: aiSummary.persona,
+        pros: aiSummary.pros,
+        cons: aiSummary.cons
+      }
+
+      // Render and generate PDF
+      const pdfBuffer = await this.renderAndGeneratePDF(finalData)
+
+      // Upload to R2
+      await this.r2Service.uploadPDF(r2Key, pdfBuffer)
+
+      // Mark cache as READY
+      await this.cacheService.markComplete(
+        courseId,
+        schoolYear,
+        aiSummary,
+        snapshot
+      )
+
+      // Send success notification
+      await sendReportGenerationAlert(this.env, {
+        courseId,
+        schoolYear,
+        courseName: reportData.courseName,
+        feedbackCount: snapshot.feedbackCount,
+        success: true
+      })
+
+      // Return presigned URL
+      return await this.r2Service.getPresignedUrl(r2Key)
+    } catch (error: any) {
+      console.error(
+        `Report generation failed for course ${courseId}, year ${schoolYear}:`,
+        error
+      )
+
+      // Mark cache as FAILED
+      await this.cacheService.markFailed(
+        courseId,
+        schoolYear,
+        error.message || 'Unknown error'
+      )
+
+      // Send failure notification
+      await sendReportGenerationAlert(this.env, {
+        courseId,
+        schoolYear,
+        courseName: 'Unknown',
+        feedbackCount: snapshot.feedbackCount,
+        success: false,
+        error: error.message
+      })
+
+      throw error
+    }
+  }
+
+  /**
+   * Extract PDF rendering logic for reuse.
+   * Renders EJS template and generates PDF with Puppeteer.
+   *
+   * @param data - Report data to render
+   * @returns PDF Buffer
+   */
+  private async renderAndGeneratePDF(data: ReportData): Promise<Buffer> {
+    // Render EJS template to HTML
+    const templatePath = path.join(
+      __dirname,
+      '../../templates/course_report.ejs'
+    )
+    const html = await ejs.renderFile(templatePath, { data })
+
+    // Generate PDF with Puppeteer
+    let browser: Browser | null = null
+    try {
+      browser = await puppeteer.launch({
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
+      })
+
+      const page = await browser.newPage()
+      await page.setContent(html, { waitUntil: 'networkidle0' })
+
+      const pdfBuffer = await page.pdf({
+        format: 'A4',
+        printBackground: true,
+        margin: { top: '20mm', right: '15mm', bottom: '20mm', left: '15mm' }
+      })
+
+      return Buffer.from(pdfBuffer)
+    } catch (error) {
+      console.error('PDF generation failed:', error)
+      throw error
+    } finally {
+      if (browser) {
+        await browser.close()
+      }
     }
   }
 }

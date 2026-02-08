@@ -29,6 +29,13 @@ declare global {
     // AI
     OPENROUTER_API_KEY?: string
 
+    // R2 Storage for PDF Reports
+    R2_ACCOUNT_ID?: string
+    R2_ACCESS_KEY_ID?: string
+    R2_SECRET_ACCESS_KEY?: string
+    R2_BUCKET_NAME?: string
+    REPORT_TEMPLATE_VERSION?: string
+
     // Feature flags
     VALIDATE_EMAIL_SUFFIX: boolean
     REQUIRE_FEEDBACK_AUTH: boolean
