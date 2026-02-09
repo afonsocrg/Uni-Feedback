@@ -36,6 +36,7 @@ RUN adduser --system --uid 1001 api
 
 COPY --from=installer --chown=api:nodejs /prod/api ./
 COPY --from=installer --chown=api:nodejs /app/apps/api/dist ./dist
+COPY --from=installer --chown=api:nodejs /app/apps/api/templates ./templates
 
 USER api
 
