@@ -87,7 +87,10 @@ services:
 
 volumes:
   uni_feedback_staging_postgres_data:
+    name: uni-feedback_uni_feedback_staging_postgres_data
+    external: true
 
 networks:
   uni_feedback_staging_network:
     name: uni-feedback-staging-network
+    external: true
