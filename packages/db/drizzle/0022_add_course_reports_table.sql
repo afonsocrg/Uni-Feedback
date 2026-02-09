@@ -1,27 +1,23 @@
--- Create enum type for report status
-CREATE TYPE "report_status" AS ENUM ('GENERATING', 'READY', 'FAILED');
+-- Rename feedback moderation table to avoid naming conflict with generated reports
+-- ALTER TABLE "reports" RENAME TO "feedback_flags";
 
--- Create course_reports table
-CREATE TABLE "course_reports" (
+-- Remove old status enum (no longer used)
+DROP TABLE IF EXISTS course_reports;
+DROP TYPE IF EXISTS "report_status";
+
+-- Create reports table for generated PDF reports
+CREATE TABLE "reports" (
 	"id" serial PRIMARY KEY NOT NULL,
-	"course_id" integer NOT NULL,
-	"school_year" integer NOT NULL,
+	"report_type" text NOT NULL,
+	"resource_type" text NOT NULL,
+	"resource_id" integer NOT NULL,
+	"parameters" jsonb NOT NULL,
 	"r2_key" text NOT NULL,
 	"ai_summary_json" jsonb,
-	"feedback_count" integer NOT NULL,
-	"last_feedback_timestamp" timestamp with time zone,
-	"template_version" integer DEFAULT 1 NOT NULL,
-	"status" "report_status" DEFAULT 'GENERATING' NOT NULL,
-	"error_message" text,
-	"generation_attempts" integer DEFAULT 1 NOT NULL,
+	"created_by" integer,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
-	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
-	"last_accessed_at" timestamp with time zone DEFAULT now() NOT NULL,
-	CONSTRAINT "course_reports_course_id_school_year_unique" UNIQUE("course_id", "school_year")
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 
--- Add foreign key constraint
-ALTER TABLE "course_reports" ADD CONSTRAINT "course_reports_course_id_courses_id_fk" FOREIGN KEY ("course_id") REFERENCES "courses"("id") ON DELETE cascade ON UPDATE no action;
-
--- Add index on status for efficient queries
-CREATE INDEX "course_reports_status_idx" ON "course_reports" ("status");
+ALTER TABLE "reports" ADD CONSTRAINT "reports_created_by_users_id_fk"
+	FOREIGN KEY ("created_by") REFERENCES "users"("id") ON DELETE set null ON UPDATE no action;

@@ -1,4 +1,3 @@
-import { API_BASE_URL } from './config'
 import { apiDelete, apiGet, apiPost, apiPut } from './utils'
 
 // Generic Pagination Types
@@ -142,6 +141,10 @@ export interface AdminDegreeDetail {
   facultyName: string
   facultyShortName: string
   courseCount: number
+  reportOptions: {
+    curriculumYears: number[]
+    terms: string[]
+  }
   createdAt: string
   updatedAt: string
 }
@@ -521,6 +524,28 @@ export async function updateDegree(
 }
 
 /**
+ * Generate a semester PDF report for a degree
+ * Returns a presigned URL that can be used to download the PDF
+ */
+export async function generateDegreeReport(
+  degreeId: number,
+  schoolYear: number,
+  curriculumYear?: number,
+  terms?: string[]
+): Promise<string> {
+  const data = await apiPost<{ presignedUrl: string }>(
+    '/admin/reports/degree',
+    {
+      degreeId,
+      schoolYear,
+      ...(curriculumYear !== undefined ? { curriculumYear } : {}),
+      ...(terms && terms.length > 0 ? { terms } : {})
+    }
+  )
+  return data.presignedUrl
+}
+
+/**
  * Get course groups for admin dashboard
  */
 export async function getAdminCourseGroups(
@@ -820,22 +845,9 @@ export async function generateCourseReport(
   courseId: number,
   schoolYear: number
 ): Promise<string> {
-  const response = await fetch(`${API_BASE_URL}/admin/reports/course`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    credentials: 'include',
-    body: JSON.stringify({ courseId, schoolYear })
-  })
-
-  if (!response.ok) {
-    const error = await response
-      .json()
-      .catch(() => ({ error: 'Failed to generate report' }))
-    throw new Error(error.error || 'Failed to generate report')
-  }
-
-  const data = await response.json()
+  const data = await apiPost<{ presignedUrl: string }>(
+    '/admin/reports/course',
+    { courseId, schoolYear }
+  )
   return data.presignedUrl
 }

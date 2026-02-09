@@ -1,5 +1,6 @@
 import { database } from '@uni-feedback/db'
 import { aiCategorizationCache } from '@uni-feedback/db/schema'
+import { getWorkloadLabel } from '@uni-feedback/utils'
 import { eq, sql } from 'drizzle-orm'
 
 export interface FeedbackCategories {
@@ -10,11 +11,24 @@ export interface FeedbackCategories {
 }
 
 export interface CourseReportSummary {
-  aiSummary: string      // 2-3 sentence executive summary (100-500 characters)
-  emotions: string[]      // Exactly 3 single-word emotions
-  persona: string         // One sentence describing typical student
-  pros: string[]          // 3-5 course strengths
-  cons: string[]          // 3-5 areas for improvement
+  aiSummary: string // 2-3 sentence executive summary (100-500 characters)
+  emotions: string[] // Exactly 3 single-word emotions
+  pros: string[] // 3-5 course strengths
+  cons: string[] // 3-5 areas for improvement
+}
+
+export interface SemesterInsights {
+  systemicTrends: string[]
+  perCourse: Array<{
+    code: string
+    executiveSummary: string
+    strengths: string[]
+    improvements: string[]
+    persona: string
+    coordinatorNote: string
+  }>
+  championsReasoning: Array<{ code: string; reason: string }>
+  priorityReasoning: Array<{ code: string; reason: string }>
 }
 
 /**
@@ -230,7 +244,7 @@ export class AIService {
    * @param courseContext - Course metadata for context (name, acronym, avgRating)
    * @returns Structured summary with AI-generated insights
    */
-  async generateCourseReportSummary(
+  async generateCourseInsights(
     comments: string[],
     courseContext: { name: string; acronym: string; avgRating: number }
   ): Promise<CourseReportSummary> {
@@ -243,20 +257,6 @@ export class AIService {
         pros: ['No feedback available'],
         cons: ['No feedback available']
       }
-    }
-
-    // Token management: truncate to first 100 comments
-    let commentsToAnalyze = comments.length > 100 ? comments.slice(0, 100) : comments
-
-    // Estimate tokens (rough: 4 chars = 1 token)
-    const joinedComments = commentsToAnalyze.join('\n')
-    const estimatedTokens = joinedComments.length / 4
-
-    // Further truncate if estimated tokens > 6000 (leaving room for prompt and response)
-    if (estimatedTokens > 6000) {
-      const avgTokensPerComment = estimatedTokens / commentsToAnalyze.length
-      const maxComments = Math.floor(6000 / avgTokensPerComment)
-      commentsToAnalyze = commentsToAnalyze.slice(0, maxComments)
     }
 
     const systemPrompt = `You are an academic data analyst specializing in synthesizing student course feedback.
@@ -276,7 +276,7 @@ Course context:
 - Code: ${courseContext.acronym}
 - Average Rating: ${courseContext.avgRating.toFixed(1)}/5`
 
-    const userPrompt = `Analyze the following ${commentsToAnalyze.length} student feedback comments and provide a comprehensive summary:\n\n${commentsToAnalyze.join('\n\n---\n\n')}`
+    const userPrompt = `Analyze the following ${comments.length} student feedback comments and provide a comprehensive summary:\n\n${comments.join('\n\n---\n\n')}`
 
     const payload = {
       model: 'openai/gpt-4o',
@@ -304,7 +304,6 @@ Course context:
                 minItems: 3,
                 maxItems: 3
               },
-              persona: { type: 'string' },
               pros: {
                 type: 'array',
                 items: { type: 'string' },
@@ -318,7 +317,7 @@ Course context:
                 maxItems: 5
               }
             },
-            required: ['aiSummary', 'emotions', 'persona', 'pros', 'cons'],
+            required: ['aiSummary', 'emotions', 'pros', 'cons'],
             additionalProperties: false
           }
         }
@@ -337,7 +336,6 @@ Course context:
       return {
         aiSummary: content.aiSummary || 'Unable to generate summary',
         emotions: content.emotions || ['N/A', 'N/A', 'N/A'],
-        persona: content.persona || 'Unable to determine typical student persona',
         pros: content.pros || ['Unable to extract pros'],
         cons: content.cons || ['Unable to extract cons']
       }
@@ -345,11 +343,198 @@ Course context:
       console.error('AI summary generation failed:', error)
       // Return fallback data on AI failure
       return {
-        aiSummary: 'Unable to generate AI analysis due to technical issues. Please review the individual feedback submissions below.',
+        aiSummary:
+          'Unable to generate AI analysis due to technical issues. Please review the individual feedback submissions below.',
         emotions: ['N/A', 'N/A', 'N/A'],
-        persona: 'Unable to determine typical student persona due to technical issues.',
         pros: ['Analysis unavailable'],
         cons: ['Analysis unavailable']
+      }
+    }
+  }
+
+  /**
+   * Generate semester-level insights across multiple courses.
+   *
+   * @param coursesData - Array of course summaries with comments
+   * @param allComments - Flattened list of all comments for trend analysis
+   * @returns Structured semester insights
+   */
+  async generateDegreeInsights(
+    coursesData: Array<{
+      courseName: string
+      courseCode: string
+      ects: number
+      avgRating: number | null
+      avgWorkload: number | null
+      ratingDistribution: { [key: number]: number }
+      workloadDistribution: { [key: number]: number }
+      feedbacks: Array<{
+        rating: number
+        workload: number | null
+        comment: string | null
+      }>
+    }>
+  ): Promise<SemesterInsights> {
+    if (coursesData.length === 0) {
+      return {
+        systemicTrends: ['Insufficient data for trend analysis.'],
+        perCourse: [],
+        championsReasoning: [],
+        priorityReasoning: []
+      }
+    }
+
+    const systemPrompt = `You are an academic data analyst specializing in synthesizing student course feedback at the degree level.
+Your task is to analyze feedback across multiple courses to identify systemic patterns, highlight standouts, and flag areas needing attention.
+
+Focus on:
+- Cross-course trends (infrastructure, assessment culture, workload distribution)
+- Individual course strengths and weaknesses
+- Actionable coordinator notes
+
+Important: Keep all text concise and evidence-based.`
+
+    const coursesSummary = coursesData
+      .map((cd) => {
+        const ratingDist = [1, 2, 3, 4, 5]
+          .map((k) => `${k}★:${cd.ratingDistribution[k] ?? 0}`)
+          .join(', ')
+        const workloadDist = [1, 2, 3, 4, 5]
+          .map(
+            (k) => `${getWorkloadLabel(k)}:${cd.workloadDistribution[k] ?? 0}`
+          )
+          .join(', ')
+        const feedbackLines = cd.feedbacks
+          .map(
+            (f) =>
+              `  - rating=${f.rating}/5, workload=${f.workload ? getWorkloadLabel(f.workload) : 'N/A'}${f.comment ? `, comment: "${f.comment}"` : ''}`
+          )
+          .join('\n')
+        return `[${cd.courseCode}] ${cd.courseName} (${cd.ects} ECTS)
+Avg Rating: ${cd.avgRating !== null ? `${cd.avgRating.toFixed(1)}/5` : 'N/A'} | Distribution: ${ratingDist}
+Avg Workload: ${cd.avgWorkload !== null ? getWorkloadLabel(cd.avgWorkload) : 'N/A'} | Distribution: ${workloadDist}
+Feedbacks (${cd.feedbacks.length}):
+${feedbackLines || '  (no feedback)'}`
+      })
+      .join('\n\n===\n\n')
+
+    const userPrompt = `Analyze the following ${coursesData.length} courses and their student feedback:\n\n${coursesSummary}`
+
+    const payload = {
+      model: 'openai/gpt-4o',
+      temperature: 0.3,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ],
+      response_format: {
+        type: 'json_schema',
+        json_schema: {
+          name: 'semester_insights',
+          strict: true,
+          schema: {
+            type: 'object',
+            properties: {
+              systemicTrends: {
+                type: 'array',
+                items: { type: 'string' },
+                minItems: 2,
+                maxItems: 4
+              },
+              perCourse: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    code: { type: 'string' },
+                    executiveSummary: { type: 'string' },
+                    strengths: {
+                      type: 'array',
+                      items: { type: 'string' },
+                      minItems: 1,
+                      maxItems: 3
+                    },
+                    improvements: {
+                      type: 'array',
+                      items: { type: 'string' },
+                      minItems: 1,
+                      maxItems: 3
+                    }
+                  },
+                  required: [
+                    'code',
+                    'executiveSummary',
+                    'strengths',
+                    'improvements'
+                  ],
+                  additionalProperties: false
+                }
+              },
+              championsReasoning: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    code: { type: 'string' },
+                    reason: { type: 'string' }
+                  },
+                  required: ['code', 'reason'],
+                  additionalProperties: false
+                },
+                minItems: 0,
+                maxItems: 3
+              },
+              priorityReasoning: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    code: { type: 'string' },
+                    reason: { type: 'string' }
+                  },
+                  required: ['code', 'reason'],
+                  additionalProperties: false
+                },
+                minItems: 0,
+                maxItems: 3
+              }
+            },
+            required: [
+              'systemicTrends',
+              'perCourse',
+              'championsReasoning',
+              'priorityReasoning'
+            ],
+            additionalProperties: false
+          }
+        }
+      }
+    }
+
+    try {
+      const data = await this.callOpenRouter(payload)
+
+      if (!data.choices?.[0]?.message?.content) {
+        throw new Error('OpenRouter API returned unexpected response format')
+      }
+
+      const content = JSON.parse(data.choices[0].message.content)
+
+      return {
+        systemicTrends: content.systemicTrends || [],
+        perCourse: content.perCourse || [],
+        championsReasoning: content.championsReasoning || [],
+        priorityReasoning: content.priorityReasoning || []
+      }
+    } catch (error) {
+      console.error('Semester insights generation failed:', error)
+      return {
+        systemicTrends: [
+          'Unable to generate AI analysis due to technical issues.'
+        ],
+        perCourse: [],
+        championsReasoning: [],
+        priorityReasoning: []
       }
     }
   }

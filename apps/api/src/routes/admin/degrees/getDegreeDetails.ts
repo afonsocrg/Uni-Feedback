@@ -1,5 +1,5 @@
 import { database } from '@uni-feedback/db'
-import { degrees, faculties } from '@uni-feedback/db/schema'
+import { courses, degrees, faculties } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
 import { eq, sql } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
@@ -15,6 +15,10 @@ const AdminDegreeDetailSchema = z.object({
   facultyName: z.string(),
   facultyShortName: z.string(),
   courseCount: z.number(),
+  reportOptions: z.object({
+    curriculumYears: z.array(z.number()),
+    terms: z.array(z.string())
+  }),
   createdAt: z.string(),
   updatedAt: z.string()
 })
@@ -71,8 +75,8 @@ export class GetDegreeDetails extends OpenAPIRoute {
           createdAt: degrees.createdAt,
           updatedAt: degrees.updatedAt,
           courseCount: sql<number>`(
-            SELECT COUNT(*) 
-            FROM courses 
+            SELECT COUNT(*)
+            FROM courses
             WHERE courses.degree_id = ${degrees.id}
           )`
         })
@@ -87,9 +91,36 @@ export class GetDegreeDetails extends OpenAPIRoute {
 
       const degree = degreeResult[0]
 
+      // Get report options (curriculum years and terms)
+      const coursesResult = await database()
+        .select({
+          curriculumYear: courses.curriculumYear,
+          terms: courses.terms
+        })
+        .from(courses)
+        .where(eq(courses.degreeId, id))
+
+      const curriculumYearSet = new Set<number>()
+      const termSet = new Set<string>()
+
+      for (const course of coursesResult) {
+        if (course.curriculumYear !== null && course.curriculumYear !== undefined) {
+          curriculumYearSet.add(course.curriculumYear)
+        }
+        if (course.terms && Array.isArray(course.terms)) {
+          for (const term of course.terms as string[]) {
+            termSet.add(term)
+          }
+        }
+      }
+
       const response = {
         ...degree,
         courseCount: Number(degree.courseCount),
+        reportOptions: {
+          curriculumYears: Array.from(curriculumYearSet).sort((a, b) => a - b),
+          terms: Array.from(termSet).sort()
+        },
         createdAt: degree.createdAt?.toISOString() || '',
         updatedAt: degree.updatedAt?.toISOString() || ''
       }

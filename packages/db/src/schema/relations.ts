@@ -4,6 +4,7 @@ import { degrees } from './degree'
 import { faculties } from './faculty'
 import { feedback, feedbackFull } from './feedback'
 import { feedbackAnalysis } from './feedbackAnalysis'
+import { feedbackFlags } from './feedbackFlag'
 import { helpfulVotes } from './helpfulVote'
 import { pointRegistry } from './pointRegistry'
 import { reports } from './report'
@@ -70,7 +71,7 @@ export const userRelations = relations(users, ({ many }) => ({
   feedbacks: many(feedback),
   points: many(pointRegistry),
   helpfulVotes: many(helpfulVotes),
-  reports: many(reports)
+  feedbackFlags: many(feedbackFlags)
 }))
 
 // Feedback Analysis relations
@@ -105,14 +106,22 @@ export const helpfulVoteRelations = relations(helpfulVotes, ({ one }) => ({
   })
 }))
 
-// Report relations
-export const reportRelations = relations(reports, ({ one }) => ({
+// FeedbackFlag relations (moderation flags on feedback)
+export const feedbackFlagRelations = relations(feedbackFlags, ({ one }) => ({
   user: one(users, {
-    fields: [reports.userId],
+    fields: [feedbackFlags.userId],
     references: [users.id]
   }),
   feedback: one(feedbackFull, {
-    fields: [reports.feedbackId],
+    fields: [feedbackFlags.feedbackId],
     references: [feedbackFull.id]
+  })
+}))
+
+// Report relations (generated PDF reports)
+export const reportRelations = relations(reports, ({ one }) => ({
+  createdBy: one(users, {
+    fields: [reports.createdBy],
+    references: [users.id]
   })
 }))

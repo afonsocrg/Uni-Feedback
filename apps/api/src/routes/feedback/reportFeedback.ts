@@ -2,9 +2,9 @@ import { authenticateUser } from '@middleware'
 import { sendReportNotification } from '@services'
 import { database } from '@uni-feedback/db'
 import {
+  feedbackFlags,
   feedbackFull,
   REPORT_CATEGORIES,
-  reports,
   type ReportCategory
 } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
@@ -68,21 +68,21 @@ export class ReportFeedback extends OpenAPIRoute {
         throw new NotFoundError('Feedback not found')
       }
 
-      // Insert report
-      const [insertedReport] = await database()
-        .insert(reports)
+      // Insert feedback flag
+      const [insertedFlag] = await database()
+        .insert(feedbackFlags)
         .values({
           userId,
           feedbackId,
           category: category as ReportCategory,
           details
         })
-        .returning({ id: reports.id })
+        .returning({ id: feedbackFlags.id })
 
       // Send Telegram notification (best-effort)
       try {
         await sendReportNotification(env, {
-          reportId: insertedReport.id,
+          reportId: insertedFlag.id,
           feedbackId,
           category,
           details,

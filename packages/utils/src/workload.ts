@@ -4,7 +4,7 @@
 
 export function getWorkloadLabel(rating: number): string {
   const labels = ['Very heavy', 'Heavy', 'Moderate', 'Light', 'Very light']
-  return labels[rating - 1] || 'Unknown'
+  return labels[Math.round(rating) - 1] || 'Unknown'
 }
 
 export function getWorkloadColor(rating: number): string {

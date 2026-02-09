@@ -36,10 +36,18 @@ export class R2Service {
 
   /**
    * Generate R2 key for a course report.
-   * Format: reports/{year}/course-{id}-{year}.pdf
+   * Format: reports/courses/:id/report_name.pdf
    */
-  generateKey(courseId: number, schoolYear: number): string {
-    return `reports/courses/${schoolYear}/course-${courseId}-${schoolYear}.pdf`
+  generateCourseReportKey(courseId: number, schoolYear: number): string {
+    return `reports/courses/course-${courseId}/course-${courseId}-${schoolYear}-${new Date().toISOString().split('T')[0]}.pdf`
+  }
+
+  /**
+   * Generate R2 key for a degree report.
+   * Format: reports/degrees/:id/report_name.pdf
+   */
+  generateDegreeReportKey(degreeId: number, schoolYear: number): string {
+    return `reports/degrees/degree-${degreeId}/degree-${degreeId}-${schoolYear}-${new Date().toISOString().split('T')[0]}.pdf`
   }
 
   /**

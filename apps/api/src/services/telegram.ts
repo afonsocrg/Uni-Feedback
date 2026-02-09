@@ -382,39 +382,9 @@ An admin just ${isNewAnalysis ? 'created' : 'updated'} feedback analysis.
   return sendToTelegram(env, message)
 }
 
-interface SendReportRaceConditionAlertArgs {
-  courseId: number
-  schoolYear: number
-  attemptNumber: number
-}
-
-export async function sendReportRaceConditionAlert(
-  env: Env,
-  args: SendReportRaceConditionAlertArgs
-) {
-  const { courseId, schoolYear, attemptNumber } = args
-
-  const message = `
-⚠️ REPORT RACE CONDITION DETECTED! ⚠️
-
-Multiple simultaneous report generation attempts detected.
-
-📋 Course ID: ${courseId}
-📅 School Year: ${schoolYear}
-🔄 Attempt Number: ${attemptNumber}
-🕒 Timestamp: ${new Date().toISOString()}
-
-One request will succeed, others will receive 409 errors.
-`.trim()
-
-  return sendToTelegram(env, message)
-}
-
 interface SendReportGenerationAlertArgs {
   courseId: number
   schoolYear: number
-  courseName: string
-  feedbackCount: number
   success: boolean
   error?: string
 }
@@ -423,17 +393,48 @@ export async function sendReportGenerationAlert(
   env: Env,
   args: SendReportGenerationAlertArgs
 ) {
-  const { courseId, schoolYear, courseName, feedbackCount, success, error } = args
+  const { courseId, schoolYear, success, error } = args
 
   const statusEmoji = success ? '✅' : '❌'
   const statusText = success ? 'SUCCESS' : 'FAILED'
 
   let message = `
-${statusEmoji} REPORT GENERATION ${statusText} ${statusEmoji}
+${statusEmoji} COURSE REPORT GENERATION ${statusText} ${statusEmoji}
 
-📋 Course: ${courseName} (ID: ${courseId})
+📋 Course ID: ${courseId}
 📅 School Year: ${schoolYear}
-📊 Feedback Count: ${feedbackCount}
+🕒 Timestamp: ${new Date().toISOString()}`
+
+  if (!success && error) {
+    message += `\n\n❌ Error: ${error}`
+  }
+
+  message = message.trim()
+
+  return sendToTelegram(env, message)
+}
+
+interface SendDegreeReportGenerationAlertArgs {
+  degreeId: number
+  schoolYear: number
+  success: boolean
+  error?: string
+}
+
+export async function sendDegreeReportGenerationAlert(
+  env: Env,
+  args: SendDegreeReportGenerationAlertArgs
+) {
+  const { degreeId, schoolYear, success, error } = args
+
+  const statusEmoji = success ? '✅' : '❌'
+  const statusText = success ? 'SUCCESS' : 'FAILED'
+
+  let message = `
+${statusEmoji} SEMESTER REPORT GENERATION ${statusText} ${statusEmoji}
+
+🎓 Degree ID: ${degreeId}
+📅 School Year: ${schoolYear}
 🕒 Timestamp: ${new Date().toISOString()}`
 
   if (!success && error) {

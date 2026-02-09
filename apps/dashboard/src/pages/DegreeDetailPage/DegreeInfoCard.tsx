@@ -13,11 +13,12 @@ import {
   CardHeader,
   CardTitle
 } from '@uni-feedback/ui'
-import { Edit3 } from 'lucide-react'
+import { Edit3, FileText } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { DegreeEditDialog } from './DegreeEditDialog'
+import { GenerateReportDialog } from './GenerateReportDialog'
 
 interface DegreeInfoCardProps {
   degree: AdminDegreeDetail
@@ -28,6 +29,8 @@ export function DegreeInfoCard({ degree }: DegreeInfoCardProps) {
   const queryClient = useQueryClient()
 
   const [isDegreeEditDialogOpen, setIsDegreeEditDialogOpen] = useState(false)
+  const [isGenerateReportDialogOpen, setIsGenerateReportDialogOpen] =
+    useState(false)
 
   const degreeId = id ? parseInt(id, 10) : 0
   // Degree types query for the faculty
@@ -64,14 +67,24 @@ export function DegreeInfoCard({ degree }: DegreeInfoCardProps) {
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
             Degree Information
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => setIsDegreeEditDialogOpen(true)}
-            >
-              <Edit3 className="h-4 w-4 mr-2" />
-              Edit All
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setIsGenerateReportDialogOpen(true)}
+              >
+                <FileText className="h-4 w-4 mr-2" />
+                Generate Report
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setIsDegreeEditDialogOpen(true)}
+              >
+                <Edit3 className="h-4 w-4 mr-2" />
+                Edit All
+              </Button>
+            </div>
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-6">
@@ -123,6 +136,12 @@ export function DegreeInfoCard({ degree }: DegreeInfoCardProps) {
           </div>
         </CardContent>
       </Card>
+
+      <GenerateReportDialog
+        open={isGenerateReportDialogOpen}
+        onOpenChange={setIsGenerateReportDialogOpen}
+        degree={degree}
+      />
 
       <DegreeEditDialog
         degree={degree}

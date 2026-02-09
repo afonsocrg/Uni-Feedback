@@ -1,47 +1,46 @@
 import {
   integer,
+  jsonb,
   pgEnum,
   pgTable,
   serial,
   text,
   timestamp
 } from 'drizzle-orm/pg-core'
-import { feedbackFull } from './feedback'
 import { users } from './user'
 
-// Single source of truth for report categories
-export const REPORT_CATEGORY_LABELS = {
-  harassment_hate_speech: 'Harassment / Hate Speech',
-  spam_irrelevant: 'Spam / Irrelevant',
-  inaccurate_information: 'Inaccurate Information',
-  privacy_violation: 'Privacy Violation',
-  outdated_content: 'Outdated Content',
-  other: 'Other'
-} as const
-
-// Infer the type from the labels dict keys
-export type ReportCategory = keyof typeof REPORT_CATEGORY_LABELS
-
-// Array of category values for use in zod schemas, etc.
-export const REPORT_CATEGORIES = Object.keys(REPORT_CATEGORY_LABELS) as [
-  ReportCategory,
-  ...ReportCategory[]
-]
-
-export const reportCategoryEnum = pgEnum('report_category', REPORT_CATEGORIES)
+export const reportTypeEnum = pgEnum('report_type', ['course', 'semester'])
 
 export const reports = pgTable('reports', {
   id: serial('id').primaryKey(),
-  userId: integer('user_id')
+
+  // Report template/format used
+  reportType: reportTypeEnum('report_type').notNull(),
+
+  // Generic resource reference (no FK — interpreted by application based on reportType)
+  resourceType: text('resource_type').notNull(), // 'course' | 'degree' | ...
+  resourceId: integer('resource_id').notNull(),
+
+  // All scoping parameters: { schoolYear, curriculumYear?, terms?, ... }
+  parameters: jsonb('parameters').notNull(),
+
+  // R2 storage key
+  r2Key: text('r2_key').notNull(),
+
+  // Cached AI analysis
+  aiSummaryJson: jsonb('ai_summary_json'),
+
+  // Who triggered the generation
+  createdBy: integer('created_by').references(() => users.id, {
+    onDelete: 'set null'
+  }),
+
+  createdAt: timestamp('created_at', { withTimezone: true })
     .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
-  feedbackId: integer('feedback_id')
+    .defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true })
     .notNull()
-    .references(() => feedbackFull.id, { onDelete: 'cascade' }),
-  category: reportCategoryEnum('category').notNull(),
-  details: text('details').notNull(),
-  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
-  moderatedAt: timestamp('moderated_at', { withTimezone: true })
+    .defaultNow()
 })
 
 export type Report = typeof reports.$inferSelect

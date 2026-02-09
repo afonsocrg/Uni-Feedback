@@ -29,18 +29,18 @@ import {
   UpdateFaculty
 } from './faculties'
 import {
+  ApproveFeedback,
   GetFeedback,
   GetFeedbackDetails,
-  UpdateFeedback,
-  ApproveFeedback,
-  UnapproveFeedback,
-  UpdateFeedbackAnalysis,
   PopulateFeedbackAnalysis,
-  RecalculatePoints
+  RecalculatePoints,
+  UnapproveFeedback,
+  UpdateFeedback,
+  UpdateFeedbackAnalysis
 } from './feedback'
+import { GenerateCourseReport, GenerateDegreeReport } from './reports'
 import { GetDegreeSuggestions } from './suggestions'
 import { GetUsers } from './users'
-import { GenerateCourseReport } from './reports'
 
 const router = fromIttyRouter(
   AutoRouter({ before: [requireAdmin], base: '/admin' })
@@ -88,6 +88,7 @@ router.get('/suggestions/degrees', GetDegreeSuggestions)
 
 // Report routes
 router.post('/reports/course', GenerateCourseReport)
+router.post('/reports/degree', GenerateDegreeReport)
 
 // User routes - Wrapped with superuser middleware
 class GetUsersWithAuth extends GetUsers {

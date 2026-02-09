@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><%= data.degree %> - <%= data.schoolYear %>/<%= data.schoolYear + 1 %> Semester Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; -webkit-print-color-adjust: exact; }
+        .page-break { page-break-after: always; }
+        .avoid-break {
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+        .section-header {
+            border-left: 4px solid #23729f;
+            padding-left: 12px;
+        }
+    </style>
+</head>
+<body class="text-[#111827]">
+<%
+const formattedYear = `${data.schoolYear}/${data.schoolYear + 1}`;
+
+function ratingColor(avg) {
+    if (avg >= 4) return 'text-green-700';
+    if (avg >= 3) return 'text-yellow-700';
+    return 'text-red-700';
+}
+
+function ratingBg(avg) {
+    if (avg >= 4) return 'bg-green-50 border-green-200';
+    if (avg >= 3) return 'bg-yellow-50 border-yellow-200';
+    return 'bg-red-50 border-red-200';
+}
+
+const quadrantLabels = {
+    gold_standard: '★ Gold Standard',
+    optimal_efficiency: '✓ Optimal Efficiency',
+    critical_friction: '⚠ Critical Friction',
+    under_engaged: '○ Under Engaged'
+};
+
+const quadrantColors = {
+    gold_standard: 'bg-green-50 border-green-300 text-green-800',
+    optimal_efficiency: 'bg-blue-50 border-blue-300 text-blue-800',
+    critical_friction: 'bg-red-50 border-red-300 text-red-800',
+    under_engaged: 'bg-gray-50 border-gray-300 text-gray-700'
+};
+
+const workloadColors = {
+    'Very heavy': 'bg-red-100 text-red-800 border-red-200',
+    'Heavy': 'bg-orange-100 text-orange-800 border-orange-200',
+    'Moderate': 'bg-yellow-100 text-yellow-800 border-yellow-200',
+    'Light': 'bg-lime-100 text-lime-800 border-lime-200',
+    'Very light': 'bg-green-100 text-green-800 border-green-200'
+};
+%>
+
+<div class="max-w-[800px] mx-auto bg-white">
+
+    <!-- HEADER -->
+    <header class="p-10 pb-6 bg-white">
+        <div class="flex justify-between items-start mb-6">
+            <div class="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#23729f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/>
+                    <path d="M22 10v6"/>
+                    <path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/>
+                </svg>
+                <span class="text-lg font-semibold text-gray-800">Uni Feedback</span>
+            </div>
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-widest"><%= formattedYear %> SEMESTER REPORT</span>
+        </div>
+
+        <div>
+            <div class="text-sm font-semibold text-slate-600 mb-2">Semester Report</div>
+            <h1 class="text-4xl font-extrabold tracking-tight mb-3 text-[#23729f]"><%= data.degree %></h1>
+            <div class="flex items-center gap-3 text-slate-500 font-medium flex-wrap">
+                <span class="bg-slate-100 px-3 py-1 rounded-full text-xs text-slate-700 font-bold tracking-tight uppercase"><%= formattedYear %></span>
+                <% if (data.filters.curriculumYear) { %>
+                    <span>•</span>
+                    <span class="bg-slate-100 px-3 py-1 rounded-full text-xs text-slate-700 font-bold">Year <%= data.filters.curriculumYear %></span>
+                <% } %>
+                <% if (data.filters.terms && data.filters.terms.length > 0) { %>
+                    <span>•</span>
+                    <span class="bg-slate-100 px-3 py-1 rounded-full text-xs text-slate-700 font-bold"><%= data.filters.terms.join(', ') %></span>
+                <% } %>
+            </div>
+        </div>
+    </header>
+
+    <!-- SECTION 1: OVERVIEW -->
+    <section class="px-10 py-6">
+        <h2 class="section-header text-xl font-bold mb-6">Overview</h2>
+
+        <!-- Stats Note -->
+        <div class="flex items-center gap-3 text-xs text-slate-400 mb-6">
+            <span><span class="font-bold text-slate-500"><%= data.totalFeedbackCount %></span> responses</span>
+            <span>·</span>
+            <span><span class="font-bold text-slate-500"><%= data.totalFeedbackWithComments %></span> with comments</span>
+            <span>·</span>
+            <span><span class="font-bold text-slate-500"><%= data.courses.length %></span> courses</span>
+        </div>
+
+        <!-- Rating vs Workload Grid -->
+        <% if (data.matrixByQuadrant) { %>
+        <div>
+            <div style="display: grid; grid-template-columns: 50px 1fr 1fr;">
+                <!-- Header row -->
+                <div class="p-2"></div>
+                <div class="text-center text-[10px] font-bold uppercase tracking-widest text-slate-400 p-2">High Workload</div>
+                <div class="text-center text-[10px] font-bold uppercase tracking-widest text-slate-400 p-2">Low Workload</div>
+
+                <!-- High Rating row -->
+                <div class="flex items-center justify-center p-2 min-h-[80px]">
+                    <span style="writing-mode: vertical-rl; transform: rotate(180deg);" class="text-[10px] font-bold tracking-widest text-slate-400">High Rating</span>
+                </div>
+                <div class="border-b border-r border-slate-200 p-3 flex flex-col items-center justify-center">
+                    <div class="text-[10px] font-bold text-green-700 uppercase tracking-widest mb-2 text-center">★ Gold Standard</div>
+                    <div class="flex flex-wrap gap-1 justify-center">
+                        <% (data.matrixByQuadrant.gold_standard || []).forEach(course => { %>
+                        <a href="#course-<%= course.courseId %>" class="bg-green-100 text-green-800 px-2 py-0.5 rounded text-[10px] font-bold no-underline"><%= course.courseCode %></a>
+                        <% }) %>
+                        <% if (!data.matrixByQuadrant.gold_standard || data.matrixByQuadrant.gold_standard.length === 0) { %>
+                        <span class="text-[10px] text-slate-400 italic">None</span>
+                        <% } %>
+                    </div>
+                </div>
+                <div class="border-b border-slate-200 p-3 flex flex-col items-center justify-center">
+                    <div class="text-[10px] font-bold text-blue-700 uppercase tracking-widest mb-2 text-center">✓ Optimal Efficiency</div>
+                    <div class="flex flex-wrap gap-1 justify-center">
+                        <% (data.matrixByQuadrant.optimal_efficiency || []).forEach(course => { %>
+                        <a href="#course-<%= course.courseId %>" class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded text-[10px] font-bold no-underline"><%= course.courseCode %></a>
+                        <% }) %>
+                        <% if (!data.matrixByQuadrant.optimal_efficiency || data.matrixByQuadrant.optimal_efficiency.length === 0) { %>
+                        <span class="text-[10px] text-slate-400 italic">--</span>
+                        <% } %>
+                    </div>
+                </div>
+
+                <!-- Low Rating row -->
+                <div class="flex items-center justify-center p-2 min-h-[80px]">
+                    <span style="writing-mode: vertical-rl; transform: rotate(180deg);" class="text-[10px] font-bold tracking-widest text-slate-400">Low Rating</span>
+                </div>
+                <div class="border-r border-slate-200 p-3 flex flex-col items-center justify-center">
+                    <div class="text-[10px] font-bold text-red-700 uppercase tracking-widest mb-2 text-center">⚠ Critical Friction</div>
+                    <div class="flex flex-wrap gap-1 justify-center">
+                        <% (data.matrixByQuadrant.critical_friction || []).forEach(course => { %>
+                        <a href="#course-<%= course.courseId %>" class="bg-red-100 text-red-800 px-2 py-0.5 rounded text-[10px] font-bold no-underline"><%= course.courseCode %></a>
+                        <% }) %>
+                        <% if (!data.matrixByQuadrant.critical_friction || data.matrixByQuadrant.critical_friction.length === 0) { %>
+                        <span class="text-[10px] text-slate-400 italic">None</span>
+                        <% } %>
+                    </div>
+                </div>
+                <div class="p-3 flex flex-col items-center justify-center">
+                    <div class="text-[10px] font-bold text-gray-600 uppercase tracking-widest mb-2 text-center">○ Under Engaged</div>
+                    <div class="flex flex-wrap gap-1 justify-center">
+                        <% (data.matrixByQuadrant.under_engaged || []).forEach(course => { %>
+                        <a href="#course-<%= course.courseId %>" class="bg-gray-100 text-gray-800 px-2 py-0.5 rounded text-[10px] font-bold no-underline"><%= course.courseCode %></a>
+                        <% }) %>
+                        <% if (!data.matrixByQuadrant.under_engaged || data.matrixByQuadrant.under_engaged.length === 0) { %>
+                        <span class="text-[10px] text-slate-400 italic">None</span>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <% } %>
+
+        <!-- Key Patterns -->
+        <% if (data.systemicTrends && data.systemicTrends.length > 0) { %>
+        <div class="mt-6">
+            <p class="text-sm font-medium text-slate-500 mb-2">Key patterns</p>
+            <ul class="space-y-2">
+                <% data.systemicTrends.forEach(trend => { %>
+                <li class="flex gap-2 text-sm text-gray-700 leading-snug">
+                    <span class="text-[#23729f] font-bold mt-0.5">→</span>
+                    <span><%= trend %></span>
+                </li>
+                <% }) %>
+            </ul>
+        </div>
+        <% } %>
+    </section>
+
+    <!-- SECTION 2: HIGHLIGHTS -->
+    <section class="px-10 py-6">
+        <h2 class="section-header text-xl font-bold mb-6">Highlights</h2>
+
+        <div class="flex flex-col gap-6">
+            <!-- Favorite Courses -->
+            <% if (data.champions && data.champions.length > 0) { %>
+            <div>
+                <p class="text-sm font-medium text-green-600 mb-2">★ Favorite courses</p>
+                <ul class="space-y-2">
+                    <% data.champions.forEach(c => { %>
+                    <li class="flex gap-2 text-sm leading-snug">
+                        <span class="text-slate-400 mt-0.5">•</span>
+                        <span><a href="#course-<%= c.courseId %>" class="font-bold text-[#23729f] no-underline"><%= c.courseName %></a> - <%= c.diagnostic %></span>
+                    </li>
+                    <% }) %>
+                </ul>
+            </div>
+            <% } %>
+
+            <!-- Need Attention -->
+            <% if (data.priorityForReview && data.priorityForReview.length > 0) { %>
+            <div>
+                <p class="text-sm font-medium text-red-600 mb-2">⚠ Need attention</p>
+                <ul class="space-y-2">
+                    <% data.priorityForReview.forEach(c => { %>
+                    <li class="flex gap-2 text-sm leading-snug">
+                        <span class="text-slate-400 mt-0.5">•</span>
+                        <span><a href="#course-<%= c.courseId %>" class="font-bold text-[#23729f] no-underline"><%= c.courseName %></a> - <%= c.diagnostic %></span>
+                    </li>
+                    <% }) %>
+                </ul>
+            </div>
+            <% } %>
+        </div>
+    </section>
+
+    <!-- SECTION 3: ALL COURSES -->
+    <% if (data.comparativeIndex && data.comparativeIndex.length > 0) { %>
+    <section class="px-10 py-6">
+        <h2 class="section-header text-xl font-bold mb-6">All Courses</h2>
+        <table class="w-full text-xs">
+            <thead>
+                <tr class="border-b border-slate-200">
+                    <th class="text-left py-2 font-bold text-slate-500 uppercase tracking-widest" style="width: 38%">Course</th>
+                    <th class="text-center py-2 font-bold text-slate-500 uppercase tracking-widest">Rating</th>
+                    <th class="text-left py-2 font-bold text-slate-500 uppercase tracking-widest">Workload</th>
+                    <th class="text-left py-2 font-bold text-slate-500 uppercase tracking-widest">Classification</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% data.comparativeIndex.forEach((item, idx) => { %>
+                <tr class="border-b border-slate-100 <%= idx % 2 === 0 ? 'bg-white' : 'bg-slate-50' %>">
+                    <td class="py-2" style="width: 38%; max-width: 0; overflow: hidden;">
+                        <a href="#course-<%= item.courseId %>" class="font-semibold text-[#23729f] no-underline hover:underline block truncate"><%= item.courseName %></a>
+                        <div class="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                            <span class="text-[9px] text-slate-400 uppercase font-bold"><%= item.courseCode %></span>
+                            <span class="bg-slate-100 px-1.5 py-0.5 rounded text-[9px] text-slate-600 font-bold"><%= item.ects %> ECTS</span>
+                            <span class="bg-slate-100 px-1.5 py-0.5 rounded text-[9px] text-slate-500"><%= item.participation %> <%= item.participation === 1 ? 'feedback' : 'feedbacks' %></span>
+                        </div>
+                    </td>
+                    <td class="text-center py-2 text-gray-800">
+                        <% if (item.avgRating != null) { %>
+                        <span class="text-yellow-600">★</span> <%= item.avgRating.toFixed(1) %>
+                        <% } else { %>
+                        --
+                        <% } %>
+                    </td>
+                    <td class="py-2 text-gray-800">
+                        <% if (item.avgWorkloadText) { %>
+                            <% const wlColor = workloadColors[item.avgWorkloadText] || 'bg-gray-100 text-gray-800 border-gray-200'; %>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold border <%= wlColor %>"><%= item.avgWorkloadText %></span>
+                        <% } else { %>
+                        --
+                        <% } %>
+                    </td>
+                    <td class="py-2 text-slate-600 capitalize"><%= item.classification %></td>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </section>
+    <% } %>
+
+    <!-- SECTION 4: COURSE DETAILS -->
+    <% if (data.courseDeepDives && data.courseDeepDives.length > 0) { %>
+    <section class="px-10 py-6">
+        <h2 class="section-header text-xl font-bold mb-6">Course Details</h2>
+
+        <% data.courseDeepDives.forEach((course, idx) => { %>
+        <div id="course-<%= course.courseId %>" class="avoid-break mb-8 pb-8 <%= idx < data.courseDeepDives.length - 1 ? 'border-b border-slate-200' : '' %>">
+
+            <!-- Course Header -->
+            <div class="flex items-start justify-between mb-4">
+                <div>
+                    <h3 class="text-lg font-bold text-[#23729f]"><%= course.courseName %></h3>
+                    <div class="flex items-center gap-2 mt-1 flex-wrap">
+                        <span class="bg-slate-100 px-2 py-0.5 rounded text-xs text-slate-700 font-bold"><%= course.courseCode %></span>
+                        <span class="bg-slate-100 px-2 py-0.5 rounded text-xs text-slate-500"><%= course.ects %> ECTS</span>
+                        <% const totalFeedbacks = Object.values(course.ratingDistribution).reduce((a, b) => a + b, 0); %>
+                        <span class="bg-slate-100 px-2 py-0.5 rounded text-xs text-slate-500"><%= totalFeedbacks %> <%= totalFeedbacks === 1 ? 'feedback' : 'feedbacks' %></span>
+                    </div>
+                </div>
+                <a target="_blank" href="<%= data.websiteUrl %>/courses/<%= course.courseId %>" class="text-[10px] font-bold uppercase tracking-widest text-[#23729f] no-underline hover:underline">View Online →</a>
+            </div>
+
+            <% if (totalFeedbacks === 0) { %>
+            <!-- No Feedback Message -->
+            <p class="text-sm text-slate-500 italic">No feedback was collected for this course.</p>
+            <% } else { %>
+
+            <!-- Stats -->
+            <div class="flex gap-8 mb-4">
+                <!-- Rating Distribution -->
+                <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-1.5">
+                        <div class="flex gap-0.5">
+                            <% for (let i = 1; i <= 5; i++) { %>
+                                <span class="text-sm <%= course.avgRating != null && i <= Math.round(course.avgRating) ? 'text-yellow-600' : 'text-gray-200' %>">★</span>
+                            <% } %>
+                        </div>
+                        <span class="text-xs font-bold text-gray-800"><%= course.avgRating != null ? course.avgRating.toFixed(1) : '--' %></span>
+                        <span class="text-xs text-slate-400">/ 5</span>
+                    </div>
+                    <div class="space-y-1">
+                        <%
+                        const ratingCounts = [5,4,3,2,1].map(s => course.ratingDistribution[s] || 0);
+                        const maxRating = Math.max(...ratingCounts, 1);
+                        [5,4,3,2,1].forEach(star => {
+                            const count = course.ratingDistribution[star] || 0;
+                            const pct = (count / maxRating) * 100;
+                        %>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[9px] font-bold text-slate-500 w-2"><%= star %></span>
+                            <div class="flex-1 bg-slate-100 h-1 rounded-full overflow-hidden">
+                                <div class="h-full rounded-full bg-[#23729f]" style="width: <%= pct %>%"></div>
+                            </div>
+                            <span class="text-[9px] text-slate-400 w-4 text-right"><%= count %></span>
+                        </div>
+                        <% }) %>
+                    </div>
+                </div>
+
+                <!-- Workload Distribution -->
+                <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-1.5">
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Workload:</span>
+                        <% if (course.avgWorkloadText) { %>
+                            <% const wlChipColor = workloadColors[course.avgWorkloadText] || 'bg-gray-100 text-gray-800 border-gray-200'; %>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold border <%= wlChipColor %>"><%= course.avgWorkloadText %></span>
+                        <% } else { %>
+                            <span class="text-xs text-gray-800">--</span>
+                        <% } %>
+                    </div>
+                    <div class="space-y-1">
+                        <%
+                        const wLabels = ['Very heavy', 'Heavy', 'Moderate', 'Light', 'Very light'];
+                        const wCounts = [5,4,3,2,1].map(r => course.workloadDistribution[r] || 0);
+                        const maxW = Math.max(...wCounts, 1);
+                        [5,4,3,2,1].forEach(r => {
+                            const label = wLabels[r - 1];
+                            const count = course.workloadDistribution[r] || 0;
+                            const pct = (count / maxW) * 100;
+                        %>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[8px] font-bold text-slate-500 w-14 text-right"><%= label %></span>
+                            <div class="flex-1 bg-slate-100 h-1 rounded-full overflow-hidden">
+                                <div class="bg-[#23729f] h-full rounded-full" style="width: <%= pct %>%"></div>
+                            </div>
+                            <span class="text-[9px] text-slate-400 w-4 text-right"><%= count %></span>
+                        </div>
+                        <% }) %>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Insights -->
+            <% if (course.executiveSummary) { %>
+            <p class="text-sm text-gray-700 leading-relaxed mb-4"><%= course.executiveSummary %></p>
+            <% } %>
+
+            <div class="grid grid-cols-2 gap-4">
+                <% if (course.strengths && course.strengths.length > 0) { %>
+                <div>
+                    <div class="text-[10px] font-bold uppercase tracking-widest text-green-600 mb-2">✓ Strengths</div>
+                    <ul class="text-xs space-y-1.5 text-slate-700">
+                        <% course.strengths.forEach(s => { %><li class="flex gap-2 leading-snug"><span>•</span><span><%= s %></span></li><% }) %>
+                    </ul>
+                </div>
+                <% } %>
+                <% if (course.improvements && course.improvements.length > 0) { %>
+                <div>
+                    <div class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">⚠ Improvements</div>
+                    <ul class="text-xs space-y-1.5 text-slate-700">
+                        <% course.improvements.forEach(i => { %><li class="flex gap-2 leading-snug"><span>•</span><span><%= i %></span></li><% }) %>
+                    </ul>
+                </div>
+                <% } %>
+            </div>
+
+            <% } %>
+
+        </div>
+        <% }) %>
+    </section>
+    <% } %>
+
+</div>
+</body>
+</html>
