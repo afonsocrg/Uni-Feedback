@@ -27,11 +27,11 @@ echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GITHUB_USERNAME" --password-stdin
 
 # Pull latest images from GHCR
 echo -e "${YELLOW}📥 Pulling images from GHCR...${NC}"
-docker compose -f docker-compose.staging.yml pull
+docker compose -p uni-feedback-staging -f docker-compose.staging.yml pull
 
 # Deploy with zero downtime
 echo -e "${YELLOW}🚢 Starting containers...${NC}"
-docker compose -f docker-compose.staging.yml up -d
+docker compose -p uni-feedback-staging -f docker-compose.staging.yml up -d
 
 # Wait for services to be healthy
 echo -e "${YELLOW}⏳ Waiting for services to stabilize...${NC}"
@@ -39,11 +39,11 @@ sleep 10
 
 # Check container status
 echo -e "${YELLOW}📊 Container status:${NC}"
-docker compose -f docker-compose.staging.yml ps
+docker compose -p uni-feedback-staging -f docker-compose.staging.yml ps
 
 # Show recent logs
 echo -e "${YELLOW}📝 Recent logs:${NC}"
-docker compose -f docker-compose.staging.yml logs --tail=30
+docker compose -p uni-feedback-staging -f docker-compose.staging.yml logs --tail=30
 
 # Cleanup old images
 echo -e "${YELLOW}🧹 Cleaning up old Docker images...${NC}"
