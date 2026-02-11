@@ -1,4 +1,6 @@
-FROM node:22-alpine AS base
+# Pin to linux/amd64 so Chrome downloaded by puppeteer's postinstall matches the production
+# server architecture, even when building locally on an ARM Mac.
+FROM --platform=linux/amd64 node:22-alpine AS base
 RUN corepack enable && corepack prepare pnpm@9.15.4 --activate
 
 FROM base AS builder
