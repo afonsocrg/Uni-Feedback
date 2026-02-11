@@ -5,6 +5,9 @@
 DROP TABLE IF EXISTS course_reports;
 DROP TYPE IF EXISTS "report_status";
 
+ALTER TABLE reports
+RENAME TO feedback_flags;
+
 -- Create reports table for generated PDF reports
 CREATE TABLE "reports" (
 	"id" serial PRIMARY KEY NOT NULL,
