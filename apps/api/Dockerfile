@@ -38,6 +38,11 @@ COPY --from=installer --chown=api:nodejs /prod/api ./
 COPY --from=installer --chown=api:nodejs /app/apps/api/dist ./dist
 COPY --from=installer --chown=api:nodejs /app/apps/api/templates ./templates
 
+# Puppeteer downloads Chrome during `pnpm install` (postinstall hook) in the installer stage,
+# into /root/.cache/puppeteer. Copy it here so the unprivileged api user can access it at runtime.
+ENV PUPPETEER_CACHE_DIR=/home/api/.cache/puppeteer
+COPY --from=installer --chown=api:nodejs /root/.cache/puppeteer /home/api/.cache/puppeteer
+
 USER api
 
 EXPOSE 3001
