@@ -1,6 +1,4 @@
-# Pin to linux/amd64 so Chrome downloaded by puppeteer's postinstall matches the production
-# server architecture, even when building locally on an ARM Mac.
-FROM --platform=linux/amd64 node:22-alpine AS base
+FROM node:22-alpine AS base
 RUN corepack enable && corepack prepare pnpm@9.15.4 --activate
 
 FROM base AS builder
@@ -16,6 +14,9 @@ WORKDIR /app
 COPY --from=builder /app/out/json/ .
 COPY --from=builder /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
 COPY --from=builder /app/out/pnpm-workspace.yaml ./pnpm-workspace.yaml
+
+# Skip puppeteer's Chrome download; we use Alpine's system Chromium instead (see runner stage)
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 RUN pnpm install --frozen-lockfile
 
 COPY --from=builder /app/out/full/ .
@@ -30,8 +31,10 @@ RUN pnpm --filter=uni-feedback-api --prod deploy /prod/api
 FROM base AS runner
 WORKDIR /app
 
-# Install curl for health checks
-RUN apk add --no-cache curl
+# Install curl for health checks, and Chromium for Puppeteer PDF generation.
+# Puppeteer's bundled Chrome requires glibc and won't run on Alpine (which uses musl).
+# Alpine's system Chromium is compiled against musl and works correctly.
+RUN apk add --no-cache curl chromium nss freetype harfbuzz ca-certificates ttf-freefont
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 api
@@ -40,10 +43,9 @@ COPY --from=installer --chown=api:nodejs /prod/api ./
 COPY --from=installer --chown=api:nodejs /app/apps/api/dist ./dist
 COPY --from=installer --chown=api:nodejs /app/apps/api/templates ./templates
 
-# Puppeteer downloads Chrome during `pnpm install` (postinstall hook) in the installer stage,
-# into /root/.cache/puppeteer. Copy it here so the unprivileged api user can access it at runtime.
-ENV PUPPETEER_CACHE_DIR=/home/api/.cache/puppeteer
-COPY --from=installer --chown=api:nodejs /root/.cache/puppeteer /home/api/.cache/puppeteer
+# Point puppeteer to Alpine's system Chromium instead of its bundled binary
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 
 USER api
 
