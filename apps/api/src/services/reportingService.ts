@@ -360,7 +360,7 @@ export class ReportingService {
     templateName: string,
     data: any
   ): Promise<string> {
-    const templatePath = path.join(__dirname, `../../templates/${templateName}`)
+    const templatePath = path.join(process.cwd(), `templates/${templateName}`)
     return await ejs.renderFile(templatePath, { data })
   }
 
