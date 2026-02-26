@@ -14,6 +14,7 @@ import { and, eq, gte, isNotNull, isNull, lte, lt, sql } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
 import Papa from 'papaparse'
 import { z } from 'zod'
+import { sendFeedbackExportNotification } from '../../../services/telegram'
 import { withErrorHandling } from '../../utils'
 
 const ExportFiltersSchema = z.object({
@@ -194,30 +195,64 @@ export class ExportFeedback extends OpenAPIRoute {
         created_before
       } = filters
 
-      // Determine resource name for filename (lowest granularity)
+      // Fetch resource names for filename and notification
       let resourceName: string | null = null
+      let courseName: string | null = null
+      let degreeName: string | null = null
+      let facultyName: string | null = null
+
       if (course_id !== undefined) {
-        const course = await database()
-          .select({ name: courses.name })
+        const courseData = await database()
+          .select({
+            courseName: courses.name,
+            degreeName: degrees.name,
+            facultyName: faculties.name
+          })
           .from(courses)
+          .leftJoin(degrees, eq(courses.degreeId, degrees.id))
+          .leftJoin(faculties, eq(degrees.facultyId, faculties.id))
           .where(eq(courses.id, course_id))
           .limit(1)
-        resourceName = course[0]?.name || null
+        courseName = courseData[0]?.courseName || null
+        degreeName = courseData[0]?.degreeName || null
+        facultyName = courseData[0]?.facultyName || null
+        resourceName = courseName
       } else if (degree_id !== undefined) {
-        const degree = await database()
-          .select({ name: degrees.name })
+        const degreeData = await database()
+          .select({
+            degreeName: degrees.name,
+            facultyName: faculties.name
+          })
           .from(degrees)
+          .leftJoin(faculties, eq(degrees.facultyId, faculties.id))
           .where(eq(degrees.id, degree_id))
           .limit(1)
-        resourceName = degree[0]?.name || null
+        degreeName = degreeData[0]?.degreeName || null
+        facultyName = degreeData[0]?.facultyName || null
+        resourceName = degreeName
       } else if (faculty_id !== undefined) {
         const faculty = await database()
           .select({ name: faculties.name })
           .from(faculties)
           .where(eq(faculties.id, faculty_id))
           .limit(1)
-        resourceName = faculty[0]?.name || null
+        facultyName = faculty[0]?.name || null
+        resourceName = facultyName
       }
+
+      // Send Telegram notification (non-blocking)
+      const userEmail = context.user?.email || 'unknown'
+      sendFeedbackExportNotification(env, {
+        userEmail,
+        filters: {
+          ...filters,
+          course_name: courseName,
+          degree_name: degreeName,
+          faculty_name: facultyName
+        }
+      }).catch((error) => {
+        console.error('Telegram notification failed:', error)
+      })
 
       const conditions = []
 

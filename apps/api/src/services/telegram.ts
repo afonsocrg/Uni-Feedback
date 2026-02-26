@@ -1,16 +1,18 @@
 import {
   Course,
   Degree,
+  Faculty,
   REPORT_CATEGORY_LABELS,
   type ReportCategory
 } from '@uni-feedback/db/schema'
-import { formatSchoolYearString } from '@uni-feedback/utils'
+import {
+  formatSchoolYearString,
+  getFeedbackPermalinkUrl,
+  getWorkloadLabel
+} from '@uni-feedback/utils'
 
 // Telegram
 async function sendToTelegram(env: Env, message: string) {
-  // Escape special characters for MarkdownV2 format
-  message = message.replace(/([_*\[\]()~`>#+\-=|{}.!\\])/g, '\$1')
-
   if (!env.TELEGRAM_BOT_TOKEN || !env.TELEGRAM_CHAT_ID) {
     console.warn(
       'TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID not set. Skipping telegram notification.'
@@ -23,7 +25,8 @@ async function sendToTelegram(env: Env, message: string) {
   const url = `https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage`
   const payload = {
     chat_id: env.TELEGRAM_CHAT_ID,
-    text: message.slice(0, 4096)
+    text: message.slice(0, 4096),
+    parse_mode: 'Markdown'
   }
 
   const options = {
@@ -42,8 +45,9 @@ async function sendToTelegram(env: Env, message: string) {
 }
 
 function getStarsString(rating: number) {
-  return `${rating} - ${'⭐️'.repeat(rating)}`
+  // return `${rating} - ${'⭐️'.repeat(rating)}`
   // return '⭐️'.repeat(rating) + ` (${rating})`
+  return '⭐️'.repeat(rating)
 }
 
 interface SendCourseReviewReceivedArgs {
@@ -52,9 +56,11 @@ interface SendCourseReviewReceivedArgs {
   schoolYear: number
   course: Course
   degree: Degree
+  faculty: Faculty
   rating: number
   workloadRating: number
   comment: string | null
+  pointsEarned: number
 }
 
 export async function sendCourseReviewReceived(
@@ -66,34 +72,36 @@ export async function sendCourseReviewReceived(
     schoolYear,
     course,
     degree,
+    faculty,
     email,
     rating,
     workloadRating,
-    comment
+    comment,
+    pointsEarned
   } = args
 
   const ratingStars = getStarsString(rating)
-  const workloadRatingStars = getStarsString(workloadRating)
+  const workloadLabel = getWorkloadLabel(workloadRating)
 
   const manageFeedbackUrl = `https://admin.uni-feedback.com/feedback/${id}`
-  const viewCourseUrl = `https://uni-feedback.com/courses/${course.id}`
+  const viewFeedbackUrl = getFeedbackPermalinkUrl(
+    'https://uni-feedback.com',
+    course.id,
+    id
+  )
 
   const message = `
-🎉 NEW REVIEW ALERT! 🎉
+🎉 New Feedback!!
 
-A fresh review just landed on Uni Feedback!!
+🎓: ${faculty.shortName} > ${degree.name} > ${course.name} > ${formatSchoolYearString(schoolYear, { yearFormat: 'long' })}
 
-✉️ Submitted by: ${email}
-🎓 School Year: ${formatSchoolYearString(schoolYear, { yearFormat: 'long' })}
-🎓 Degree: ${degree.acronym} - ${degree.name}
-📚 Course: ${course.acronym} - ${course.name}
-⭐ Overall Rating: ${ratingStars}
-📊 Workload Rating: ${workloadRatingStars}
+${ratingStars} - ${workloadLabel}${comment ? '\n' + comment : ''}
 
-💬 Comment: ${comment || 'N/A'}
-
-🔗 Manage Feedback: ${manageFeedbackUrl}
-📖 View Course Page: ${viewCourseUrl}
+---
+👤: ${email}
+💰: +${pointsEarned} pts
+[👀 View Feedback](${viewFeedbackUrl})
+[📝 Manage Feedback](${manageFeedbackUrl})
 
 Keep up the amazing work! Your platform is helping students make better course decisions! 🚀
 `.trim()
@@ -442,6 +450,109 @@ ${statusEmoji} SEMESTER REPORT GENERATION ${statusText} ${statusEmoji}
   }
 
   message = message.trim()
+
+  return sendToTelegram(env, message)
+}
+
+interface SendFeedbackExportNotificationArgs {
+  userEmail: string
+  filters: {
+    faculty_id?: number
+    faculty_name?: string | null
+    degree_id?: number
+    degree_name?: string | null
+    course_id?: number
+    course_name?: string | null
+    terms?: string[]
+    school_year?: number
+    from_school_year?: number
+    to_school_year?: number
+    rating?: number
+    from_rating?: number
+    to_rating?: number
+    workload_rating?: number
+    from_workload_rating?: number
+    to_workload_rating?: number
+    has_comment?: boolean
+    is_approved?: boolean | null
+    created_after?: string
+    created_before?: string
+  }
+}
+
+export async function sendFeedbackExportNotification(
+  env: Env,
+  args: SendFeedbackExportNotificationArgs
+) {
+  const { userEmail, filters } = args
+
+  // Build resource hierarchy header if available
+  const hierarchyParts: string[] = []
+  if (filters.faculty_name) hierarchyParts.push(filters.faculty_name)
+  if (filters.degree_name) hierarchyParts.push(filters.degree_name)
+  if (filters.course_name) hierarchyParts.push(filters.course_name)
+
+  let resourceHeader = ''
+  if (hierarchyParts.length > 0) {
+    resourceHeader = `\n🎓 ${hierarchyParts.join(' > ')}\n`
+  }
+
+  // Format filters for the message
+  const filterDetails: string[] = []
+
+  // Show names instead of IDs when available
+  if (filters.faculty_id !== undefined && !filters.faculty_name)
+    filterDetails.push(`Faculty ID: ${filters.faculty_id}`)
+  if (filters.degree_id !== undefined && !filters.degree_name)
+    filterDetails.push(`Degree ID: ${filters.degree_id}`)
+  if (filters.course_id !== undefined && !filters.course_name)
+    filterDetails.push(`Course ID: ${filters.course_id}`)
+
+  if (filters.school_year !== undefined)
+    filterDetails.push(`School Year: ${filters.school_year}`)
+  if (filters.from_school_year !== undefined)
+    filterDetails.push(`From School Year: ${filters.from_school_year}`)
+  if (filters.to_school_year !== undefined)
+    filterDetails.push(`To School Year: ${filters.to_school_year}`)
+  if (filters.rating !== undefined)
+    filterDetails.push(`Rating: ${filters.rating}`)
+  if (filters.from_rating !== undefined)
+    filterDetails.push(`From Rating: ${filters.from_rating}`)
+  if (filters.to_rating !== undefined)
+    filterDetails.push(`To Rating: ${filters.to_rating}`)
+  if (filters.workload_rating !== undefined)
+    filterDetails.push(`Workload: ${getWorkloadLabel(filters.workload_rating)}`)
+  if (filters.from_workload_rating !== undefined)
+    filterDetails.push(
+      `From Workload: ${getWorkloadLabel(filters.from_workload_rating)}`
+    )
+  if (filters.to_workload_rating !== undefined)
+    filterDetails.push(
+      `To Workload: ${getWorkloadLabel(filters.to_workload_rating)}`
+    )
+  if (filters.has_comment !== undefined)
+    filterDetails.push(`Has Comment: ${filters.has_comment}`)
+  if (filters.is_approved !== undefined)
+    filterDetails.push(
+      `Approved: ${filters.is_approved === null ? 'all' : filters.is_approved}`
+    )
+  if (filters.created_after !== undefined)
+    filterDetails.push(`Created After: ${filters.created_after}`)
+  if (filters.created_before !== undefined)
+    filterDetails.push(`Created Before: ${filters.created_before}`)
+  if (filters.terms && filters.terms.length > 0)
+    filterDetails.push(`Terms: ${filters.terms.join(', ')}`)
+
+  const message = `
+📊 FEEDBACK EXPORT
+
+A user has exported feedback data.${resourceHeader}
+👤 User: ${userEmail}
+🕒 Timestamp: ${new Date().toISOString()}
+
+🔍 Filters:
+${filterDetails.length > 0 ? filterDetails.map((f) => `• ${f}`).join('\n') : '• No filters applied'}
+`.trim()
 
   return sendToTelegram(env, message)
 }

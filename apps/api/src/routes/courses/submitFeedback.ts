@@ -280,13 +280,15 @@ export class SubmitFeedback extends OpenAPIRoute {
         email: email,
         schoolYear: body.schoolYear,
         degree,
+        faculty,
         rating: body.rating,
         workloadRating: body.workloadRating,
         course: {
           ...course,
           terms: course.terms as string[] | null
         },
-        comment
+        comment,
+        pointsEarned: feedbackPoints
       })
 
       return Response.json(
