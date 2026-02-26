@@ -4,7 +4,7 @@ This file provides guidance to Claude Code when working with this repository.
 
 ## Project Overview
 
-Uni Feedback is a platform for university students to share anonymous course reviews and ratings. This is a **Turborepo monorepo** with React frontends + Cloudflare Workers backend with D1 database.
+Uni Feedback is a platform for university students to share anonymous course reviews and ratings. This is a **Turborepo monorepo** with React Router 7 (Remix successor) frontend + Node.js/Express backend + PostgreSQL database.
 
 ## Development Commands
 
@@ -16,25 +16,26 @@ pnpm run format     # Format code (MUST run before commits)
 pnpm run lint       # Lint all packages
 pnpm run type-check # Type check all packages
 
-# Website (run from /apps/website)
-pnpm run dev        # Development server (port 5173)
-pnpm run build      # Build website
+# Website SSR (run from /apps/website-ssr)
+pnpm run dev        # Development server with React Router + Express
+pnpm run build      # Build website for production
+pnpm run start      # Start production server
 
 # Admin Dashboard (run from /apps/dashboard)
 pnpm run dev        # Development server (port 5174)
 pnpm run build      # Build dashboard
 
 # API (run from /apps/api)
-pnpm run dev        # Start with Wrangler dev
-pnpm run deploy     # Deploy to Cloudflare
-pnpm run db         # Open Drizzle Studio
+pnpm run dev        # Start Express development server
+pnpm run build      # Build API for production
+pnpm run start      # Start production server
 ```
 
 ## Tech Stack
 
 - **Monorepo**: Turborepo with pnpm workspaces
-- **Frontend**: React 19 + TypeScript + Vite + TailwindCSS 4.x + shadcn/ui
-- **Backend**: Cloudflare Workers + pnpm + Drizzle ORM
+- **Frontend**: React 19 + React Router 7 + TypeScript + TailwindCSS 4.x + shadcn/ui
+- **Backend**: Node.js + Express + Drizzle ORM + Puppeteer
 - **Database**: PostgreSQL
 - **State Management**: TanStack Query
 - **Shared Packages**: Internal workspace packages for UI, API client, and utilities
@@ -48,15 +49,13 @@ uni-feedback/
 ├── tsconfig.json                  # Shared TypeScript config
 │
 ├── apps/                          # Application-specific code
-│   ├── website/                   # Main student-facing website
-│   │   ├── src/
-│   │   │   ├── pages/            # Website-specific pages/routes
+│   ├── website-ssr/               # Main student-facing website (React Router 7 + SSR)
+│   │   ├── app/
+│   │   │   ├── routes/           # React Router routes
 │   │   │   ├── components/       # Website-specific components
-│   │   │   ├── context/          # App context providers
-│   │   │   ├── hooks/            # Website-specific hooks
-│   │   │   └── main.tsx          # Website entry point
-│   │   ├── package.json          # Website dependencies
-│   │   └── vite.config.ts        # Website build config
+│   │   │   └── root.tsx          # Root layout
+│   │   ├── server.js             # Express server
+│   │   └── package.json          # Website dependencies
 │   │
 │   ├── dashboard/                 # Admin dashboard application
 │   │   ├── src/
@@ -66,8 +65,10 @@ uni-feedback/
 │   │   ├── package.json          # Dashboard dependencies
 │   │   └── vite.config.ts        # Dashboard build config
 │   │
-│   └── api/                       # Cloudflare Workers backend
+│   └── api/                       # Node.js/Express backend
 │       ├── src/
+│       │   ├── server.ts         # Express server
+│       │   └── routes/           # API routes
 │       └── package.json
 │
 ├── packages/                      # Shared reusable code
@@ -98,7 +99,8 @@ uni-feedback/
 - Use TypeScript strictly throughout
 - Follow existing component patterns in shared UI package: `packages/ui/src/components/`
 - Import shared packages using workspace names: `@uni-feedback/ui`, `@uni-feedback/api-client`, `@uni-feedback/utils`
-- Database queries use Drizzle ORM in the API
+- Database queries use Drizzle ORM with PostgreSQL
+- Server-side image generation uses Puppeteer (already set up)
 - Form validation with React Hook Form + Zod
 - API responses follow standardized error handling
 
