@@ -10,6 +10,7 @@ import {
   type AdminFeedbackQuery,
   type FeedbackExportFilters
 } from '@uni-feedback/api-client'
+import { getCurrentSchoolYear } from '@uni-feedback/utils'
 import {
   Badge,
   Button,
@@ -277,6 +278,12 @@ export function FeedbackPage() {
     hasCommentFilter !== 'all' ||
     schoolYearFilter !== 'all'
 
+  const currentSchoolYear = getCurrentSchoolYear()
+  const schoolYearOptions = Array.from(
+    { length: currentSchoolYear - 2020 + 1 },
+    (_, i) => currentSchoolYear - i
+  )
+
   if (feedbackError) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -490,13 +497,11 @@ export function FeedbackPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Years</SelectItem>
-                  {Array.from({ length: 10 }, (_, i) => 2024 - i).map(
-                    (year) => (
-                      <SelectItem key={year} value={year.toString()}>
-                        {year}/{year + 1}
-                      </SelectItem>
-                    )
-                  )}
+                  {schoolYearOptions.map((year) => (
+                    <SelectItem key={year} value={year.toString()}>
+                      {year}/{year + 1}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
 
