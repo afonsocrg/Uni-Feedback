@@ -1,4 +1,4 @@
-import { apiDelete, apiGet, apiPost, apiPut } from './utils'
+import { apiDelete, apiGet, apiPost, apiPostBlob, apiPut } from './utils'
 
 // Generic Pagination Types
 export interface PaginatedResponse<T> {
@@ -305,6 +305,26 @@ export interface AdminFeedbackQuery {
   school_year?: number
   created_after?: string
   reviewed?: boolean
+}
+
+export interface FeedbackExportFilters {
+  faculty_id?: number
+  degree_id?: number
+  course_id?: number
+  terms?: string[]
+  school_year?: number
+  from_school_year?: number
+  to_school_year?: number
+  rating?: number
+  from_rating?: number
+  to_rating?: number
+  workload_rating?: number
+  from_workload_rating?: number
+  to_workload_rating?: number
+  has_comment?: boolean
+  is_approved?: boolean | null
+  created_after?: string
+  created_before?: string
 }
 
 export interface FeedbackUpdateData {
@@ -835,6 +855,17 @@ export async function recalculateAllPoints(): Promise<{
     unchanged: number
     message: string
   }>('/admin/feedback/recalculate-points', {})
+}
+
+/**
+ * Export feedback as CSV blob with filename
+ */
+export async function exportFeedbackCsv(
+  filters?: FeedbackExportFilters
+): Promise<{ blob: Blob; filename: string }> {
+  return apiPostBlob('/admin/feedback/export', {
+    filters: filters ?? {}
+  })
 }
 
 /**

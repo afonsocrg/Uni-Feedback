@@ -144,6 +144,50 @@ export async function apiDelete<T>(
 }
 
 /**
+ * Extract filename from Content-Disposition header
+ */
+function extractFilename(contentDisposition: string | null): string {
+  if (!contentDisposition) return 'download.csv'
+
+  // Try to match filename="value" or filename=value
+  const filenameMatch = contentDisposition.match(
+    /filename[^;=\n]*=["']?([^"';\n]*)["']?/
+  )
+  if (filenameMatch && filenameMatch[1]) {
+    return filenameMatch[1].trim()
+  }
+
+  // Try to match filename*=UTF-8''value (RFC 5987)
+  const filenameStarMatch = contentDisposition.match(/filename\*=UTF-8''(.+)/)
+  if (filenameStarMatch && filenameStarMatch[1]) {
+    return decodeURIComponent(filenameStarMatch[1].trim())
+  }
+
+  return 'download.csv'
+}
+
+/**
+ * POST request wrapper that returns a Blob with filename (for file downloads)
+ */
+export async function apiPostBlob(
+  endpoint: string,
+  data?: any,
+  options: ApiOptions = {}
+): Promise<{ blob: Blob; filename: string }> {
+  const response = await apiFetch(endpoint, {
+    method: 'POST',
+    body: data ? JSON.stringify(data) : undefined,
+    ...options
+  })
+
+  const contentDisposition = response.headers.get('Content-Disposition')
+  const filename = extractFilename(contentDisposition)
+  const blob = await response.blob()
+
+  return { blob, filename }
+}
+
+/**
  * POST request wrapper that doesn't return JSON (for logout, etc.)
  */
 export async function apiPostVoid(

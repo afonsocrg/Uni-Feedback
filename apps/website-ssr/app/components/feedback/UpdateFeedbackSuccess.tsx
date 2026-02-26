@@ -1,3 +1,4 @@
+import { getFeedbackPermalink } from '@uni-feedback/utils'
 import { MessagePage } from '~/components'
 
 interface UpdateFeedbackSuccessProps {
@@ -15,7 +16,7 @@ export function UpdateFeedbackSuccess({
 }: UpdateFeedbackSuccessProps) {
   const feedbackUrl =
     courseId && feedbackId
-      ? `/courses/${courseId}#feedback-${feedbackId}`
+      ? getFeedbackPermalink(courseId, feedbackId)
       : courseId
         ? `/courses/${courseId}`
         : undefined

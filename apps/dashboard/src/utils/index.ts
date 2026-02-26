@@ -1,4 +1,5 @@
 export * from './constants'
+export * from './download'
 export * from './errorHandling'
 export * from './markdownToText'
 export * from './urls'

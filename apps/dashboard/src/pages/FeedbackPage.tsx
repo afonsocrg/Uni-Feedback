@@ -2,11 +2,13 @@ import { PaginationControls } from '@components'
 import { useAdminFilters, useFeedbackFilters } from '@hooks'
 import { useQuery } from '@tanstack/react-query'
 import {
+  exportFeedbackCsv,
   getAdminCoursesNew,
   getAdminFeedbackNew,
   getDegreeSuggestions,
   getFaculties,
-  type AdminFeedbackQuery
+  type AdminFeedbackQuery,
+  type FeedbackExportFilters
 } from '@uni-feedback/api-client'
 import {
   Badge,
@@ -41,9 +43,10 @@ import {
   TableRow,
   WorkloadRatingDisplay
 } from '@uni-feedback/ui'
-import { Check, ChevronsUpDown, MessageSquare, X } from 'lucide-react'
+import { Check, ChevronsUpDown, Download, MessageSquare, X } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { downloadBlob } from '../utils/download'
 import { markdownToText } from '../utils/markdownToText'
 
 export function FeedbackPage() {
@@ -74,6 +77,8 @@ export function FeedbackPage() {
     setSchoolYearFilter,
     resetAll: resetFeedbackFilters
   } = useFeedbackFilters()
+
+  const [isExporting, setIsExporting] = useState(false)
 
   const selectedFacultyId = facultyId?.toString() ?? 'all'
   const selectedDegreeId = degreeId?.toString() ?? 'all'
@@ -231,6 +236,37 @@ export function FeedbackPage() {
     navigate(`/courses/${courseId}`)
   }
 
+  const handleExportCsv = async () => {
+    setIsExporting(true)
+    try {
+      const exportFilters: FeedbackExportFilters = {
+        ...(facultyId !== null && { faculty_id: facultyId }),
+        ...(degreeId !== null && { degree_id: degreeId }),
+        ...(courseId !== null && { course_id: courseId }),
+        ...(schoolYearFilter !== 'all' && {
+          school_year: parseInt(schoolYearFilter, 10)
+        }),
+        ...(ratingFilter !== 'all' && { rating: parseInt(ratingFilter, 10) }),
+        ...(workloadRatingFilter !== 'all' && {
+          workload_rating: parseInt(workloadRatingFilter, 10)
+        }),
+        ...(hasCommentFilter !== 'all' && {
+          has_comment: hasCommentFilter === 'with'
+        }),
+        ...(approvedFilter === 'all'
+          ? { is_approved: null }
+          : approvedFilter === 'approved'
+            ? { is_approved: true }
+            : { is_approved: false })
+      }
+
+      const { blob, filename } = await exportFeedbackCsv(exportFilters)
+      downloadBlob(blob, filename)
+    } finally {
+      setIsExporting(false)
+    }
+  }
+
   const hasFilters =
     facultyId !== null ||
     degreeId !== null ||
@@ -264,14 +300,12 @@ export function FeedbackPage() {
   return (
     <div className="space-y-6">
       {/* Header Section */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center gap-2">
-          <MessageSquare className="h-6 w-6" />
-          <h1 className="text-2xl font-bold">Feedback Management</h1>
-          <Badge variant="secondary" className="ml-2">
-            {feedbackResponse?.total || 0} feedback entries
-          </Badge>
-        </div>
+      <div className="flex items-center gap-2">
+        <MessageSquare className="h-6 w-6" />
+        <h1 className="text-2xl font-bold">Feedback Management</h1>
+        <Badge variant="secondary" className="ml-2">
+          {feedbackResponse?.total || 0} feedback entries
+        </Badge>
       </div>
 
       {/* Search and Filters */}
@@ -281,7 +315,7 @@ export function FeedbackPage() {
         </CardHeader>
         <CardContent>
           <div className="flex flex-col gap-4 mb-6">
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-4">
               <Select
                 value={selectedFacultyId}
                 onValueChange={handleFacultyChange}
@@ -549,17 +583,27 @@ export function FeedbackPage() {
               </Select>
             </div>
 
-            {hasFilters && (
-              <div className="flex justify-end">
+            <div className="flex flex-wrap gap-2 pt-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExportCsv}
+                disabled={isExporting}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                {isExporting ? 'Exporting...' : 'Export Results'}
+              </Button>
+              {hasFilters && (
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleClearFilters}
                 >
+                  <X className="h-4 w-4 mr-2" />
                   Clear All Filters
                 </Button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
           {/* Loading State */}

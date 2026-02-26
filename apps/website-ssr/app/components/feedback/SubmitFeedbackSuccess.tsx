@@ -1,3 +1,4 @@
+import { getFeedbackPermalink } from '@uni-feedback/utils'
 import { Link } from 'react-router'
 import { MessagePage } from '~/components'
 
@@ -19,7 +20,7 @@ export function SubmitFeedbackSuccess({
   const hasPoints = pointsEarned !== undefined && pointsEarned > 0
   const feedbackUrl =
     courseId && feedbackId
-      ? `/courses/${courseId}#feedback-${feedbackId}`
+      ? getFeedbackPermalink(courseId, feedbackId)
       : courseId
         ? `/courses/${courseId}`
         : undefined

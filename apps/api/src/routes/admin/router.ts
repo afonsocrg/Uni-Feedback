@@ -30,6 +30,7 @@ import {
 } from './faculties'
 import {
   ApproveFeedback,
+  ExportFeedback,
   GetFeedback,
   GetFeedbackDetails,
   PopulateFeedbackAnalysis,
@@ -75,6 +76,7 @@ router.delete('/courses/:id/terms/:term', RemoveCourseTerm)
 
 // Feedback routes
 router.get('/feedback', GetFeedback)
+router.post('/feedback/export', ExportFeedback) // Has to be registered before `/feedback/:id` to avoid conflicts
 router.get('/feedback/:id', GetFeedbackDetails)
 router.put('/feedback/:id', UpdateFeedback)
 router.post('/feedback/:id/approved', ApproveFeedback)

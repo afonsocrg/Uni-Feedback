@@ -10,32 +10,32 @@ Uni Feedback is a platform for university students to share anonymous course rev
 
 ```bash
 # Monorepo (run from root) - Uses Turborepo
-bun run dev        # Start all development servers in parallel
-bun run build      # Build all applications and packages
-bun run format     # Format code (MUST run before commits)
-bun run lint       # Lint all packages
-bun run type-check # Type check all packages
+pnpm run dev        # Start all development servers in parallel
+pnpm run build      # Build all applications and packages
+pnpm run format     # Format code (MUST run before commits)
+pnpm run lint       # Lint all packages
+pnpm run type-check # Type check all packages
 
 # Website (run from /apps/website)
-bun run dev        # Development server (port 5173)
-bun run build      # Build website
+pnpm run dev        # Development server (port 5173)
+pnpm run build      # Build website
 
 # Admin Dashboard (run from /apps/dashboard)
-bun run dev        # Development server (port 5174)
-bun run build      # Build dashboard
+pnpm run dev        # Development server (port 5174)
+pnpm run build      # Build dashboard
 
 # API (run from /apps/api)
-bun run dev        # Start with Wrangler dev
-bun run deploy     # Deploy to Cloudflare
-bun run db         # Open Drizzle Studio
+pnpm run dev        # Start with Wrangler dev
+pnpm run deploy     # Deploy to Cloudflare
+pnpm run db         # Open Drizzle Studio
 ```
 
 ## Tech Stack
 
-- **Monorepo**: Turborepo with Bun workspaces
+- **Monorepo**: Turborepo with pnpm workspaces
 - **Frontend**: React 19 + TypeScript + Vite + TailwindCSS 4.x + shadcn/ui
-- **Backend**: Cloudflare Workers + Bun + Drizzle ORM
-- **Database**: Cloudflare D1 (SQLite)
+- **Backend**: Cloudflare Workers + pnpm + Drizzle ORM
+- **Database**: PostgreSQL
 - **State Management**: TanStack Query
 - **Shared Packages**: Internal workspace packages for UI, API client, and utilities
 
@@ -132,6 +132,6 @@ cp apps/website-ssr/.env.example apps/website-ssr/.env
 ## Commit Rules
 
 - **NEVER** include author information in commit messages
-- **ALWAYS** run `bun run format` before committing
+- **ALWAYS** run `pnpm run format` before committing
 - Use conventional commit format when possible
-- Do not use bun. Use pnpm
+- Always use pnpm

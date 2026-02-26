@@ -197,7 +197,7 @@ export function CoursesPage() {
           <CardTitle className="text-lg">Courses</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col sm:flex-row gap-4 mb-6">
+          <div className="flex flex-col sm:flex-row sm:flex-wrap gap-4 mb-6">
             <Select
               value={selectedFacultyId}
               onValueChange={handleFacultyChange}
