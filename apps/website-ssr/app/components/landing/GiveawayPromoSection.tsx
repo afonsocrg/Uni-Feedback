@@ -22,11 +22,11 @@ export function GiveawayPromoSection() {
               <Gift className="size-8 md:size-10" />
             </div>
             <div>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-2">
-                Win a ticket to NOS Alive 2026!
+              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-5xl font-bold tracking-tight mb-2">
+                Uni Feedback Giveaway
               </h2>
               <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-white/90">
-                Share your feedback to enter our giveaway
+                The giveaway ended on the 27th Feb. Check out the results!!
               </p>
             </div>
           </div>
@@ -37,7 +37,7 @@ export function GiveawayPromoSection() {
             asChild
           >
             <Link to="/giveaway">
-              Learn More
+              See Results
               <ArrowRight className="size-5" />
             </Link>
           </Button>
