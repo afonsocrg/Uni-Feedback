@@ -15,6 +15,39 @@ export function meta({ loaderData }: Route.MetaArgs) {
 
   const { course, feedback } = loaderData
 
+  // Build a more descriptive title with context
+  const titleParts = [course.name]
+  if (course.acronym) {
+    titleParts.push(`(${course.acronym})`)
+  }
+  if (course.degree) {
+    titleParts.push(`- ${course.degree.name}`)
+  }
+  if (course.faculty) {
+    titleParts.push(`- ${course.faculty.name}`)
+  }
+  titleParts.push('- Uni Feedback')
+
+  const title = titleParts.join(' ')
+
+  // Build a more informative description
+  let description = `Read honest, anonymous student reviews for ${course.name} (${course.acronym})`
+
+  if (course.degree) {
+    description += ` from the ${course.degree.name}`
+  }
+
+  if (course.faculty) {
+    description += ` at ${course.faculty.name}`
+  }
+
+  if (course.totalFeedbackCount > 0) {
+    description += `. Average rating: ${Number(course.averageRating).toFixed(1)}/5 based on ${course.totalFeedbackCount} student review${course.totalFeedbackCount === 1 ? '' : 's'}`
+  }
+
+  description +=
+    '. Get insights on workload, assessment, and course content to help you make informed decisions.'
+
   // Build Schema.org structured data
   const structuredData = {
     '@context': 'https://schema.org',
@@ -57,16 +90,38 @@ export function meta({ loaderData }: Route.MetaArgs) {
   }
 
   return [
+    { title },
+    { name: 'description', content: description },
+
+    // Open Graph tags for social media
+    { property: 'og:title', content: title },
+    { property: 'og:description', content: description },
+    { property: 'og:type', content: 'website' },
+
+    // Twitter Card tags
+    { name: 'twitter:card', content: 'summary' },
+    { name: 'twitter:title', content: title },
+    { name: 'twitter:description', content: description },
+
+    // Keywords for SEO
     {
-      title: `Uni Feedback - ${course.acronym}`
+      name: 'keywords',
+      content: [
+        course.name,
+        course.acronym,
+        course.degree?.name,
+        course.faculty?.name,
+        'course reviews',
+        'student feedback',
+        'university reviews',
+        'course ratings'
+      ]
+        .filter(Boolean)
+        .join(', ')
     },
-    {
-      name: 'description',
-      content: `Read honest, anonymous student reviews for ${course.name} (${course.acronym}). Get insights on workload, assessment, and course content to help you make informed decisions.`
-    },
-    {
-      'script:ld+json': structuredData
-    }
+
+    // Schema.org structured data
+    { 'script:ld+json': structuredData }
   ]
 }
 

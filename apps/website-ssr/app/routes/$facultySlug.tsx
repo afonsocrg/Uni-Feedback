@@ -2,6 +2,7 @@ import { database, queries, schema } from '@uni-feedback/db'
 import { eq, sql } from 'drizzle-orm'
 import { useEffect } from 'react'
 import { FacultyPageContent } from '~/components'
+import { SITE_URL } from '~/utils/constants'
 import { userPreferences } from '~/utils'
 
 import type { Route } from './+types/$facultySlug'
@@ -14,12 +15,83 @@ export function meta({ loaderData }: Route.MetaArgs) {
     ]
   }
 
+  const { faculty, degrees } = loaderData
+
+  // Build title
+  const title = `${faculty.name} (${faculty.shortName}) - Degrees & Course Reviews - Uni Feedback`
+
+  // Build description with stats
+  const totalCourses = degrees.reduce((sum, d) => sum + Number(d.courseCount), 0)
+  const totalFeedback = degrees.reduce(
+    (sum, d) => sum + Number(d.feedbackCount),
+    0
+  )
+
+  let description = `Browse ${degrees.length} degree${degrees.length !== 1 ? 's' : ''} and ${totalCourses} course${totalCourses !== 1 ? 's' : ''} from ${faculty.name}`
+
+  if (totalFeedback > 0) {
+    description += ` with ${totalFeedback} student review${totalFeedback !== 1 ? 's' : ''}`
+  }
+
+  description +=
+    '. Read honest, anonymous feedback to help you choose the right courses.'
+
+  // Add top degrees to description
+  const topDegrees = degrees
+    .slice(0, 3)
+    .map((d) => d.name)
+    .join(', ')
+  if (topDegrees) {
+    description += ` Popular degrees: ${topDegrees}.`
+  }
+
+  // Schema.org structured data
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'CollegeOrUniversity',
+    name: faculty.name,
+    alternateName: faculty.shortName,
+    url: `${SITE_URL}/${faculty.slug}`,
+    ...(degrees.length > 0 && {
+      department: degrees.map((degree) => ({
+        '@type': 'EducationalOrganization',
+        name: degree.name,
+        alternateName: degree.acronym,
+        url: `${SITE_URL}/${faculty.slug}/${degree.slug}`
+      }))
+    })
+  }
+
   return [
-    { title: `Uni Feedback - ${loaderData.faculty.shortName}` },
+    { title },
+    { name: 'description', content: description },
+
+    // Open Graph tags
+    { property: 'og:title', content: title },
+    { property: 'og:description', content: description },
+    { property: 'og:type', content: 'website' },
+
+    // Twitter Card tags
+    { name: 'twitter:card', content: 'summary' },
+    { name: 'twitter:title', content: title },
+    { name: 'twitter:description', content: description },
+
+    // Keywords for SEO
     {
-      name: 'description',
-      content: `Browse degrees and courses from ${loaderData.faculty.name}. Read honest, anonymous student reviews to help you choose the right courses.`
-    }
+      name: 'keywords',
+      content: [
+        faculty.name,
+        faculty.shortName,
+        'degrees',
+        'course reviews',
+        'student feedback',
+        ...degrees.map((d) => d.name),
+        ...degrees.map((d) => d.acronym)
+      ].join(', ')
+    },
+
+    // Schema.org structured data
+    { 'script:ld+json': structuredData }
   ]
 }
 

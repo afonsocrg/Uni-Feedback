@@ -3,6 +3,7 @@ import { eq, sql } from 'drizzle-orm'
 import { useEffect } from 'react'
 import { DegreePageContent } from '~/components'
 import { userPreferences } from '~/utils'
+import { SITE_URL } from '~/utils/constants'
 
 import type { Route } from './+types/$facultySlug.$degreeSlug'
 
@@ -14,14 +15,112 @@ export function meta({ loaderData }: Route.MetaArgs) {
     ]
   }
 
-  return [
-    {
-      title: `Uni Feedback - ${loaderData.degree.acronym}`
+  const { faculty, degree, courses } = loaderData
+
+  // Build title
+  const title = `${degree.name} (${degree.acronym}) - ${faculty.shortName} - Course Feedback - Uni Feedback`
+
+  // Build description with stats
+  const totalFeedback = courses.reduce(
+    (sum, c) => sum + Number(c.totalFeedbackCount),
+    0
+  )
+  const coursesWithReviews = courses.filter(
+    (c) => Number(c.totalFeedbackCount) > 0
+  ).length
+
+  let description = `Browse ${courses.length} course${courses.length !== 1 ? 's' : ''} from ${degree.name} at ${faculty.name}`
+
+  if (totalFeedback > 0) {
+    description += ` with ${totalFeedback} student review${totalFeedback !== 1 ? 's' : ''} across ${coursesWithReviews} course${coursesWithReviews !== 1 ? 's' : ''}`
+  }
+
+  description +=
+    '. Read honest, anonymous feedback to help you choose the right courses.'
+
+  // Add top courses to description
+  const topCourses = courses
+    .filter((c) => Number(c.totalFeedbackCount) > 0)
+    .sort((a, b) => Number(b.totalFeedbackCount) - Number(a.totalFeedbackCount))
+    .slice(0, 3)
+    .map((c) => c.acronym)
+    .join(', ')
+
+  if (topCourses) {
+    description += ` Popular courses: ${topCourses}.`
+  }
+
+  // Schema.org structured data
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'EducationalOrganization',
+    name: degree.name,
+    alternateName: degree.acronym,
+    parentOrganization: {
+      '@type': 'CollegeOrUniversity',
+      name: faculty.name,
+      alternateName: faculty.shortName
     },
+    url: `${SITE_URL}/${faculty.slug}/${degree.slug}`,
+    ...(courses.length > 0 && {
+      offers: {
+        '@type': 'ItemList',
+        numberOfItems: courses.length,
+        itemListElement: courses.map((course, index) => ({
+          '@type': 'ListItem',
+          position: index + 1,
+          item: {
+            '@type': 'Course',
+            name: course.name,
+            courseCode: course.acronym,
+            url: `${SITE_URL}/courses/${course.id}`,
+            ...(Number(course.totalFeedbackCount) > 0 && {
+              aggregateRating: {
+                '@type': 'AggregateRating',
+                ratingValue: Number(course.averageRating).toFixed(1),
+                reviewCount: course.totalFeedbackCount.toString(),
+                bestRating: '5',
+                worstRating: '1'
+              }
+            })
+          }
+        }))
+      }
+    })
+  }
+
+  return [
+    { title },
+    { name: 'description', content: description },
+
+    // Open Graph tags
+    { property: 'og:title', content: title },
+    { property: 'og:description', content: description },
+    { property: 'og:type', content: 'website' },
+
+    // Twitter Card tags
+    { name: 'twitter:card', content: 'summary' },
+    { name: 'twitter:title', content: title },
+    { name: 'twitter:description', content: description },
+
+    // Keywords for SEO
     {
-      name: 'description',
-      content: `Browse courses from ${loaderData.degree.name} at ${loaderData.faculty.name}. Read honest, anonymous student reviews to help you choose the right courses.`
-    }
+      name: 'keywords',
+      content: [
+        degree.name,
+        degree.acronym,
+        faculty.name,
+        faculty.shortName,
+        'course reviews',
+        'student feedback',
+        'university courses',
+        ...courses.map((c) => c.name),
+        ...courses.map((c) => c.acronym)
+      ].join(', ')
+    },
+
+    // Schema.org structured data
+    { 'script:ld+json': structuredData }
   ]
 }
 

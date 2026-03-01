@@ -3,6 +3,10 @@ import { TIME_MS } from '@uni-feedback/utils'
 export const ADD_COURSE_FORM_URL =
   'https://docs.google.com/forms/d/e/1FAIpQLSd2FBk_hbv6v0iW-y8wtY6DL-fDIE_GlyA8rSkamSJJfCjCFQ/viewform?usp=header'
 
+// Site URL for meta tags, sitemaps, and canonical URLs
+export const SITE_URL =
+  import.meta.env.VITE_PUBLIC_SITE_URL || 'https://uni-feedback.com'
+
 // LocalStorage keys
 export const STORAGE_KEYS = {
   SELECTED_FACULTY_ID: 'selectedFacultyId',
