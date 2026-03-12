@@ -1,12 +1,20 @@
 import type { Faculty } from '@uni-feedback/db/schema'
+import { Card, CardHeader } from '@uni-feedback/ui'
+import { Plus } from 'lucide-react'
 import { userPreferences } from '~/utils/userPreferences'
 import { SelectionCard } from '.'
 
 interface FacultySelectorProps {
   faculties: Faculty[]
+  showAddCard?: boolean
+  addCardUrl?: string
 }
 
-export function FacultySelector({ faculties }: FacultySelectorProps) {
+export function FacultySelector({
+  faculties,
+  showAddCard = false,
+  addCardUrl
+}: FacultySelectorProps) {
   const getFacultyUrl = (faculty: Faculty) => {
     return `/${faculty.slug}`
   }
@@ -39,6 +47,30 @@ export function FacultySelector({ faculties }: FacultySelectorProps) {
           logo={faculty.logo ?? undefined}
         />
       ))}
+
+      {showAddCard && addCardUrl && (
+        <a
+          href={addCardUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block no-underline text-inherit hover:no-underline"
+        >
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow duration-200 h-full flex flex-col border-dashed border-gray-300 hover:border-gray-400">
+            <CardHeader>
+              <div className="flex items-center gap-4">
+                <div className="flex-shrink-0 rounded-full bg-gray-100 p-3">
+                  <Plus className="h-8 w-8 text-gray-500" />
+                </div>
+                <div className="flex-1 flex items-center">
+                  <p className="text-base font-normal text-gray-600">
+                    Add your university!
+                  </p>
+                </div>
+              </div>
+            </CardHeader>
+          </Card>
+        </a>
+      )}
     </div>
   )
 }

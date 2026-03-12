@@ -1,5 +1,4 @@
 import { database } from '@uni-feedback/db'
-import { Button, WarningAlert } from '@uni-feedback/ui'
 import { useEffect } from 'react'
 import { BrowsePageLayout, FacultySelector } from '~/components'
 import { SITE_URL } from '~/utils/constants'
@@ -97,33 +96,12 @@ export default function BrowsePage({ loaderData }: Route.ComponentProps) {
   }, [])
 
   return (
-    <BrowsePageLayout
-      title="Select Your University"
-      actions={
-        <WarningAlert
-          message={
-            <>
-              Don't see your university?{' '}
-              <Button
-                variant="link"
-                size="xs"
-                asChild
-                className="p-0 h-auto text-sm underline"
-              >
-                <a
-                  href={ADD_COURSE_FORM_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Request it here
-                </a>
-              </Button>
-            </>
-          }
-        />
-      }
-    >
-      <FacultySelector faculties={loaderData.faculties} />
+    <BrowsePageLayout title="Select Your University">
+      <FacultySelector
+        faculties={loaderData.faculties}
+        showAddCard={true}
+        addCardUrl={ADD_COURSE_FORM_URL}
+      />
     </BrowsePageLayout>
   )
 }
