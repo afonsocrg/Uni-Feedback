@@ -491,9 +491,7 @@ export function GiveFeedbackContent({
                   <FormItem>
                     <FormLabel>
                       Overall Rating
-                      {!field.value && (
-                        <span className="text-red-500">*</span>
-                      )}
+                      {!field.value && <span className="text-red-500">*</span>}
                     </FormLabel>
                     <FormControl>
                       <EditableStarRating
@@ -516,9 +514,7 @@ export function GiveFeedbackContent({
                   <FormItem>
                     <FormLabel>
                       How was the workload?
-                      {!field.value && (
-                        <span className="text-red-500">*</span>
-                      )}
+                      {!field.value && <span className="text-red-500">*</span>}
                     </FormLabel>
                     <FormControl>
                       <RadioGroup
@@ -535,12 +531,14 @@ export function GiveFeedbackContent({
                               value={rating.toString()}
                               className="sr-only"
                             />
-                            <div className={cn(
-                              'w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all',
-                              field.value === rating
-                                ? 'border-primaryBlue bg-primaryBlue'
-                                : 'border-gray-300'
-                            )}>
+                            <div
+                              className={cn(
+                                'w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all',
+                                field.value === rating
+                                  ? 'border-primaryBlue bg-primaryBlue'
+                                  : 'border-gray-300'
+                              )}
+                            >
                               {field.value === rating && (
                                 <div className="w-1.5 h-1.5 rounded-full bg-white" />
                               )}
@@ -556,10 +554,12 @@ export function GiveFeedbackContent({
               />
             </div>
 
-            {/* Comment Section - Isolated to prevent parent re-renders */}
-            <div className="space-y-6">
-              <CommentSection control={form.control} />
-            </div>
+            {/* Comment Section - Show after workload rating is selected */}
+            {rating > 0 && workloadRating > 0 && (
+              <div className="space-y-6">
+                <CommentSection control={form.control} />
+              </div>
+            )}
 
             {/* Submit Button */}
             <div className="mt-6 mb-0 space-y-4">
