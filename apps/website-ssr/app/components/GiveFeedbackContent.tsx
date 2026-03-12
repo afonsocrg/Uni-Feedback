@@ -17,6 +17,8 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
+  RadioGroup,
+  RadioGroupItem,
   Select,
   SelectContent,
   SelectItem,
@@ -481,77 +483,77 @@ export function GiveFeedbackContent({
             </div>
             {/* Ratings */}
             <div className="space-y-6">
-              <div className="flex flex-wrap gap-4">
-                {/* Overall Rating */}
-                <div className="min-w-[220px]">
-                  <FormField
-                    control={form.control}
-                    name="rating"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          Overall Rating
-                          {!field.value && (
-                            <span className="text-red-500">*</span>
-                          )}
-                        </FormLabel>
-                        <FormControl>
-                          <EditableStarRating
-                            value={field.value}
-                            onChange={field.onChange}
-                            size="lg"
-                            labelPosition="bottom"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+              {/* Overall Rating */}
+              <FormField
+                control={form.control}
+                name="rating"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Overall Rating
+                      {!field.value && (
+                        <span className="text-red-500">*</span>
+                      )}
+                    </FormLabel>
+                    <FormControl>
+                      <EditableStarRating
+                        value={field.value}
+                        onChange={field.onChange}
+                        size="lg"
+                        // labelPosition="bottom"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-                {/* Workload Rating */}
-                <div className="min-w-[220px]">
-                  <FormField
-                    control={form.control}
-                    name="workloadRating"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          Workload
-                          {!field.value && (
-                            <span className="text-red-500">*</span>
-                          )}
-                        </FormLabel>
-                        <FormControl>
-                          <Select
-                            onValueChange={(val) => field.onChange(Number(val))}
-                            value={field.value?.toString() || ''}
+              {/* Workload Rating */}
+              <FormField
+                control={form.control}
+                name="workloadRating"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      How was the workload?
+                      {!field.value && (
+                        <span className="text-red-500">*</span>
+                      )}
+                    </FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={(val) => field.onChange(Number(val))}
+                        value={field.value?.toString() || ''}
+                        className="flex flex-col gap-1.5"
+                      >
+                        {[5, 4, 3, 2, 1].map((rating) => (
+                          <label
+                            key={rating}
+                            className="flex items-center gap-2.5 py-1 cursor-pointer"
                           >
-                            <SelectTrigger className="w-full bg-white min-h-[40px]">
-                              <SelectValue placeholder="Select workload rating">
-                                {field.value ? (
-                                  <WorkloadRatingDisplay rating={field.value} />
-                                ) : null}
-                              </SelectValue>
-                            </SelectTrigger>
-                            <SelectContent>
-                              {[5, 4, 3, 2, 1].map((rating) => (
-                                <SelectItem
-                                  key={rating}
-                                  value={rating.toString()}
-                                >
-                                  <WorkloadRatingDisplay rating={rating} />
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
+                            <RadioGroupItem
+                              value={rating.toString()}
+                              className="sr-only"
+                            />
+                            <div className={cn(
+                              'w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all',
+                              field.value === rating
+                                ? 'border-primaryBlue bg-primaryBlue'
+                                : 'border-gray-300'
+                            )}>
+                              {field.value === rating && (
+                                <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                              )}
+                            </div>
+                            <WorkloadRatingDisplay rating={rating} />
+                          </label>
+                        ))}
+                      </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
             {/* Comment Section - Isolated to prevent parent re-renders */}
