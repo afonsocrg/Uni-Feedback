@@ -1,13 +1,7 @@
-import {
-  BookOpen,
-  ClipboardCheck,
-  GraduationCap,
-  Lightbulb,
-  PenSquare,
-  Users
-} from 'lucide-react'
+import { PenSquare, Users } from 'lucide-react'
 import { Link } from 'react-router'
 import { analytics, getPageName } from '~/utils/analytics'
+import { FEEDBACK_CATEGORIES } from '~/utils/constants'
 
 export function meta() {
   return [
@@ -19,33 +13,6 @@ export function meta() {
     }
   ]
 }
-
-const FEEDBACK_CATEGORIES = [
-  {
-    icon: GraduationCap,
-    title: 'Teaching',
-    description:
-      'How the professor teaches. Were classes engaging? Easy to follow? Were they available outside class?'
-  },
-  {
-    icon: ClipboardCheck,
-    title: 'Assessment',
-    description:
-      'Exams, projects, grading. Was it fair? Clear? How hard was it really?'
-  },
-  {
-    icon: BookOpen,
-    title: 'Materials',
-    description:
-      'Slides, readings, platforms. Did they actually help you study or were they useless?'
-  },
-  {
-    icon: Lightbulb,
-    title: 'Tips',
-    description:
-      'The stuff no one tells you. Study hacks, mistakes to avoid, or what you wish you knew before enrolling.'
-  }
-]
 
 export default function PointsPage() {
   return (

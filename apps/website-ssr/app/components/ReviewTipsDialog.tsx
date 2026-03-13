@@ -6,6 +6,7 @@ import {
 } from '@uni-feedback/ui'
 import { ArrowRight, Check, X } from 'lucide-react'
 import { Link } from 'react-router'
+import { FEEDBACK_CATEGORIES } from '~/utils/constants'
 
 interface ReviewTipsDialogProps {
   open: boolean
@@ -50,6 +51,30 @@ export function ReviewTipsDialog({
               <li>Write in ALL CAPS</li>
               {/* <li>Share someone else's experience</li> */}
             </ul>
+          </div>
+
+          {/* Feedback Categories */}
+          <div className="pt-6 mt-2 border-t">
+            <h3 className="font-semibold mb-3">What to cover</h3>
+            <p className="text-sm text-gray-600 mb-3">
+              Try to mention these four topics naturally in your feedback. Cover
+              all four to earn bonus points!
+            </p>
+            <div className="space-y-3">
+              {FEEDBACK_CATEGORIES.map((category) => (
+                <div key={category.title} className="flex gap-3">
+                  <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-gray-100">
+                    <category.icon className="size-4 text-gray-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-sm">{category.title}</h4>
+                    <p className="text-xs text-gray-600">
+                      {category.description}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
