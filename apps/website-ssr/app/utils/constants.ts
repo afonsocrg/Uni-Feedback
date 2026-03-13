@@ -1,4 +1,10 @@
 import { TIME_MS } from '@uni-feedback/utils'
+import {
+  BookOpen,
+  ClipboardCheck,
+  GraduationCap,
+  Lightbulb
+} from 'lucide-react'
 
 export const ADD_COURSE_FORM_URL =
   'https://docs.google.com/forms/d/e/1FAIpQLSd2FBk_hbv6v0iW-y8wtY6DL-fDIE_GlyA8rSkamSJJfCjCFQ/viewform?usp=header'
@@ -36,3 +42,31 @@ export const VERIFICATION_CONFIG = {
   SUCCESS_DISPLAY_MS: 500, // Brief success display before auto-submit
   REQUEST_ID_FRESHNESS_MS: 5 * TIME_MS.MINUTE // RequestId expires after 5 minutes
 } as const
+
+// Feedback categories for scoring and guidance
+export const FEEDBACK_CATEGORIES = [
+  {
+    icon: GraduationCap,
+    title: 'Teaching',
+    description:
+      'How the professor teaches. Were classes engaging? Easy to follow? Were they available outside class?'
+  },
+  {
+    icon: ClipboardCheck,
+    title: 'Assessment',
+    description:
+      'Exams, projects, grading. Was it fair? Clear? How hard was it really?'
+  },
+  {
+    icon: BookOpen,
+    title: 'Materials',
+    description:
+      'Slides, readings, platforms. Did they actually help you study or were they useless?'
+  },
+  {
+    icon: Lightbulb,
+    title: 'Tips',
+    description:
+      'The stuff no one tells you. Study hacks, mistakes to avoid, or what you wish you knew before enrolling.'
+  }
+] as const
