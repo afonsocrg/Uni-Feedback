@@ -3,7 +3,7 @@ import { redirect, useNavigate } from 'react-router'
 import { z } from 'zod'
 import { CourseBrowser } from '~/components'
 import { analytics } from '~/utils/analytics'
-import { STORAGE_KEYS } from '~/utils/constants'
+import { storage } from '~/utils/storage'
 
 import type { Route } from './+types/feedback.new'
 
@@ -41,8 +41,6 @@ export async function clientLoader({
   request,
   serverLoader
 }: Route.ClientLoaderArgs) {
-  console.log('clientLoader running!')
-
   // Check for backward compatibility with ?courseId param
   const url = new URL(request.url)
   const courseIdParam = url.searchParams.get('courseId')
@@ -57,19 +55,14 @@ export async function clientLoader({
   // Get server data
   const serverData = await serverLoader()
 
-  // Restore course browser selections from localStorage (individual keys)
-  const savedFacultyId = localStorage.getItem(STORAGE_KEYS.SELECTED_FACULTY_ID)
-  const savedDegreeId = localStorage.getItem(STORAGE_KEYS.SELECTED_DEGREE_ID)
-
-  console.log('clientLoader - course browser preferences:', {
-    savedFacultyId,
-    savedDegreeId
-  })
+  // Restore course browser selections using storage wrapper
+  const initialFacultyId = storage.getSelectedFacultyId()
+  const initialDegreeId = storage.getSelectedDegreeId()
 
   return {
     ...serverData,
-    initialFacultyId: savedFacultyId ? Number(savedFacultyId) : undefined,
-    initialDegreeId: savedDegreeId ? Number(savedDegreeId) : undefined
+    initialFacultyId,
+    initialDegreeId
   }
 }
 
@@ -92,7 +85,6 @@ export function HydrateFallback() {
 export default function FeedbackBrowserPage({
   loaderData
 }: Route.ComponentProps) {
-  console.log({ loaderData })
   const navigate = useNavigate()
 
   const handleCourseSelect = (courseId: number) => {

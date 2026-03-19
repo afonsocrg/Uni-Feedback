@@ -12,7 +12,7 @@ import { ChevronRight, Loader2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useFacultyDegrees, useSearchCourses } from '~/hooks/queries'
 import { useDebounce } from '~/hooks/useDebounce'
-import { STORAGE_KEYS } from '~/utils/constants'
+import { storage } from '~/utils/storage'
 
 interface CourseBrowserProps {
   faculties: Faculty[]
@@ -27,8 +27,6 @@ export function CourseBrowser({
   initialDegreeId,
   onCourseSelect
 }: CourseBrowserProps) {
-  console.log('CourseBrowser render:', { initialFacultyId, initialDegreeId })
-
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedFacultyId, setSelectedFacultyId] = useState<
     number | undefined
@@ -50,9 +48,7 @@ export function CourseBrowser({
   const hasValidSearch = debouncedSearch.length >= MIN_SEARCH_LENGTH
 
   // Fetch degrees for selected faculty
-  const { data: degrees = [] } = useFacultyDegrees(
-    selectedFacultyId || null
-  )
+  const { data: degrees = [] } = useFacultyDegrees(selectedFacultyId || null)
 
   // Search courses with filters (only when search query meets minimum length)
   const { data: results, isLoading } = useSearchCourses(
@@ -72,13 +68,8 @@ export function CourseBrowser({
     setOffset(0)
   }, [debouncedSearch, selectedFacultyId, selectedDegreeId])
 
-  // Save faculty selection to localStorage (skip on initial mount)
+  // Save faculty selection using storage wrapper (skip on initial mount)
   useEffect(() => {
-    console.log('Faculty save effect:', {
-      selectedFacultyId,
-      hasMounted: hasMounted.current
-    })
-
     // Skip on first render to avoid overwriting during SSR hydration
     if (!hasMounted.current) {
       hasMounted.current = true
@@ -86,29 +77,19 @@ export function CourseBrowser({
     }
 
     if (selectedFacultyId !== undefined) {
-      console.log('Saving faculty to localStorage:', selectedFacultyId)
-      localStorage.setItem(
-        STORAGE_KEYS.SELECTED_FACULTY_ID,
-        selectedFacultyId.toString()
-      )
+      storage.setSelectedFacultyId(selectedFacultyId)
     }
   }, [selectedFacultyId])
 
-  // Save degree selection to localStorage (skip on initial mount)
+  // Save degree selection using storage wrapper (skip on initial mount)
   useEffect(() => {
-    console.log('Degree save effect:', { selectedDegreeId })
-
     // Skip on first render (hasMounted is already set to true by faculty effect)
     if (!hasMounted.current) {
       return
     }
 
     if (selectedDegreeId !== undefined) {
-      console.log('Saving degree to localStorage:', selectedDegreeId)
-      localStorage.setItem(
-        STORAGE_KEYS.SELECTED_DEGREE_ID,
-        selectedDegreeId.toString()
-      )
+      storage.setSelectedDegreeId(selectedDegreeId)
     }
   }, [selectedDegreeId])
 
