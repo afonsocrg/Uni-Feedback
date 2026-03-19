@@ -139,7 +139,23 @@ export const analytics = {
      * Track when duplicate feedback dialog is shown
      */
     duplicateShown: (props: { courseId: number; existingFeedbackId: number }) =>
-      trackEvent('duplicate_feedback_shown', props)
+      trackEvent('duplicate_feedback_shown', props),
+
+    /**
+     * Track when course is selected from browser
+     */
+    courseSelectedFromBrowser: (props: { courseId: number }) =>
+      trackEvent('course_selected_from_browser', props),
+
+    /**
+     * Track course search performed
+     */
+    courseSearchPerformed: (props: {
+      query?: string
+      facultyId?: number
+      degreeId?: number
+      resultsCount: number
+    }) => trackEvent('course_search_performed', props)
   },
 
   auth: {

@@ -1,4 +1,5 @@
 export { GetCourse } from './courseDetails'
 export { GetCourseFeedback } from './courseFeedback'
 export { GetCourses } from './listCourses'
+export { SearchCourses } from './searchCourses'
 export { SubmitFeedback } from './submitFeedback'

@@ -52,7 +52,7 @@ export function CourseCard({
                 referrerPage: getPageName(window.location.pathname),
                 courseId
               })
-              navigate(`/feedback/new?courseId=${courseId}`)
+              navigate(`/courses/${courseId}/feedback`)
             }}
           >
             <span>

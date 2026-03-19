@@ -1,0 +1,129 @@
+import { database } from '@uni-feedback/db'
+import { courses, degrees, faculties } from '@uni-feedback/db/schema'
+import { OpenAPIRoute } from 'chanfana'
+import { and, eq, or, sql, type SQL } from 'drizzle-orm'
+import { IRequest } from 'itty-router'
+import { z } from 'zod'
+
+const CourseSearchResultSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  acronym: z.string(),
+  degreeId: z.number(),
+  degreeName: z.string(),
+  degreeAcronym: z.string(),
+  facultyId: z.number(),
+  facultyName: z.string(),
+  facultyShortName: z.string()
+})
+
+const SearchResponseSchema = z.object({
+  courses: CourseSearchResultSchema.array(),
+  total: z.number(),
+  limit: z.number(),
+  offset: z.number()
+})
+
+export class SearchCourses extends OpenAPIRoute {
+  schema = {
+    tags: ['Courses'],
+    summary: 'Search courses with filters and pagination',
+    description:
+      'Search courses by name/acronym with optional faculty/degree filters. Returns paginated results without feedback aggregation for fast queries.',
+    request: {
+      query: z.object({
+        q: z.string().optional().describe('Search query for course name or acronym'),
+        faculty_id: z.coerce.number().optional().describe('Filter by faculty ID'),
+        degree_id: z.coerce.number().optional().describe('Filter by degree ID'),
+        limit: z.coerce.number().min(1).max(50).default(20).describe('Results per page'),
+        offset: z.coerce.number().min(0).max(1000).default(0).describe('Pagination offset')
+      })
+    },
+    responses: {
+      '200': {
+        description: 'Paginated course search results',
+        content: {
+          'application/json': {
+            schema: SearchResponseSchema
+          }
+        }
+      },
+      '400': {
+        description: 'Invalid request - missing search parameters'
+      }
+    }
+  }
+
+  async handle(request: IRequest, env: any, context: any) {
+    const { query } = await this.getValidatedData<typeof this.schema>()
+    const { q, faculty_id, degree_id, limit, offset } = query
+
+    // Validate at least one search parameter is provided
+    if (!q && !faculty_id && !degree_id) {
+      return Response.json(
+        { error: 'At least one search parameter (q, faculty_id, or degree_id) is required' },
+        { status: 400 }
+      )
+    }
+
+    const conditions = []
+
+    // Case-insensitive search
+    // Note: For accent-insensitive search, PostgreSQL's unaccent extension would be needed
+    if (q) {
+      const normalizedQuery = q.toLowerCase()
+      const searchCondition = or(
+        sql`LOWER(${courses.name}) LIKE ${`%${normalizedQuery}%`}`,
+        sql`LOWER(${courses.acronym}) LIKE ${`%${normalizedQuery}%`}`
+      )
+      if (searchCondition) {
+        conditions.push(searchCondition)
+      }
+    }
+
+    if (degree_id) {
+      conditions.push(eq(courses.degreeId, degree_id))
+    }
+
+    if (faculty_id) {
+      conditions.push(eq(degrees.facultyId, faculty_id))
+    }
+
+    // Query with joins to get nested faculty/degree info
+    // No feedback aggregation for fast queries
+    const results = await database()
+      .select({
+        id: courses.id,
+        name: courses.name,
+        acronym: courses.acronym,
+        degreeId: degrees.id,
+        degreeName: degrees.name,
+        degreeAcronym: degrees.acronym,
+        facultyId: faculties.id,
+        facultyName: faculties.name,
+        facultyShortName: faculties.shortName
+      })
+      .from(courses)
+      .innerJoin(degrees, eq(courses.degreeId, degrees.id))
+      .innerJoin(faculties, eq(degrees.facultyId, faculties.id))
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
+      .limit(limit)
+      .offset(offset)
+      .orderBy(courses.name)
+
+    // Get total count for pagination
+    const [{ count }] = await database()
+      .select({ count: sql<number>`count(*)` })
+      .from(courses)
+      .innerJoin(degrees, eq(courses.degreeId, degrees.id))
+      .innerJoin(faculties, eq(degrees.facultyId, faculties.id))
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
+
+    return Response.json({
+      courses: results,
+      total: Number(count),
+      limit,
+      offset
+    })
+  }
+}
