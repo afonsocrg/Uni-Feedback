@@ -35,16 +35,20 @@ export function CourseBrowser({
   // Debounce search query (300ms)
   const debouncedSearch = useDebounce(searchQuery, 300)
 
+  // Minimum characters required for search
+  const MIN_SEARCH_LENGTH = 3
+  const hasValidSearch = debouncedSearch.length >= MIN_SEARCH_LENGTH
+
   // Fetch degrees for selected faculty
   const { data: degrees = [] } = useFacultyDegrees(
     selectedFacultyId || null
   )
 
-  // Search courses with filters
+  // Search courses with filters (only when search query meets minimum length)
   const { data: results, isLoading } = useSearchCourses(
-    debouncedSearch || selectedFacultyId || selectedDegreeId
+    hasValidSearch
       ? {
-          q: debouncedSearch || undefined,
+          q: debouncedSearch,
           faculty_id: selectedFacultyId,
           degree_id: selectedDegreeId,
           limit,
@@ -63,11 +67,7 @@ export function CourseBrowser({
     setSelectedDegreeId(undefined)
   }, [selectedFacultyId])
 
-  const hasFilters = !!(
-    debouncedSearch ||
-    selectedFacultyId ||
-    selectedDegreeId
-  )
+  const hasFilters = hasValidSearch
 
   return (
     <div className="space-y-6">
@@ -130,7 +130,9 @@ export function CourseBrowser({
       {/* Results Section */}
       {!hasFilters ? (
         <div className="text-center py-12 text-gray-500">
-          <p className="mb-2">Start typing or select filters to find courses</p>
+          <p className="mb-2">
+            Type at least {MIN_SEARCH_LENGTH} characters to search for courses
+          </p>
           <p className="text-sm">Search by course name or acronym</p>
         </div>
       ) : isLoading ? (
