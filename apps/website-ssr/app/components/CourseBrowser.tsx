@@ -9,28 +9,38 @@ import {
   SelectValue
 } from '@uni-feedback/ui'
 import { ChevronRight, Loader2 } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useFacultyDegrees, useSearchCourses } from '~/hooks/queries'
 import { useDebounce } from '~/hooks/useDebounce'
+import { STORAGE_KEYS } from '~/utils/constants'
 
 interface CourseBrowserProps {
   faculties: Faculty[]
   initialFacultyId?: number
+  initialDegreeId?: number
   onCourseSelect: (courseId: number) => void
 }
 
 export function CourseBrowser({
   faculties,
   initialFacultyId,
+  initialDegreeId,
   onCourseSelect
 }: CourseBrowserProps) {
+  console.log('CourseBrowser render:', { initialFacultyId, initialDegreeId })
+
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedFacultyId, setSelectedFacultyId] = useState<
     number | undefined
   >(initialFacultyId)
-  const [selectedDegreeId, setSelectedDegreeId] = useState<number | undefined>()
+  const [selectedDegreeId, setSelectedDegreeId] = useState<number | undefined>(
+    initialDegreeId
+  )
   const [offset, setOffset] = useState(0)
   const limit = 20
+
+  // Track if this is the first render to avoid saving on mount
+  const hasMounted = useRef(false)
 
   // Debounce search query (300ms)
   const debouncedSearch = useDebounce(searchQuery, 300)
@@ -62,10 +72,45 @@ export function CourseBrowser({
     setOffset(0)
   }, [debouncedSearch, selectedFacultyId, selectedDegreeId])
 
-  // Reset degree when faculty changes
+  // Save faculty selection to localStorage (skip on initial mount)
   useEffect(() => {
-    setSelectedDegreeId(undefined)
+    console.log('Faculty save effect:', {
+      selectedFacultyId,
+      hasMounted: hasMounted.current
+    })
+
+    // Skip on first render to avoid overwriting during SSR hydration
+    if (!hasMounted.current) {
+      hasMounted.current = true
+      return
+    }
+
+    if (selectedFacultyId !== undefined) {
+      console.log('Saving faculty to localStorage:', selectedFacultyId)
+      localStorage.setItem(
+        STORAGE_KEYS.SELECTED_FACULTY_ID,
+        selectedFacultyId.toString()
+      )
+    }
   }, [selectedFacultyId])
+
+  // Save degree selection to localStorage (skip on initial mount)
+  useEffect(() => {
+    console.log('Degree save effect:', { selectedDegreeId })
+
+    // Skip on first render (hasMounted is already set to true by faculty effect)
+    if (!hasMounted.current) {
+      return
+    }
+
+    if (selectedDegreeId !== undefined) {
+      console.log('Saving degree to localStorage:', selectedDegreeId)
+      localStorage.setItem(
+        STORAGE_KEYS.SELECTED_DEGREE_ID,
+        selectedDegreeId.toString()
+      )
+    }
+  }, [selectedDegreeId])
 
   const hasFilters = hasValidSearch
 
@@ -87,9 +132,14 @@ export function CourseBrowser({
         {/* University Filter */}
         <Select
           value={selectedFacultyId?.toString() || 'all'}
-          onValueChange={(val) =>
-            setSelectedFacultyId(val === 'all' ? undefined : Number(val))
-          }
+          onValueChange={(val) => {
+            const newFacultyId = val === 'all' ? undefined : Number(val)
+            // Reset degree when faculty changes
+            if (newFacultyId !== selectedFacultyId) {
+              setSelectedDegreeId(undefined)
+            }
+            setSelectedFacultyId(newFacultyId)
+          }}
         >
           <SelectTrigger className="w-[200px]">
             <SelectValue placeholder="All Universities" />

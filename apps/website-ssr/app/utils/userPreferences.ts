@@ -72,15 +72,14 @@ export const userPreferences = {
     }
 
     try {
+      // Migrate old unprefixed keys to new prefixed keys (handled in constants.ts)
       const legacyFacultyId = localStorage.getItem('selectedFacultyId')
       const legacyDegreeId = localStorage.getItem('selectedDegreeId')
 
       if (legacyFacultyId || legacyDegreeId) {
-        console.log('Found legacy localStorage format, migration may be needed')
-        // Note: We can't directly migrate IDs to slugs without faculty/degree data
-        // This will be handled by the application when it has access to the data
+        console.log('Found legacy faculty/degree keys - migration handled by STORAGE_KEYS')
 
-        // Clean up legacy keys after potential migration
+        // Clean up legacy keys (new keys are now prefixed in STORAGE_KEYS)
         localStorage.removeItem('selectedFacultyId')
         localStorage.removeItem('selectedDegreeId')
       }

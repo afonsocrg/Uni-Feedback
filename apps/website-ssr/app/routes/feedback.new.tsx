@@ -1,10 +1,9 @@
 import { getFaculties } from '@uni-feedback/api-client'
-import { useMemo } from 'react'
 import { redirect, useNavigate } from 'react-router'
 import { z } from 'zod'
 import { CourseBrowser } from '~/components'
-import { useAuth } from '~/hooks'
 import { analytics } from '~/utils/analytics'
+import { STORAGE_KEYS } from '~/utils/constants'
 
 import type { Route } from './+types/feedback.new'
 
@@ -31,9 +30,18 @@ export function meta() {
   ]
 }
 
-// Use clientLoader for client-side data fetching
-export async function clientLoader({ request }: Route.ClientLoaderArgs) {
+// Server loader: fetch faculties (SSR)
+export async function loader() {
   const faculties = await getFaculties()
+  return { faculties }
+}
+
+// Client loader: add localStorage data during hydration
+export async function clientLoader({
+  request,
+  serverLoader
+}: Route.ClientLoaderArgs) {
+  console.log('clientLoader running!')
 
   // Check for backward compatibility with ?courseId param
   const url = new URL(request.url)
@@ -46,8 +54,27 @@ export async function clientLoader({ request }: Route.ClientLoaderArgs) {
     }
   }
 
-  return { faculties }
+  // Get server data
+  const serverData = await serverLoader()
+
+  // Restore course browser selections from localStorage (individual keys)
+  const savedFacultyId = localStorage.getItem(STORAGE_KEYS.SELECTED_FACULTY_ID)
+  const savedDegreeId = localStorage.getItem(STORAGE_KEYS.SELECTED_DEGREE_ID)
+
+  console.log('clientLoader - course browser preferences:', {
+    savedFacultyId,
+    savedDegreeId
+  })
+
+  return {
+    ...serverData,
+    initialFacultyId: savedFacultyId ? Number(savedFacultyId) : undefined,
+    initialDegreeId: savedDegreeId ? Number(savedDegreeId) : undefined
+  }
 }
+
+// Force clientLoader to run during hydration (not just client-side navigations)
+clientLoader.hydrate = true
 
 export function HydrateFallback() {
   return (
@@ -65,17 +92,8 @@ export function HydrateFallback() {
 export default function FeedbackBrowserPage({
   loaderData
 }: Route.ComponentProps) {
+  console.log({ loaderData })
   const navigate = useNavigate()
-  const { user } = useAuth()
-
-  // Smart default: detect user's university from email
-  const initialFacultyId = useMemo(() => {
-    if (!user?.email) return undefined
-    const domain = user.email.split('@')[1]?.toLowerCase()
-    return loaderData.faculties.find((f) =>
-      f.emailSuffixes?.some((s) => s.toLowerCase() === domain)
-    )?.id
-  }, [user, loaderData.faculties])
 
   const handleCourseSelect = (courseId: number) => {
     // Track analytics
@@ -97,7 +115,8 @@ export default function FeedbackBrowserPage({
 
         <CourseBrowser
           faculties={loaderData.faculties}
-          initialFacultyId={initialFacultyId}
+          initialFacultyId={loaderData.initialFacultyId}
+          initialDegreeId={loaderData.initialDegreeId}
           onCourseSelect={handleCourseSelect}
         />
       </div>
