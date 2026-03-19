@@ -68,13 +68,11 @@ export class SearchCourses extends OpenAPIRoute {
 
     const conditions = []
 
-    // Case-insensitive search
-    // Note: For accent-insensitive search, PostgreSQL's unaccent extension would be needed
+    // Case-insensitive and accent-insensitive search using unaccent extension
     if (q) {
-      const normalizedQuery = q.toLowerCase()
       const searchCondition = or(
-        sql`LOWER(${courses.name}) LIKE ${`%${normalizedQuery}%`}`,
-        sql`LOWER(${courses.acronym}) LIKE ${`%${normalizedQuery}%`}`
+        sql`unaccent(${courses.name}) ILIKE unaccent(${`%${q}%`})`,
+        sql`unaccent(${courses.acronym}) ILIKE unaccent(${`%${q}%`})`
       )
       if (searchCondition) {
         conditions.push(searchCondition)
