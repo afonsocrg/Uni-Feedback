@@ -99,18 +99,13 @@ export function CourseBrowser({
     }
   }, [selectedDegreeId])
 
-  const hasResults =
-    shouldFetchCourses && !isLoading && results && results.courses.length > 0
-
   return (
-    <div
-      className={`max-w-3xl mx-auto px-4 ${hasResults ? 'py-8' : 'min-h-screen flex flex-col justify-center py-8'}`}
-    >
-      <div className="space-y-8">
+    <div className="max-w-3xl mx-auto px-4 py-8">
+      <div className="space-y-8 pt-[15vh]">
         {/* Header */}
         <div className="text-center space-y-2">
-          <h1 className="text-2xl md:text-4xl font-bold text-gray-900 tracking-tight">
-            Which course do you want to review?
+          <h1 className="text-xl md:text-4xl font-bold text-gray-900 tracking-tight">
+            Find a course to give feedback
           </h1>
           <p className="text-gray-500 text-base md:text-lg">
             Search or browse to find your course.
@@ -118,7 +113,7 @@ export function CourseBrowser({
         </div>
 
         {/* Search Bar and Filters */}
-        <div className="space-y-3">
+        <div className="space-y-3 mb-8">
           <SearchInput
             value={searchQuery}
             onChange={setSearchQuery}
@@ -148,7 +143,7 @@ export function CourseBrowser({
                 label="Degree"
                 options={degrees.map((d) => ({
                   value: d.id.toString(),
-                  label: `${d.name}`
+                  label: `${d.acronym} - ${d.name}`
                 }))}
                 selectedValue={selectedDegreeId?.toString() || null}
                 onValueChange={(val) =>
