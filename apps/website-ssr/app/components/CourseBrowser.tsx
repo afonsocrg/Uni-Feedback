@@ -1,5 +1,4 @@
 import { type Faculty } from '@uni-feedback/api-client'
-import { Button } from '@uni-feedback/ui'
 import { ChevronRight, Loader2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useFacultyDegrees, useSearchCourses } from '~/hooks/queries'
@@ -30,7 +29,7 @@ export function CourseBrowser({
     initialDegreeId
   )
   const [offset, setOffset] = useState(0)
-  const limit = 20
+  const limit = 10
 
   // Track if this is the first render to avoid saving on mount
   const hasMounted = useRef(false)
@@ -38,9 +37,8 @@ export function CourseBrowser({
   // Debounce search query (300ms)
   const debouncedSearch = useDebounce(searchQuery, 300)
 
-  // Minimum characters required for search
-  const MIN_SEARCH_LENGTH = 3
-  const hasValidSearch = debouncedSearch.length >= MIN_SEARCH_LENGTH
+  // Allow search with any number of characters
+  const hasValidSearch = debouncedSearch.length > 0
 
   // Fetch degrees for selected faculty
   const { data: degrees = [] } = useFacultyDegrees(selectedFacultyId || null)
@@ -151,16 +149,7 @@ export function CourseBrowser({
         </div>
 
         {/* Results Section */}
-        {!shouldFetchCourses ? (
-          <div className="text-center py-16 text-gray-500">
-            <p className="mb-2 text-base md:text-lg">
-              Select a university or degree to browse courses
-            </p>
-            <p className="text-sm">
-              Or type at least {MIN_SEARCH_LENGTH} characters to search
-            </p>
-          </div>
-        ) : isLoading ? (
+        {isLoading ? (
           <div className="text-center py-16">
             <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2 text-primaryBlue" />
             <p className="text-gray-600">Searching courses...</p>
@@ -197,29 +186,26 @@ export function CourseBrowser({
               ))}
             </div>
 
-            {/* Pagination */}
+            {/* Pagination - Minimal UI */}
             {results && results.total > limit && (
-              <div className="flex justify-center gap-2 pt-4">
-                <Button
-                  variant="outline"
-                  size="sm"
+              <div className="flex justify-center items-center gap-6 pt-6 text-sm">
+                <button
                   disabled={offset === 0}
                   onClick={() => setOffset(Math.max(0, offset - limit))}
+                  className="text-gray-600 hover:text-primaryBlue disabled:text-gray-300 disabled:cursor-not-allowed cursor-pointer transition-colors"
                 >
-                  Previous
-                </Button>
-                <span className="px-4 py-2 text-sm text-gray-600">
-                  Page {Math.floor(offset / limit) + 1} of{' '}
-                  {Math.ceil(results.total / limit)}
+                  ← Previous
+                </button>
+                <span className="text-gray-400 text-xs">
+                  {offset + 1}-{Math.min(offset + limit, results.total)} of {results.total}
                 </span>
-                <Button
-                  variant="outline"
-                  size="sm"
+                <button
                   disabled={offset + limit >= results.total}
                   onClick={() => setOffset(offset + limit)}
+                  className="text-gray-600 hover:text-primaryBlue disabled:text-gray-300 disabled:cursor-not-allowed cursor-pointer transition-colors"
                 >
-                  Next
-                </Button>
+                  Next →
+                </button>
               </div>
             )}
           </>
