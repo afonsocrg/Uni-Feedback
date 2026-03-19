@@ -76,9 +76,7 @@ export function CourseBrowser({
       return
     }
 
-    if (selectedFacultyId !== undefined) {
-      storage.setSelectedFacultyId(selectedFacultyId)
-    }
+    storage.setSelectedFacultyId(selectedFacultyId)
   }, [selectedFacultyId])
 
   // Save degree selection using storage wrapper (skip on initial mount)
