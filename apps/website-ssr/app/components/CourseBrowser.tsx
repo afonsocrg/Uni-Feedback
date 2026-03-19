@@ -50,11 +50,16 @@ export function CourseBrowser({
   // Fetch degrees for selected faculty
   const { data: degrees = [] } = useFacultyDegrees(selectedFacultyId || null)
 
-  // Search courses with filters (only when search query meets minimum length)
+  // Determine if we should fetch courses (either search query OR filters selected)
+  const hasFiltersSelected =
+    selectedFacultyId !== undefined || selectedDegreeId !== undefined
+  const shouldFetchCourses = hasValidSearch || hasFiltersSelected
+
+  // Search courses with filters
   const { data: results, isLoading } = useSearchCourses(
-    hasValidSearch
+    shouldFetchCourses
       ? {
-          q: debouncedSearch,
+          q: hasValidSearch ? debouncedSearch : undefined,
           faculty_id: selectedFacultyId,
           degree_id: selectedDegreeId,
           limit,
@@ -92,8 +97,6 @@ export function CourseBrowser({
       storage.setSelectedDegreeId(selectedDegreeId)
     }
   }, [selectedDegreeId])
-
-  const hasFilters = hasValidSearch
 
   return (
     <div className="space-y-6">
@@ -159,12 +162,14 @@ export function CourseBrowser({
       </div>
 
       {/* Results Section */}
-      {!hasFilters ? (
+      {!shouldFetchCourses ? (
         <div className="text-center py-12 text-gray-500">
           <p className="mb-2">
-            Type at least {MIN_SEARCH_LENGTH} characters to search for courses
+            Select a university or degree to browse courses
           </p>
-          <p className="text-sm">Search by course name or acronym</p>
+          <p className="text-sm">
+            Or type at least {MIN_SEARCH_LENGTH} characters to search
+          </p>
         </div>
       ) : isLoading ? (
         <div className="text-center py-8">
