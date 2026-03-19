@@ -96,12 +96,16 @@ export interface CourseSearchResult {
   id: number
   name: string
   acronym: string
-  degreeId: number
-  degreeName: string
-  degreeAcronym: string
-  facultyId: number
-  facultyName: string
-  facultyShortName: string
+  degree: {
+    id: number
+    name: string
+    acronym: string
+  }
+  faculty: {
+    id: number
+    name: string
+    shortName: string
+  }
 }
 
 export interface CourseSearchResponse {

@@ -167,7 +167,7 @@ export function CourseBrowser({
                       {course.acronym}
                     </p>
                     <p className="text-xs text-gray-400 mt-1">
-                      {course.facultyShortName} › {course.degreeName}
+                      {course.faculty.shortName} › {course.degree.name}
                     </p>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0 text-sm text-primaryBlue font-medium">

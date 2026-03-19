@@ -9,12 +9,16 @@ const CourseSearchResultSchema = z.object({
   id: z.number(),
   name: z.string(),
   acronym: z.string(),
-  degreeId: z.number(),
-  degreeName: z.string(),
-  degreeAcronym: z.string(),
-  facultyId: z.number(),
-  facultyName: z.string(),
-  facultyShortName: z.string()
+  degree: z.object({
+    id: z.number(),
+    name: z.string(),
+    acronym: z.string()
+  }),
+  faculty: z.object({
+    id: z.number(),
+    name: z.string(),
+    shortName: z.string()
+  })
 })
 
 const SearchResponseSchema = z.object({
@@ -94,12 +98,16 @@ export class SearchCourses extends OpenAPIRoute {
         id: courses.id,
         name: courses.name,
         acronym: courses.acronym,
-        degreeId: degrees.id,
-        degreeName: degrees.name,
-        degreeAcronym: degrees.acronym,
-        facultyId: faculties.id,
-        facultyName: faculties.name,
-        facultyShortName: faculties.shortName
+        degree: {
+          id: degrees.id,
+          name: degrees.name,
+          acronym: degrees.acronym
+        },
+        faculty: {
+          id: faculties.id,
+          name: faculties.name,
+          shortName: faculties.shortName
+        }
       })
       .from(courses)
       .innerJoin(degrees, eq(courses.degreeId, degrees.id))
