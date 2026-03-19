@@ -27,8 +27,6 @@ import type { Route } from './+types/course.$courseId.feedback'
 // Form schema for feedback submission (reuse from feedback.new.tsx)
 const feedbackSchema = z.object({
   schoolYear: z.number().min(2000, 'Invalid school year'),
-  facultyId: z.number().min(1, 'Faculty is required'),
-  degreeId: z.number().min(1, 'Degree is required'),
   courseId: z.number().min(1, 'Course is required'),
   rating: z.number().min(1, 'Rating is required').max(5),
   workloadRating: z.number().min(1, 'Workload rating is required').max(5),
@@ -115,8 +113,6 @@ export default function CourseSpecificFeedbackPage({
     mode: 'onChange',
     defaultValues: {
       schoolYear: getCurrentSchoolYear(),
-      facultyId: course.degree.faculty.id,
-      degreeId: course.degree.id,
       courseId: course.id,
       rating: 0,
       workloadRating: 0,
