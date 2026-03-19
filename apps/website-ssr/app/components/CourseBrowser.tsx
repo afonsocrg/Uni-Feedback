@@ -1,18 +1,13 @@
 import { type Faculty } from '@uni-feedback/api-client'
-import {
-  Button,
-  Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@uni-feedback/ui'
+import { Button } from '@uni-feedback/ui'
 import { ChevronRight, Loader2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useFacultyDegrees, useSearchCourses } from '~/hooks/queries'
 import { useDebounce } from '~/hooks/useDebounce'
 import { storage } from '~/utils/storage'
+import { FilterChip } from './common/FilterChip'
+import { SearchableFilterChip } from './common/SearchableFilterChip'
+import { SearchInput } from './common/SearchInput'
 
 interface CourseBrowserProps {
   faculties: Faculty[]
@@ -98,152 +93,140 @@ export function CourseBrowser({
     }
   }, [selectedDegreeId])
 
+  const hasResults = shouldFetchCourses && !isLoading && results && results.courses.length > 0
+
   return (
-    <div className="space-y-6">
-      {/* Search Bar */}
-      <div>
-        <Input
-          type="search"
-          placeholder="Search by course name or acronym..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full"
-        />
-      </div>
+    <div className={`max-w-3xl mx-auto px-4 ${hasResults ? 'py-8' : 'min-h-screen flex flex-col justify-center py-8'}`}>
+      <div className="space-y-8">
+        {/* Header */}
+        <div className="text-center space-y-2">
+          <h1 className="text-2xl md:text-4xl font-bold text-gray-900 tracking-tight">
+            Which course do you want to review?
+          </h1>
+          <p className="text-gray-500 text-base md:text-lg">
+            Search or browse to find your course.
+          </p>
+        </div>
 
-      {/* Inline Filters */}
-      <div className="flex gap-4 flex-wrap">
-        {/* University Filter */}
-        <Select
-          value={selectedFacultyId?.toString() || 'all'}
-          onValueChange={(val) => {
-            const newFacultyId = val === 'all' ? undefined : Number(val)
-            // Reset degree when faculty changes
-            if (newFacultyId !== selectedFacultyId) {
-              setSelectedDegreeId(undefined)
-            }
-            setSelectedFacultyId(newFacultyId)
-          }}
-        >
-          <SelectTrigger className="w-[200px]">
-            <SelectValue placeholder="All Universities" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Universities</SelectItem>
-            {faculties.map((f) => (
-              <SelectItem key={f.id} value={f.id.toString()}>
-                {f.shortName}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        {/* Search Bar and Filters */}
+        <div className="space-y-3">
+          <SearchInput
+            value={searchQuery}
+            onChange={setSearchQuery}
+            placeholder="Search course by name or acronym..."
+          />
 
-        {/* Degree Filter (only if faculty selected) */}
-        {selectedFacultyId && degrees.length > 0 && (
-          <Select
-            value={selectedDegreeId?.toString() || 'all'}
-            onValueChange={(val) =>
-              setSelectedDegreeId(val === 'all' ? undefined : Number(val))
-            }
-          >
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="All Degrees" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Degrees</SelectItem>
-              {degrees.map((d) => (
-                <SelectItem key={d.id} value={d.id.toString()}>
-                  {d.acronym}
-                </SelectItem>
+          <div className="flex flex-wrap gap-2">
+            <FilterChip
+              label="University"
+              options={faculties.map((f) => ({
+                value: f.id.toString(),
+                label: f.shortName
+              }))}
+              selectedValue={selectedFacultyId?.toString() || null}
+              onValueChange={(val) => {
+                const newFacultyId = val ? Number(val) : undefined
+                if (newFacultyId !== selectedFacultyId) {
+                  setSelectedDegreeId(undefined)
+                }
+                setSelectedFacultyId(newFacultyId)
+              }}
+              placeholder="All Universities"
+            />
+
+            {selectedFacultyId && degrees.length > 0 && (
+              <SearchableFilterChip
+                label="Degree"
+                options={degrees.map((d) => ({
+                  value: d.id.toString(),
+                  label: `${d.acronym} - ${d.name}`
+                }))}
+                selectedValue={selectedDegreeId?.toString() || null}
+                onValueChange={(val) =>
+                  setSelectedDegreeId(val ? Number(val) : undefined)
+                }
+                placeholder="All Degrees"
+                searchPlaceholder="Search degree..."
+              />
+            )}
+          </div>
+        </div>
+
+        {/* Results Section */}
+        {!shouldFetchCourses ? (
+          <div className="text-center py-16 text-gray-500">
+            <p className="mb-2 text-base md:text-lg">
+              Select a university or degree to browse courses
+            </p>
+            <p className="text-sm">
+              Or type at least {MIN_SEARCH_LENGTH} characters to search
+            </p>
+          </div>
+        ) : isLoading ? (
+          <div className="text-center py-16">
+            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2 text-primaryBlue" />
+            <p className="text-gray-600">Searching courses...</p>
+          </div>
+        ) : results?.courses.length === 0 ? (
+          <div className="text-center py-16 text-gray-500">
+            <p>No courses found. Try adjusting your search or filters.</p>
+          </div>
+        ) : (
+          <>
+            {/* Results List */}
+            <div className="space-y-3">
+              {results?.courses.map((course) => (
+                <button
+                  key={course.id}
+                  onClick={() => onCourseSelect(course.id)}
+                  className="w-full p-5 bg-white border border-gray-200 rounded-2xl hover:shadow-xl hover:border-primaryBlue hover:-translate-y-0.5 transition-all text-left group cursor-pointer"
+                >
+                  <div className="flex justify-between items-center gap-4">
+                    <div className="flex-1 min-w-0 space-y-1">
+                      <p className="text-[10px] font-medium text-gray-400 uppercase tracking-wide truncate">
+                        {course.faculty.shortName} › {course.degree.name}
+                      </p>
+                      <h3 className="text-lg font-bold text-gray-800 leading-tight group-hover:text-primaryBlue transition-colors">
+                        {course.name}
+                      </h3>
+                      <p className="text-sm text-gray-500">{course.acronym}</p>
+                    </div>
+                    <div className="flex-shrink-0">
+                      <ChevronRight className="w-6 h-6 text-primaryBlue group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </div>
+                </button>
               ))}
-            </SelectContent>
-          </Select>
+            </div>
+
+            {/* Pagination */}
+            {results && results.total > limit && (
+              <div className="flex justify-center gap-2 pt-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={offset === 0}
+                  onClick={() => setOffset(Math.max(0, offset - limit))}
+                >
+                  Previous
+                </Button>
+                <span className="px-4 py-2 text-sm text-gray-600">
+                  Page {Math.floor(offset / limit) + 1} of{' '}
+                  {Math.ceil(results.total / limit)}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={offset + limit >= results.total}
+                  onClick={() => setOffset(offset + limit)}
+                >
+                  Next
+                </Button>
+              </div>
+            )}
+          </>
         )}
       </div>
-
-      {/* Results Section */}
-      {!shouldFetchCourses ? (
-        <div className="text-center py-12 text-gray-500">
-          <p className="mb-2">
-            Select a university or degree to browse courses
-          </p>
-          <p className="text-sm">
-            Or type at least {MIN_SEARCH_LENGTH} characters to search
-          </p>
-        </div>
-      ) : isLoading ? (
-        <div className="text-center py-8">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2" />
-          <p className="text-gray-600">Searching courses...</p>
-        </div>
-      ) : results?.courses.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
-          No courses found. Try adjusting your search or filters.
-        </div>
-      ) : (
-        <>
-          {/* Result Count */}
-          <p className="text-sm text-gray-600">
-            Showing {results?.courses.length || 0} of {results?.total || 0}{' '}
-            courses
-          </p>
-
-          {/* Results List */}
-          <div className="space-y-2">
-            {results?.courses.map((course) => (
-              <button
-                key={course.id}
-                onClick={() => onCourseSelect(course.id)}
-                className="w-full p-4 bg-white border rounded-lg hover:border-primaryBlue hover:shadow-sm transition text-left group"
-              >
-                <div className="flex justify-between items-start gap-4">
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-gray-900">
-                      {course.name}
-                    </h3>
-                    <p className="text-sm text-gray-500 mt-0.5">
-                      {course.acronym}
-                    </p>
-                    <p className="text-xs text-gray-400 mt-1">
-                      {course.faculty.shortName} › {course.degree.name}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2 flex-shrink-0 text-sm text-primaryBlue font-medium">
-                    <span className="hidden sm:inline">Give feedback</span>
-                    <ChevronRight className="size-5 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </div>
-              </button>
-            ))}
-          </div>
-
-          {/* Pagination */}
-          {results && results.total > limit && (
-            <div className="flex justify-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={offset === 0}
-                onClick={() => setOffset(Math.max(0, offset - limit))}
-              >
-                Previous
-              </Button>
-              <span className="px-4 py-2 text-sm text-gray-600">
-                Page {Math.floor(offset / limit) + 1} of{' '}
-                {Math.ceil(results.total / limit)}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={offset + limit >= results.total}
-                onClick={() => setOffset(offset + limit)}
-              >
-                Next
-              </Button>
-            </div>
-          )}
-        </>
-      )}
     </div>
   )
 }

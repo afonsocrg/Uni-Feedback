@@ -96,22 +96,13 @@ export default function FeedbackBrowserPage({
   }
 
   return (
-    <main className="container mx-auto px-4 py-8 max-w-2xl min-h-screen">
-      <div>
-        <h1 className="text-xl font-bold text-gray-900 mb-2">
-          Which course do you want to review?
-        </h1>
-        <p className="text-gray-600 mb-6">
-          Search or browse to find your course
-        </p>
-
-        <CourseBrowser
-          faculties={loaderData.faculties}
-          initialFacultyId={loaderData.initialFacultyId}
-          initialDegreeId={loaderData.initialDegreeId}
-          onCourseSelect={handleCourseSelect}
-        />
-      </div>
+    <main className="min-h-screen">
+      <CourseBrowser
+        faculties={loaderData.faculties}
+        initialFacultyId={loaderData.initialFacultyId}
+        initialDegreeId={loaderData.initialDegreeId}
+        onCourseSelect={handleCourseSelect}
+      />
     </main>
   )
 }
