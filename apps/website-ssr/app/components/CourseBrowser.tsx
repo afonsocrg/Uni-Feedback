@@ -10,29 +10,40 @@ import { SearchInput } from './common/SearchInput'
 
 interface CourseBrowserProps {
   faculties: Faculty[]
-  initialFacultyId?: number
-  initialDegreeId?: number
   onCourseSelect: (courseId: number) => void
 }
 
 export function CourseBrowser({
   faculties,
-  initialFacultyId,
-  initialDegreeId,
   onCourseSelect
 }: CourseBrowserProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedFacultyId, setSelectedFacultyId] = useState<
     number | undefined
-  >(initialFacultyId)
-  const [selectedDegreeId, setSelectedDegreeId] = useState<number | undefined>(
-    initialDegreeId
-  )
+  >()
+  const [selectedDegreeId, setSelectedDegreeId] = useState<number | undefined>()
   const [offset, setOffset] = useState(0)
+  const [isLoadingInitialFilters, setIsLoadingInitialFilters] = useState(true)
   const limit = 10
 
   // Track if this is the first render to avoid saving on mount
   const hasMounted = useRef(false)
+
+  // Load saved filter values from storage on mount
+  useEffect(() => {
+    const facultyId = storage.getSelectedFacultyId()
+    const degreeId = storage.getSelectedDegreeId()
+
+    if (facultyId !== undefined) {
+      setSelectedFacultyId(facultyId)
+    }
+    if (degreeId !== undefined) {
+      setSelectedDegreeId(degreeId)
+    }
+
+    setIsLoadingInitialFilters(false)
+    hasMounted.current = true
+  }, [])
 
   // Debounce search query (300ms)
   const debouncedSearch = useDebounce(searchQuery, 300)
@@ -68,9 +79,8 @@ export function CourseBrowser({
 
   // Save faculty selection using storage wrapper (skip on initial mount)
   useEffect(() => {
-    // Skip on first render to avoid overwriting during SSR hydration
+    // Skip on first render to avoid saving during initial load from storage
     if (!hasMounted.current) {
-      hasMounted.current = true
       return
     }
 
@@ -79,7 +89,7 @@ export function CourseBrowser({
 
   // Save degree selection using storage wrapper (skip on initial mount)
   useEffect(() => {
-    // Skip on first render (hasMounted is already set to true by faculty effect)
+    // Skip on first render to avoid saving during initial load from storage
     if (!hasMounted.current) {
       return
     }
@@ -89,10 +99,13 @@ export function CourseBrowser({
     }
   }, [selectedDegreeId])
 
-  const hasResults = shouldFetchCourses && !isLoading && results && results.courses.length > 0
+  const hasResults =
+    shouldFetchCourses && !isLoading && results && results.courses.length > 0
 
   return (
-    <div className={`max-w-3xl mx-auto px-4 ${hasResults ? 'py-8' : 'min-h-screen flex flex-col justify-center py-8'}`}>
+    <div
+      className={`max-w-3xl mx-auto px-4 ${hasResults ? 'py-8' : 'min-h-screen flex flex-col justify-center py-8'}`}
+    >
       <div className="space-y-8">
         {/* Header */}
         <div className="text-center space-y-2">
@@ -112,7 +125,7 @@ export function CourseBrowser({
             placeholder="Search course by name or acronym..."
           />
 
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 items-center">
             <FilterChip
               label="University"
               options={faculties.map((f) => ({
@@ -135,7 +148,7 @@ export function CourseBrowser({
                 label="Degree"
                 options={degrees.map((d) => ({
                   value: d.id.toString(),
-                  label: `${d.acronym} - ${d.name}`
+                  label: `${d.name}`
                 }))}
                 selectedValue={selectedDegreeId?.toString() || null}
                 onValueChange={(val) =>
@@ -144,6 +157,10 @@ export function CourseBrowser({
                 placeholder="All Degrees"
                 searchPlaceholder="Search degree..."
               />
+            )}
+
+            {isLoadingInitialFilters && (
+              <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
             )}
           </div>
         </div>
@@ -197,7 +214,8 @@ export function CourseBrowser({
                   ← Previous
                 </button>
                 <span className="text-gray-400 text-xs">
-                  {offset + 1}-{Math.min(offset + limit, results.total)} of {results.total}
+                  {offset + 1}-{Math.min(offset + limit, results.total)} of{' '}
+                  {results.total}
                 </span>
                 <button
                   disabled={offset + limit >= results.total}
