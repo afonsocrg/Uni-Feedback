@@ -1,27 +1,25 @@
 import {
   Button,
   EditableStarRating,
+  EditableWorkloadRating,
   Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-  RadioGroup,
-  RadioGroupItem,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
-  WorkloadRatingDisplay
+  SelectValue
 } from '@uni-feedback/ui'
 import {
   formatSchoolYearString,
   getCurrentSchoolYear
 } from '@uni-feedback/utils'
 import { Loader2, Send } from 'lucide-react'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { type UseFormReturn } from 'react-hook-form'
 import { Link } from 'react-router'
 import { CommentSection } from '~/components'
@@ -59,9 +57,13 @@ export function CourseSpecificFeedbackForm({
   onSubmit,
   isSubmitting
 }: CourseSpecificFeedbackFormProps) {
+  // State for school year selector visibility
+  const [showYearSelector, setShowYearSelector] = useState(false)
+
   // Watch ratings for conditional comment display
   const rating = form.watch('rating')
   const workloadRating = form.watch('workloadRating')
+  const schoolYear = form.watch('schoolYear')
 
   // Check if all required fields are filled
   const isFormValid = useMemo(() => {
@@ -76,157 +78,140 @@ export function CourseSpecificFeedbackForm({
 
   return (
     <main className="container mx-auto px-4 py-8 max-w-2xl min-h-screen">
-      <div>
-        <h1 className="text-xl font-bold text-gray-900 mb-6">
-          Leave your Feedback!
-        </h1>
-
-        {/* Course Info Card */}
-        <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-          <div className="flex justify-between items-start">
-            <div className="flex-1">
-              <h3 className="font-semibold text-gray-900">{course.name}</h3>
-              <p className="text-sm text-gray-600">{course.acronym}</p>
-              <div className="flex gap-2 mt-2 text-xs text-gray-600">
-                <span>{course.degree.acronym}</span>
-                <span>·</span>
-                <span>{course.degree.faculty.shortName}</span>
-              </div>
-            </div>
-            <Link to="/feedback/new">
-              <Button variant="ghost" size="sm">
-                Change
-              </Button>
-            </Link>
-          </div>
-        </div>
-
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* School Year - Subtle */}
-            <FormField
-              name="schoolYear"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm text-gray-600">
-                    When did you take this course?
-                  </FormLabel>
-                  <FormControl>
-                    <Select
-                      onValueChange={(val) => field.onChange(Number(val))}
-                      value={field.value.toString()}
-                    >
-                      <SelectTrigger className="w-[180px] bg-white">
-                        <SelectValue placeholder="Select year" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {schoolYears.map((year) => (
-                          <SelectItem key={year} value={year.toString()}>
-                            {formatSchoolYearString(year, {
-                              yearFormat: 'long'
-                            })}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Ratings */}
-            <div className="space-y-6">
-              {/* Overall Rating */}
-              <FormField
-                control={form.control}
-                name="rating"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Overall Rating
-                      {!field.value && <span className="text-red-500">*</span>}
-                    </FormLabel>
-                    <FormControl>
-                      <EditableStarRating
-                        value={field.value}
-                        onChange={field.onChange}
-                        size="lg"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Workload Rating */}
-              <FormField
-                control={form.control}
-                name="workloadRating"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      How was the workload?
-                      {!field.value && <span className="text-red-500">*</span>}
-                    </FormLabel>
-                    <FormControl>
-                      <RadioGroup
-                        onValueChange={(val) => field.onChange(Number(val))}
-                        value={field.value?.toString() || ''}
-                        className="flex flex-col gap-1.5"
-                      >
-                        {[5, 4, 3, 2, 1].map((rating) => (
-                          <label
-                            key={rating}
-                            className="flex items-center gap-2.5 py-1 cursor-pointer"
+      <Form {...form}>
+        <div>
+          {/* Header - Course Context */}
+          <div className="mb-6 pb-4 border-b border-gray-200">
+            <h1 className="text-lg font-semibold text-gray-900 mb-2">
+              Leave your feedback
+            </h1>
+            <div className="flex justify-between items-start gap-4">
+              <div className="flex-1">
+                <div className="font-medium text-gray-900 text-sm">
+                  {course.name}
+                </div>
+                <div className="text-xs text-gray-500 mt-0.5">
+                  {course.degree.faculty.shortName} · {course.degree.name}
+                </div>
+                <div className="flex items-center gap-1.5 mt-1">
+                  <span className="text-xs text-gray-500">
+                    {formatSchoolYearString(schoolYear, {
+                      yearFormat: 'long'
+                    })}
+                  </span>
+                  <FormField
+                    name="schoolYear"
+                    control={form.control}
+                    render={({ field }) => (
+                      <FormItem className="space-y-0">
+                        <FormControl>
+                          <Select
+                            onValueChange={(val) => {
+                              field.onChange(Number(val))
+                              setShowYearSelector(false)
+                            }}
+                            value={field.value.toString()}
+                            open={showYearSelector}
+                            onOpenChange={setShowYearSelector}
                           >
-                            <RadioGroupItem
-                              value={rating.toString()}
-                              className="sr-only"
-                            />
-                            <div
-                              className={cn(
-                                'w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all',
-                                field.value === rating
-                                  ? 'border-primaryBlue bg-primaryBlue'
-                                  : 'border-gray-300'
-                              )}
-                            >
-                              {field.value === rating && (
-                                <div className="w-1.5 h-1.5 rounded-full bg-white" />
-                              )}
-                            </div>
-                            <WorkloadRatingDisplay rating={rating} />
-                          </label>
-                        ))}
-                      </RadioGroup>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                            <SelectTrigger className="h-0 w-0 p-0 border-0 opacity-0 absolute">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {schoolYears.map((year) => (
+                                <SelectItem key={year} value={year.toString()}>
+                                  {formatSchoolYearString(year, {
+                                    yearFormat: 'long'
+                                  })}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowYearSelector(true)}
+                    className="text-xs text-primaryBlue hover:text-primaryBlue/80"
+                  >
+                    change
+                  </button>
+                </div>
+              </div>
+              <Link to="/feedback/new">
+                <Button variant="ghost" size="sm" className="text-gray-600">
+                  Change
+                </Button>
+              </Link>
             </div>
+          </div>
 
-            {/* Comment Section - Show after ratings filled */}
-            {rating > 0 && workloadRating > 0 && (
-              <div className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            {/* Main Feedback Section */}
+            <div className="space-y-6">
+              {/* Ratings Section */}
+              <div className="flex flex-wrap gap-x-12 gap-y-6">
+                {/* Overall Rating */}
+                <FormField
+                  control={form.control}
+                  name="rating"
+                  render={({ field }) => (
+                    <FormItem className="flex-1 min-w-[250px]">
+                      <FormLabel className="text-base font-medium text-gray-900">
+                        How would you rate this course?
+                      </FormLabel>
+                      <FormControl>
+                        <div className="pt-2">
+                          <EditableStarRating
+                            value={field.value}
+                            onChange={field.onChange}
+                            size="lg"
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Workload Rating */}
+                <FormField
+                  control={form.control}
+                  name="workloadRating"
+                  render={({ field }) => (
+                    <FormItem className="flex-1 min-w-[250px]">
+                      <FormLabel className="text-base font-medium text-gray-900">
+                        How was the workload?
+                      </FormLabel>
+                      <FormControl>
+                        <div className="pt-2">
+                          <EditableWorkloadRating
+                            value={field.value}
+                            onChange={field.onChange}
+                            size="lg"
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Comment Section - Always visible */}
+              <div>
                 <CommentSection control={form.control} />
               </div>
-            )}
+            </div>
 
             {/* Submit Button */}
-            <div className="mt-6 mb-0 space-y-4">
-              {/* Validation feedback */}
-              {!isFormValid && (
-                <div className="text-sm text-muted-foreground text-center">
-                  Please fill in all required fields
-                </div>
-              )}
-
+            <div className="pt-2">
               <AuthenticatedButton
                 type="submit"
-                className="w-full"
+                className="w-full h-12 text-base font-medium"
                 disabled={isSubmitting || !isFormValid}
                 authModalProps={{
                   allowedEmailSuffixes: course.degree.faculty.emailSuffixes,
@@ -236,42 +221,48 @@ export function CourseSpecificFeedbackForm({
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="size-4 animate-spin" />
+                    <Loader2 className="size-5 animate-spin" />
                     <span>Submitting...</span>
                   </>
                 ) : (
                   <>
-                    <Send className="size-4" />
-                    <span>Submit</span>
+                    <Send className="size-5" />
+                    <span>Post Feedback</span>
                   </>
                 )}
               </AuthenticatedButton>
-            </div>
 
-            <p className="text-xs text-gray-500 text-center mt-1">
-              By submitting this review, you agree to our{' '}
-              <Link
-                to="/terms"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primaryBlue hover:text-primaryBlue/80 underline"
-              >
-                Terms of Service
-              </Link>{' '}
-              and{' '}
-              <Link
-                to="/privacy"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primaryBlue hover:text-primaryBlue/80 underline"
-              >
-                Privacy Policy
-              </Link>
-              .
-            </p>
+              {!isFormValid && (
+                <p className="text-sm text-gray-500 text-center mt-3">
+                  Please select a star rating and workload level
+                </p>
+              )}
+
+              <p className="text-xs text-gray-500 text-center mt-4">
+                By submitting, you agree to our{' '}
+                <Link
+                  to="/terms"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primaryBlue hover:text-primaryBlue/80 underline"
+                >
+                  Terms of Service
+                </Link>{' '}
+                and{' '}
+                <Link
+                  to="/privacy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primaryBlue hover:text-primaryBlue/80 underline"
+                >
+                  Privacy Policy
+                </Link>
+                .
+              </p>
+            </div>
           </form>
-        </Form>
-      </div>
+        </div>
+      </Form>
     </main>
   )
 }
