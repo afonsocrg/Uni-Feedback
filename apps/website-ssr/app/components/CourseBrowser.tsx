@@ -54,23 +54,14 @@ export function CourseBrowser({
   // Fetch degrees for selected faculty
   const { data: degrees = [] } = useFacultyDegrees(selectedFacultyId || null)
 
-  // Determine if we should fetch courses (either search query OR filters selected)
-  const hasFiltersSelected =
-    selectedFacultyId !== undefined || selectedDegreeId !== undefined
-  const shouldFetchCourses = hasValidSearch || hasFiltersSelected
-
-  // Search courses with filters
-  const { data: results, isLoading } = useSearchCourses(
-    shouldFetchCourses
-      ? {
-          q: hasValidSearch ? debouncedSearch : undefined,
-          faculty_id: selectedFacultyId,
-          degree_id: selectedDegreeId,
-          limit,
-          offset
-        }
-      : null
-  )
+  // Search courses with filters (always fetch, even with no filters)
+  const { data: results, isLoading } = useSearchCourses({
+    q: hasValidSearch ? debouncedSearch : undefined,
+    faculty_id: selectedFacultyId,
+    degree_id: selectedDegreeId,
+    limit,
+    offset
+  })
 
   // Reset offset when filters change
   useEffect(() => {
