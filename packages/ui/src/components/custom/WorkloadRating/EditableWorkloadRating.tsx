@@ -39,7 +39,7 @@ export function EditableWorkloadRating({
           // Invert scale: clicking position 1 = rating 5 (very light), position 5 = rating 1 (very heavy)
           const ratingValue = 6 - position
           // Fill from left to right: fewer filled = lighter workload
-          const isFilled = position <= 6 - displayValue
+          const isFilled = displayValue > 0 && position <= 6 - displayValue
 
           return (
             <button

@@ -1,5 +1,4 @@
 import {
-  Button,
   EditableStarRating,
   EditableWorkloadRating,
   Form,
@@ -18,14 +17,13 @@ import {
   formatSchoolYearString,
   getCurrentSchoolYear
 } from '@uni-feedback/utils'
-import { Loader2, Send } from 'lucide-react'
+import { Loader2, Pencil, Send } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { type UseFormReturn } from 'react-hook-form'
 import { Link } from 'react-router'
 import { CommentSection } from '~/components'
 import { AuthenticatedButton } from '~/components/common'
 import type { FeedbackFormData } from '~/routes/feedback.new'
-import { cn } from '~/utils/tailwind'
 
 interface CourseWithDetails {
   id: number
@@ -82,69 +80,66 @@ export function CourseSpecificFeedbackForm({
         <div>
           {/* Header - Course Context */}
           <div className="mb-6 pb-4 border-b border-gray-200">
-            <h1 className="text-lg font-semibold text-gray-900 mb-2">
-              Leave your feedback
-            </h1>
-            <div className="flex justify-between items-start gap-4">
-              <div className="flex-1">
-                <div className="font-medium text-gray-900 text-sm">
-                  {course.name}
-                </div>
-                <div className="text-xs text-gray-500 mt-0.5">
-                  {course.degree.faculty.shortName} · {course.degree.name}
-                </div>
-                <div className="flex items-center gap-1.5 mt-1">
-                  <span className="text-xs text-gray-500">
+            <div className="text-xs text-gray-500 mt-0.5">
+              {course.degree.faculty.shortName} · {course.degree.name}
+            </div>
+            <div className="font-medium text-gray-900 text-sm">
+              {course.name}
+            </div>
+            <div className="flex items-center justify-between gap-4 mt-1">
+              <div className="flex items-center gap-0.5">
+                <FormField
+                  name="schoolYear"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem className="space-y-0">
+                      <FormControl>
+                        <Select
+                          onValueChange={(val) => {
+                            field.onChange(Number(val))
+                            setShowYearSelector(false)
+                          }}
+                          value={field.value.toString()}
+                          open={showYearSelector}
+                          onOpenChange={setShowYearSelector}
+                        >
+                          <SelectTrigger className="h-0 w-0 p-0 border-0 opacity-0 absolute">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {schoolYears.map((year) => (
+                              <SelectItem key={year} value={year.toString()}>
+                                {formatSchoolYearString(year, {
+                                  yearFormat: 'long'
+                                })}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowYearSelector(true)}
+                  className="flex items-center gap-0.5 text-xs text-gray-500 hover:text-primaryBlue cursor-pointer"
+                  aria-label="Change school year"
+                >
+                  <span>
                     {formatSchoolYearString(schoolYear, {
                       yearFormat: 'long'
                     })}
                   </span>
-                  <FormField
-                    name="schoolYear"
-                    control={form.control}
-                    render={({ field }) => (
-                      <FormItem className="space-y-0">
-                        <FormControl>
-                          <Select
-                            onValueChange={(val) => {
-                              field.onChange(Number(val))
-                              setShowYearSelector(false)
-                            }}
-                            value={field.value.toString()}
-                            open={showYearSelector}
-                            onOpenChange={setShowYearSelector}
-                          >
-                            <SelectTrigger className="h-0 w-0 p-0 border-0 opacity-0 absolute">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {schoolYears.map((year) => (
-                                <SelectItem key={year} value={year.toString()}>
-                                  {formatSchoolYearString(year, {
-                                    yearFormat: 'long'
-                                  })}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowYearSelector(true)}
-                    className="text-xs text-primaryBlue hover:text-primaryBlue/80"
-                  >
-                    change
-                  </button>
-                </div>
+                  <Pencil className="size-3" />
+                </button>
               </div>
-              <Link to="/feedback/new">
-                <Button variant="ghost" size="sm" className="text-gray-600">
-                  Change
-                </Button>
+              <Link
+                to="/feedback/new"
+                className="text-xs text-primaryBlue hover:text-primaryBlue/80 whitespace-nowrap"
+              >
+                review another course
               </Link>
             </div>
           </div>
@@ -211,7 +206,7 @@ export function CourseSpecificFeedbackForm({
             <div className="pt-2">
               <AuthenticatedButton
                 type="submit"
-                className="w-full h-12 text-base font-medium"
+                className="w-full"
                 disabled={isSubmitting || !isFormValid}
                 authModalProps={{
                   allowedEmailSuffixes: course.degree.faculty.emailSuffixes,
@@ -227,7 +222,7 @@ export function CourseSpecificFeedbackForm({
                 ) : (
                   <>
                     <Send className="size-5" />
-                    <span>Post Feedback</span>
+                    <span>Give Feedback</span>
                   </>
                 )}
               </AuthenticatedButton>
