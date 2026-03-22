@@ -43,7 +43,9 @@ export default function PartnersPage({ loaderData }: Route.ComponentProps) {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-2xl md:text-3xl font-semibold mb-2">Our Partners</h1>
+          <h1 className="text-2xl md:text-3xl font-semibold mb-2">
+            Our Partners
+          </h1>
           <p className="text-sm text-muted-foreground">
             A huge thanks to everyone who joined us on this mission!
           </p>

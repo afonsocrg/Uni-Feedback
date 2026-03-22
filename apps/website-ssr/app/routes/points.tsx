@@ -61,7 +61,8 @@ export default function PointsPage() {
                   <strong>+1 point</strong> base for submitting feedback;
                 </li>
                 <li>
-                  <strong>+4 points</strong> for each feedback category you mention (
+                  <strong>+4 points</strong> for each feedback category you
+                  mention (
                   <a
                     href="#feedback-categories"
                     className="font-medium underline hover:text-foreground"

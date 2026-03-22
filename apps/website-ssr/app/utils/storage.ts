@@ -16,6 +16,13 @@
 
 import { STORAGE_KEYS } from './constants'
 
+export interface FeedbackDraft {
+  rating: number
+  workloadRating: number
+  comment: string
+  timestamp: number // For "draft from X ago" message
+}
+
 export const storage = {
   // Course Browser
 
@@ -57,6 +64,39 @@ export const storage = {
   setSelectedDegreeId(id: number): void {
     if (typeof window === 'undefined') return
     localStorage.setItem(STORAGE_KEYS.SELECTED_DEGREE_ID, id.toString())
+  },
+
+  // Feedback Draft
+
+  getFeedbackDraft(): FeedbackDraft | undefined {
+    if (typeof window === 'undefined') return undefined
+    const value = localStorage.getItem(STORAGE_KEYS.FEEDBACK_DRAFT)
+    if (!value) return undefined
+
+    try {
+      return JSON.parse(value) as FeedbackDraft
+    } catch {
+      // Invalid JSON, clear it
+      localStorage.removeItem(STORAGE_KEYS.FEEDBACK_DRAFT)
+      return undefined
+    }
+  },
+
+  setFeedbackDraft(draft: Omit<FeedbackDraft, 'timestamp'>): void {
+    if (typeof window === 'undefined') return
+    const draftWithTimestamp: FeedbackDraft = {
+      ...draft,
+      timestamp: Date.now()
+    }
+    localStorage.setItem(
+      STORAGE_KEYS.FEEDBACK_DRAFT,
+      JSON.stringify(draftWithTimestamp)
+    )
+  },
+
+  clearFeedbackDraft(): void {
+    if (typeof window === 'undefined') return
+    localStorage.removeItem(STORAGE_KEYS.FEEDBACK_DRAFT)
   }
 
   // TODO: Add other storage getters/setters as we migrate:

@@ -1,8 +1,4 @@
-import {
-  Chip,
-  StarRating,
-  WorkloadRatingDisplay
-} from '@uni-feedback/ui'
+import { Chip, StarRating, WorkloadRatingDisplay } from '@uni-feedback/ui'
 import { Clock, ExternalLink, FileCheck, Star } from 'lucide-react'
 
 export interface CourseInfoCardProps {

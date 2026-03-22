@@ -106,11 +106,14 @@ export function SearchableFilterChip({
                   onSelect={() => handleSelect(option.value)}
                   className={cn(
                     'cursor-pointer',
-                    option.value === selectedValue && 'bg-blue-50 text-primaryBlue font-medium'
+                    option.value === selectedValue &&
+                      'bg-blue-50 text-primaryBlue font-medium'
                   )}
                 >
                   <span className="flex-1">{option.label}</span>
-                  {option.value === selectedValue && <Check className="w-4 h-4" />}
+                  {option.value === selectedValue && (
+                    <Check className="w-4 h-4" />
+                  )}
                 </CommandItem>
               ))}
             </CommandGroup>

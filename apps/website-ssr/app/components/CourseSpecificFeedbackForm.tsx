@@ -18,11 +18,12 @@ import {
   getCurrentSchoolYear
 } from '@uni-feedback/utils'
 import { Loader2, Pencil, Send } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { type UseFormReturn } from 'react-hook-form'
 import { Link } from 'react-router'
-import { CommentSection } from '~/components'
+import { CommentSection, FeedbackDraftDialog } from '~/components'
 import { AuthenticatedButton } from '~/components/common'
+import { useFeedbackDraft } from '~/hooks'
 import type { FeedbackFormData } from '~/routes/feedback.new'
 
 interface CourseWithDetails {
@@ -55,10 +56,16 @@ export function CourseSpecificFeedbackForm({
   onSubmit,
   isSubmitting
 }: CourseSpecificFeedbackFormProps) {
+  // Draft management
+  const { existingDraft, isLoaded, saveDraft, clearDraft } = useFeedbackDraft()
+  const [showDraftDialog, setShowDraftDialog] = useState(false)
+  const [hasDismissedDraft, setHasDismissedDraft] = useState(false)
+  const [enableAutoSave, setEnableAutoSave] = useState(false)
+
   // State for school year selector visibility
   const [showYearSelector, setShowYearSelector] = useState(false)
 
-  // Watch ratings for conditional comment display
+  // Watch form values for draft saving (comment is handled separately to avoid re-renders)
   const rating = form.watch('rating')
   const workloadRating = form.watch('workloadRating')
   const schoolYear = form.watch('schoolYear')
@@ -73,6 +80,85 @@ export function CourseSpecificFeedbackForm({
     () => Array.from({ length: 5 }, (_, i) => getCurrentSchoolYear() - i),
     []
   )
+
+  // Show draft recovery dialog on mount if draft exists AND form is empty
+  // If form has content, just enable auto-save (user is working on new feedback)
+  useEffect(() => {
+    if (existingDraft && !hasDismissedDraft) {
+      // Check if current form is empty
+      const currentComment = form.getValues('comment') || ''
+      const isFormEmpty =
+        rating === 0 &&
+        workloadRating === 0 &&
+        currentComment.trim().length === 0
+
+      if (isFormEmpty) {
+        setShowDraftDialog(true)
+      } else {
+        // Form has content, enable auto-save without showing dialog
+        setEnableAutoSave(true)
+        setHasDismissedDraft(true)
+      }
+    } else if (!existingDraft) {
+      setEnableAutoSave(true)
+    }
+  }, [existingDraft, hasDismissedDraft, rating, workloadRating, form])
+
+  // Auto-save draft when rating/workload changes
+  // Comment changes are handled separately by CommentSection to avoid re-renders
+  useEffect(() => {
+    if (enableAutoSave && (rating > 0 || workloadRating > 0)) {
+      // Get current comment value without watching it
+      const currentComment = form.getValues('comment') || ''
+      saveDraft({
+        rating,
+        workloadRating,
+        comment: currentComment
+      })
+    }
+  }, [rating, workloadRating, saveDraft, enableAutoSave, form])
+
+  // Callback for when comment changes (debounced in CommentSection)
+  const handleCommentChange = useCallback(
+    (comment: string) => {
+      if (enableAutoSave) {
+        saveDraft({
+          rating: form.getValues('rating'),
+          workloadRating: form.getValues('workloadRating'),
+          comment
+        })
+      }
+    },
+    [enableAutoSave, saveDraft, form]
+  )
+
+  // Handle draft restoration
+  const handleRestoreDraft = () => {
+    if (existingDraft) {
+      form.setValue('rating', existingDraft.rating)
+      form.setValue('workloadRating', existingDraft.workloadRating)
+      form.setValue('comment', existingDraft.comment)
+    }
+    setShowDraftDialog(false)
+    setHasDismissedDraft(true)
+    setEnableAutoSave(true) // Enable auto-save after restoring
+  }
+
+  // Handle draft discard
+  const handleDiscardDraft = () => {
+    clearDraft()
+    setShowDraftDialog(false)
+    setHasDismissedDraft(true)
+    // Enable auto-save after discarding
+    setEnableAutoSave(true)
+  }
+
+  // Wrap onSubmit to clear draft on successful submission
+  const handleSubmit = async (values: FeedbackFormData) => {
+    await onSubmit(values)
+    // Clear draft only after successful submission
+    clearDraft()
+  }
 
   return (
     <main className="container mx-auto px-4 py-8 max-w-2xl min-h-screen">
@@ -144,7 +230,10 @@ export function CourseSpecificFeedbackForm({
             </div>
           </div>
 
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-8"
+          >
             {/* Main Feedback Section */}
             <div className="space-y-6">
               {/* Ratings Section */}
@@ -198,7 +287,10 @@ export function CourseSpecificFeedbackForm({
 
               {/* Comment Section - Always visible */}
               <div>
-                <CommentSection control={form.control} />
+                <CommentSection
+                  control={form.control}
+                  onDebouncedChange={handleCommentChange}
+                />
               </div>
             </div>
 
@@ -258,6 +350,19 @@ export function CourseSpecificFeedbackForm({
           </form>
         </div>
       </Form>
+
+      {/* Draft Recovery Dialog - only render after client-side load */}
+      {isLoaded && existingDraft && (
+        <FeedbackDraftDialog
+          open={showDraftDialog}
+          draftTimestamp={existingDraft.timestamp}
+          rating={existingDraft.rating}
+          workloadRating={existingDraft.workloadRating}
+          comment={existingDraft.comment}
+          onRestore={handleRestoreDraft}
+          onDiscard={handleDiscardDraft}
+        />
+      )}
     </main>
   )
 }

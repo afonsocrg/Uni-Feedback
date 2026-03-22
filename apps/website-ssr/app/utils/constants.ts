@@ -34,7 +34,10 @@ export const STORAGE_KEYS = {
   AUTH_USER: 'uni-feedback-student-user',
   MAGIC_LINK_REQUEST_ID: 'uni-feedback-magic-link-request-id',
   MAGIC_LINK_RATE_LIMIT_RESET: 'uni-feedback-magic-link-rate-limit-reset',
-  OTP_COOLDOWN_END: 'uni-feedback-otp-cooldown-end'
+  OTP_COOLDOWN_END: 'uni-feedback-otp-cooldown-end',
+
+  // Feedback form draft (global, not course-specific)
+  FEEDBACK_DRAFT: 'uni-feedback-draft'
 } as const
 
 // OTP configuration (frontend constants)

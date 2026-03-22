@@ -9,23 +9,38 @@ import {
 } from '@uni-feedback/ui'
 import { countWords } from '@uni-feedback/utils'
 import { Lightbulb } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { Control } from 'react-hook-form'
 import { useWatch } from 'react-hook-form'
 import { ReviewTipsDialog } from '~/components'
+import { useDebounce } from '~/hooks'
 import { useFeedbackCategorization } from '~/hooks/useFeedbackCategorization'
 import { FeedbackCategoryChips } from './FeedbackCategoryChips'
 
 interface CommentSectionProps {
   control: Control<any>
+  onDebouncedChange?: (comment: string) => void
 }
 
-export function CommentSection({ control }: CommentSectionProps) {
+export function CommentSection({
+  control,
+  onDebouncedChange
+}: CommentSectionProps) {
   // Internal state for review tips dialog
   const [showReviewTips, setShowReviewTips] = useState(false)
 
   // Only this component watches the comment field - uses useWatch not form.watch
   const comment = useWatch({ control, name: 'comment' }) || ''
+
+  // Debounce comment for draft saving (500ms)
+  const debouncedComment = useDebounce(comment, 500)
+
+  // Call the debounced change callback when debounced comment changes
+  useEffect(() => {
+    if (onDebouncedChange) {
+      onDebouncedChange(debouncedComment)
+    }
+  }, [debouncedComment, onDebouncedChange])
 
   // Categorize with 1000ms debounce
   const { categories, isLoading: isCategorizing } = useFeedbackCategorization(
