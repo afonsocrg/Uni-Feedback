@@ -21,7 +21,17 @@ export default defineConfig(({ isSsrBuild }) => ({
     markdown({ mode: [Mode.MARKDOWN] })
   ],
   ssr: {
-    noExternal: ['posthog-js']
+    noExternal: [
+      'posthog-js',
+      '@tiptap/react',
+      '@tiptap/starter-kit',
+      '@tiptap/extension-placeholder',
+      '@tiptap/extension-bubble-menu',
+      '@tiptap/extension-link',
+      '@tiptap/pm',
+      '@tiptap/core',
+      'tiptap-markdown'
+    ]
   },
   resolve: {
     alias: {

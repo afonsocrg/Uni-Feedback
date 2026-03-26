@@ -319,12 +319,6 @@ export function CourseSpecificFeedbackForm({
                 )}
               </AuthenticatedButton>
 
-              {!isFormValid && (
-                <p className="text-sm text-gray-500 text-center mt-3">
-                  Please select a star rating and workload level
-                </p>
-              )}
-
               <p className="text-xs text-gray-500 text-center mt-4">
                 By submitting, you agree to our{' '}
                 <Link

@@ -5,7 +5,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-  MarkdownTextarea
+  RichTextEditor
 } from '@uni-feedback/ui'
 import { countWords } from '@uni-feedback/utils'
 import { HelpCircle } from 'lucide-react'
@@ -74,10 +74,10 @@ export function CommentSection({
               isLoading={isCategorizing}
             />
             <FormControl>
-              <MarkdownTextarea
+              <RichTextEditor
                 placeholder="What should others know about this course?"
-                previewPlaceholder="This is how your feedback will appear on the website"
-                {...field}
+                value={field.value}
+                onChange={field.onChange}
               />
             </FormControl>
             <FormDescription className="text-xs text-gray-700 text-right flex gap-2">
