@@ -8,7 +8,7 @@ import {
   MarkdownTextarea
 } from '@uni-feedback/ui'
 import { countWords } from '@uni-feedback/utils'
-import { Lightbulb } from 'lucide-react'
+import { HelpCircle } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { Control } from 'react-hook-form'
 import { useWatch } from 'react-hook-form'
@@ -58,17 +58,17 @@ export function CommentSection({
         control={control}
         render={({ field }) => (
           <FormItem>
-            <div className="flex items-center justify-between mb-2">
-              <FormLabel>Write your feedback</FormLabel>
+            <FormLabel>
+              Tell us about the course.
               <button
                 type="button"
                 onClick={() => setShowReviewTips(true)}
-                className="text-sm text-primaryBlue hover:text-primaryBlue/80 flex items-center gap-1 font-medium cursor-pointer"
+                className="text-gray-500 hover:text-gray-700 cursor-pointer ml-1"
+                aria-label="Feedback tips"
               >
-                <Lightbulb className="size-4" />
-                Feedback tips
+                <HelpCircle className="size-4" />
               </button>
-            </div>
+            </FormLabel>
             <FeedbackCategoryChips
               categories={categories}
               isLoading={isCategorizing}

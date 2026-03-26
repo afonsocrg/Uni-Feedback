@@ -11,18 +11,16 @@ interface CategoryChipProps {
 
 // Muted state for inactive categories
 const MUTED_COLORS = {
-  bg: '#FFFFFF', // gray-100
+  bg: '#F9FAFB', // gray-50 - light background
   text: '#6B7280', // gray-500
-  // border: '#E5E7EB' // gray-200
-  border: 'transparent' // gray-200
+  border: '#E5E7EB' // gray-200 - visible border
 }
 
-// Active state - primaryBlue like sort chips in FilterChip
+// Active state - primaryBlue
 const ACTIVE_COLORS = {
-  bg: '#FFFFFF', // primaryBlue
-  text: '#23729f', // White
-  // border: '#23729f' // primaryBlue
-  border: 'transparent' // primaryBlue
+  bg: '#EBF5FB', // light blue background
+  text: '#23729f', // primaryBlue text
+  border: '#23729f' // primaryBlue border
 }
 
 export function CategoryChip({
@@ -37,8 +35,8 @@ export function CategoryChip({
     <Badge
       variant="outline"
       className={cn(
-        'text-xs px-2 py-0.5',
-        isActive && 'font-medium font-bold',
+        'text-xs px-2 py-0.5 rounded rounded-sm border',
+        isActive && 'font-semibold',
         className
       )}
       style={{
@@ -47,7 +45,6 @@ export function CategoryChip({
         borderColor: colors.border
       }}
     >
-      {Icon && <Icon className="size-3.5" />}
       {label}
     </Badge>
   )

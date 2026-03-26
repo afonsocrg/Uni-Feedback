@@ -214,10 +214,7 @@ export function GiveFeedbackContent({
                   render={({ field }) => (
                     <FormItem className="flex flex-col w-[200px]">
                       <FormLabel>
-                        University
-                        {!selectedFacultyId && (
-                          <span className="text-red-500">*</span>
-                        )}
+                        University<span className="text-red-500">*</span>
                       </FormLabel>
                       <Popover open={facultyOpen} onOpenChange={setFacultyOpen}>
                         <PopoverTrigger asChild>
@@ -298,10 +295,7 @@ export function GiveFeedbackContent({
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
                         <FormLabel>
-                          Degree
-                          {!selectedDegreeId && (
-                            <span className="text-red-500">*</span>
-                          )}
+                          Degree<span className="text-red-500">*</span>
                         </FormLabel>
                         <Popover open={degreeOpen} onOpenChange={setDegreeOpen}>
                           <PopoverTrigger asChild>
@@ -376,10 +370,7 @@ export function GiveFeedbackContent({
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
                         <FormLabel>
-                          Course
-                          {selectedDegreeId && !field.value && (
-                            <span className="text-red-500">*</span>
-                          )}
+                          Course<span className="text-red-500">*</span>
                         </FormLabel>
                         <Popover open={courseOpen} onOpenChange={setCourseOpen}>
                           <PopoverTrigger asChild>
@@ -490,8 +481,7 @@ export function GiveFeedbackContent({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      Overall Rating
-                      {!field.value && <span className="text-red-500">*</span>}
+                      Overall Rating<span className="text-red-500">*</span>
                     </FormLabel>
                     <FormControl>
                       <EditableStarRating
@@ -514,7 +504,7 @@ export function GiveFeedbackContent({
                   <FormItem>
                     <FormLabel>
                       How was the workload?
-                      {!field.value && <span className="text-red-500">*</span>}
+                      <span className="text-red-500">*</span>
                     </FormLabel>
                     <FormControl>
                       <RadioGroup
@@ -555,24 +545,12 @@ export function GiveFeedbackContent({
             </div>
 
             {/* Comment Section - Show after workload rating is selected */}
-            {rating > 0 && workloadRating > 0 && (
-              <div className="space-y-6">
-                <CommentSection control={form.control} />
-              </div>
-            )}
+            <div className="space-y-6">
+              <CommentSection control={form.control} />
+            </div>
 
             {/* Submit Button */}
             <div className="mt-6 mb-0 space-y-4">
-              {/* Validation feedback */}
-              {!isFormValid && missingFields.length > 0 && (
-                <div className="text-sm text-muted-foreground text-center">
-                  Please fill in the following required fields:{' '}
-                  <span className="font-semibold">
-                    {missingFields.join(', ')}
-                  </span>
-                </div>
-              )}
-
               <AuthenticatedButton
                 type="submit"
                 className="w-full"
