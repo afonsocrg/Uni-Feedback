@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { cn } from '../../../utils/cn'
 import { WorkloadRatingDisplay } from '../WorkloadRatingDisplay'
 
-export interface EditableWorkloadRatingProps {
+export interface EditableWorkloadRatingScaleProps {
   value: number
   onChange: (value: number) => void
   disabled?: boolean
@@ -11,13 +11,13 @@ export interface EditableWorkloadRatingProps {
   showLabel?: boolean
 }
 
-export function EditableWorkloadRating({
+export function EditableWorkloadRatingScale({
   value,
   onChange,
   disabled = false,
   size = 'md',
   showLabel = true
-}: EditableWorkloadRatingProps) {
+}: EditableWorkloadRatingScaleProps) {
   const [hoverValue, setHoverValue] = useState<number | null>(null)
 
   const displayValue = hoverValue ?? value ?? 0

@@ -1,4 +1,20 @@
 export {
-  EditableWorkloadRating,
-  type EditableWorkloadRatingProps
-} from './EditableWorkloadRating'
+  EditableWorkloadRatingScale,
+  type EditableWorkloadRatingScaleProps
+} from './EditableWorkloadRatingScale'
+export {
+  EditableWorkloadRatingPills,
+  type EditableWorkloadRatingPillsProps
+} from './EditableWorkloadRatingPills'
+export {
+  EditableWorkloadRatingSegmented,
+  type EditableWorkloadRatingSegmentedProps
+} from './EditableWorkloadRatingSegmented'
+export {
+  EditableWorkloadRatingDropdown,
+  type EditableWorkloadRatingDropdownProps
+} from './EditableWorkloadRatingDropdown'
+export {
+  EditableWorkloadRatingList,
+  type EditableWorkloadRatingListProps
+} from './EditableWorkloadRatingList'

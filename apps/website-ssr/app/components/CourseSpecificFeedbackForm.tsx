@@ -1,6 +1,10 @@
 import {
   EditableStarRating,
-  EditableWorkloadRating,
+  EditableWorkloadRatingDropdown,
+  EditableWorkloadRatingList,
+  EditableWorkloadRatingPills,
+  EditableWorkloadRatingScale,
+  EditableWorkloadRatingSegmented,
   Form,
   FormControl,
   FormField,
@@ -25,6 +29,10 @@ import { CommentSection, FeedbackDraftDialog } from '~/components'
 import { AuthenticatedButton } from '~/components/common'
 import { useFeedbackDraft } from '~/hooks'
 import type { FeedbackFormData } from '~/routes/feedback.new'
+import {
+  WorkloadInputDebugPanel,
+  type WorkloadInputType
+} from './WorkloadInputDebugPanel'
 
 interface CourseWithDetails {
   id: number
@@ -56,6 +64,10 @@ export function CourseSpecificFeedbackForm({
   onSubmit,
   isSubmitting
 }: CourseSpecificFeedbackFormProps) {
+  // Workload input type state for debug panel
+  const [workloadInputType, setWorkloadInputType] =
+    useState<WorkloadInputType>('scale')
+
   // Draft management
   const { existingDraft, isLoaded, saveDraft, clearDraft } = useFeedbackDraft()
   const [showDraftDialog, setShowDraftDialog] = useState(false)
@@ -237,13 +249,25 @@ export function CourseSpecificFeedbackForm({
             {/* Main Feedback Section */}
             <div className="space-y-6">
               {/* Ratings Section */}
-              <div className="flex flex-wrap gap-x-12 gap-y-6">
+              <div
+                className={
+                  workloadInputType === 'list'
+                    ? 'flex flex-col gap-6'
+                    : 'flex flex-wrap gap-x-12 gap-y-6'
+                }
+              >
                 {/* Overall Rating */}
                 <FormField
                   control={form.control}
                   name="rating"
                   render={({ field }) => (
-                    <FormItem className="flex-1 min-w-[250px]">
+                    <FormItem
+                      className={
+                        workloadInputType === 'list'
+                          ? ''
+                          : 'flex-1 min-w-[250px]'
+                      }
+                    >
                       <FormLabel className="text-base font-medium text-gray-900">
                         How was the course?
                         <span className="text-red-500">*</span>
@@ -267,18 +291,48 @@ export function CourseSpecificFeedbackForm({
                   control={form.control}
                   name="workloadRating"
                   render={({ field }) => (
-                    <FormItem className="flex-1 min-w-[250px]">
+                    <FormItem
+                      className={
+                        workloadInputType === 'list'
+                          ? ''
+                          : 'flex-1 min-w-[250px]'
+                      }
+                    >
                       <FormLabel className="text-base font-medium text-gray-900">
                         How heavy was the workload?
                         <span className="text-red-500">*</span>
                       </FormLabel>
                       <FormControl>
                         <div className="pt-2">
-                          <EditableWorkloadRating
-                            value={field.value}
-                            onChange={field.onChange}
-                            size="lg"
-                          />
+                          {workloadInputType === 'segmented' ? (
+                            <EditableWorkloadRatingSegmented
+                              value={field.value}
+                              onChange={field.onChange}
+                              size="sm"
+                            />
+                          ) : workloadInputType === 'chips' ? (
+                            <EditableWorkloadRatingPills
+                              value={field.value}
+                              onChange={field.onChange}
+                            />
+                          ) : workloadInputType === 'dropdown' ? (
+                            <EditableWorkloadRatingDropdown
+                              value={field.value}
+                              onChange={field.onChange}
+                              size="sm"
+                            />
+                          ) : workloadInputType === 'list' ? (
+                            <EditableWorkloadRatingList
+                              value={field.value}
+                              onChange={field.onChange}
+                            />
+                          ) : (
+                            <EditableWorkloadRatingScale
+                              value={field.value}
+                              onChange={field.onChange}
+                              size="lg"
+                            />
+                          )}
                         </div>
                       </FormControl>
                       <FormMessage />
@@ -359,6 +413,12 @@ export function CourseSpecificFeedbackForm({
           onDiscard={handleDiscardDraft}
         />
       )}
+
+      {/* Debug Panel - Remove before production */}
+      <WorkloadInputDebugPanel
+        value={workloadInputType}
+        onChange={setWorkloadInputType}
+      />
     </main>
   )
 }
