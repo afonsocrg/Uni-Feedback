@@ -166,10 +166,10 @@ export function CourseSpecificFeedbackForm({
         <div>
           {/* Header - Course Context */}
           <div className="mb-6 pb-4 border-b border-gray-200">
-            <div className="text-xs text-gray-500 mt-0.5">
+            <div className="text-xs text-gray-400 mt-0.5">
               {course.degree.faculty.shortName} · {course.degree.name}
             </div>
-            <div className="font-medium text-gray-900 text-sm">
+            <div className="font-medium text-gray-900 text-[13px]">
               {course.name}
             </div>
             <div className="flex items-center justify-between gap-4 mt-1">
@@ -210,7 +210,7 @@ export function CourseSpecificFeedbackForm({
                 <button
                   type="button"
                   onClick={() => setShowYearSelector(true)}
-                  className="flex items-center gap-0.5 text-xs text-gray-500 hover:text-primaryBlue cursor-pointer"
+                  className="flex items-center gap-0.5 text-xs text-gray-400 hover:text-primaryBlue cursor-pointer"
                   aria-label="Change school year"
                 >
                   <span>
@@ -225,7 +225,7 @@ export function CourseSpecificFeedbackForm({
                 to="/feedback/new"
                 className="text-xs text-primaryBlue hover:text-primaryBlue/80 whitespace-nowrap"
               >
-                review another course
+                Review another course
               </Link>
             </div>
           </div>
@@ -245,7 +245,8 @@ export function CourseSpecificFeedbackForm({
                   render={({ field }) => (
                     <FormItem className="flex-1 min-w-[250px]">
                       <FormLabel className="text-base font-medium text-gray-900">
-                        How would you rate this course?
+                        How was the course?
+                        <span className="text-red-500">*</span>
                       </FormLabel>
                       <FormControl>
                         <div className="pt-2">
@@ -268,7 +269,8 @@ export function CourseSpecificFeedbackForm({
                   render={({ field }) => (
                     <FormItem className="flex-1 min-w-[250px]">
                       <FormLabel className="text-base font-medium text-gray-900">
-                        How was the workload?
+                        How heavy was the workload?
+                        <span className="text-red-500">*</span>
                       </FormLabel>
                       <FormControl>
                         <div className="pt-2">

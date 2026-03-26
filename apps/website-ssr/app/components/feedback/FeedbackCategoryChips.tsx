@@ -34,8 +34,8 @@ export function FeedbackCategoryChips({
     <div
       className={
         orientation === 'vertical'
-          ? 'flex flex-col gap-2'
-          : 'flex flex-wrap gap-2 items-center'
+          ? 'flex flex-col gap-1'
+          : 'flex flex-wrap gap-1 items-center'
       }
       role="status"
       aria-live="polite"

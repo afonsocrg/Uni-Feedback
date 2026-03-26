@@ -58,38 +58,40 @@ export function CommentSection({
         control={control}
         render={({ field }) => (
           <FormItem>
-            <FormLabel>
-              Tell us about the course.
-              <button
-                type="button"
-                onClick={() => setShowReviewTips(true)}
-                className="text-gray-500 hover:text-gray-700 cursor-pointer ml-1"
-                aria-label="Feedback tips"
-              >
-                <HelpCircle className="size-4" />
-              </button>
+            <FormLabel className="text-base font-medium text-gray-900">
+              Share your experience
             </FormLabel>
-            <FeedbackCategoryChips
-              categories={categories}
-              isLoading={isCategorizing}
-            />
+            <div className="space-y-1.5">
+              <p className="text-xs text-gray-400">
+                What might be helpful to mention:
+              </p>
+              <FeedbackCategoryChips
+                categories={categories}
+                isLoading={isCategorizing}
+              />
+            </div>
             <FormControl>
               <RichTextEditor
-                placeholder="What should others know about this course?"
+                placeholder="What should other students know? (e.g., tips for the exam, how to handle the labs...)"
                 value={field.value}
                 onChange={field.onChange}
               />
             </FormControl>
-            <FormDescription className="text-xs text-gray-700 text-right flex gap-2">
+            <FormDescription className="text-[11px] text-gray-400 text-right flex gap-2">
               <span className="flex items-start justify-between gap-4 w-full">
-                <span className="text-xs text-gray-700 mb-2 flex-1 text-start">
+                <span className="flex-1 text-start">
                   This field is optional, but it's the one that helps other
                   students the most ❤️
                 </span>
 
-                <span className="text-xs text-gray-700 whitespace-nowrap flex-shrink-0">
-                  {wordCount} {wordCount === 1 ? 'word' : 'words'}
-                </span>
+                <button
+                  type="button"
+                  onClick={() => setShowReviewTips(true)}
+                  className="text-gray-400 hover:text-gray-500 cursor-pointer transition-colors flex-shrink-0"
+                  aria-label="Feedback tips"
+                >
+                  <HelpCircle className="size-3.5" />
+                </button>
               </span>
             </FormDescription>
             <FormMessage />

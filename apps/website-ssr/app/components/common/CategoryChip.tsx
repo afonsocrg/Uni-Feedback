@@ -1,5 +1,5 @@
 import { Badge } from '@uni-feedback/ui'
-import type { LucideIcon } from 'lucide-react'
+import { Check, type LucideIcon } from 'lucide-react'
 import { cn } from '~/utils'
 
 interface CategoryChipProps {
@@ -11,16 +11,14 @@ interface CategoryChipProps {
 
 // Muted state for inactive categories
 const MUTED_COLORS = {
-  bg: '#F9FAFB', // gray-50 - light background
-  text: '#6B7280', // gray-500
-  border: '#E5E7EB' // gray-200 - visible border
+  bg: '#F0F4F8', // Very soft blue-gray
+  text: '#64748B' // slate-500
 }
 
-// Active state - primaryBlue
+// Active state - solid color with checkmark
 const ACTIVE_COLORS = {
-  bg: '#EBF5FB', // light blue background
-  text: '#23729f', // primaryBlue text
-  border: '#23729f' // primaryBlue border
+  bg: '#23729f', // primaryBlue text
+  text: '#EBF5FB' // light blue background
 }
 
 export function CategoryChip({
@@ -35,17 +33,19 @@ export function CategoryChip({
     <Badge
       variant="outline"
       className={cn(
-        'text-xs px-2 py-0.5 rounded rounded-sm border',
-        isActive && 'font-semibold',
+        'text-xs px-2 py-0.5 rounded-sm border-0',
+        isActive && 'font-medium',
         className
       )}
       style={{
         backgroundColor: colors.bg,
-        color: colors.text,
-        borderColor: colors.border
+        color: colors.text
       }}
     >
-      {label}
+      <span className="flex items-center gap-1">
+        {label}
+        {isActive && <Check className="size-3" />}
+      </span>
     </Badge>
   )
 }

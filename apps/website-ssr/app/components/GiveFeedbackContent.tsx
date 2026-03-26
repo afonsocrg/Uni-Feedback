@@ -213,7 +213,7 @@ export function GiveFeedbackContent({
                   control={form.control}
                   render={({ field }) => (
                     <FormItem className="flex flex-col w-[200px]">
-                      <FormLabel>
+                      <FormLabel className="text-base font-medium text-gray-900">
                         University<span className="text-red-500">*</span>
                       </FormLabel>
                       <Popover open={facultyOpen} onOpenChange={setFacultyOpen}>
@@ -294,7 +294,7 @@ export function GiveFeedbackContent({
                     control={form.control}
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
-                        <FormLabel>
+                        <FormLabel className="text-base font-medium text-gray-900">
                           Degree<span className="text-red-500">*</span>
                         </FormLabel>
                         <Popover open={degreeOpen} onOpenChange={setDegreeOpen}>
@@ -369,7 +369,7 @@ export function GiveFeedbackContent({
                     control={form.control}
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
-                        <FormLabel>
+                        <FormLabel className="text-base font-medium text-gray-900">
                           Course<span className="text-red-500">*</span>
                         </FormLabel>
                         <Popover open={courseOpen} onOpenChange={setCourseOpen}>
@@ -447,7 +447,7 @@ export function GiveFeedbackContent({
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>When did you take this course?</FormLabel>
+                    <FormLabel className="text-base font-semibold text-gray-900">When did you take this course?</FormLabel>
                     <FormControl>
                       <Select
                         onValueChange={(val) => field.onChange(Number(val))}
@@ -480,8 +480,8 @@ export function GiveFeedbackContent({
                 name="rating"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>
-                      Overall Rating<span className="text-red-500">*</span>
+                    <FormLabel className="text-base font-semibold text-gray-900">
+                      How was the course?<span className="text-red-500">*</span>
                     </FormLabel>
                     <FormControl>
                       <EditableStarRating
@@ -502,8 +502,8 @@ export function GiveFeedbackContent({
                 name="workloadRating"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>
-                      How was the workload?
+                    <FormLabel className="text-base font-semibold text-gray-900">
+                      How heavy was the workload?
                       <span className="text-red-500">*</span>
                     </FormLabel>
                     <FormControl>
