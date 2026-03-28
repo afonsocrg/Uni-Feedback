@@ -13,7 +13,7 @@ export function EditableWorkloadRatingPills({
   disabled = false
 }: EditableWorkloadRatingPillsProps) {
   return (
-    <div className="flex gap-2 overflow-x-auto">
+    <div className="flex gap-2 overflow-x-auto flex-wrap">
       {[1, 2, 3, 4, 5].map((rating) => {
         const isSelected = value === rating
 

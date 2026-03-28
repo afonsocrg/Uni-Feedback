@@ -66,7 +66,7 @@ export function CourseSpecificFeedbackForm({
 }: CourseSpecificFeedbackFormProps) {
   // Workload input type state for debug panel
   const [workloadInputType, setWorkloadInputType] =
-    useState<WorkloadInputType>('scale')
+    useState<WorkloadInputType>('chips')
 
   // Draft management
   const { existingDraft, isLoaded, saveDraft, clearDraft } = useFeedbackDraft()
@@ -251,7 +251,7 @@ export function CourseSpecificFeedbackForm({
               {/* Ratings Section */}
               <div
                 className={
-                  workloadInputType === 'list'
+                  workloadInputType === 'list' || workloadInputType === 'chips'
                     ? 'flex flex-col gap-6'
                     : 'flex flex-wrap gap-x-12 gap-y-6'
                 }
@@ -263,7 +263,8 @@ export function CourseSpecificFeedbackForm({
                   render={({ field }) => (
                     <FormItem
                       className={
-                        workloadInputType === 'list'
+                        workloadInputType === 'list' ||
+                        workloadInputType === 'chips'
                           ? ''
                           : 'flex-1 min-w-[250px]'
                       }
@@ -293,7 +294,8 @@ export function CourseSpecificFeedbackForm({
                   render={({ field }) => (
                     <FormItem
                       className={
-                        workloadInputType === 'list'
+                        workloadInputType === 'list' ||
+                        workloadInputType === 'chips'
                           ? ''
                           : 'flex-1 min-w-[250px]'
                       }
@@ -364,12 +366,12 @@ export function CourseSpecificFeedbackForm({
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="size-5 animate-spin" />
+                    <Loader2 className="size-4 animate-spin" />
                     <span>Submitting...</span>
                   </>
                 ) : (
                   <>
-                    <Send className="size-5" />
+                    <Send className="size-4" />
                     <span>Give Feedback</span>
                   </>
                 )}
