@@ -3,6 +3,7 @@ import {
   BookOpen,
   ClipboardCheck,
   GraduationCap,
+  HelpCircle,
   Lightbulb,
   Loader2,
   type LucideIcon
@@ -13,6 +14,7 @@ interface FeedbackCategoryChipsProps {
   categories: FeedbackCategories | null
   isLoading: boolean
   orientation?: 'horizontal' | 'vertical'
+  onHelpClick?: () => void
 }
 
 const CATEGORY_CONFIG: Record<
@@ -28,13 +30,14 @@ const CATEGORY_CONFIG: Record<
 export function FeedbackCategoryChips({
   categories,
   isLoading,
-  orientation = 'horizontal'
+  orientation = 'horizontal',
+  onHelpClick
 }: FeedbackCategoryChipsProps) {
   return (
     <div
       className={
         orientation === 'vertical'
-          ? 'flex flex-col gap-1'
+          ? 'flex flex-col gap-0.5'
           : 'flex flex-wrap gap-1 items-center'
       }
       role="status"
@@ -66,6 +69,18 @@ export function FeedbackCategoryChips({
           className="size-4 animate-spin text-gray-400"
           aria-label="Categorizing feedback"
         />
+      )}
+
+      {/* Help icon at the end */}
+      {onHelpClick && (
+        <button
+          type="button"
+          onClick={onHelpClick}
+          className="text-gray-400 hover:text-gray-500 cursor-pointer transition-colors ml-0.5"
+          aria-label="Feedback tips"
+        >
+          <HelpCircle className="size-3.5" />
+        </button>
       )}
     </div>
   )

@@ -173,7 +173,7 @@ export function CourseSpecificFeedbackForm({
   }
 
   return (
-    <main className="container mx-auto px-4 py-8 max-w-2xl min-h-screen">
+    <main className="container mx-auto px-4 py-4 md:py-8 max-w-2xl min-h-screen">
       <Form {...form}>
         <div>
           {/* Header - Course Context */}
