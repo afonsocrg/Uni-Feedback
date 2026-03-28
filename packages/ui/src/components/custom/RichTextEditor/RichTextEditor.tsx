@@ -24,6 +24,7 @@ export function RichTextEditor({
   disabled = false
 }: RichTextEditorProps) {
   const editor = useEditor({
+    immediatelyRender: false,
     extensions: [
       StarterKit.configure({
         heading: {
@@ -92,16 +93,10 @@ export function RichTextEditor({
           onClick={() => editor.chain().focus().run()}
         >
           <BubbleMenuBar editor={editor} />
-          <EditorContent
-            editor={editor}
-            className="p-3"
-          />
+          <EditorContent editor={editor} className="p-3" />
         </div>
       ) : (
-        <div
-          className="p-3 text-sm text-gray-400"
-          style={{ minHeight }}
-        >
+        <div className="p-3 text-sm text-gray-400" style={{ minHeight }}>
           {placeholder}
         </div>
       )}
