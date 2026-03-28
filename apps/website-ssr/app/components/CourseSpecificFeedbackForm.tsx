@@ -1,10 +1,12 @@
 import {
   EditableStarRating,
+  EditableWorkloadRatingBars,
   EditableWorkloadRatingDropdown,
   EditableWorkloadRatingList,
   EditableWorkloadRatingPills,
   EditableWorkloadRatingScale,
   EditableWorkloadRatingSegmented,
+  EditableWorkloadRatingSlider,
   Form,
   FormControl,
   FormField,
@@ -251,7 +253,10 @@ export function CourseSpecificFeedbackForm({
               {/* Ratings Section */}
               <div
                 className={
-                  workloadInputType === 'list' || workloadInputType === 'chips'
+                  workloadInputType === 'list' ||
+                  workloadInputType === 'chips' ||
+                  workloadInputType === 'bars' ||
+                  workloadInputType === 'slider'
                     ? 'flex flex-col gap-6'
                     : 'flex flex-wrap gap-x-12 gap-y-6'
                 }
@@ -264,7 +269,9 @@ export function CourseSpecificFeedbackForm({
                     <FormItem
                       className={
                         workloadInputType === 'list' ||
-                        workloadInputType === 'chips'
+                        workloadInputType === 'chips' ||
+                        workloadInputType === 'bars' ||
+                        workloadInputType === 'slider'
                           ? ''
                           : 'flex-1 min-w-[250px]'
                       }
@@ -295,7 +302,9 @@ export function CourseSpecificFeedbackForm({
                     <FormItem
                       className={
                         workloadInputType === 'list' ||
-                        workloadInputType === 'chips'
+                        workloadInputType === 'chips' ||
+                        workloadInputType === 'bars' ||
+                        workloadInputType === 'slider'
                           ? ''
                           : 'flex-1 min-w-[250px]'
                       }
@@ -325,6 +334,16 @@ export function CourseSpecificFeedbackForm({
                             />
                           ) : workloadInputType === 'list' ? (
                             <EditableWorkloadRatingList
+                              value={field.value}
+                              onChange={field.onChange}
+                            />
+                          ) : workloadInputType === 'bars' ? (
+                            <EditableWorkloadRatingBars
+                              value={field.value}
+                              onChange={field.onChange}
+                            />
+                          ) : workloadInputType === 'slider' ? (
+                            <EditableWorkloadRatingSlider
                               value={field.value}
                               onChange={field.onChange}
                             />

@@ -6,7 +6,9 @@ const workloadInputTypes = [
   { value: 'chips', label: 'Chips (pills)' },
   { value: 'segmented', label: 'Segmented bar' },
   { value: 'dropdown', label: 'Dropdown' },
-  { value: 'list', label: 'List (rows)' }
+  { value: 'list', label: 'List (rows)' },
+  { value: 'bars', label: 'Bars (vertical)' },
+  { value: 'slider', label: 'Slider' }
 ] as const
 
 export type WorkloadInputType = (typeof workloadInputTypes)[number]['value']

@@ -12,9 +12,10 @@ export function EditableWorkloadRatingPills({
   onChange,
   disabled = false
 }: EditableWorkloadRatingPillsProps) {
+  // <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
   return (
-    <div className="flex gap-2 overflow-x-auto flex-wrap">
-      {[1, 2, 3, 4, 5].map((rating) => {
+    <div className="grid grid-cols-5 gap-2">
+      {[5, 4, 3, 2, 1].map((rating) => {
         const isSelected = value === rating
 
         return (
@@ -27,7 +28,11 @@ export function EditableWorkloadRatingPills({
             <WorkloadRatingDisplay
               rating={rating}
               muted={!isSelected}
-              className={cn(isSelected && 'shadow-sm', 'cursor-pointer')}
+              className={cn(
+                isSelected && 'shadow-sm',
+                'cursor-pointer',
+                'w-full'
+              )}
             />
           </button>
         )

@@ -18,3 +18,11 @@ export {
   EditableWorkloadRatingList,
   type EditableWorkloadRatingListProps
 } from './EditableWorkloadRatingList'
+export {
+  EditableWorkloadRatingBars,
+  type EditableWorkloadRatingBarsProps
+} from './EditableWorkloadRatingBars'
+export {
+  EditableWorkloadRatingSlider,
+  type EditableWorkloadRatingSliderProps
+} from './EditableWorkloadRatingSlider'
