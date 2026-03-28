@@ -12,9 +12,10 @@ export function EditableWorkloadRatingPills({
   onChange,
   disabled = false
 }: EditableWorkloadRatingPillsProps) {
-  // <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
+  // If I drop the `max-md` and make the default 3 columns,
+  // For some reason, it always renders only 3 columns...
   return (
-    <div className="grid grid-cols-5 gap-2">
+    <div className="grid max-md:grid-cols-3 md:grid-cols-5 gap-2">
       {[5, 4, 3, 2, 1].map((rating) => {
         const isSelected = value === rating
 
