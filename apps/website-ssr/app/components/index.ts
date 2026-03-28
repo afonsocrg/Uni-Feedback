@@ -1,5 +1,6 @@
 export * from './ActionButton'
 export * from './auth-guard'
+export * from './ChangeCourseDialog'
 export * from './common'
 export * from './CourseBrowser'
 export * from './CourseSpecificFeedbackForm'

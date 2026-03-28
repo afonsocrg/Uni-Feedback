@@ -1,4 +1,4 @@
-import { type Faculty } from '@uni-feedback/api-client'
+import { type CourseSearchResult, type Faculty } from '@uni-feedback/api-client'
 import { ChevronRight, Loader2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useFacultyDegrees, useSearchCourses } from '~/hooks/queries'
@@ -10,12 +10,16 @@ import { SearchInput } from './common/SearchInput'
 
 interface CourseBrowserProps {
   faculties: Faculty[]
-  onCourseSelect: (courseId: number) => void
+  onCourseSelect?: (courseId: number) => void
+  onCourseSelectWithDetails?: (course: CourseSearchResult) => void
+  compact?: boolean
 }
 
 export function CourseBrowser({
   faculties,
-  onCourseSelect
+  onCourseSelect,
+  onCourseSelectWithDetails,
+  compact = false
 }: CourseBrowserProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedFacultyId, setSelectedFacultyId] = useState<
@@ -90,18 +94,28 @@ export function CourseBrowser({
     }
   }, [selectedDegreeId])
 
+  const handleCourseClick = (course: CourseSearchResult) => {
+    if (onCourseSelectWithDetails) {
+      onCourseSelectWithDetails(course)
+    } else if (onCourseSelect) {
+      onCourseSelect(course.id)
+    }
+  }
+
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
-      <div className="space-y-8 pt-[15vh]">
-        {/* Header */}
-        <div className="text-center space-y-2">
-          <h1 className="text-xl md:text-4xl font-bold text-gray-900 tracking-tight">
-            Find a course to give feedback
-          </h1>
-          <p className="text-gray-500 text-base md:text-lg">
-            Search or browse to find your course.
-          </p>
-        </div>
+    <div className={compact ? 'py-1 px-3 pb-4 md:px-6 md:pb-6' : 'max-w-3xl mx-auto px-4 py-8'}>
+      <div className={compact ? 'space-y-6' : 'space-y-8 pt-[15vh]'}>
+        {/* Header - hidden in compact mode */}
+        {!compact && (
+          <div className="text-center space-y-2">
+            <h1 className="text-xl md:text-4xl font-bold text-gray-900 tracking-tight">
+              Find a course to give feedback
+            </h1>
+            <p className="text-gray-500 text-base md:text-lg">
+              Search or browse to find your course.
+            </p>
+          </div>
+        )}
 
         {/* Search Bar and Filters */}
         <div className="space-y-3 mb-8">
@@ -168,12 +182,12 @@ export function CourseBrowser({
               {results?.courses.map((course) => (
                 <button
                   key={course.id}
-                  onClick={() => onCourseSelect(course.id)}
-                  className="w-full p-5 bg-white border border-gray-200 rounded-2xl hover:shadow-xl hover:border-primaryBlue hover:-translate-y-0.5 transition-all text-left group cursor-pointer"
+                  onClick={() => handleCourseClick(course)}
+                  className="w-full p-5 bg-white border border-gray-200 rounded-2xl hover:shadow-xl hover:border-primaryBlue hover:-translate-y-0.5 transition-all text-left group cursor-pointer overflow-hidden"
                 >
                   <div className="flex justify-between items-center gap-4">
-                    <div className="flex-1 min-w-0 space-y-1">
-                      <p className="text-[10px] font-medium text-gray-400 uppercase tracking-wide truncate">
+                    <div className="flex-1 min-w-0 space-y-1 break-words">
+                      <p className="text-[10px] font-medium text-gray-400 uppercase tracking-wide">
                         {course.faculty.shortName} › {course.degree.name}
                       </p>
                       <h3 className="text-lg font-bold text-gray-800 leading-tight group-hover:text-primaryBlue transition-colors">

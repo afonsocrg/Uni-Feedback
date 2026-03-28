@@ -1,3 +1,4 @@
+import { type CourseSearchResult } from '@uni-feedback/api-client'
 import {
   EditableStarRating,
   EditableWorkloadRatingBars,
@@ -27,7 +28,11 @@ import { Loader2, Pencil, Send } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { type UseFormReturn } from 'react-hook-form'
 import { Link } from 'react-router'
-import { CommentSection, FeedbackDraftDialog } from '~/components'
+import {
+  ChangeCourseDialog,
+  CommentSection,
+  FeedbackDraftDialog
+} from '~/components'
 import { AuthenticatedButton } from '~/components/common'
 import { useFeedbackDraft } from '~/hooks'
 import type { FeedbackFormData } from '~/routes/feedback.new'
@@ -78,6 +83,43 @@ export function CourseSpecificFeedbackForm({
 
   // State for school year selector visibility
   const [showYearSelector, setShowYearSelector] = useState(false)
+
+  // Local course state for changing course without navigation
+  const [currentCourse, setCurrentCourse] = useState<CourseWithDetails>(course)
+  const [showChangeCourseDialog, setShowChangeCourseDialog] = useState(false)
+
+  // Handle course change from dialog
+  const handleChangeCourse = useCallback(
+    (selectedCourse: CourseSearchResult) => {
+      // Transform CourseSearchResult to CourseWithDetails format
+      const newCourse: CourseWithDetails = {
+        id: selectedCourse.id,
+        name: selectedCourse.name,
+        acronym: selectedCourse.acronym,
+        degree: {
+          id: selectedCourse.degree.id,
+          name: selectedCourse.degree.name,
+          acronym: selectedCourse.degree.acronym,
+          faculty: {
+            id: selectedCourse.faculty.id,
+            name: selectedCourse.faculty.name,
+            shortName: selectedCourse.faculty.shortName
+            // emailSuffixes not available from search - auth modal handles this gracefully
+          }
+        }
+      }
+
+      // Update local course state
+      setCurrentCourse(newCourse)
+
+      // Update form's courseId field
+      form.setValue('courseId', newCourse.id)
+
+      // Shallow URL update without triggering navigation/reload
+      window.history.pushState(null, '', `/courses/${newCourse.id}/feedback`)
+    },
+    [form]
+  )
 
   // Watch form values for draft saving (comment is handled separately to avoid re-renders)
   const rating = form.watch('rating')
@@ -181,10 +223,11 @@ export function CourseSpecificFeedbackForm({
           {/* Header - Course Context */}
           <div className="mb-6 pb-4 border-b border-gray-200">
             <div className="text-xs text-gray-400 mt-0.5">
-              {course.degree.faculty.shortName} · {course.degree.name}
+              {currentCourse.degree.faculty.shortName} ·{' '}
+              {currentCourse.degree.name}
             </div>
             <div className="font-medium text-gray-900 text-[13px]">
-              {course.name}
+              {currentCourse.name}
             </div>
             <div className="flex items-center justify-between gap-4 mt-1">
               <div className="flex items-center gap-0.5">
@@ -235,12 +278,13 @@ export function CourseSpecificFeedbackForm({
                   <Pencil className="size-3" />
                 </button>
               </div>
-              <Link
-                to="/feedback/new"
-                className="text-xs text-primaryBlue hover:text-primaryBlue/80 whitespace-nowrap"
+              <button
+                type="button"
+                onClick={() => setShowChangeCourseDialog(true)}
+                className="text-xs text-primaryBlue hover:text-primaryBlue/80 whitespace-nowrap cursor-pointer"
               >
-                Review another course
-              </Link>
+                Change course
+              </button>
             </div>
           </div>
 
@@ -378,8 +422,9 @@ export function CourseSpecificFeedbackForm({
                 className="w-full"
                 disabled={isSubmitting || !isFormValid}
                 authModalProps={{
-                  allowedEmailSuffixes: course.degree.faculty.emailSuffixes,
-                  universityName: course.degree.faculty.shortName,
+                  allowedEmailSuffixes:
+                    currentCourse.degree.faculty.emailSuffixes,
+                  universityName: currentCourse.degree.faculty.shortName,
                   successDescription: 'Submitting your feedback...'
                 }}
               >
@@ -439,6 +484,14 @@ export function CourseSpecificFeedbackForm({
       <WorkloadInputDebugPanel
         value={workloadInputType}
         onChange={setWorkloadInputType}
+      />
+
+      {/* Change Course Dialog */}
+      <ChangeCourseDialog
+        open={showChangeCourseDialog}
+        onOpenChange={setShowChangeCourseDialog}
+        currentCourseId={currentCourse.id}
+        onCourseSelect={handleChangeCourse}
       />
     </main>
   )
