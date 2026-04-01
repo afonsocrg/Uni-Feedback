@@ -17,7 +17,8 @@ const EditFeedbackRequestSchema = z
   .object({
     rating: z.number().int().min(1).max(5),
     workloadRating: z.number().int().min(1).max(5),
-    comment: z.string().optional()
+    comment: z.string().optional(),
+    schoolYear: z.number().int().min(2000).max(2100).optional()
   })
   .strict()
 
@@ -66,10 +67,12 @@ export class EditFeedback extends OpenAPIRoute {
       const newComment = body.comment?.trim() || null
 
       // Check if identical
+      const newSchoolYear = body.schoolYear ?? existingFeedback.schoolYear
       const isIdentical =
         existingFeedback.rating === body.rating &&
         existingFeedback.workloadRating === body.workloadRating &&
-        existingFeedback.comment === newComment
+        existingFeedback.comment === newComment &&
+        existingFeedback.schoolYear === newSchoolYear
 
       if (isIdentical) {
         const pointService = new PointService(env)
@@ -161,6 +164,7 @@ export class EditFeedback extends OpenAPIRoute {
           rating: body.rating,
           workloadRating: body.workloadRating,
           comment: newComment,
+          schoolYear: newSchoolYear,
           updatedAt: new Date()
         })
         .where(eq(feedbackFull.id, feedbackId))

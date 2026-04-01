@@ -77,7 +77,8 @@ export default function EditFeedbackPage() {
       const response = await editFeedback(feedback.id, {
         rating: values.rating,
         workloadRating: values.workloadRating,
-        comment: values.comment
+        comment: values.comment,
+        schoolYear: values.schoolYear
       })
 
       setPoints(response.points)

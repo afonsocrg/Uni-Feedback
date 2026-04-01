@@ -7,7 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
   EditableStarRating,
-  EditableWorkloadRatingScale
+  WorkloadRatingDisplay
 } from '@uni-feedback/ui'
 import { getRelativeTime } from '@uni-feedback/utils'
 import { Clock } from 'lucide-react'
@@ -75,12 +75,7 @@ export function FeedbackDraftDialog({
                   <div className="text-sm font-medium text-gray-900 mb-2">
                     Workload
                   </div>
-                  <EditableWorkloadRatingScale
-                    value={workloadRating}
-                    onChange={() => {}}
-                    disabled={true}
-                    size="md"
-                  />
+                  <WorkloadRatingDisplay rating={workloadRating} />
                 </div>
               )}
             </div>

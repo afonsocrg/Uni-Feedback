@@ -1,13 +1,13 @@
 import {
   Button,
   EditableStarRating,
+  EditableWorkloadRatingPills,
   Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
-  WorkloadRatingSelect
+  FormMessage
 } from '@uni-feedback/ui'
 import { Loader2, Save, X } from 'lucide-react'
 import { type UseFormReturn } from 'react-hook-form'
@@ -41,46 +41,45 @@ export function InlineFeedbackEdit({
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <div className="flex flex-wrap gap-4">
-            <div className="min-w-[220px]">
-              <FormField
-                control={form.control}
-                name="rating"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Overall Rating</FormLabel>
-                    <FormControl>
-                      <EditableStarRating
-                        value={field.value}
-                        onChange={field.onChange}
-                        size="lg"
-                        labelPosition="bottom"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+          <div className="space-y-6">
+            <FormField
+              control={form.control}
+              name="rating"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-base font-semibold text-gray-900">
+                    How was the course?
+                  </FormLabel>
+                  <FormControl>
+                    <EditableStarRating
+                      value={field.value}
+                      onChange={field.onChange}
+                      size="lg"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-            <div className="min-w-[220px]">
-              <FormField
-                control={form.control}
-                name="workloadRating"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Workload</FormLabel>
-                    <FormControl>
-                      <WorkloadRatingSelect
-                        value={field.value}
-                        onChange={(val) => field.onChange(val || 0)}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            <FormField
+              control={form.control}
+              name="workloadRating"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-base font-semibold text-gray-900">
+                    How heavy was the workload?
+                  </FormLabel>
+                  <FormControl>
+                    <EditableWorkloadRatingPills
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
 
           <CommentSection control={form.control} />

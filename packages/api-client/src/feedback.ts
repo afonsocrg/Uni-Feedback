@@ -66,6 +66,7 @@ export type FeedbackForEdit = {
   courseName: string
   courseCode: string
   courseId: number
+  degreeName: string
   facultyShortName: string
 }
 
@@ -116,6 +117,7 @@ export type EditFeedbackRequest = {
   rating: number
   workloadRating: number
   comment?: string
+  schoolYear?: number
 }
 
 export type FeedbackAnalysis = {
