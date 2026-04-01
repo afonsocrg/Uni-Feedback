@@ -39,7 +39,7 @@ export function ChangeCourseDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl min-h-[80vh] max-h-[85vh] p-0 flex flex-col">
         <DialogHeader className="px-3 pt-3 pb-2 md:px-6 md:pt-6 md:pb-4 shrink-0">
-          <DialogTitle>Change Course</DialogTitle>
+          <DialogTitle>Choose another course</DialogTitle>
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto min-h-0">
