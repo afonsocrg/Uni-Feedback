@@ -16,7 +16,7 @@ export function EditableWorkloadRatingPills({
   // For some reason, it always renders only 3 columns...
   return (
     <div className="grid max-md:grid-cols-3 md:grid-cols-5 gap-2">
-      {[5, 4, 3, 2, 1].map((rating) => {
+      {[1, 2, 3, 4, 5].map((rating) => {
         const isSelected = value === rating
 
         return (
