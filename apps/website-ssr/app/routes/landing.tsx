@@ -3,7 +3,6 @@ import { useSearchParams } from 'react-router'
 import {
   ContactSection,
   CTASection,
-  GiveawayPromoSection,
   HeroSection,
   HowItWorksSection,
   LandingFAQSection,
@@ -74,7 +73,6 @@ export default function LandingPage({ loaderData }: Route.ComponentProps) {
 
   return (
     <>
-      <GiveawayPromoSection />
       <HeroSection
         studentClubs={loaderData.studentClubs}
         recentFeedbacks={loaderData.recentFeedbacks}
