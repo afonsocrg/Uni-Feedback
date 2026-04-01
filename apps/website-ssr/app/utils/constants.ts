@@ -14,19 +14,30 @@ export const SITE_URL =
   import.meta.env.VITE_PUBLIC_SITE_URL || 'https://uni-feedback.com'
 
 // LocalStorage keys
+// Convention: All keys should be prefixed with 'uni-feedback-' for namespace isolation
 export const STORAGE_KEYS = {
-  SELECTED_FACULTY_ID: 'selectedFacultyId',
-  SELECTED_DEGREE_ID: 'selectedDegreeId',
+  // Course browser preferences (used in feedback flow)
+  SELECTED_FACULTY_ID: 'uni-feedback-selected-faculty-id',
+  SELECTED_DEGREE_ID: 'uni-feedback-selected-degree-id',
+
+  // Legacy feedback keys (consider migrating to course browser keys)
   FEEDBACK_EMAIL: 'lastFeedbackEmail',
   FEEDBACK_DEGREE_ID: 'lastFeedbackDegreeId',
   FEEDBACK_FACULTY_ID: 'lastFeedbackFacultyId',
+
+  // Filter state (contextual to specific pages)
   DEGREE_FILTERS: 'degreeFilters',
   COURSE_FILTERS: 'courseFilters',
+
+  // Authentication
   LAST_LOGIN_EMAIL: 'uni-feedback-last-email',
   AUTH_USER: 'uni-feedback-student-user',
   MAGIC_LINK_REQUEST_ID: 'uni-feedback-magic-link-request-id',
   MAGIC_LINK_RATE_LIMIT_RESET: 'uni-feedback-magic-link-rate-limit-reset',
-  OTP_COOLDOWN_END: 'uni-feedback-otp-cooldown-end'
+  OTP_COOLDOWN_END: 'uni-feedback-otp-cooldown-end',
+
+  // Feedback form draft (global, not course-specific)
+  FEEDBACK_DRAFT: 'uni-feedback-draft'
 } as const
 
 // OTP configuration (frontend constants)

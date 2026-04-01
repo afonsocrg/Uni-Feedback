@@ -1,5 +1,6 @@
 import { Badge } from '@uni-feedback/ui'
-import type { LucideIcon } from 'lucide-react'
+import { Check, type LucideIcon } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 import { cn } from '~/utils'
 
 interface CategoryChipProps {
@@ -11,18 +12,14 @@ interface CategoryChipProps {
 
 // Muted state for inactive categories
 const MUTED_COLORS = {
-  bg: '#FFFFFF', // gray-100
-  text: '#6B7280', // gray-500
-  // border: '#E5E7EB' // gray-200
-  border: 'transparent' // gray-200
+  bg: '#FFFFFF', // White background
+  text: '#64748B' // slate-500 muted text
 }
 
-// Active state - primaryBlue like sort chips in FilterChip
+// Active state - success green with checkmark
 const ACTIVE_COLORS = {
-  bg: '#FFFFFF', // primaryBlue
-  text: '#23729f', // White
-  // border: '#23729f' // primaryBlue
-  border: 'transparent' // primaryBlue
+  bg: '#FFFFFF', // White background
+  text: '#10b981' // emerald-500 success green
 }
 
 export function CategoryChip({
@@ -32,23 +29,52 @@ export function CategoryChip({
   className
 }: CategoryChipProps) {
   const colors = isActive ? ACTIVE_COLORS : MUTED_COLORS
+  const prevActiveRef = useRef(isActive)
+  const [animation, setAnimation] = useState<string | undefined>()
+
+  useEffect(() => {
+    // Detect state change
+    if (prevActiveRef.current !== isActive) {
+      if (isActive) {
+        // Activated: scale up
+        setAnimation('scale-pulse 0.2s ease-out')
+      } else {
+        // Deactivated: subtle scale down
+        setAnimation('scale-fade 0.2s ease-out')
+      }
+
+      // Clear animation after it completes
+      const timer = setTimeout(() => setAnimation(undefined), 200)
+
+      prevActiveRef.current = isActive
+      return () => clearTimeout(timer)
+    }
+  }, [isActive])
 
   return (
     <Badge
       variant="outline"
       className={cn(
-        'text-xs px-2 py-0.5',
-        isActive && 'font-medium font-bold',
+        'text-xs px-1.5 py-0.5 rounded-sm border-0 transition-colors duration-200',
+        isActive && 'font-semibold',
         className
       )}
       style={{
         backgroundColor: colors.bg,
         color: colors.text,
-        borderColor: colors.border
+        ...(animation && { animation })
       }}
     >
-      {Icon && <Icon className="size-3.5" />}
-      {label}
+      <span className="flex items-center gap-0.5">
+        <Check
+          className={cn(
+            'size-3 transition-opacity duration-200',
+            isActive ? 'opacity-100' : 'opacity-0'
+          )}
+          strokeWidth={3}
+        />
+        {label}
+      </span>
     </Badge>
   )
 }

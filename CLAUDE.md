@@ -131,9 +131,19 @@ cp apps/website-ssr/.env.example apps/website-ssr/.env
 # Update DATABASE_URL password in both files
 ```
 
+## Documentation Rules
+
+- **When defining new practices or architectural decisions**, document them as a skill in `.claude/skills/`
+  - Use `user-invocable: false` for reference documentation
+  - Include clear description with keywords for when Claude should reference it
+  - Keep skills focused on specific topics (localStorage, API patterns, etc.)
+- **When changing existing decisions**, update the respective skill file to keep documentation current
+- Keep CLAUDE.md high-level - detailed conventions belong in skills
+
 ## Commit Rules
 
+- **ALWAYS** ask for user approval before creating commits
 - **NEVER** include author information in commit messages
-- **ALWAYS** run `pnpm run format` before committing
+- **ALWAYS** run `pnpm run format` after you do your edits.
 - Use conventional commit format when possible
 - Always use pnpm

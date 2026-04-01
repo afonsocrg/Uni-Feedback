@@ -17,6 +17,8 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
+  RadioGroup,
+  RadioGroupItem,
   Select,
   SelectContent,
   SelectItem,
@@ -211,11 +213,8 @@ export function GiveFeedbackContent({
                   control={form.control}
                   render={({ field }) => (
                     <FormItem className="flex flex-col w-[200px]">
-                      <FormLabel>
-                        University
-                        {!selectedFacultyId && (
-                          <span className="text-red-500">*</span>
-                        )}
+                      <FormLabel className="text-base font-medium text-gray-900">
+                        University<span className="text-red-500">*</span>
                       </FormLabel>
                       <Popover open={facultyOpen} onOpenChange={setFacultyOpen}>
                         <PopoverTrigger asChild>
@@ -295,11 +294,8 @@ export function GiveFeedbackContent({
                     control={form.control}
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
-                        <FormLabel>
-                          Degree
-                          {!selectedDegreeId && (
-                            <span className="text-red-500">*</span>
-                          )}
+                        <FormLabel className="text-base font-medium text-gray-900">
+                          Degree<span className="text-red-500">*</span>
                         </FormLabel>
                         <Popover open={degreeOpen} onOpenChange={setDegreeOpen}>
                           <PopoverTrigger asChild>
@@ -373,11 +369,8 @@ export function GiveFeedbackContent({
                     control={form.control}
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
-                        <FormLabel>
-                          Course
-                          {selectedDegreeId && !field.value && (
-                            <span className="text-red-500">*</span>
-                          )}
+                        <FormLabel className="text-base font-medium text-gray-900">
+                          Course<span className="text-red-500">*</span>
                         </FormLabel>
                         <Popover open={courseOpen} onOpenChange={setCourseOpen}>
                           <PopoverTrigger asChild>
@@ -454,7 +447,7 @@ export function GiveFeedbackContent({
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>When did you take this course?</FormLabel>
+                    <FormLabel className="text-base font-semibold text-gray-900">When did you take this course?</FormLabel>
                     <FormControl>
                       <Select
                         onValueChange={(val) => field.onChange(Number(val))}
@@ -481,96 +474,83 @@ export function GiveFeedbackContent({
             </div>
             {/* Ratings */}
             <div className="space-y-6">
-              <div className="flex flex-wrap gap-4">
-                {/* Overall Rating */}
-                <div className="min-w-[220px]">
-                  <FormField
-                    control={form.control}
-                    name="rating"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          Overall Rating
-                          {!field.value && (
-                            <span className="text-red-500">*</span>
-                          )}
-                        </FormLabel>
-                        <FormControl>
-                          <EditableStarRating
-                            value={field.value}
-                            onChange={field.onChange}
-                            size="lg"
-                            labelPosition="bottom"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+              {/* Overall Rating */}
+              <FormField
+                control={form.control}
+                name="rating"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-base font-semibold text-gray-900">
+                      How was the course?<span className="text-red-500">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <EditableStarRating
+                        value={field.value}
+                        onChange={field.onChange}
+                        size="lg"
+                        // labelPosition="bottom"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-                {/* Workload Rating */}
-                <div className="min-w-[220px]">
-                  <FormField
-                    control={form.control}
-                    name="workloadRating"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          Workload
-                          {!field.value && (
-                            <span className="text-red-500">*</span>
-                          )}
-                        </FormLabel>
-                        <FormControl>
-                          <Select
-                            onValueChange={(val) => field.onChange(Number(val))}
-                            value={field.value?.toString() || ''}
+              {/* Workload Rating */}
+              <FormField
+                control={form.control}
+                name="workloadRating"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-base font-semibold text-gray-900">
+                      How heavy was the workload?
+                      <span className="text-red-500">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={(val) => field.onChange(Number(val))}
+                        value={field.value?.toString() || ''}
+                        className="flex flex-col gap-1.5"
+                      >
+                        {[5, 4, 3, 2, 1].map((rating) => (
+                          <label
+                            key={rating}
+                            className="flex items-center gap-2.5 py-1 cursor-pointer"
                           >
-                            <SelectTrigger className="w-full bg-white min-h-[40px]">
-                              <SelectValue placeholder="Select workload rating">
-                                {field.value ? (
-                                  <WorkloadRatingDisplay rating={field.value} />
-                                ) : null}
-                              </SelectValue>
-                            </SelectTrigger>
-                            <SelectContent>
-                              {[5, 4, 3, 2, 1].map((rating) => (
-                                <SelectItem
-                                  key={rating}
-                                  value={rating.toString()}
-                                >
-                                  <WorkloadRatingDisplay rating={rating} />
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
+                            <RadioGroupItem
+                              value={rating.toString()}
+                              className="sr-only"
+                            />
+                            <div
+                              className={cn(
+                                'w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all',
+                                field.value === rating
+                                  ? 'border-primaryBlue bg-primaryBlue'
+                                  : 'border-gray-300'
+                              )}
+                            >
+                              {field.value === rating && (
+                                <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                              )}
+                            </div>
+                            <WorkloadRatingDisplay rating={rating} />
+                          </label>
+                        ))}
+                      </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
-            {/* Comment Section - Isolated to prevent parent re-renders */}
+            {/* Comment Section - Show after workload rating is selected */}
             <div className="space-y-6">
               <CommentSection control={form.control} />
             </div>
 
             {/* Submit Button */}
             <div className="mt-6 mb-0 space-y-4">
-              {/* Validation feedback */}
-              {!isFormValid && missingFields.length > 0 && (
-                <div className="text-sm text-muted-foreground text-center">
-                  Please fill in the following required fields:{' '}
-                  <span className="font-semibold">
-                    {missingFields.join(', ')}
-                  </span>
-                </div>
-              )}
-
               <AuthenticatedButton
                 type="submit"
                 className="w-full"

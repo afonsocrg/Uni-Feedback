@@ -33,18 +33,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const prevPathnameRef = useRef(location.pathname)
 
   // Wrapper for setUser that also identifies in PostHog
-  const setUser = useCallback((newUser: AuthUser | null) => {
-    setUserInternal(newUser)
-    if (newUser) {
-      identifyUser(newUser.id.toString(), {
-        email: newUser.email,
-        username: newUser.username,
-        role: newUser.role
-      })
-    } else {
-      resetUser()
-    }
-  }, [setUserInternal])
+  const setUser = useCallback(
+    (newUser: AuthUser | null) => {
+      setUserInternal(newUser)
+      if (newUser) {
+        identifyUser(newUser.id.toString(), {
+          email: newUser.email,
+          username: newUser.username,
+          role: newUser.role
+        })
+      } else {
+        resetUser()
+      }
+    },
+    [setUserInternal]
+  )
 
   // Fetch user from session on mount (client-side only)
   useEffect(() => {

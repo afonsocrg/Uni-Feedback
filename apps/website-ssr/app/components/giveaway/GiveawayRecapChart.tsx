@@ -63,7 +63,10 @@ const CustomTooltip = ({ active, payload, label }: any) => {
       month: 'short'
     })
 
-    const total = payload.reduce((sum: number, entry: any) => sum + entry.value, 0)
+    const total = payload.reduce(
+      (sum: number, entry: any) => sum + entry.value,
+      0
+    )
 
     return (
       <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-3">

@@ -1,31 +1,44 @@
 import {
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-  MarkdownTextarea
+  RichTextEditor
 } from '@uni-feedback/ui'
 import { countWords } from '@uni-feedback/utils'
-import { Lightbulb } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { Control } from 'react-hook-form'
 import { useWatch } from 'react-hook-form'
 import { ReviewTipsDialog } from '~/components'
+import { useDebounce } from '~/hooks'
 import { useFeedbackCategorization } from '~/hooks/useFeedbackCategorization'
 import { FeedbackCategoryChips } from './FeedbackCategoryChips'
 
 interface CommentSectionProps {
   control: Control<any>
+  onDebouncedChange?: (comment: string) => void
 }
 
-export function CommentSection({ control }: CommentSectionProps) {
+export function CommentSection({
+  control,
+  onDebouncedChange
+}: CommentSectionProps) {
   // Internal state for review tips dialog
   const [showReviewTips, setShowReviewTips] = useState(false)
 
   // Only this component watches the comment field - uses useWatch not form.watch
   const comment = useWatch({ control, name: 'comment' }) || ''
+
+  // Debounce comment for draft saving (500ms)
+  const debouncedComment = useDebounce(comment, 500)
+
+  // Call the debounced change callback when debounced comment changes
+  useEffect(() => {
+    if (onDebouncedChange) {
+      onDebouncedChange(debouncedComment)
+    }
+  }, [debouncedComment, onDebouncedChange])
 
   // Categorize with 1000ms debounce
   const { categories, isLoading: isCategorizing } = useFeedbackCategorization(
@@ -43,40 +56,27 @@ export function CommentSection({ control }: CommentSectionProps) {
         control={control}
         render={({ field }) => (
           <FormItem>
-            <div className="flex items-center justify-between mb-2">
-              <FormLabel>Write your feedback</FormLabel>
-              <button
-                type="button"
-                onClick={() => setShowReviewTips(true)}
-                className="text-sm text-primaryBlue hover:text-primaryBlue/80 flex items-center gap-1 font-medium cursor-pointer"
-              >
-                <Lightbulb className="size-4" />
-                Feedback tips
-              </button>
+            <FormLabel className="text-base font-medium text-gray-900">
+              Share your experience
+            </FormLabel>
+            <div className="space-y-1.5">
+              <p className="text-xs text-gray-400">
+                Sharing your thoughts helps others the most! Here are some
+                aspects to consider:
+              </p>
+              <FeedbackCategoryChips
+                categories={categories}
+                isLoading={isCategorizing}
+                onHelpClick={() => setShowReviewTips(true)}
+              />
             </div>
-            <FeedbackCategoryChips
-              categories={categories}
-              isLoading={isCategorizing}
-            />
             <FormControl>
-              <MarkdownTextarea
-                placeholder="What should others know about this course?"
-                previewPlaceholder="This is how your feedback will appear on the website"
-                {...field}
+              <RichTextEditor
+                placeholder="What should other students know? (e.g., tips for the exam, how to handle the labs...)"
+                value={field.value}
+                onChange={field.onChange}
               />
             </FormControl>
-            <FormDescription className="text-xs text-gray-700 text-right flex gap-2">
-              <span className="flex items-start justify-between gap-4 w-full">
-                <span className="text-xs text-gray-700 mb-2 flex-1 text-start">
-                  This field is optional, but it's the one that helps other
-                  students the most ❤️
-                </span>
-
-                <span className="text-xs text-gray-700 whitespace-nowrap flex-shrink-0">
-                  {wordCount} {wordCount === 1 ? 'word' : 'words'}
-                </span>
-              </span>
-            </FormDescription>
             <FormMessage />
           </FormItem>
         )}

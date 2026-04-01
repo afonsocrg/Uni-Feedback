@@ -7,6 +7,7 @@ import {
   GetCourse,
   GetCourseFeedback,
   GetCourses,
+  SearchCourses,
   SubmitFeedback
 } from './courses'
 import { GetDegreeCourseGroups, GetDegreeCourses, GetDegrees } from './degrees'
@@ -55,6 +56,7 @@ router.get('/degrees/:id/courseGroups', GetDegreeCourseGroups)
 router.get('/degrees/:id/courses', GetDegreeCourses)
 
 router.get('/courses', GetCourses)
+router.get('/courses/search', SearchCourses)
 router.get('/courses/:id', GetCourse)
 router.get('/courses/:id/feedback', GetCourseFeedback)
 router.post('/courses/:id/feedback', SubmitFeedback)

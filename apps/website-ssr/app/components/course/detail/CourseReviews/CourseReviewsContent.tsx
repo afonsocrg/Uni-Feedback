@@ -26,7 +26,7 @@ export function CourseReviewsContent({
   feedback
 }: CourseReviewsContentProps) {
   const reviewFormUrl = useMemo(() => {
-    return `/feedback/new?courseId=${courseId}`
+    return `/courses/${courseId}/feedback`
   }, [courseId])
 
   const groupedFeedback = useMemo(() => {

@@ -91,3 +91,34 @@ export interface DuplicateFeedbackDetail {
     acronym: string
   }
 }
+
+export interface CourseSearchResult {
+  id: number
+  name: string
+  acronym: string
+  degree: {
+    id: number
+    name: string
+    acronym: string
+  }
+  faculty: {
+    id: number
+    name: string
+    shortName: string
+  }
+}
+
+export interface CourseSearchResponse {
+  courses: CourseSearchResult[]
+  total: number
+  limit: number
+  offset: number
+}
+
+export interface SearchCoursesParams {
+  q?: string
+  faculty_id?: number
+  degree_id?: number
+  limit?: number
+  offset?: number
+}

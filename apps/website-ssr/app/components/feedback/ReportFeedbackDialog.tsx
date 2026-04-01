@@ -170,7 +170,7 @@ export function ReportFeedbackDialog({
               <br />
               If you just disagree with it, you can{' '}
               <Link
-                to={`/feedback/new?courseId=${feedback.courseId}`}
+                to={`/courses/${feedback.courseId}/feedback`}
                 className="font-medium text-primary hover:underline"
                 onClick={() => {
                   analytics.navigation.feedbackFormLinkClicked({

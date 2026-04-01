@@ -1,5 +1,15 @@
 import { API_BASE_URL } from './config'
-import { Course, CourseDetail, Feedback } from './types'
+import {
+  Course,
+  CourseDetail,
+  CourseSearchResponse,
+  Feedback,
+  SearchCoursesParams
+} from './types'
+import { MeicFeedbackAPIError } from './errors'
+
+// Re-export types for convenience
+export type { SearchCoursesParams, CourseSearchResponse } from './types'
 
 interface GetCoursesParams {
   acronym?: string
@@ -61,4 +71,33 @@ export async function getCourseIdFromAcronym(
     // throw new Error('Multiple courses found for acronym')
   }
   return courses[0].id
+}
+
+export async function searchCourses(
+  params: SearchCoursesParams
+): Promise<CourseSearchResponse> {
+  // Validate at least one param exists
+  if (!params.q && !params.faculty_id && !params.degree_id) {
+    throw new Error('At least one search parameter required')
+  }
+
+  const url = new URL(`${API_BASE_URL}/courses/search`)
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined) {
+      url.searchParams.append(key, value.toString())
+    }
+  })
+
+  const response = await fetch(url.toString())
+  if (!response.ok) {
+    const errorData = await response.json()
+    throw new MeicFeedbackAPIError(
+      errorData.error || 'Failed to search courses',
+      {
+        status: response.status,
+        data: errorData
+      }
+    )
+  }
+  return response.json()
 }

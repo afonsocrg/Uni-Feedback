@@ -7,8 +7,8 @@ import {
   CourseReviewsContent,
   type CourseDetail
 } from '~/components'
-import { analytics, getPageName } from '~/utils/analytics'
 import { getFullUrl } from '~/utils'
+import { analytics, getPageName } from '~/utils/analytics'
 
 interface CourseReviewsProps {
   course: CourseDetail
@@ -17,7 +17,7 @@ interface CourseReviewsProps {
 
 export function CourseReviews({ course, feedback }: CourseReviewsProps) {
   const reviewFormUrl = useMemo(() => {
-    return `/feedback/new?courseId=${course.id}`
+    return `/courses/${course.id}/feedback`
   }, [course.id])
 
   return (

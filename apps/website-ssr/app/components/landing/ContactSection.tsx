@@ -11,8 +11,9 @@ export function ContactSection() {
           </h2>
           <p className="text-muted-foreground">
             Found a bug? Have a suggestion? Just want to say hi? I'd love to
-            hear from you. Your <span className="whitespace-nowrap">feedback (😉)</span> helps make Uni Feedback better for
-            everyone.
+            hear from you. Your{' '}
+            <span className="whitespace-nowrap">feedback (😉)</span> helps make
+            Uni Feedback better for everyone.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
             <Button size="lg" variant="default" className="px-8" asChild>

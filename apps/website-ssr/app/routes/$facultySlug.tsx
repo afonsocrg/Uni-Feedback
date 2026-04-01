@@ -21,7 +21,10 @@ export function meta({ loaderData }: Route.MetaArgs) {
   const title = `${faculty.name} (${faculty.shortName}) - Degrees & Course Reviews - Uni Feedback`
 
   // Build description with stats
-  const totalCourses = degrees.reduce((sum, d) => sum + Number(d.courseCount), 0)
+  const totalCourses = degrees.reduce(
+    (sum, d) => sum + Number(d.courseCount),
+    0
+  )
   const totalFeedback = degrees.reduce(
     (sum, d) => sum + Number(d.feedbackCount),
     0
