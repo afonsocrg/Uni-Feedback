@@ -85,7 +85,7 @@ export function HeroSection({
                 {/* First set of logos */}
                 {studentClubs.map((club) => {
                   const logoUrl = getAssetUrl(club.logoHorizontal)
-                  if (!logoUrl) return null
+                  if (!club.logoHorizontal || !logoUrl) return null
 
                   return (
                     <img
@@ -99,7 +99,7 @@ export function HeroSection({
                 {/* Duplicate set for seamless loop */}
                 {studentClubs.map((club) => {
                   const logoUrl = getAssetUrl(club.logoHorizontal)
-                  if (!logoUrl) return null
+                  if (!club.logoHorizontal || !logoUrl) return null
 
                   return (
                     <img
