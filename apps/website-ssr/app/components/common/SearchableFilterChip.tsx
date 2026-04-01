@@ -12,7 +12,7 @@ import {
   PopoverTrigger
 } from '@uni-feedback/ui'
 import { Check, X } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { cn } from '~/utils'
 
 export interface FilterOption {
@@ -45,6 +45,25 @@ export function SearchableFilterChip({
   searchPlaceholder = 'Search...'
 }: SearchableFilterChipProps) {
   const [open, setOpen] = useState(false)
+  const popoverContentRef = useRef<HTMLDivElement>(null)
+
+  // Close popover when scrolling outside of it
+  useEffect(() => {
+    if (!open) return
+
+    const handleScroll = (event: Event) => {
+      const target = event.target as Node
+      if (
+        popoverContentRef.current &&
+        !popoverContentRef.current.contains(target)
+      ) {
+        setOpen(false)
+      }
+    }
+
+    document.addEventListener('scroll', handleScroll, true)
+    return () => document.removeEventListener('scroll', handleScroll, true)
+  }, [open])
 
   const selectedOption = selectedValue
     ? options.find((opt) => opt.value === selectedValue)
@@ -93,8 +112,27 @@ export function SearchableFilterChip({
           )}
         </div>
       </PopoverTrigger>
-      <PopoverContent className="w-[300px] p-0" align="start" sideOffset={8}>
-        <Command>
+      <PopoverContent
+        ref={popoverContentRef}
+        className="w-[300px] p-0"
+        align="start"
+        sideOffset={8}
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
+        <Command
+          filter={(value, search) => {
+            // Normalize to NFD form and remove diacritical marks for accent-insensitive matching
+            const normalize = (str: string) =>
+              str
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .toLowerCase()
+            if (normalize(value).includes(normalize(search))) {
+              return 1
+            }
+            return 0
+          }}
+        >
           <CommandInput placeholder={searchPlaceholder} />
           <CommandList>
             <CommandEmpty>No results found.</CommandEmpty>
