@@ -7,7 +7,6 @@ import {
   RichTextEditor
 } from '@uni-feedback/ui'
 import { countWords } from '@uni-feedback/utils'
-import { HelpCircle } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { Control } from 'react-hook-form'
 import { useWatch } from 'react-hook-form'
@@ -62,8 +61,8 @@ export function CommentSection({
             </FormLabel>
             <div className="space-y-1.5">
               <p className="text-xs text-gray-400">
-                Sharing your thoughts helps others the most ❤️ Some aspects to
-                consider:
+                Sharing your thoughts helps others the most! Here are some
+                aspects to consider:
               </p>
               <FeedbackCategoryChips
                 categories={categories}
