@@ -1,4 +1,4 @@
-import { EmailService, PointService } from '@services'
+import { EmailService, PointService, StatsService } from '@services'
 import { database } from '@uni-feedback/db'
 import { feedback, feedbackFull, users } from '@uni-feedback/db/schema'
 import { notifyAdminChange } from '@utils/notificationHelpers'
@@ -188,6 +188,14 @@ export class UnapproveFeedback extends OpenAPIRoute {
           }
         ]
       })
+
+      // Update course and degree stats (best-effort)
+      try {
+        const statsService = new StatsService()
+        await statsService.onFeedbackUnapproved(feedbackData.courseId)
+      } catch (statsError) {
+        console.error('Failed to update stats after feedback unapproval:', statsError)
+      }
 
       return Response.json({
         id: feedbackId,

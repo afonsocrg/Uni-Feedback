@@ -1,9 +1,9 @@
-import { database, queries, schema } from '@uni-feedback/db'
-import { eq, sql } from 'drizzle-orm'
+import { database, schema } from '@uni-feedback/db'
+import { and, eq, gt, sql } from 'drizzle-orm'
 import { useEffect } from 'react'
 import { FacultyPageContent } from '~/components'
-import { SITE_URL } from '~/utils/constants'
 import { userPreferences } from '~/utils'
+import { SITE_URL } from '~/utils/constants'
 
 import type { Route } from './+types/$facultySlug'
 
@@ -111,7 +111,7 @@ export async function loader({ params }: Route.LoaderArgs) {
     throw new Response('Faculty not found', { status: 404 })
   }
 
-  // Get degrees with counts using similar logic to the API
+  // Get degrees with pre-computed stats from degreeStats table
   const degreesWithCounts = await db
     .select({
       id: schema.degrees.id,
@@ -121,20 +121,25 @@ export async function loader({ params }: Route.LoaderArgs) {
       acronym: schema.degrees.acronym,
       slug: schema.degrees.slug,
       courseCount:
-        sql<number>`coalesce(count(distinct ${schema.courses.id}), 0)`.as(
+        sql<number>`coalesce(${schema.degreeStats.courseCount}, 0)`.as(
           'course_count'
         ),
       feedbackCount:
-        sql<number>`coalesce(count(distinct ${schema.feedback.id}), 0)`.as(
+        sql<number>`coalesce(${schema.degreeStats.feedbackCount}, 0)`.as(
           'feedback_count'
         )
     })
     .from(schema.degrees)
-    .leftJoin(schema.courses, eq(schema.courses.degreeId, schema.degrees.id))
-    .leftJoin(schema.feedback, queries.getEnhancedFeedbackJoinCondition())
-    .where(eq(schema.degrees.facultyId, faculty.id))
-    .groupBy(schema.degrees.id)
-    .having(sql`count(distinct ${schema.courses.id}) > 0`)
+    .leftJoin(
+      schema.degreeStats,
+      eq(schema.degreeStats.degreeId, schema.degrees.id)
+    )
+    .where(
+      and(
+        eq(schema.degrees.facultyId, faculty.id),
+        gt(sql`coalesce(${schema.degreeStats.courseCount}, 0)`, 0)
+      )
+    )
 
   return {
     faculty,

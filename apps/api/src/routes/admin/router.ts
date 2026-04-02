@@ -40,6 +40,7 @@ import {
   UpdateFeedbackAnalysis
 } from './feedback'
 import { GenerateCourseReport, GenerateDegreeReport } from './reports'
+import { RefreshStats } from './stats'
 import { GetDegreeSuggestions } from './suggestions'
 import { GetUsers } from './users'
 
@@ -91,6 +92,9 @@ router.get('/suggestions/degrees', GetDegreeSuggestions)
 // Report routes
 router.post('/reports/course', GenerateCourseReport)
 router.post('/reports/degree', GenerateDegreeReport)
+
+// Stats routes
+router.post('/stats/refresh', RefreshStats)
 
 // User routes - Wrapped with superuser middleware
 class GetUsersWithAuth extends GetUsers {

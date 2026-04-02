@@ -1,4 +1,4 @@
-import { PointService } from '@services'
+import { PointService, StatsService } from '@services'
 import { database } from '@uni-feedback/db'
 import { feedback, feedbackFull } from '@uni-feedback/db/schema'
 import { notifyAdminChange } from '@utils/notificationHelpers'
@@ -73,6 +73,7 @@ export class ApproveFeedback extends OpenAPIRoute {
         .select({
           id: feedback.id,
           userId: feedback.userId,
+          courseId: feedback.courseId,
           approvedAt: feedback.approvedAt
         })
         .from(feedback)
@@ -138,6 +139,14 @@ export class ApproveFeedback extends OpenAPIRoute {
           }
         ]
       })
+
+      // Update course and degree stats (best-effort)
+      try {
+        const statsService = new StatsService()
+        await statsService.onFeedbackApproved(feedbackData.courseId)
+      } catch (statsError) {
+        console.error('Failed to update stats after feedback approval:', statsError)
+      }
 
       return Response.json({
         id: feedbackId,

@@ -1,3 +1,4 @@
+import { StatsService } from '@services'
 import { database } from '@uni-feedback/db'
 import { feedback, feedbackFull } from '@uni-feedback/db/schema'
 import { detectChanges, notifyAdminChange } from '@utils/notificationHelpers'
@@ -166,6 +167,18 @@ export class UpdateFeedback extends OpenAPIRoute {
           action: 'updated',
           changes
         })
+      }
+
+      // Update stats if rating or workload changed and feedback is approved
+      const ratingChanged =
+        updates.rating !== undefined || updates.workloadRating !== undefined
+      if (ratingChanged && fb.approvedAt !== null) {
+        try {
+          const statsService = new StatsService()
+          await statsService.onFeedbackEdited(fb.courseId)
+        } catch (statsError) {
+          console.error('Failed to update stats after admin feedback update:', statsError)
+        }
       }
 
       const response = {

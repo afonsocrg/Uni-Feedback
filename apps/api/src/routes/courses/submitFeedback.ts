@@ -1,5 +1,5 @@
 import { authenticateUser } from '@middleware'
-import { AIService, PointService } from '@services'
+import { AIService, PointService, StatsService } from '@services'
 import { sendCourseReviewReceived } from '@services/telegram'
 import { database } from '@uni-feedback/db'
 import {
@@ -290,6 +290,17 @@ export class SubmitFeedback extends OpenAPIRoute {
         comment,
         pointsEarned: feedbackPoints
       })
+
+      // Update course and degree stats (best-effort)
+      try {
+        const statsService = new StatsService()
+        await statsService.onFeedbackApproved(courseId)
+      } catch (statsError) {
+        console.error(
+          'Failed to update stats after feedback submission:',
+          statsError
+        )
+      }
 
       return Response.json(
         {

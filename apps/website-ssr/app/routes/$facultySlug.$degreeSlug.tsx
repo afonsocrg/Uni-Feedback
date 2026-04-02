@@ -1,4 +1,4 @@
-import { database, queries, schema } from '@uni-feedback/db'
+import { database, schema } from '@uni-feedback/db'
 import { eq, sql } from 'drizzle-orm'
 import { useEffect } from 'react'
 import { DegreePageContent } from '~/components'
@@ -147,7 +147,7 @@ export async function loader({ params }: Route.LoaderArgs) {
     throw new Response('Degree not found', { status: 404 })
   }
 
-  // Get courses with feedback aggregation
+  // Get courses with pre-computed stats from courseStats table
   const coursesWithFeedback = await db
     .select({
       id: schema.courses.id,
@@ -158,22 +158,24 @@ export async function loader({ params }: Route.LoaderArgs) {
       hasMandatoryExam: schema.courses.hasMandatoryExam,
       curriculumYear: schema.courses.curriculumYear,
       averageRating:
-        sql<number>`coalesce(avg(${schema.feedback.rating})::numeric, 0)`.as(
+        sql<number>`coalesce(${schema.courseStats.averageRating}, 0)`.as(
           'average_rating'
         ),
       averageWorkload:
-        sql<number>`coalesce(avg(${schema.feedback.workloadRating})::numeric, 0)`.as(
+        sql<number>`coalesce(${schema.courseStats.averageWorkload}, 0)`.as(
           'average_workload'
         ),
       totalFeedbackCount:
-        sql<number>`coalesce(count(distinct ${schema.feedback.id})::integer, 0)`.as(
+        sql<number>`coalesce(${schema.courseStats.totalFeedbackCount}, 0)`.as(
           'total_feedback_count'
         )
     })
     .from(schema.courses)
-    .leftJoin(schema.feedback, queries.getEnhancedFeedbackJoinCondition())
+    .leftJoin(
+      schema.courseStats,
+      eq(schema.courseStats.courseId, schema.courses.id)
+    )
     .where(eq(schema.courses.degreeId, degree.id))
-    .groupBy(schema.courses.id)
 
   // Get course groups
   const courseGroups = await db

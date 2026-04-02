@@ -1,5 +1,5 @@
 import { authenticateUser } from '@middleware'
-import { PointService } from '@services'
+import { PointService, StatsService } from '@services'
 import { database } from '@uni-feedback/db'
 import { feedback, feedbackFull } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
@@ -76,6 +76,16 @@ export class DeleteFeedback extends OpenAPIRoute {
           pointError
         )
         // Continue - feedback was deleted, points can be fixed manually if needed
+      }
+
+      // Update stats if feedback was approved (best-effort)
+      if (existingFeedback.approvedAt !== null) {
+        try {
+          const statsService = new StatsService()
+          await statsService.onFeedbackUnapproved(existingFeedback.courseId)
+        } catch (statsError) {
+          console.error('Failed to update stats after feedback deletion:', statsError)
+        }
       }
 
       return Response.json({

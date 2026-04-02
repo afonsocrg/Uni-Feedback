@@ -1,5 +1,5 @@
 import { authenticateUser } from '@middleware'
-import { AIService, PointService } from '@services'
+import { AIService, PointService, StatsService } from '@services'
 import { database } from '@uni-feedback/db'
 import {
   feedback,
@@ -182,6 +182,19 @@ export class EditFeedback extends OpenAPIRoute {
         .from(feedbackAnalysis)
         .where(eq(feedbackAnalysis.feedbackId, feedbackId))
         .limit(1)
+
+      // Update stats if feedback is approved and rating/workload changed
+      const ratingChanged =
+        existingFeedback.rating !== body.rating ||
+        existingFeedback.workloadRating !== body.workloadRating
+      if (ratingChanged && updatedFeedback.approvedAt !== null) {
+        try {
+          const statsService = new StatsService()
+          await statsService.onFeedbackEdited(updatedFeedback.courseId)
+        } catch (statsError) {
+          console.error('Failed to update stats after feedback edit:', statsError)
+        }
+      }
 
       return Response.json({
         message: 'Feedback updated successfully',
