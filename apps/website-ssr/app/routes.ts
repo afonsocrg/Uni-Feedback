@@ -10,6 +10,7 @@ export default [
   route('sitemap.xml', 'routes/sitemap[.]xml.ts'),
   // Auth routes (outside layout for custom full-page design)
   route('/login', 'routes/login.tsx'),
+  route('/unsubscribe', 'routes/unsubscribe.tsx'),
   // Magic link authentication is being deprecated
   // route('/login/:token', 'routes/login.$token.tsx'),
   layout('routes/landing-layout.tsx', [

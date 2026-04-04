@@ -14,7 +14,9 @@ export interface UnsubscribeResponse {
 export async function unsubscribeFromReminders(
   data: UnsubscribeRequest
 ): Promise<UnsubscribeResponse> {
-  return apiPost<UnsubscribeResponse>('/email/unsubscribe', data, {
-    requiresAuth: false
-  })
+  return apiPost<UnsubscribeResponse>(
+    `/email/unsubscribe?token=${encodeURIComponent(data.token)}`,
+    undefined,
+    { requiresAuth: false }
+  )
 }
