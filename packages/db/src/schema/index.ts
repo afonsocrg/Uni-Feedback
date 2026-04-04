@@ -1,5 +1,6 @@
 export * from './aiCategorizationCache'
 export * from './course'
+export * from './emailPreferences'
 export * from './courseGroup'
 export * from './courseStats'
 export * from './courseGroupsCourses'

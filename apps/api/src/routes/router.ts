@@ -3,6 +3,7 @@ import { fromIttyRouter } from 'chanfana'
 import { cors, Router, withCookies } from 'itty-router'
 import { router as adminRouter } from './admin/router'
 import { router as authRouter } from './auth/router'
+import { router as emailRouter } from './email/router'
 import {
   GetCourse,
   GetCourseFeedback,
@@ -77,6 +78,7 @@ router.post('/feedback/:id/report', ReportFeedback)
 // ---------------------------------------------------------
 router.all('/auth/*', authRouter as any)
 router.all('/admin/*', adminRouter as any)
+router.all('/email/*', emailRouter as any)
 
 // 404 for everything else
 router.all('*', () =>

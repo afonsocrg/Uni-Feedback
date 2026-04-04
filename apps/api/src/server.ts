@@ -14,6 +14,7 @@ let globalEnv: Env | null = null
 
 const requiredVars = [
   'DATABASE_URL',
+  'API_URL',
   'DASHBOARD_URL',
   'WEBSITE_URL',
   'ALLOWED_ORIGINS',
@@ -64,6 +65,7 @@ function createEnv(): Env {
     NODE_ENV: nodeEnv,
     API_PORT: process.env.API_PORT ? parseInt(process.env.API_PORT) : 3001,
 
+    API_URL: process.env.API_URL!,
     DASHBOARD_URL: process.env.DASHBOARD_URL!,
     WEBSITE_URL: process.env.WEBSITE_URL!,
 

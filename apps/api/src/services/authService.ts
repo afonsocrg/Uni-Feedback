@@ -8,6 +8,7 @@ import { InternalServerError } from '@routes/utils/errorHandling'
 import { PointService } from '@services/pointService'
 import { database } from '@uni-feedback/db'
 import {
+  emailPreferences,
   feedbackFull,
   magicLinkRateLimits,
   magicLinkTokens,
@@ -36,6 +37,7 @@ import {
   findUserByReferralCode,
   generateUniqueReferralCode
 } from '@utils/referral'
+import { randomBytes } from 'crypto'
 import {
   and,
   eq,
@@ -102,6 +104,23 @@ export class AuthService {
         referredByUserId
       })
       .returning()
+
+    // Create email preferences for new user
+    try {
+      const unsubscribeToken = randomBytes(32).toString('hex')
+      await database().insert(emailPreferences).values({
+        userId: user.id,
+        unsubscribeToken,
+        subscribedReminders: true
+      })
+    } catch (emailPrefError) {
+      console.error(
+        'Failed to create email preferences for user:',
+        user.id,
+        emailPrefError
+      )
+      // Continue - user was created, email preferences can be created later
+    }
 
     // Link any existing feedback submitted with this email to the new user account
     // This handles cases where a user submitted feedback before creating an account

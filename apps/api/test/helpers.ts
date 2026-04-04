@@ -4,9 +4,13 @@ import {
   courseStats,
   degrees,
   degreeStats,
+  emailPreferences,
   faculties,
-  feedbackFull
+  feedbackFull,
+  users
 } from '@uni-feedback/db/schema'
+import { randomBytes } from 'crypto'
+import { eq } from 'drizzle-orm'
 import { getTestDb } from './setup'
 
 /**
@@ -173,7 +177,7 @@ export async function getCourseStats(courseId: number) {
   const [stats] = await db
     .select()
     .from(courseStats)
-    .where((await import('drizzle-orm')).eq(courseStats.courseId, courseId))
+    .where(eq(courseStats.courseId, courseId))
   return stats
 }
 
@@ -185,7 +189,7 @@ export async function getDegreeStats(degreeId: number) {
   const [stats] = await db
     .select()
     .from(degreeStats)
-    .where((await import('drizzle-orm')).eq(degreeStats.degreeId, degreeId))
+    .where(eq(degreeStats.degreeId, degreeId))
   return stats
 }
 
@@ -197,11 +201,89 @@ export async function updateFeedbackRatings(
   data: { rating?: number; workloadRating?: number }
 ) {
   const db = getTestDb()
-  const { eq } = await import('drizzle-orm')
   const [updated] = await db
     .update(feedbackFull)
     .set(data)
     .where(eq(feedbackFull.id, feedbackId))
+    .returning()
+  return updated
+}
+
+/**
+ * Create a user for testing
+ */
+export async function createUser(data?: Partial<typeof users.$inferInsert>) {
+  const db = getTestDb()
+  const uniqueId = Math.random().toString(36).substring(7)
+  const [user] = await db
+    .insert(users)
+    .values({
+      email: data?.email ?? `test-${uniqueId}@example.com`,
+      username: data?.username ?? `testuser-${uniqueId}`,
+      role: data?.role ?? 'student',
+      ...data
+    })
+    .returning()
+  return user
+}
+
+/**
+ * Create email preferences for a user
+ */
+export async function createEmailPreferences(
+  userId: number,
+  data?: Partial<typeof emailPreferences.$inferInsert>
+) {
+  const db = getTestDb()
+  const token = data?.unsubscribeToken ?? randomBytes(32).toString('hex')
+  const [prefs] = await db
+    .insert(emailPreferences)
+    .values({
+      userId,
+      unsubscribeToken: token,
+      subscribedReminders: data?.subscribedReminders ?? true,
+      ...data
+    })
+    .returning()
+  return prefs
+}
+
+/**
+ * Get email preferences by user ID
+ */
+export async function getEmailPreferences(userId: number) {
+  const db = getTestDb()
+  const [prefs] = await db
+    .select()
+    .from(emailPreferences)
+    .where(eq(emailPreferences.userId, userId))
+  return prefs
+}
+
+/**
+ * Get email preferences by token
+ */
+export async function getEmailPreferencesByToken(token: string) {
+  const db = getTestDb()
+  const [prefs] = await db
+    .select()
+    .from(emailPreferences)
+    .where(eq(emailPreferences.unsubscribeToken, token))
+  return prefs
+}
+
+/**
+ * Update email preferences
+ */
+export async function updateEmailPreferences(
+  userId: number,
+  data: Partial<typeof emailPreferences.$inferInsert>
+) {
+  const db = getTestDb()
+  const [updated] = await db
+    .update(emailPreferences)
+    .set(data)
+    .where(eq(emailPreferences.userId, userId))
     .returning()
   return updated
 }

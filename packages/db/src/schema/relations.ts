@@ -1,6 +1,7 @@
 import { relations } from 'drizzle-orm'
 import { courses } from './course'
 import { degrees } from './degree'
+import { emailPreferences } from './emailPreferences'
 import { faculties } from './faculty'
 import { feedback, feedbackFull } from './feedback'
 import { feedbackAnalysis } from './feedbackAnalysis'
@@ -67,11 +68,15 @@ export const facultyRelations = relations(faculties, ({ many }) => ({
 }))
 
 // User relations
-export const userRelations = relations(users, ({ many }) => ({
+export const userRelations = relations(users, ({ one, many }) => ({
   feedbacks: many(feedback),
   points: many(pointRegistry),
   helpfulVotes: many(helpfulVotes),
-  feedbackFlags: many(feedbackFlags)
+  feedbackFlags: many(feedbackFlags),
+  emailPreferences: one(emailPreferences, {
+    fields: [users.id],
+    references: [emailPreferences.userId]
+  })
 }))
 
 // Feedback Analysis relations
@@ -125,3 +130,14 @@ export const reportRelations = relations(reports, ({ one }) => ({
     references: [users.id]
   })
 }))
+
+// Email Preferences relations
+export const emailPreferencesRelations = relations(
+  emailPreferences,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [emailPreferences.userId],
+      references: [users.id]
+    })
+  })
+)

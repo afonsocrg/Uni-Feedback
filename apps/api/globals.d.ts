@@ -12,6 +12,7 @@ declare global {
 
     NODE_ENV: 'development' | 'production'
 
+    API_URL: string
     DASHBOARD_URL: string
     WEBSITE_URL: string
 

@@ -1,3 +1,7 @@
+import { database } from '@uni-feedback/db'
+import { emailPreferences, users } from '@uni-feedback/db/schema'
+import { randomBytes } from 'crypto'
+import { eq, inArray } from 'drizzle-orm'
 import { Resend } from 'resend'
 import { sendEmailStatusNotification } from './telegram'
 
@@ -5,6 +9,19 @@ export interface EmailTemplate {
   subject: string
   html: string
   text: string
+}
+
+export interface CampaignEmailContent {
+  subject: string
+  html?: string
+  text: string
+}
+
+export interface CampaignResult {
+  sent: number
+  failed: number
+  skipped: number
+  errors: Array<{ userId: number; email: string; error: string }>
 }
 
 export class EmailService {
@@ -24,12 +41,14 @@ export class EmailService {
     subject: string
     html?: string
     text: string
+    headers?: Record<string, string>
   }): Promise<void> {
     if (!this.resend) {
       console.log('📧 EMAIL MOCK (Development Mode)')
       console.log('From:', params.from)
       console.log('To:', params.to)
       console.log('Subject:', params.subject)
+      console.log('Headers:', params.headers)
       console.log('HTML length:', params.html?.length ?? 0)
       console.log('Text length:', params.text.length)
       console.log('--- Email Content Start ---')
@@ -55,6 +74,149 @@ export class EmailService {
 
       throw new Error(`Failed to send email to ${params.to}`)
     }
+  }
+
+  /**
+   * Generate a random unsubscribe token
+   */
+  private generateUnsubscribeToken(): string {
+    return randomBytes(32).toString('hex')
+  }
+
+  /**
+   * Get or create email preferences for a user
+   * Returns the unsubscribe token
+   */
+  async getOrCreateEmailPreferences(userId: number): Promise<string> {
+    // Check if preferences exist
+    const [existing] = await database()
+      .select()
+      .from(emailPreferences)
+      .where(eq(emailPreferences.userId, userId))
+      .limit(1)
+
+    if (existing) {
+      return existing.unsubscribeToken
+    }
+
+    // Create new preferences
+    const token = this.generateUnsubscribeToken()
+    await database().insert(emailPreferences).values({
+      userId,
+      unsubscribeToken: token,
+      subscribedReminders: true
+    })
+
+    return token
+  }
+
+  /**
+   * Send campaign emails to a list of users
+   * Automatically skips unsubscribed users!
+   * Automatically adds unsubscribe link and headers to each email
+   *
+   * @param userIds - List of user IDs to send emails to
+   * @param content - Email content (subject, html, text)
+   * @param options - Optional settings
+   * @returns Campaign result with counts and errors
+   */
+  async sendCampaignEmails(
+    userIds: number[],
+    content: CampaignEmailContent,
+    options: {
+      from?: string
+      delayMs?: number
+    } = {}
+  ): Promise<CampaignResult> {
+    const {
+      from = 'Afonso at Uni Feedback <afonso@uni-feedback.com>',
+      delayMs = 100
+    } = options
+
+    const result: CampaignResult = {
+      sent: 0,
+      failed: 0,
+      skipped: 0,
+      errors: []
+    }
+
+    // Fetch users with their email preferences
+    const usersWithPrefs = await database()
+      .select({
+        id: users.id,
+        email: users.email,
+        username: users.username,
+        emailPreferencesId: emailPreferences.id,
+        subscribedReminders: emailPreferences.subscribedReminders,
+        unsubscribeToken: emailPreferences.unsubscribeToken
+      })
+      .from(users)
+      .leftJoin(emailPreferences, eq(users.id, emailPreferences.userId))
+      .where(inArray(users.id, userIds))
+
+    for (const user of usersWithPrefs) {
+      // Skip unsubscribed users
+      if (user.subscribedReminders === false) {
+        console.log(`⏭️  Skipping ${user.email} (unsubscribed)`)
+        result.skipped++
+        continue
+      }
+
+      // Get or create unsubscribe token
+      let unsubscribeToken = user.unsubscribeToken
+      if (!unsubscribeToken) {
+        unsubscribeToken = await this.getOrCreateEmailPreferences(user.id)
+      }
+
+      // API endpoint for one-click unsubscribe (used in List-Unsubscribe header)
+      const apiUnsubscribeLink = `${this.env.API_URL}/email/unsubscribe?token=${unsubscribeToken}`
+      // Website page for user-friendly unsubscribe (used in email body)
+      const unsubscribeLink = `${this.env.WEBSITE_URL}/unsubscribe?token=${unsubscribeToken}`
+
+      // Build email with unsubscribe footer
+      const htmlWithFooter = content.html
+        ? `${content.html}
+          <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+          <p style="color: #999; font-size: 12px;">
+            Don't want to receive these emails?
+            <a href="${unsubscribeLink}" style="color: #999;">Unsubscribe here</a>
+          </p>`
+        : undefined
+
+      const textWithFooter = `${content.text}
+
+---
+Don't want to receive these emails? Unsubscribe here: ${unsubscribeLink}`
+
+      try {
+        await this.sendEmail({
+          from,
+          to: user.email,
+          subject: content.subject,
+          html: htmlWithFooter,
+          text: textWithFooter,
+          headers: {
+            'List-Unsubscribe': `<${apiUnsubscribeLink}>`,
+            'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click'
+          }
+        })
+        result.sent++
+      } catch (error) {
+        result.failed++
+        result.errors.push({
+          userId: user.id,
+          email: user.email,
+          error: error instanceof Error ? error.message : String(error)
+        })
+      }
+
+      // Add delay between sends to avoid rate limiting
+      if (delayMs > 0) {
+        await new Promise((resolve) => setTimeout(resolve, delayMs))
+      }
+    }
+
+    return result
   }
 
   /**
