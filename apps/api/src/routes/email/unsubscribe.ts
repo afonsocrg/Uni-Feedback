@@ -61,7 +61,10 @@ export class Unsubscribe extends OpenAPIRoute {
 
       if (!preferences) {
         return Response.json(
-          { error: 'Invalid unsubscribe token' },
+          {
+            error:
+              'Invalid unsubscribe token. Please contact support@uni-feedback.com if you need help unsubscribing.'
+          },
           { status: 404 }
         )
       }
