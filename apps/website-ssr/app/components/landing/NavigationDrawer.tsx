@@ -41,7 +41,7 @@ export function NavigationDrawer({ browseLink }: NavigationDrawerProps) {
                 asChild
               >
                 <a
-                  href="/feedback/new"
+                  href="/feedback/new?from=nav_drawer"
                   onClick={() => {
                     analytics.navigation.feedbackFormLinkClicked({
                       source: 'mobile_menu',

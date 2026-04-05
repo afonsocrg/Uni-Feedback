@@ -22,7 +22,7 @@ export function LandingHeader() {
           <div className="flex items-center gap-3">
             <Button size="sm" variant="ghost" asChild>
               <a
-                href="/feedback/new"
+                href="/feedback/new?from=navbar"
                 onClick={() => {
                   analytics.navigation.feedbackFormLinkClicked({
                     source: 'navbar',

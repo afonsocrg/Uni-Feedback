@@ -21,7 +21,7 @@ export function GiveawayCTASection() {
               asChild
             >
               <a
-                href="/feedback/new"
+                href="/feedback/new?from=giveaway"
                 onClick={() => {
                   analytics.navigation.feedbackFormLinkClicked({
                     source: 'giveaway_cta',

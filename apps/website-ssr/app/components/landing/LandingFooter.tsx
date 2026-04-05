@@ -25,7 +25,7 @@ export function LandingFooter() {
       links: [
         { href: browseLink, label: 'Browse Courses' },
         {
-          href: '/feedback/new',
+          href: '/feedback/new?from=footer',
           label: 'Give Feedback',
           onClick: () => {
             analytics.navigation.feedbackFormLinkClicked({

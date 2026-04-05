@@ -35,6 +35,7 @@ import {
 } from '~/components'
 import { AuthenticatedButton } from '~/components/common'
 import { useFeedbackDraft } from '~/hooks'
+import { analytics } from '~/utils/analytics'
 import type { FeedbackFormData } from '~/routes/feedback.new'
 // import {
 //   WorkloadInputDebugPanel,
@@ -91,6 +92,12 @@ export function CourseSpecificFeedbackForm({
   // Handle course change from dialog
   const handleChangeCourse = useCallback(
     (selectedCourse: CourseSearchResult) => {
+      // Track the course change
+      analytics.feedback.courseChanged({
+        fromCourseId: currentCourse.id,
+        toCourseId: selectedCourse.id
+      })
+
       // Transform CourseSearchResult to CourseWithDetails format
       const newCourse: CourseWithDetails = {
         id: selectedCourse.id,
@@ -118,7 +125,7 @@ export function CourseSpecificFeedbackForm({
       // Shallow URL update without triggering navigation/reload
       window.history.pushState(null, '', `/courses/${newCourse.id}/feedback`)
     },
-    [form]
+    [currentCourse.id, form]
   )
 
   // Watch form values for draft saving (comment is handled separately to avoid re-renders)

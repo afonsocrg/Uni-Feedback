@@ -204,10 +204,20 @@ export class EmailService {
     options: {
       from?: string
       delayMs?: number
+      /**
+       * Plain text only mode for high deliverability.
+       * - Sends only text, no HTML (avoids multi-part MIME that triggers bulk filters)
+       * - Skips List-Unsubscribe headers (avoids marketing tags)
+       * - Skips automated unsubscribe footer (use manual opt-out in body instead)
+       */
+      plainTextOnly?: boolean
     } = {}
   ): Promise<CampaignResult> {
-    const { from = 'Uni Feedback <afonso@uni-feedback.com>', delayMs = 100 } =
-      options
+    const {
+      from = 'Uni Feedback <afonso@uni-feedback.com>',
+      delayMs = 100,
+      plainTextOnly = false
+    } = options
 
     const result: CampaignResult = {
       sent: 0,
@@ -249,28 +259,39 @@ export class EmailService {
       // Website page for user-friendly unsubscribe (used in email body)
       const unsubscribeLink = `${this.env.WEBSITE_URL}/unsubscribe?token=${unsubscribeToken}`
 
-      // Build email with unsubscribe footer, wrapped in full HTML document
-      const htmlWithFooter = content.html
-        ? prepareCampaignHtml(content.html, unsubscribeLink)
-        : undefined
+      try {
+        // Plain text only mode: send raw text without HTML or tracking headers
+        // This bypasses university marketing filters and link detonation
+        if (plainTextOnly) {
+          await this.sendEmail({
+            from,
+            to: user.email,
+            subject: content.subject,
+            text: content.text
+          })
+        } else {
+          // Standard mode: HTML + text with unsubscribe footer and headers
+          const htmlWithFooter = content.html
+            ? prepareCampaignHtml(content.html, unsubscribeLink)
+            : undefined
 
-      const textWithFooter = `${content.text}
+          const textWithFooter = `${content.text}
 
 ---
 Don't want to receive these emails? Unsubscribe here: ${unsubscribeLink}`
 
-      try {
-        await this.sendEmail({
-          from,
-          to: user.email,
-          subject: content.subject,
-          html: htmlWithFooter,
-          text: textWithFooter,
-          headers: {
-            'List-Unsubscribe': `<${apiUnsubscribeLink}>`,
-            'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click'
-          }
-        })
+          await this.sendEmail({
+            from,
+            to: user.email,
+            subject: content.subject,
+            html: htmlWithFooter,
+            text: textWithFooter,
+            headers: {
+              'List-Unsubscribe': `<${apiUnsubscribeLink}>`,
+              'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click'
+            }
+          })
+        }
         result.sent++
       } catch (error) {
         result.failed++

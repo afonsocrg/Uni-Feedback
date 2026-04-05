@@ -79,7 +79,7 @@ export default function PointsPage() {
               <p className="text-muted-foreground">
                 Ready to share your experience?{' '}
                 <Link
-                  to="/feedback/new"
+                  to="/feedback/new?from=points"
                   className="font-medium text-primary hover:underline"
                   onClick={() => {
                     analytics.navigation.feedbackFormLinkClicked({
