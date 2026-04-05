@@ -11,6 +11,84 @@ export interface EmailTemplate {
   text: string
 }
 
+/**
+ * Convert plain text email body to HTML body content.
+ * - Converts URLs to clickable anchor tags
+ * - Converts double newlines to paragraph breaks
+ * - Converts single newlines to <br>
+ * - Escapes HTML entities
+ *
+ * Note: Returns just the body content, not a full HTML document.
+ */
+export function textToHtml(text: string): string {
+  // Escape HTML entities first
+  let html = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+
+  // Convert URLs to anchor tags
+  // Match URLs that start with http:// or https://
+  const urlRegex = /(https?:\/\/[^\s<]+)/g
+  html = html.replace(urlRegex, (url) => {
+    // Create readable link text from URL
+    const linkText = url
+      .replace(/^https?:\/\//, '') // Remove protocol
+      .replace(/\?.*$/, '') // Remove query params for display
+    return `<a href="${url}" style="color: #23729f;">${linkText}</a>`
+  })
+
+  // Convert paragraphs (double newlines) and line breaks
+  const paragraphs = html.split(/\n\n+/)
+  html = paragraphs
+    .map((p) => `<p style="margin: 0 0 16px 0;">${p.replace(/\n/g, '<br>')}</p>`)
+    .join('\n')
+
+  return html
+}
+
+/**
+ * Wrap HTML body content in a full email document template.
+ */
+export function wrapHtmlEmail(bodyContent: string): string {
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+${bodyContent}
+</body>
+</html>`
+}
+
+/**
+ * Add unsubscribe footer to HTML body content.
+ */
+export function addUnsubscribeFooter(
+  bodyContent: string,
+  unsubscribeLink: string
+): string {
+  return `${bodyContent}
+<hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+<p style="color: #999; font-size: 12px;">
+  Don't want to receive these emails?
+  <a href="${unsubscribeLink}" style="color: #999;">Unsubscribe here</a>
+</p>`
+}
+
+/**
+ * Prepare HTML for a campaign email: adds unsubscribe footer and wraps in document.
+ */
+export function prepareCampaignHtml(
+  bodyContent: string,
+  unsubscribeLink: string
+): string {
+  const withFooter = addUnsubscribeFooter(bodyContent, unsubscribeLink)
+  return wrapHtmlEmail(withFooter)
+}
+
 export interface CampaignEmailContent {
   subject: string
   html?: string
@@ -128,10 +206,8 @@ export class EmailService {
       delayMs?: number
     } = {}
   ): Promise<CampaignResult> {
-    const {
-      from = 'Afonso at Uni Feedback <afonso@uni-feedback.com>',
-      delayMs = 100
-    } = options
+    const { from = 'Uni Feedback <afonso@uni-feedback.com>', delayMs = 100 } =
+      options
 
     const result: CampaignResult = {
       sent: 0,
@@ -173,14 +249,9 @@ export class EmailService {
       // Website page for user-friendly unsubscribe (used in email body)
       const unsubscribeLink = `${this.env.WEBSITE_URL}/unsubscribe?token=${unsubscribeToken}`
 
-      // Build email with unsubscribe footer
+      // Build email with unsubscribe footer, wrapped in full HTML document
       const htmlWithFooter = content.html
-        ? `${content.html}
-          <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
-          <p style="color: #999; font-size: 12px;">
-            Don't want to receive these emails?
-            <a href="${unsubscribeLink}" style="color: #999;">Unsubscribe here</a>
-          </p>`
+        ? prepareCampaignHtml(content.html, unsubscribeLink)
         : undefined
 
       const textWithFooter = `${content.text}
