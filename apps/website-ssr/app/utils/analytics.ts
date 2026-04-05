@@ -59,13 +59,43 @@ export const getPageName = (path: string): string => {
  * Type-safe analytics tracking utilities
  * Organized by feature area for better maintainability
  */
+export type FeedbackEntryPoint =
+  | 'course_browser'
+  | 'course_card'
+  | 'course_reviews'
+  | 'navbar'
+  | 'footer'
+  | 'nav_drawer'
+  | 'profile'
+  | 'points'
+  | 'giveaway'
+  | 'direct'
+
 export const analytics = {
   feedback: {
     /**
      * Track when feedback form page is loaded
      */
-    formViewed: (props: { courseId?: number; isAuthenticated: boolean }) =>
-      trackEvent('feedback_form_viewed', props),
+    formViewed: (props: {
+      courseId: number
+      isAuthenticated: boolean
+      entryPoint: FeedbackEntryPoint
+    }) => trackEvent('feedback_form_viewed', props),
+
+    /**
+     * Track when course browser page is viewed
+     */
+    browserViewed: (props: {
+      isAuthenticated: boolean
+      hasPreselectedFilters: boolean
+      fromSource?: string
+    }) => trackEvent('feedback_browser_viewed', props),
+
+    /**
+     * Track when user changes course in the feedback form
+     */
+    courseChanged: (props: { fromCourseId: number; toCourseId: number }) =>
+      trackEvent('feedback_course_changed', props),
 
     /**
      * Phase 2: Track form field interactions

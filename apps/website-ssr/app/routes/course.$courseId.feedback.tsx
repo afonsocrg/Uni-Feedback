@@ -10,6 +10,7 @@ import { getCurrentSchoolYear } from '@uni-feedback/utils'
 import { eq } from 'drizzle-orm'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useSearchParams } from 'react-router'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import {
@@ -20,7 +21,7 @@ import {
 } from '~/components'
 import { useAuth, useLastVisitedPath } from '~/hooks'
 import { useSubmitFeedback } from '~/hooks/queries'
-import { analytics, getPageName } from '~/utils/analytics'
+import { analytics, type FeedbackEntryPoint, getPageName } from '~/utils/analytics'
 
 import type { Route } from './+types/course.$courseId.feedback'
 
@@ -87,6 +88,7 @@ export default function CourseSpecificFeedbackPage({
   loaderData
 }: Route.ComponentProps) {
   const { course } = loaderData
+  const [searchParams] = useSearchParams()
   const submitFeedbackMutation = useSubmitFeedback()
   const { isAuthenticated } = useAuth()
   const [isSubmitSuccess, setIsSubmitSuccess] = useState(false)
@@ -122,10 +124,29 @@ export default function CourseSpecificFeedbackPage({
 
   // Track feedback form view
   useEffect(() => {
+    const fromParam = searchParams.get('from')
+    const entryPoint: FeedbackEntryPoint =
+      fromParam &&
+      [
+        'course_browser',
+        'course_card',
+        'course_reviews',
+        'navbar',
+        'footer',
+        'nav_drawer',
+        'profile',
+        'points',
+        'giveaway'
+      ].includes(fromParam)
+        ? (fromParam as FeedbackEntryPoint)
+        : 'direct'
+
     analytics.feedback.formViewed({
-      isAuthenticated
+      courseId: course.id,
+      isAuthenticated,
+      entryPoint
     })
-  }, [isAuthenticated])
+  }, [course.id, isAuthenticated, searchParams])
 
   const submitFeedback = async (values: FeedbackFormData) => {
     try {

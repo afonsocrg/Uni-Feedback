@@ -74,7 +74,8 @@ const { values: args, positionals } = parseArgs({
     users: { type: 'string', short: 'u' },
     send: { type: 'boolean', default: false },
     export: { type: 'string', short: 'e' },
-    from: { type: 'string', short: 'f' }
+    from: { type: 'string', short: 'f' },
+    plain: { type: 'boolean', default: false, short: 'p' }
   }
 })
 
@@ -97,6 +98,9 @@ Arguments:
   --send               Actually send emails via Resend (dry-run by default)
   --export, -e=file    Export to CSV for Google Sheets (use with Apps Script)
   --from, -f=addr      Sender address (default: Uni Feedback <afonso@uni-feedback.com>)
+  --plain, -p          High-deliverability mode: plain text only, no HTML, no
+                       List-Unsubscribe headers. Bypasses university [MARKETING]
+                       tags and link detonation. Include manual opt-out in body.
 
 Environment:
   Loads from src/scripts/.env if it exists, then falls back to api/.env
@@ -105,6 +109,7 @@ Environment:
 Examples:
   pnpm tsx src/scripts/sendCampaign.ts ./campaign.txt --users=1,42,103
   pnpm tsx src/scripts/sendCampaign.ts ./campaign.txt --users=1,42,103 --send
+  pnpm tsx src/scripts/sendCampaign.ts ./campaign.txt --users=1,42,103 --send --plain
   pnpm tsx src/scripts/sendCampaign.ts ./campaign.txt --users=1,42,103 --export=emails.csv
 `)
 }
@@ -368,15 +373,19 @@ async function runDryRunMode(ctx: CampaignContext) {
 /**
  * Send mode - actually send emails via Resend
  */
-async function runSendMode(ctx: CampaignContext) {
+async function runSendMode(ctx: CampaignContext, plainTextOnly: boolean) {
   const { env, fromEmail, subject, body, existingUsers } = ctx
 
   const emailService = new EmailService(env)
 
-  console.log('📤 Sending emails...\n')
+  if (plainTextOnly) {
+    console.log('📤 Sending emails (plain text only mode)...\n')
+  } else {
+    console.log('📤 Sending emails...\n')
+  }
 
-  // Generate HTML from plain text
-  const htmlBody = textToHtml(body)
+  // Generate HTML from plain text (only used in standard mode)
+  const htmlBody = plainTextOnly ? undefined : textToHtml(body)
 
   const result = await emailService.sendCampaignEmails(
     existingUsers.map((u) => u.id),
@@ -385,7 +394,7 @@ async function runSendMode(ctx: CampaignContext) {
       html: htmlBody,
       text: body
     },
-    { from: fromEmail, delayMs: 100 }
+    { from: fromEmail, delayMs: 100, plainTextOnly }
   )
 
   console.log('\n📊 Results:')
@@ -413,7 +422,12 @@ async function main() {
   if (isExport) {
     console.log(`📤 EXPORT MODE - Will export to ${args.export}\n`)
   } else if (isSend) {
-    console.log('🚀 SEND MODE - Emails will be sent via Resend!\n')
+    if (args.plain) {
+      console.log('🚀 SEND MODE (plain text) - High-deliverability mode enabled')
+      console.log('   No HTML, no List-Unsubscribe headers, no auto-footer\n')
+    } else {
+      console.log('🚀 SEND MODE - Emails will be sent via Resend!\n')
+    }
   } else {
     console.log('🔍 DRY RUN MODE - No emails will be sent')
     console.log(
@@ -474,7 +488,7 @@ async function main() {
       } else if (isDryRun) {
         await runDryRunMode(ctx)
       } else {
-        await runSendMode(ctx)
+        await runSendMode(ctx, args.plain ?? false)
       }
     })
   } finally {

@@ -242,7 +242,7 @@ export default function ProfilePage() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold">Your Feedback</h2>
             <Link
-              to="/feedback/new"
+              to="/feedback/new?from=profile"
               onClick={() => {
                 analytics.navigation.feedbackFormLinkClicked({
                   source: 'profile_page',

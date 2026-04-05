@@ -17,7 +17,7 @@ interface CourseReviewsProps {
 
 export function CourseReviews({ course, feedback }: CourseReviewsProps) {
   const reviewFormUrl = useMemo(() => {
-    return `/courses/${course.id}/feedback`
+    return `/courses/${course.id}/feedback?from=course_reviews`
   }, [course.id])
 
   return (

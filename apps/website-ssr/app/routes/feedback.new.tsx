@@ -2,7 +2,9 @@ import { getFaculties } from '@uni-feedback/api-client'
 import { useNavigate, useSearchParams } from 'react-router'
 import { z } from 'zod'
 import { CourseBrowser } from '~/components'
+import { useAuth } from '~/hooks'
 import { analytics } from '~/utils/analytics'
+import { storage } from '~/utils/storage'
 import { useEffect } from 'react'
 
 import type { Route } from './+types/feedback.new'
@@ -41,6 +43,7 @@ export default function FeedbackBrowserPage({
 }: Route.ComponentProps) {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
+  const { isAuthenticated } = useAuth()
 
   // Handle backward compatibility with ?courseId param
   useEffect(() => {
@@ -48,17 +51,31 @@ export default function FeedbackBrowserPage({
     if (courseIdParam) {
       const courseId = Number(courseIdParam)
       if (!isNaN(courseId) && courseId > 0) {
-        navigate(`/courses/${courseId}/feedback`, { replace: true })
+        navigate(`/courses/${courseId}/feedback?from=course_browser`, {
+          replace: true
+        })
       }
     }
   }, [searchParams, navigate])
+
+  // Track browser page view
+  useEffect(() => {
+    const fromSource = searchParams.get('from')
+    analytics.feedback.browserViewed({
+      isAuthenticated,
+      hasPreselectedFilters: !!(
+        storage.getSelectedFacultyId() || storage.getSelectedDegreeId()
+      ),
+      fromSource: fromSource || undefined
+    })
+  }, [isAuthenticated, searchParams])
 
   const handleCourseSelect = (courseId: number) => {
     // Track analytics
     analytics.feedback.courseSelectedFromBrowser({ courseId })
 
-    // Navigate to course-specific feedback page
-    navigate(`/courses/${courseId}/feedback`)
+    // Navigate to course-specific feedback page with entry point
+    navigate(`/courses/${courseId}/feedback?from=course_browser`)
   }
 
   return (

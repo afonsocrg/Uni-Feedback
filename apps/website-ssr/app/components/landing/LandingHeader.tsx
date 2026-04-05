@@ -3,8 +3,7 @@ import { useAuth } from '~/hooks/useAuth'
 import { useLastVisitedPath } from '~/hooks/useLastVisitedPath'
 import { analytics, getPageName } from '~/utils/analytics'
 import { Logo } from './Logo'
-import { NavigationDrawer } from './NavigationDrawer'
-import { ProfileDrawer } from './ProfileDrawer'
+import { MobileDrawer } from './MobileDrawer'
 import { ProfilePopover } from './ProfilePopover'
 
 export function LandingHeader() {
@@ -22,7 +21,7 @@ export function LandingHeader() {
           <div className="flex items-center gap-3">
             <Button size="sm" variant="ghost" asChild>
               <a
-                href="/feedback/new"
+                href="/feedback/new?from=navbar"
                 onClick={() => {
                   analytics.navigation.feedbackFormLinkClicked({
                     source: 'navbar',
@@ -51,13 +50,14 @@ export function LandingHeader() {
 
         {/* Mobile Header */}
         <div className="flex md:hidden items-center justify-between">
-          <NavigationDrawer browseLink={browseLink} />
-          <Logo variant="mobile" />
-          <ProfileDrawer
+          <MobileDrawer
+            browseLink={browseLink}
             isAuthenticated={isAuthenticated}
             user={user}
             logout={logout}
           />
+          <Logo variant="mobile" />
+          <div className="size-9" /> {/* Spacer for centered logo */}
         </div>
       </div>
     </header>
