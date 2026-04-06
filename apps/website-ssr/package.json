@@ -49,7 +49,7 @@
   },
   "devDependencies": {
     "@react-router/dev": "^7.13.0",
-    "@tailwindcss/vite": "^4.1.18",
+    "@tailwindcss/vite": "^4.2.2",
     "@tanstack/eslint-plugin-query": "^5.91.3",
     "@tanstack/react-query-devtools": "^5.91.2",
     "@types/compression": "^1.8.1",
@@ -63,9 +63,8 @@
     "tailwindcss": "^4.1.18",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
-    "vite": "^6.4.1",
+    "vite": "^8.0.0",
     "vite-plugin-devtools-json": "^1.0.0",
-    "vite-plugin-markdown": "^2.2.0",
-    "vite-tsconfig-paths": "^5.1.4"
+    "vite-plugin-markdown": "^2.2.0"
   }
 }
