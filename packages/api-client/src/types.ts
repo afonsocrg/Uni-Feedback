@@ -122,3 +122,13 @@ export interface SearchCoursesParams {
   limit?: number
   offset?: number
 }
+
+export interface FeedbackRecommendation {
+  id: number
+  acronym: string
+  name: string
+}
+
+export interface FeedbackRecommendationsResponse {
+  recommendations: FeedbackRecommendation[]
+}

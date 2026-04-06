@@ -1,8 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   editFeedback,
+  getFeedbackRecommendations,
   MeicFeedbackAPIError,
-  type DuplicateFeedbackDetail
+  type DuplicateFeedbackDetail,
+  type FeedbackRecommendation
 } from '@uni-feedback/api-client'
 import { database } from '@uni-feedback/db'
 import { courses } from '@uni-feedback/db/schema'
@@ -19,9 +21,13 @@ import {
   SubmitFeedbackSuccess,
   UpdateFeedbackSuccess
 } from '~/components'
-import { useAuth, useLastVisitedPath } from '~/hooks'
+import { useAuth } from '~/hooks'
 import { useSubmitFeedback } from '~/hooks/queries'
-import { analytics, type FeedbackEntryPoint, getPageName } from '~/utils/analytics'
+import {
+  analytics,
+  getPageName,
+  type FeedbackEntryPoint
+} from '~/utils/analytics'
 
 import type { Route } from './+types/course.$courseId.feedback'
 
@@ -105,9 +111,11 @@ export default function CourseSpecificFeedbackPage({
   const [duplicateFeedback, setDuplicateFeedback] =
     useState<DuplicateFeedbackDetail | null>(null)
   const [formLoadTime] = useState<number>(() => Date.now())
-
-  const lastVisitedPath = useLastVisitedPath()
-  const browseLink = lastVisitedPath !== '/' ? lastVisitedPath : '/browse'
+  const [recommendations, setRecommendations] = useState<
+    FeedbackRecommendation[]
+  >([])
+  const [isLoadingRecommendations, setIsLoadingRecommendations] =
+    useState(false)
 
   // Create form with course pre-selected
   const form = useForm<FeedbackFormData>({
@@ -136,7 +144,8 @@ export default function CourseSpecificFeedbackPage({
         'nav_drawer',
         'profile',
         'points',
-        'giveaway'
+        'giveaway',
+        'recommendations'
       ].includes(fromParam)
         ? (fromParam as FeedbackEntryPoint)
         : 'direct'
@@ -167,8 +176,23 @@ export default function CourseSpecificFeedbackPage({
       setPointsEarned(response.pointsEarned)
       setSubmittedCourseId(values.courseId)
       setSubmittedFeedbackId(response.feedbackId)
-      setIsSubmitSuccess(true)
       toast.success('Feedback submitted successfully!')
+      setIsSubmitSuccess(true)
+
+      // Fetch recommendations immediately after successful submission
+      if (isAuthenticated) {
+        setIsLoadingRecommendations(true)
+        try {
+          const data = await getFeedbackRecommendations()
+          setRecommendations(data.recommendations)
+        } catch (err) {
+          console.error('Failed to fetch recommendations:', err)
+          // Graceful degradation - show success without recommendations
+          setRecommendations([])
+        } finally {
+          setIsLoadingRecommendations(false)
+        }
+      }
     } catch (error) {
       if (error instanceof MeicFeedbackAPIError) {
         if (error.status === 409 && error.data.feedback) {
@@ -250,6 +274,22 @@ export default function CourseSpecificFeedbackPage({
       setSubmittedFeedbackId(duplicateFeedback.id)
       setDuplicateFeedback(null)
       setPointsEarned(response.points)
+
+      // Fetch recommendations immediately after successful edit
+      if (isAuthenticated) {
+        setIsLoadingRecommendations(true)
+        try {
+          const data = await getFeedbackRecommendations()
+          setRecommendations(data.recommendations)
+        } catch (err) {
+          console.error('Failed to fetch recommendations:', err)
+          // Graceful degradation - show success without recommendations
+          setRecommendations([])
+        } finally {
+          setIsLoadingRecommendations(false)
+        }
+      }
+
       setIsEditSuccess(true)
     } catch (error) {
       if (error instanceof MeicFeedbackAPIError) {
@@ -281,11 +321,13 @@ export default function CourseSpecificFeedbackPage({
   if (isSubmitSuccess) {
     return (
       <SubmitFeedbackSuccess
+        key={`success-${course.id}`}
         pointsEarned={pointsEarned}
         courseId={submittedCourseId}
         feedbackId={submittedFeedbackId}
+        recommendations={recommendations}
+        isLoadingRecommendations={isLoadingRecommendations}
         onSubmitAnother={handleSubmitAnother}
-        browseLink={browseLink}
       />
     )
   }
@@ -294,6 +336,7 @@ export default function CourseSpecificFeedbackPage({
   if (isEditSuccess) {
     return (
       <UpdateFeedbackSuccess
+        key={`edit-success-${course.id}`}
         points={pointsEarned}
         courseId={submittedCourseId}
         feedbackId={submittedFeedbackId}
@@ -306,6 +349,7 @@ export default function CourseSpecificFeedbackPage({
   if (duplicateFeedback) {
     return (
       <DuplicateFeedbackResolution
+        key={`duplicate-${course.id}`}
         existingFeedback={duplicateFeedback}
         form={form}
         onSubmit={handleEdit}
@@ -319,6 +363,7 @@ export default function CourseSpecificFeedbackPage({
 
   return (
     <CourseSpecificFeedbackForm
+      key={`form-${course.id}`}
       course={course}
       form={form}
       onSubmit={handleSubmit}

@@ -1,5 +1,6 @@
 import { type ReportCategory } from '@uni-feedback/db/schema'
 import { MeicFeedbackAPIError } from './errors'
+import type { FeedbackRecommendationsResponse } from './types'
 import { apiDelete, apiGet, apiPost, apiPut } from './utils'
 
 // Re-export report category types from db package
@@ -224,6 +225,21 @@ export async function reportFeedback(
   } catch (error) {
     throw new MeicFeedbackAPIError(
       `Failed to report feedback: ${error instanceof Error ? error.message : 'Unknown error'}`
+    )
+  }
+}
+
+// Recommendation types and functions
+export type { FeedbackRecommendation } from './types'
+
+export async function getFeedbackRecommendations(): Promise<FeedbackRecommendationsResponse> {
+  try {
+    return await apiGet<FeedbackRecommendationsResponse>(
+      '/auth/profile/feedback-recommendations'
+    )
+  } catch (error) {
+    throw new MeicFeedbackAPIError(
+      `Failed to get recommendations: ${error instanceof Error ? error.message : 'Unknown error'}`
     )
   }
 }

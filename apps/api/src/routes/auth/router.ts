@@ -4,6 +4,7 @@ import { AutoRouter, IRequest } from 'itty-router'
 import { CreateAccount } from './createAccount'
 import { DeleteAccount } from './deleteAccount'
 import { GetUserFeedback } from './feedback'
+import { GetFeedbackRecommendations } from './feedbackRecommendations'
 import { ForgotPassword } from './forgotPassword'
 import { Invite } from './invite'
 import { Login } from './login'
@@ -36,6 +37,7 @@ router.get('/profile', GetProfile)
 router.delete('/profile', DeleteAccount)
 router.get('/profile/stats', GetUserStats)
 router.get('/profile/feedback', GetUserFeedback)
+router.get('/profile/feedback-recommendations', GetFeedbackRecommendations)
 
 // Invite route - Wrapped with superuser middleware
 class InviteWithAuth extends Invite {

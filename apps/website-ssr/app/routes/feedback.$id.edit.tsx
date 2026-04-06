@@ -56,15 +56,15 @@ export default function EditFeedbackPage() {
         : "We couldn't find that feedback or you don't have permission to edit it."
 
     return (
-      <>
-        <div className="container mx-auto px-4 py-6">
+      <div className="relative">
+        <div className="absolute top-0 left-0 right-0 z-10 container mx-auto px-4 py-6">
           <GenericBreadcrumb items={breadcrumbItems} />
         </div>
         <PermissionError
           message={errorMessage}
           onBackToProfile={() => navigate('/profile')}
         />
-      </>
+      </div>
     )
   }
 
@@ -106,8 +106,8 @@ export default function EditFeedbackPage() {
 
   if (isSuccess) {
     return (
-      <>
-        <div className="container mx-auto px-4 py-6">
+      <div className="relative">
+        <div className="absolute top-0 left-0 right-0 z-10 container mx-auto px-4 py-6">
           <GenericBreadcrumb items={breadcrumbItems} />
         </div>
         <EditFeedbackSuccess
@@ -116,7 +116,7 @@ export default function EditFeedbackPage() {
           feedbackId={feedback.id}
           onBackToProfile={() => navigate('/profile')}
         />
-      </>
+      </div>
     )
   }
 
