@@ -23,11 +23,7 @@ import {
 } from '~/components'
 import { useAuth } from '~/hooks'
 import { useSubmitFeedback } from '~/hooks/queries'
-import {
-  analytics,
-  getPageName,
-  type FeedbackEntryPoint
-} from '~/utils/analytics'
+import { analytics, type FeedbackEntryPoint, getPageName } from '~/utils/analytics'
 
 import type { Route } from './+types/course.$courseId.feedback'
 
