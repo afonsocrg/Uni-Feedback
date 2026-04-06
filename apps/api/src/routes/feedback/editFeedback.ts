@@ -41,7 +41,7 @@ export class EditFeedback extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: Env, context: any) {
+  async handle(request: IRequest, env: Env, _context: any) {
     return withErrorHandling(request, async () => {
       const { params, body } = await this.getValidatedData<typeof this.schema>()
       const feedbackId = params.id

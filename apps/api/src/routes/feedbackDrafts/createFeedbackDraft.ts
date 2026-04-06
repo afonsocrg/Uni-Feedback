@@ -50,7 +50,7 @@ export class CreateFeedbackDraft extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: any, context: any) {
+  async handle(_request: IRequest, _env: any, _context: any) {
     withErrorHandling(request, async () => {
       const { body } = await this.getValidatedData<typeof this.schema>()
 
@@ -77,6 +77,7 @@ export class CreateFeedbackDraft extends OpenAPIRoute {
           .limit(1)
 
         if (existing.length === 0) break
+        // eslint-disable-next-line no-constant-condition
       } while (true)
 
       // Set expiration to 24 hours from now

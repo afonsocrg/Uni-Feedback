@@ -22,7 +22,7 @@ export class AddHelpfulVote extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: Env, context: any) {
+  async handle(request: IRequest, env: Env, _context: any) {
     return withErrorHandling(request, async () => {
       const feedbackId = parseInt(request.params.id)
 

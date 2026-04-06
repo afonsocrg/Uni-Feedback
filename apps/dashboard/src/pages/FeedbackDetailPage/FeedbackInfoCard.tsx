@@ -41,14 +41,15 @@ export function FeedbackInfoCard({ feedback }: FeedbackInfoCardProps) {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
-  const [editValues, setEditValues] = useState<Record<string, any>>({})
+  const [editValues, setEditValues] = useState<Record<string, number | null>>({})
   const [isRatingDialogOpen, setIsRatingDialogOpen] = useState(false)
   const [unapprovalDialogOpen, setUnapprovalDialogOpen] = useState(false)
 
   const feedbackId = id ? parseInt(id, 10) : 0
 
   const updateMutation = useMutation({
-    mutationFn: (updates: any) => updateFeedback(feedbackId, updates),
+    mutationFn: (updates: Parameters<typeof updateFeedback>[1]) =>
+      updateFeedback(feedbackId, updates),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ['feedback-details', feedbackId]

@@ -22,7 +22,7 @@ export class Logout extends OpenAPIRoute {
     }
   }
 
-  async handle(request: Request, env: any, context: any) {
+  async handle(request: Request, env: any, _context: any) {
     try {
       // Get access token from cookie
       const cookies = request.headers.get('Cookie') || ''

@@ -69,7 +69,11 @@ export function EditFeedbackDialog({
   })
 
   const handleSave = () => {
-    const updates: any = {}
+    const updates: {
+      schoolYear?: number | null
+      rating?: number
+      workloadRating?: number | null
+    } = {}
 
     if (schoolYear !== (initialSchoolYear?.toString() || '')) {
       updates.schoolYear = schoolYear ? parseInt(schoolYear) : null

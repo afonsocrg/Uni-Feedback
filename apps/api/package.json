@@ -2,6 +2,7 @@
   "name": "uni-feedback-api",
   "version": "0.0.1",
   "private": true,
+  "type": "module",
   "scripts": {
     "build": "tsx esbuild.config.js",
     "start": "node dist/server.js",

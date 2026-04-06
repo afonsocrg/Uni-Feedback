@@ -38,7 +38,7 @@ export class RefreshStats extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: any, context: any) {
+  async handle(_request: IRequest, _env: any, _context: any) {
     try {
       const statsService = new StatsService()
       const result = await statsService.refreshAllStats()

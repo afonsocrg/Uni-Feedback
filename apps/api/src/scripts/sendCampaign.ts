@@ -142,7 +142,7 @@ try {
   if (userIds.length === 0) {
     throw new Error('No user IDs provided')
   }
-} catch (error) {
+} catch (_error) {
   console.error(`❌ Invalid --users format: ${args.users}`)
   console.error('   Expected comma-separated numbers, e.g., --users=1,2,3')
   process.exit(1)

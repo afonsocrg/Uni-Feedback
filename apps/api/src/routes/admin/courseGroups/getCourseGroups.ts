@@ -60,7 +60,7 @@ export class GetCourseGroups extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: any, context: any) {
+  async handle(_request: IRequest, _env: any, _context: any) {
     try {
       const { query } = await this.getValidatedData<typeof this.schema>()
       const { page, limit, search, degree_id } = query

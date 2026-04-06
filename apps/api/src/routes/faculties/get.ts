@@ -36,7 +36,7 @@ export class GetFaculties extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: any, context: any) {
+  async handle(_request: IRequest, _env: any, _context: any) {
     const acronym = request.query?.acronym as string | undefined
 
     const baseQuery = database()

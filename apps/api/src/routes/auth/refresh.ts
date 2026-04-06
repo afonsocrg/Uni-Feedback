@@ -38,7 +38,7 @@ export class Refresh extends OpenAPIRoute {
     }
   }
 
-  async handle(request: Request, env: any, context: any) {
+  async handle(request: Request, env: any, _context: any) {
     try {
       // Get refresh token from cookie
       const cookies = request.headers.get('Cookie') || ''

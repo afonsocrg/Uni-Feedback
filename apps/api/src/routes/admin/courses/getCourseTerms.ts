@@ -42,7 +42,7 @@ export class GetCourseTerms extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: any, context: any) {
+  async handle(_request: IRequest, _env: any, _context: any) {
     try {
       const { params } = await this.getValidatedData<typeof this.schema>()
       const { id } = params

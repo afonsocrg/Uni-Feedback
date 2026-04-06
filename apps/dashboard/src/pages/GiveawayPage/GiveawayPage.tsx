@@ -44,7 +44,7 @@ export function GiveawayPage() {
         queryKey: ['admin-feedback-giveaway']
       })
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast.error(error.message || 'Failed to populate analysis records')
     }
   })
@@ -58,7 +58,7 @@ export function GiveawayPage() {
         queryKey: ['admin-feedback-giveaway']
       })
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast.error(error.message || 'Failed to recalculate points')
     }
   })

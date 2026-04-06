@@ -63,10 +63,11 @@ export class RequestMagicLink extends OpenAPIRoute {
     }
   }
 
-  async handle(request: Request, env: Env, context: any) {
+  async handle(request: Request, env: Env, _context: any) {
     try {
       const data = await this.getValidatedData<typeof this.schema>()
-      let { email, requestId: reuseRequestId, referralCode } = data.body
+      const { email, requestId: reuseRequestId } = data.body
+      let { referralCode } = data.body
       const normalizedEmail = email.toLowerCase()
 
       // Validate referral code format if provided (silently ignore invalid)

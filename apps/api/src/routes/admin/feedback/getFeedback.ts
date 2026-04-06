@@ -131,7 +131,7 @@ export class GetFeedback extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: any, context: any) {
+  async handle(_request: IRequest, _env: any, _context: any) {
     return withErrorHandling(request, async () => {
       const { query } = await this.getValidatedData<typeof this.schema>()
       const {

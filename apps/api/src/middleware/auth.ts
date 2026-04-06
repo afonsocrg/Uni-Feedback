@@ -32,7 +32,7 @@ export async function authenticateUser(
   context.session = sessionData
 }
 
-export async function requireAdmin(request: Request, env: any, context: any) {
+export async function requireAdmin(request: Request, env: any, _context: any) {
   // First authenticate
   const authResult = await authenticateUser(request, env, context)
   if (authResult) return authResult

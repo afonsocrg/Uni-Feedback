@@ -50,7 +50,7 @@ export class GetFacultyDetails extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: any, context: any) {
+  async handle(_request: IRequest, _env: any, _context: any) {
     const data = await this.getValidatedData<typeof this.schema>()
     const {
       params: { id: facultyId }

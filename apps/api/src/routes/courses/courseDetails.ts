@@ -56,7 +56,7 @@ export class GetCourse extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: any, context: any) {
+  async handle(_request: IRequest, _env: any, _context: any) {
     const courseId = parseInt(request.params.id)
     const courseFeedbackService = new CourseFeedbackService(env)
 

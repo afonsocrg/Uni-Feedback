@@ -22,7 +22,7 @@ export function validatePassword(password: string): {
 
   if (
     PASSWORD_REQUIREMENTS.REQUIRE_SPECIAL_CHAR &&
-    !/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+    !/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password)
   ) {
     errors.push('Password must contain at least one special character')
   }
@@ -124,7 +124,7 @@ export async function verifyHash(
       .join('')
 
     return computedHash === storedHash
-  } catch (error) {
+  } catch (_error) {
     return false
   }
 }

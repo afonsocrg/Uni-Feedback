@@ -41,7 +41,7 @@ export class GetUserStats extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: any, context: any) {
+  async handle(_request: IRequest, _env: any, _context: any) {
     try {
       // Authenticate user
       const authCheck = await authenticateUser(request, env, context)

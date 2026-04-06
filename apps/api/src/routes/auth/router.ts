@@ -41,11 +41,11 @@ router.get('/profile/feedback-recommendations', GetFeedbackRecommendations)
 
 // Invite route - Wrapped with superuser middleware
 class InviteWithAuth extends Invite {
-  async handle(request: IRequest, env: any, context: any) {
+  async handle(_request: IRequest, _env: any, _context: any) {
     const authCheck = await requireSuperuser(request, env, context)
     if (authCheck) return authCheck
 
-    return super.handle(request, env, context)
+    return super.handle(_request, _env, _context)
   }
 }
 router.post('/invite', InviteWithAuth)

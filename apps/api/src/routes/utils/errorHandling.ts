@@ -176,7 +176,7 @@ export function handleError(
  * Helper function to create standardized error handling for route handlers
  * Usage in route handle method:
  *
- * async handle(request: IRequest, env: any, context: any) {
+ * async handle(_request: IRequest, _env: any, _context: any) {
  *   return withErrorHandling(request, async () => {
  *     // Your route logic here
  *     const data = await this.getValidatedData<typeof this.schema>()
@@ -210,7 +210,7 @@ export async function withErrorHandling<T>(
  * Alternative approach: Create error handler function that can be called from catch blocks
  * Usage in route handle method:
  *
- * async handle(request: IRequest, env: any, context: any) {
+ * async handle(_request: IRequest, _env: any, _context: any) {
  *   const errorHandler = createErrorHandler(request)
  *
  *   try {

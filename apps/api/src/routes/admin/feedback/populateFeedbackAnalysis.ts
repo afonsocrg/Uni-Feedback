@@ -40,7 +40,7 @@ export class PopulateFeedbackAnalysis extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: any, context: any) {
+  async handle(_request: IRequest, _env: any, _context: any) {
     try {
       // Find all feedback IDs that don't have an analysis record
       const feedbacksWithoutAnalysis = await database()

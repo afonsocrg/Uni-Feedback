@@ -867,7 +867,7 @@ export class AuthService {
     }
 
     // Find user (should exist because token was used)
-    let user = await this.findUserByEmail(tokenData.email)
+    const user = await this.findUserByEmail(tokenData.email)
 
     if (!user) {
       throw new InternalServerError(

@@ -47,7 +47,7 @@ export class GetFacultyDegrees extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: any, context: any) {
+  async handle(_request: IRequest, _env: any, _context: any) {
     const { params, query } = await this.getValidatedData<typeof this.schema>()
     const { facultyId } = params
     const { onlyWithCourses } = query

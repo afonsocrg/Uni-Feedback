@@ -98,11 +98,11 @@ router.post('/stats/refresh', RefreshStats)
 
 // User routes - Wrapped with superuser middleware
 class GetUsersWithAuth extends GetUsers {
-  async handle(request: IRequest, env: any, context: any) {
+  async handle(_request: IRequest, _env: any, _context: any) {
     const authCheck = await requireSuperuser(request, env, context)
     if (authCheck) return authCheck
 
-    return super.handle(request, env, context)
+    return super.handle(_request, _env, _context)
   }
 }
 router.get('/users', GetUsersWithAuth)

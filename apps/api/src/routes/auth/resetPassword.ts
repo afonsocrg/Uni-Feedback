@@ -54,7 +54,7 @@ export class ResetPassword extends OpenAPIRoute {
     }
   }
 
-  async handle(request: Request, env: any, context: any) {
+  async handle(request: Request, env: any, _context: any) {
     try {
       const data = await this.getValidatedData<typeof this.schema>()
       const { token, password, confirmPassword } = data.body
