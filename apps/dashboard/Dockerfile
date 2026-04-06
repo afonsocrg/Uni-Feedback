@@ -5,7 +5,7 @@ FROM base AS builder
 RUN apk update
 WORKDIR /app
 COPY . .
-RUN pnpm dlx turbo@2.5.9-canary.3 prune @uni-feedback/dashboard --docker
+RUN pnpm dlx turbo prune @uni-feedback/dashboard --docker
 
 FROM base AS installer
 RUN apk update
@@ -24,7 +24,7 @@ COPY legal/ ./legal
 ARG VITE_API_BASE_URL
 ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
 ENV NODE_OPTIONS="--max-old-space-size=4096"
-RUN pnpm dlx turbo@2.5.9-canary.3 run build --filter=@uni-feedback/dashboard
+RUN pnpm dlx turbo run build --filter=@uni-feedback/dashboard
 
 FROM nginx:alpine AS runner
 
