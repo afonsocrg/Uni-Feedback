@@ -1,5 +1,5 @@
 import { PaginationControls } from '@components'
-import { useDebouncedSearch, useAdminFilters } from '@hooks'
+import { useAdminFilters, useDebouncedSearch } from '@hooks'
 import { useQuery } from '@tanstack/react-query'
 import {
   getAdminDegrees,

@@ -10,7 +10,6 @@ import {
   type AdminFeedbackQuery,
   type FeedbackExportFilters
 } from '@uni-feedback/api-client'
-import { getCurrentSchoolYear } from '@uni-feedback/utils'
 import {
   Badge,
   Button,
@@ -44,6 +43,7 @@ import {
   TableRow,
   WorkloadRatingDisplay
 } from '@uni-feedback/ui'
+import { getCurrentSchoolYear } from '@uni-feedback/utils'
 import { Check, ChevronsUpDown, Download, MessageSquare, X } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'

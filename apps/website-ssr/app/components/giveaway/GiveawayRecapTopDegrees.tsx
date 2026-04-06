@@ -1,5 +1,3 @@
-import { GraduationCap } from 'lucide-react'
-
 const topDegrees = [
   {
     name: "Bachelor's in Management",

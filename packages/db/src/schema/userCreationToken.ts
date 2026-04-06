@@ -1,5 +1,4 @@
 import { integer, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core'
-import { sql } from 'drizzle-orm'
 import { users } from './user'
 
 export const userCreationTokens = pgTable('user_creation_tokens', {

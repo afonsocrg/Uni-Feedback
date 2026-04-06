@@ -1,5 +1,5 @@
-import { SidebarProvider, SidebarTrigger } from '@uni-feedback/ui'
 import { useLocalStorage } from '@uidotdev/usehooks'
+import { SidebarProvider, SidebarTrigger } from '@uni-feedback/ui'
 import { Outlet } from 'react-router-dom'
 import { DashboardSidebar } from './DashboardSidebar'
 import { Footer } from './Footer'

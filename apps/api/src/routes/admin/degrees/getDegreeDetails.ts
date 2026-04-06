@@ -104,7 +104,10 @@ export class GetDegreeDetails extends OpenAPIRoute {
       const termSet = new Set<string>()
 
       for (const course of coursesResult) {
-        if (course.curriculumYear !== null && course.curriculumYear !== undefined) {
+        if (
+          course.curriculumYear !== null &&
+          course.curriculumYear !== undefined
+        ) {
           curriculumYearSet.add(course.curriculumYear)
         }
         if (course.terms && Array.isArray(course.terms)) {

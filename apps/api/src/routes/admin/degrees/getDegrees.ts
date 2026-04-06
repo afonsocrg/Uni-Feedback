@@ -1,6 +1,6 @@
+import { PaginatedResponse } from '@types'
 import { database } from '@uni-feedback/db'
 import { degrees, faculties } from '@uni-feedback/db/schema'
-import { PaginatedResponse } from '@types'
 import { OpenAPIRoute } from 'chanfana'
 import { and, count, eq, or, sql } from 'drizzle-orm'
 import { IRequest } from 'itty-router'

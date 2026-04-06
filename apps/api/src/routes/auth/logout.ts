@@ -1,8 +1,8 @@
+import { AUTH_CONFIG } from '@config/auth'
+import { AuthService } from '@services/authService'
+import { clearAuthCookies } from '@utils/authCookies'
 import { OpenAPIRoute } from 'chanfana'
 import { z } from 'zod'
-import { AuthService } from '@services/authService'
-import { AUTH_CONFIG } from '@config/auth'
-import { clearAuthCookies } from '@utils/authCookies'
 
 export class Logout extends OpenAPIRoute {
   schema = {

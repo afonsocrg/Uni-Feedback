@@ -77,7 +77,9 @@ export const userPreferences = {
       const legacyDegreeId = localStorage.getItem('selectedDegreeId')
 
       if (legacyFacultyId || legacyDegreeId) {
-        console.log('Found legacy faculty/degree keys - migration handled by STORAGE_KEYS')
+        console.log(
+          'Found legacy faculty/degree keys - migration handled by STORAGE_KEYS'
+        )
 
         // Clean up legacy keys (new keys are now prefixed in STORAGE_KEYS)
         localStorage.removeItem('selectedFacultyId')

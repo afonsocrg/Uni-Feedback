@@ -6,7 +6,6 @@ import {
   text,
   timestamp
 } from 'drizzle-orm/pg-core'
-import { sql } from 'drizzle-orm'
 import { courses } from './course'
 
 export const courseRelationships = pgTable(

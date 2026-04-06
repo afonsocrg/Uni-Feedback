@@ -8,13 +8,13 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  EditableStarRating,
   Label,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  EditableStarRating,
   WorkloadRatingSelect
 } from '@uni-feedback/ui'
 import { getCurrentSchoolYear } from '@uni-feedback/utils'

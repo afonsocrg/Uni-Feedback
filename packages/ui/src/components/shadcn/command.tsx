@@ -1,4 +1,3 @@
-import { cn } from '../../utils'
 import { Command as CommandPrimitive } from 'cmdk'
 import { SearchIcon } from 'lucide-react'
 import * as React from 'react'
@@ -9,6 +8,7 @@ import {
   DialogHeader,
   DialogTitle
 } from '.'
+import { cn } from '../../utils'
 
 function Command({
   className,

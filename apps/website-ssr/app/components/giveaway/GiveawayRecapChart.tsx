@@ -1,13 +1,13 @@
 import {
-  BarChart,
   Bar,
-  XAxis,
-  YAxis,
+  BarChart,
   CartesianGrid,
-  Tooltip,
   Legend,
+  ReferenceLine,
   ResponsiveContainer,
-  ReferenceLine
+  Tooltip,
+  XAxis,
+  YAxis
 } from 'recharts'
 
 // Hardcoded data from database query (2026-01-15 to 2026-02-27)

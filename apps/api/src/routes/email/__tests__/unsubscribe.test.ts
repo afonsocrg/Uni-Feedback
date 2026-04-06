@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { cleanAllTables, withTestDb } from '../../../../test/setup'
 import {
   createEmailPreferences,
   createUser,
   getEmailPreferencesByToken
 } from '../../../../test/helpers'
+import { cleanAllTables, withTestDb } from '../../../../test/setup'
 import { Unsubscribe } from '../unsubscribe'
 
 describe('Unsubscribe Route', () => {
@@ -112,11 +112,19 @@ describe('Unsubscribe Route', () => {
         const request = createMockRequest({ token: prefs.unsubscribeToken })
 
         // First unsubscribe
-        const response1 = await unsubscribeHandler.handle(request, {} as Env, {})
+        const response1 = await unsubscribeHandler.handle(
+          request,
+          {} as Env,
+          {}
+        )
         expect(response1.status).toBe(200)
 
         // Second unsubscribe (should still succeed)
-        const response2 = await unsubscribeHandler.handle(request, {} as Env, {})
+        const response2 = await unsubscribeHandler.handle(
+          request,
+          {} as Env,
+          {}
+        )
         expect(response2.status).toBe(200)
         const data = await response2.json()
         expect(data.message).toContain('already unsubscribed')

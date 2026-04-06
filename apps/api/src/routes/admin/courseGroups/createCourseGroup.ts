@@ -1,6 +1,6 @@
+import { ValidationErrors } from '@types'
 import { database } from '@uni-feedback/db'
 import { courseGroup, degrees } from '@uni-feedback/db/schema'
-import { ValidationErrors } from '@types'
 import { notifyAdminChange } from '@utils/notificationHelpers'
 import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'

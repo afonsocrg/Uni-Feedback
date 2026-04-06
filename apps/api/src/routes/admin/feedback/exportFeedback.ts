@@ -1,16 +1,8 @@
 import { database } from '@uni-feedback/db'
-import {
-  courses,
-  degrees,
-  faculties,
-  feedback
-} from '@uni-feedback/db/schema'
-import {
-  getFeedbackPermalinkUrl,
-  getWorkloadLabel
-} from '@uni-feedback/utils'
+import { courses, degrees, faculties, feedback } from '@uni-feedback/db/schema'
+import { getFeedbackPermalinkUrl, getWorkloadLabel } from '@uni-feedback/utils'
 import { OpenAPIRoute } from 'chanfana'
-import { and, eq, gte, isNotNull, isNull, lte, lt, sql } from 'drizzle-orm'
+import { and, eq, gte, isNotNull, isNull, lt, lte, sql } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
 import Papa from 'papaparse'
 import { z } from 'zod'
@@ -61,15 +53,9 @@ function workloadToLabel(rating: number): string {
   return labels[rating - 1] || 'unknown'
 }
 
-function generateFilename(
-  filters: any,
-  resourceName: string | null
-): string {
+function generateFilename(filters: any, resourceName: string | null): string {
   const now = new Date()
-  const timestamp = now
-    .toISOString()
-    .replace(/[-:T]/g, '')
-    .slice(0, 14)
+  const timestamp = now.toISOString().replace(/[-:T]/g, '').slice(0, 14)
 
   const parts = [timestamp, 'feedback']
 
@@ -81,7 +67,10 @@ function generateFilename(
   // School year filters
   if (filters.school_year !== undefined) {
     parts.push(`year-${filters.school_year}`)
-  } else if (filters.from_school_year !== undefined && filters.to_school_year !== undefined) {
+  } else if (
+    filters.from_school_year !== undefined &&
+    filters.to_school_year !== undefined
+  ) {
     parts.push(`${filters.from_school_year}-to-${filters.to_school_year}`)
   } else if (filters.from_school_year !== undefined) {
     parts.push(`from-${filters.from_school_year}`)
@@ -92,7 +81,10 @@ function generateFilename(
   // Rating filters
   if (filters.rating !== undefined) {
     parts.push(`rating-${filters.rating}`)
-  } else if (filters.from_rating !== undefined && filters.to_rating !== undefined) {
+  } else if (
+    filters.from_rating !== undefined &&
+    filters.to_rating !== undefined
+  ) {
     parts.push(`rating-${filters.from_rating}-to-${filters.to_rating}`)
   } else if (filters.from_rating !== undefined) {
     parts.push(`rating-from-${filters.from_rating}`)
@@ -103,8 +95,13 @@ function generateFilename(
   // Workload rating filters
   if (filters.workload_rating !== undefined) {
     parts.push(`workload-${workloadToLabel(filters.workload_rating)}`)
-  } else if (filters.from_workload_rating !== undefined && filters.to_workload_rating !== undefined) {
-    parts.push(`workload-${workloadToLabel(filters.from_workload_rating)}-to-${workloadToLabel(filters.to_workload_rating)}`)
+  } else if (
+    filters.from_workload_rating !== undefined &&
+    filters.to_workload_rating !== undefined
+  ) {
+    parts.push(
+      `workload-${workloadToLabel(filters.from_workload_rating)}-to-${workloadToLabel(filters.to_workload_rating)}`
+    )
   } else if (filters.from_workload_rating !== undefined) {
     parts.push(`workload-from-${workloadToLabel(filters.from_workload_rating)}`)
   } else if (filters.to_workload_rating !== undefined) {
@@ -335,7 +332,9 @@ export class ExportFeedback extends OpenAPIRoute {
       }
 
       if (terms !== undefined && terms.length > 0) {
-        const placeholders = terms.map((t: string) => `'${t.replace(/'/g, "''")}'`).join(', ')
+        const placeholders = terms
+          .map((t: string) => `'${t.replace(/'/g, "''")}'`)
+          .join(', ')
         conditions.push(
           sql`EXISTS (SELECT 1 FROM json_each(${courses.terms}) WHERE value IN (${sql.raw(placeholders)}))`
         )

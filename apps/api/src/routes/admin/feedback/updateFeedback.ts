@@ -177,7 +177,10 @@ export class UpdateFeedback extends OpenAPIRoute {
           const statsService = new StatsService()
           await statsService.onFeedbackEdited(fb.courseId)
         } catch (statsError) {
-          console.error('Failed to update stats after admin feedback update:', statsError)
+          console.error(
+            'Failed to update stats after admin feedback update:',
+            statsError
+          )
         }
       }
 

@@ -1,7 +1,7 @@
-import { database } from '@uni-feedback/db'
-import { courses, degrees, faculties, feedback } from '@uni-feedback/db/schema'
-import { and, eq, sql } from 'drizzle-orm'
 import type { DegreeWithCounts, GetDegreesOptions } from '@types'
+import { database } from '@uni-feedback/db'
+import { courses, degrees, faculties } from '@uni-feedback/db/schema'
+import { eq, sql } from 'drizzle-orm'
 import { CourseFeedbackService } from './courseFeedbackService'
 
 export class DegreeService {

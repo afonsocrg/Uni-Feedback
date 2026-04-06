@@ -194,7 +194,10 @@ export class UnapproveFeedback extends OpenAPIRoute {
         const statsService = new StatsService()
         await statsService.onFeedbackUnapproved(feedbackData.courseId)
       } catch (statsError) {
-        console.error('Failed to update stats after feedback unapproval:', statsError)
+        console.error(
+          'Failed to update stats after feedback unapproval:',
+          statsError
+        )
       }
 
       return Response.json({

@@ -145,7 +145,10 @@ export class ApproveFeedback extends OpenAPIRoute {
         const statsService = new StatsService()
         await statsService.onFeedbackApproved(feedbackData.courseId)
       } catch (statsError) {
-        console.error('Failed to update stats after feedback approval:', statsError)
+        console.error(
+          'Failed to update stats after feedback approval:',
+          statsError
+        )
       }
 
       return Response.json({

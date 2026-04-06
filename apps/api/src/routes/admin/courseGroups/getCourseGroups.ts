@@ -1,10 +1,10 @@
-import { database } from '@uni-feedback/db'
-import { courseGroup } from '@uni-feedback/db/schema'
 import {
   PaginatedResponse,
   PaginationQuerySchema,
   getPaginatedSchema
 } from '@types'
+import { database } from '@uni-feedback/db'
+import { courseGroup } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
 import { and, count, eq, sql } from 'drizzle-orm'
 import { IRequest } from 'itty-router'

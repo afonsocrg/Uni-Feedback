@@ -1,7 +1,7 @@
 import { database } from '@uni-feedback/db'
-import { degrees, faculties } from '@uni-feedback/db/schema'
+import { degrees } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
-import { and, eq, or, sql } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
 import { z } from 'zod'
 

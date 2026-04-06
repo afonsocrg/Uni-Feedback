@@ -1,11 +1,11 @@
 import { getFaculties } from '@uni-feedback/api-client'
+import { useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import { z } from 'zod'
 import { CourseBrowser } from '~/components'
 import { useAuth } from '~/hooks'
 import { analytics } from '~/utils/analytics'
 import { storage } from '~/utils/storage'
-import { useEffect } from 'react'
 
 import type { Route } from './+types/feedback.new'
 

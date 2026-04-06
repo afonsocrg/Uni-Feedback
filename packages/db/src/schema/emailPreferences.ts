@@ -18,7 +18,9 @@ export const emailPreferences = pgTable(
       .unique()
       .references(() => users.id, { onDelete: 'cascade' }),
     unsubscribeToken: text('unsubscribe_token').notNull().unique(),
-    subscribedReminders: boolean('subscribed_reminders').notNull().default(true),
+    subscribedReminders: boolean('subscribed_reminders')
+      .notNull()
+      .default(true),
     unsubscribedAt: timestamp('unsubscribed_at', { withTimezone: true }),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow()
   },

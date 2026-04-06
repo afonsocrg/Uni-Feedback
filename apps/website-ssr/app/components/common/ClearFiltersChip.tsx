@@ -1,4 +1,3 @@
-import { Chip } from '@uni-feedback/ui'
 import { X } from 'lucide-react'
 
 interface ClearFiltersChipProps {

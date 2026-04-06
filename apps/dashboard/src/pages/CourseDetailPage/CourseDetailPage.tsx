@@ -14,8 +14,8 @@ import {
   BookOpen,
   ClipboardCheck,
   Edit3,
-  MessageSquare,
-  Library
+  Library,
+  MessageSquare
 } from 'lucide-react'
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'

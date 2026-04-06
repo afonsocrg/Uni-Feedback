@@ -3,7 +3,6 @@ import { fromIttyRouter } from 'chanfana'
 import { cors, Router, withCookies } from 'itty-router'
 import { router as adminRouter } from './admin/router'
 import { router as authRouter } from './auth/router'
-import { router as emailRouter } from './email/router'
 import {
   GetCourse,
   GetCourseFeedback,
@@ -12,6 +11,7 @@ import {
   SubmitFeedback
 } from './courses'
 import { GetDegreeCourseGroups, GetDegreeCourses, GetDegrees } from './degrees'
+import { router as emailRouter } from './email/router'
 import { GetFaculties, GetFacultyDegrees, GetFacultyDetails } from './faculties'
 import {
   AddHelpfulVote,

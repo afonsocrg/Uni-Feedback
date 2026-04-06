@@ -16,7 +16,9 @@ import { getTestDb } from './setup'
 /**
  * Create a faculty for testing
  */
-export async function createFaculty(data?: Partial<typeof faculties.$inferInsert>) {
+export async function createFaculty(
+  data?: Partial<typeof faculties.$inferInsert>
+) {
   const db = getTestDb()
   const [faculty] = await db
     .insert(faculties)
@@ -159,7 +161,10 @@ export async function initCourseStats(courseId: number) {
 /**
  * Initialize empty stats for a degree
  */
-export async function initDegreeStats(degreeId: number, courseCount: number = 0) {
+export async function initDegreeStats(
+  degreeId: number,
+  courseCount: number = 0
+) {
   const db = getTestDb()
   await db.insert(degreeStats).values({
     degreeId,

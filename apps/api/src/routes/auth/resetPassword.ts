@@ -1,7 +1,7 @@
-import { OpenAPIRoute } from 'chanfana'
-import { z } from 'zod'
 import { AuthService } from '@services/authService'
 import { validatePassword } from '@utils/auth'
+import { OpenAPIRoute } from 'chanfana'
+import { z } from 'zod'
 
 export class ResetPassword extends OpenAPIRoute {
   schema = {

@@ -41,7 +41,9 @@ export function textToHtml(text: string): string {
   // Convert paragraphs (double newlines) and line breaks
   const paragraphs = html.split(/\n\n+/)
   html = paragraphs
-    .map((p) => `<p style="margin: 0 0 16px 0;">${p.replace(/\n/g, '<br>')}</p>`)
+    .map(
+      (p) => `<p style="margin: 0 0 16px 0;">${p.replace(/\n/g, '<br>')}</p>`
+    )
     .join('\n')
 
   return html

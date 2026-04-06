@@ -2,7 +2,7 @@ import { authenticateUser } from '@middleware'
 import { database } from '@uni-feedback/db'
 import { courses, feedback } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
-import { and, count, desc, eq, inArray, max, notInArray, sql } from 'drizzle-orm'
+import { and, desc, eq, notInArray, sql } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
 import { z } from 'zod'
 
@@ -11,7 +11,7 @@ export class GetFeedbackRecommendations extends OpenAPIRoute {
     tags: ['Auth'],
     summary: 'Get personalized course recommendations for feedback',
     description:
-      'Returns up to 3 courses the user should write feedback for, based on their most-reviewed degree and courses they haven\'t reviewed yet',
+      "Returns up to 3 courses the user should write feedback for, based on their most-reviewed degree and courses they haven't reviewed yet",
     responses: {
       '200': {
         description: 'Recommendations retrieved successfully',
@@ -77,11 +77,17 @@ export class GetFeedbackRecommendations extends OpenAPIRoute {
 
       for (const fb of userFeedback) {
         if (fb.degreeId) {
-          degreeCountMap.set(fb.degreeId, (degreeCountMap.get(fb.degreeId) || 0) + 1)
+          degreeCountMap.set(
+            fb.degreeId,
+            (degreeCountMap.get(fb.degreeId) || 0) + 1
+          )
 
           // Track most recent feedback for tie-breaking
           const currentLastFeedback = degreeLastFeedbackMap.get(fb.degreeId)
-          if (!currentLastFeedback || (fb.createdAt && fb.createdAt > currentLastFeedback)) {
+          if (
+            !currentLastFeedback ||
+            (fb.createdAt && fb.createdAt > currentLastFeedback)
+          ) {
             degreeLastFeedbackMap.set(fb.degreeId, fb.createdAt!)
           }
         }
@@ -97,7 +103,10 @@ export class GetFeedbackRecommendations extends OpenAPIRoute {
         const lastFeedback = degreeLastFeedbackMap.get(degreeId)
         if (
           count > maxCount ||
-          (count === maxCount && lastFeedback && maxCountLastFeedback && lastFeedback > maxCountLastFeedback)
+          (count === maxCount &&
+            lastFeedback &&
+            maxCountLastFeedback &&
+            lastFeedback > maxCountLastFeedback)
         ) {
           mostReviewedDegreeId = degreeId
           maxCount = count
@@ -115,7 +124,10 @@ export class GetFeedbackRecommendations extends OpenAPIRoute {
       // 3. Find the max curriculum year the user has reviewed in that degree
       const maxReviewedCurriculumYear = Math.max(
         ...userFeedback
-          .filter((fb) => fb.degreeId === mostReviewedDegreeId && fb.curriculumYear !== null)
+          .filter(
+            (fb) =>
+              fb.degreeId === mostReviewedDegreeId && fb.curriculumYear !== null
+          )
           .map((fb) => fb.curriculumYear!)
       )
 
@@ -127,7 +139,9 @@ export class GetFeedbackRecommendations extends OpenAPIRoute {
 
       // Only filter by curriculum year if we found a valid max year
       if (maxReviewedCurriculumYear > 0) {
-        whereConditions.push(sql`${courses.curriculumYear} <= ${maxReviewedCurriculumYear}`)
+        whereConditions.push(
+          sql`${courses.curriculumYear} <= ${maxReviewedCurriculumYear}`
+        )
       }
 
       const unreviewedCourses = await db

@@ -1,6 +1,6 @@
+import { CourseFeedbackService } from '@services'
 import { database } from '@uni-feedback/db'
 import { courses, degrees } from '@uni-feedback/db/schema'
-import { CourseFeedbackService } from '@services'
 import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'

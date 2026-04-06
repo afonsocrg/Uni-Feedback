@@ -1,8 +1,7 @@
-import { database } from '@uni-feedback/db'
+import { DegreeService } from '@services'
 import { OpenAPIRoute } from 'chanfana'
 import { IRequest } from 'itty-router'
 import { z } from 'zod'
-import { DegreeService } from '@services'
 
 const DegreeResponseSchema = z.object({
   id: z.number(),

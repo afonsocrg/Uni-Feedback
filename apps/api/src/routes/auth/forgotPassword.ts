@@ -1,7 +1,7 @@
-import { OpenAPIRoute } from 'chanfana'
-import { z } from 'zod'
 import { AuthService } from '@services/authService'
 import { EmailService } from '@services/emailService'
+import { OpenAPIRoute } from 'chanfana'
+import { z } from 'zod'
 
 export class ForgotPassword extends OpenAPIRoute {
   schema = {

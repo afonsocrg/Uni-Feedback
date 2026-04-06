@@ -103,7 +103,13 @@ export function CourseBrowser({
   }
 
   return (
-    <div className={compact ? 'py-1 px-3 pb-4 md:px-6 md:pb-6' : 'max-w-3xl mx-auto px-4 py-8'}>
+    <div
+      className={
+        compact
+          ? 'py-1 px-3 pb-4 md:px-6 md:pb-6'
+          : 'max-w-3xl mx-auto px-4 py-8'
+      }
+    >
       <div className={compact ? 'space-y-6' : 'space-y-8 pt-[15vh]'}>
         {/* Header - hidden in compact mode */}
         {!compact && (

@@ -8,10 +8,7 @@ interface AuthGuardProps {
   loadingComponent?: React.ReactNode
 }
 
-export function AuthGuard({
-  children,
-  loadingComponent
-}: AuthGuardProps) {
+export function AuthGuard({ children, loadingComponent }: AuthGuardProps) {
   const { isAuthenticated, user, isLoading, isLoggingOut } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()

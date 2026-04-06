@@ -1,4 +1,7 @@
-import { AdminDegreeDetail, generateDegreeReport } from '@uni-feedback/api-client'
+import {
+  AdminDegreeDetail,
+  generateDegreeReport
+} from '@uni-feedback/api-client'
 import {
   Button,
   Dialog,
@@ -42,7 +45,8 @@ export function GenerateReportDialog({
 }: GenerateReportDialogProps) {
   const currentYear = getCurrentSchoolYear()
   const [selectedYear, setSelectedYear] = useState(currentYear.toString())
-  const [selectedCurriculumYear, setSelectedCurriculumYear] = useState<string>('all')
+  const [selectedCurriculumYear, setSelectedCurriculumYear] =
+    useState<string>('all')
   const [selectedTerms, setSelectedTerms] = useState<string[]>([])
   const [isGenerating, setIsGenerating] = useState(false)
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0)
@@ -78,7 +82,9 @@ export function GenerateReportDialog({
       const presignedUrl = await generateDegreeReport(
         degree.id,
         parseInt(selectedYear),
-        selectedCurriculumYear !== 'all' ? parseInt(selectedCurriculumYear) : undefined,
+        selectedCurriculumYear !== 'all'
+          ? parseInt(selectedCurriculumYear)
+          : undefined,
         selectedTerms.length > 0 ? selectedTerms : undefined
       )
 

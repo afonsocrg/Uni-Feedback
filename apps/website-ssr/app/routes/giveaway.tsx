@@ -1,9 +1,9 @@
 import {
+  GiveawayRecapCommunity,
+  GiveawayRecapCTA,
   GiveawayRecapHero,
   GiveawayRecapThankYou,
-  GiveawayRecapWinner,
-  GiveawayRecapCommunity,
-  GiveawayRecapCTA
+  GiveawayRecapWinner
 } from '~/components/giveaway'
 
 import type { Route } from './+types/giveaway'

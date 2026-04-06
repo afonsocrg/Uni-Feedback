@@ -1,4 +1,5 @@
 import { API_BASE_URL } from './config'
+import { MeicFeedbackAPIError } from './errors'
 import {
   Course,
   CourseDetail,
@@ -6,10 +7,9 @@ import {
   Feedback,
   SearchCoursesParams
 } from './types'
-import { MeicFeedbackAPIError } from './errors'
 
 // Re-export types for convenience
-export type { SearchCoursesParams, CourseSearchResponse } from './types'
+export type { CourseSearchResponse, SearchCoursesParams } from './types'
 
 interface GetCoursesParams {
   acronym?: string

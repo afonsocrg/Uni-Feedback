@@ -1,7 +1,7 @@
 import { authenticateUser } from '@middleware'
 import { PointService, StatsService } from '@services'
 import { database } from '@uni-feedback/db'
-import { feedback, feedbackFull } from '@uni-feedback/db/schema'
+import { feedbackFull } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
 import { and, eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
@@ -84,7 +84,10 @@ export class DeleteFeedback extends OpenAPIRoute {
           const statsService = new StatsService()
           await statsService.onFeedbackUnapproved(existingFeedback.courseId)
         } catch (statsError) {
-          console.error('Failed to update stats after feedback deletion:', statsError)
+          console.error(
+            'Failed to update stats after feedback deletion:',
+            statsError
+          )
         }
       }
 

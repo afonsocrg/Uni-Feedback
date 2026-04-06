@@ -39,6 +39,10 @@ yarn-error.log*
 # Database migrations and generated files
 apps/api/src/db/migrations/
 apps/api/src/db/README.md
+packages/db/drizzle/
+
+# Markdown files (intentional formatting)
+*.md
 
 # OS generated files
 .DS_Store

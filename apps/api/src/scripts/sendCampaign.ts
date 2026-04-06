@@ -423,7 +423,9 @@ async function main() {
     console.log(`📤 EXPORT MODE - Will export to ${args.export}\n`)
   } else if (isSend) {
     if (args.plain) {
-      console.log('🚀 SEND MODE (plain text) - High-deliverability mode enabled')
+      console.log(
+        '🚀 SEND MODE (plain text) - High-deliverability mode enabled'
+      )
       console.log('   No HTML, no List-Unsubscribe headers, no auto-footer\n')
     } else {
       console.log('🚀 SEND MODE - Emails will be sent via Resend!\n')

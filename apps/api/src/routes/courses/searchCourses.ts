@@ -1,7 +1,7 @@
 import { database } from '@uni-feedback/db'
 import { courses, degrees, faculties } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
-import { and, eq, or, sql, type SQL } from 'drizzle-orm'
+import { and, eq, or, sql } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
 import { z } from 'zod'
 
@@ -36,11 +36,27 @@ export class SearchCourses extends OpenAPIRoute {
       'Search courses by name/acronym with optional faculty/degree filters. Returns paginated results without feedback aggregation for fast queries.',
     request: {
       query: z.object({
-        q: z.string().optional().describe('Search query for course name or acronym'),
-        faculty_id: z.coerce.number().optional().describe('Filter by faculty ID'),
+        q: z
+          .string()
+          .optional()
+          .describe('Search query for course name or acronym'),
+        faculty_id: z.coerce
+          .number()
+          .optional()
+          .describe('Filter by faculty ID'),
         degree_id: z.coerce.number().optional().describe('Filter by degree ID'),
-        limit: z.coerce.number().min(1).max(50).default(20).describe('Results per page'),
-        offset: z.coerce.number().min(0).max(1000).default(0).describe('Pagination offset')
+        limit: z.coerce
+          .number()
+          .min(1)
+          .max(50)
+          .default(20)
+          .describe('Results per page'),
+        offset: z.coerce
+          .number()
+          .min(0)
+          .max(1000)
+          .default(0)
+          .describe('Pagination offset')
       })
     },
     responses: {
@@ -65,7 +81,10 @@ export class SearchCourses extends OpenAPIRoute {
     // Validate at least one search parameter is provided
     if (!q && !faculty_id && !degree_id) {
       return Response.json(
-        { error: 'At least one search parameter (q, faculty_id, or degree_id) is required' },
+        {
+          error:
+            'At least one search parameter (q, faculty_id, or degree_id) is required'
+        },
         { status: 400 }
       )
     }

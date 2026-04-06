@@ -1,5 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
+  resetPassword,
+  type ResetPasswordRequest
+} from '@uni-feedback/api-client'
+import {
   Button,
   Card,
   CardContent,
@@ -15,10 +19,6 @@ import {
   FormMessage,
   Input
 } from '@uni-feedback/ui'
-import {
-  resetPassword,
-  type ResetPasswordRequest
-} from '@uni-feedback/api-client'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'

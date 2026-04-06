@@ -192,7 +192,10 @@ export class EditFeedback extends OpenAPIRoute {
           const statsService = new StatsService()
           await statsService.onFeedbackEdited(updatedFeedback.courseId)
         } catch (statsError) {
-          console.error('Failed to update stats after feedback edit:', statsError)
+          console.error(
+            'Failed to update stats after feedback edit:',
+            statsError
+          )
         }
       }
 
