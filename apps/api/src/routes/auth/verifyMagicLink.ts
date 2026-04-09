@@ -47,37 +47,31 @@ export class VerifyMagicLink extends OpenAPIRoute {
   }
 
   async handle(_request: Request, env: Env, _context: RequestContext) {
-    try {
-      const data = await this.getValidatedData<typeof this.schema>()
-      const { requestId } = data.body
+    const data = await this.getValidatedData<typeof this.schema>()
+    const { requestId } = data.body
 
-      const authService = new AuthService(env)
-      const sessionData =
-        await authService.verifyMagicLinkByRequestId(requestId)
+    const authService = new AuthService(env)
+    const sessionData = await authService.verifyMagicLinkByRequestId(requestId)
 
-      // Return pending for: invalid, expired, not clicked, or already consumed
-      // This prevents timing attacks and information leakage
-      if (!sessionData) {
-        return Response.json({ status: 'pending' })
-      }
-
-      // Session ready - return user data and set cookies
-      const response = Response.json({
-        user: {
-          id: sessionData.user.id,
-          email: sessionData.user.email,
-          username: sessionData.user.username,
-          role: sessionData.user.role
-        }
-      })
-
-      // Set auth cookies
-      setAuthCookies(response, sessionData)
-
-      return response
-    } catch (error) {
-      console.error('Verify magic link by requestId error:', error)
-      return Response.json({ error: 'Internal server error' }, { status: 500 })
+    // Return pending for: invalid, expired, not clicked, or already consumed
+    // This prevents timing attacks and information leakage
+    if (!sessionData) {
+      return Response.json({ status: 'pending' })
     }
+
+    // Session ready - return user data and set cookies
+    const response = Response.json({
+      user: {
+        id: sessionData.user.id,
+        email: sessionData.user.email,
+        username: sessionData.user.username,
+        role: sessionData.user.role
+      }
+    })
+
+    // Set auth cookies
+    setAuthCookies(response, sessionData)
+
+    return response
   }
 }

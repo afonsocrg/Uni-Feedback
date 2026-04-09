@@ -69,97 +69,92 @@ export class GetCourses extends OpenAPIRoute {
   }
 
   async handle(_request: IRequest, _env: Env, _context: RequestContext) {
-    try {
-      const { query } = await this.getValidatedData<typeof this.schema>()
-      const { page, limit, search, degree_id, faculty_id, term } = query
+    const { query } = await this.getValidatedData<typeof this.schema>()
+    const { page, limit, search, degree_id, faculty_id, term } = query
 
-      // Build where conditions
-      const conditions = []
+    // Build where conditions
+    const conditions = []
 
-      if (search) {
-        conditions.push(
-          or(
-            sql`LOWER(${courses.name}) LIKE ${`%${search.toLowerCase()}%`}`,
-            sql`LOWER(${courses.acronym}) LIKE ${`%${search.toLowerCase()}%`}`
-          )
+    if (search) {
+      conditions.push(
+        or(
+          sql`LOWER(${courses.name}) LIKE ${`%${search.toLowerCase()}%`}`,
+          sql`LOWER(${courses.acronym}) LIKE ${`%${search.toLowerCase()}%`}`
         )
-      }
+      )
+    }
 
-      if (degree_id) {
-        conditions.push(eq(courses.degreeId, degree_id))
-      }
+    if (degree_id) {
+      conditions.push(eq(courses.degreeId, degree_id))
+    }
 
-      if (faculty_id) {
-        conditions.push(eq(degrees.facultyId, faculty_id))
-      }
+    if (faculty_id) {
+      conditions.push(eq(degrees.facultyId, faculty_id))
+    }
 
-      if (term) {
-        // Filter courses that have the specific term in their terms array
-        conditions.push(
-          sql`JSON_EXTRACT(${courses.terms}, '$') LIKE ${`%"${term}"%`}`
-        )
-      }
+    if (term) {
+      // Filter courses that have the specific term in their terms array
+      conditions.push(
+        sql`JSON_EXTRACT(${courses.terms}, '$') LIKE ${`%"${term}"%`}`
+      )
+    }
 
-      const whereClause = conditions.length > 0 ? and(...conditions) : undefined
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined
 
-      // Get total count
-      const totalResult = await database()
-        .select({ count: count() })
-        .from(courses)
-        .leftJoin(degrees, eq(courses.degreeId, degrees.id))
-        .leftJoin(faculties, eq(degrees.facultyId, faculties.id))
-        .where(whereClause)
+    // Get total count
+    const totalResult = await database()
+      .select({ count: count() })
+      .from(courses)
+      .leftJoin(degrees, eq(courses.degreeId, degrees.id))
+      .leftJoin(faculties, eq(degrees.facultyId, faculties.id))
+      .where(whereClause)
 
-      const total = totalResult[0].count
-      const totalPages = Math.ceil(total / limit)
-      const offset = (page - 1) * limit
+    const total = totalResult[0].count
+    const totalPages = Math.ceil(total / limit)
+    const offset = (page - 1) * limit
 
-      // Get courses with degree and faculty info plus feedback count
-      const coursesResult = await database()
-        .select({
-          id: courses.id,
-          name: courses.name,
-          acronym: courses.acronym,
-          ects: courses.ects,
-          degreeId: courses.degreeId,
-          degreeName: degrees.name,
-          degreeAcronym: degrees.acronym,
-          facultyId: faculties.id,
-          facultyName: faculties.name,
-          facultyShortName: faculties.shortName,
-          terms: courses.terms,
-          createdAt: courses.createdAt,
-          totalFeedbackCount: sql<number>`(
-            SELECT COUNT(*) 
-            FROM feedback 
+    // Get courses with degree and faculty info plus feedback count
+    const coursesResult = await database()
+      .select({
+        id: courses.id,
+        name: courses.name,
+        acronym: courses.acronym,
+        ects: courses.ects,
+        degreeId: courses.degreeId,
+        degreeName: degrees.name,
+        degreeAcronym: degrees.acronym,
+        facultyId: faculties.id,
+        facultyName: faculties.name,
+        facultyShortName: faculties.shortName,
+        terms: courses.terms,
+        createdAt: courses.createdAt,
+        totalFeedbackCount: sql<number>`(
+            SELECT COUNT(*)
+            FROM feedback
             WHERE feedback.course_id = ${courses.id}
           )`
-        })
-        .from(courses)
-        .leftJoin(degrees, eq(courses.degreeId, degrees.id))
-        .leftJoin(faculties, eq(degrees.facultyId, faculties.id))
-        .where(whereClause)
-        .orderBy(courses.name)
-        .limit(limit)
-        .offset(offset)
+      })
+      .from(courses)
+      .leftJoin(degrees, eq(courses.degreeId, degrees.id))
+      .leftJoin(faculties, eq(degrees.facultyId, faculties.id))
+      .where(whereClause)
+      .orderBy(courses.name)
+      .limit(limit)
+      .offset(offset)
 
-      const response = {
-        data: coursesResult.map((course) => ({
-          ...course,
-          totalFeedbackCount: Number(course.totalFeedbackCount),
-          terms: course.terms as string[] | null,
-          createdAt: course.createdAt?.toISOString() || ''
-        })),
-        total,
-        page,
-        limit,
-        totalPages
-      }
-
-      return Response.json(response)
-    } catch (error) {
-      console.error('Get courses error:', error)
-      return Response.json({ error: 'Internal server error' }, { status: 500 })
+    const response = {
+      data: coursesResult.map((course) => ({
+        ...course,
+        totalFeedbackCount: Number(course.totalFeedbackCount),
+        terms: course.terms as string[] | null,
+        createdAt: course.createdAt?.toISOString() || ''
+      })),
+      total,
+      page,
+      limit,
+      totalPages
     }
+
+    return Response.json(response)
   }
 }

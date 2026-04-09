@@ -54,60 +54,55 @@ export class UseMagicLink extends OpenAPIRoute {
   }
 
   async handle(_request: Request, env: Env, _context: RequestContext) {
-    try {
-      const data = await this.getValidatedData<typeof this.schema>()
-      const { token } = data.body
+    const data = await this.getValidatedData<typeof this.schema>()
+    const { token } = data.body
 
-      const authService = new AuthService(env)
+    const authService = new AuthService(env)
 
-      // Try to find valid token
-      const sessionData = await authService.useMagicLinkToken(token)
+    // Try to find valid token
+    const sessionData = await authService.useMagicLinkToken(token)
 
-      if (!sessionData) {
-        // Check if token exists but is expired (to return requestId)
-        const expiredToken =
-          await authService.findMagicLinkTokenIncludingExpired(token)
+    if (!sessionData) {
+      // Check if token exists but is expired (to return requestId)
+      const expiredToken =
+        await authService.findMagicLinkTokenIncludingExpired(token)
 
-        // Prepare base error response
-        const errorResponse: { error: string; requestId?: string } = {
-          error: 'The link you provided is invalid or has already been used.'
-        }
-
-        // If token exists and is expired, conditionally include requestId
-        if (expiredToken && expiredToken.expiresAt < new Date()) {
-          // Only return requestId if token was created recently
-          const now = new Date()
-          const recentWindowStart = new Date(
-            now.getTime() - MAGIC_LINK_CONFIG.EXPIRED_TOKEN_REQUESTID_WINDOW_MS
-          )
-          const isRecent = expiredToken.createdAt > recentWindowStart
-
-          // Include requestId if token is recent and has one
-          if (isRecent && expiredToken.requestId) {
-            errorResponse.requestId = expiredToken.requestId
-          }
-        }
-
-        return Response.json(errorResponse, { status: 400 })
+      // Prepare base error response
+      const errorResponse: { error: string; requestId?: string } = {
+        error: 'The link you provided is invalid or has already been used.'
       }
 
-      // Create response with user data
-      const response = Response.json({
-        user: {
-          id: sessionData.user.id,
-          email: sessionData.user.email,
-          username: sessionData.user.username,
-          role: sessionData.user.role
+      // If token exists and is expired, conditionally include requestId
+      if (expiredToken && expiredToken.expiresAt < new Date()) {
+        // Only return requestId if token was created recently
+        const now = new Date()
+        const recentWindowStart = new Date(
+          now.getTime() - MAGIC_LINK_CONFIG.EXPIRED_TOKEN_REQUESTID_WINDOW_MS
+        )
+        const isRecent = expiredToken.createdAt > recentWindowStart
+
+        // Include requestId if token is recent and has one
+        if (isRecent && expiredToken.requestId) {
+          errorResponse.requestId = expiredToken.requestId
         }
-      })
+      }
 
-      // Set auth cookies
-      setAuthCookies(response, sessionData)
-
-      return response
-    } catch (error) {
-      console.error('Verify magic link error:', error)
-      return Response.json({ error: 'Internal server error' }, { status: 500 })
+      return Response.json(errorResponse, { status: 400 })
     }
+
+    // Create response with user data
+    const response = Response.json({
+      user: {
+        id: sessionData.user.id,
+        email: sessionData.user.email,
+        username: sessionData.user.username,
+        role: sessionData.user.role
+      }
+    })
+
+    // Set auth cookies
+    setAuthCookies(response, sessionData)
+
+    return response
   }
 }

@@ -35,57 +35,49 @@ export class GetFeedbackDraft extends OpenAPIRoute {
   }
 
   async handle(request: IRequest, _env: Env, _context: RequestContext) {
-    try {
-      const code = request.params.code.toUpperCase()
+    const code = request.params.code.toUpperCase()
 
-      // Clean up expired codes first (optional cleanup)
-      await database()
-        .delete(feedbackDrafts)
-        .where(lt(feedbackDrafts.expiresAt, new Date()))
+    // Clean up expired codes first (optional cleanup)
+    await database()
+      .delete(feedbackDrafts)
+      .where(lt(feedbackDrafts.expiresAt, new Date()))
 
-      // Find the feedback draft
-      const result = await database()
-        .select()
-        .from(feedbackDrafts)
-        .where(eq(feedbackDrafts.code, code))
-        .limit(1)
+    // Find the feedback draft
+    const result = await database()
+      .select()
+      .from(feedbackDrafts)
+      .where(eq(feedbackDrafts.code, code))
+      .limit(1)
 
-      if (result.length === 0) {
-        return Response.json(
-          { error: 'Code not found or expired' },
-          { status: 404 }
-        )
-      }
-
-      const feedbackDraft = result[0]
-
-      // Check if expired
-      if (feedbackDraft.expiresAt < new Date()) {
-        // Delete expired code
-        await database()
-          .delete(feedbackDrafts)
-          .where(eq(feedbackDrafts.id, feedbackDraft.id))
-
-        return Response.json(
-          { error: 'Code not found or expired' },
-          { status: 404 }
-        )
-      }
-
-      // Mark as used (optional tracking)
-      await database()
-        .update(feedbackDrafts)
-        .set({ usedAt: new Date() })
-        .where(eq(feedbackDrafts.id, feedbackDraft.id))
-
-      // Return the data (already parsed from jsonb)
-      return Response.json(feedbackDraft.data, { status: 200 })
-    } catch (error: unknown) {
-      console.error('Error retrieving feedback draft:', error)
+    if (result.length === 0) {
       return Response.json(
-        { error: 'Failed to retrieve feedback draft data' },
-        { status: 500 }
+        { error: 'Code not found or expired' },
+        { status: 404 }
       )
     }
+
+    const feedbackDraft = result[0]
+
+    // Check if expired
+    if (feedbackDraft.expiresAt < new Date()) {
+      // Delete expired code
+      await database()
+        .delete(feedbackDrafts)
+        .where(eq(feedbackDrafts.id, feedbackDraft.id))
+
+      return Response.json(
+        { error: 'Code not found or expired' },
+        { status: 404 }
+      )
+    }
+
+    // Mark as used (optional tracking)
+    await database()
+      .update(feedbackDrafts)
+      .set({ usedAt: new Date() })
+      .where(eq(feedbackDrafts.id, feedbackDraft.id))
+
+    // Return the data (already parsed from jsonb)
+    return Response.json(feedbackDraft.data, { status: 200 })
   }
 }

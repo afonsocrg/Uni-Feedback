@@ -39,24 +39,19 @@ export class GetProfile extends OpenAPIRoute {
   }
 
   async handle(request: IRequest, env: Env, context: RequestContext) {
-    try {
-      // Authenticate user
-      // Return user data from context
-      const authContext = await requireAuth(request, env, context)
-      const user = authContext.user!
+    // Authenticate user
+    // Return user data from context
+    const authContext = await requireAuth(request, env, context)
+    const user = authContext.user!
 
-      return Response.json({
-        user: {
-          id: user.id,
-          email: user.email,
-          username: user.username,
-          role: user.role,
-          referralCode: user.referralCode
-        }
-      })
-    } catch (error) {
-      console.error('Get profile error:', error)
-      return Response.json({ error: 'Internal server error' }, { status: 500 })
-    }
+    return Response.json({
+      user: {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        role: user.role,
+        referralCode: user.referralCode
+      }
+    })
   }
 }

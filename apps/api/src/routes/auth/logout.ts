@@ -23,28 +23,23 @@ export class Logout extends OpenAPIRoute {
   }
 
   async handle(request: Request, env: Env, _context: RequestContext) {
-    try {
-      // Get access token from cookie
-      const cookies = request.headers.get('Cookie') || ''
-      const accessTokenMatch = cookies.match(
-        new RegExp(`${AUTH_CONFIG.COOKIE_NAME}-access=([^;]+)`)
-      )
-      const accessToken = accessTokenMatch?.[1]
+    // Get access token from cookie
+    const cookies = request.headers.get('Cookie') || ''
+    const accessTokenMatch = cookies.match(
+      new RegExp(`${AUTH_CONFIG.COOKIE_NAME}-access=([^;]+)`)
+    )
+    const accessToken = accessTokenMatch?.[1]
 
-      if (accessToken) {
-        // Delete the session
-        const authService = new AuthService(env)
-        await authService.deleteSession(accessToken)
-      }
-
-      // Clear authentication cookies
-      const response = Response.json({ message: 'Logout successful' })
-      clearAuthCookies(response)
-
-      return response
-    } catch (error) {
-      console.error('Logout error:', error)
-      return Response.json({ error: 'Internal server error' }, { status: 500 })
+    if (accessToken) {
+      // Delete the session
+      const authService = new AuthService(env)
+      await authService.deleteSession(accessToken)
     }
+
+    // Clear authentication cookies
+    const response = Response.json({ message: 'Logout successful' })
+    clearAuthCookies(response)
+
+    return response
   }
 }

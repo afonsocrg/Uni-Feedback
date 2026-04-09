@@ -60,41 +60,36 @@ export class Login extends OpenAPIRoute {
   }
 
   async handle(request: Request, env: Env, _context: RequestContext) {
-    try {
-      const data = await this.getValidatedData<typeof this.schema>()
-      const { email, password } = data.body
+    const data = await this.getValidatedData<typeof this.schema>()
+    const { email, password } = data.body
 
-      // Verify credentials
-      const authService = new AuthService(env)
-      const user = await authService.verifyCredentials(email, password)
-      if (!user) {
-        return Response.json(
-          { error: 'Invalid email or password' },
-          { status: 401 }
-        )
-      }
-
-      // Create session
-      const session = await authService.createSession(user.id)
-
-      // Set access token in cookie
-      const response = Response.json({
-        user: {
-          id: user.id,
-          email: user.email,
-          username: user.username,
-          superuser: user.superuser,
-          referralCode: user.referralCode
-        }
-      })
-
-      // Set authentication cookies
-      setAuthCookies(response, session)
-
-      return response
-    } catch (error) {
-      console.error('Login error:', error)
-      return Response.json({ error: 'Internal server error' }, { status: 500 })
+    // Verify credentials
+    const authService = new AuthService(env)
+    const user = await authService.verifyCredentials(email, password)
+    if (!user) {
+      return Response.json(
+        { error: 'Invalid email or password' },
+        { status: 401 }
+      )
     }
+
+    // Create session
+    const session = await authService.createSession(user.id)
+
+    // Set access token in cookie
+    const response = Response.json({
+      user: {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        superuser: user.superuser,
+        referralCode: user.referralCode
+      }
+    })
+
+    // Set authentication cookies
+    setAuthCookies(response, session)
+
+    return response
   }
 }

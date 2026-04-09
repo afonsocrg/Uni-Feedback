@@ -55,62 +55,56 @@ export class RequestOtp extends OpenAPIRoute {
   }
 
   async handle(_request: Request, env: Env, _context: RequestContext) {
-    try {
-      const data = await this.getValidatedData<typeof this.schema>()
-      const { email } = data.body
-      let { referralCode } = data.body
-      const normalizedEmail = email.toLowerCase()
+    const data = await this.getValidatedData<typeof this.schema>()
+    const { email } = data.body
+    let { referralCode } = data.body
+    const normalizedEmail = email.toLowerCase()
 
-      // Validate referral code format if provided (silently ignore invalid)
-      if (referralCode && !validateReferralCodeFormat(referralCode)) {
-        referralCode = undefined
-      }
-
-      // Validate email domain against faculty whitelist
-      const isValid = await isUniversityEmail(normalizedEmail)
-
-      if (!isValid) {
-        return Response.json(
-          {
-            error: 'Please use your university email address.'
-          },
-          { status: 400 }
-        )
-      }
-
-      // Check rate limit (60 second cooldown)
-      const authService = new AuthService(env)
-      const rateLimitResult =
-        await authService.checkOtpRateLimit(normalizedEmail)
-
-      if (!rateLimitResult.allowed) {
-        return Response.json(
-          {
-            error: 'Please wait before requesting another code.',
-            retryAfterSeconds: rateLimitResult.retryAfterSeconds!
-          },
-          { status: 429 }
-        )
-      }
-
-      // Create OTP token
-      const otpToken = await authService.createOtpToken(
-        normalizedEmail,
-        referralCode
-      )
-
-      // Send OTP email
-      const emailService = new EmailService(env)
-      await emailService.sendOtpEmail(normalizedEmail, otpToken.otp)
-
-      // Return success
-      return Response.json({
-        message:
-          'If your email is valid, you will receive a verification code shortly.'
-      })
-    } catch (error) {
-      console.error('Request OTP error:', error)
-      return Response.json({ error: 'Internal server error' }, { status: 500 })
+    // Validate referral code format if provided (silently ignore invalid)
+    if (referralCode && !validateReferralCodeFormat(referralCode)) {
+      referralCode = undefined
     }
+
+    // Validate email domain against faculty whitelist
+    const isValid = await isUniversityEmail(normalizedEmail)
+
+    if (!isValid) {
+      return Response.json(
+        {
+          error: 'Please use your university email address.'
+        },
+        { status: 400 }
+      )
+    }
+
+    // Check rate limit (60 second cooldown)
+    const authService = new AuthService(env)
+    const rateLimitResult = await authService.checkOtpRateLimit(normalizedEmail)
+
+    if (!rateLimitResult.allowed) {
+      return Response.json(
+        {
+          error: 'Please wait before requesting another code.',
+          retryAfterSeconds: rateLimitResult.retryAfterSeconds!
+        },
+        { status: 429 }
+      )
+    }
+
+    // Create OTP token
+    const otpToken = await authService.createOtpToken(
+      normalizedEmail,
+      referralCode
+    )
+
+    // Send OTP email
+    const emailService = new EmailService(env)
+    await emailService.sendOtpEmail(normalizedEmail, otpToken.otp)
+
+    // Return success
+    return Response.json({
+      message:
+        'If your email is valid, you will receive a verification code shortly.'
+    })
   }
 }

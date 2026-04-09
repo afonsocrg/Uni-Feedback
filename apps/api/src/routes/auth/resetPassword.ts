@@ -55,43 +55,35 @@ export class ResetPassword extends OpenAPIRoute {
   }
 
   async handle(_request: Request, env: Env, _context: RequestContext) {
-    try {
-      const data = await this.getValidatedData<typeof this.schema>()
-      const { token, password, confirmPassword } = data.body
+    const data = await this.getValidatedData<typeof this.schema>()
+    const { token, password, confirmPassword } = data.body
 
-      // Validate password confirmation
-      if (password !== confirmPassword) {
-        return Response.json(
-          { error: 'Passwords do not match' },
-          { status: 400 }
-        )
-      }
-
-      // Validate password requirements
-      const passwordValidation = validatePassword(password)
-      if (!passwordValidation.isValid) {
-        return Response.json(
-          { error: passwordValidation.errors.join('. ') },
-          { status: 400 }
-        )
-      }
-
-      // Use the reset token
-      const authService = new AuthService(env)
-      const success = await authService.usePasswordResetToken(token, password)
-      if (!success) {
-        return Response.json(
-          { error: 'Invalid or expired reset token' },
-          { status: 404 }
-        )
-      }
-
-      return Response.json({
-        message: 'Password reset successful'
-      })
-    } catch (error) {
-      console.error('Reset password error:', error)
-      return Response.json({ error: 'Internal server error' }, { status: 500 })
+    // Validate password confirmation
+    if (password !== confirmPassword) {
+      return Response.json({ error: 'Passwords do not match' }, { status: 400 })
     }
+
+    // Validate password requirements
+    const passwordValidation = validatePassword(password)
+    if (!passwordValidation.isValid) {
+      return Response.json(
+        { error: passwordValidation.errors.join('. ') },
+        { status: 400 }
+      )
+    }
+
+    // Use the reset token
+    const authService = new AuthService(env)
+    const success = await authService.usePasswordResetToken(token, password)
+    if (!success) {
+      return Response.json(
+        { error: 'Invalid or expired reset token' },
+        { status: 404 }
+      )
+    }
+
+    return Response.json({
+      message: 'Password reset successful'
+    })
   }
 }

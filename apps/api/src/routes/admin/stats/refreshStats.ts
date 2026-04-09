@@ -39,23 +39,14 @@ export class RefreshStats extends OpenAPIRoute {
   }
 
   async handle(_request: IRequest, _env: Env, _context: RequestContext) {
-    try {
-      const statsService = new StatsService()
-      const result = await statsService.refreshAllStats()
+    const statsService = new StatsService()
+    const result = await statsService.refreshAllStats()
 
-      return Response.json({
-        success: true,
-        coursesUpdated: result.coursesUpdated,
-        degreesUpdated: result.degreesUpdated,
-        refreshedAt: new Date().toISOString()
-      })
-    } catch (error) {
-      console.error('Refresh stats error:', error)
-
-      return Response.json(
-        { error: 'Failed to refresh statistics. Please try again later.' },
-        { status: 500 }
-      )
-    }
+    return Response.json({
+      success: true,
+      coursesUpdated: result.coursesUpdated,
+      degreesUpdated: result.degreesUpdated,
+      refreshedAt: new Date().toISOString()
+    })
   }
 }

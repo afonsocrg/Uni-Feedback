@@ -48,49 +48,44 @@ export class Unsubscribe extends OpenAPIRoute {
   }
 
   async handle(_request: Request, _env: Env, _context: RequestContext) {
-    try {
-      const data = await this.getValidatedData<typeof this.schema>()
-      const { token } = data.query
+    const data = await this.getValidatedData<typeof this.schema>()
+    const { token } = data.query
 
-      // Find email preferences by token
-      const [preferences] = await database()
-        .select()
-        .from(emailPreferences)
-        .where(eq(emailPreferences.unsubscribeToken, token))
-        .limit(1)
+    // Find email preferences by token
+    const [preferences] = await database()
+      .select()
+      .from(emailPreferences)
+      .where(eq(emailPreferences.unsubscribeToken, token))
+      .limit(1)
 
-      if (!preferences) {
-        return Response.json(
-          {
-            error:
-              'Invalid unsubscribe token. Please contact support@uni-feedback.com if you need help unsubscribing.'
-          },
-          { status: 404 }
-        )
-      }
-
-      // Check if already unsubscribed
-      if (!preferences.subscribedReminders) {
-        return Response.json({
-          message: 'You are already unsubscribed from reminder emails.'
-        })
-      }
-
-      // Update preferences to unsubscribe
-      await database()
-        .update(emailPreferences)
-        .set({
-          subscribedReminders: false,
-          unsubscribedAt: new Date()
-        })
-        .where(eq(emailPreferences.id, preferences.id))
-
-      return Response.json({
-        message: 'You have been successfully unsubscribed from reminder emails.'
-      })
-    } catch (error) {
-      console.error('Unsubscribe error:', error)
-      return Response.json({ error: 'Internal server error' }, { status: 500 })
+    if (!preferences) {
+      return Response.json(
+        {
+          error:
+            'Invalid unsubscribe token. Please contact support@uni-feedback.com if you need help unsubscribing.'
+        },
+        { status: 404 }
+      )
     }
+
+    // Check if already unsubscribed
+    if (!preferences.subscribedReminders) {
+      return Response.json({
+        message: 'You are already unsubscribed from reminder emails.'
+      })
+    }
+
+    // Update preferences to unsubscribe
+    await database()
+      .update(emailPreferences)
+      .set({
+        subscribedReminders: false,
+        unsubscribedAt: new Date()
+      })
+      .where(eq(emailPreferences.id, preferences.id))
+
+    return Response.json({
+      message: 'You have been successfully unsubscribed from reminder emails.'
+    })
   }
 }

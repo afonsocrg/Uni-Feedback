@@ -46,25 +46,20 @@ export class DeleteAccount extends OpenAPIRoute {
   }
 
   async handle(request: IRequest, env: Env, context: RequestContext) {
-    try {
-      // Authenticate user
-      const authContext = await requireAuth(request, env, context)
-      const userId = authContext.user.id
+    // Authenticate user
+    const authContext = await requireAuth(request, env, context)
+    const userId = authContext.user.id
 
-      // Delete user account (anonymize data)
-      const authService = new AuthService(env)
-      await authService.deleteUserAccount(userId)
+    // Delete user account (anonymize data)
+    const authService = new AuthService(env)
+    await authService.deleteUserAccount(userId)
 
-      // Clear authentication cookies
-      const response = Response.json({
-        message: 'Account deleted successfully'
-      })
-      clearAuthCookies(response)
+    // Clear authentication cookies
+    const response = Response.json({
+      message: 'Account deleted successfully'
+    })
+    clearAuthCookies(response)
 
-      return response
-    } catch (error) {
-      console.error('Delete account error:', error)
-      return Response.json({ error: 'Internal server error' }, { status: 500 })
-    }
+    return response
   }
 }
