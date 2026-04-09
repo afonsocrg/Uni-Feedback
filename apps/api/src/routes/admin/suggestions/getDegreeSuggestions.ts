@@ -52,34 +52,29 @@ export class GetDegreeSuggestions extends OpenAPIRoute {
   }
 
   async handle(_request: IRequest, _env: Env, _context: RequestContext) {
-    try {
-      const { query } = await this.getValidatedData<typeof this.schema>()
-      const { faculty_id } = query
+    const { query } = await this.getValidatedData<typeof this.schema>()
+    const { faculty_id } = query
 
-      // Build where conditions
-      const conditions = []
+    // Build where conditions
+    const conditions = []
 
-      if (faculty_id) {
-        conditions.push(eq(degrees.facultyId, faculty_id))
-      }
-
-      const whereClause = conditions.length > 0 ? and(...conditions) : undefined
-
-      // Get degrees with just id, name, and acronym
-      const degreesResult = await database()
-        .select({
-          id: degrees.id,
-          name: degrees.name,
-          acronym: degrees.acronym
-        })
-        .from(degrees)
-        .where(whereClause)
-        .orderBy(degrees.name)
-
-      return Response.json(degreesResult)
-    } catch (error) {
-      console.error('Get degree suggestions error:', error)
-      return Response.json({ error: 'Internal server error' }, { status: 500 })
+    if (faculty_id) {
+      conditions.push(eq(degrees.facultyId, faculty_id))
     }
+
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined
+
+    // Get degrees with just id, name, and acronym
+    const degreesResult = await database()
+      .select({
+        id: degrees.id,
+        name: degrees.name,
+        acronym: degrees.acronym
+      })
+      .from(degrees)
+      .where(whereClause)
+      .orderBy(degrees.name)
+
+    return Response.json(degreesResult)
   }
 }

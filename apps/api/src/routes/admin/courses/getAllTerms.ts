@@ -48,50 +48,45 @@ export class GetAllTerms extends OpenAPIRoute {
   }
 
   async handle(_request: IRequest, _env: Env, _context: RequestContext) {
-    try {
-      const { query } = await this.getValidatedData<typeof this.schema>()
-      const { faculty_id } = query
+    const { query } = await this.getValidatedData<typeof this.schema>()
+    const { faculty_id } = query
 
-      // Build query for courses with terms
-      const coursesResult = faculty_id
-        ? await database()
-            .selectDistinct({
-              terms: courses.terms
-            })
-            .from(courses)
-            .leftJoin(degrees, eq(courses.degreeId, degrees.id))
-            .where(
-              and(
-                eq(degrees.facultyId, faculty_id),
-                sql`${courses.terms} IS NOT NULL`
-              )
+    // Build query for courses with terms
+    const coursesResult = faculty_id
+      ? await database()
+          .selectDistinct({
+            terms: courses.terms
+          })
+          .from(courses)
+          .leftJoin(degrees, eq(courses.degreeId, degrees.id))
+          .where(
+            and(
+              eq(degrees.facultyId, faculty_id),
+              sql`${courses.terms} IS NOT NULL`
             )
-        : await database()
-            .selectDistinct({
-              terms: courses.terms
-            })
-            .from(courses)
-            .where(sql`${courses.terms} IS NOT NULL`)
+          )
+      : await database()
+          .selectDistinct({
+            terms: courses.terms
+          })
+          .from(courses)
+          .where(sql`${courses.terms} IS NOT NULL`)
 
-      // Extract and flatten all terms
-      const allTerms = new Set<string>()
+    // Extract and flatten all terms
+    const allTerms = new Set<string>()
 
-      for (const course of coursesResult) {
-        const terms = course.terms as string[]
-        if (terms && Array.isArray(terms)) {
-          terms.forEach((term) => allTerms.add(term))
-        }
+    for (const course of coursesResult) {
+      const terms = course.terms as string[]
+      if (terms && Array.isArray(terms)) {
+        terms.forEach((term) => allTerms.add(term))
       }
-
-      // Convert to sorted array
-      const sortedTerms = Array.from(allTerms).sort()
-
-      return Response.json({
-        terms: sortedTerms
-      })
-    } catch (error) {
-      console.error('Get all terms error:', error)
-      return Response.json({ error: 'Internal server error' }, { status: 500 })
     }
+
+    // Convert to sorted array
+    const sortedTerms = Array.from(allTerms).sort()
+
+    return Response.json({
+      terms: sortedTerms
+    })
   }
 }
