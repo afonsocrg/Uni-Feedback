@@ -7,6 +7,7 @@ import { DatabaseContext } from '@uni-feedback/db'
 import * as schema from '@uni-feedback/db/schema'
 import { createServerAdapter } from '@whatwg-node/server'
 import { drizzle } from 'drizzle-orm/postgres-js'
+import type { ExecutionContext } from 'hono'
 import { createServer } from 'node:http'
 import postgres from 'postgres'
 
@@ -138,20 +139,17 @@ const createFetchHandler = () => {
       return await DatabaseContext.run(database, async () => {
         // Create an execution context for Chanfana/Hono compatibility
         // In Node.js environment, these are mostly no-ops
-        const executionContext = {
-          waitUntil: (promise: Promise<any>) => {
+        const executionContext: ExecutionContext = {
+          waitUntil: (promise: Promise<unknown>) => {
             // In Node.js, we can just let the promise run
             promise.catch((err) => console.error('Background task error:', err))
           },
           passThroughOnException: () => {
             // No-op in Node.js
-          }
+          },
+          props: {}
         }
-        return await router.fetch(
-          request,
-          globalEnv as any,
-          executionContext as any
-        )
+        return await router.fetch(request, globalEnv as Env, executionContext)
       })
     } catch (error) {
       const url = new URL(request.url)

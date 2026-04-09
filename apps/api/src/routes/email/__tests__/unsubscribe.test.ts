@@ -33,7 +33,7 @@ describe('Unsubscribe Route', () => {
       env: {} as Env,
       get: () => ({}),
       set: () => {},
-      json: (data: any) => Response.json(data)
+      json: (data: unknown) => Response.json(data)
     } as unknown as Context
   }
 
