@@ -1,5 +1,7 @@
+import { requireSuperuser } from '@middleware'
 import { AuthService } from '@services/authService'
 import { OpenAPIRoute } from 'chanfana'
+import { IRequest } from 'itty-router'
 import { z } from 'zod'
 
 export class GetUsers extends OpenAPIRoute {
@@ -47,32 +49,19 @@ export class GetUsers extends OpenAPIRoute {
     }
   }
 
-  async handle(_request: Request, env: Env, context: RequestContext) {
-    try {
-      const currentUser = context.user
+  async handle(request: IRequest, env: Env, context: RequestContext) {
+    await requireSuperuser(request, env, context)
 
-      // Check if user is superuser
-      if (!currentUser?.superuser) {
-        return Response.json(
-          { error: 'Superuser access required' },
-          { status: 403 }
-        )
-      }
+    // Get all users using auth service
+    const authService = new AuthService(env)
+    const users = await authService.getAllUsers()
 
-      // Get all users using auth service
-      const authService = new AuthService(env)
-      const users = await authService.getAllUsers()
+    // Mask email addresses for privacy
+    const maskedUsers = users.map((user) => ({
+      ...user
+      // email: maskEmail(user.email, { showStart: 2, showEnd: 1 })
+    }))
 
-      // Mask email addresses for privacy
-      const maskedUsers = users.map((user) => ({
-        ...user
-        // email: maskEmail(user.email, { showStart: 2, showEnd: 1 })
-      }))
-
-      return Response.json(maskedUsers)
-    } catch (error) {
-      console.error('Get users error:', error)
-      return Response.json({ error: 'Internal server error' }, { status: 500 })
-    }
+    return Response.json(maskedUsers)
   }
 }

@@ -1,6 +1,6 @@
-import { adminMiddleware, superuserMiddleware } from '@middleware/auth'
+import { adminMiddleware } from '@middleware/auth'
 import { fromIttyRouter } from 'chanfana'
-import { AutoRouter, IRequest } from 'itty-router'
+import { AutoRouter } from 'itty-router'
 import {
   CreateCourseGroup,
   // DeleteCourseGroup, // Commented out - users should not be able to delete course groups
@@ -96,15 +96,6 @@ router.post('/reports/degree', GenerateDegreeReport)
 // Stats routes
 router.post('/stats/refresh', RefreshStats)
 
-// User routes - Wrapped with superuser middleware
-class GetUsersWithAuth extends GetUsers {
-  async handle(request: IRequest, env: Env, context: RequestContext) {
-    const authCheck = await superuserMiddleware(request, env, context)
-    if (authCheck) return authCheck
-
-    return super.handle(request, env, context)
-  }
-}
-router.get('/users', GetUsersWithAuth)
+router.get('/users', GetUsers)
 
 export { router }

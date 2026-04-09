@@ -1,7 +1,10 @@
+import { requireSuperuser } from '@middleware'
 import { AuthService } from '@services/authService'
 import { EmailService } from '@services/emailService'
 import { OpenAPIRoute } from 'chanfana'
+import { IRequest } from 'itty-router'
 import { z } from 'zod'
+import { AlreadyExistsError } from '../utils'
 
 export class Invite extends OpenAPIRoute {
   schema = {
@@ -62,51 +65,35 @@ export class Invite extends OpenAPIRoute {
     }
   }
 
-  async handle(_request: Request, env: Env, context: RequestContext) {
-    try {
-      const data = await this.getValidatedData<typeof this.schema>()
-      const { email } = data.body
-      const currentUser = context.user
+  async handle(request: IRequest, env: Env, context: RequestContext) {
+    const authContext = await requireSuperuser(request, env, context)
+    const data = await this.getValidatedData<typeof this.schema>()
+    const { email } = data.body
 
-      // Check if user is superuser
-      if (!currentUser?.superuser) {
-        return Response.json(
-          { error: 'Superuser access required' },
-          { status: 403 }
-        )
-      }
-
-      // Check if user already exists
-      const authService = new AuthService(env)
-      const existingUser = await authService.findUserByEmail(email)
-      if (existingUser) {
-        return Response.json(
-          { error: 'User with this email already exists' },
-          { status: 400 }
-        )
-      }
-
-      // Create invitation token
-      const inviteToken = await authService.createUserCreationToken(
-        email,
-        currentUser.id
-      )
-
-      // Send invitation email
-      const dashboardUrl = env.DASHBOARD_URL
-      const emailService = new EmailService(env)
-      await emailService.sendInvitationEmail(
-        email,
-        inviteToken.token,
-        dashboardUrl
-      )
-
-      return Response.json({
-        message: 'Invitation sent successfully'
-      })
-    } catch (error) {
-      console.error('Invite error:', error)
-      return Response.json({ error: 'Internal server error' }, { status: 500 })
+    // Check if user already exists
+    const authService = new AuthService(env)
+    const existingUser = await authService.findUserByEmail(email)
+    if (existingUser) {
+      throw new AlreadyExistsError('User with this email already exists')
     }
+
+    // Create invitation token
+    const inviteToken = await authService.createUserCreationToken(
+      email,
+      authContext.user.id
+    )
+
+    // Send invitation email
+    const dashboardUrl = env.DASHBOARD_URL
+    const emailService = new EmailService(env)
+    await emailService.sendInvitationEmail(
+      email,
+      inviteToken.token,
+      dashboardUrl
+    )
+
+    return Response.json({
+      message: 'Invitation sent successfully'
+    })
   }
 }
