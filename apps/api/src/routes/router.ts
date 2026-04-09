@@ -46,8 +46,11 @@ app.use(
   })
 )
 
+const isDev = process.env.NODE_ENV !== 'production'
+
 export const router = fromHono(app, {
-  docs_url: '/docs',
+  docs_url: isDev ? '/docs' : null,
+  openapi_url: isDev ? '/openapi.json' : null,
   passthroughErrors: true // Let errors propagate to Hono's onError handler
 })
 
