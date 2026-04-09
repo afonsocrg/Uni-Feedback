@@ -4,16 +4,9 @@ import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { router as adminRouter } from './admin/router'
 import { router as authRouter } from './auth/router'
-import {
-  GetCourse,
-  GetCourseFeedback,
-  GetCourses,
-  SearchCourses,
-  SubmitFeedback
-} from './courses'
-import { GetDegreeCourseGroups, GetDegreeCourses, GetDegrees } from './degrees'
+import { SearchCourses, SubmitFeedback } from './courses'
 import { router as emailRouter } from './email/router'
-import { GetFaculties, GetFacultyDegrees, GetFacultyDetails } from './faculties'
+import { GetFaculties, GetFacultyDegrees } from './faculties'
 import {
   AddHelpfulVote,
   CategorizeFeedback,
@@ -23,7 +16,6 @@ import {
   RemoveHelpfulVote,
   ReportFeedback
 } from './feedback'
-import { CreateFeedbackDraft, GetFeedbackDraft } from './feedbackDrafts'
 import { AppError, NotFoundError } from './utils'
 
 const app = new Hono()
@@ -70,21 +62,10 @@ router.get('/health', () =>
 // Public routes
 // ---------------------------------------------------------
 router.get('/faculties', GetFaculties)
-router.get('/faculties/:id', GetFacultyDetails)
 router.get('/faculties/:facultyId/degrees', GetFacultyDegrees)
 
-router.get('/degrees', GetDegrees)
-router.get('/degrees/:id/courseGroups', GetDegreeCourseGroups)
-router.get('/degrees/:id/courses', GetDegreeCourses)
-
-router.get('/courses', GetCourses)
 router.get('/courses/search', SearchCourses)
-router.get('/courses/:id', GetCourse)
-router.get('/courses/:id/feedback', GetCourseFeedback)
 router.post('/courses/:id/feedback', SubmitFeedback)
-
-router.post('/feedback-drafts', CreateFeedbackDraft)
-router.get('/feedback-drafts/:code', GetFeedbackDraft)
 
 router.post('/feedback/categorize-preview', CategorizeFeedback)
 router.get('/feedback/:id/edit', GetFeedbackForEdit)

@@ -1,5 +1,6 @@
 import { fromHono } from 'chanfana'
 import { Hono } from 'hono'
+import { GetFacultyDetails } from '../faculties'
 import {
   CreateCourseGroup,
   // DeleteCourseGroup, // Commented out - users should not be able to delete course groups
@@ -48,6 +49,7 @@ const app = new Hono()
 const router = fromHono(app, { passthroughErrors: true })
 
 // Faculty routes
+router.get('/faculties/:id', GetFacultyDetails)
 router.put('/faculties/:id', UpdateFaculty)
 router.get('/faculties/:id/email-suffixes', GetFacultyEmailSuffixes)
 router.post('/faculties/:id/email-suffixes', AddFacultyEmailSuffix)
