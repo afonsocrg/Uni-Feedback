@@ -16,6 +16,7 @@ import {
   RemoveHelpfulVote,
   ReportFeedback
 } from './feedback'
+import { router as profileRouter } from './profile/router'
 import { AppError, NotFoundError } from './utils'
 
 const app = new Hono()
@@ -82,6 +83,7 @@ router.post('/feedback/:id/report', ReportFeedback)
 // Nested routers
 // ---------------------------------------------------------
 router.route('/auth', authRouter)
+router.route('/profile', profileRouter)
 router.route('/admin', adminRouter)
 router.route('/email', emailRouter)
 

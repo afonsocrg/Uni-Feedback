@@ -235,7 +235,7 @@ export type { FeedbackRecommendation } from './types'
 export async function getFeedbackRecommendations(): Promise<FeedbackRecommendationsResponse> {
   try {
     return await apiGet<FeedbackRecommendationsResponse>(
-      '/auth/profile/feedback-recommendations'
+      '/profile/feedback-recommendations'
     )
   } catch (error) {
     throw new MeicFeedbackAPIError(
