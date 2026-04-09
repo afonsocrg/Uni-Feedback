@@ -9,7 +9,10 @@ export default tseslint.config(
     files: ['**/*.{ts,tsx}'],
     languageOptions: {
       ecmaVersion: 2020,
-      globals: globals.node
+      globals: globals.node,
+      parserOptions: {
+        tsconfigRootDir: import.meta.dirname
+      }
     },
     rules: {
       '@typescript-eslint/no-explicit-any': 'warn',
