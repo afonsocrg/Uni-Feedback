@@ -2,7 +2,7 @@ import { requireAuth } from '@middleware'
 import { AuthService } from '@services/authService'
 import { clearAuthCookies } from '@utils/authCookies'
 import { OpenAPIRoute } from 'chanfana'
-import { IRequest } from 'itty-router'
+import type { Context } from 'hono'
 import { z } from 'zod'
 
 export class DeleteAccount extends OpenAPIRoute {
@@ -45,9 +45,10 @@ export class DeleteAccount extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: Env, context: RequestContext) {
+  async handle(c: Context) {
+    const env = c.env as Env
     // Authenticate user
-    const authContext = await requireAuth(request, env, context)
+    const authContext = await requireAuth(c)
     const userId = authContext.user.id
 
     // Delete user account (anonymize data)

@@ -2,7 +2,7 @@ import { requireSuperuser } from '@middleware'
 import { AuthService } from '@services/authService'
 import { EmailService } from '@services/emailService'
 import { OpenAPIRoute } from 'chanfana'
-import { IRequest } from 'itty-router'
+import type { Context } from 'hono'
 import { z } from 'zod'
 import { AlreadyExistsError } from '../utils'
 
@@ -65,8 +65,9 @@ export class Invite extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: Env, context: RequestContext) {
-    const authContext = await requireSuperuser(request, env, context)
+  async handle(c: Context) {
+    const env = c.env as Env
+    const authContext = await requireSuperuser(c)
     const data = await this.getValidatedData<typeof this.schema>()
     const { email } = data.body
 

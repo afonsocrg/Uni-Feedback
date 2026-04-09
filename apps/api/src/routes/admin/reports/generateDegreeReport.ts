@@ -1,6 +1,7 @@
+import { requireAdmin } from '@middleware'
 import { ReportingService } from '@services'
 import { OpenAPIRoute } from 'chanfana'
-import { IRequest } from 'itty-router'
+import type { Context } from 'hono'
 import { z } from 'zod'
 
 const GenerateDegreeReportBodySchema = z.object({
@@ -62,9 +63,11 @@ export class GenerateDegreeReport extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: Env, context: RequestContext) {
+  async handle(c: Context) {
+    const env = c.env
     const data = await this.getValidatedData<typeof this.schema>()
     const { degreeId, schoolYear, curriculumYear, terms } = data.body
+    const authContext = await requireAdmin(c)
 
     const filters = {
       ...(curriculumYear !== undefined ? { curriculumYear } : {}),
@@ -76,7 +79,7 @@ export class GenerateDegreeReport extends OpenAPIRoute {
       degreeId,
       schoolYear,
       Object.keys(filters).length > 0 ? filters : undefined,
-      context.user?.id
+      authContext.user.id
     )
 
     return Response.json({

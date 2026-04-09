@@ -8,7 +8,7 @@ import {
 } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
 import { and, desc, eq } from 'drizzle-orm'
-import { IRequest } from 'itty-router'
+import type { Context } from 'hono'
 import { z } from 'zod'
 
 export class GetUserFeedback extends OpenAPIRoute {
@@ -63,8 +63,8 @@ export class GetUserFeedback extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: Env, context: RequestContext) {
-    const authContext = await requireAuth(request, env, context)
+  async handle(c: Context) {
+    const authContext = await requireAuth(c)
     const userId = authContext.user.id
 
     // Get all feedback by this user with course details

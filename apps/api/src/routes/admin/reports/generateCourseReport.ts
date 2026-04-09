@@ -1,6 +1,7 @@
+import { requireAdmin } from '@middleware'
 import { ReportingService } from '@services'
 import { OpenAPIRoute } from 'chanfana'
-import { IRequest } from 'itty-router'
+import type { Context } from 'hono'
 import { z } from 'zod'
 
 const GenerateCourseReportBodySchema = z.object({
@@ -60,15 +61,16 @@ export class GenerateCourseReport extends OpenAPIRoute {
     }
   }
 
-  async handle(_request: IRequest, env: Env, context: RequestContext) {
+  async handle(c: Context) {
+    const authContext = await requireAdmin(c)
     const { body } = await this.getValidatedData<typeof this.schema>()
     const { courseId, schoolYear } = body
 
-    const reportingService = new ReportingService(env)
+    const reportingService = new ReportingService(c.env)
     const presignedUrl = await reportingService.generateAndStoreCourseReport(
       courseId,
       schoolYear,
-      context.user?.id
+      authContext.user.id
     )
 
     return Response.json({

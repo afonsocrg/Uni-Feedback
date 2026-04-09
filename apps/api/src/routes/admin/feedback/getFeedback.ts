@@ -1,3 +1,4 @@
+import { requireAdmin } from '@middleware'
 import { PaginationQuerySchema, getPaginatedSchema } from '@types'
 import { database } from '@uni-feedback/db'
 import {
@@ -10,7 +11,7 @@ import {
 } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
 import { and, count, desc, eq, gt, isNotNull, isNull, sql } from 'drizzle-orm'
-import { IRequest } from 'itty-router'
+import type { Context } from 'hono'
 import { z } from 'zod'
 
 const FeedbackQuerySchema = PaginationQuerySchema.extend({
@@ -126,7 +127,8 @@ export class GetFeedback extends OpenAPIRoute {
     }
   }
 
-  async handle(_request: IRequest, _env: Env, _context: RequestContext) {
+  async handle(c: Context) {
+    await requireAdmin(c)
     const { query } = await this.getValidatedData<typeof this.schema>()
     const {
       page,

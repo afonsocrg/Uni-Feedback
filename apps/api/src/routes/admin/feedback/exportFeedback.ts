@@ -1,9 +1,10 @@
+import { requireAdmin } from '@middleware'
 import { database } from '@uni-feedback/db'
 import { courses, degrees, faculties, feedback } from '@uni-feedback/db/schema'
 import { getFeedbackPermalinkUrl, getWorkloadLabel } from '@uni-feedback/utils'
 import { OpenAPIRoute } from 'chanfana'
 import { and, eq, gte, isNotNull, isNull, lt, lte, sql } from 'drizzle-orm'
-import { IRequest } from 'itty-router'
+import type { Context } from 'hono'
 import Papa from 'papaparse'
 import { z } from 'zod'
 import { sendFeedbackExportNotification } from '../../../services/telegram'
@@ -171,7 +172,9 @@ export class ExportFeedback extends OpenAPIRoute {
     }
   }
 
-  async handle(_request: IRequest, env: Env, context: RequestContext) {
+  async handle(c: Context) {
+    const authContext = await requireAdmin(c)
+    const env = c.env as Env
     const data = await this.getValidatedData<typeof this.schema>()
     const filters = (data.body as { filters?: ExportFilters })?.filters ?? {}
 
@@ -241,7 +244,7 @@ export class ExportFeedback extends OpenAPIRoute {
     }
 
     // Send Telegram notification (non-blocking)
-    const userEmail = context.user?.email || 'unknown'
+    const userEmail = authContext.user.email || 'unknown'
     sendFeedbackExportNotification(env, {
       userEmail,
       filters: {

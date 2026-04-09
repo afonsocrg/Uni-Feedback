@@ -4,7 +4,7 @@ import { database } from '@uni-feedback/db'
 import { feedbackFull } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
 import { and, eq } from 'drizzle-orm'
-import { IRequest } from 'itty-router'
+import type { Context } from 'hono'
 import { z } from 'zod'
 import { ForbiddenError } from '../utils'
 
@@ -24,12 +24,13 @@ export class DeleteFeedback extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: Env, context: RequestContext) {
+  async handle(c: Context) {
+    const env = c.env as Env
     const { params } = await this.getValidatedData<typeof this.schema>()
     const feedbackId = params.id
 
     // Authenticate
-    const authContext = await requireAuth(request, env, context)
+    const authContext = await requireAuth(c)
     const userId = authContext.user.id
 
     // Fetch existing feedback from the full table to check deletedAt

@@ -3,7 +3,7 @@ import { z } from 'zod'
 // Function to get required fields from schema
 export function getRequiredFields(schema: z.ZodSchema): string[] {
   try {
-    const shape = (schema as any)._def?.shape()
+    const shape = schema instanceof z.ZodObject ? schema.shape : null
     if (!shape) return []
 
     return Object.keys(shape).filter((fieldName) => {
@@ -21,7 +21,7 @@ export function isFieldRequired(
   fieldName: string
 ): boolean {
   try {
-    const shape = (schema as any)._def?.shape()
+    const shape = schema instanceof z.ZodObject ? schema.shape : null
     const field = shape?.[fieldName]
 
     if (!field) return false

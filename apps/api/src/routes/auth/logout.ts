@@ -1,7 +1,10 @@
 import { AUTH_CONFIG } from '@config/auth'
+import { requireAuth } from '@middleware'
 import { AuthService } from '@services/authService'
 import { clearAuthCookies } from '@utils/authCookies'
 import { OpenAPIRoute } from 'chanfana'
+import type { Context } from 'hono'
+import { getCookie } from 'hono/cookie'
 import { z } from 'zod'
 
 export class Logout extends OpenAPIRoute {
@@ -22,16 +25,16 @@ export class Logout extends OpenAPIRoute {
     }
   }
 
-  async handle(request: Request, env: Env, _context: RequestContext) {
-    // Get access token from cookie
-    const cookies = request.headers.get('Cookie') || ''
-    const accessTokenMatch = cookies.match(
-      new RegExp(`${AUTH_CONFIG.COOKIE_NAME}-access=([^;]+)`)
-    )
-    const accessToken = accessTokenMatch?.[1]
+  async handle(c: Context) {
+    // Use existing auth logic to get session (handles cookie extraction internally)
+    const authContext = await requireAuth(c)
+    const env = c.env as Env
 
+    // Get access token from cookie
+    const accessToken = getCookie(c, `${AUTH_CONFIG.COOKIE_NAME}-access`)
+
+    // Delete the session from database
     if (accessToken) {
-      // Delete the session
       const authService = new AuthService(env)
       await authService.deleteSession(accessToken)
     }

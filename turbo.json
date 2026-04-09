@@ -53,6 +53,9 @@
       "dependsOn": ["build", "lint", "type-check"],
       "outputs": []
     },
+    "test": {
+      "outputs": []
+    },
     "clean": {
       "cache": false
     },

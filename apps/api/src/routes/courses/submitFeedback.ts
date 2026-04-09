@@ -13,7 +13,7 @@ import {
 import { countWords, getCurrentSchoolYear } from '@uni-feedback/utils'
 import { contentJson, OpenAPIRoute } from 'chanfana'
 import { and, eq } from 'drizzle-orm'
-import { IRequest } from 'itty-router'
+import type { Context } from 'hono'
 import { z } from 'zod'
 import { AlreadyExistsError, BadRequestError, NotFoundError } from '../utils'
 
@@ -53,12 +53,13 @@ export class SubmitFeedback extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: Env, context: RequestContext) {
+  async handle(c: Context) {
+    const env = c.env as Env
     const { params, body } = await this.getValidatedData<typeof this.schema>()
     const courseId = params.id
 
     // Authenticate user (required for feedback submission)
-    const authContext = await requireAuth(request, env, context)
+    const authContext = await requireAuth(c)
 
     // Use authenticated user's info
     const userId = authContext.user!.id

@@ -2,7 +2,7 @@ import { database } from '@uni-feedback/db'
 import { faculties } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
-import { IRequest } from 'itty-router'
+import type { Context } from 'hono'
 import { z } from 'zod'
 
 const FacultyResponseSchema = z.object({
@@ -36,8 +36,9 @@ export class GetFaculties extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, _env: Env, _context: RequestContext) {
-    const acronym = request.query?.acronym as string | undefined
+  async handle(c: Context) {
+    const { query } = await this.getValidatedData()
+    const acronym = query?.acronym
 
     const baseQuery = database()
       .select({

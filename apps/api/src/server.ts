@@ -136,7 +136,22 @@ const createFetchHandler = () => {
 
       // Run the request within database context
       return await DatabaseContext.run(database, async () => {
-        return await router.fetch(request, globalEnv, {})
+        // Create an execution context for Chanfana/Hono compatibility
+        // In Node.js environment, these are mostly no-ops
+        const executionContext = {
+          waitUntil: (promise: Promise<any>) => {
+            // In Node.js, we can just let the promise run
+            promise.catch((err) => console.error('Background task error:', err))
+          },
+          passThroughOnException: () => {
+            // No-op in Node.js
+          }
+        }
+        return await router.fetch(
+          request,
+          globalEnv as any,
+          executionContext as any
+        )
       })
     } catch (error) {
       const url = new URL(request.url)

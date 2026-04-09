@@ -1,6 +1,6 @@
 import { AIService } from '@services'
 import { contentJson, OpenAPIRoute } from 'chanfana'
-import { IRequest } from 'itty-router'
+import { Context } from 'hono'
 import { z } from 'zod'
 
 const CategorizeFeedbackRequestSchema = z
@@ -46,9 +46,11 @@ export class CategorizeFeedback extends OpenAPIRoute {
     }
   }
 
-  async handle(_request: IRequest, env: Env, _context: RequestContext) {
+  async handle(c: Context) {
+    const env = c.env as Env
+
     // Authenticate user (required to prevent abuse)
-    // const authContext = await requireAuth(request, env, context)
+    // const authContext = await requireAuth(c)
 
     // Get validated request body
     const { body } = await this.getValidatedData<typeof this.schema>()

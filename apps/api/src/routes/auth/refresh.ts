@@ -3,6 +3,8 @@ import { UnauthorizedError } from '@routes/utils/errorHandling'
 import { AuthService } from '@services/authService'
 import { setAuthCookies } from '@utils/authCookies'
 import { OpenAPIRoute } from 'chanfana'
+import type { Context } from 'hono'
+import { getCookie } from 'hono/cookie'
 import { z } from 'zod'
 
 export class Refresh extends OpenAPIRoute {
@@ -39,13 +41,10 @@ export class Refresh extends OpenAPIRoute {
     }
   }
 
-  async handle(request: Request, env: Env, _context: RequestContext) {
+  async handle(c: Context) {
+    const env = c.env as Env
     // Get refresh token from cookie
-    const cookies = request.headers.get('Cookie') || ''
-    const refreshTokenMatch = cookies.match(
-      new RegExp(`${AUTH_CONFIG.COOKIE_NAME}-refresh=([^;]+)`)
-    )
-    const refreshToken = refreshTokenMatch?.[1]
+    const refreshToken = getCookie(c, `${AUTH_CONFIG.COOKIE_NAME}-refresh`)
 
     if (!refreshToken) {
       throw new UnauthorizedError('No refresh token provided')

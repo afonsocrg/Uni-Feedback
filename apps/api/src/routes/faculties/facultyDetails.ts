@@ -3,7 +3,7 @@ import { database } from '@uni-feedback/db'
 import { courses, degrees, faculties } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
 import { count, eq } from 'drizzle-orm'
-import { IRequest } from 'itty-router'
+import type { Context } from 'hono'
 import { z } from 'zod'
 
 const DegreeSchema = z.object({
@@ -51,7 +51,7 @@ export class GetFacultyDetails extends OpenAPIRoute {
     }
   }
 
-  async handle(_request: IRequest, _env: Env, _context: RequestContext) {
+  async handle(c: Context) {
     const data = await this.getValidatedData<typeof this.schema>()
     const {
       params: { id: facultyId }

@@ -2,6 +2,7 @@ import { UnauthorizedError } from '@routes/utils/errorHandling'
 import { AuthService } from '@services/authService'
 import { setAuthCookies } from '@utils/authCookies'
 import { OpenAPIRoute } from 'chanfana'
+import type { Context } from 'hono'
 import { z } from 'zod'
 
 export class Login extends OpenAPIRoute {
@@ -60,7 +61,8 @@ export class Login extends OpenAPIRoute {
     }
   }
 
-  async handle(request: Request, env: Env, _context: RequestContext) {
+  async handle(c: Context) {
+    const env = c.env as Env
     const data = await this.getValidatedData<typeof this.schema>()
     const { email, password } = data.body
 

@@ -2,7 +2,7 @@ import { database } from '@uni-feedback/db'
 import { feedbackDrafts } from '@uni-feedback/db/schema'
 import { contentJson, OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
-import { IRequest } from 'itty-router'
+import { Context } from 'hono'
 import { z } from 'zod'
 import { InternalServerError } from '../utils'
 
@@ -50,7 +50,7 @@ export class CreateFeedbackDraft extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, _env: Env, _context: RequestContext) {
+  async handle(c: Context) {
     const { body } = await this.getValidatedData<typeof this.schema>()
 
     // Generate unique code
@@ -84,8 +84,8 @@ export class CreateFeedbackDraft extends OpenAPIRoute {
 
     // Get client IP for rate limiting (optional)
     const ipAddress =
-      request.headers.get('CF-Connecting-IP') ||
-      request.headers.get('X-Forwarded-For') ||
+      c.req.header('CF-Connecting-IP') ||
+      c.req.header('X-Forwarded-For') ||
       'unknown'
 
     // Insert feedback draft

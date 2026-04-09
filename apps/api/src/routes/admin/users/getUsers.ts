@@ -1,7 +1,7 @@
 import { requireSuperuser } from '@middleware'
 import { AuthService } from '@services/authService'
 import { OpenAPIRoute } from 'chanfana'
-import { IRequest } from 'itty-router'
+import type { Context } from 'hono'
 import { z } from 'zod'
 
 export class GetUsers extends OpenAPIRoute {
@@ -49,8 +49,9 @@ export class GetUsers extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: Env, context: RequestContext) {
-    await requireSuperuser(request, env, context)
+  async handle(c: Context) {
+    const env = c.env as Env
+    await requireSuperuser(c)
 
     // Get all users using auth service
     const authService = new AuthService(env)

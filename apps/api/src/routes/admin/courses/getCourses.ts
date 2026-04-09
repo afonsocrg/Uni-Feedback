@@ -1,9 +1,10 @@
+import { requireAdmin } from '@middleware'
 import { PaginationQuerySchema, getPaginatedSchema } from '@types'
 import { database } from '@uni-feedback/db'
 import { courses, degrees, faculties } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
 import { and, count, eq, or, sql } from 'drizzle-orm'
-import { IRequest } from 'itty-router'
+import type { Context } from 'hono'
 import { z } from 'zod'
 
 const CoursesQuerySchema = PaginationQuerySchema.extend({
@@ -68,7 +69,8 @@ export class GetCourses extends OpenAPIRoute {
     }
   }
 
-  async handle(_request: IRequest, _env: Env, _context: RequestContext) {
+  async handle(c: Context) {
+    await requireAdmin(c)
     const { query } = await this.getValidatedData<typeof this.schema>()
     const { page, limit, search, degree_id, faculty_id, term } = query
 

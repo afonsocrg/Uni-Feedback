@@ -1,5 +1,5 @@
-import { fromIttyRouter } from 'chanfana'
-import { AutoRouter } from 'itty-router'
+import { fromHono } from 'chanfana'
+import { Hono } from 'hono'
 import { CreateAccount } from './createAccount'
 import { DeleteAccount } from './deleteAccount'
 import { GetUserFeedback } from './feedback'
@@ -15,7 +15,8 @@ import { ResetPassword } from './resetPassword'
 import { GetUserStats } from './stats'
 import { VerifyOtp } from './verifyOtp'
 
-const router = fromIttyRouter(AutoRouter({ base: '/auth' }))
+const app = new Hono()
+const router = fromHono(app, { passthroughErrors: true })
 
 router.post('/login', Login)
 router.post('/logout', Logout)
@@ -23,10 +24,6 @@ router.post('/refresh', Refresh)
 router.post('/forgot-password', ForgotPassword)
 router.post('/reset-password', ResetPassword)
 router.post('/create-account', CreateAccount)
-// @deprecated Magic link routes - kept for backward compatibility
-// router.post('/magic-links', RequestMagicLink)
-// router.post('/magic-links/use', UseMagicLink)
-// router.post('/magic-links/verify', VerifyMagicLink)
 
 // OTP authentication routes
 router.post('/otp/request', RequestOtp)

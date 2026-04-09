@@ -1,6 +1,6 @@
 import { DegreeService } from '@services'
 import { OpenAPIRoute } from 'chanfana'
-import { IRequest } from 'itty-router'
+import type { Context } from 'hono'
 import { z } from 'zod'
 
 const DegreeResponseSchema = z.object({
@@ -47,7 +47,8 @@ export class GetFacultyDegrees extends OpenAPIRoute {
     }
   }
 
-  async handle(_request: IRequest, env: Env, _context: RequestContext) {
+  async handle(c: Context) {
+    const env = c.env as Env
     const { params, query } = await this.getValidatedData<typeof this.schema>()
     const { facultyId } = params
     const { onlyWithCourses } = query

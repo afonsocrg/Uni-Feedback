@@ -9,7 +9,7 @@ import {
 } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
-import { IRequest } from 'itty-router'
+import type { Context } from 'hono'
 import { z } from 'zod'
 import { NotFoundError, ValidationError } from '../utils'
 
@@ -41,7 +41,8 @@ export class ReportFeedback extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: Env, context: RequestContext) {
+  async handle(c: Context) {
+    const env = c.env as Env
     const { params, body } = await this.getValidatedData<typeof this.schema>()
     const feedbackId = params.id
     const { category, details } = body
@@ -52,7 +53,7 @@ export class ReportFeedback extends OpenAPIRoute {
     }
 
     // Authenticate
-    const authContext = await requireAuth(request, env, context)
+    const authContext = await requireAuth(c)
     const userId = authContext.user.id
 
     // Check feedback exists

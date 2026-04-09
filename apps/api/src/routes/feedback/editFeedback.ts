@@ -9,7 +9,7 @@ import {
 import { countWords } from '@uni-feedback/utils'
 import { contentJson, OpenAPIRoute } from 'chanfana'
 import { and, desc, eq } from 'drizzle-orm'
-import { IRequest } from 'itty-router'
+import type { Context } from 'hono'
 import { z } from 'zod'
 import { ForbiddenError } from '../utils'
 
@@ -41,12 +41,13 @@ export class EditFeedback extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: Env, context: RequestContext) {
+  async handle(c: Context) {
+    const env = c.env as Env
     const { params, body } = await this.getValidatedData<typeof this.schema>()
     const feedbackId = params.id
 
     // Authenticate
-    const authContext = await requireAuth(request, env, context)
+    const authContext = await requireAuth(c)
     const userId = authContext.user.id
 
     // Fetch existing feedback

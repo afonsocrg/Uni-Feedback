@@ -3,7 +3,7 @@ import { database } from '@uni-feedback/db'
 import { courseGroup, degrees } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
 import { eq, sql } from 'drizzle-orm'
-import { IRequest } from 'itty-router'
+import type { Context } from 'hono'
 import { z } from 'zod'
 
 const CourseGroupResponseSchema = z.object({
@@ -37,7 +37,7 @@ export class GetDegreeCourseGroups extends OpenAPIRoute {
     }
   }
 
-  async handle(_request: IRequest, _env: Env, _context: RequestContext) {
+  async handle(c: Context) {
     const data = await this.getValidatedData<typeof this.schema>()
 
     const { id: degreeId } = data.params

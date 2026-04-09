@@ -3,7 +3,7 @@ import { database } from '@uni-feedback/db'
 import { helpfulVotes } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
 import { and, eq } from 'drizzle-orm'
-import { IRequest } from 'itty-router'
+import type { Context } from 'hono'
 import { z } from 'zod'
 
 export class RemoveHelpfulVote extends OpenAPIRoute {
@@ -20,12 +20,12 @@ export class RemoveHelpfulVote extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: Env, context: RequestContext) {
+  async handle(c: Context) {
     const { params } = await this.getValidatedData<typeof this.schema>()
     const feedbackId = params.id
 
     // Authenticate
-    const authContext = await requireAuth(request, env, context)
+    const authContext = await requireAuth(c)
     const userId = authContext.user.id
 
     // Delete vote if exists (idempotent)

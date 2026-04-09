@@ -1,6 +1,7 @@
 import { getAllowedOrigins } from '@config'
-import { fromIttyRouter } from 'chanfana'
-import { cors, Router, withCookies } from 'itty-router'
+import { fromHono } from 'chanfana'
+import { Hono } from 'hono'
+import { cors } from 'hono/cors'
 import { router as adminRouter } from './admin/router'
 import { router as authRouter } from './auth/router'
 import {
@@ -23,21 +24,40 @@ import {
   ReportFeedback
 } from './feedback'
 import { CreateFeedbackDraft, GetFeedbackDraft } from './feedbackDrafts'
-import { NotFoundError } from './utils'
+import { AppError, NotFoundError } from './utils'
 
-const { preflight, corsify } = cors({
-  origin: getAllowedOrigins(),
-  credentials: true,
-  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+const app = new Hono()
+
+// Error handling middleware - handles all errors including from chanfana routes
+app.onError((err, c) => {
+  console.error('Error caught by Hono middleware:', err)
+
+  if (err instanceof AppError) {
+    const body: Record<string, unknown> = { error: err.message }
+    if (err.details) {
+      Object.assign(body, err.details)
+    }
+    return c.json(body, err.statusCode)
+  }
+
+  // Unknown error - log and return 500
+  console.error('Unexpected error:', err)
+  return c.json({ error: 'Internal server error' }, 500)
 })
 
-export const router = fromIttyRouter(
-  Router({
-    before: [preflight, withCookies],
-    finally: [corsify]
-  }),
-  { docs_url: '/docs' }
+app.use(
+  '*',
+  cors({
+    origin: getAllowedOrigins(),
+    credentials: true,
+    allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+  })
 )
+
+export const router = fromHono(app, {
+  docs_url: '/docs',
+  passthroughErrors: true // Let errors propagate to Hono's onError handler
+})
 
 // ---------------------------------------------------------
 // Health check
@@ -77,12 +97,9 @@ router.post('/feedback/:id/report', ReportFeedback)
 // ---------------------------------------------------------
 // Nested routers
 // ---------------------------------------------------------
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- itty-router type compatibility
-router.all('/auth/*', authRouter as any)
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- itty-router type compatibility
-router.all('/admin/*', adminRouter as any)
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- itty-router type compatibility
-router.all('/email/*', emailRouter as any)
+router.route('/auth', authRouter)
+router.route('/admin', adminRouter)
+router.route('/email', emailRouter)
 
 // 404 for everything else
 router.all('*', () => {

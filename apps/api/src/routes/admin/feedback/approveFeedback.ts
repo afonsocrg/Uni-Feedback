@@ -5,7 +5,7 @@ import { feedback, feedbackFull } from '@uni-feedback/db/schema'
 import { notifyAdminChange } from '@utils/notificationHelpers'
 import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
-import { IRequest } from 'itty-router'
+import type { Context } from 'hono'
 import { z } from 'zod'
 import { BadRequestError, NotFoundError } from '../../utils'
 
@@ -61,8 +61,9 @@ export class ApproveFeedback extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: Env, context: RequestContext) {
-    const authContext = await requireAdmin(request, env, context)
+  async handle(c: Context) {
+    const env = c.env as Env
+    const authContext = await requireAdmin(c)
     const { params } = await this.getValidatedData<typeof this.schema>()
     const { id: feedbackId } = params
 

@@ -1,3 +1,5 @@
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
+
 // ============================================================================
 // BASE ERROR CLASS
 // ============================================================================
@@ -10,7 +12,7 @@
 export class AppError extends Error {
   constructor(
     message: string,
-    public statusCode: number = 500,
+    public statusCode: ContentfulStatusCode = 500,
     public details?: Record<string, unknown>
   ) {
     super(message)

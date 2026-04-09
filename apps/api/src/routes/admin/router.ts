@@ -1,6 +1,5 @@
-import { adminMiddleware } from '@middleware/auth'
-import { fromIttyRouter } from 'chanfana'
-import { AutoRouter } from 'itty-router'
+import { fromHono } from 'chanfana'
+import { Hono } from 'hono'
 import {
   CreateCourseGroup,
   // DeleteCourseGroup, // Commented out - users should not be able to delete course groups
@@ -44,9 +43,9 @@ import { RefreshStats } from './stats'
 import { GetDegreeSuggestions } from './suggestions'
 import { GetUsers } from './users'
 
-const router = fromIttyRouter(
-  AutoRouter({ before: [adminMiddleware], base: '/admin' })
-)
+const app = new Hono()
+
+const router = fromHono(app, { passthroughErrors: true })
 
 // Faculty routes
 router.put('/faculties/:id', UpdateFaculty)

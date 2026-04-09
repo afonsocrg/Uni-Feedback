@@ -3,7 +3,7 @@ import { database } from '@uni-feedback/db'
 import { feedbackDrafts } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
 import { eq, lt } from 'drizzle-orm'
-import { IRequest } from 'itty-router'
+import type { Context } from 'hono'
 import { z } from 'zod'
 
 export class GetFeedbackDraft extends OpenAPIRoute {
@@ -35,7 +35,7 @@ export class GetFeedbackDraft extends OpenAPIRoute {
     }
   }
 
-  async handle(_request: IRequest, _env: Env, _context: RequestContext) {
+  async handle(c: Context) {
     const { params } = await this.getValidatedData<typeof this.schema>()
     const code = params.code.toUpperCase()
 

@@ -1,6 +1,7 @@
+import { requireAdmin } from '@middleware'
 import { StatsService } from '@services'
 import { OpenAPIRoute } from 'chanfana'
-import { IRequest } from 'itty-router'
+import type { Context } from 'hono'
 import { z } from 'zod'
 
 const RefreshStatsResponseSchema = z.object({
@@ -38,7 +39,8 @@ export class RefreshStats extends OpenAPIRoute {
     }
   }
 
-  async handle(_request: IRequest, _env: Env, _context: RequestContext) {
+  async handle(c: Context) {
+    await requireAdmin(c)
     const statsService = new StatsService()
     const result = await statsService.refreshAllStats()
 

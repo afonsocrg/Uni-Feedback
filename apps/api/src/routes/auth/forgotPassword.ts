@@ -1,6 +1,7 @@
 import { AuthService } from '@services/authService'
 import { EmailService } from '@services/emailService'
 import { OpenAPIRoute } from 'chanfana'
+import type { Context } from 'hono'
 import { z } from 'zod'
 
 export class ForgotPassword extends OpenAPIRoute {
@@ -33,7 +34,8 @@ export class ForgotPassword extends OpenAPIRoute {
     }
   }
 
-  async handle(_request: Request, env: Env, _context: RequestContext) {
+  async handle(c: Context) {
+    const env = c.env as Env
     const data = await this.getValidatedData<typeof this.schema>()
     const { email } = data.body
 

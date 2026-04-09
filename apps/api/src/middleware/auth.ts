@@ -1,5 +1,7 @@
 import { AUTH_CONFIG } from '@config/auth'
 import { AuthService } from '@services/authService'
+import type { Context } from 'hono'
+import { getCookie } from 'hono/cookie'
 import {
   ForbiddenError,
   UnauthorizedError
@@ -10,16 +12,11 @@ import {
  * Throws UnauthorizedError if authentication fails.
  */
 export async function requireAuth(
-  request: Request,
-  env: Env,
-  context: RequestContext
+  c: Context
 ): Promise<AuthenticatedRequestContext> {
-  // Get access token from cookie
-  const cookies = request.headers.get('Cookie') || ''
-  const accessTokenMatch = cookies.match(
-    new RegExp(`${AUTH_CONFIG.COOKIE_NAME}-access=([^;]+)`)
-  )
-  const accessToken = accessTokenMatch?.[1]
+  const env = c.env as Env
+  const context = (c.get('requestContext') as RequestContext) || {}
+  const accessToken = getCookie(c, `${AUTH_CONFIG.COOKIE_NAME}-access`)
 
   if (!accessToken) {
     throw new UnauthorizedError('Authentication required')
@@ -37,6 +34,9 @@ export async function requireAuth(
   context.user = user
   context.session = { user, session }
 
+  // Store updated context
+  c.set('requestContext', context)
+
   return context as AuthenticatedRequestContext
 }
 
@@ -45,11 +45,9 @@ export async function requireAuth(
  * Throws UnauthorizedError if not authenticated, ForbiddenError if not admin.
  */
 export async function requireAdmin(
-  request: Request,
-  env: Env,
-  context: RequestContext
+  c: Context
 ): Promise<AuthenticatedRequestContext> {
-  const authContext = await requireAuth(request, env, context)
+  const authContext = await requireAuth(c)
 
   // Check if user has admin or super_admin role
   const user = authContext.user
@@ -68,11 +66,9 @@ export async function requireAdmin(
  * Throws UnauthorizedError if not authenticated, ForbiddenError if not superuser.
  */
 export async function requireSuperuser(
-  request: Request,
-  env: Env,
-  context: RequestContext
+  c: Context
 ): Promise<AuthenticatedRequestContext> {
-  const authContext = await requireAuth(request, env, context)
+  const authContext = await requireAuth(c)
 
   // Check if user has super_admin role
   const user = authContext.user
@@ -83,78 +79,4 @@ export async function requireSuperuser(
   }
 
   return authContext
-}
-
-// ============================================================================
-// MIDDLEWARE WRAPPERS FOR ROUTER `before` HOOKS
-// These return Response on error, undefined on success (for itty-router middleware)
-// ============================================================================
-
-/**
- * Middleware wrapper for requireAdmin.
- * Use this with router `before` hooks. Returns Response on error, undefined on success.
- */
-export async function adminMiddleware(
-  request: Request,
-  env: Env,
-  context: RequestContext
-): Promise<Response | undefined> {
-  try {
-    await requireAdmin(request, env, context)
-    return undefined
-  } catch (error) {
-    if (error instanceof UnauthorizedError) {
-      return Response.json({ error: error.message }, { status: 401 })
-    }
-    if (error instanceof ForbiddenError) {
-      return Response.json({ error: error.message }, { status: 403 })
-    }
-    throw error
-  }
-}
-
-/**
- * Middleware wrapper for requireSuperuser.
- * Use this with router `before` hooks. Returns Response on error, undefined on success.
- */
-export async function superuserMiddleware(
-  request: Request,
-  env: Env,
-  context: RequestContext
-): Promise<Response | undefined> {
-  try {
-    await requireSuperuser(request, env, context)
-    return undefined
-  } catch (error) {
-    if (error instanceof UnauthorizedError) {
-      return Response.json({ error: error.message }, { status: 401 })
-    }
-    if (error instanceof ForbiddenError) {
-      return Response.json({ error: error.message }, { status: 403 })
-    }
-    throw error
-  }
-}
-
-// ============================================================================
-// DEPRECATED: Old function names kept for backward compatibility
-// ============================================================================
-
-/**
- * @deprecated Use requireAuth instead
- */
-export async function authenticateUser(
-  request: Request,
-  env: Env,
-  context: RequestContext
-) {
-  try {
-    await requireAuth(request, env, context)
-    return undefined
-  } catch (error) {
-    if (error instanceof UnauthorizedError) {
-      return Response.json({ error: error.message }, { status: 401 })
-    }
-    throw error
-  }
 }

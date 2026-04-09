@@ -3,6 +3,7 @@ import { database } from '@uni-feedback/db'
 import { emailPreferences } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
+import type { Context } from 'hono'
 import { z } from 'zod'
 
 export class Unsubscribe extends OpenAPIRoute {
@@ -48,7 +49,7 @@ export class Unsubscribe extends OpenAPIRoute {
     }
   }
 
-  async handle(_request: Request, _env: Env, _context: RequestContext) {
+  async handle(c: Context) {
     const data = await this.getValidatedData<typeof this.schema>()
     const { token } = data.query
 

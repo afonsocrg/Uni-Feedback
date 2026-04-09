@@ -3,7 +3,7 @@ import { CourseFeedbackService, CourseService } from '@services'
 import { feedback } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
 import { desc } from 'drizzle-orm'
-import { IRequest } from 'itty-router'
+import type { Context } from 'hono'
 import { z } from 'zod'
 
 const FeedbackSchema = z.object({
@@ -52,7 +52,8 @@ export class GetCourseFeedback extends OpenAPIRoute {
     }
   }
 
-  async handle(_request: IRequest, env: Env, _context: RequestContext) {
+  async handle(c: Context) {
+    const env = c.env as Env
     const { params } = await this.getValidatedData<typeof this.schema>()
     const courseId = params.id
     const courseFeedbackService = new CourseFeedbackService(env)

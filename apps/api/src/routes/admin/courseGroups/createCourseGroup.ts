@@ -5,7 +5,7 @@ import { courseGroup, degrees } from '@uni-feedback/db/schema'
 import { notifyAdminChange } from '@utils/notificationHelpers'
 import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
-import { IRequest } from 'itty-router'
+import type { Context } from 'hono'
 import { z } from 'zod'
 import { NotFoundError, ValidationError } from '../../utils'
 
@@ -76,8 +76,9 @@ export class CreateCourseGroup extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: Env, context: RequestContext) {
-    const authContext = await requireAdmin(request, env, context)
+  async handle(c: Context) {
+    const env = c.env as Env
+    const authContext = await requireAdmin(c)
     const { body } = await this.getValidatedData<typeof this.schema>()
     const { name, degreeId } = body
 
