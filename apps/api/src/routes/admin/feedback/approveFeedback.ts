@@ -7,7 +7,7 @@ import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
 import { z } from 'zod'
-import { withErrorHandling } from '../../utils'
+import { BadRequestError, NotFoundError } from '../../utils'
 
 const ApproveFeedbackParamsSchema = z.object({
   id: z.string().transform((val) => parseInt(val, 10))
@@ -62,104 +62,102 @@ export class ApproveFeedback extends OpenAPIRoute {
   }
 
   async handle(request: IRequest, env: Env, context: RequestContext) {
-    return withErrorHandling(request, async () => {
-      const authContext = await requireAdmin(request, env, context)
-      const { params } = await this.getValidatedData<typeof this.schema>()
-      const { id: feedbackId } = params
+    const authContext = await requireAdmin(request, env, context)
+    const { params } = await this.getValidatedData<typeof this.schema>()
+    const { id: feedbackId } = params
 
-      if (!feedbackId || isNaN(feedbackId)) {
-        return Response.json({ error: 'Invalid feedback ID' }, { status: 400 })
-      }
+    if (!feedbackId || isNaN(feedbackId)) {
+      throw new BadRequestError('Invalid feedback ID')
+    }
 
-      // Get feedback data
-      const existingFeedback = await database()
-        .select({
-          id: feedback.id,
-          userId: feedback.userId,
-          courseId: feedback.courseId,
-          approvedAt: feedback.approvedAt
-        })
-        .from(feedback)
-        .where(eq(feedback.id, feedbackId))
-        .limit(1)
-
-      if (!existingFeedback.length) {
-        return Response.json({ error: 'Feedback not found' }, { status: 404 })
-      }
-
-      const feedbackData = existingFeedback[0]
-      const wasAlreadyApproved = feedbackData.approvedAt !== null
-
-      // Idempotent: if already approved, return success without changes
-      if (wasAlreadyApproved) {
-        return Response.json({
-          id: feedbackId,
-          approved: true,
-          approvedAt: feedbackData.approvedAt!.toISOString(),
-          message: 'Feedback is already approved'
-        })
-      }
-
-      // Update approval status
-      const approvalDate = new Date()
-      await database()
-        .update(feedbackFull)
-        .set({ approvedAt: approvalDate })
-        .where(eq(feedbackFull.id, feedbackId))
-
-      // Handle point restoration for authenticated users (best-effort)
-      const userId = feedbackData.userId
-      if (userId) {
-        try {
-          const pointService = new PointService(env)
-          await pointService.restoreFeedbackPoints(userId, feedbackId)
-        } catch (pointError) {
-          console.error(
-            `Failed to restore points for feedback ${feedbackId}:`,
-            pointError
-          )
-          // Continue - feedback approval succeeded, points can be fixed manually
-        }
-      } else {
-        console.log(
-          `Feedback ${feedbackId} is anonymous - skipping point restoration`
-        )
-      }
-
-      // Send notification
-      await notifyAdminChange({
-        env,
-        user: authContext.user,
-        resourceType: 'feedback',
-        resourceId: feedbackId,
-        resourceName: `Feedback #${feedbackId}`,
-        action: 'updated',
-        changes: [
-          {
-            field: 'approved',
-            oldValue: false,
-            newValue: true
-          }
-        ]
+    // Get feedback data
+    const existingFeedback = await database()
+      .select({
+        id: feedback.id,
+        userId: feedback.userId,
+        courseId: feedback.courseId,
+        approvedAt: feedback.approvedAt
       })
+      .from(feedback)
+      .where(eq(feedback.id, feedbackId))
+      .limit(1)
 
-      // Update course and degree stats (best-effort)
-      try {
-        const statsService = new StatsService()
-        await statsService.onFeedbackApproved(feedbackData.courseId)
-      } catch (statsError) {
-        console.error(
-          'Failed to update stats after feedback approval:',
-          statsError
-        )
-      }
+    if (!existingFeedback.length) {
+      throw new NotFoundError('Feedback not found')
+    }
 
+    const feedbackData = existingFeedback[0]
+    const wasAlreadyApproved = feedbackData.approvedAt !== null
+
+    // Idempotent: if already approved, return success without changes
+    if (wasAlreadyApproved) {
       return Response.json({
         id: feedbackId,
         approved: true,
-        approvedAt: approvalDate.toISOString(),
-        message: 'Feedback approved successfully'
+        approvedAt: feedbackData.approvedAt!.toISOString(),
+        message: 'Feedback is already approved'
       })
+    }
+
+    // Update approval status
+    const approvalDate = new Date()
+    await database()
+      .update(feedbackFull)
+      .set({ approvedAt: approvalDate })
+      .where(eq(feedbackFull.id, feedbackId))
+
+    // Handle point restoration for authenticated users (best-effort)
+    const userId = feedbackData.userId
+    if (userId) {
+      try {
+        const pointService = new PointService(env)
+        await pointService.restoreFeedbackPoints(userId, feedbackId)
+      } catch (pointError) {
+        console.error(
+          `Failed to restore points for feedback ${feedbackId}:`,
+          pointError
+        )
+        // Continue - feedback approval succeeded, points can be fixed manually
+      }
+    } else {
+      console.log(
+        `Feedback ${feedbackId} is anonymous - skipping point restoration`
+      )
+    }
+
+    // Send notification
+    await notifyAdminChange({
+      env,
+      user: authContext.user,
+      resourceType: 'feedback',
+      resourceId: feedbackId,
+      resourceName: `Feedback #${feedbackId}`,
+      action: 'updated',
+      changes: [
+        {
+          field: 'approved',
+          oldValue: false,
+          newValue: true
+        }
+      ]
+    })
+
+    // Update course and degree stats (best-effort)
+    try {
+      const statsService = new StatsService()
+      await statsService.onFeedbackApproved(feedbackData.courseId)
+    } catch (statsError) {
+      console.error(
+        'Failed to update stats after feedback approval:',
+        statsError
+      )
+    }
+
+    return Response.json({
+      id: feedbackId,
+      approved: true,
+      approvedAt: approvalDate.toISOString(),
+      message: 'Feedback approved successfully'
     })
   }
 }

@@ -6,7 +6,7 @@ import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
 import { z } from 'zod'
-import { withErrorHandling } from '../../utils'
+import { BadRequestError, NotFoundError } from '../../utils'
 
 export class RemoveFacultyEmailSuffix extends OpenAPIRoute {
   schema = {
@@ -57,69 +57,64 @@ export class RemoveFacultyEmailSuffix extends OpenAPIRoute {
   }
 
   async handle(request: IRequest, env: Env, context: RequestContext) {
-    return withErrorHandling(request, async () => {
-      const authContext = await requireAdmin(request, env, context)
-      const { params } = await this.getValidatedData<typeof this.schema>()
-      const { id, suffix } = params
+    const authContext = await requireAdmin(request, env, context)
+    const { params } = await this.getValidatedData<typeof this.schema>()
+    const { id, suffix } = params
 
-      // URL decode the suffix parameter to handle special characters
-      const decodedSuffix = decodeURIComponent(suffix)
+    // URL decode the suffix parameter to handle special characters
+    const decodedSuffix = decodeURIComponent(suffix)
 
-      // Get current faculty and email suffixes
-      const faculty = await database()
-        .select({
-          id: faculties.id,
-          name: faculties.name,
-          shortName: faculties.shortName,
-          emailSuffixes: faculties.emailSuffixes
-        })
-        .from(faculties)
-        .where(eq(faculties.id, id))
-        .limit(1)
-
-      if (faculty.length === 0) {
-        return Response.json({ error: 'Faculty not found' }, { status: 404 })
-      }
-
-      const currentSuffixes = (faculty[0].emailSuffixes as string[]) || []
-
-      // Check if suffix exists
-      if (!currentSuffixes.includes(decodedSuffix)) {
-        return Response.json(
-          { error: 'Email suffix not found' },
-          { status: 400 }
-        )
-      }
-
-      // Remove suffix
-      const updatedSuffixes = currentSuffixes.filter((s) => s !== decodedSuffix)
-
-      // Update faculty
-      await database()
-        .update(faculties)
-        .set({
-          emailSuffixes: updatedSuffixes,
-          updatedAt: new Date()
-        })
-        .where(eq(faculties.id, id))
-
-      // Send notification
-      await notifyAdminChange({
-        env,
-        user: authContext.user,
-        resourceType: 'faculty',
-        resourceId: id,
-        resourceName: faculty[0].name,
-        resourceShortName: faculty[0].shortName,
-        action: 'removed',
-        removedItem: `email suffix "${decodedSuffix}"`
+    // Get current faculty and email suffixes
+    const faculty = await database()
+      .select({
+        id: faculties.id,
+        name: faculties.name,
+        shortName: faculties.shortName,
+        emailSuffixes: faculties.emailSuffixes
       })
+      .from(faculties)
+      .where(eq(faculties.id, id))
+      .limit(1)
 
-      return Response.json({
-        facultyId: id,
+    if (faculty.length === 0) {
+      throw new NotFoundError('Faculty not found')
+    }
+
+    const currentSuffixes = (faculty[0].emailSuffixes as string[]) || []
+
+    // Check if suffix exists
+    if (!currentSuffixes.includes(decodedSuffix)) {
+      throw new BadRequestError('Email suffix not found')
+    }
+
+    // Remove suffix
+    const updatedSuffixes = currentSuffixes.filter((s) => s !== decodedSuffix)
+
+    // Update faculty
+    await database()
+      .update(faculties)
+      .set({
         emailSuffixes: updatedSuffixes,
-        message: 'Email suffix removed successfully'
+        updatedAt: new Date()
       })
+      .where(eq(faculties.id, id))
+
+    // Send notification
+    await notifyAdminChange({
+      env,
+      user: authContext.user,
+      resourceType: 'faculty',
+      resourceId: id,
+      resourceName: faculty[0].name,
+      resourceShortName: faculty[0].shortName,
+      action: 'removed',
+      removedItem: `email suffix "${decodedSuffix}"`
+    })
+
+    return Response.json({
+      facultyId: id,
+      emailSuffixes: updatedSuffixes,
+      message: 'Email suffix removed successfully'
     })
   }
 }

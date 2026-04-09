@@ -11,7 +11,7 @@ import { contentJson, OpenAPIRoute } from 'chanfana'
 import { and, desc, eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
 import { z } from 'zod'
-import { UnauthorizedError, withErrorHandling } from '../utils'
+import { ForbiddenError } from '../utils'
 
 const EditFeedbackRequestSchema = z
   .object({
@@ -42,168 +42,163 @@ export class EditFeedback extends OpenAPIRoute {
   }
 
   async handle(request: IRequest, env: Env, context: RequestContext) {
-    return withErrorHandling(request, async () => {
-      const { params, body } = await this.getValidatedData<typeof this.schema>()
-      const feedbackId = params.id
+    const { params, body } = await this.getValidatedData<typeof this.schema>()
+    const feedbackId = params.id
 
-      // Authenticate
-      const authContext = await requireAuth(request, env, context)
-      const userId = authContext.user.id
+    // Authenticate
+    const authContext = await requireAuth(request, env, context)
+    const userId = authContext.user.id
 
-      // Fetch existing feedback
-      const [existingFeedback] = await database()
-        .select()
-        .from(feedback)
-        .where(and(eq(feedback.id, feedbackId), eq(feedback.userId, userId)))
-        .orderBy(desc(feedback.updatedAt))
-        .limit(1)
+    // Fetch existing feedback
+    const [existingFeedback] = await database()
+      .select()
+      .from(feedback)
+      .where(and(eq(feedback.id, feedbackId), eq(feedback.userId, userId)))
+      .orderBy(desc(feedback.updatedAt))
+      .limit(1)
 
-      // Check ownership
-      if (!existingFeedback) {
-        throw new UnauthorizedError('You can only edit your own feedback')
-      }
+    // Check ownership
+    if (!existingFeedback) {
+      throw new ForbiddenError('You can only edit your own feedback')
+    }
 
-      const newComment = body.comment?.trim() || null
+    const newComment = body.comment?.trim() || null
 
-      // Check if identical
-      const newSchoolYear = body.schoolYear ?? existingFeedback.schoolYear
-      const isIdentical =
-        existingFeedback.rating === body.rating &&
-        existingFeedback.workloadRating === body.workloadRating &&
-        existingFeedback.comment === newComment &&
-        existingFeedback.schoolYear === newSchoolYear
+    // Check if identical
+    const newSchoolYear = body.schoolYear ?? existingFeedback.schoolYear
+    const isIdentical =
+      existingFeedback.rating === body.rating &&
+      existingFeedback.workloadRating === body.workloadRating &&
+      existingFeedback.comment === newComment &&
+      existingFeedback.schoolYear === newSchoolYear
 
-      if (isIdentical) {
-        const pointService = new PointService(env)
-        const currentPoints = await pointService.getPointsForEntry(
-          userId,
-          'submit_feedback',
-          feedbackId
-        )
+    if (isIdentical) {
+      const pointService = new PointService(env)
+      const currentPoints = await pointService.getPointsForEntry(
+        userId,
+        'submit_feedback',
+        feedbackId
+      )
 
-        // Fetch analysis
-        const [analysis] = await database()
-          .select()
-          .from(feedbackAnalysis)
-          .where(eq(feedbackAnalysis.feedbackId, feedbackId))
-          .limit(1)
-
-        return Response.json({
-          message: 'No changes detected',
-          feedback: existingFeedback,
-          analysis: analysis || null,
-          points: currentPoints || 0
-        })
-      }
-
-      // Handle comment changes
-      const commentChanged = existingFeedback.comment !== newComment
-      let newPoints = 0
-
-      if (commentChanged) {
-        const pointService = new PointService(env)
-
-        // Analyze new comment
-        let newAnalysis
-        if (newComment) {
-          const aiService = new AIService(env)
-          try {
-            const categories = await aiService.categorizeFeedback(newComment)
-            newAnalysis = { ...categories, wordCount: countWords(newComment) }
-          } catch (aiError) {
-            console.warn(
-              'AI categorization failed, using conservative defaults:',
-              aiError
-            )
-            newAnalysis = {
-              hasTeaching: false,
-              hasAssessment: false,
-              hasMaterials: false,
-              hasTips: false,
-              wordCount: countWords(newComment)
-            }
-          }
-        } else {
-          newAnalysis = {
-            hasTeaching: false,
-            hasAssessment: false,
-            hasMaterials: false,
-            hasTips: false,
-            wordCount: 0
-          }
-        }
-
-        // Update analysis (reset reviewedAt)
-        await database()
-          .update(feedbackAnalysis)
-          .set({ ...newAnalysis, reviewedAt: null })
-          .where(eq(feedbackAnalysis.feedbackId, feedbackId))
-
-        // Update points
-        newPoints = await pointService.updateFeedbackPoints(
-          userId,
-          feedbackId,
-          newAnalysis
-        )
-      } else {
-        // Get existing points
-        const pointService = new PointService(env)
-        newPoints =
-          (await pointService.getPointsForEntry(
-            userId,
-            'submit_feedback',
-            feedbackId
-          )) || 0
-      }
-
-      // Update feedback (preserve approvedAt)
-      await database()
-        .update(feedbackFull)
-        .set({
-          rating: body.rating,
-          workloadRating: body.workloadRating,
-          comment: newComment,
-          schoolYear: newSchoolYear,
-          updatedAt: new Date()
-        })
-        .where(eq(feedbackFull.id, feedbackId))
-
-      // Fetch updated feedback
-      const [updatedFeedback] = await database()
-        .select()
-        .from(feedback)
-        .where(eq(feedback.id, feedbackId))
-        .limit(1)
-
-      // Fetch updated analysis
+      // Fetch analysis
       const [analysis] = await database()
         .select()
         .from(feedbackAnalysis)
         .where(eq(feedbackAnalysis.feedbackId, feedbackId))
         .limit(1)
 
-      // Update stats if feedback is approved and rating/workload changed
-      const ratingChanged =
-        existingFeedback.rating !== body.rating ||
-        existingFeedback.workloadRating !== body.workloadRating
-      if (ratingChanged && updatedFeedback.approvedAt !== null) {
+      return Response.json({
+        message: 'No changes detected',
+        feedback: existingFeedback,
+        analysis: analysis || null,
+        points: currentPoints || 0
+      })
+    }
+
+    // Handle comment changes
+    const commentChanged = existingFeedback.comment !== newComment
+    let newPoints = 0
+
+    if (commentChanged) {
+      const pointService = new PointService(env)
+
+      // Analyze new comment
+      let newAnalysis
+      if (newComment) {
+        const aiService = new AIService(env)
         try {
-          const statsService = new StatsService()
-          await statsService.onFeedbackEdited(updatedFeedback.courseId)
-        } catch (statsError) {
-          console.error(
-            'Failed to update stats after feedback edit:',
-            statsError
+          const categories = await aiService.categorizeFeedback(newComment)
+          newAnalysis = { ...categories, wordCount: countWords(newComment) }
+        } catch (aiError) {
+          console.warn(
+            'AI categorization failed, using conservative defaults:',
+            aiError
           )
+          newAnalysis = {
+            hasTeaching: false,
+            hasAssessment: false,
+            hasMaterials: false,
+            hasTips: false,
+            wordCount: countWords(newComment)
+          }
+        }
+      } else {
+        newAnalysis = {
+          hasTeaching: false,
+          hasAssessment: false,
+          hasMaterials: false,
+          hasTips: false,
+          wordCount: 0
         }
       }
 
-      return Response.json({
-        message: 'Feedback updated successfully',
-        feedback: updatedFeedback,
-        analysis: analysis || null,
-        points: newPoints
+      // Update analysis (reset reviewedAt)
+      await database()
+        .update(feedbackAnalysis)
+        .set({ ...newAnalysis, reviewedAt: null })
+        .where(eq(feedbackAnalysis.feedbackId, feedbackId))
+
+      // Update points
+      newPoints = await pointService.updateFeedbackPoints(
+        userId,
+        feedbackId,
+        newAnalysis
+      )
+    } else {
+      // Get existing points
+      const pointService = new PointService(env)
+      newPoints =
+        (await pointService.getPointsForEntry(
+          userId,
+          'submit_feedback',
+          feedbackId
+        )) || 0
+    }
+
+    // Update feedback (preserve approvedAt)
+    await database()
+      .update(feedbackFull)
+      .set({
+        rating: body.rating,
+        workloadRating: body.workloadRating,
+        comment: newComment,
+        schoolYear: newSchoolYear,
+        updatedAt: new Date()
       })
+      .where(eq(feedbackFull.id, feedbackId))
+
+    // Fetch updated feedback
+    const [updatedFeedback] = await database()
+      .select()
+      .from(feedback)
+      .where(eq(feedback.id, feedbackId))
+      .limit(1)
+
+    // Fetch updated analysis
+    const [analysis] = await database()
+      .select()
+      .from(feedbackAnalysis)
+      .where(eq(feedbackAnalysis.feedbackId, feedbackId))
+      .limit(1)
+
+    // Update stats if feedback is approved and rating/workload changed
+    const ratingChanged =
+      existingFeedback.rating !== body.rating ||
+      existingFeedback.workloadRating !== body.workloadRating
+    if (ratingChanged && updatedFeedback.approvedAt !== null) {
+      try {
+        const statsService = new StatsService()
+        await statsService.onFeedbackEdited(updatedFeedback.courseId)
+      } catch (statsError) {
+        console.error('Failed to update stats after feedback edit:', statsError)
+      }
+    }
+
+    return Response.json({
+      message: 'Feedback updated successfully',
+      feedback: updatedFeedback,
+      analysis: analysis || null,
+      points: newPoints
     })
   }
 }

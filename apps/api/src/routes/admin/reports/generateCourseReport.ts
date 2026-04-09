@@ -1,5 +1,4 @@
 import { ReportingService } from '@services'
-import { NotFoundError } from '@services/errors'
 import { OpenAPIRoute } from 'chanfana'
 import { IRequest } from 'itty-router'
 import { z } from 'zod'
@@ -62,35 +61,22 @@ export class GenerateCourseReport extends OpenAPIRoute {
   }
 
   async handle(request: IRequest, env: Env, context: RequestContext) {
-    try {
-      const data = await request.json()
-      const validatedBody = GenerateCourseReportBodySchema.parse(data)
-      const { courseId, schoolYear } = validatedBody
+    const data = await request.json()
+    const validatedBody = GenerateCourseReportBodySchema.parse(data)
+    const { courseId, schoolYear } = validatedBody
 
-      const reportingService = new ReportingService(env)
-      const presignedUrl = await reportingService.generateAndStoreCourseReport(
-        courseId,
-        schoolYear,
-        context.user?.id
-      )
+    const reportingService = new ReportingService(env)
+    const presignedUrl = await reportingService.generateAndStoreCourseReport(
+      courseId,
+      schoolYear,
+      context.user?.id
+    )
 
-      return Response.json({
-        success: true,
-        presignedUrl,
-        expiresIn: 3600,
-        message: 'Report generated successfully'
-      })
-    } catch (error) {
-      console.error('Generate course report error:', error)
-
-      if (error instanceof NotFoundError) {
-        return Response.json({ error: error.message }, { status: 404 })
-      }
-
-      return Response.json(
-        { error: 'Failed to generate report. Please try again later.' },
-        { status: 500 }
-      )
-    }
+    return Response.json({
+      success: true,
+      presignedUrl,
+      expiresIn: 3600,
+      message: 'Report generated successfully'
+    })
   }
 }

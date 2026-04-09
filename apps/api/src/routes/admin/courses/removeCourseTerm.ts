@@ -6,7 +6,7 @@ import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
 import { z } from 'zod'
-import { withErrorHandling } from '../../utils'
+import { BadRequestError, NotFoundError } from '../../utils'
 
 export class RemoveCourseTerm extends OpenAPIRoute {
   schema = {
@@ -56,66 +56,61 @@ export class RemoveCourseTerm extends OpenAPIRoute {
   }
 
   async handle(request: IRequest, env: Env, context: RequestContext) {
-    return withErrorHandling(request, async () => {
-      const authContext = await requireAdmin(request, env, context)
-      const { params } = await this.getValidatedData<typeof this.schema>()
-      const { id, term } = params
+    const authContext = await requireAdmin(request, env, context)
+    const { params } = await this.getValidatedData<typeof this.schema>()
+    const { id, term } = params
 
-      // Get current course and terms
-      const course = await database()
-        .select({
-          id: courses.id,
-          name: courses.name,
-          acronym: courses.acronym,
-          terms: courses.terms
-        })
-        .from(courses)
-        .where(eq(courses.id, id))
-        .limit(1)
-
-      if (course.length === 0) {
-        return Response.json({ error: 'Course not found' }, { status: 404 })
-      }
-
-      const currentTerms = (course[0].terms as string[]) || []
-
-      // Check if term exists
-      if (!currentTerms.includes(term)) {
-        return Response.json(
-          { error: 'Term not found in course' },
-          { status: 400 }
-        )
-      }
-
-      // Remove term
-      const updatedTerms = currentTerms.filter((t) => t !== term)
-
-      // Update course
-      await database()
-        .update(courses)
-        .set({
-          terms: updatedTerms,
-          updatedAt: new Date()
-        })
-        .where(eq(courses.id, id))
-
-      // Send notification
-      await notifyAdminChange({
-        env,
-        user: authContext.user,
-        resourceType: 'course',
-        resourceId: id,
-        resourceName: course[0].name,
-        resourceShortName: course[0].acronym,
-        action: 'removed',
-        removedItem: `term "${term}"`
+    // Get current course and terms
+    const course = await database()
+      .select({
+        id: courses.id,
+        name: courses.name,
+        acronym: courses.acronym,
+        terms: courses.terms
       })
+      .from(courses)
+      .where(eq(courses.id, id))
+      .limit(1)
 
-      return Response.json({
-        courseId: id,
+    if (course.length === 0) {
+      throw new NotFoundError('Course not found')
+    }
+
+    const currentTerms = (course[0].terms as string[]) || []
+
+    // Check if term exists
+    if (!currentTerms.includes(term)) {
+      throw new BadRequestError('Term not found in course')
+    }
+
+    // Remove term
+    const updatedTerms = currentTerms.filter((t) => t !== term)
+
+    // Update course
+    await database()
+      .update(courses)
+      .set({
         terms: updatedTerms,
-        message: 'Term removed successfully'
+        updatedAt: new Date()
       })
+      .where(eq(courses.id, id))
+
+    // Send notification
+    await notifyAdminChange({
+      env,
+      user: authContext.user,
+      resourceType: 'course',
+      resourceId: id,
+      resourceName: course[0].name,
+      resourceShortName: course[0].acronym,
+      action: 'removed',
+      removedItem: `term "${term}"`
+    })
+
+    return Response.json({
+      courseId: id,
+      terms: updatedTerms,
+      message: 'Term removed successfully'
     })
   }
 }

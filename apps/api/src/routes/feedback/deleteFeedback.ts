@@ -6,7 +6,7 @@ import { OpenAPIRoute } from 'chanfana'
 import { and, eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
 import { z } from 'zod'
-import { UnauthorizedError, withErrorHandling } from '../utils'
+import { ForbiddenError } from '../utils'
 
 export class DeleteFeedback extends OpenAPIRoute {
   schema = {
@@ -25,74 +25,72 @@ export class DeleteFeedback extends OpenAPIRoute {
   }
 
   async handle(request: IRequest, env: Env, context: RequestContext) {
-    return withErrorHandling(request, async () => {
-      const feedbackId = parseInt(request.params.id)
+    const feedbackId = parseInt(request.params.id)
 
-      // Authenticate
-      const authContext = await requireAuth(request, env, context)
-      const userId = authContext.user.id
+    // Authenticate
+    const authContext = await requireAuth(request, env, context)
+    const userId = authContext.user.id
 
-      // Fetch existing feedback from the full table to check deletedAt
-      const [existingFeedback] = await database()
-        .select()
-        .from(feedbackFull)
-        .where(
-          and(eq(feedbackFull.id, feedbackId), eq(feedbackFull.userId, userId))
-        )
-        .limit(1)
+    // Fetch existing feedback from the full table to check deletedAt
+    const [existingFeedback] = await database()
+      .select()
+      .from(feedbackFull)
+      .where(
+        and(eq(feedbackFull.id, feedbackId), eq(feedbackFull.userId, userId))
+      )
+      .limit(1)
 
-      // Check ownership - if not found, either doesn't exist or not owned by user
-      if (!existingFeedback) {
-        throw new UnauthorizedError(
-          'You do not have permission to delete this feedback'
-        )
-      }
+    // Check ownership - if not found, either doesn't exist or not owned by user
+    if (!existingFeedback) {
+      throw new ForbiddenError(
+        'You do not have permission to delete this feedback'
+      )
+    }
 
-      // Check if already deleted
-      if (existingFeedback.deletedAt) {
-        return Response.json({
-          message: 'Feedback already deleted'
-        })
-      }
-
-      // Soft delete the feedback by setting deletedAt
-      await database()
-        .update(feedbackFull)
-        .set({ deletedAt: new Date() })
-        .where(eq(feedbackFull.id, feedbackId))
-
-      // Remove points associated with this feedback (best-effort)
-      try {
-        const pointService = new PointService(env)
-        await pointService.zeroOutFeedbackPoints(
-          userId,
-          feedbackId,
-          'Feedback deleted by user'
-        )
-      } catch (pointError) {
-        console.error(
-          `Failed to remove points for deleted feedback ${feedbackId}:`,
-          pointError
-        )
-        // Continue - feedback was deleted, points can be fixed manually if needed
-      }
-
-      // Update stats if feedback was approved (best-effort)
-      if (existingFeedback.approvedAt !== null) {
-        try {
-          const statsService = new StatsService()
-          await statsService.onFeedbackUnapproved(existingFeedback.courseId)
-        } catch (statsError) {
-          console.error(
-            'Failed to update stats after feedback deletion:',
-            statsError
-          )
-        }
-      }
-
+    // Check if already deleted
+    if (existingFeedback.deletedAt) {
       return Response.json({
-        message: 'Feedback deleted successfully'
+        message: 'Feedback already deleted'
       })
+    }
+
+    // Soft delete the feedback by setting deletedAt
+    await database()
+      .update(feedbackFull)
+      .set({ deletedAt: new Date() })
+      .where(eq(feedbackFull.id, feedbackId))
+
+    // Remove points associated with this feedback (best-effort)
+    try {
+      const pointService = new PointService(env)
+      await pointService.zeroOutFeedbackPoints(
+        userId,
+        feedbackId,
+        'Feedback deleted by user'
+      )
+    } catch (pointError) {
+      console.error(
+        `Failed to remove points for deleted feedback ${feedbackId}:`,
+        pointError
+      )
+      // Continue - feedback was deleted, points can be fixed manually if needed
+    }
+
+    // Update stats if feedback was approved (best-effort)
+    if (existingFeedback.approvedAt !== null) {
+      try {
+        const statsService = new StatsService()
+        await statsService.onFeedbackUnapproved(existingFeedback.courseId)
+      } catch (statsError) {
+        console.error(
+          'Failed to update stats after feedback deletion:',
+          statsError
+        )
+      }
+    }
+
+    return Response.json({
+      message: 'Feedback deleted successfully'
     })
   }
 }

@@ -5,7 +5,7 @@ import { OpenAPIRoute } from 'chanfana'
 import { and, eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
 import { z } from 'zod'
-import { NotFoundError, withErrorHandling } from '../utils'
+import { NotFoundError } from '../utils'
 
 export class AddHelpfulVote extends OpenAPIRoute {
   schema = {
@@ -23,51 +23,49 @@ export class AddHelpfulVote extends OpenAPIRoute {
   }
 
   async handle(request: IRequest, env: Env, context: RequestContext) {
-    return withErrorHandling(request, async () => {
-      const feedbackId = parseInt(request.params.id)
+    const feedbackId = parseInt(request.params.id)
 
-      // Authenticate
-      const authContext = await requireAuth(request, env, context)
-      const userId = authContext.user.id
+    // Authenticate
+    const authContext = await requireAuth(request, env, context)
+    const userId = authContext.user.id
 
-      // Check feedback exists
-      const [existingFeedback] = await database()
-        .select({ id: feedbackFull.id })
-        .from(feedbackFull)
-        .where(eq(feedbackFull.id, feedbackId))
-        .limit(1)
+    // Check feedback exists
+    const [existingFeedback] = await database()
+      .select({ id: feedbackFull.id })
+      .from(feedbackFull)
+      .where(eq(feedbackFull.id, feedbackId))
+      .limit(1)
 
-      if (!existingFeedback) {
-        throw new NotFoundError('Feedback not found')
-      }
+    if (!existingFeedback) {
+      throw new NotFoundError('Feedback not found')
+    }
 
-      // Check if already voted (idempotent)
-      const [existingVote] = await database()
-        .select()
-        .from(helpfulVotes)
-        .where(
-          and(
-            eq(helpfulVotes.userId, userId),
-            eq(helpfulVotes.feedbackId, feedbackId)
-          )
+    // Check if already voted (idempotent)
+    const [existingVote] = await database()
+      .select()
+      .from(helpfulVotes)
+      .where(
+        and(
+          eq(helpfulVotes.userId, userId),
+          eq(helpfulVotes.feedbackId, feedbackId)
         )
-        .limit(1)
+      )
+      .limit(1)
 
-      if (existingVote) {
-        return Response.json({
-          message: 'Already voted as helpful'
-        })
-      }
-
-      // Insert vote
-      await database().insert(helpfulVotes).values({
-        userId,
-        feedbackId
-      })
-
+    if (existingVote) {
       return Response.json({
-        message: 'Marked as helpful'
+        message: 'Already voted as helpful'
       })
+    }
+
+    // Insert vote
+    await database().insert(helpfulVotes).values({
+      userId,
+      feedbackId
+    })
+
+    return Response.json({
+      message: 'Marked as helpful'
     })
   }
 }

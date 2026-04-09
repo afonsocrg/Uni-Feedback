@@ -6,7 +6,7 @@ import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
 import { z } from 'zod'
-import { withErrorHandling } from '../../utils'
+import { BadRequestError, NotFoundError } from '../../utils'
 
 const AddSuffixSchema = z.object({
   suffix: z
@@ -71,67 +71,62 @@ export class AddFacultyEmailSuffix extends OpenAPIRoute {
   }
 
   async handle(request: IRequest, env: Env, context: RequestContext) {
-    return withErrorHandling(request, async () => {
-      const authContext = await requireAdmin(request, env, context)
-      const { params, body } = await this.getValidatedData<typeof this.schema>()
-      const { id } = params
-      const { suffix } = body
+    const authContext = await requireAdmin(request, env, context)
+    const { params, body } = await this.getValidatedData<typeof this.schema>()
+    const { id } = params
+    const { suffix } = body
 
-      // Get current faculty and email suffixes
-      const faculty = await database()
-        .select({
-          id: faculties.id,
-          name: faculties.name,
-          shortName: faculties.shortName,
-          emailSuffixes: faculties.emailSuffixes
-        })
-        .from(faculties)
-        .where(eq(faculties.id, id))
-        .limit(1)
-
-      if (faculty.length === 0) {
-        return Response.json({ error: 'Faculty not found' }, { status: 404 })
-      }
-
-      const currentSuffixes = (faculty[0].emailSuffixes as string[]) || []
-
-      // Check if suffix already exists
-      if (currentSuffixes.includes(suffix)) {
-        return Response.json(
-          { error: 'Email suffix already exists' },
-          { status: 400 }
-        )
-      }
-
-      // Add new suffix
-      const updatedSuffixes = [...currentSuffixes, suffix].sort()
-
-      // Update faculty
-      await database()
-        .update(faculties)
-        .set({
-          emailSuffixes: updatedSuffixes,
-          updatedAt: new Date()
-        })
-        .where(eq(faculties.id, id))
-
-      // Send notification
-      await notifyAdminChange({
-        env,
-        user: authContext.user,
-        resourceType: 'faculty',
-        resourceId: id,
-        resourceName: faculty[0].name,
-        resourceShortName: faculty[0].shortName,
-        action: 'added',
-        addedItem: `email suffix "${suffix}"`
+    // Get current faculty and email suffixes
+    const faculty = await database()
+      .select({
+        id: faculties.id,
+        name: faculties.name,
+        shortName: faculties.shortName,
+        emailSuffixes: faculties.emailSuffixes
       })
+      .from(faculties)
+      .where(eq(faculties.id, id))
+      .limit(1)
 
-      return Response.json({
-        facultyId: id,
+    if (faculty.length === 0) {
+      throw new NotFoundError('Faculty not found')
+    }
+
+    const currentSuffixes = (faculty[0].emailSuffixes as string[]) || []
+
+    // Check if suffix already exists
+    if (currentSuffixes.includes(suffix)) {
+      throw new BadRequestError('Email suffix already exists')
+    }
+
+    // Add new suffix
+    const updatedSuffixes = [...currentSuffixes, suffix].sort()
+
+    // Update faculty
+    await database()
+      .update(faculties)
+      .set({
         emailSuffixes: updatedSuffixes,
-        message: 'Email suffix added successfully'
+        updatedAt: new Date()
       })
+      .where(eq(faculties.id, id))
+
+    // Send notification
+    await notifyAdminChange({
+      env,
+      user: authContext.user,
+      resourceType: 'faculty',
+      resourceId: id,
+      resourceName: faculty[0].name,
+      resourceShortName: faculty[0].shortName,
+      action: 'added',
+      addedItem: `email suffix "${suffix}"`
+    })
+
+    return Response.json({
+      facultyId: id,
+      emailSuffixes: updatedSuffixes,
+      message: 'Email suffix added successfully'
     })
   }
 }

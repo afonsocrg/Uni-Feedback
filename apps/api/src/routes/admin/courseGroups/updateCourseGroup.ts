@@ -6,7 +6,7 @@ import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
 import { z } from 'zod'
-import { ValidationError, withErrorHandling } from '../../utils'
+import { NotFoundError, ValidationError } from '../../utils'
 
 const UpdateCourseGroupSchema = z.object({
   name: z.string().min(1).optional()
@@ -78,89 +78,84 @@ export class UpdateCourseGroup extends OpenAPIRoute {
   }
 
   async handle(request: IRequest, env: Env, context: RequestContext) {
-    return withErrorHandling(request, async () => {
-      const authContext = await requireAdmin(request, env, context)
-      const { params, body } = await this.getValidatedData<typeof this.schema>()
-      const { id } = params
-      const updateData = body
+    const authContext = await requireAdmin(request, env, context)
+    const { params, body } = await this.getValidatedData<typeof this.schema>()
+    const { id } = params
+    const updateData = body
 
-      // Validate field values
-      const validationErrors: { field: string; message: string }[] = []
+    // Validate field values
+    const validationErrors: { field: string; message: string }[] = []
 
-      if (updateData.name !== undefined) {
-        if (updateData.name === null || updateData.name.trim() === '') {
-          validationErrors.push({
-            field: 'name',
-            message: 'Course group name cannot be empty'
-          })
-        }
-      }
-
-      if (validationErrors.length > 0) {
-        throw new ValidationError('Validation failed', validationErrors)
-      }
-
-      // Check if course group exists
-      const existingCourseGroup = await database()
-        .select()
-        .from(courseGroup)
-        .where(eq(courseGroup.id, id))
-        .limit(1)
-
-      if (existingCourseGroup.length === 0) {
-        return Response.json(
-          { error: 'Course group not found' },
-          { status: 404 }
-        )
-      }
-
-      // Build update data with trimmed values
-      const dbUpdateData: Record<string, unknown> = {}
-      if (updateData.name !== undefined) {
-        dbUpdateData.name = updateData.name.trim()
-      }
-
-      // Detect changes for notification
-      const changes = detectChanges(existingCourseGroup[0], dbUpdateData, [
-        'name'
-      ])
-
-      // Update course group
-      const updatedCourseGroup = await database()
-        .update(courseGroup)
-        .set({
-          ...dbUpdateData,
-          updatedAt: new Date()
-        })
-        .where(eq(courseGroup.id, id))
-        .returning({
-          id: courseGroup.id,
-          name: courseGroup.name,
-          degreeId: courseGroup.degreeId,
-          createdAt: courseGroup.createdAt,
-          updatedAt: courseGroup.updatedAt
-        })
-
-      // Send notification if changes were made
-      if (changes.length > 0) {
-        await notifyAdminChange({
-          env,
-          user: authContext.user,
-          resourceType: 'course-group',
-          resourceId: id,
-          resourceName: updatedCourseGroup[0].name,
-          action: 'updated',
-          changes
+    if (updateData.name !== undefined) {
+      if (updateData.name === null || updateData.name.trim() === '') {
+        validationErrors.push({
+          field: 'name',
+          message: 'Course group name cannot be empty'
         })
       }
+    }
 
-      const response = {
-        ...updatedCourseGroup[0],
-        createdAt: updatedCourseGroup[0].createdAt?.toISOString() || '',
-        updatedAt: updatedCourseGroup[0].updatedAt?.toISOString() || ''
-      }
+    if (validationErrors.length > 0) {
+      throw new ValidationError('Validation failed', validationErrors)
+    }
 
-      return Response.json(response)
-    })
+    // Check if course group exists
+    const existingCourseGroup = await database()
+      .select()
+      .from(courseGroup)
+      .where(eq(courseGroup.id, id))
+      .limit(1)
+
+    if (existingCourseGroup.length === 0) {
+      throw new NotFoundError('Course group not found')
+    }
+
+    // Build update data with trimmed values
+    const dbUpdateData: Record<string, unknown> = {}
+    if (updateData.name !== undefined) {
+      dbUpdateData.name = updateData.name.trim()
+    }
+
+    // Detect changes for notification
+    const changes = detectChanges(existingCourseGroup[0], dbUpdateData, [
+      'name'
+    ])
+
+    // Update course group
+    const updatedCourseGroup = await database()
+      .update(courseGroup)
+      .set({
+        ...dbUpdateData,
+        updatedAt: new Date()
+      })
+      .where(eq(courseGroup.id, id))
+      .returning({
+        id: courseGroup.id,
+        name: courseGroup.name,
+        degreeId: courseGroup.degreeId,
+        createdAt: courseGroup.createdAt,
+        updatedAt: courseGroup.updatedAt
+      })
+
+    // Send notification if changes were made
+    if (changes.length > 0) {
+      await notifyAdminChange({
+        env,
+        user: authContext.user,
+        resourceType: 'course-group',
+        resourceId: id,
+        resourceName: updatedCourseGroup[0].name,
+        action: 'updated',
+        changes
+      })
+    }
+
+    const response = {
+      ...updatedCourseGroup[0],
+      createdAt: updatedCourseGroup[0].createdAt?.toISOString() || '',
+      updatedAt: updatedCourseGroup[0].updatedAt?.toISOString() || ''
+    }
+
+    return Response.json(response)
   }
 }

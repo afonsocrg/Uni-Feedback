@@ -7,7 +7,7 @@ import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
 import { z } from 'zod'
-import { ValidationError, withErrorHandling } from '../../utils'
+import { NotFoundError, ValidationError } from '../../utils'
 
 const CreateCourseGroupSchema = z.object({
   name: z.string().min(1, 'Course group name is required'),
@@ -77,77 +77,75 @@ export class CreateCourseGroup extends OpenAPIRoute {
   }
 
   async handle(request: IRequest, env: Env, context: RequestContext) {
-    return withErrorHandling(request, async () => {
-      const authContext = await requireAdmin(request, env, context)
-      const { body } = await this.getValidatedData<typeof this.schema>()
-      const { name, degreeId } = body
+    const authContext = await requireAdmin(request, env, context)
+    const { body } = await this.getValidatedData<typeof this.schema>()
+    const { name, degreeId } = body
 
-      // Validate field values
-      const validationErrors: ValidationErrors = []
+    // Validate field values
+    const validationErrors: ValidationErrors = []
 
-      if (!name || name.trim() === '') {
-        validationErrors.push({
-          field: 'name',
-          message: 'Course group name cannot be empty'
-        })
-      }
+    if (!name || name.trim() === '') {
+      validationErrors.push({
+        field: 'name',
+        message: 'Course group name cannot be empty'
+      })
+    }
 
-      if (!degreeId || degreeId <= 0) {
-        validationErrors.push({
-          field: 'degreeId',
-          message: 'Valid degree ID is required'
-        })
-      }
+    if (!degreeId || degreeId <= 0) {
+      validationErrors.push({
+        field: 'degreeId',
+        message: 'Valid degree ID is required'
+      })
+    }
 
-      if (validationErrors.length > 0) {
-        throw new ValidationError('Validation failed', validationErrors)
-      }
+    if (validationErrors.length > 0) {
+      throw new ValidationError('Validation failed', validationErrors)
+    }
 
-      // Check if degree exists
-      const existingDegree = await database()
-        .select()
-        .from(degrees)
-        .where(eq(degrees.id, degreeId))
-        .limit(1)
+    // Check if degree exists
+    const existingDegree = await database()
+      .select()
+      .from(degrees)
+      .where(eq(degrees.id, degreeId))
+      .limit(1)
 
-      if (existingDegree.length === 0) {
-        return Response.json({ error: 'Degree not found' }, { status: 404 })
-      }
+    if (existingDegree.length === 0) {
+      throw new NotFoundError('Degree not found')
+    }
 
-      // Create course group
-      const newCourseGroup = await database()
-        .insert(courseGroup)
-        .values({
-          name: name.trim(),
-          degreeId,
-          createdAt: new Date(),
-          updatedAt: new Date()
-        })
-        .returning({
-          id: courseGroup.id,
-          name: courseGroup.name,
-          degreeId: courseGroup.degreeId,
-          createdAt: courseGroup.createdAt,
-          updatedAt: courseGroup.updatedAt
-        })
-
-      // Send notification
-      await notifyAdminChange({
-        env,
-        user: authContext.user,
-        resourceType: 'course-group',
-        resourceId: newCourseGroup[0].id,
-        resourceName: newCourseGroup[0].name,
-        action: 'created'
+    // Create course group
+    const newCourseGroup = await database()
+      .insert(courseGroup)
+      .values({
+        name: name.trim(),
+        degreeId,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })
+      .returning({
+        id: courseGroup.id,
+        name: courseGroup.name,
+        degreeId: courseGroup.degreeId,
+        createdAt: courseGroup.createdAt,
+        updatedAt: courseGroup.updatedAt
       })
 
-      const response = {
-        ...newCourseGroup[0],
-        createdAt: newCourseGroup[0].createdAt?.toISOString() || '',
-        updatedAt: newCourseGroup[0].updatedAt?.toISOString() || ''
-      }
-
-      return Response.json(response, { status: 201 })
+    // Send notification
+    await notifyAdminChange({
+      env,
+      user: authContext.user,
+      resourceType: 'course-group',
+      resourceId: newCourseGroup[0].id,
+      resourceName: newCourseGroup[0].name,
+      action: 'created'
     })
+
+    const response = {
+      ...newCourseGroup[0],
+      createdAt: newCourseGroup[0].createdAt?.toISOString() || '',
+      updatedAt: newCourseGroup[0].updatedAt?.toISOString() || ''
+    }
+
+    return Response.json(response, { status: 201 })
   }
 }

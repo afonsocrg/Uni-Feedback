@@ -2,7 +2,6 @@ import { AIService } from '@services'
 import { contentJson, OpenAPIRoute } from 'chanfana'
 import { IRequest } from 'itty-router'
 import { z } from 'zod'
-import { withErrorHandling } from '../utils'
 
 const CategorizeFeedbackRequestSchema = z
   .object({
@@ -47,32 +46,30 @@ export class CategorizeFeedback extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: Env, _context: RequestContext) {
-    return withErrorHandling(request, async () => {
-      // Authenticate user (required to prevent abuse)
-      // const authContext = await requireAuth(request, env, context)
+  async handle(_request: IRequest, env: Env, _context: RequestContext) {
+    // Authenticate user (required to prevent abuse)
+    // const authContext = await requireAuth(request, env, context)
 
-      // Get validated request body
-      const { body } = await this.getValidatedData<typeof this.schema>()
+    // Get validated request body
+    const { body } = await this.getValidatedData<typeof this.schema>()
 
-      // Validate minimum character count
-      // if (body.comment.length < 50) {
-      //   throw new BusinessLogicError(
-      //     'Comment must be at least 50 characters for categorization'
-      //   )
-      // }
+    // Validate minimum character count
+    // if (body.comment.length < 50) {
+    //   throw new BusinessLogicError(
+    //     'Comment must be at least 50 characters for categorization'
+    //   )
+    // }
 
-      // Call AI service to categorize feedback
-      const aiService = new AIService(env)
-      const categories = await aiService.categorizeFeedback(body.comment)
+    // Call AI service to categorize feedback
+    const aiService = new AIService(env)
+    const categories = await aiService.categorizeFeedback(body.comment)
 
-      // Return categories without storing in database
-      return Response.json(
-        {
-          categories
-        },
-        { status: 200 }
-      )
-    })
+    // Return categories without storing in database
+    return Response.json(
+      {
+        categories
+      },
+      { status: 200 }
+    )
   }
 }

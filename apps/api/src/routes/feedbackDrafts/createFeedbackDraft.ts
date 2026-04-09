@@ -4,7 +4,7 @@ import { contentJson, OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
 import { z } from 'zod'
-import { InternalServerError, withErrorHandling } from '../utils'
+import { InternalServerError } from '../utils'
 
 const FeedbackDraftRequestSchema = z
   .object({
@@ -51,61 +51,59 @@ export class CreateFeedbackDraft extends OpenAPIRoute {
   }
 
   async handle(request: IRequest, _env: Env, _context: RequestContext) {
-    return withErrorHandling(request, async () => {
-      const { body } = await this.getValidatedData<typeof this.schema>()
+    const { body } = await this.getValidatedData<typeof this.schema>()
 
-      // Generate unique code
-      let code: string
-      let attempts = 0
-      const maxAttempts = 10
+    // Generate unique code
+    let code: string
+    let attempts = 0
+    const maxAttempts = 10
 
-      do {
-        code = generateCode()
-        attempts++
+    do {
+      code = generateCode()
+      attempts++
 
-        if (attempts > maxAttempts) {
-          throw new InternalServerError(
-            'Failed to generate unique code after multiple attempts'
-          )
-        }
+      if (attempts > maxAttempts) {
+        throw new InternalServerError(
+          'Failed to generate unique code after multiple attempts'
+        )
+      }
 
-        // Check if code already exists
-        const existing = await database()
-          .select()
-          .from(feedbackDrafts)
-          .where(eq(feedbackDrafts.code, code))
-          .limit(1)
+      // Check if code already exists
+      const existing = await database()
+        .select()
+        .from(feedbackDrafts)
+        .where(eq(feedbackDrafts.code, code))
+        .limit(1)
 
-        if (existing.length === 0) break
-        // eslint-disable-next-line no-constant-condition
-      } while (true)
+      if (existing.length === 0) break
+      // eslint-disable-next-line no-constant-condition
+    } while (true)
 
-      // Set expiration to 24 hours from now
-      const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000)
+    // Set expiration to 24 hours from now
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000)
 
-      // Get client IP for rate limiting (optional)
-      const ipAddress =
-        request.headers.get('CF-Connecting-IP') ||
-        request.headers.get('X-Forwarded-For') ||
-        'unknown'
+    // Get client IP for rate limiting (optional)
+    const ipAddress =
+      request.headers.get('CF-Connecting-IP') ||
+      request.headers.get('X-Forwarded-For') ||
+      'unknown'
 
-      // Insert feedback draft
-      await database()
-        .insert(feedbackDrafts)
-        .values({
-          code,
-          data: JSON.stringify(body),
-          expiresAt,
-          ipAddress
-        })
+    // Insert feedback draft
+    await database()
+      .insert(feedbackDrafts)
+      .values({
+        code,
+        data: JSON.stringify(body),
+        expiresAt,
+        ipAddress
+      })
 
-      return Response.json(
-        {
-          code,
-          expiresAt: expiresAt.toISOString()
-        },
-        { status: 201 }
-      )
-    })
+    return Response.json(
+      {
+        code,
+        expiresAt: expiresAt.toISOString()
+      },
+      { status: 201 }
+    )
   }
 }

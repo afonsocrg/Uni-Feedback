@@ -6,7 +6,7 @@ import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
 import { z } from 'zod'
-import { ValidationError, withErrorHandling } from '../../utils'
+import { NotFoundError, ValidationError } from '../../utils'
 
 const DegreeUpdateSchema = z.object({
   name: z.string().min(1).optional(),
@@ -85,116 +85,114 @@ export class UpdateDegree extends OpenAPIRoute {
   }
 
   async handle(request: IRequest, env: Env, context: RequestContext) {
-    return withErrorHandling(request, async () => {
-      const authContext = await requireAdmin(request, env, context)
-      const { params, body } = await this.getValidatedData<typeof this.schema>()
-      const { id } = params
-      const updateData = body
+    const authContext = await requireAdmin(request, env, context)
+    const { params, body } = await this.getValidatedData<typeof this.schema>()
+    const { id } = params
+    const updateData = body
 
-      // Validate field values are not null/empty for required fields
-      const validationErrors: { field: string; message: string }[] = []
+    // Validate field values are not null/empty for required fields
+    const validationErrors: { field: string; message: string }[] = []
 
-      if (updateData.name !== undefined) {
-        if (updateData.name === null || updateData.name.trim() === '') {
-          validationErrors.push({
-            field: 'name',
-            message: 'Degree name cannot be empty'
-          })
-        }
-      }
-
-      if (updateData.acronym !== undefined) {
-        if (updateData.acronym === null || updateData.acronym.trim() === '') {
-          validationErrors.push({
-            field: 'acronym',
-            message: 'Degree acronym cannot be empty'
-          })
-        }
-      }
-
-      if (updateData.type !== undefined) {
-        if (updateData.type === null || updateData.type.trim() === '') {
-          validationErrors.push({
-            field: 'type',
-            message: 'Degree type cannot be empty'
-          })
-        }
-      }
-
-      if (validationErrors.length > 0) {
-        throw new ValidationError('Validation failed', validationErrors)
-      }
-
-      // Check if degree exists
-      const existingDegree = await database()
-        .select()
-        .from(degrees)
-        .where(eq(degrees.id, id))
-        .limit(1)
-
-      if (existingDegree.length === 0) {
-        return Response.json({ error: 'Degree not found' }, { status: 404 })
-      }
-
-      // Build update data with trimmed values
-      const dbUpdateData: Record<string, unknown> = {}
-      if (updateData.name !== undefined)
-        dbUpdateData.name = updateData.name.trim()
-      if (updateData.acronym !== undefined)
-        dbUpdateData.acronym = updateData.acronym.trim()
-      if (updateData.type !== undefined)
-        dbUpdateData.type = updateData.type.trim()
-      if (updateData.description !== undefined)
-        dbUpdateData.description = updateData.description
-
-      // Detect changes for notification
-      const changes = detectChanges(existingDegree[0], dbUpdateData, [
-        'name',
-        'acronym',
-        'type',
-        'description'
-      ])
-
-      // Update degree
-      const updatedDegree = await database()
-        .update(degrees)
-        .set({
-          ...dbUpdateData,
-          updatedAt: new Date()
-        })
-        .where(eq(degrees.id, id))
-        .returning({
-          id: degrees.id,
-          name: degrees.name,
-          acronym: degrees.acronym,
-          type: degrees.type,
-          description: degrees.description,
-          facultyId: degrees.facultyId,
-          createdAt: degrees.createdAt,
-          updatedAt: degrees.updatedAt
-        })
-
-      // Send notification if changes were made
-      if (changes.length > 0) {
-        await notifyAdminChange({
-          env,
-          user: authContext.user,
-          resourceType: 'degree',
-          resourceId: id,
-          resourceName: updatedDegree[0].name,
-          resourceShortName: updatedDegree[0].acronym,
-          action: 'updated',
-          changes
+    if (updateData.name !== undefined) {
+      if (updateData.name === null || updateData.name.trim() === '') {
+        validationErrors.push({
+          field: 'name',
+          message: 'Degree name cannot be empty'
         })
       }
+    }
 
-      const response = {
-        ...updatedDegree[0],
-        createdAt: updatedDegree[0].createdAt?.toISOString() || '',
-        updatedAt: updatedDegree[0].updatedAt?.toISOString() || ''
+    if (updateData.acronym !== undefined) {
+      if (updateData.acronym === null || updateData.acronym.trim() === '') {
+        validationErrors.push({
+          field: 'acronym',
+          message: 'Degree acronym cannot be empty'
+        })
       }
+    }
 
-      return Response.json(response)
-    })
+    if (updateData.type !== undefined) {
+      if (updateData.type === null || updateData.type.trim() === '') {
+        validationErrors.push({
+          field: 'type',
+          message: 'Degree type cannot be empty'
+        })
+      }
+    }
+
+    if (validationErrors.length > 0) {
+      throw new ValidationError('Validation failed', validationErrors)
+    }
+
+    // Check if degree exists
+    const existingDegree = await database()
+      .select()
+      .from(degrees)
+      .where(eq(degrees.id, id))
+      .limit(1)
+
+    if (existingDegree.length === 0) {
+      throw new NotFoundError('Degree not found')
+    }
+
+    // Build update data with trimmed values
+    const dbUpdateData: Record<string, unknown> = {}
+    if (updateData.name !== undefined)
+      dbUpdateData.name = updateData.name.trim()
+    if (updateData.acronym !== undefined)
+      dbUpdateData.acronym = updateData.acronym.trim()
+    if (updateData.type !== undefined)
+      dbUpdateData.type = updateData.type.trim()
+    if (updateData.description !== undefined)
+      dbUpdateData.description = updateData.description
+
+    // Detect changes for notification
+    const changes = detectChanges(existingDegree[0], dbUpdateData, [
+      'name',
+      'acronym',
+      'type',
+      'description'
+    ])
+
+    // Update degree
+    const updatedDegree = await database()
+      .update(degrees)
+      .set({
+        ...dbUpdateData,
+        updatedAt: new Date()
+      })
+      .where(eq(degrees.id, id))
+      .returning({
+        id: degrees.id,
+        name: degrees.name,
+        acronym: degrees.acronym,
+        type: degrees.type,
+        description: degrees.description,
+        facultyId: degrees.facultyId,
+        createdAt: degrees.createdAt,
+        updatedAt: degrees.updatedAt
+      })
+
+    // Send notification if changes were made
+    if (changes.length > 0) {
+      await notifyAdminChange({
+        env,
+        user: authContext.user,
+        resourceType: 'degree',
+        resourceId: id,
+        resourceName: updatedDegree[0].name,
+        resourceShortName: updatedDegree[0].acronym,
+        action: 'updated',
+        changes
+      })
+    }
+
+    const response = {
+      ...updatedDegree[0],
+      createdAt: updatedDegree[0].createdAt?.toISOString() || '',
+      updatedAt: updatedDegree[0].updatedAt?.toISOString() || ''
+    }
+
+    return Response.json(response)
   }
 }

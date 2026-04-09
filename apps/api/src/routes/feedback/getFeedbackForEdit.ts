@@ -5,7 +5,7 @@ import { OpenAPIRoute } from 'chanfana'
 import { and, eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
 import { z } from 'zod'
-import { UnauthorizedError, withErrorHandling } from '../utils'
+import { ForbiddenError } from '../utils'
 
 export class GetFeedbackForEdit extends OpenAPIRoute {
   schema = {
@@ -27,46 +27,44 @@ export class GetFeedbackForEdit extends OpenAPIRoute {
   }
 
   async handle(request: IRequest, env: Env, context: RequestContext) {
-    return withErrorHandling(request, async () => {
-      const feedbackId = parseInt(request.params.id)
+    const feedbackId = parseInt(request.params.id)
 
-      // Authenticate
-      const authContext = await requireAuth(request, env, context)
-      const userId = authContext.user.id
+    // Authenticate
+    const authContext = await requireAuth(request, env, context)
+    const userId = authContext.user.id
 
-      const db = database()
+    const db = database()
 
-      // Query feedback with course, degree, and faculty info
-      const [result] = await db
-        .select({
-          id: feedback.id,
-          userId: feedback.userId,
-          rating: feedback.rating,
-          workloadRating: feedback.workloadRating,
-          comment: feedback.comment,
-          schoolYear: feedback.schoolYear,
-          approvedAt: feedback.approvedAt,
-          courseName: courses.name,
-          courseCode: courses.acronym,
-          courseId: courses.id,
-          degreeName: degrees.name,
-          facultyShortName: faculties.shortName
-        })
-        .from(feedback)
-        .innerJoin(courses, eq(feedback.courseId, courses.id))
-        .innerJoin(degrees, eq(courses.degreeId, degrees.id))
-        .innerJoin(faculties, eq(degrees.facultyId, faculties.id))
-        .where(and(eq(feedback.id, feedbackId), eq(feedback.userId, userId)))
-        .limit(1)
-
-      // Check ownership - if not found, either doesn't exist or not owned by user
-      if (!result) {
-        throw new UnauthorizedError('You can only edit your own feedback')
-      }
-
-      return Response.json({
-        feedback: result
+    // Query feedback with course, degree, and faculty info
+    const [result] = await db
+      .select({
+        id: feedback.id,
+        userId: feedback.userId,
+        rating: feedback.rating,
+        workloadRating: feedback.workloadRating,
+        comment: feedback.comment,
+        schoolYear: feedback.schoolYear,
+        approvedAt: feedback.approvedAt,
+        courseName: courses.name,
+        courseCode: courses.acronym,
+        courseId: courses.id,
+        degreeName: degrees.name,
+        facultyShortName: faculties.shortName
       })
+      .from(feedback)
+      .innerJoin(courses, eq(feedback.courseId, courses.id))
+      .innerJoin(degrees, eq(courses.degreeId, degrees.id))
+      .innerJoin(faculties, eq(degrees.facultyId, faculties.id))
+      .where(and(eq(feedback.id, feedbackId), eq(feedback.userId, userId)))
+      .limit(1)
+
+    // Check ownership - if not found, either doesn't exist or not owned by user
+    if (!result) {
+      throw new ForbiddenError('You can only edit your own feedback')
+    }
+
+    return Response.json({
+      feedback: result
     })
   }
 }

@@ -2,6 +2,7 @@
 import './config'
 
 import { router } from '@routes'
+import { handleError } from '@routes/utils/errorHandling'
 import { DatabaseContext } from '@uni-feedback/db'
 import * as schema from '@uni-feedback/db/schema'
 import { createServerAdapter } from '@whatwg-node/server'
@@ -138,10 +139,12 @@ const createFetchHandler = () => {
         return await router.fetch(request, globalEnv, {})
       })
     } catch (error) {
-      console.error('Server error:', error)
-      return new Response(JSON.stringify({ error: 'Internal server error' }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' }
+      const url = new URL(request.url)
+      return handleError(error, {
+        endpoint: url.pathname,
+        method: request.method,
+        userAgent: request.headers.get('user-agent') || undefined,
+        ip: request.headers.get('x-forwarded-for') || undefined
       })
     }
   }

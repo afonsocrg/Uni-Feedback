@@ -10,7 +10,6 @@ import { OpenAPIRoute } from 'chanfana'
 import { and, desc, eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
 import { z } from 'zod'
-import { withErrorHandling } from '../utils'
 
 export class GetUserFeedback extends OpenAPIRoute {
   schema = {
@@ -65,68 +64,63 @@ export class GetUserFeedback extends OpenAPIRoute {
   }
 
   async handle(request: IRequest, env: Env, context: RequestContext) {
-    return withErrorHandling(request, async () => {
-      const authContext = await requireAuth(request, env, context)
-      const userId = authContext.user.id
+    const authContext = await requireAuth(request, env, context)
+    const userId = authContext.user.id
 
-      // Get all feedback by this user with course details
-      const userFeedback = await database()
-        .select({
-          id: feedback.id,
-          courseId: feedback.courseId,
-          courseName: courses.name,
-          courseCode: courses.acronym,
-          schoolYear: feedback.schoolYear,
-          rating: feedback.rating,
-          workloadRating: feedback.workloadRating,
-          comment: feedback.comment,
-          approvedAt: feedback.approvedAt,
-          createdAt: feedback.createdAt,
-          updatedAt: feedback.updatedAt,
-          // Analysis fields
-          hasTeaching: feedbackAnalysis.hasTeaching,
-          hasAssessment: feedbackAnalysis.hasAssessment,
-          hasMaterials: feedbackAnalysis.hasMaterials,
-          hasTips: feedbackAnalysis.hasTips,
-          wordCount: feedbackAnalysis.wordCount,
-          // Points
-          points: pointRegistry.amount
-        })
-        .from(feedback)
-        .innerJoin(courses, eq(feedback.courseId, courses.id))
-        .leftJoin(
-          feedbackAnalysis,
-          eq(feedback.id, feedbackAnalysis.feedbackId)
-        )
-        .leftJoin(
-          pointRegistry,
-          and(
-            eq(pointRegistry.referenceId, feedback.id),
-            eq(pointRegistry.sourceType, 'submit_feedback'),
-            eq(pointRegistry.userId, userId)
-          )
-        )
-        .where(eq(feedback.userId, userId))
-        .orderBy(desc(feedback.createdAt))
-
-      // Transform the results to match the schema
-      const transformedFeedback = userFeedback.map((item) => ({
-        ...item,
-        analysis:
-          item.wordCount !== null
-            ? {
-                hasTeaching: item.hasTeaching,
-                hasAssessment: item.hasAssessment,
-                hasMaterials: item.hasMaterials,
-                hasTips: item.hasTips,
-                wordCount: item.wordCount
-              }
-            : null
-      }))
-
-      return Response.json({
-        feedback: transformedFeedback
+    // Get all feedback by this user with course details
+    const userFeedback = await database()
+      .select({
+        id: feedback.id,
+        courseId: feedback.courseId,
+        courseName: courses.name,
+        courseCode: courses.acronym,
+        schoolYear: feedback.schoolYear,
+        rating: feedback.rating,
+        workloadRating: feedback.workloadRating,
+        comment: feedback.comment,
+        approvedAt: feedback.approvedAt,
+        createdAt: feedback.createdAt,
+        updatedAt: feedback.updatedAt,
+        // Analysis fields
+        hasTeaching: feedbackAnalysis.hasTeaching,
+        hasAssessment: feedbackAnalysis.hasAssessment,
+        hasMaterials: feedbackAnalysis.hasMaterials,
+        hasTips: feedbackAnalysis.hasTips,
+        wordCount: feedbackAnalysis.wordCount,
+        // Points
+        points: pointRegistry.amount
       })
+      .from(feedback)
+      .innerJoin(courses, eq(feedback.courseId, courses.id))
+      .leftJoin(feedbackAnalysis, eq(feedback.id, feedbackAnalysis.feedbackId))
+      .leftJoin(
+        pointRegistry,
+        and(
+          eq(pointRegistry.referenceId, feedback.id),
+          eq(pointRegistry.sourceType, 'submit_feedback'),
+          eq(pointRegistry.userId, userId)
+        )
+      )
+      .where(eq(feedback.userId, userId))
+      .orderBy(desc(feedback.createdAt))
+
+    // Transform the results to match the schema
+    const transformedFeedback = userFeedback.map((item) => ({
+      ...item,
+      analysis:
+        item.wordCount !== null
+          ? {
+              hasTeaching: item.hasTeaching,
+              hasAssessment: item.hasAssessment,
+              hasMaterials: item.hasMaterials,
+              hasTips: item.hasTips,
+              wordCount: item.wordCount
+            }
+          : null
+    }))
+
+    return Response.json({
+      feedback: transformedFeedback
     })
   }
 }

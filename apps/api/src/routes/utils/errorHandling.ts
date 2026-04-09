@@ -1,251 +1,102 @@
-import { IRequest, StatusError } from 'itty-router'
-
 // ============================================================================
-// ERROR CLASSES
+// BASE ERROR CLASS
 // ============================================================================
 
-export class HTTPError extends StatusError {
-  statusCode: number = 500
-
-  constructor(message: string, statusCode: number) {
-    super(statusCode, message)
+/**
+ * Base application error class.
+ * All known errors should extend this class.
+ * Unknown errors will result in a 500 response.
+ */
+export class AppError extends Error {
+  constructor(
+    message: string,
+    public statusCode: number = 500,
+    public details?: Record<string, unknown>
+  ) {
+    super(message)
     this.name = this.constructor.name
-    this.statusCode = statusCode
   }
 }
 
-export class BusinessLogicError extends HTTPError {
-  constructor(message: string, statusCode: number = 400) {
-    super(message, statusCode)
+// ============================================================================
+// SPECIFIC ERROR CLASSES
+// ============================================================================
+
+export class BadRequestError extends AppError {
+  constructor(message: string = 'Bad Request') {
+    super(message, 400)
   }
 }
 
-export class InternalServerError extends HTTPError {
-  constructor(message: string) {
-    super(message, 500)
-  }
-}
-
-export class NotFoundError extends HTTPError {
-  constructor(message: string = 'Not Found') {
-    super(message, 404)
-  }
-}
-
-export class ValidationError extends HTTPError {
-  errors?: Array<{ field: string; message: string }>
-
+export class ValidationError extends AppError {
   constructor(
     message: string,
     errors?: Array<{ field: string; message: string }>
   ) {
-    super(message, 400)
-    this.errors = errors
+    super(message, 400, errors ? { errors } : undefined)
   }
 }
 
-export class UnauthorizedError extends HTTPError {
+export class UnauthorizedError extends AppError {
   constructor(message: string = 'Unauthorized') {
     super(message, 401)
   }
 }
 
-export class ForbiddenError extends HTTPError {
+export class ForbiddenError extends AppError {
   constructor(message: string = 'Forbidden') {
     super(message, 403)
   }
 }
 
+export class NotFoundError extends AppError {
+  constructor(message: string = 'Not Found') {
+    super(message, 404)
+  }
+}
+
+export class AlreadyExistsError extends AppError {
+  constructor(
+    message: string = 'Resource already exists',
+    details?: Record<string, unknown>
+  ) {
+    super(message, 409, details)
+  }
+}
+
+export class InternalServerError extends AppError {
+  constructor(message: string = 'Internal Server Error') {
+    super(message, 500)
+  }
+}
+
 // ============================================================================
-// ERROR CONTEXT & STRUCTURED LOGGING
+// ERROR HANDLER
 // ============================================================================
 
-interface ErrorContext {
-  correlationId?: string
-  userId?: number
+export interface ErrorContext {
   endpoint?: string
   method?: string
-  requestBody?: unknown
-  requestParams?: unknown
   userAgent?: string
   ip?: string
-  timestamp?: Date
-  duration?: number
-}
-
-interface StructuredError {
-  message: string
-  statusCode: number
-  correlationId: string
-  timestamp: Date
-  context: ErrorContext
-  stack?: string
-  errorType: string
-}
-
-function generateCorrelationId(): string {
-  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-}
-
-function logStructuredError(structuredError: StructuredError): void {
-  const logEntry = {
-    level: 'error',
-    message: structuredError.message,
-    statusCode: structuredError.statusCode,
-    correlationId: structuredError.correlationId,
-    timestamp: structuredError.timestamp.toISOString(),
-    errorType: structuredError.errorType,
-    context: {
-      endpoint: structuredError.context.endpoint,
-      method: structuredError.context.method,
-      userId: structuredError.context.userId,
-      userAgent: structuredError.context.userAgent,
-      ip: structuredError.context.ip,
-      duration: structuredError.context.duration
-    },
-    stack: structuredError.stack
-  }
-
-  console.error(JSON.stringify(logEntry, null, 2))
-}
-
-export function extractRequestContext(request: Request): ErrorContext {
-  const url = new URL(request.url)
-  return {
-    endpoint: url.pathname,
-    method: request.method,
-    userAgent: request.headers.get('user-agent') || undefined,
-    ip:
-      request.headers.get('cf-connecting-ip') ||
-      request.headers.get('x-forwarded-for') ||
-      undefined,
-    timestamp: new Date()
-  }
-}
-
-// ============================================================================
-// CORE ERROR HANDLER
-// ============================================================================
-
-export function handleError(
-  error: unknown,
-  context: ErrorContext = {},
-  customMessage?: string
-): Response {
-  const correlationId = context.correlationId || generateCorrelationId()
-  const timestamp = new Date()
-
-  let statusCode = 500
-  let message = customMessage || 'Internal server error'
-  let errorType = 'UnknownError'
-
-  if (error instanceof HTTPError) {
-    statusCode = error.statusCode
-    message = error.message
-    errorType = error.constructor.name
-  } else if (error instanceof Error) {
-    errorType = error.constructor.name
-    if (!customMessage) {
-      message = error.message || 'An error occurred'
-    }
-  }
-
-  const structuredError: StructuredError = {
-    message,
-    statusCode,
-    correlationId,
-    timestamp,
-    context: {
-      ...context,
-      timestamp
-    },
-    stack: error instanceof Error ? error.stack : undefined,
-    errorType
-  }
-
-  logStructuredError(structuredError)
-
-  // Include validation errors in response if present
-  const responseBody: {
-    error: string
-    errors?: Array<{ field: string; message: string }>
-  } = { error: message }
-  if (error instanceof ValidationError && error.errors) {
-    responseBody.errors = error.errors
-  }
-
-  const response = Response.json(responseBody, { status: statusCode })
-  response.headers.set('X-Correlation-ID', correlationId)
-  return response
-}
-
-// ============================================================================
-// ROUTE ERROR HANDLING WRAPPERS
-// ============================================================================
-
-/**
- * Helper function to create standardized error handling for route handlers
- * Usage in route handle method:
- *
- * async handle(_request: IRequest, _env: Env, _context: RequestContext) {
- *   return withErrorHandling(request, async () => {
- *     // Your route logic here
- *     const data = await this.getValidatedData<typeof this.schema>()
- *     // ... business logic
- *     return Response.json(result)
- *   })
- * }
- */
-export async function withErrorHandling<T>(
-  request: IRequest,
-  routeHandler: () => Promise<T>
-): Promise<T> {
-  const startTime = Date.now()
-  const requestContext = extractRequestContext(request)
-
-  try {
-    return await routeHandler()
-  } catch (error) {
-    const enrichedContext = {
-      ...requestContext,
-      duration: Date.now() - startTime,
-      requestParams: request.params,
-      requestBody: (request as Request & { body?: unknown }).body || undefined
-    }
-
-    return handleError(error, enrichedContext) as T
-  }
 }
 
 /**
- * Alternative approach: Create error handler function that can be called from catch blocks
- * Usage in route handle method:
- *
- * async handle(_request: IRequest, _env: Env, _context: RequestContext) {
- *   const errorHandler = createErrorHandler(request)
- *
- *   try {
- *     // Your route logic here
- *     return Response.json(result)
- *   } catch (error) {
- *     return errorHandler(error)
- *   }
- * }
+ * Central error handler. Converts errors to HTTP responses.
+ * - AppError instances: uses their statusCode and message
+ * - Unknown errors: logs and returns 500
  */
-export function createErrorHandler(
-  request: IRequest,
-  startTime: number = Date.now()
-) {
-  const requestContext = extractRequestContext(request)
-
-  return (error: unknown, customMessage?: string) => {
-    const enrichedContext = {
-      ...requestContext,
-      duration: Date.now() - startTime,
-      requestParams: request.params,
-      requestBody: (request as Request & { body?: unknown }).body || undefined
+export function handleError(error: unknown, context?: ErrorContext): Response {
+  // Known application error
+  if (error instanceof AppError) {
+    const body: Record<string, unknown> = { error: error.message }
+    if (error.details) {
+      Object.assign(body, error.details)
     }
-
-    return handleError(error, enrichedContext, customMessage)
+    return Response.json(body, { status: error.statusCode })
   }
+
+  // Unknown error - log with context and return 500
+  console.error('Unexpected error:', { error, context })
+  return Response.json({ error: 'Internal server error' }, { status: 500 })
 }

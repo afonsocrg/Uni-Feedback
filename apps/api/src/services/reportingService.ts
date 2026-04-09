@@ -1,3 +1,4 @@
+import { NotFoundError } from '@routes/utils/errorHandling'
 import { database } from '@uni-feedback/db'
 import { courses, degrees, feedback, reports } from '@uni-feedback/db/schema'
 import { getWorkloadLabel } from '@uni-feedback/utils'
@@ -8,7 +9,6 @@ import * as path from 'path'
 import puppeteer, { type Browser } from 'puppeteer'
 import QRCode from 'qrcode'
 import { AIService } from './aiService'
-import { NotFoundError } from './errors'
 import { R2Service } from './r2Service'
 import {
   sendDegreeReportGenerationAlert,

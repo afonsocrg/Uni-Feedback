@@ -15,7 +15,7 @@ import { contentJson, OpenAPIRoute } from 'chanfana'
 import { and, eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
 import { z } from 'zod'
-import { BusinessLogicError, NotFoundError, withErrorHandling } from '../utils'
+import { AlreadyExistsError, BadRequestError, NotFoundError } from '../utils'
 
 const FeedbackRequestSchema = z
   .object({
@@ -54,261 +54,252 @@ export class SubmitFeedback extends OpenAPIRoute {
   }
 
   async handle(request: IRequest, env: Env, context: RequestContext) {
-    return withErrorHandling(request, async () => {
-      const courseId = parseInt(request.params.id)
-      const { body } = await this.getValidatedData<typeof this.schema>()
+    const courseId = parseInt(request.params.id)
+    const { body } = await this.getValidatedData<typeof this.schema>()
 
-      // Authenticate user (required for feedback submission)
-      const authContext = await requireAuth(request, env, context)
+    // Authenticate user (required for feedback submission)
+    const authContext = await requireAuth(request, env, context)
 
-      // Use authenticated user's info
-      const userId = authContext.user!.id
-      const email = authContext.user!.email
+    // Use authenticated user's info
+    const userId = authContext.user!.id
+    const email = authContext.user!.email
 
-      // Validate school year
-      const currentSchoolYear = getCurrentSchoolYear()
-      if (body.schoolYear > currentSchoolYear) {
-        throw new BusinessLogicError(
-          'Cannot submit feedback for a future school year'
-        )
+    // Validate school year
+    const currentSchoolYear = getCurrentSchoolYear()
+    if (body.schoolYear > currentSchoolYear) {
+      throw new BadRequestError(
+        'Cannot submit feedback for a future school year'
+      )
+    }
+
+    // Check if course exists
+    const courseResult = await database()
+      .select()
+      .from(courses)
+      .where(eq(courses.id, courseId))
+      .limit(1)
+
+    if (courseResult.length === 0) {
+      throw new NotFoundError('Course not found')
+    }
+    const course = courseResult[0]
+
+    if (!course.degreeId) {
+      throw new NotFoundError('Course has no associated degree')
+    }
+
+    const degreeResult = await database()
+      .select()
+      .from(degrees)
+      .where(eq(degrees.id, course.degreeId))
+      .limit(1)
+
+    if (degreeResult.length === 0) {
+      throw new NotFoundError('Degree not found')
+    }
+    const degree = degreeResult[0]
+
+    // Fetch faculty to validate email suffix
+    if (!degree.facultyId) {
+      throw new NotFoundError('Degree has no associated faculty')
+    }
+
+    const facultyResult = await database()
+      .select()
+      .from(faculties)
+      .where(eq(faculties.id, degree.facultyId))
+      .limit(1)
+
+    if (facultyResult.length === 0) {
+      throw new NotFoundError('Faculty not found')
+    }
+    const faculty = facultyResult[0]
+
+    // Validate email suffix if faculty has restrictions
+    if (
+      faculty.emailSuffixes &&
+      Array.isArray(faculty.emailSuffixes) &&
+      faculty.emailSuffixes.length > 0
+    ) {
+      const emailDomain = email.split('@')[1]?.toLowerCase()
+      const emailSuffixes = faculty.emailSuffixes as string[]
+      const isValidDomain = emailSuffixes.some(
+        (suffix: string) => emailDomain === suffix.toLowerCase()
+      )
+
+      if (!isValidDomain) {
+        const suffixesWithAt = emailSuffixes.map((suffix) => `@${suffix}`)
+        const errorMessage =
+          suffixesWithAt.length === 1
+            ? `Email must end with ${suffixesWithAt[0]}`
+            : `Email must end with one of: ${suffixesWithAt.join(', ')}`
+
+        throw new BadRequestError(errorMessage)
       }
+    }
 
-      // Check if course exists
-      const courseResult = await database()
-        .select()
-        .from(courses)
-        .where(eq(courses.id, courseId))
-        .limit(1)
-
-      if (courseResult.length === 0) {
-        throw new NotFoundError('Course not found')
-      }
-      const course = courseResult[0]
-
-      if (!course.degreeId) {
-        throw new NotFoundError('Course has no associated degree')
-      }
-
-      const degreeResult = await database()
-        .select()
-        .from(degrees)
-        .where(eq(degrees.id, course.degreeId))
-        .limit(1)
-
-      if (degreeResult.length === 0) {
-        throw new NotFoundError('Degree not found')
-      }
-      const degree = degreeResult[0]
-
-      // Fetch faculty to validate email suffix
-      if (!degree.facultyId) {
-        throw new NotFoundError('Degree has no associated faculty')
-      }
-
-      const facultyResult = await database()
-        .select()
-        .from(faculties)
-        .where(eq(faculties.id, degree.facultyId))
-        .limit(1)
-
-      if (facultyResult.length === 0) {
-        throw new NotFoundError('Faculty not found')
-      }
-      const faculty = facultyResult[0]
-
-      // Validate email suffix if faculty has restrictions
-      if (
-        faculty.emailSuffixes &&
-        Array.isArray(faculty.emailSuffixes) &&
-        faculty.emailSuffixes.length > 0
-      ) {
-        const emailDomain = email.split('@')[1]?.toLowerCase()
-        const emailSuffixes = faculty.emailSuffixes as string[]
-        const isValidDomain = emailSuffixes.some(
-          (suffix: string) => emailDomain === suffix.toLowerCase()
-        )
-
-        if (!isValidDomain) {
-          const suffixesWithAt = emailSuffixes.map((suffix) => `@${suffix}`)
-          const errorMessage =
-            suffixesWithAt.length === 1
-              ? `Email must end with ${suffixesWithAt[0]}`
-              : `Email must end with one of: ${suffixesWithAt.join(', ')}`
-
-          throw new BusinessLogicError(errorMessage)
+    // Check if user has already submitted feedback for this course
+    const existingFeedback = await database()
+      .select({
+        id: feedback.id,
+        courseId: feedback.courseId,
+        rating: feedback.rating,
+        workloadRating: feedback.workloadRating,
+        comment: feedback.comment,
+        schoolYear: feedback.schoolYear,
+        createdAt: feedback.createdAt,
+        approvedAt: feedback.approvedAt,
+        updatedAt: feedback.updatedAt,
+        course: {
+          id: courses.id,
+          name: courses.name,
+          acronym: courses.acronym
+        },
+        degree: {
+          id: degrees.id,
+          name: degrees.name,
+          acronym: degrees.acronym
         }
-      }
+      })
+      .from(feedback)
+      .innerJoin(courses, eq(feedback.courseId, courses.id))
+      .innerJoin(degrees, eq(courses.degreeId, degrees.id))
+      .where(and(eq(feedback.userId, userId), eq(feedback.courseId, courseId)))
+      .limit(1)
 
-      // Check if user has already submitted feedback for this course
-      const existingFeedback = await database()
-        .select({
-          id: feedback.id,
-          courseId: feedback.courseId,
-          rating: feedback.rating,
-          workloadRating: feedback.workloadRating,
-          comment: feedback.comment,
-          schoolYear: feedback.schoolYear,
-          createdAt: feedback.createdAt,
-          approvedAt: feedback.approvedAt,
-          updatedAt: feedback.updatedAt,
-          course: {
-            id: courses.id,
-            name: courses.name,
-            acronym: courses.acronym
-          },
-          degree: {
-            id: degrees.id,
-            name: degrees.name,
-            acronym: degrees.acronym
-          }
-        })
-        .from(feedback)
-        .innerJoin(courses, eq(feedback.courseId, courses.id))
-        .innerJoin(degrees, eq(courses.degreeId, degrees.id))
-        .where(
-          and(eq(feedback.userId, userId), eq(feedback.courseId, courseId))
-        )
-        .limit(1)
+    if (existingFeedback.length > 0) {
+      throw new AlreadyExistsError(
+        'You have already submitted feedback for this course',
+        { data: { feedback: existingFeedback[0] } }
+      )
+    }
 
-      if (existingFeedback.length > 0) {
-        return Response.json(
-          {
-            error: 'You have already submitted feedback for this course',
-            data: {
-              feedback: existingFeedback[0]
-            }
-          },
-          { status: 409 }
-        )
-      }
+    // Ignore empty comments
+    const comment = body.comment?.trim() || null
 
-      // Ignore empty comments
-      const comment = body.comment?.trim() || null
+    // Insert feedback
+    const feedbackData = {
+      userId: userId,
+      email: userId === null ? email : null,
+      schoolYear: body.schoolYear,
+      courseId: courseId,
+      rating: body.rating,
+      workloadRating: body.workloadRating,
+      comment: comment,
+      originalComment: comment,
+      approvedAt: new Date('1999-12-16T04:30:00.000Z') // Auto-approved marker (birthday easter egg!) Dec 16, 1999 04:30 UTC
+    }
 
-      // Insert feedback
-      const feedbackData = {
-        userId: userId,
-        email: userId === null ? email : null,
-        schoolYear: body.schoolYear,
-        courseId: courseId,
-        rating: body.rating,
-        workloadRating: body.workloadRating,
-        comment: comment,
-        originalComment: comment,
-        approvedAt: new Date('1999-12-16T04:30:00.000Z') // Auto-approved marker (birthday easter egg!) Dec 16, 1999 04:30 UTC
-      }
+    const insertResult = await database()
+      .insert(feedbackFull)
+      .values(feedbackData)
+      .returning()
 
-      const insertResult = await database()
-        .insert(feedbackFull)
-        .values(feedbackData)
-        .returning()
+    if (!insertResult || insertResult.length === 0 || !insertResult[0].id) {
+      throw new Error('Failed to insert feedback into database')
+    }
 
-      if (!insertResult || insertResult.length === 0 || !insertResult[0].id) {
-        throw new Error('Failed to insert feedback into database')
-      }
+    const feedbackId = insertResult[0].id
 
-      const feedbackId = insertResult[0].id
+    // Award points for feedback submission (best-effort)
+    let feedbackPoints = 0
+    try {
+      const pointService = new PointService(env)
 
-      // Award points for feedback submission (best-effort)
-      let feedbackPoints = 0
-      try {
-        const pointService = new PointService(env)
-
-        // 1. Analyze comment with AI (fallback to conservative defaults on error)
-        let analysis
-        if (comment) {
-          const aiService = new AIService(env)
-          try {
-            const categories = await aiService.categorizeFeedback(comment)
-            const wordCount = countWords(comment)
-            analysis = { ...categories, wordCount }
-          } catch (aiError) {
-            console.warn(
-              'AI categorization failed, using conservative defaults:',
-              aiError
-            )
-            analysis = {
-              hasTeaching: false,
-              hasAssessment: false,
-              hasMaterials: false,
-              hasTips: false,
-              wordCount: countWords(comment)
-            }
-          }
-        } else {
+      // 1. Analyze comment with AI (fallback to conservative defaults on error)
+      let analysis
+      if (comment) {
+        const aiService = new AIService(env)
+        try {
+          const categories = await aiService.categorizeFeedback(comment)
+          const wordCount = countWords(comment)
+          analysis = { ...categories, wordCount }
+        } catch (aiError) {
+          console.warn(
+            'AI categorization failed, using conservative defaults:',
+            aiError
+          )
           analysis = {
             hasTeaching: false,
             hasAssessment: false,
             hasMaterials: false,
             hasTips: false,
-            wordCount: 0
+            wordCount: countWords(comment)
           }
         }
-
-        // 2. Insert analysis record
-        await database()
-          .insert(feedbackAnalysis)
-          .values({
-            feedbackId,
-            ...analysis
-          })
-
-        // 3. Calculate and award feedback points
-        feedbackPoints = pointService.calculateFeedbackPoints(analysis)
-        if (feedbackPoints > 0) {
-          await pointService.awardFeedbackPoints(
-            userId,
-            feedbackId,
-            feedbackPoints
-          )
+      } else {
+        analysis = {
+          hasTeaching: false,
+          hasAssessment: false,
+          hasMaterials: false,
+          hasTips: false,
+          wordCount: 0
         }
+      }
 
-        // 4. Check for referral bonus (awarded on first feedback submission)
-        await pointService.checkAndAwardReferralPoints(userId)
-      } catch (pointError) {
-        console.error(
-          'Failed to award points for feedback:',
+      // 2. Insert analysis record
+      await database()
+        .insert(feedbackAnalysis)
+        .values({
           feedbackId,
-          pointError
-        )
-        // Continue - feedback was saved, points can be fixed later
-      }
+          ...analysis
+        })
 
-      await sendCourseReviewReceived(env, {
-        id: feedbackId,
-        email: email,
-        schoolYear: body.schoolYear,
-        degree,
-        faculty,
-        rating: body.rating,
-        workloadRating: body.workloadRating,
-        course: {
-          ...course,
-          terms: course.terms as string[] | null
-        },
-        comment,
-        pointsEarned: feedbackPoints
-      })
-
-      // Update course and degree stats (best-effort)
-      try {
-        const statsService = new StatsService()
-        await statsService.onFeedbackApproved(courseId)
-      } catch (statsError) {
-        console.error(
-          'Failed to update stats after feedback submission:',
-          statsError
+      // 3. Calculate and award feedback points
+      feedbackPoints = pointService.calculateFeedbackPoints(analysis)
+      if (feedbackPoints > 0) {
+        await pointService.awardFeedbackPoints(
+          userId,
+          feedbackId,
+          feedbackPoints
         )
       }
 
-      return Response.json(
-        {
-          message: 'Feedback submitted successfully',
-          feedbackId: feedbackId,
-          pointsEarned: feedbackPoints
-        },
-        { status: 201 }
+      // 4. Check for referral bonus (awarded on first feedback submission)
+      await pointService.checkAndAwardReferralPoints(userId)
+    } catch (pointError) {
+      console.error(
+        'Failed to award points for feedback:',
+        feedbackId,
+        pointError
       )
+      // Continue - feedback was saved, points can be fixed later
+    }
+
+    await sendCourseReviewReceived(env, {
+      id: feedbackId,
+      email: email,
+      schoolYear: body.schoolYear,
+      degree,
+      faculty,
+      rating: body.rating,
+      workloadRating: body.workloadRating,
+      course: {
+        ...course,
+        terms: course.terms as string[] | null
+      },
+      comment,
+      pointsEarned: feedbackPoints
     })
+
+    // Update course and degree stats (best-effort)
+    try {
+      const statsService = new StatsService()
+      await statsService.onFeedbackApproved(courseId)
+    } catch (statsError) {
+      console.error(
+        'Failed to update stats after feedback submission:',
+        statsError
+      )
+    }
+
+    return Response.json(
+      {
+        message: 'Feedback submitted successfully',
+        feedbackId: feedbackId,
+        pointsEarned: feedbackPoints
+      },
+      { status: 201 }
+    )
   }
 }
