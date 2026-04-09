@@ -1,5 +1,4 @@
 import { database } from '@uni-feedback/db'
-import { useSearchParams } from 'react-router'
 import {
   ContactSection,
   CTASection,
@@ -13,7 +12,7 @@ import {
 
 import type { Route } from './+types/landing'
 
-export function meta({}: Route.MetaArgs) {
+export function meta() {
   return [
     { title: 'Uni Feedback' },
     {
@@ -69,8 +68,6 @@ export async function loader() {
 }
 
 export default function LandingPage({ loaderData }: Route.ComponentProps) {
-  const [searchParams] = useSearchParams()
-
   return (
     <>
       <HeroSection

@@ -51,6 +51,7 @@
     "@types/uuid": "^10.0.0",
     "drizzle-kit": "^0.31.8",
     "esbuild": "^0.25.12",
+    "globals": "^17.4.0",
     "tsc-alias": "^1.8.16",
     "tsconfig-paths": "^4.2.0",
     "tsx": "^4.21.0",

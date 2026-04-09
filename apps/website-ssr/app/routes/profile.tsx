@@ -86,7 +86,7 @@ export default function ProfilePage() {
       setCopiedReferral(true)
       toast.success('Referral link copied!')
       setTimeout(() => setCopiedReferral(false), 2000)
-    } catch (error) {
+    } catch {
       toast.error('Failed to copy referral link')
     }
   }

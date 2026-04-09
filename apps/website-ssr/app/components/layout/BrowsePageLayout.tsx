@@ -15,7 +15,6 @@ interface BrowsePageLayoutProps {
 
 export function BrowsePageLayout({
   title,
-  subtitle,
   faculty,
   degree,
   searchBar,

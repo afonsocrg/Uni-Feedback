@@ -99,12 +99,13 @@ export default function App() {
     // Initialize PostHog (client-side only, disabled in development)
     if (typeof window !== 'undefined' && !import.meta.env.DEV) {
       // Read from runtime injection (Docker/SSR) or fallback to build-time
+      const windowEnv = (
+        window as typeof window & { ENV?: Record<string, string> }
+      ).ENV
       const posthogKey =
-        (window as any).ENV?.POSTHOG_KEY ||
-        import.meta.env.VITE_PUBLIC_POSTHOG_KEY
+        windowEnv?.POSTHOG_KEY || import.meta.env.VITE_PUBLIC_POSTHOG_KEY
       const posthogHost =
-        (window as any).ENV?.POSTHOG_HOST ||
-        import.meta.env.VITE_PUBLIC_POSTHOG_HOST
+        windowEnv?.POSTHOG_HOST || import.meta.env.VITE_PUBLIC_POSTHOG_HOST
 
       if (!posthogKey || posthogKey === 'your_posthog_api_key_here') {
         console.warn(
@@ -141,8 +142,11 @@ export default function App() {
     // Initialize Microsoft Clarity (client-side only, disabled in development)
     if (typeof window !== 'undefined' && !import.meta.env.DEV) {
       // Read from runtime injection (Docker/SSR) or fallback to build-time
+      const windowEnv = (
+        window as typeof window & { ENV?: Record<string, string> }
+      ).ENV
       const clarityProjectId =
-        (window as any).ENV?.CLARITY_PROJECT_ID ||
+        windowEnv?.CLARITY_PROJECT_ID ||
         import.meta.env.VITE_PUBLIC_CLARITY_PROJECT_ID
 
       if (
@@ -178,7 +182,6 @@ export default function App() {
           <Outlet />
           {import.meta.env.DEV && (
             <React.Suspense fallback={null}>
-              {/* @ts-ignore - dynamic import */}
               <ReactQueryDevtools initialIsOpen={false} />
             </React.Suspense>
           )}

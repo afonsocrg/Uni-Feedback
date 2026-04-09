@@ -37,7 +37,7 @@ export class GetDegreeCourseGroups extends OpenAPIRoute {
     }
   }
 
-  async handle(c: Context) {
+  async handle(_c: Context) {
     const data = await this.getValidatedData<typeof this.schema>()
 
     const { id: degreeId } = data.params

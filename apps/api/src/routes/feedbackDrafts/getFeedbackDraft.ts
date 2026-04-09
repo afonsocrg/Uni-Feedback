@@ -35,7 +35,7 @@ export class GetFeedbackDraft extends OpenAPIRoute {
     }
   }
 
-  async handle(c: Context) {
+  async handle(_c: Context) {
     const { params } = await this.getValidatedData<typeof this.schema>()
     const code = params.code.toUpperCase()
 

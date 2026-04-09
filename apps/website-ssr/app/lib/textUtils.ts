@@ -51,7 +51,7 @@ export function getTruncatedText(text: string, limit: number): string {
         // Last resort: cut at a much safer point
         truncated = truncated.substring(0, Math.floor(truncateAt * 0.7)).trim()
         // Remove any trailing incomplete markdown
-        truncated = truncated.replace(/[*#`\[]+$/, '').trim()
+        truncated = truncated.replace(/[*#`[]+$/, '').trim()
       }
     }
   }

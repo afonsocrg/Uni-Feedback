@@ -1,4 +1,3 @@
-import { useLocation } from 'react-router'
 import { LandingFooter, LandingHeader } from '~/components'
 
 interface LandingLayoutProps {
@@ -6,7 +5,6 @@ interface LandingLayoutProps {
 }
 
 export function LandingLayout({ children }: LandingLayoutProps) {
-  const { pathname } = useLocation()
   // const showAnnouncementBanner = !isGiveawayPage && !isLandingPage
 
   return (

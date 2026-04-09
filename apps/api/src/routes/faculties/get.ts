@@ -36,7 +36,7 @@ export class GetFaculties extends OpenAPIRoute {
     }
   }
 
-  async handle(c: Context) {
+  async handle(_c: Context) {
     const { query } = await this.getValidatedData()
     const acronym = query?.acronym
 

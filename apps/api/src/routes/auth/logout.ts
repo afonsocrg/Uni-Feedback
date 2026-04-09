@@ -27,7 +27,7 @@ export class Logout extends OpenAPIRoute {
 
   async handle(c: Context) {
     // Use existing auth logic to get session (handles cookie extraction internally)
-    const authContext = await requireAuth(c)
+    await requireAuth(c)
     const env = c.env as Env
 
     // Get access token from cookie
