@@ -1,3 +1,4 @@
+import { NotFoundError } from '@routes/utils/errorHandling'
 import { database } from '@uni-feedback/db'
 import { courses, degrees, faculties } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
@@ -60,60 +61,55 @@ export class GetCourseDetails extends OpenAPIRoute {
   }
 
   async handle(_request: IRequest, _env: Env, _context: RequestContext) {
-    try {
-      const { params } = await this.getValidatedData<typeof this.schema>()
-      const { id } = params
+    const { params } = await this.getValidatedData<typeof this.schema>()
+    const { id } = params
 
-      // Get course with degree and faculty info plus feedback count
-      const courseResult = await database()
-        .select({
-          id: courses.id,
-          name: courses.name,
-          acronym: courses.acronym,
-          ects: courses.ects,
-          terms: courses.terms,
-          description: courses.description,
-          bibliography: courses.bibliography,
-          assessment: courses.assessment,
-          hasMandatoryExam: courses.hasMandatoryExam,
-          degreeId: courses.degreeId,
-          degreeName: degrees.name,
-          degreeAcronym: degrees.acronym,
-          facultyId: degrees.facultyId,
-          facultyName: faculties.name,
-          facultyShortName: faculties.shortName,
-          createdAt: courses.createdAt,
-          updatedAt: courses.updatedAt,
-          totalFeedbackCount: sql<number>`(
-            SELECT COUNT(*) 
-            FROM feedback 
+    // Get course with degree and faculty info plus feedback count
+    const courseResult = await database()
+      .select({
+        id: courses.id,
+        name: courses.name,
+        acronym: courses.acronym,
+        ects: courses.ects,
+        terms: courses.terms,
+        description: courses.description,
+        bibliography: courses.bibliography,
+        assessment: courses.assessment,
+        hasMandatoryExam: courses.hasMandatoryExam,
+        degreeId: courses.degreeId,
+        degreeName: degrees.name,
+        degreeAcronym: degrees.acronym,
+        facultyId: degrees.facultyId,
+        facultyName: faculties.name,
+        facultyShortName: faculties.shortName,
+        createdAt: courses.createdAt,
+        updatedAt: courses.updatedAt,
+        totalFeedbackCount: sql<number>`(
+            SELECT COUNT(*)
+            FROM feedback
             WHERE feedback.course_id = ${courses.id}
           )`
-        })
-        .from(courses)
-        .leftJoin(degrees, eq(courses.degreeId, degrees.id))
-        .leftJoin(faculties, eq(degrees.facultyId, faculties.id))
-        .where(eq(courses.id, id))
-        .limit(1)
+      })
+      .from(courses)
+      .leftJoin(degrees, eq(courses.degreeId, degrees.id))
+      .leftJoin(faculties, eq(degrees.facultyId, faculties.id))
+      .where(eq(courses.id, id))
+      .limit(1)
 
-      if (courseResult.length === 0) {
-        return Response.json({ error: 'Course not found' }, { status: 404 })
-      }
-
-      const course = courseResult[0]
-
-      const response = {
-        ...course,
-        totalFeedbackCount: Number(course.totalFeedbackCount),
-        terms: course.terms as string[] | null,
-        createdAt: course.createdAt?.toISOString() || '',
-        updatedAt: course.updatedAt?.toISOString() || ''
-      }
-
-      return Response.json(response)
-    } catch (error) {
-      console.error('Get course details error:', error)
-      return Response.json({ error: 'Internal server error' }, { status: 500 })
+    if (courseResult.length === 0) {
+      throw new NotFoundError('Course not found')
     }
+
+    const course = courseResult[0]
+
+    const response = {
+      ...course,
+      totalFeedbackCount: Number(course.totalFeedbackCount),
+      terms: course.terms as string[] | null,
+      createdAt: course.createdAt?.toISOString() || '',
+      updatedAt: course.updatedAt?.toISOString() || ''
+    }
+
+    return Response.json(response)
   }
 }

@@ -1,3 +1,4 @@
+import { NotFoundError } from '@routes/utils/errorHandling'
 import { database } from '@uni-feedback/db'
 import { courseGroup, degrees } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
@@ -50,7 +51,7 @@ export class GetDegreeCourseGroups extends OpenAPIRoute {
       .then(([degree]) => degree)
 
     if (!degree) {
-      return Response.json({ error: 'Degree not found' }, { status: 404 })
+      throw new NotFoundError('Degree not found')
     }
 
     const result = await database()

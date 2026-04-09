@@ -1,3 +1,7 @@
+import {
+  BadRequestError,
+  TooManyRequestsError
+} from '@routes/utils/errorHandling'
 import { AuthService, EmailService } from '@services'
 import { isUniversityEmail, validateReferralCodeFormat } from '@utils'
 import { OpenAPIRoute } from 'chanfana'
@@ -69,12 +73,7 @@ export class RequestOtp extends OpenAPIRoute {
     const isValid = await isUniversityEmail(normalizedEmail)
 
     if (!isValid) {
-      return Response.json(
-        {
-          error: 'Please use your university email address.'
-        },
-        { status: 400 }
-      )
+      throw new BadRequestError('Please use your university email address.')
     }
 
     // Check rate limit (60 second cooldown)
@@ -82,12 +81,9 @@ export class RequestOtp extends OpenAPIRoute {
     const rateLimitResult = await authService.checkOtpRateLimit(normalizedEmail)
 
     if (!rateLimitResult.allowed) {
-      return Response.json(
-        {
-          error: 'Please wait before requesting another code.',
-          retryAfterSeconds: rateLimitResult.retryAfterSeconds!
-        },
-        { status: 429 }
+      throw new TooManyRequestsError(
+        'Please wait before requesting another code.',
+        { retryAfterSeconds: rateLimitResult.retryAfterSeconds! }
       )
     }
 

@@ -1,3 +1,4 @@
+import { BadRequestError, NotFoundError } from '@routes/utils/errorHandling'
 import { AuthService } from '@services/authService'
 import { validatePassword } from '@utils/auth'
 import { OpenAPIRoute } from 'chanfana'
@@ -60,26 +61,20 @@ export class ResetPassword extends OpenAPIRoute {
 
     // Validate password confirmation
     if (password !== confirmPassword) {
-      return Response.json({ error: 'Passwords do not match' }, { status: 400 })
+      throw new BadRequestError('Passwords do not match')
     }
 
     // Validate password requirements
     const passwordValidation = validatePassword(password)
     if (!passwordValidation.isValid) {
-      return Response.json(
-        { error: passwordValidation.errors.join('. ') },
-        { status: 400 }
-      )
+      throw new BadRequestError(passwordValidation.errors.join('. '))
     }
 
     // Use the reset token
     const authService = new AuthService(env)
     const success = await authService.usePasswordResetToken(token, password)
     if (!success) {
-      return Response.json(
-        { error: 'Invalid or expired reset token' },
-        { status: 404 }
-      )
+      throw new NotFoundError('Invalid or expired reset token')
     }
 
     return Response.json({

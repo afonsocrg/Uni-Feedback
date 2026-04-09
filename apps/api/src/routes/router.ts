@@ -23,6 +23,7 @@ import {
   ReportFeedback
 } from './feedback'
 import { CreateFeedbackDraft, GetFeedbackDraft } from './feedbackDrafts'
+import { NotFoundError } from './utils'
 
 const { preflight, corsify } = cors({
   origin: getAllowedOrigins(),
@@ -84,6 +85,6 @@ router.all('/admin/*', adminRouter as any)
 router.all('/email/*', emailRouter as any)
 
 // 404 for everything else
-router.all('*', () =>
-  Response.json({ error: 'Route not found' }, { status: 404 })
-)
+router.all('*', () => {
+  throw new NotFoundError('Route not found')
+})

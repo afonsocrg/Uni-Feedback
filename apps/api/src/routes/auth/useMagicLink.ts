@@ -1,4 +1,5 @@
 import { MAGIC_LINK_CONFIG } from '@config/auth'
+import { BadRequestError } from '@routes/utils/errorHandling'
 import { AuthService } from '@services/authService'
 import { setAuthCookies } from '@utils/authCookies'
 import { OpenAPIRoute } from 'chanfana'
@@ -67,10 +68,8 @@ export class UseMagicLink extends OpenAPIRoute {
       const expiredToken =
         await authService.findMagicLinkTokenIncludingExpired(token)
 
-      // Prepare base error response
-      const errorResponse: { error: string; requestId?: string } = {
-        error: 'The link you provided is invalid or has already been used.'
-      }
+      // Prepare error details
+      const details: { requestId?: string } = {}
 
       // If token exists and is expired, conditionally include requestId
       if (expiredToken && expiredToken.expiresAt < new Date()) {
@@ -83,11 +82,14 @@ export class UseMagicLink extends OpenAPIRoute {
 
         // Include requestId if token is recent and has one
         if (isRecent && expiredToken.requestId) {
-          errorResponse.requestId = expiredToken.requestId
+          details.requestId = expiredToken.requestId
         }
       }
 
-      return Response.json(errorResponse, { status: 400 })
+      throw new BadRequestError(
+        'The link you provided is invalid or has already been used.',
+        Object.keys(details).length > 0 ? details : undefined
+      )
     }
 
     // Create response with user data

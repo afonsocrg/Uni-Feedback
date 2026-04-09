@@ -23,8 +23,11 @@ export class AppError extends Error {
 // ============================================================================
 
 export class BadRequestError extends AppError {
-  constructor(message: string = 'Bad Request') {
-    super(message, 400)
+  constructor(
+    message: string = 'Bad Request',
+    details?: Record<string, unknown>
+  ) {
+    super(message, 400, details)
   }
 }
 
@@ -61,6 +64,15 @@ export class AlreadyExistsError extends AppError {
     details?: Record<string, unknown>
   ) {
     super(message, 409, details)
+  }
+}
+
+export class TooManyRequestsError extends AppError {
+  constructor(
+    message: string = 'Too Many Requests',
+    details?: Record<string, unknown>
+  ) {
+    super(message, 429, details)
   }
 }
 

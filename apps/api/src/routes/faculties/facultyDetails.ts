@@ -1,3 +1,4 @@
+import { NotFoundError } from '@routes/utils/errorHandling'
 import { database } from '@uni-feedback/db'
 import { courses, degrees, faculties } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
@@ -70,10 +71,7 @@ export class GetFacultyDetails extends OpenAPIRoute {
       .limit(1)
 
     if (faculty.length === 0) {
-      return Response.json(
-        { success: false, error: 'Faculty not found' },
-        { status: 404 }
-      )
+      throw new NotFoundError('Faculty not found')
     }
 
     // Get degrees for this faculty with course counts

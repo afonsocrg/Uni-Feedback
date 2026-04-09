@@ -1,3 +1,4 @@
+import { NotFoundError } from '@routes/utils/errorHandling'
 import { database } from '@uni-feedback/db'
 import { courses } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
@@ -43,34 +44,29 @@ export class GetCourseTerms extends OpenAPIRoute {
   }
 
   async handle(_request: IRequest, _env: Env, _context: RequestContext) {
-    try {
-      const { params } = await this.getValidatedData<typeof this.schema>()
-      const { id } = params
+    const { params } = await this.getValidatedData<typeof this.schema>()
+    const { id } = params
 
-      // Get course terms
-      const courseResult = await database()
-        .select({
-          id: courses.id,
-          terms: courses.terms
-        })
-        .from(courses)
-        .where(eq(courses.id, id))
-        .limit(1)
-
-      if (courseResult.length === 0) {
-        return Response.json({ error: 'Course not found' }, { status: 404 })
-      }
-
-      const course = courseResult[0]
-      const terms = (course.terms as string[]) || []
-
-      return Response.json({
-        courseId: id,
-        terms
+    // Get course terms
+    const courseResult = await database()
+      .select({
+        id: courses.id,
+        terms: courses.terms
       })
-    } catch (error) {
-      console.error('Get course terms error:', error)
-      return Response.json({ error: 'Internal server error' }, { status: 500 })
+      .from(courses)
+      .where(eq(courses.id, id))
+      .limit(1)
+
+    if (courseResult.length === 0) {
+      throw new NotFoundError('Course not found')
     }
+
+    const course = courseResult[0]
+    const terms = (course.terms as string[]) || []
+
+    return Response.json({
+      courseId: id,
+      terms
+    })
   }
 }

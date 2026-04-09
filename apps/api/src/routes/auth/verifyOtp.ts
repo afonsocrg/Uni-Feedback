@@ -1,3 +1,4 @@
+import { BadRequestError } from '@routes/utils/errorHandling'
 import { AuthService } from '@services/authService'
 import { setAuthCookies } from '@utils/authCookies'
 import { OpenAPIRoute } from 'chanfana'
@@ -61,13 +62,12 @@ export class VerifyOtp extends OpenAPIRoute {
 
     // Check if verification failed
     if ('error' in result) {
-      const errorResponse: { error: string; attemptsRemaining?: number } = {
-        error: result.error
-      }
-      if (result.attemptsRemaining !== undefined) {
-        errorResponse.attemptsRemaining = result.attemptsRemaining
-      }
-      return Response.json(errorResponse, { status: 400 })
+      throw new BadRequestError(
+        result.error,
+        result.attemptsRemaining !== undefined
+          ? { attemptsRemaining: result.attemptsRemaining }
+          : undefined
+      )
     }
 
     // Success - create response with user data

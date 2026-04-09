@@ -1,3 +1,4 @@
+import { UnauthorizedError } from '@routes/utils/errorHandling'
 import { AuthService } from '@services/authService'
 import { setAuthCookies } from '@utils/authCookies'
 import { OpenAPIRoute } from 'chanfana'
@@ -67,10 +68,7 @@ export class Login extends OpenAPIRoute {
     const authService = new AuthService(env)
     const user = await authService.verifyCredentials(email, password)
     if (!user) {
-      return Response.json(
-        { error: 'Invalid email or password' },
-        { status: 401 }
-      )
+      throw new UnauthorizedError('Invalid email or password')
     }
 
     // Create session

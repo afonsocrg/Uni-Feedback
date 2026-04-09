@@ -1,3 +1,4 @@
+import { NotFoundError } from '@routes/utils/errorHandling'
 import { database } from '@uni-feedback/db'
 import { emailPreferences } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
@@ -59,12 +60,8 @@ export class Unsubscribe extends OpenAPIRoute {
       .limit(1)
 
     if (!preferences) {
-      return Response.json(
-        {
-          error:
-            'Invalid unsubscribe token. Please contact support@uni-feedback.com if you need help unsubscribing.'
-        },
-        { status: 404 }
+      throw new NotFoundError(
+        'Invalid unsubscribe token. Please contact support@uni-feedback.com if you need help unsubscribing.'
       )
     }
 

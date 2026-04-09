@@ -1,3 +1,4 @@
+import { NotFoundError } from '@routes/utils/errorHandling'
 import { CourseFeedbackService, CourseService } from '@services'
 import { feedback } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
@@ -58,7 +59,7 @@ export class GetCourseFeedback extends OpenAPIRoute {
 
     // First validate that the course exists
     if (!(await courseService.courseExists(courseId))) {
-      return Response.json({ error: 'Course not found' }, { status: 404 })
+      throw new NotFoundError('Course not found')
     }
 
     const feedbackData = await courseFeedbackService

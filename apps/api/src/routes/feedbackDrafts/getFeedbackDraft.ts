@@ -1,3 +1,4 @@
+import { NotFoundError } from '@routes/utils/errorHandling'
 import { database } from '@uni-feedback/db'
 import { feedbackDrafts } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
@@ -50,10 +51,7 @@ export class GetFeedbackDraft extends OpenAPIRoute {
       .limit(1)
 
     if (result.length === 0) {
-      return Response.json(
-        { error: 'Code not found or expired' },
-        { status: 404 }
-      )
+      throw new NotFoundError('Code not found or expired')
     }
 
     const feedbackDraft = result[0]
@@ -65,10 +63,7 @@ export class GetFeedbackDraft extends OpenAPIRoute {
         .delete(feedbackDrafts)
         .where(eq(feedbackDrafts.id, feedbackDraft.id))
 
-      return Response.json(
-        { error: 'Code not found or expired' },
-        { status: 404 }
-      )
+      throw new NotFoundError('Code not found or expired')
     }
 
     // Mark as used (optional tracking)

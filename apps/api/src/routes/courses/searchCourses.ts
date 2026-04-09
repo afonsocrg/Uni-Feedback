@@ -1,3 +1,4 @@
+import { BadRequestError } from '@routes/utils/errorHandling'
 import { database } from '@uni-feedback/db'
 import { courses, degrees, faculties } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
@@ -80,12 +81,8 @@ export class SearchCourses extends OpenAPIRoute {
 
     // Validate at least one search parameter is provided
     if (!q && !faculty_id && !degree_id) {
-      return Response.json(
-        {
-          error:
-            'At least one search parameter (q, faculty_id, or degree_id) is required'
-        },
-        { status: 400 }
+      throw new BadRequestError(
+        'At least one search parameter (q, faculty_id, or degree_id) is required'
       )
     }
 

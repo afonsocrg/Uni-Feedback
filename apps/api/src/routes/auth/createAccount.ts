@@ -1,3 +1,4 @@
+import { BadRequestError, NotFoundError } from '@routes/utils/errorHandling'
 import { AuthService } from '@services/authService'
 import { validatePassword } from '@utils/auth'
 import { setAuthCookies } from '@utils/authCookies'
@@ -67,21 +68,18 @@ export class CreateAccount extends OpenAPIRoute {
 
     // Validate password confirmation
     if (password !== confirmPassword) {
-      return Response.json({ error: 'Passwords do not match' }, { status: 400 })
+      throw new BadRequestError('Passwords do not match')
     }
 
     // Validate password requirements
     const passwordValidation = validatePassword(password)
     if (!passwordValidation.isValid) {
-      return Response.json(
-        { error: passwordValidation.errors.join('. ') },
-        { status: 400 }
-      )
+      throw new BadRequestError(passwordValidation.errors.join('. '))
     }
 
     // Validate username
     if (!username.trim()) {
-      return Response.json({ error: 'Username is required' }, { status: 400 })
+      throw new BadRequestError('Username is required')
     }
 
     // Use the creation token to create user
@@ -91,10 +89,7 @@ export class CreateAccount extends OpenAPIRoute {
       password
     })
     if (!user) {
-      return Response.json(
-        { error: 'Invalid or expired invitation token' },
-        { status: 404 }
-      )
+      throw new NotFoundError('Invalid or expired invitation token')
     }
 
     // Create session for the new user

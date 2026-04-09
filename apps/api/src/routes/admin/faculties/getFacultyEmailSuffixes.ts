@@ -1,3 +1,4 @@
+import { NotFoundError } from '@routes/utils/errorHandling'
 import { database } from '@uni-feedback/db'
 import { faculties } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
@@ -41,30 +42,25 @@ export class GetFacultyEmailSuffixes extends OpenAPIRoute {
   }
 
   async handle(_request: IRequest, _env: Env, _context: RequestContext) {
-    try {
-      const { params } = await this.getValidatedData<typeof this.schema>()
-      const { id } = params
+    const { params } = await this.getValidatedData<typeof this.schema>()
+    const { id } = params
 
-      const faculty = await database()
-        .select({
-          id: faculties.id,
-          emailSuffixes: faculties.emailSuffixes
-        })
-        .from(faculties)
-        .where(eq(faculties.id, id))
-        .limit(1)
-
-      if (faculty.length === 0) {
-        return Response.json({ error: 'Faculty not found' }, { status: 404 })
-      }
-
-      return Response.json({
-        facultyId: faculty[0].id,
-        emailSuffixes: faculty[0].emailSuffixes || []
+    const faculty = await database()
+      .select({
+        id: faculties.id,
+        emailSuffixes: faculties.emailSuffixes
       })
-    } catch (error) {
-      console.error('Get faculty email suffixes error:', error)
-      return Response.json({ error: 'Internal server error' }, { status: 500 })
+      .from(faculties)
+      .where(eq(faculties.id, id))
+      .limit(1)
+
+    if (faculty.length === 0) {
+      throw new NotFoundError('Faculty not found')
     }
+
+    return Response.json({
+      facultyId: faculty[0].id,
+      emailSuffixes: faculty[0].emailSuffixes || []
+    })
   }
 }

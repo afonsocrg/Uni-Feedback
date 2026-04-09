@@ -1,4 +1,5 @@
 import { AUTH_CONFIG } from '@config/auth'
+import { UnauthorizedError } from '@routes/utils/errorHandling'
 import { AuthService } from '@services/authService'
 import { setAuthCookies } from '@utils/authCookies'
 import { OpenAPIRoute } from 'chanfana'
@@ -47,17 +48,14 @@ export class Refresh extends OpenAPIRoute {
     const refreshToken = refreshTokenMatch?.[1]
 
     if (!refreshToken) {
-      return Response.json(
-        { error: 'No refresh token provided' },
-        { status: 401 }
-      )
+      throw new UnauthorizedError('No refresh token provided')
     }
 
     // Refresh the session
     const authService = new AuthService(env)
     const session = await authService.refreshSession(refreshToken)
     if (!session) {
-      return Response.json({ error: 'Invalid refresh token' }, { status: 401 })
+      throw new UnauthorizedError('Invalid refresh token')
     }
 
     // Get user data
@@ -65,7 +63,7 @@ export class Refresh extends OpenAPIRoute {
       session.accessToken
     )
     if (!sessionWithUser) {
-      return Response.json({ error: 'Session not found' }, { status: 401 })
+      throw new UnauthorizedError('Session not found')
     }
 
     // Set new tokens in cookies

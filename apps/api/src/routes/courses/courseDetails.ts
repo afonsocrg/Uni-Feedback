@@ -1,3 +1,4 @@
+import { NotFoundError } from '@routes/utils/errorHandling'
 import { CourseFeedbackService } from '@services'
 import { database } from '@uni-feedback/db'
 import { courses, degrees } from '@uni-feedback/db/schema'
@@ -86,7 +87,7 @@ export class GetCourse extends OpenAPIRoute {
       .where(eq(courses.id, courseId))
 
     if (courseResult.length === 0) {
-      return Response.json({ error: 'Course not found' }, { status: 404 })
+      throw new NotFoundError('Course not found')
     }
 
     // Get aggregated feedback stats including related courses

@@ -1,3 +1,7 @@
+import {
+  BadRequestError,
+  TooManyRequestsError
+} from '@routes/utils/errorHandling'
 import { AuthService, EmailService } from '@services'
 import { isUniversityEmail, validateReferralCodeFormat } from '@utils'
 import { OpenAPIRoute } from 'chanfana'
@@ -78,12 +82,7 @@ export class RequestMagicLink extends OpenAPIRoute {
     const isValid = await isUniversityEmail(normalizedEmail)
 
     if (!isValid) {
-      return Response.json(
-        {
-          error: 'Please use your university email address.'
-        },
-        { status: 400 }
-      )
+      throw new BadRequestError('Please use your university email address.')
     }
 
     // Check rate limit
@@ -92,14 +91,9 @@ export class RequestMagicLink extends OpenAPIRoute {
       await authService.checkMagicLinkRateLimit(normalizedEmail)
 
     if (!rateLimitResult.allowed) {
-      return Response.json(
-        {
-          error: 'Too many requests. Please try again later.',
-          data: {
-            resetAt: rateLimitResult.resetAt!.toISOString()
-          }
-        },
-        { status: 429 }
+      throw new TooManyRequestsError(
+        'Too many requests. Please try again later.',
+        { data: { resetAt: rateLimitResult.resetAt!.toISOString() } }
       )
     }
 

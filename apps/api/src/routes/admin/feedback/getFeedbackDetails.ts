@@ -1,3 +1,4 @@
+import { BadRequestError, NotFoundError } from '@routes/utils/errorHandling'
 import { database } from '@uni-feedback/db'
 import { courses, degrees, faculties, feedback } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
@@ -76,7 +77,7 @@ export class GetFeedbackDetails extends OpenAPIRoute {
     const { id } = params
 
     if (!id || isNaN(id)) {
-      return Response.json({ error: 'Invalid feedback ID' }, { status: 400 })
+      throw new BadRequestError('Invalid feedback ID')
     }
 
     // Get feedback with course, degree, and faculty info
@@ -108,7 +109,7 @@ export class GetFeedbackDetails extends OpenAPIRoute {
       .limit(1)
 
     if (!feedbackResult.length) {
-      return Response.json({ error: 'Feedback not found' }, { status: 404 })
+      throw new NotFoundError('Feedback not found')
     }
 
     const fb = feedbackResult[0]
