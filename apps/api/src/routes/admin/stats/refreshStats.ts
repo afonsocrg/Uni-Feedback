@@ -1,7 +1,5 @@
-import { requireAdmin } from '@middleware'
 import { StatsService } from '@services'
 import { OpenAPIRoute } from 'chanfana'
-import type { Context } from 'hono'
 import { z } from 'zod'
 
 const RefreshStatsResponseSchema = z.object({
@@ -39,8 +37,7 @@ export class RefreshStats extends OpenAPIRoute {
     }
   }
 
-  async handle(c: Context) {
-    await requireAdmin(c)
+  async handle() {
     const statsService = new StatsService()
     const result = await statsService.refreshAllStats()
 

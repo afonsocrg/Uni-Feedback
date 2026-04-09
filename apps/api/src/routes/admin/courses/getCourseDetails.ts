@@ -1,10 +1,8 @@
-import { requireAdmin } from '@middleware'
 import { NotFoundError } from '@routes/utils/errorHandling'
 import { database } from '@uni-feedback/db'
 import { courses, degrees, faculties } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
 import { eq, sql } from 'drizzle-orm'
-import type { Context } from 'hono'
 import { z } from 'zod'
 
 const AdminCourseDetailSchema = z.object({
@@ -61,8 +59,7 @@ export class GetCourseDetails extends OpenAPIRoute {
     }
   }
 
-  async handle(c: Context) {
-    await requireAdmin(c)
+  async handle() {
     const { params } = await this.getValidatedData<typeof this.schema>()
     const { id } = params
 

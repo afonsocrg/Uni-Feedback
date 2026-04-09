@@ -1,10 +1,9 @@
-import { requireAdmin } from '@middleware'
 import { PointService } from '@services'
 import { database } from '@uni-feedback/db'
 import { feedback, feedbackAnalysis } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
 import { and, eq, isNotNull } from 'drizzle-orm'
-import type { Context } from 'hono'
+import { Context } from 'hono'
 import { z } from 'zod'
 
 const RecalculatePointsResponseSchema = z.object({
@@ -43,7 +42,6 @@ export class RecalculatePoints extends OpenAPIRoute {
   }
 
   async handle(c: Context) {
-    await requireAdmin(c)
     const env = c.env as Env
     const pointService = new PointService(env)
 

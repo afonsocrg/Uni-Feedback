@@ -1,3 +1,4 @@
+import { requireAdmin } from '@middleware'
 import { fromHono } from 'chanfana'
 import { Hono } from 'hono'
 import { GetFacultyDetails } from '../faculties'
@@ -45,6 +46,11 @@ import { GetDegreeSuggestions } from './suggestions'
 import { GetUsers } from './users'
 
 const app = new Hono()
+
+app.use('*', async (c, next) => {
+  await requireAdmin(c)
+  await next()
+})
 
 const router = fromHono(app, { passthroughErrors: true })
 

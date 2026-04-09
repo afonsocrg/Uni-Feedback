@@ -1,11 +1,10 @@
-import { requireAdmin } from '@middleware'
 import { AIService } from '@services'
 import { database } from '@uni-feedback/db'
 import { feedback, feedbackAnalysis } from '@uni-feedback/db/schema'
 import { countWords } from '@uni-feedback/utils'
 import { OpenAPIRoute } from 'chanfana'
 import { and, eq, isNotNull, isNull } from 'drizzle-orm'
-import type { Context } from 'hono'
+import { Context } from 'hono'
 import { z } from 'zod'
 
 const PopulateAnalysisResponseSchema = z.object({
@@ -42,7 +41,6 @@ export class PopulateFeedbackAnalysis extends OpenAPIRoute {
   }
 
   async handle(c: Context) {
-    await requireAdmin(c)
     const env = c.env as Env
     // Find all feedback IDs that don't have an analysis record
     const feedbacksWithoutAnalysis = await database()

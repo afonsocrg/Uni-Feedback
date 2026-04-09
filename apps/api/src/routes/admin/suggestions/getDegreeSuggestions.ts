@@ -1,9 +1,7 @@
-import { requireAdmin } from '@middleware'
 import { database } from '@uni-feedback/db'
 import { degrees } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
 import { and, eq } from 'drizzle-orm'
-import type { Context } from 'hono'
 import { z } from 'zod'
 
 const DegreeSuggestionsQuerySchema = z.object({
@@ -52,8 +50,7 @@ export class GetDegreeSuggestions extends OpenAPIRoute {
     }
   }
 
-  async handle(c: Context) {
-    await requireAdmin(c)
+  async handle() {
     const { query } = await this.getValidatedData<typeof this.schema>()
     const { faculty_id } = query
 

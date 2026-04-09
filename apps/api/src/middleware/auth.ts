@@ -14,8 +14,14 @@ import {
 export async function requireAuth(
   c: Context
 ): Promise<AuthenticatedRequestContext> {
-  const env = c.env as Env
   const context = (c.get('requestContext') as RequestContext) || {}
+
+  // Short-circuit if already authenticated (e.g. by upstream middleware)
+  if (context.user && context.session) {
+    return context as AuthenticatedRequestContext
+  }
+
+  const env = c.env as Env
   const accessToken = getCookie(c, `${AUTH_CONFIG.COOKIE_NAME}-access`)
 
   if (!accessToken) {
