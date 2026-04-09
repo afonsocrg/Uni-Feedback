@@ -60,10 +60,9 @@ export class GenerateCourseReport extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: Env, context: RequestContext) {
-    const data = await request.json()
-    const validatedBody = GenerateCourseReportBodySchema.parse(data)
-    const { courseId, schoolYear } = validatedBody
+  async handle(_request: IRequest, env: Env, context: RequestContext) {
+    const { body } = await this.getValidatedData<typeof this.schema>()
+    const { courseId, schoolYear } = body
 
     const reportingService = new ReportingService(env)
     const presignedUrl = await reportingService.generateAndStoreCourseReport(

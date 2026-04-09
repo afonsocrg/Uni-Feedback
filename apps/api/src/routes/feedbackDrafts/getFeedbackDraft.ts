@@ -35,8 +35,9 @@ export class GetFeedbackDraft extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, _env: Env, _context: RequestContext) {
-    const code = request.params.code.toUpperCase()
+  async handle(_request: IRequest, _env: Env, _context: RequestContext) {
+    const { params } = await this.getValidatedData<typeof this.schema>()
+    const code = params.code.toUpperCase()
 
     // Clean up expired codes first (optional cleanup)
     await database()

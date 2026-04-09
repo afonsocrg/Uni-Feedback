@@ -42,9 +42,9 @@ export class ReportFeedback extends OpenAPIRoute {
   }
 
   async handle(request: IRequest, env: Env, context: RequestContext) {
-    const feedbackId = parseInt(request.params.id)
-    const data = await this.getValidatedData<typeof this.schema>()
-    const { category, details } = data.body
+    const { params, body } = await this.getValidatedData<typeof this.schema>()
+    const feedbackId = params.id
+    const { category, details } = body
 
     // Validate details length
     if (details.length < 20) {

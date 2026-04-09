@@ -25,7 +25,8 @@ export class DeleteFeedback extends OpenAPIRoute {
   }
 
   async handle(request: IRequest, env: Env, context: RequestContext) {
-    const feedbackId = parseInt(request.params.id)
+    const { params } = await this.getValidatedData<typeof this.schema>()
+    const feedbackId = params.id
 
     // Authenticate
     const authContext = await requireAuth(request, env, context)

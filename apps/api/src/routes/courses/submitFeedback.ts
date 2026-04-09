@@ -54,8 +54,8 @@ export class SubmitFeedback extends OpenAPIRoute {
   }
 
   async handle(request: IRequest, env: Env, context: RequestContext) {
-    const courseId = parseInt(request.params.id)
-    const { body } = await this.getValidatedData<typeof this.schema>()
+    const { params, body } = await this.getValidatedData<typeof this.schema>()
+    const courseId = params.id
 
     // Authenticate user (required for feedback submission)
     const authContext = await requireAuth(request, env, context)
