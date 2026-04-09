@@ -100,10 +100,14 @@ function createEnv(): Env {
 
 // Create a single connection pool that will be reused
 let sql: ReturnType<typeof postgres> | null = null
-let db: ReturnType<typeof drizzle> | null = null
+let db:
+  | import('drizzle-orm/postgres-js').PostgresJsDatabase<typeof schema>
+  | null = null
 
 // Initialize the database connection pool
-function initializeDatabase() {
+function initializeDatabase(): import('drizzle-orm/postgres-js').PostgresJsDatabase<
+  typeof schema
+> {
   if (!globalEnv) {
     globalEnv = createEnv()
   }

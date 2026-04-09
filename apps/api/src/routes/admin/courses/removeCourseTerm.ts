@@ -1,3 +1,4 @@
+import { requireAdmin } from '@middleware'
 import { database } from '@uni-feedback/db'
 import { courses } from '@uni-feedback/db/schema'
 import { notifyAdminChange } from '@utils/notificationHelpers'
@@ -5,6 +6,7 @@ import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
 import { z } from 'zod'
+import { withErrorHandling } from '../../utils'
 
 export class RemoveCourseTerm extends OpenAPIRoute {
   schema = {
@@ -53,8 +55,9 @@ export class RemoveCourseTerm extends OpenAPIRoute {
     }
   }
 
-  async handle(_request: IRequest, _env: any, _context: any) {
-    try {
+  async handle(request: IRequest, env: Env, context: RequestContext) {
+    return withErrorHandling(request, async () => {
+      const authContext = await requireAdmin(request, env, context)
       const { params } = await this.getValidatedData<typeof this.schema>()
       const { id, term } = params
 
@@ -99,7 +102,7 @@ export class RemoveCourseTerm extends OpenAPIRoute {
       // Send notification
       await notifyAdminChange({
         env,
-        user: context.user,
+        user: authContext.user,
         resourceType: 'course',
         resourceId: id,
         resourceName: course[0].name,
@@ -113,9 +116,6 @@ export class RemoveCourseTerm extends OpenAPIRoute {
         terms: updatedTerms,
         message: 'Term removed successfully'
       })
-    } catch (error) {
-      console.error('Remove course term error:', error)
-      return Response.json({ error: 'Internal server error' }, { status: 500 })
-    }
+    })
   }
 }

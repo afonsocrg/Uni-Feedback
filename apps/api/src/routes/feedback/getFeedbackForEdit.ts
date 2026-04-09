@@ -1,4 +1,4 @@
-import { authenticateUser } from '@middleware'
+import { requireAuth } from '@middleware'
 import { database } from '@uni-feedback/db'
 import { courses, degrees, faculties, feedback } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
@@ -26,14 +26,13 @@ export class GetFeedbackForEdit extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: Env, _context: any) {
+  async handle(request: IRequest, env: Env, context: RequestContext) {
     return withErrorHandling(request, async () => {
       const feedbackId = parseInt(request.params.id)
 
       // Authenticate
-      const authCheck = await authenticateUser(request, env, context)
-      if (authCheck) return authCheck
-      const userId = context.user.id
+      const authContext = await requireAuth(request, env, context)
+      const userId = authContext.user.id
 
       const db = database()
 

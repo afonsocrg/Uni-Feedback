@@ -1,4 +1,4 @@
-import { requireAdmin, requireSuperuser } from '@middleware/auth'
+import { adminMiddleware, superuserMiddleware } from '@middleware/auth'
 import { fromIttyRouter } from 'chanfana'
 import { AutoRouter, IRequest } from 'itty-router'
 import {
@@ -45,7 +45,7 @@ import { GetDegreeSuggestions } from './suggestions'
 import { GetUsers } from './users'
 
 const router = fromIttyRouter(
-  AutoRouter({ before: [requireAdmin], base: '/admin' })
+  AutoRouter({ before: [adminMiddleware], base: '/admin' })
 )
 
 // Faculty routes
@@ -98,11 +98,11 @@ router.post('/stats/refresh', RefreshStats)
 
 // User routes - Wrapped with superuser middleware
 class GetUsersWithAuth extends GetUsers {
-  async handle(_request: IRequest, _env: any, _context: any) {
-    const authCheck = await requireSuperuser(request, env, context)
+  async handle(request: IRequest, env: Env, context: RequestContext) {
+    const authCheck = await superuserMiddleware(request, env, context)
     if (authCheck) return authCheck
 
-    return super.handle(_request, _env, _context)
+    return super.handle(request, env, context)
   }
 }
 router.get('/users', GetUsersWithAuth)

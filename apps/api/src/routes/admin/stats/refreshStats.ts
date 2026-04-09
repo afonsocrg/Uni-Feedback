@@ -38,7 +38,7 @@ export class RefreshStats extends OpenAPIRoute {
     }
   }
 
-  async handle(_request: IRequest, _env: any, _context: any) {
+  async handle(_request: IRequest, _env: Env, _context: RequestContext) {
     try {
       const statsService = new StatsService()
       const result = await statsService.refreshAllStats()
@@ -49,7 +49,7 @@ export class RefreshStats extends OpenAPIRoute {
         degreesUpdated: result.degreesUpdated,
         refreshedAt: new Date().toISOString()
       })
-    } catch (error: any) {
+    } catch (error) {
       console.error('Refresh stats error:', error)
 
       return Response.json(

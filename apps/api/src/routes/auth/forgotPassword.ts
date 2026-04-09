@@ -33,7 +33,7 @@ export class ForgotPassword extends OpenAPIRoute {
     }
   }
 
-  async handle(request: Request, env: any, _context: any) {
+  async handle(_request: Request, env: Env, _context: RequestContext) {
     try {
       const data = await this.getValidatedData<typeof this.schema>()
       const { email } = data.body
@@ -47,7 +47,7 @@ export class ForgotPassword extends OpenAPIRoute {
         const resetToken = await authService.createPasswordResetToken(user.id)
 
         // Send password reset email
-        const dashboardUrl = env.DASHBOARD_URL || 'http://localhost:5174'
+        const dashboardUrl = env.DASHBOARD_URL
         const emailService = new EmailService(env)
         await emailService.sendPasswordResetEmail(
           email,

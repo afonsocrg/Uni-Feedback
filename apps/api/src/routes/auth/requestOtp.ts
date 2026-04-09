@@ -54,7 +54,7 @@ export class RequestOtp extends OpenAPIRoute {
     }
   }
 
-  async handle(request: Request, env: Env, _context: any) {
+  async handle(_request: Request, env: Env, _context: RequestContext) {
     try {
       const data = await this.getValidatedData<typeof this.schema>()
       const { email } = data.body

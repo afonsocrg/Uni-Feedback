@@ -47,7 +47,7 @@ export class GetUsers extends OpenAPIRoute {
     }
   }
 
-  async handle(request: Request, env: Env, _context: any) {
+  async handle(_request: Request, env: Env, context: RequestContext) {
     try {
       const currentUser = context.user
 

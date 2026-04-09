@@ -1,4 +1,4 @@
-import { requireSuperuser } from '@middleware'
+import { superuserMiddleware } from '@middleware'
 import { fromIttyRouter } from 'chanfana'
 import { AutoRouter, IRequest } from 'itty-router'
 import { CreateAccount } from './createAccount'
@@ -41,11 +41,11 @@ router.get('/profile/feedback-recommendations', GetFeedbackRecommendations)
 
 // Invite route - Wrapped with superuser middleware
 class InviteWithAuth extends Invite {
-  async handle(_request: IRequest, _env: any, _context: any) {
-    const authCheck = await requireSuperuser(request, env, context)
+  async handle(request: IRequest, env: Env, context: RequestContext) {
+    const authCheck = await superuserMiddleware(request, env, context)
     if (authCheck) return authCheck
 
-    return super.handle(_request, _env, _context)
+    return super.handle(request, env, context)
   }
 }
 router.post('/invite', InviteWithAuth)

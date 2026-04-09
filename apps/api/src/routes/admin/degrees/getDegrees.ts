@@ -1,4 +1,3 @@
-import { PaginatedResponse } from '@types'
 import { database } from '@uni-feedback/db'
 import { degrees, faculties } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
@@ -74,7 +73,7 @@ export class GetDegrees extends OpenAPIRoute {
     }
   }
 
-  async handle(_request: IRequest, _env: any, _context: any) {
+  async handle(_request: IRequest, _env: Env, _context: RequestContext) {
     try {
       const { query } = await this.getValidatedData<typeof this.schema>()
       const { page, limit, search, faculty_id, type } = query
@@ -136,7 +135,7 @@ export class GetDegrees extends OpenAPIRoute {
         .limit(limit)
         .offset(offset)
 
-      const response: PaginatedResponse<any> = {
+      const response = {
         data: degreesResult.map((degree) => ({
           ...degree,
           courseCount: Number(degree.courseCount),

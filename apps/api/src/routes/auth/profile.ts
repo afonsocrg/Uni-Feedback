@@ -1,4 +1,4 @@
-import { authenticateUser } from '@middleware'
+import { requireAuth } from '@middleware'
 import { OpenAPIRoute } from 'chanfana'
 import { IRequest } from 'itty-router'
 import { z } from 'zod'
@@ -38,14 +38,12 @@ export class GetProfile extends OpenAPIRoute {
     }
   }
 
-  async handle(_request: IRequest, _env: any, _context: any) {
+  async handle(request: IRequest, env: Env, context: RequestContext) {
     try {
       // Authenticate user
-      const authCheck = await authenticateUser(request, env, context)
-      if (authCheck) return authCheck
-
       // Return user data from context
-      const user = context.user
+      const authContext = await requireAuth(request, env, context)
+      const user = authContext.user!
 
       return Response.json({
         user: {

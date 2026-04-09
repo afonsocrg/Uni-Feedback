@@ -47,7 +47,7 @@ export class Unsubscribe extends OpenAPIRoute {
     }
   }
 
-  async handle(_request: Request, _env: Env, _context: any) {
+  async handle(_request: Request, _env: Env, _context: RequestContext) {
     try {
       const data = await this.getValidatedData<typeof this.schema>()
       const { token } = data.query

@@ -50,8 +50,8 @@ export class CreateFeedbackDraft extends OpenAPIRoute {
     }
   }
 
-  async handle(_request: IRequest, _env: any, _context: any) {
-    withErrorHandling(request, async () => {
+  async handle(request: IRequest, _env: Env, _context: RequestContext) {
+    return withErrorHandling(request, async () => {
       const { body } = await this.getValidatedData<typeof this.schema>()
 
       // Generate unique code

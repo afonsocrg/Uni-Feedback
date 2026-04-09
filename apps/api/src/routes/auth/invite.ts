@@ -62,7 +62,7 @@ export class Invite extends OpenAPIRoute {
     }
   }
 
-  async handle(request: Request, env: any, _context: any) {
+  async handle(_request: Request, env: Env, context: RequestContext) {
     try {
       const data = await this.getValidatedData<typeof this.schema>()
       const { email } = data.body
@@ -93,7 +93,7 @@ export class Invite extends OpenAPIRoute {
       )
 
       // Send invitation email
-      const dashboardUrl = env.DASHBOARD_URL || 'http://localhost:5174'
+      const dashboardUrl = env.DASHBOARD_URL
       const emailService = new EmailService(env)
       await emailService.sendInvitationEmail(
         email,

@@ -1,3 +1,4 @@
+import { requireAdmin } from '@middleware'
 import { EmailService, PointService, StatsService } from '@services'
 import { database } from '@uni-feedback/db'
 import { feedback, feedbackFull, users } from '@uni-feedback/db/schema'
@@ -6,6 +7,7 @@ import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
 import { z } from 'zod'
+import { withErrorHandling } from '../../utils'
 
 const UnapproveFeedbackParamsSchema = z.object({
   id: z.string().transform((val) => parseInt(val, 10))
@@ -70,8 +72,9 @@ export class UnapproveFeedback extends OpenAPIRoute {
     }
   }
 
-  async handle(_request: IRequest, _env: any, _context: any) {
-    try {
+  async handle(request: IRequest, env: Env, context: RequestContext) {
+    return withErrorHandling(request, async () => {
+      const authContext = await requireAdmin(request, env, context)
       const { params, body } = await this.getValidatedData<typeof this.schema>()
       const { id: feedbackId } = params
       const { message } = body
@@ -175,7 +178,7 @@ export class UnapproveFeedback extends OpenAPIRoute {
       // Send notification
       await notifyAdminChange({
         env,
-        user: context.user,
+        user: authContext.user,
         resourceType: 'feedback',
         resourceId: feedbackId,
         resourceName: `Feedback #${feedbackId}`,
@@ -206,9 +209,6 @@ export class UnapproveFeedback extends OpenAPIRoute {
         approvedAt: null,
         message: 'Feedback unapproved successfully'
       })
-    } catch (error) {
-      console.error('Unapprove feedback error:', error)
-      return Response.json({ error: 'Internal server error' }, { status: 500 })
-    }
+    })
   }
 }

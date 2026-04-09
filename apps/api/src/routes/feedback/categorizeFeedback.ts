@@ -47,11 +47,10 @@ export class CategorizeFeedback extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: Env, _context: any) {
+  async handle(request: IRequest, env: Env, _context: RequestContext) {
     return withErrorHandling(request, async () => {
       // Authenticate user (required to prevent abuse)
-      // const authCheck = await authenticateUser(request, env, context)
-      // if (authCheck) return authCheck
+      // const authContext = await requireAuth(request, env, context)
 
       // Get validated request body
       const { body } = await this.getValidatedData<typeof this.schema>()

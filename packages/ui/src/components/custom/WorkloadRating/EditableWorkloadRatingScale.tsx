@@ -21,7 +21,6 @@ export function EditableWorkloadRatingScale({
   const [hoverValue, setHoverValue] = useState<number | null>(null)
 
   const displayValue = hoverValue ?? value ?? 0
-  const isHovering = hoverValue !== null
 
   const sizeClasses = {
     sm: 'size-4',

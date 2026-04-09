@@ -1,4 +1,4 @@
-import { authenticateUser } from '@middleware'
+import { requireAuth } from '@middleware'
 import { PointService, StatsService } from '@services'
 import { database } from '@uni-feedback/db'
 import { feedbackFull } from '@uni-feedback/db/schema'
@@ -24,14 +24,13 @@ export class DeleteFeedback extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: Env, _context: any) {
+  async handle(request: IRequest, env: Env, context: RequestContext) {
     return withErrorHandling(request, async () => {
       const feedbackId = parseInt(request.params.id)
 
       // Authenticate
-      const authCheck = await authenticateUser(request, env, context)
-      if (authCheck) return authCheck
-      const userId = context.user.id
+      const authContext = await requireAuth(request, env, context)
+      const userId = authContext.user.id
 
       // Fetch existing feedback from the full table to check deletedAt
       const [existingFeedback] = await database()

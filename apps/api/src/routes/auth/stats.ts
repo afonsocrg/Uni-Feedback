@@ -1,4 +1,4 @@
-import { authenticateUser } from '@middleware'
+import { requireAuth } from '@middleware'
 import { PointService } from '@services/pointService'
 import { database } from '@uni-feedback/db'
 import { feedback, pointRegistry } from '@uni-feedback/db/schema'
@@ -41,13 +41,11 @@ export class GetUserStats extends OpenAPIRoute {
     }
   }
 
-  async handle(_request: IRequest, _env: any, _context: any) {
+  async handle(request: IRequest, env: Env, context: RequestContext) {
     try {
       // Authenticate user
-      const authCheck = await authenticateUser(request, env, context)
-      if (authCheck) return authCheck
-
-      const userId = context.user.id
+      const authContext = await requireAuth(request, env, context)
+      const userId = authContext.user.id
       const pointService = new PointService(env)
 
       // Get total points

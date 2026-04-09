@@ -59,7 +59,7 @@ export class Login extends OpenAPIRoute {
     }
   }
 
-  async handle(request: Request, env: any, _context: any) {
+  async handle(request: Request, env: Env, _context: RequestContext) {
     try {
       const data = await this.getValidatedData<typeof this.schema>()
       const { email, password } = data.body

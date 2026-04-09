@@ -17,6 +17,15 @@ export interface CourseReportSummary {
   cons: string[] // 3-5 areas for improvement
 }
 
+// OpenRouter API response type
+interface OpenRouterResponse {
+  choices?: Array<{
+    message?: {
+      content?: string
+    }
+  }>
+}
+
 export interface SemesterInsights {
   systemicTrends: string[]
   perCourse: Array<{
@@ -73,7 +82,9 @@ export class AIService {
    * @returns The parsed JSON response from OpenRouter
    * @throws Error if API key is not configured or API call fails
    */
-  private async callOpenRouter(payload: any): Promise<any> {
+  private async callOpenRouter(
+    payload: Record<string, unknown>
+  ): Promise<OpenRouterResponse> {
     if (!this.apiKey) {
       throw new Error('OPENROUTER_API_KEY not configured')
     }
@@ -253,7 +264,6 @@ export class AIService {
       return {
         aiSummary: 'No feedback available to analyze for this course.',
         emotions: ['N/A', 'N/A', 'N/A'],
-        persona: 'No student feedback available for analysis.',
         pros: ['No feedback available'],
         cons: ['No feedback available']
       }

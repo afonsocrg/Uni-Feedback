@@ -41,7 +41,9 @@ export function FeedbackInfoCard({ feedback }: FeedbackInfoCardProps) {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
-  const [editValues, setEditValues] = useState<Record<string, number | null>>({})
+  const [editValues, setEditValues] = useState<Record<string, number | null>>(
+    {}
+  )
   const [isRatingDialogOpen, setIsRatingDialogOpen] = useState(false)
   const [unapprovalDialogOpen, setUnapprovalDialogOpen] = useState(false)
 

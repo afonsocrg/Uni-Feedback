@@ -1,3 +1,4 @@
+import { requireAdmin } from '@middleware'
 import { database } from '@uni-feedback/db'
 import { courses } from '@uni-feedback/db/schema'
 import { detectChanges, notifyAdminChange } from '@utils/notificationHelpers'
@@ -5,6 +6,7 @@ import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
 import { z } from 'zod'
+import { ValidationError, withErrorHandling } from '../../utils'
 
 const CourseUpdateSchema = z.object({
   name: z.string().min(1).optional(),
@@ -89,8 +91,9 @@ export class UpdateCourse extends OpenAPIRoute {
     }
   }
 
-  async handle(_request: IRequest, _env: any, _context: any) {
-    try {
+  async handle(request: IRequest, env: Env, context: RequestContext) {
+    return withErrorHandling(request, async () => {
+      const authContext = await requireAdmin(request, env, context)
       const { params, body } = await this.getValidatedData<typeof this.schema>()
       const { id } = params
       const updateData = body
@@ -117,13 +120,7 @@ export class UpdateCourse extends OpenAPIRoute {
       }
 
       if (validationErrors.length > 0) {
-        return Response.json(
-          {
-            error: 'Validation failed',
-            errors: validationErrors
-          },
-          { status: 400 }
-        )
+        throw new ValidationError('Validation failed', validationErrors)
       }
 
       // Check if course exists
@@ -138,7 +135,7 @@ export class UpdateCourse extends OpenAPIRoute {
       }
 
       // Build update data with trimmed values
-      const dbUpdateData: any = {}
+      const dbUpdateData: Record<string, unknown> = {}
       if (updateData.name !== undefined)
         dbUpdateData.name = updateData.name.trim()
       if (updateData.acronym !== undefined)
@@ -191,7 +188,7 @@ export class UpdateCourse extends OpenAPIRoute {
       if (changes.length > 0) {
         await notifyAdminChange({
           env,
-          user: context.user,
+          user: authContext.user,
           resourceType: 'course',
           resourceId: id,
           resourceName: updatedCourse[0].name,
@@ -209,9 +206,6 @@ export class UpdateCourse extends OpenAPIRoute {
       }
 
       return Response.json(response)
-    } catch (error) {
-      console.error('Update course error:', error)
-      return Response.json({ error: 'Internal server error' }, { status: 500 })
-    }
+    })
   }
 }

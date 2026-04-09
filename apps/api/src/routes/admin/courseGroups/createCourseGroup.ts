@@ -1,3 +1,4 @@
+import { requireAdmin } from '@middleware'
 import { ValidationErrors } from '@types'
 import { database } from '@uni-feedback/db'
 import { courseGroup, degrees } from '@uni-feedback/db/schema'
@@ -6,6 +7,7 @@ import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
 import { z } from 'zod'
+import { ValidationError, withErrorHandling } from '../../utils'
 
 const CreateCourseGroupSchema = z.object({
   name: z.string().min(1, 'Course group name is required'),
@@ -74,8 +76,9 @@ export class CreateCourseGroup extends OpenAPIRoute {
     }
   }
 
-  async handle(_request: IRequest, _env: any, _context: any) {
-    try {
+  async handle(request: IRequest, env: Env, context: RequestContext) {
+    return withErrorHandling(request, async () => {
+      const authContext = await requireAdmin(request, env, context)
       const { body } = await this.getValidatedData<typeof this.schema>()
       const { name, degreeId } = body
 
@@ -97,13 +100,7 @@ export class CreateCourseGroup extends OpenAPIRoute {
       }
 
       if (validationErrors.length > 0) {
-        return Response.json(
-          {
-            error: 'Validation failed',
-            errors: validationErrors
-          },
-          { status: 400 }
-        )
+        throw new ValidationError('Validation failed', validationErrors)
       }
 
       // Check if degree exists
@@ -137,7 +134,7 @@ export class CreateCourseGroup extends OpenAPIRoute {
       // Send notification
       await notifyAdminChange({
         env,
-        user: context.user,
+        user: authContext.user,
         resourceType: 'course-group',
         resourceId: newCourseGroup[0].id,
         resourceName: newCourseGroup[0].name,
@@ -151,9 +148,6 @@ export class CreateCourseGroup extends OpenAPIRoute {
       }
 
       return Response.json(response, { status: 201 })
-    } catch (error) {
-      console.error('Create course group error:', error)
-      return Response.json({ error: 'Internal server error' }, { status: 500 })
-    }
+    })
   }
 }

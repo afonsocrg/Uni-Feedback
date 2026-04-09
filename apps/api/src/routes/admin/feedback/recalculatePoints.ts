@@ -41,7 +41,7 @@ export class RecalculatePoints extends OpenAPIRoute {
     }
   }
 
-  async handle(_request: IRequest, _env: any, _context: any) {
+  async handle(_request: IRequest, env: Env, _context: RequestContext) {
     try {
       const pointService = new PointService(env)
 

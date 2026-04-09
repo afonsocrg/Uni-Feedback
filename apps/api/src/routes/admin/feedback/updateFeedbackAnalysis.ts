@@ -1,3 +1,4 @@
+import { requireAdmin } from '@middleware'
 import { PointService } from '@services'
 import { sendAnalysisUpdateNotification } from '@services/telegram'
 import { database } from '@uni-feedback/db'
@@ -8,6 +9,7 @@ import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
 import { z } from 'zod'
+import { withErrorHandling } from '../../utils'
 
 const UpdateAnalysisParamsSchema = z.object({
   id: z.string().transform((val) => parseInt(val, 10))
@@ -81,8 +83,9 @@ export class UpdateFeedbackAnalysis extends OpenAPIRoute {
     }
   }
 
-  async handle(_request: IRequest, _env: any, _context: any) {
-    try {
+  async handle(request: IRequest, env: Env, context: RequestContext) {
+    return withErrorHandling(request, async () => {
+      const authContext = await requireAdmin(request, env, context)
       const { params, body } = await this.getValidatedData<typeof this.schema>()
       const { id: feedbackId } = params
       const { hasTeaching, hasAssessment, hasMaterials, hasTips } = body
@@ -177,7 +180,7 @@ export class UpdateFeedbackAnalysis extends OpenAPIRoute {
       try {
         await sendAnalysisUpdateNotification({
           env,
-          adminEmail: context.user?.email || 'Unknown admin',
+          adminEmail: authContext.user?.email || 'Unknown admin',
           feedbackId,
           oldAnalysis: oldAnalysis[0] || null,
           newAnalysis: analysisData,
@@ -227,7 +230,7 @@ export class UpdateFeedbackAnalysis extends OpenAPIRoute {
       if (changes.length > 0) {
         await notifyAdminChange({
           env,
-          user: context.user,
+          user: authContext.user,
           resourceType: 'feedback_analysis',
           resourceId: feedbackId,
           resourceName: `Feedback #${feedbackId} Analysis`,
@@ -251,9 +254,6 @@ export class UpdateFeedbackAnalysis extends OpenAPIRoute {
             ? 'Analysis updated successfully'
             : 'Analysis created successfully'
       })
-    } catch (error) {
-      console.error('Update feedback analysis error:', error)
-      return Response.json({ error: 'Internal server error' }, { status: 500 })
-    }
+    })
   }
 }

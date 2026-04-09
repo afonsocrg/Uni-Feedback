@@ -44,7 +44,7 @@ export class GetDegreeCourses extends OpenAPIRoute {
     }
   }
 
-  async handle(_request: IRequest, _env: any, _context: any) {
+  async handle(_request: IRequest, env: Env, _context: RequestContext) {
     const courseFeedbackService = new CourseFeedbackService(env)
 
     const data = await this.getValidatedData<typeof this.schema>()

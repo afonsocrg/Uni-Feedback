@@ -1,3 +1,4 @@
+import { requireAdmin } from '@middleware'
 import { StatsService } from '@services'
 import { database } from '@uni-feedback/db'
 import { feedback, feedbackFull } from '@uni-feedback/db/schema'
@@ -6,6 +7,7 @@ import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
 import { z } from 'zod'
+import { withErrorHandling } from '../../utils'
 
 const FeedbackUpdateParamsSchema = z.object({
   id: z.string().transform((val) => parseInt(val, 10))
@@ -76,8 +78,9 @@ export class UpdateFeedback extends OpenAPIRoute {
     }
   }
 
-  async handle(_request: IRequest, _env: any, _context: any) {
-    try {
+  async handle(request: IRequest, env: Env, context: RequestContext) {
+    return withErrorHandling(request, async () => {
+      const authContext = await requireAdmin(request, env, context)
       const { params, body } = await this.getValidatedData<typeof this.schema>()
       const { id: feedbackId } = params
       const updates = body
@@ -105,7 +108,7 @@ export class UpdateFeedback extends OpenAPIRoute {
       }
 
       // Prepare update data
-      const updateData: any = {}
+      const updateData: Record<string, unknown> = {}
 
       if (updates.schoolYear !== undefined) {
         updateData.schoolYear = updates.schoolYear
@@ -160,7 +163,7 @@ export class UpdateFeedback extends OpenAPIRoute {
       if (changes.length > 0) {
         await notifyAdminChange({
           env,
-          user: context.user,
+          user: authContext.user,
           resourceType: 'feedback',
           resourceId: feedbackId,
           resourceName: `Feedback #${feedbackId}`,
@@ -196,9 +199,6 @@ export class UpdateFeedback extends OpenAPIRoute {
       }
 
       return Response.json(response)
-    } catch (error) {
-      console.error('Update feedback error:', error)
-      return Response.json({ error: 'Internal server error' }, { status: 500 })
-    }
+    })
   }
 }

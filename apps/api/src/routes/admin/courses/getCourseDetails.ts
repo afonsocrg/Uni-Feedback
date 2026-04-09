@@ -59,7 +59,7 @@ export class GetCourseDetails extends OpenAPIRoute {
     }
   }
 
-  async handle(_request: IRequest, _env: any, _context: any) {
+  async handle(_request: IRequest, _env: Env, _context: RequestContext) {
     try {
       const { params } = await this.getValidatedData<typeof this.schema>()
       const { id } = params

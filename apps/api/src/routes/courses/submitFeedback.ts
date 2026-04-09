@@ -1,4 +1,4 @@
-import { authenticateUser } from '@middleware'
+import { requireAuth } from '@middleware'
 import { AIService, PointService, StatsService } from '@services'
 import { sendCourseReviewReceived } from '@services/telegram'
 import { database } from '@uni-feedback/db'
@@ -53,18 +53,17 @@ export class SubmitFeedback extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: Env, _context: any) {
+  async handle(request: IRequest, env: Env, context: RequestContext) {
     return withErrorHandling(request, async () => {
       const courseId = parseInt(request.params.id)
       const { body } = await this.getValidatedData<typeof this.schema>()
 
       // Authenticate user (required for feedback submission)
-      const authCheck = await authenticateUser(request, env, context)
-      if (authCheck) return authCheck
+      const authContext = await requireAuth(request, env, context)
 
       // Use authenticated user's info
-      const userId = context.user.id
-      const email = context.user.email
+      const userId = authContext.user!.id
+      const email = authContext.user!.email
 
       // Validate school year
       const currentSchoolYear = getCurrentSchoolYear()

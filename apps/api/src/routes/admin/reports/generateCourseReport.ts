@@ -61,7 +61,7 @@ export class GenerateCourseReport extends OpenAPIRoute {
     }
   }
 
-  async handle(_request: IRequest, _env: any, _context: any) {
+  async handle(request: IRequest, env: Env, context: RequestContext) {
     try {
       const data = await request.json()
       const validatedBody = GenerateCourseReportBodySchema.parse(data)
@@ -80,7 +80,7 @@ export class GenerateCourseReport extends OpenAPIRoute {
         expiresIn: 3600,
         message: 'Report generated successfully'
       })
-    } catch (error: any) {
+    } catch (error) {
       console.error('Generate course report error:', error)
 
       if (error instanceof NotFoundError) {

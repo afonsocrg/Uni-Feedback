@@ -33,8 +33,14 @@ export class NotFoundError extends HTTPError {
 }
 
 export class ValidationError extends HTTPError {
-  constructor(message: string) {
+  errors?: Array<{ field: string; message: string }>
+
+  constructor(
+    message: string,
+    errors?: Array<{ field: string; message: string }>
+  ) {
     super(message, 400)
+    this.errors = errors
   }
 }
 
@@ -59,8 +65,8 @@ interface ErrorContext {
   userId?: number
   endpoint?: string
   method?: string
-  requestBody?: any
-  requestParams?: any
+  requestBody?: unknown
+  requestParams?: unknown
   userAgent?: string
   ip?: string
   timestamp?: Date
@@ -103,10 +109,6 @@ function logStructuredError(structuredError: StructuredError): void {
   console.error(JSON.stringify(logEntry, null, 2))
 }
 
-function getErrorResponse(error: string, status: number = 400): Response {
-  return Response.json({ error }, { status })
-}
-
 export function extractRequestContext(request: Request): ErrorContext {
   const url = new URL(request.url)
   return {
@@ -126,7 +128,7 @@ export function extractRequestContext(request: Request): ErrorContext {
 // ============================================================================
 
 export function handleError(
-  error: any,
+  error: unknown,
   context: ErrorContext = {},
   customMessage?: string
 ): Response {
@@ -157,13 +159,22 @@ export function handleError(
       ...context,
       timestamp
     },
-    stack: error?.stack,
+    stack: error instanceof Error ? error.stack : undefined,
     errorType
   }
 
   logStructuredError(structuredError)
 
-  const response = getErrorResponse(message, statusCode)
+  // Include validation errors in response if present
+  const responseBody: {
+    error: string
+    errors?: Array<{ field: string; message: string }>
+  } = { error: message }
+  if (error instanceof ValidationError && error.errors) {
+    responseBody.errors = error.errors
+  }
+
+  const response = Response.json(responseBody, { status: statusCode })
   response.headers.set('X-Correlation-ID', correlationId)
   return response
 }
@@ -176,7 +187,7 @@ export function handleError(
  * Helper function to create standardized error handling for route handlers
  * Usage in route handle method:
  *
- * async handle(_request: IRequest, _env: any, _context: any) {
+ * async handle(_request: IRequest, _env: Env, _context: RequestContext) {
  *   return withErrorHandling(request, async () => {
  *     // Your route logic here
  *     const data = await this.getValidatedData<typeof this.schema>()
@@ -199,7 +210,7 @@ export async function withErrorHandling<T>(
       ...requestContext,
       duration: Date.now() - startTime,
       requestParams: request.params,
-      requestBody: (request as any).body || undefined
+      requestBody: (request as Request & { body?: unknown }).body || undefined
     }
 
     return handleError(error, enrichedContext) as T
@@ -210,7 +221,7 @@ export async function withErrorHandling<T>(
  * Alternative approach: Create error handler function that can be called from catch blocks
  * Usage in route handle method:
  *
- * async handle(_request: IRequest, _env: any, _context: any) {
+ * async handle(_request: IRequest, _env: Env, _context: RequestContext) {
  *   const errorHandler = createErrorHandler(request)
  *
  *   try {
@@ -227,12 +238,12 @@ export function createErrorHandler(
 ) {
   const requestContext = extractRequestContext(request)
 
-  return (error: any, customMessage?: string) => {
+  return (error: unknown, customMessage?: string) => {
     const enrichedContext = {
       ...requestContext,
       duration: Date.now() - startTime,
       requestParams: request.params,
-      requestBody: (request as any).body || undefined
+      requestBody: (request as Request & { body?: unknown }).body || undefined
     }
 
     return handleError(error, enrichedContext, customMessage)

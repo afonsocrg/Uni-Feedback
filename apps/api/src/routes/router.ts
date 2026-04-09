@@ -76,8 +76,11 @@ router.post('/feedback/:id/report', ReportFeedback)
 // ---------------------------------------------------------
 // Nested routers
 // ---------------------------------------------------------
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- itty-router type compatibility
 router.all('/auth/*', authRouter as any)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- itty-router type compatibility
 router.all('/admin/*', adminRouter as any)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- itty-router type compatibility
 router.all('/email/*', emailRouter as any)
 
 // 404 for everything else

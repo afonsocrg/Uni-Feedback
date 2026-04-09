@@ -1,9 +1,11 @@
+import { requireAdmin } from '@middleware'
 import { database } from '@uni-feedback/db'
 import { courseGroup } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
 import { z } from 'zod'
+import { withErrorHandling } from '../../utils'
 
 export class DeleteCourseGroup extends OpenAPIRoute {
   schema = {
@@ -32,8 +34,9 @@ export class DeleteCourseGroup extends OpenAPIRoute {
     }
   }
 
-  async handle(_request: IRequest, _env: any, _context: any) {
-    try {
+  async handle(request: IRequest, env: Env, context: RequestContext) {
+    return withErrorHandling(request, async () => {
+      await requireAdmin(request, env, context)
       const { params } = await this.getValidatedData<typeof this.schema>()
       const { id } = params
 
@@ -55,9 +58,6 @@ export class DeleteCourseGroup extends OpenAPIRoute {
       await database().delete(courseGroup).where(eq(courseGroup.id, id))
 
       return new Response(null, { status: 204 })
-    } catch (error) {
-      console.error('Delete course group error:', error)
-      return Response.json({ error: 'Internal server error' }, { status: 500 })
-    }
+    })
   }
 }

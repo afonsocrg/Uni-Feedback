@@ -118,8 +118,8 @@ interface AdminChangeNotificationArgs {
   action: 'updated' | 'created' | 'deleted' | 'added' | 'removed'
   changes?: Array<{
     field: string
-    oldValue: any
-    newValue: any
+    oldValue: unknown
+    newValue: unknown
   }>
   addedItem?: string
   removedItem?: string

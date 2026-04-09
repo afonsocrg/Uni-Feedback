@@ -1,8 +1,4 @@
-import {
-  PaginatedResponse,
-  PaginationQuerySchema,
-  getPaginatedSchema
-} from '@types'
+import { PaginationQuerySchema, getPaginatedSchema } from '@types'
 import { database } from '@uni-feedback/db'
 import { courseGroup } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
@@ -60,7 +56,7 @@ export class GetCourseGroups extends OpenAPIRoute {
     }
   }
 
-  async handle(_request: IRequest, _env: any, _context: any) {
+  async handle(_request: IRequest, _env: Env, _context: RequestContext) {
     try {
       const { query } = await this.getValidatedData<typeof this.schema>()
       const { page, limit, search, degree_id } = query
@@ -104,7 +100,7 @@ export class GetCourseGroups extends OpenAPIRoute {
         .limit(limit)
         .offset(offset)
 
-      const response: PaginatedResponse<any> = {
+      const response = {
         data: courseGroupsResult.map((group) => ({
           ...group,
           createdAt: group.createdAt?.toISOString() || ''

@@ -34,7 +34,7 @@ export class GetFeedbackDraft extends OpenAPIRoute {
     }
   }
 
-  async handle(_request: IRequest, _env: any, _context: any) {
+  async handle(request: IRequest, _env: Env, _context: RequestContext) {
     try {
       const code = request.params.code.toUpperCase()
 

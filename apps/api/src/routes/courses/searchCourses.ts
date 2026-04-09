@@ -74,7 +74,7 @@ export class SearchCourses extends OpenAPIRoute {
     }
   }
 
-  async handle(_request: IRequest, _env: any, _context: any) {
+  async handle(_request: IRequest, _env: Env, _context: RequestContext) {
     const { query } = await this.getValidatedData<typeof this.schema>()
     const { q, faculty_id, degree_id, limit, offset } = query
 

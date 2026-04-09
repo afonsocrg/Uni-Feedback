@@ -47,7 +47,7 @@ export class GetAllTerms extends OpenAPIRoute {
     }
   }
 
-  async handle(_request: IRequest, _env: any, _context: any) {
+  async handle(_request: IRequest, _env: Env, _context: RequestContext) {
     try {
       const { query } = await this.getValidatedData<typeof this.schema>()
       const { faculty_id } = query

@@ -53,7 +53,12 @@ function workloadToLabel(rating: number): string {
   return labels[rating - 1] || 'unknown'
 }
 
-function generateFilename(filters: any, resourceName: string | null): string {
+type ExportFilters = z.infer<typeof ExportFiltersSchema>
+
+function generateFilename(
+  filters: ExportFilters,
+  resourceName: string | null
+): string {
   const now = new Date()
   const timestamp = now.toISOString().replace(/[-:T]/g, '').slice(0, 14)
 
@@ -167,10 +172,10 @@ export class ExportFeedback extends OpenAPIRoute {
     }
   }
 
-  async handle(_request: IRequest, _env: any, _context: any) {
+  async handle(request: IRequest, env: Env, context: RequestContext) {
     return withErrorHandling(request, async () => {
       const data = await this.getValidatedData<typeof this.schema>()
-      const filters = (data.body as any)?.filters ?? {}
+      const filters = (data.body as { filters?: ExportFilters })?.filters ?? {}
 
       const {
         faculty_id,
@@ -383,11 +388,14 @@ export class ExportFeedback extends OpenAPIRoute {
             ? getWorkloadLabel(row.workload_rating)
             : '',
         comment: sanitizeComment(row.comment),
-        permalink: getFeedbackPermalinkUrl(
-          env.WEBSITE_URL,
-          row.course_id,
-          row.feedback_id
-        )
+        permalink:
+          row.course_id != null
+            ? getFeedbackPermalinkUrl(
+                env.WEBSITE_URL,
+                row.course_id,
+                row.feedback_id
+              )
+            : ''
       }))
 
       const csv = '\uFEFF' + Papa.unparse(csvRows)

@@ -1,3 +1,4 @@
+import { requireAdmin } from '@middleware'
 import { database } from '@uni-feedback/db'
 import { faculties } from '@uni-feedback/db/schema'
 import { notifyAdminChange } from '@utils/notificationHelpers'
@@ -5,6 +6,7 @@ import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
 import { z } from 'zod'
+import { withErrorHandling } from '../../utils'
 
 const AddSuffixSchema = z.object({
   suffix: z
@@ -68,8 +70,9 @@ export class AddFacultyEmailSuffix extends OpenAPIRoute {
     }
   }
 
-  async handle(_request: IRequest, _env: any, _context: any) {
-    try {
+  async handle(request: IRequest, env: Env, context: RequestContext) {
+    return withErrorHandling(request, async () => {
+      const authContext = await requireAdmin(request, env, context)
       const { params, body } = await this.getValidatedData<typeof this.schema>()
       const { id } = params
       const { suffix } = body
@@ -115,7 +118,7 @@ export class AddFacultyEmailSuffix extends OpenAPIRoute {
       // Send notification
       await notifyAdminChange({
         env,
-        user: context.user,
+        user: authContext.user,
         resourceType: 'faculty',
         resourceId: id,
         resourceName: faculty[0].name,
@@ -129,9 +132,6 @@ export class AddFacultyEmailSuffix extends OpenAPIRoute {
         emailSuffixes: updatedSuffixes,
         message: 'Email suffix added successfully'
       })
-    } catch (error) {
-      console.error('Add faculty email suffix error:', error)
-      return Response.json({ error: 'Internal server error' }, { status: 500 })
-    }
+    })
   }
 }

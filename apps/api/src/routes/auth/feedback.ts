@@ -1,4 +1,4 @@
-import { authenticateUser } from '@middleware'
+import { requireAuth } from '@middleware'
 import { database } from '@uni-feedback/db'
 import {
   courses,
@@ -10,6 +10,7 @@ import { OpenAPIRoute } from 'chanfana'
 import { and, desc, eq } from 'drizzle-orm'
 import { IRequest } from 'itty-router'
 import { z } from 'zod'
+import { withErrorHandling } from '../utils'
 
 export class GetUserFeedback extends OpenAPIRoute {
   schema = {
@@ -63,13 +64,10 @@ export class GetUserFeedback extends OpenAPIRoute {
     }
   }
 
-  async handle(_request: IRequest, _env: any, _context: any) {
-    try {
-      // Authenticate user
-      const authCheck = await authenticateUser(request, env, context)
-      if (authCheck) return authCheck
-
-      const userId = context.user.id
+  async handle(request: IRequest, env: Env, context: RequestContext) {
+    return withErrorHandling(request, async () => {
+      const authContext = await requireAuth(request, env, context)
+      const userId = authContext.user.id
 
       // Get all feedback by this user with course details
       const userFeedback = await database()
@@ -118,10 +116,10 @@ export class GetUserFeedback extends OpenAPIRoute {
           item.wordCount !== null
             ? {
                 hasTeaching: item.hasTeaching,
-                hasAssessment: item.hasAssessment!,
-                hasMaterials: item.hasMaterials!,
-                hasTips: item.hasTips!,
-                wordCount: item.wordCount!
+                hasAssessment: item.hasAssessment,
+                hasMaterials: item.hasMaterials,
+                hasTips: item.hasTips,
+                wordCount: item.wordCount
               }
             : null
       }))
@@ -129,9 +127,6 @@ export class GetUserFeedback extends OpenAPIRoute {
       return Response.json({
         feedback: transformedFeedback
       })
-    } catch (error) {
-      console.error('Get user feedback error:', error)
-      return Response.json({ error: 'Internal server error' }, { status: 500 })
-    }
+    })
   }
 }

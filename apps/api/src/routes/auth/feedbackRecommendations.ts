@@ -1,4 +1,4 @@
-import { authenticateUser } from '@middleware'
+import { requireAuth } from '@middleware'
 import { database } from '@uni-feedback/db'
 import { courses, feedback } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
@@ -42,13 +42,11 @@ export class GetFeedbackRecommendations extends OpenAPIRoute {
     }
   }
 
-  async handle(_request: IRequest, _env: any, _context: any) {
+  async handle(request: IRequest, env: Env, context: RequestContext) {
     try {
       // Authenticate user
-      const authCheck = await authenticateUser(request, env, context)
-      if (authCheck) return authCheck
-
-      const userId = context.user.id
+      const authContext = await requireAuth(request, env, context)
+      const userId = authContext.user.id
       const db = database()
 
       // 1. Get all feedback by this user with course degree information
