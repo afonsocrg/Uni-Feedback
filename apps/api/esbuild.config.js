@@ -6,7 +6,7 @@ esbuild
     bundle: true,
     platform: 'node',
     target: 'node20',
-    format: 'cjs',
+    format: 'esm',
     outfile: 'dist/server.js',
     external: [
       'postgres',
