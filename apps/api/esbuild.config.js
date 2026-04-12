@@ -6,8 +6,8 @@ esbuild
     bundle: true,
     platform: 'node',
     target: 'node20',
-    format: 'esm',
-    outfile: 'dist/server.js',
+    format: 'cjs',
+    outfile: 'dist/server.cjs',
     external: [
       'postgres',
       'better-sqlite3',

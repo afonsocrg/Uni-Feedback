@@ -5,10 +5,10 @@
   "type": "module",
   "scripts": {
     "build": "tsx esbuild.config.js",
-    "start": "node dist/server.js",
+    "start": "node dist/server.cjs",
     "dev": "pnpm run dev:api",
     "dev:api": "tsx watch src/server.ts",
-    "prod": "NODE_ENV=production node dist/server.js",
+    "prod": "NODE_ENV=production node dist/server.cjs",
     "lint": "eslint .",
     "type-check": "tsc --noEmit",
     "type-check-relaxed": "tsc --noEmit --skipLibCheck",
