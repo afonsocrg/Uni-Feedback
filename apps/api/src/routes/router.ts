@@ -1,5 +1,5 @@
 import { getAllowedOrigins } from '@config'
-import { ApiException, fromHono } from 'chanfana'
+import { fromHono } from 'chanfana'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { router as adminRouter } from './admin/router'
@@ -17,33 +17,14 @@ import {
   ReportFeedback
 } from './feedback'
 import { router as profileRouter } from './profile/router'
-import { AppError, NotFoundError } from './utils'
+import { NotFoundError, handleError } from './utils'
 
 const app = new Hono()
 
 // Error handling middleware - handles all errors including from chanfana routes
-app.onError((err, c) => {
+app.onError((err) => {
   console.error('Error caught by Hono middleware:', err)
-
-  if (err instanceof AppError) {
-    const body: Record<string, unknown> = { error: err.message }
-    if (err.details) {
-      Object.assign(body, err.details)
-    }
-    return c.json(body, err.statusCode)
-  }
-
-  // Chanfana validation errors (e.g. Zod schema violations)
-  if (err instanceof ApiException) {
-    return c.json(
-      { success: false, errors: err.buildResponse() },
-      err.status as Parameters<typeof c.json>[1]
-    )
-  }
-
-  // Unknown error - log and return 500
-  console.error('Unexpected error:', err)
-  return c.json({ error: 'Internal server error' }, 500)
+  return handleError(err)
 })
 
 app.use(

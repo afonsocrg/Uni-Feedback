@@ -1,3 +1,4 @@
+import { ApiException } from 'chanfana'
 import type { ContentfulStatusCode } from 'hono/utils/http-status'
 
 // ============================================================================
@@ -108,6 +109,14 @@ export function handleError(error: unknown, context?: ErrorContext): Response {
       Object.assign(body, error.details)
     }
     return Response.json(body, { status: error.statusCode })
+  }
+
+  // Chanfana validation errors (e.g. Zod schema violations)
+  if (error instanceof ApiException) {
+    return Response.json(
+      { success: false, errors: error.buildResponse() },
+      { status: error.status }
+    )
   }
 
   // Unknown error - log with context and return 500
