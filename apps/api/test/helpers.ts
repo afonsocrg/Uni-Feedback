@@ -11,7 +11,9 @@ import {
 } from '@uni-feedback/db/schema'
 import { randomBytes } from 'crypto'
 import { eq } from 'drizzle-orm'
-import { getTestDb } from './setup'
+import { AUTH_CONFIG } from '../src/config/auth'
+import { AuthService } from '../src/services/authService'
+import { getTestDb, testEnv } from './setup'
 
 /**
  * Create a faculty for testing
@@ -263,6 +265,36 @@ export async function getEmailPreferences(userId: number) {
     .from(emailPreferences)
     .where(eq(emailPreferences.userId, userId))
   return prefs
+}
+
+/**
+ * Create a session for a user. Must be called inside withTestDb().
+ */
+export async function createSession(
+  userId: number,
+  role: 'student' | 'admin' | 'super_admin' = 'student'
+) {
+  const authService = new AuthService(testEnv)
+  return authService.createSession(userId, role)
+}
+
+/**
+ * Returns the Cookie header string for the given access token.
+ */
+export function createAuthCookie(accessToken: string): string {
+  return `${AUTH_CONFIG.COOKIE_NAME}-access=${accessToken}`
+}
+
+/**
+ * Creates a user + session and returns a ready-to-use Cookie header string.
+ * Must be called inside withTestDb().
+ */
+export async function createAuthenticatedUser(
+  role: 'student' | 'admin' | 'super_admin' = 'student'
+) {
+  const user = await createUser({ role })
+  const session = await createSession(user.id, role)
+  return { user, session, cookie: createAuthCookie(session.accessToken) }
 }
 
 /**

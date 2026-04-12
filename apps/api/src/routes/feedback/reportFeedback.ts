@@ -42,6 +42,8 @@ export class ReportFeedback extends OpenAPIRoute {
   }
 
   async handle(c: Context) {
+    const authContext = await requireAuth(c)
+    const userId = authContext.user.id
     const env = c.env as Env
     const { params, body } = await this.getValidatedData<typeof this.schema>()
     const feedbackId = params.id
@@ -51,10 +53,6 @@ export class ReportFeedback extends OpenAPIRoute {
     if (details.length < 20) {
       throw new ValidationError('Details must be at least 20 characters')
     }
-
-    // Authenticate
-    const authContext = await requireAuth(c)
-    const userId = authContext.user.id
 
     // Check feedback exists
     const [existingFeedback] = await database()

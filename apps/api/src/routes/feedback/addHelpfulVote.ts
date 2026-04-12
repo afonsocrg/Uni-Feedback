@@ -23,12 +23,10 @@ export class AddHelpfulVote extends OpenAPIRoute {
   }
 
   async handle(c: Context) {
-    const { params } = await this.getValidatedData<typeof this.schema>()
-    const feedbackId = params.id
-
-    // Authenticate
     const authContext = await requireAuth(c)
     const userId = authContext.user.id
+    const { params } = await this.getValidatedData<typeof this.schema>()
+    const feedbackId = params.id
 
     // Check feedback exists
     const [existingFeedback] = await database()

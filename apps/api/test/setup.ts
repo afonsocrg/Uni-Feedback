@@ -108,6 +108,22 @@ export async function withTestDb<T>(fn: () => Promise<T>): Promise<T> {
 }
 
 /**
+ * Minimal Env fixture for integration tests.
+ * Auth service uses DatabaseContext (not env) so only required fields need real values.
+ */
+export const testEnv: Env = {
+  API_PORT: 3001,
+  DATABASE_URL: process.env.DATABASE_URL_TEST ?? '',
+  ALLOWED_ORIGINS: 'http://localhost:3000',
+  NODE_ENV: 'development',
+  API_URL: 'http://localhost:3001',
+  DASHBOARD_URL: 'http://localhost:4000',
+  WEBSITE_URL: 'http://localhost:3000',
+  VALIDATE_EMAIL_SUFFIX: false,
+  REQUIRE_FEEDBACK_AUTH: true
+}
+
+/**
  * Clean all data from tables (but keep the schema)
  */
 export async function cleanAllTables() {

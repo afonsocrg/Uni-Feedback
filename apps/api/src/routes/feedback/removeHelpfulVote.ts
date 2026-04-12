@@ -21,12 +21,10 @@ export class RemoveHelpfulVote extends OpenAPIRoute {
   }
 
   async handle(c: Context) {
-    const { params } = await this.getValidatedData<typeof this.schema>()
-    const feedbackId = params.id
-
-    // Authenticate
     const authContext = await requireAuth(c)
     const userId = authContext.user.id
+    const { params } = await this.getValidatedData<typeof this.schema>()
+    const feedbackId = params.id
 
     // Delete vote if exists (idempotent)
     await database()

@@ -42,12 +42,12 @@ export class EditFeedback extends OpenAPIRoute {
   }
 
   async handle(c: Context) {
+    const authContext = await requireAuth(c)
     const env = c.env as Env
     const { params, body } = await this.getValidatedData<typeof this.schema>()
     const feedbackId = params.id
 
     // Authenticate
-    const authContext = await requireAuth(c)
     const userId = authContext.user.id
 
     // Fetch existing feedback

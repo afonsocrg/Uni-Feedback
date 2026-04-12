@@ -1,5 +1,5 @@
 import { getAllowedOrigins } from '@config'
-import { fromHono } from 'chanfana'
+import { ApiException, fromHono } from 'chanfana'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { router as adminRouter } from './admin/router'
@@ -33,6 +33,14 @@ app.onError((err, c) => {
     return c.json(body, err.statusCode)
   }
 
+  // Chanfana validation errors (e.g. Zod schema violations)
+  if (err instanceof ApiException) {
+    return c.json(
+      { success: false, errors: err.buildResponse() },
+      err.status as Parameters<typeof c.json>[1]
+    )
+  }
+
   // Unknown error - log and return 500
   console.error('Unexpected error:', err)
   return c.json({ error: 'Internal server error' }, 500)
@@ -48,6 +56,8 @@ app.use(
 )
 
 const isDev = process.env.NODE_ENV !== 'production'
+
+export { app }
 
 export const router = fromHono(app, {
   docs_url: isDev ? '/docs' : null,

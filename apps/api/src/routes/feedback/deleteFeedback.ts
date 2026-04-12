@@ -25,13 +25,11 @@ export class DeleteFeedback extends OpenAPIRoute {
   }
 
   async handle(c: Context) {
+    const authContext = await requireAuth(c)
+    const userId = authContext.user.id
     const env = c.env as Env
     const { params } = await this.getValidatedData<typeof this.schema>()
     const feedbackId = params.id
-
-    // Authenticate
-    const authContext = await requireAuth(c)
-    const userId = authContext.user.id
 
     // Fetch existing feedback from the full table to check deletedAt
     const [existingFeedback] = await database()
