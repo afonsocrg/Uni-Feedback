@@ -1,9 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import {
-  cleanAllTables,
-  withTestDb
-} from '../../../test/setup'
-import {
   createApprovedFeedback,
   createCourse,
   createDegree,
@@ -14,6 +10,7 @@ import {
   initCourseStats,
   initDegreeStats
 } from '../../../test/helpers'
+import { cleanAllTables, withTestDb } from '../../../test/setup'
 import { StatsService } from '../statsService'
 
 describe('StatsService', () => {
@@ -34,7 +31,10 @@ describe('StatsService', () => {
         await initCourseStats(course.id)
         await initDegreeStats(degree.id, 1)
 
-        await createApprovedFeedback(course.id, { rating: 4, workloadRating: 3 })
+        await createApprovedFeedback(course.id, {
+          rating: 4,
+          workloadRating: 3
+        })
 
         // Act
         await statsService.onFeedbackApproved(course.id)
@@ -59,8 +59,14 @@ describe('StatsService', () => {
         await initCourseStats(course.id)
         await initDegreeStats(degree.id, 1)
 
-        await createApprovedFeedback(course.id, { rating: 4, workloadRating: 2 })
-        await createApprovedFeedback(course.id, { rating: 2, workloadRating: 4 })
+        await createApprovedFeedback(course.id, {
+          rating: 4,
+          workloadRating: 2
+        })
+        await createApprovedFeedback(course.id, {
+          rating: 2,
+          workloadRating: 4
+        })
 
         // Act
         await statsService.onFeedbackApproved(course.id)
@@ -77,10 +83,22 @@ describe('StatsService', () => {
       await withTestDb(async () => {
         // Setup - two identical courses in different degrees
         const faculty = await createFaculty()
-        const degree1 = await createDegree(faculty.id, { name: 'Degree 1', slug: 'degree-1' })
-        const degree2 = await createDegree(faculty.id, { name: 'Degree 2', slug: 'degree-2' })
-        const course1 = await createCourse(degree1.id, { name: 'Course 1', slug: 'course-1' })
-        const course2 = await createCourse(degree2.id, { name: 'Course 2', slug: 'course-2' })
+        const degree1 = await createDegree(faculty.id, {
+          name: 'Degree 1',
+          slug: 'degree-1'
+        })
+        const degree2 = await createDegree(faculty.id, {
+          name: 'Degree 2',
+          slug: 'degree-2'
+        })
+        const course1 = await createCourse(degree1.id, {
+          name: 'Course 1',
+          slug: 'course-1'
+        })
+        const course2 = await createCourse(degree2.id, {
+          name: 'Course 2',
+          slug: 'course-2'
+        })
 
         await createIdenticalRelationship(course1.id, course2.id)
         await initCourseStats(course1.id)
@@ -89,7 +107,10 @@ describe('StatsService', () => {
         await initDegreeStats(degree2.id, 1)
 
         // Create feedback on course1
-        await createApprovedFeedback(course1.id, { rating: 5, workloadRating: 2 })
+        await createApprovedFeedback(course1.id, {
+          rating: 5,
+          workloadRating: 2
+        })
 
         // Act
         await statsService.onFeedbackApproved(course1.id)
@@ -123,10 +144,16 @@ describe('StatsService', () => {
         await initDegreeStats(degree.id, 1)
 
         // Create two feedbacks and call onFeedbackApproved for each
-        await createApprovedFeedback(course.id, { rating: 4, workloadRating: 2 })
+        await createApprovedFeedback(course.id, {
+          rating: 4,
+          workloadRating: 2
+        })
         await statsService.onFeedbackApproved(course.id)
 
-        await createApprovedFeedback(course.id, { rating: 2, workloadRating: 4 })
+        await createApprovedFeedback(course.id, {
+          rating: 2,
+          workloadRating: 4
+        })
         await statsService.onFeedbackApproved(course.id)
 
         const initialStats = await getDegreeStats(degree.id)
@@ -170,7 +197,10 @@ describe('StatsService', () => {
         await initCourseStats(course.id)
         await initDegreeStats(degree.id, 1)
 
-        await createApprovedFeedback(course.id, { rating: 3, workloadRating: 3 })
+        await createApprovedFeedback(course.id, {
+          rating: 3,
+          workloadRating: 3
+        })
         await statsService.onFeedbackApproved(course.id)
 
         const initialDegreeStats = await getDegreeStats(degree.id)
@@ -196,12 +226,27 @@ describe('StatsService', () => {
         // Setup
         const faculty = await createFaculty()
         const degree = await createDegree(faculty.id)
-        const course1 = await createCourse(degree.id, { name: 'Course 1', slug: 'course-1' })
-        const course2 = await createCourse(degree.id, { name: 'Course 2', slug: 'course-2' })
+        const course1 = await createCourse(degree.id, {
+          name: 'Course 1',
+          slug: 'course-1'
+        })
+        const course2 = await createCourse(degree.id, {
+          name: 'Course 2',
+          slug: 'course-2'
+        })
 
-        await createApprovedFeedback(course1.id, { rating: 5, workloadRating: 1 })
-        await createApprovedFeedback(course1.id, { rating: 3, workloadRating: 3 })
-        await createApprovedFeedback(course2.id, { rating: 4, workloadRating: 2 })
+        await createApprovedFeedback(course1.id, {
+          rating: 5,
+          workloadRating: 1
+        })
+        await createApprovedFeedback(course1.id, {
+          rating: 3,
+          workloadRating: 3
+        })
+        await createApprovedFeedback(course2.id, {
+          rating: 4,
+          workloadRating: 2
+        })
 
         // Act
         const result = await statsService.refreshAllStats()

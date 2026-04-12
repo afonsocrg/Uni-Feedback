@@ -1,10 +1,12 @@
+import { requireAdmin } from '@middleware'
 import { database } from '@uni-feedback/db'
 import { courses } from '@uni-feedback/db/schema'
 import { detectChanges, notifyAdminChange } from '@utils/notificationHelpers'
 import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
-import { IRequest } from 'itty-router'
+import type { Context } from 'hono'
 import { z } from 'zod'
+import { NotFoundError, ValidationError } from '../../utils'
 
 const CourseUpdateSchema = z.object({
   name: z.string().min(1).optional(),
@@ -89,129 +91,120 @@ export class UpdateCourse extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: any, context: any) {
-    try {
-      const { params, body } = await this.getValidatedData<typeof this.schema>()
-      const { id } = params
-      const updateData = body
+  async handle(c: Context) {
+    const env = c.env
+    const authContext = await requireAdmin(c)
+    const { params, body } = await this.getValidatedData<typeof this.schema>()
+    const { id } = params
+    const updateData = body
 
-      // Validate field values are not null/empty for required fields
-      const validationErrors: { field: string; message: string }[] = []
+    // Validate field values are not null/empty for required fields
+    const validationErrors: { field: string; message: string }[] = []
 
-      if (updateData.name !== undefined) {
-        if (updateData.name === null || updateData.name.trim() === '') {
-          validationErrors.push({
-            field: 'name',
-            message: 'Course name cannot be empty'
-          })
-        }
-      }
-
-      if (updateData.acronym !== undefined) {
-        if (updateData.acronym === null || updateData.acronym.trim() === '') {
-          validationErrors.push({
-            field: 'acronym',
-            message: 'Course acronym cannot be empty'
-          })
-        }
-      }
-
-      if (validationErrors.length > 0) {
-        return Response.json(
-          {
-            error: 'Validation failed',
-            errors: validationErrors
-          },
-          { status: 400 }
-        )
-      }
-
-      // Check if course exists
-      const existingCourse = await database()
-        .select()
-        .from(courses)
-        .where(eq(courses.id, id))
-        .limit(1)
-
-      if (existingCourse.length === 0) {
-        return Response.json({ error: 'Course not found' }, { status: 404 })
-      }
-
-      // Build update data with trimmed values
-      const dbUpdateData: any = {}
-      if (updateData.name !== undefined)
-        dbUpdateData.name = updateData.name.trim()
-      if (updateData.acronym !== undefined)
-        dbUpdateData.acronym = updateData.acronym.trim()
-      if (updateData.ects !== undefined) dbUpdateData.ects = updateData.ects
-      if (updateData.description !== undefined)
-        dbUpdateData.description = updateData.description
-      if (updateData.bibliography !== undefined)
-        dbUpdateData.bibliography = updateData.bibliography
-      if (updateData.assessment !== undefined)
-        dbUpdateData.assessment = updateData.assessment
-      if (updateData.hasMandatoryExam !== undefined)
-        dbUpdateData.hasMandatoryExam = updateData.hasMandatoryExam
-
-      // Detect changes for notification
-      const changes = detectChanges(existingCourse[0], dbUpdateData, [
-        'name',
-        'acronym',
-        'ects',
-        'description',
-        'bibliography',
-        'assessment',
-        'hasMandatoryExam'
-      ])
-
-      // Update course
-      const updatedCourse = await database()
-        .update(courses)
-        .set({
-          ...dbUpdateData,
-          updatedAt: new Date()
-        })
-        .where(eq(courses.id, id))
-        .returning({
-          id: courses.id,
-          name: courses.name,
-          acronym: courses.acronym,
-          ects: courses.ects,
-          terms: courses.terms,
-          description: courses.description,
-          bibliography: courses.bibliography,
-          assessment: courses.assessment,
-          hasMandatoryExam: courses.hasMandatoryExam,
-          degreeId: courses.degreeId,
-          createdAt: courses.createdAt,
-          updatedAt: courses.updatedAt
-        })
-
-      // Send notification if changes were made
-      if (changes.length > 0) {
-        await notifyAdminChange({
-          env,
-          user: context.user,
-          resourceType: 'course',
-          resourceId: id,
-          resourceName: updatedCourse[0].name,
-          resourceShortName: updatedCourse[0].acronym,
-          action: 'updated',
-          changes
+    if (updateData.name !== undefined) {
+      if (updateData.name === null || updateData.name.trim() === '') {
+        validationErrors.push({
+          field: 'name',
+          message: 'Course name cannot be empty'
         })
       }
-
-      const response = {
-        ...updatedCourse[0],
-        terms: updatedCourse[0].terms as string[] | null,
-        createdAt: updatedCourse[0].createdAt?.toISOString() || '',
-        updatedAt: updatedCourse[0].updatedAt?.toISOString() || ''
-      }
-
-      return Response.json(response)
-    } catch (error) {
-      console.error('Update course error:', error)
-      return Response.json({ error: 'Internal server error' }, { status: 500 })
     }
+
+    if (updateData.acronym !== undefined) {
+      if (updateData.acronym === null || updateData.acronym.trim() === '') {
+        validationErrors.push({
+          field: 'acronym',
+          message: 'Course acronym cannot be empty'
+        })
+      }
+    }
+
+    if (validationErrors.length > 0) {
+      throw new ValidationError('Validation failed', validationErrors)
+    }
+
+    // Check if course exists
+    const existingCourse = await database()
+      .select()
+      .from(courses)
+      .where(eq(courses.id, id))
+      .limit(1)
+
+    if (existingCourse.length === 0) {
+      throw new NotFoundError('Course not found')
+    }
+
+    // Build update data with trimmed values
+    const dbUpdateData: Record<string, unknown> = {}
+    if (updateData.name !== undefined)
+      dbUpdateData.name = updateData.name.trim()
+    if (updateData.acronym !== undefined)
+      dbUpdateData.acronym = updateData.acronym.trim()
+    if (updateData.ects !== undefined) dbUpdateData.ects = updateData.ects
+    if (updateData.description !== undefined)
+      dbUpdateData.description = updateData.description
+    if (updateData.bibliography !== undefined)
+      dbUpdateData.bibliography = updateData.bibliography
+    if (updateData.assessment !== undefined)
+      dbUpdateData.assessment = updateData.assessment
+    if (updateData.hasMandatoryExam !== undefined)
+      dbUpdateData.hasMandatoryExam = updateData.hasMandatoryExam
+
+    // Detect changes for notification
+    const changes = detectChanges(existingCourse[0], dbUpdateData, [
+      'name',
+      'acronym',
+      'ects',
+      'description',
+      'bibliography',
+      'assessment',
+      'hasMandatoryExam'
+    ])
+
+    // Update course
+    const updatedCourse = await database()
+      .update(courses)
+      .set({
+        ...dbUpdateData,
+        updatedAt: new Date()
+      })
+      .where(eq(courses.id, id))
+      .returning({
+        id: courses.id,
+        name: courses.name,
+        acronym: courses.acronym,
+        ects: courses.ects,
+        terms: courses.terms,
+        description: courses.description,
+        bibliography: courses.bibliography,
+        assessment: courses.assessment,
+        hasMandatoryExam: courses.hasMandatoryExam,
+        degreeId: courses.degreeId,
+        createdAt: courses.createdAt,
+        updatedAt: courses.updatedAt
+      })
+
+    // Send notification if changes were made
+    if (changes.length > 0) {
+      await notifyAdminChange({
+        env,
+        user: authContext.user,
+        resourceType: 'course',
+        resourceId: id,
+        resourceName: updatedCourse[0].name,
+        resourceShortName: updatedCourse[0].acronym,
+        action: 'updated',
+        changes
+      })
+    }
+
+    const response = {
+      ...updatedCourse[0],
+      terms: updatedCourse[0].terms as string[] | null,
+      createdAt: updatedCourse[0].createdAt?.toISOString() || '',
+      updatedAt: updatedCourse[0].updatedAt?.toISOString() || ''
+    }
+
+    return Response.json(response)
   }
 }

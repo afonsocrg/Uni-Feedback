@@ -1,11 +1,17 @@
+import { requireAdmin } from '@middleware'
 import { EmailService, PointService, StatsService } from '@services'
 import { database } from '@uni-feedback/db'
 import { feedback, feedbackFull, users } from '@uni-feedback/db/schema'
 import { notifyAdminChange } from '@utils/notificationHelpers'
 import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
-import { IRequest } from 'itty-router'
+import type { Context } from 'hono'
 import { z } from 'zod'
+import {
+  BadRequestError,
+  InternalServerError,
+  NotFoundError
+} from '../../utils'
 
 const UnapproveFeedbackParamsSchema = z.object({
   id: z.string().transform((val) => parseInt(val, 10))
@@ -70,142 +76,135 @@ export class UnapproveFeedback extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: any, context: any) {
-    try {
-      const { params, body } = await this.getValidatedData<typeof this.schema>()
-      const { id: feedbackId } = params
-      const { message } = body
+  async handle(c: Context) {
+    const env = c.env as Env
+    const authContext = await requireAdmin(c)
+    const { params, body } = await this.getValidatedData<typeof this.schema>()
+    const { id: feedbackId } = params
+    const { message } = body
 
-      if (!feedbackId || isNaN(feedbackId)) {
-        return Response.json({ error: 'Invalid feedback ID' }, { status: 400 })
-      }
+    if (!feedbackId || isNaN(feedbackId)) {
+      throw new BadRequestError('Invalid feedback ID')
+    }
 
-      // Get feedback data with user and course information
-      const existingFeedback = await database()
-        .select({
-          id: feedback.id,
-          userId: feedback.userId,
-          email: feedback.email,
-          approvedAt: feedback.approvedAt,
-          courseId: feedback.courseId,
-          userEmail: users.email
-        })
-        .from(feedback)
-        .leftJoin(users, eq(feedback.userId, users.id))
-        .where(eq(feedback.id, feedbackId))
-        .limit(1)
-
-      if (!existingFeedback.length) {
-        return Response.json({ error: 'Feedback not found' }, { status: 404 })
-      }
-
-      const feedbackData = existingFeedback[0]
-      const wasAlreadyUnapproved = feedbackData.approvedAt === null
-
-      // Idempotent: if already unapproved, return success without changes
-      if (wasAlreadyUnapproved) {
-        return Response.json({
-          id: feedbackId,
-          approved: false,
-          approvedAt: null,
-          message: 'Feedback is already unapproved'
-        })
-      }
-
-      // Get the user's email (either from user table or legacy email field)
-      const recipientEmail = feedbackData.userEmail || feedbackData.email
-
-      // Send unapproval email before unapproving
-      if (recipientEmail) {
-        try {
-          const emailService = new EmailService(env)
-          await emailService.sendFeedbackUnapprovalEmail(
-            recipientEmail,
-            message
-          )
-        } catch (emailError) {
-          console.error(
-            `Failed to send unapproval email for feedback ${feedbackId}:`,
-            emailError
-          )
-          // If email fails, cancel the unapproval
-          return Response.json(
-            {
-              error:
-                'Failed to send unapproval email. Unapproval cancelled. Please try again.'
-            },
-            { status: 500 }
-          )
-        }
-      } else {
-        console.log(
-          `Feedback ${feedbackId} has no email - skipping unapproval email`
-        )
-      }
-
-      // Update approval status
-      await database()
-        .update(feedbackFull)
-        .set({ approvedAt: null })
-        .where(eq(feedbackFull.id, feedbackId))
-
-      // Handle point zeroing for authenticated users (best-effort)
-      const userId = feedbackData.userId
-      if (userId) {
-        try {
-          const pointService = new PointService(env)
-          await pointService.zeroOutFeedbackPoints(
-            userId,
-            feedbackId,
-            'Feedback unapproved by admin'
-          )
-        } catch (pointError) {
-          console.error(
-            `Failed to zero out points for feedback ${feedbackId}:`,
-            pointError
-          )
-          // Continue - feedback unapproval succeeded, points can be fixed manually
-        }
-      } else {
-        console.log(
-          `Feedback ${feedbackId} is anonymous - skipping point zeroing`
-        )
-      }
-
-      // Send notification
-      await notifyAdminChange({
-        env,
-        user: context.user,
-        resourceType: 'feedback',
-        resourceId: feedbackId,
-        resourceName: `Feedback #${feedbackId}`,
-        action: 'updated',
-        changes: [
-          {
-            field: 'approved',
-            oldValue: true,
-            newValue: false
-          }
-        ]
+    // Get feedback data with user and course information
+    const existingFeedback = await database()
+      .select({
+        id: feedback.id,
+        userId: feedback.userId,
+        email: feedback.email,
+        approvedAt: feedback.approvedAt,
+        courseId: feedback.courseId,
+        userEmail: users.email
       })
+      .from(feedback)
+      .leftJoin(users, eq(feedback.userId, users.id))
+      .where(eq(feedback.id, feedbackId))
+      .limit(1)
 
-      // Update course and degree stats (best-effort)
-      try {
-        const statsService = new StatsService()
-        await statsService.onFeedbackUnapproved(feedbackData.courseId)
-      } catch (statsError) {
-        console.error('Failed to update stats after feedback unapproval:', statsError)
-      }
+    if (!existingFeedback.length) {
+      throw new NotFoundError('Feedback not found')
+    }
 
+    const feedbackData = existingFeedback[0]
+    const wasAlreadyUnapproved = feedbackData.approvedAt === null
+
+    // Idempotent: if already unapproved, return success without changes
+    if (wasAlreadyUnapproved) {
       return Response.json({
         id: feedbackId,
         approved: false,
         approvedAt: null,
-        message: 'Feedback unapproved successfully'
+        message: 'Feedback is already unapproved'
       })
-    } catch (error) {
-      console.error('Unapprove feedback error:', error)
-      return Response.json({ error: 'Internal server error' }, { status: 500 })
     }
+
+    // Get the user's email (either from user table or legacy email field)
+    const recipientEmail = feedbackData.userEmail || feedbackData.email
+
+    // Send unapproval email before unapproving
+    if (recipientEmail) {
+      try {
+        const emailService = new EmailService(env)
+        await emailService.sendFeedbackUnapprovalEmail(recipientEmail, message)
+      } catch (emailError) {
+        console.error(
+          `Failed to send unapproval email for feedback ${feedbackId}:`,
+          emailError
+        )
+        // If email fails, cancel the unapproval
+        throw new InternalServerError(
+          'Failed to send unapproval email. Unapproval cancelled. Please try again.'
+        )
+      }
+    } else {
+      console.log(
+        `Feedback ${feedbackId} has no email - skipping unapproval email`
+      )
+    }
+
+    // Update approval status
+    await database()
+      .update(feedbackFull)
+      .set({ approvedAt: null })
+      .where(eq(feedbackFull.id, feedbackId))
+
+    // Handle point zeroing for authenticated users (best-effort)
+    const userId = feedbackData.userId
+    if (userId) {
+      try {
+        const pointService = new PointService(env)
+        await pointService.zeroOutFeedbackPoints(
+          userId,
+          feedbackId,
+          'Feedback unapproved by admin'
+        )
+      } catch (pointError) {
+        console.error(
+          `Failed to zero out points for feedback ${feedbackId}:`,
+          pointError
+        )
+        // Continue - feedback unapproval succeeded, points can be fixed manually
+      }
+    } else {
+      console.log(
+        `Feedback ${feedbackId} is anonymous - skipping point zeroing`
+      )
+    }
+
+    // Send notification
+    await notifyAdminChange({
+      env,
+      user: authContext.user,
+      resourceType: 'feedback',
+      resourceId: feedbackId,
+      resourceName: `Feedback #${feedbackId}`,
+      action: 'updated',
+      changes: [
+        {
+          field: 'approved',
+          oldValue: true,
+          newValue: false
+        }
+      ]
+    })
+
+    // Update course and degree stats (best-effort)
+    try {
+      const statsService = new StatsService()
+      await statsService.onFeedbackUnapproved(feedbackData.courseId)
+    } catch (statsError) {
+      console.error(
+        'Failed to update stats after feedback unapproval:',
+        statsError
+      )
+    }
+
+    return Response.json({
+      id: feedbackId,
+      approved: false,
+      approvedAt: null,
+      message: 'Feedback unapproved successfully'
+    })
   }
 }

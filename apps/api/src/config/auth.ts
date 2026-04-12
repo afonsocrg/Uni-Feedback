@@ -30,7 +30,7 @@ export const PASSWORD_REQUIREMENTS = {
 
 // Password validation regex
 export const PASSWORD_REGEX =
-  /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/
+  /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?])/
 
 // Auth configuration
 export const AUTH_CONFIG = {

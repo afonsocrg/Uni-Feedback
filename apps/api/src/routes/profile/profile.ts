@@ -1,6 +1,6 @@
-import { authenticateUser } from '@middleware'
+import { requireAuth } from '@middleware'
 import { OpenAPIRoute } from 'chanfana'
-import { IRequest } from 'itty-router'
+import type { Context } from 'hono'
 import { z } from 'zod'
 
 export class GetProfile extends OpenAPIRoute {
@@ -38,27 +38,20 @@ export class GetProfile extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: any, context: any) {
-    try {
-      // Authenticate user
-      const authCheck = await authenticateUser(request, env, context)
-      if (authCheck) return authCheck
+  async handle(c: Context) {
+    // Authenticate user
+    // Return user data from context
+    const authContext = await requireAuth(c)
+    const user = authContext.user!
 
-      // Return user data from context
-      const user = context.user
-
-      return Response.json({
-        user: {
-          id: user.id,
-          email: user.email,
-          username: user.username,
-          role: user.role,
-          referralCode: user.referralCode
-        }
-      })
-    } catch (error) {
-      console.error('Get profile error:', error)
-      return Response.json({ error: 'Internal server error' }, { status: 500 })
-    }
+    return Response.json({
+      user: {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        role: user.role,
+        referralCode: user.referralCode
+      }
+    })
   }
 }

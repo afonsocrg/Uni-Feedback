@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { cleanAllTables, withTestDb } from '../../../test/setup'
 import {
   createEmailPreferences,
   createUser,
   getEmailPreferences
 } from '../../../test/helpers'
+import { cleanAllTables, withTestDb } from '../../../test/setup'
 import { EmailService } from '../emailService'
 
 // Mock env for testing
@@ -81,7 +81,9 @@ describe('EmailService', () => {
     it('should skip unsubscribed users', async () => {
       await withTestDb(async () => {
         // Create users
-        const subscribedUser = await createUser({ email: 'subscribed@test.com' })
+        const subscribedUser = await createUser({
+          email: 'subscribed@test.com'
+        })
         const unsubscribedUser = await createUser({
           email: 'unsubscribed@test.com'
         })

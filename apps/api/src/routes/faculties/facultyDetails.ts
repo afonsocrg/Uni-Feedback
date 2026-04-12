@@ -1,8 +1,9 @@
+import { NotFoundError } from '@routes/utils/errorHandling'
 import { database } from '@uni-feedback/db'
 import { courses, degrees, faculties } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
 import { count, eq } from 'drizzle-orm'
-import { IRequest } from 'itty-router'
+import type { Context } from 'hono'
 import { z } from 'zod'
 
 const DegreeSchema = z.object({
@@ -50,7 +51,7 @@ export class GetFacultyDetails extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: any, context: any) {
+  async handle(_c: Context) {
     const data = await this.getValidatedData<typeof this.schema>()
     const {
       params: { id: facultyId }
@@ -70,10 +71,7 @@ export class GetFacultyDetails extends OpenAPIRoute {
       .limit(1)
 
     if (faculty.length === 0) {
-      return Response.json(
-        { success: false, error: 'Faculty not found' },
-        { status: 404 }
-      )
+      throw new NotFoundError('Faculty not found')
     }
 
     // Get degrees for this faculty with course counts

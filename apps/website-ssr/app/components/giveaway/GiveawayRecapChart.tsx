@@ -1,13 +1,13 @@
 import {
-  BarChart,
   Bar,
-  XAxis,
-  YAxis,
+  BarChart,
   CartesianGrid,
-  Tooltip,
   Legend,
+  ReferenceLine,
   ResponsiveContainer,
-  ReferenceLine
+  Tooltip,
+  XAxis,
+  YAxis
 } from 'recharts'
 
 // Hardcoded data from database query (2026-01-15 to 2026-02-27)
@@ -55,16 +55,28 @@ const COLORS = {
   Other: '#94a3b8' // Gray
 }
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+interface TooltipEntry {
+  name: string
+  value: number
+  color: string
+}
+
+interface CustomTooltipProps {
+  active?: boolean
+  payload?: TooltipEntry[]
+  label?: string
+}
+
+const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
   if (active && payload && payload.length) {
-    const date = new Date(label)
+    const date = new Date(label ?? '')
     const formattedDate = date.toLocaleDateString('en-GB', {
       day: 'numeric',
       month: 'short'
     })
 
     const total = payload.reduce(
-      (sum: number, entry: any) => sum + entry.value,
+      (sum: number, entry: TooltipEntry) => sum + entry.value,
       0
     )
 
@@ -72,8 +84,8 @@ const CustomTooltip = ({ active, payload, label }: any) => {
       <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-3">
         <p className="font-semibold text-sm mb-2">{formattedDate}</p>
         {payload
-          .filter((entry: any) => entry.value > 0)
-          .map((entry: any, index: number) => (
+          .filter((entry: TooltipEntry) => entry.value > 0)
+          .map((entry: TooltipEntry, index: number) => (
             <p key={index} className="text-sm flex items-center gap-2">
               <span
                 className="w-3 h-3 rounded-sm"

@@ -1,11 +1,10 @@
-import { authenticateUser } from '@middleware'
+import { requireAuth } from '@middleware'
 import { database } from '@uni-feedback/db'
 import { helpfulVotes } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
 import { and, eq } from 'drizzle-orm'
-import { IRequest } from 'itty-router'
+import type { Context } from 'hono'
 import { z } from 'zod'
-import { withErrorHandling } from '../utils'
 
 export class RemoveHelpfulVote extends OpenAPIRoute {
   schema = {
@@ -21,28 +20,24 @@ export class RemoveHelpfulVote extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: Env, context: any) {
-    return withErrorHandling(request, async () => {
-      const feedbackId = parseInt(request.params.id)
+  async handle(c: Context) {
+    const authContext = await requireAuth(c)
+    const userId = authContext.user.id
+    const { params } = await this.getValidatedData<typeof this.schema>()
+    const feedbackId = params.id
 
-      // Authenticate
-      const authCheck = await authenticateUser(request, env, context)
-      if (authCheck) return authCheck
-      const userId = context.user.id
-
-      // Delete vote if exists (idempotent)
-      await database()
-        .delete(helpfulVotes)
-        .where(
-          and(
-            eq(helpfulVotes.userId, userId),
-            eq(helpfulVotes.feedbackId, feedbackId)
-          )
+    // Delete vote if exists (idempotent)
+    await database()
+      .delete(helpfulVotes)
+      .where(
+        and(
+          eq(helpfulVotes.userId, userId),
+          eq(helpfulVotes.feedbackId, feedbackId)
         )
+      )
 
-      return Response.json({
-        message: 'Vote removed'
-      })
+    return Response.json({
+      message: 'Vote removed'
     })
   }
 }

@@ -6,9 +6,8 @@ import {
   FormMessage,
   RichTextEditor
 } from '@uni-feedback/ui'
-import { countWords } from '@uni-feedback/utils'
-import { useEffect, useMemo, useState } from 'react'
-import type { Control } from 'react-hook-form'
+import { useEffect, useState } from 'react'
+import type { Control, FieldValues } from 'react-hook-form'
 import { useWatch } from 'react-hook-form'
 import { ReviewTipsDialog } from '~/components'
 import { useDebounce } from '~/hooks'
@@ -16,7 +15,7 @@ import { useFeedbackCategorization } from '~/hooks/useFeedbackCategorization'
 import { FeedbackCategoryChips } from './FeedbackCategoryChips'
 
 interface CommentSectionProps {
-  control: Control<any>
+  control: Control<FieldValues>
   onDebouncedChange?: (comment: string) => void
 }
 
@@ -45,9 +44,6 @@ export function CommentSection({
     comment,
     { debounceMs: 1000, minCharacters: 5 }
   )
-
-  // Memoize word count to avoid recalculation
-  const wordCount = useMemo(() => countWords(comment), [comment])
 
   return (
     <>

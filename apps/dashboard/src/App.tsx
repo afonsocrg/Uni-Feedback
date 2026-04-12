@@ -1,26 +1,26 @@
 import { DashboardLayout, ProtectedRoute } from '@components'
 import {
-  HomePage,
-  LoginPage,
-  ForgotPasswordPage,
-  ResetPasswordPage,
+  CourseDetailPage,
+  CoursesPage,
   CreateAccountPage,
-  NotFoundPage,
-  UsersPage,
+  DegreeDetailPage,
+  DegreesPage,
   FacultiesPage,
   FacultyDetailPage,
-  DegreesPage,
-  DegreeDetailPage,
-  CoursesPage,
-  CourseDetailPage,
-  FeedbackPage,
   FeedbackDetailPage,
-  GiveawayPage
+  FeedbackPage,
+  ForgotPasswordPage,
+  GiveawayPage,
+  HomePage,
+  LoginPage,
+  NotFoundPage,
+  ResetPasswordPage,
+  UsersPage
 } from '@pages'
-import { TermsPage } from './pages/TermsPage'
-import { PrivacyPage } from './pages/PrivacyPage'
 import { Providers } from '@providers'
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom'
+import { PrivacyPage } from './pages/PrivacyPage'
+import { TermsPage } from './pages/TermsPage'
 
 function App() {
   return (

@@ -1,9 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import {
-  cleanAllTables,
-  withTestDb
-} from '../../../test/setup'
-import {
   createApprovedFeedback,
   createCourse,
   createDegree,
@@ -14,6 +10,7 @@ import {
   initCourseStats,
   initDegreeStats
 } from '../../../test/helpers'
+import { cleanAllTables, withTestDb } from '../../../test/setup'
 import { StatsService } from '../statsService'
 
 /**
@@ -50,17 +47,45 @@ describe('StatsService - Identical Courses', () => {
 
     await withTestDb(async () => {
       // Create faculty
-      faculty = await createFaculty({ name: 'Engineering', shortName: 'ENG', slug: 'engineering' })
+      faculty = await createFaculty({
+        name: 'Engineering',
+        shortName: 'ENG',
+        slug: 'engineering'
+      })
 
       // Create degrees
-      csDegree = await createDegree(faculty.id, { name: 'Computer Science', acronym: 'CS', slug: 'cs' })
-      chemDegree = await createDegree(faculty.id, { name: 'Chemistry', acronym: 'CHEM', slug: 'chemistry' })
+      csDegree = await createDegree(faculty.id, {
+        name: 'Computer Science',
+        acronym: 'CS',
+        slug: 'cs'
+      })
+      chemDegree = await createDegree(faculty.id, {
+        name: 'Chemistry',
+        acronym: 'CHEM',
+        slug: 'chemistry'
+      })
 
       // Create courses
-      algebraCS = await createCourse(csDegree.id, { name: 'Algebra', acronym: 'ALG', slug: 'algebra-cs' })
-      algebraChem = await createCourse(chemDegree.id, { name: 'Algebra', acronym: 'ALG', slug: 'algebra-chem' })
-      programming = await createCourse(csDegree.id, { name: 'Programming', acronym: 'PROG', slug: 'programming' })
-      molecules = await createCourse(chemDegree.id, { name: 'Molecules I', acronym: 'MOL1', slug: 'molecules-1' })
+      algebraCS = await createCourse(csDegree.id, {
+        name: 'Algebra',
+        acronym: 'ALG',
+        slug: 'algebra-cs'
+      })
+      algebraChem = await createCourse(chemDegree.id, {
+        name: 'Algebra',
+        acronym: 'ALG',
+        slug: 'algebra-chem'
+      })
+      programming = await createCourse(csDegree.id, {
+        name: 'Programming',
+        acronym: 'PROG',
+        slug: 'programming'
+      })
+      molecules = await createCourse(chemDegree.id, {
+        name: 'Molecules I',
+        acronym: 'MOL1',
+        slug: 'molecules-1'
+      })
 
       // Mark Algebra courses as identical
       await createIdenticalRelationship(algebraCS.id, algebraChem.id)
@@ -80,7 +105,10 @@ describe('StatsService - Identical Courses', () => {
     it('should update both identical courses when feedback is added to one', async () => {
       await withTestDb(async () => {
         // CS student submits feedback on Algebra
-        await createApprovedFeedback(algebraCS.id, { rating: 5, workloadRating: 3 })
+        await createApprovedFeedback(algebraCS.id, {
+          rating: 5,
+          workloadRating: 3
+        })
         await statsService.onFeedbackApproved(algebraCS.id)
 
         // Both Algebra courses should have the same stats
@@ -99,7 +127,10 @@ describe('StatsService - Identical Courses', () => {
     it('should update both degrees when feedback is added to shared course', async () => {
       await withTestDb(async () => {
         // CS student submits feedback on Algebra
-        await createApprovedFeedback(algebraCS.id, { rating: 4, workloadRating: 2 })
+        await createApprovedFeedback(algebraCS.id, {
+          rating: 4,
+          workloadRating: 2
+        })
         await statsService.onFeedbackApproved(algebraCS.id)
 
         // Both degrees should have incremented feedback count
@@ -114,11 +145,17 @@ describe('StatsService - Identical Courses', () => {
     it('should aggregate feedback from both identical courses', async () => {
       await withTestDb(async () => {
         // CS student submits feedback on Algebra (via algebraCS)
-        await createApprovedFeedback(algebraCS.id, { rating: 5, workloadRating: 2 })
+        await createApprovedFeedback(algebraCS.id, {
+          rating: 5,
+          workloadRating: 2
+        })
         await statsService.onFeedbackApproved(algebraCS.id)
 
         // Chemistry student submits feedback on Algebra (via algebraChem)
-        await createApprovedFeedback(algebraChem.id, { rating: 3, workloadRating: 4 })
+        await createApprovedFeedback(algebraChem.id, {
+          rating: 3,
+          workloadRating: 4
+        })
         await statsService.onFeedbackApproved(algebraChem.id)
 
         // Both courses should have aggregated stats (2 feedbacks, average of both)
@@ -144,7 +181,10 @@ describe('StatsService - Identical Courses', () => {
     it('should decrement both degrees when feedback on shared course is unapproved', async () => {
       await withTestDb(async () => {
         // Setup: add feedback to shared course
-        await createApprovedFeedback(algebraCS.id, { rating: 4, workloadRating: 3 })
+        await createApprovedFeedback(algebraCS.id, {
+          rating: 4,
+          workloadRating: 3
+        })
         await statsService.onFeedbackApproved(algebraCS.id)
 
         // Verify initial state
@@ -168,7 +208,10 @@ describe('StatsService - Identical Courses', () => {
   describe('Feedback on non-shared courses', () => {
     it('should only update CS degree when feedback is added to Programming', async () => {
       await withTestDb(async () => {
-        await createApprovedFeedback(programming.id, { rating: 5, workloadRating: 4 })
+        await createApprovedFeedback(programming.id, {
+          rating: 5,
+          workloadRating: 4
+        })
         await statsService.onFeedbackApproved(programming.id)
 
         // Only CS should have incremented feedback count
@@ -182,7 +225,10 @@ describe('StatsService - Identical Courses', () => {
 
     it('should only update Chemistry degree when feedback is added to Molecules I', async () => {
       await withTestDb(async () => {
-        await createApprovedFeedback(molecules.id, { rating: 3, workloadRating: 5 })
+        await createApprovedFeedback(molecules.id, {
+          rating: 3,
+          workloadRating: 5
+        })
         await statsService.onFeedbackApproved(molecules.id)
 
         // Only Chemistry should have incremented feedback count
@@ -196,7 +242,10 @@ describe('StatsService - Identical Courses', () => {
 
     it('should not affect other course stats when feedback is added to non-shared course', async () => {
       await withTestDb(async () => {
-        await createApprovedFeedback(programming.id, { rating: 5, workloadRating: 2 })
+        await createApprovedFeedback(programming.id, {
+          rating: 5,
+          workloadRating: 2
+        })
         await statsService.onFeedbackApproved(programming.id)
 
         // Programming should have stats
@@ -222,15 +271,24 @@ describe('StatsService - Identical Courses', () => {
     it('should correctly track stats when feedback is added to multiple courses', async () => {
       await withTestDb(async () => {
         // Add feedback to shared Algebra (affects both degrees)
-        await createApprovedFeedback(algebraCS.id, { rating: 4, workloadRating: 3 })
+        await createApprovedFeedback(algebraCS.id, {
+          rating: 4,
+          workloadRating: 3
+        })
         await statsService.onFeedbackApproved(algebraCS.id)
 
         // Add feedback to Programming (CS only)
-        await createApprovedFeedback(programming.id, { rating: 5, workloadRating: 2 })
+        await createApprovedFeedback(programming.id, {
+          rating: 5,
+          workloadRating: 2
+        })
         await statsService.onFeedbackApproved(programming.id)
 
         // Add feedback to Molecules I (Chemistry only)
-        await createApprovedFeedback(molecules.id, { rating: 3, workloadRating: 4 })
+        await createApprovedFeedback(molecules.id, {
+          rating: 3,
+          workloadRating: 4
+        })
         await statsService.onFeedbackApproved(molecules.id)
 
         // CS should have 2 feedbacks (Algebra + Programming)
@@ -261,11 +319,20 @@ describe('StatsService - Identical Courses', () => {
     it('should handle unapproval correctly in mixed scenario', async () => {
       await withTestDb(async () => {
         // Setup: add feedback to all courses
-        await createApprovedFeedback(algebraCS.id, { rating: 4, workloadRating: 3 })
+        await createApprovedFeedback(algebraCS.id, {
+          rating: 4,
+          workloadRating: 3
+        })
         await statsService.onFeedbackApproved(algebraCS.id)
-        await createApprovedFeedback(programming.id, { rating: 5, workloadRating: 2 })
+        await createApprovedFeedback(programming.id, {
+          rating: 5,
+          workloadRating: 2
+        })
         await statsService.onFeedbackApproved(programming.id)
-        await createApprovedFeedback(molecules.id, { rating: 3, workloadRating: 4 })
+        await createApprovedFeedback(molecules.id, {
+          rating: 3,
+          workloadRating: 4
+        })
         await statsService.onFeedbackApproved(molecules.id)
 
         // Initial state: CS=2, Chem=2
@@ -297,7 +364,10 @@ describe('StatsService - Identical Courses', () => {
     it('should update course stats but not degree stats when editing feedback on shared course', async () => {
       await withTestDb(async () => {
         // Add initial feedback
-        await createApprovedFeedback(algebraCS.id, { rating: 3, workloadRating: 3 })
+        await createApprovedFeedback(algebraCS.id, {
+          rating: 3,
+          workloadRating: 3
+        })
         await statsService.onFeedbackApproved(algebraCS.id)
 
         // Verify initial state
@@ -320,7 +390,10 @@ describe('StatsService - Identical Courses', () => {
     it('should update both identical course stats when editing feedback', async () => {
       await withTestDb(async () => {
         // Add feedback
-        await createApprovedFeedback(algebraCS.id, { rating: 4, workloadRating: 2 })
+        await createApprovedFeedback(algebraCS.id, {
+          rating: 4,
+          workloadRating: 2
+        })
         await statsService.onFeedbackApproved(algebraCS.id)
 
         // Both courses should have same stats
@@ -334,8 +407,12 @@ describe('StatsService - Identical Courses', () => {
 
         algebraCSStats = await getCourseStats(algebraCS.id)
         algebraChemStats = await getCourseStats(algebraChem.id)
-        expect(algebraCSStats.totalFeedbackCount).toBe(algebraChemStats.totalFeedbackCount)
-        expect(algebraCSStats.averageRating).toBeCloseTo(algebraChemStats.averageRating!)
+        expect(algebraCSStats.totalFeedbackCount).toBe(
+          algebraChemStats.totalFeedbackCount
+        )
+        expect(algebraCSStats.averageRating).toBeCloseTo(
+          algebraChemStats.averageRating!
+        )
       })
     })
   })
@@ -344,10 +421,22 @@ describe('StatsService - Identical Courses', () => {
     it('should correctly recalculate all stats for mixed identical/non-identical courses', async () => {
       await withTestDb(async () => {
         // Add feedback without calling update methods (simulating out-of-sync state)
-        await createApprovedFeedback(algebraCS.id, { rating: 5, workloadRating: 2 })
-        await createApprovedFeedback(algebraChem.id, { rating: 3, workloadRating: 4 })
-        await createApprovedFeedback(programming.id, { rating: 4, workloadRating: 3 })
-        await createApprovedFeedback(molecules.id, { rating: 2, workloadRating: 5 })
+        await createApprovedFeedback(algebraCS.id, {
+          rating: 5,
+          workloadRating: 2
+        })
+        await createApprovedFeedback(algebraChem.id, {
+          rating: 3,
+          workloadRating: 4
+        })
+        await createApprovedFeedback(programming.id, {
+          rating: 4,
+          workloadRating: 3
+        })
+        await createApprovedFeedback(molecules.id, {
+          rating: 2,
+          workloadRating: 5
+        })
 
         // Refresh all stats
         const result = await statsService.refreshAllStats()

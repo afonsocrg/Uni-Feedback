@@ -1,3 +1,4 @@
+import { useAuth } from '@hooks'
 import {
   MutationCache,
   QueryCache,
@@ -6,7 +7,6 @@ import {
 } from '@tanstack/react-query'
 import { MeicFeedbackAPIError } from '@uni-feedback/api-client'
 import { useMemo } from 'react'
-import { useAuth } from '@hooks'
 
 interface QueryClientProviderProps {
   children: React.ReactNode

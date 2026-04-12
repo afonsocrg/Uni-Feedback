@@ -1,26 +1,22 @@
 import { getFaculties } from '@uni-feedback/api-client'
+import { useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
-import { z } from 'zod'
 import { CourseBrowser } from '~/components'
 import { useAuth } from '~/hooks'
 import { analytics } from '~/utils/analytics'
 import { storage } from '~/utils/storage'
-import { useEffect } from 'react'
 
 import type { Route } from './+types/feedback.new'
 
-// Form schema for feedback submission
-const feedbackSchema = z.object({
-  schoolYear: z.number().min(2000, 'Invalid school year'),
-  facultyId: z.number().min(1, 'Faculty is required'),
-  degreeId: z.number().min(1, 'Degree is required'),
-  courseId: z.number().min(1, 'Course is required'),
-  rating: z.number().min(1, 'Rating is required').max(5),
-  workloadRating: z.number().min(1, 'Workload rating is required').max(5),
-  comment: z.string().optional()
-})
-
-export type FeedbackFormData = z.infer<typeof feedbackSchema>
+export type FeedbackFormData = {
+  schoolYear: number
+  facultyId: number
+  degreeId: number
+  courseId: number
+  rating: number
+  workloadRating: number
+  comment?: string
+}
 
 export function meta() {
   return [

@@ -1,3 +1,4 @@
+import { NotFoundError } from '@routes/utils/errorHandling'
 import { database } from '@uni-feedback/db'
 import { courses, degrees, feedback, reports } from '@uni-feedback/db/schema'
 import { getWorkloadLabel } from '@uni-feedback/utils'
@@ -8,7 +9,6 @@ import * as path from 'path'
 import puppeteer, { type Browser } from 'puppeteer'
 import QRCode from 'qrcode'
 import { AIService } from './aiService'
-import { NotFoundError } from './errors'
 import { R2Service } from './r2Service'
 import {
   sendDegreeReportGenerationAlert,
@@ -32,7 +32,6 @@ interface CourseReportData {
   totalWorkloadResponses: number
   aiSummary: string
   emotions: string[]
-  persona: string
   pros: string[]
   cons: string[]
   websiteUrl: string
@@ -296,10 +295,14 @@ export class ReportingService {
 
     // Apply terms filter
     if (filters?.terms !== undefined && filters.terms.length > 0) {
-      filteredCourses = filteredCourses.filter(
-        (c) =>
-          c.terms !== null && c.terms.some((t) => filters.terms!.includes(t))
-      )
+      filteredCourses = filteredCourses.filter((c) => {
+        const terms = c.terms as string[] | null
+        return (
+          terms !== null &&
+          Array.isArray(terms) &&
+          terms.some((t) => filters.terms!.includes(t))
+        )
+      })
     }
 
     type FeedbackRow = {
@@ -358,7 +361,7 @@ export class ReportingService {
    */
   private async renderTemplate(
     templateName: string,
-    data: any
+    data: Record<string, unknown>
   ): Promise<string> {
     const templatePath = path.join(process.cwd(), `templates/${templateName}`)
     return await ejs.renderFile(templatePath, { data })
@@ -406,7 +409,7 @@ export class ReportingService {
   async buildCourseReport(
     courseId: number,
     schoolYear: number
-  ): Promise<{ pdfBuffer: Buffer; aiSummaryJson: any }> {
+  ): Promise<{ pdfBuffer: Buffer; aiSummaryJson: unknown }> {
     // Fetch course details
     const courseResult = await database()
       .select({
@@ -441,7 +444,8 @@ export class ReportingService {
     } = calculateStats(feedbackResults)
 
     const avgRatingStr = totalResponses > 0 ? avgRating.toFixed(1) : '0.0'
-    const avgWorkloadText = getWorkloadLabel(avgWorkload)
+    const avgWorkloadText =
+      avgWorkload !== null ? getWorkloadLabel(avgWorkload) : '--'
 
     // Format submissions
     const submissions = feedbackResults.map((fb) => {
@@ -506,7 +510,6 @@ export class ReportingService {
       emotions: aiSummary.emotions.map(
         (e) => e.charAt(0).toUpperCase() + e.slice(1)
       ),
-      persona: aiSummary.persona,
       pros: aiSummary.pros,
       cons: aiSummary.cons,
       websiteUrl: this.env.WEBSITE_URL,
@@ -515,7 +518,10 @@ export class ReportingService {
       submissions
     }
 
-    const html = await this.renderTemplate('course_report.ejs', reportData)
+    const html = await this.renderTemplate(
+      'course_report.ejs',
+      reportData as unknown as Record<string, unknown>
+    )
     const footerHtml = `<div style="width:100%;font-size:9px;color:#94a3b8;font-family:Arial,sans-serif;display:flex;justify-content:space-between;padding:0 15mm;box-sizing:border-box;"><span>Created by <a href="${reportData.websiteUrl}" target="_blank" style="color:inherit;">Uni Feedback</a> &middot; Empowering students with honest, anonymous insights.</span><span>${reportData.generatedDate}</span></div>`
     const pdfBuffer = await this.generatePDF(html, footerHtml)
 
@@ -530,7 +536,7 @@ export class ReportingService {
     degreeId: number,
     schoolYear: number,
     filters?: ReportFilters
-  ): Promise<{ pdfBuffer: Buffer; aiSummaryJson: any }> {
+  ): Promise<{ pdfBuffer: Buffer; aiSummaryJson: unknown }> {
     // Fetch degree info
     const degreeResult = await database()
       .select({ name: degrees.name })
@@ -660,7 +666,7 @@ export class ReportingService {
       participation: cs.totalResponses,
       avgRating: cs.avgRating,
       avgWorkloadText:
-        cs.avgWorkload !== null ? getWorkloadLabel(cs.avgWorkload) : null,
+        cs.avgWorkload !== null ? getWorkloadLabel(cs.avgWorkload) : '--',
       classification:
         classifyCourse(cs.avgRating, cs.avgWorkload)?.replace(/_/g, ' ') ?? '--'
     }))
@@ -678,7 +684,7 @@ export class ReportingService {
         avgRating: cs.avgRating,
         avgWorkload: cs.avgWorkload,
         avgWorkloadText:
-          cs.avgWorkload !== null ? getWorkloadLabel(cs.avgWorkload) : null,
+          cs.avgWorkload !== null ? getWorkloadLabel(cs.avgWorkload) : '--',
         ratingDistribution: cs.ratingDistribution,
         workloadDistribution: cs.workloadDistribution,
         executiveSummary:
@@ -708,7 +714,10 @@ export class ReportingService {
       generatedDate: formatDate()
     }
 
-    const html = await this.renderTemplate('degree_report.ejs', reportData)
+    const html = await this.renderTemplate(
+      'degree_report.ejs',
+      reportData as unknown as Record<string, unknown>
+    )
     const footerHtml = `<div style="width:100%;font-size:9px;color:#94a3b8;font-family:Arial,sans-serif;display:flex;justify-content:space-between;padding:0 15mm;box-sizing:border-box;"><span>Created by <a href="${reportData.websiteUrl}" target="_blank" style="color:inherit;">Uni Feedback</a> &middot; Empowering students with honest, anonymous insights.</span><span>${reportData.generatedDate}</span></div>`
     const pdfBuffer = await this.generatePDF(html, footerHtml)
 

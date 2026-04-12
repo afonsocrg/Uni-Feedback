@@ -27,7 +27,7 @@ export default function LoginToken() {
   )
   const [errorMessage, setErrorMessage] = useState('')
 
-  const { useMagicLink } = useMagicLinkAuth()
+  const { useMagicLink: callMagicLink } = useMagicLinkAuth()
 
   // Prevent double execution in React Strict Mode (development)
   const hasVerified = useRef(false)
@@ -50,7 +50,7 @@ export default function LoginToken() {
 
       try {
         // Call API directly from browser - cookies will be set correctly
-        const response = await useMagicLink({ token })
+        const response = await callMagicLink({ token })
 
         // Update client-side auth context
         setUser(response.user)
@@ -73,7 +73,7 @@ export default function LoginToken() {
     }
 
     verify()
-  }, [token, setUser, navigate, useMagicLink])
+  }, [token, setUser, navigate, callMagicLink])
 
   if (status === 'success') {
     return (

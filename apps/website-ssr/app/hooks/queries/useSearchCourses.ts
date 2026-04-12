@@ -1,6 +1,6 @@
-import { searchCourses } from '@uni-feedback/api-client'
-import type { SearchCoursesParams } from '@uni-feedback/api-client'
 import { useQuery } from '@tanstack/react-query'
+import type { SearchCoursesParams } from '@uni-feedback/api-client'
+import { searchCourses } from '@uni-feedback/api-client'
 
 export function useSearchCourses(params: SearchCoursesParams | null) {
   return useQuery({

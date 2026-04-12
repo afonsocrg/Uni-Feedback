@@ -1,18 +1,12 @@
 import { getAllowedOrigins } from '@config'
-import { fromIttyRouter } from 'chanfana'
-import { cors, Router, withCookies } from 'itty-router'
+import { fromHono } from 'chanfana'
+import { Hono } from 'hono'
+import { cors } from 'hono/cors'
 import { router as adminRouter } from './admin/router'
 import { router as authRouter } from './auth/router'
+import { SearchCourses, SubmitFeedback } from './courses'
 import { router as emailRouter } from './email/router'
-import {
-  GetCourse,
-  GetCourseFeedback,
-  GetCourses,
-  SearchCourses,
-  SubmitFeedback
-} from './courses'
-import { GetDegreeCourseGroups, GetDegreeCourses, GetDegrees } from './degrees'
-import { GetFaculties, GetFacultyDegrees, GetFacultyDetails } from './faculties'
+import { GetFaculties, GetFacultyDegrees } from './faculties'
 import {
   AddHelpfulVote,
   CategorizeFeedback,
@@ -22,21 +16,35 @@ import {
   RemoveHelpfulVote,
   ReportFeedback
 } from './feedback'
-import { CreateFeedbackDraft, GetFeedbackDraft } from './feedbackDrafts'
+import { router as profileRouter } from './profile/router'
+import { NotFoundError, handleError } from './utils'
 
-const { preflight, corsify } = cors({
-  origin: getAllowedOrigins(),
-  credentials: true,
-  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+const app = new Hono()
+
+// Error handling middleware - handles all errors including from chanfana routes
+app.onError((err) => {
+  console.error('Error caught by Hono middleware:', err)
+  return handleError(err)
 })
 
-export const router = fromIttyRouter(
-  Router({
-    before: [preflight, withCookies],
-    finally: [corsify]
-  }),
-  { docs_url: '/docs' }
+app.use(
+  '*',
+  cors({
+    origin: getAllowedOrigins(),
+    credentials: true,
+    allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+  })
 )
+
+const isDev = process.env.NODE_ENV !== 'production'
+
+export { app }
+
+export const router = fromHono(app, {
+  docs_url: isDev ? '/docs' : null,
+  openapi_url: isDev ? '/openapi.json' : null,
+  passthroughErrors: true // Let errors propagate to Hono's onError handler
+})
 
 // ---------------------------------------------------------
 // Health check
@@ -49,21 +57,10 @@ router.get('/health', () =>
 // Public routes
 // ---------------------------------------------------------
 router.get('/faculties', GetFaculties)
-router.get('/faculties/:id', GetFacultyDetails)
 router.get('/faculties/:facultyId/degrees', GetFacultyDegrees)
 
-router.get('/degrees', GetDegrees)
-router.get('/degrees/:id/courseGroups', GetDegreeCourseGroups)
-router.get('/degrees/:id/courses', GetDegreeCourses)
-
-router.get('/courses', GetCourses)
 router.get('/courses/search', SearchCourses)
-router.get('/courses/:id', GetCourse)
-router.get('/courses/:id/feedback', GetCourseFeedback)
 router.post('/courses/:id/feedback', SubmitFeedback)
-
-router.post('/feedback-drafts', CreateFeedbackDraft)
-router.get('/feedback-drafts/:code', GetFeedbackDraft)
 
 router.post('/feedback/categorize-preview', CategorizeFeedback)
 router.get('/feedback/:id/edit', GetFeedbackForEdit)
@@ -76,11 +73,12 @@ router.post('/feedback/:id/report', ReportFeedback)
 // ---------------------------------------------------------
 // Nested routers
 // ---------------------------------------------------------
-router.all('/auth/*', authRouter as any)
-router.all('/admin/*', adminRouter as any)
-router.all('/email/*', emailRouter as any)
+router.route('/auth', authRouter)
+router.route('/profile', profileRouter)
+router.route('/admin', adminRouter)
+router.route('/email', emailRouter)
 
 // 404 for everything else
-router.all('*', () =>
-  Response.json({ error: 'Route not found' }, { status: 404 })
-)
+router.all('*', () => {
+  throw new NotFoundError('Route not found')
+})

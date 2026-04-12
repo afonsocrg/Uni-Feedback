@@ -26,10 +26,14 @@ import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import { z } from 'zod'
-import { GenericBreadcrumb, ProfileFeedbackCard } from '~/components'
+import {
+  GenericBreadcrumb,
+  ProfileFeedbackCard,
+  ProfilePageSkeleton
+} from '~/components'
 import { useRequiredAuth } from '~/hooks'
-import { analytics, getPageName } from '~/utils/analytics'
 import { useProfileFeedback, useProfileStats } from '~/hooks/queries'
+import { analytics, getPageName } from '~/utils/analytics'
 import { STORAGE_KEYS } from '~/utils/constants'
 
 export function meta() {
@@ -69,6 +73,9 @@ export default function ProfilePage() {
 
   const stats = statsData?.stats
 
+  // Show skeleton on initial load
+  const isInitialLoading = isStatsLoading || isFeedbackLoading
+
   const handleShareReferralLink = async () => {
     if (!user.referralCode) return
 
@@ -79,7 +86,7 @@ export default function ProfilePage() {
       setCopiedReferral(true)
       toast.success('Referral link copied!')
       setTimeout(() => setCopiedReferral(false), 2000)
-    } catch (error) {
+    } catch {
       toast.error('Failed to copy referral link')
     }
   }
@@ -112,6 +119,10 @@ export default function ProfilePage() {
     } finally {
       setIsDeleting(false)
     }
+  }
+
+  if (isInitialLoading) {
+    return <ProfilePageSkeleton />
   }
 
   return (

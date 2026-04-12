@@ -1,4 +1,4 @@
-import { getWorkloadLabel, getWorkloadColor } from '@uni-feedback/utils'
+import { getWorkloadColor, getWorkloadLabel } from '@uni-feedback/utils'
 import { cn } from '../../../utils/cn'
 
 export interface EditableWorkloadRatingSegmentedProps {

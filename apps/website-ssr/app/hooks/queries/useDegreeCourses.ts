@@ -1,5 +1,5 @@
-import { getDegreeCourses } from '@uni-feedback/api-client'
 import { useQuery } from '@tanstack/react-query'
+import { getDegreeCourses } from '@uni-feedback/api-client'
 import { infrequentDataConfig } from './config'
 
 export function useDegreeCourses(degreeId: number | null = null) {

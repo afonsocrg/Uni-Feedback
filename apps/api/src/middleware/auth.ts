@@ -1,69 +1,102 @@
 import { AUTH_CONFIG } from '@config/auth'
 import { AuthService } from '@services/authService'
+import type { Context } from 'hono'
+import { getCookie } from 'hono/cookie'
+import {
+  ForbiddenError,
+  UnauthorizedError
+} from '../routes/utils/errorHandling'
 
-export async function authenticateUser(
-  request: Request,
-  env: any,
-  context: any
-) {
-  // Get access token from cookie
-  const cookies = request.headers.get('Cookie') || ''
-  const accessTokenMatch = cookies.match(
-    new RegExp(`${AUTH_CONFIG.COOKIE_NAME}-access=([^;]+)`)
-  )
-  const accessToken = accessTokenMatch?.[1]
+/**
+ * Resolves the authenticated user from the request context or session cookie.
+ * Returns null if no valid session is found — never throws.
+ */
+export async function getAuthContext(
+  c: Context
+): Promise<AuthenticatedRequestContext | null> {
+  const context = (c.get('requestContext') as RequestContext) || {}
+
+  // Short-circuit if already authenticated (e.g. by upstream middleware)
+  if (context.user && context.session) {
+    return context as AuthenticatedRequestContext
+  }
+
+  const env = c.env as Env
+  const accessToken = getCookie(c, `${AUTH_CONFIG.COOKIE_NAME}-access`)
 
   if (!accessToken) {
-    return Response.json({ error: 'Authentication required' }, { status: 401 })
+    return null
   }
 
   // Verify session
   const authService = new AuthService(env)
   const sessionData = await authService.findSessionByAccessToken(accessToken)
   if (!sessionData) {
-    return Response.json(
-      { error: 'Invalid or expired session' },
-      { status: 401 }
-    )
+    return null
   }
 
   // Add user to context
-  context.user = sessionData.user
-  context.session = sessionData
+  const { user, ...session } = sessionData
+  context.user = user
+  context.session = { user, session }
+
+  // Store updated context
+  c.set('requestContext', context)
+
+  return context as AuthenticatedRequestContext
 }
 
-export async function requireAdmin(request: Request, env: any, context: any) {
-  // First authenticate
-  const authResult = await authenticateUser(request, env, context)
-  if (authResult) return authResult
+/**
+ * Requires the user to be authenticated.
+ * Throws UnauthorizedError if no valid session is found.
+ */
+export async function requireAuth(
+  c: Context
+): Promise<AuthenticatedRequestContext> {
+  const context = await getAuthContext(c)
+  if (!context) {
+    throw new UnauthorizedError('Authentication required')
+  }
+  return context
+}
+
+/**
+ * Requires the user to be authenticated and have admin role.
+ * Throws UnauthorizedError if not authenticated, ForbiddenError if not admin.
+ */
+export async function requireAdmin(
+  c: Context
+): Promise<AuthenticatedRequestContext> {
+  const authContext = await requireAuth(c)
 
   // Check if user has admin or super_admin role
-  const user = context.user
+  const user = authContext.user
   const isAdmin =
-    user?.role === 'admin' || user?.role === 'super_admin' || user?.superuser // Backward compatibility
+    user.role === 'admin' || user.role === 'super_admin' || user.superuser
 
   if (!isAdmin) {
-    return Response.json({ error: 'Admin access required' }, { status: 403 })
+    throw new ForbiddenError('Admin access required')
   }
+
+  return authContext
 }
 
+/**
+ * Requires the user to be authenticated and have superuser role.
+ * Throws UnauthorizedError if not authenticated, ForbiddenError if not superuser.
+ */
 export async function requireSuperuser(
-  request: Request,
-  env: any,
-  context: any
-) {
-  // First authenticate
-  const authResult = await authenticateUser(request, env, context)
-  if (authResult) return authResult
+  c: Context
+): Promise<AuthenticatedRequestContext> {
+  const authContext = await requireAuth(c)
 
   // Check if user has super_admin role
-  const user = context.user
-  const isSuperuser = user?.role === 'super_admin' || user?.superuser // Backward compatibility
+  const user = authContext.user
+  const isSuperuser = user.role === 'super_admin' || user.superuser
 
   if (!isSuperuser) {
-    return Response.json(
-      { error: 'Superuser access required' },
-      { status: 403 }
-    )
+    throw new ForbiddenError('Superuser access required')
   }
+
+  return authContext
 }

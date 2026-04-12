@@ -1,8 +1,8 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { editFeedback, MeicFeedbackAPIError } from '@uni-feedback/api-client'
 import { Loader2 } from 'lucide-react'
-import { useState } from 'react'
-import { useNavigate, useParams } from 'react-router'
+import { useEffect, useRef, useState } from 'react'
+import { useNavigate, useParams, useSearchParams } from 'react-router'
 import { toast } from 'sonner'
 import {
   EditFeedbackContent,
@@ -17,10 +17,21 @@ import { useFeedbackForEdit } from '~/hooks/queries'
 export default function EditFeedbackPage() {
   const navigate = useNavigate()
   const params = useParams()
+  const [searchParams] = useSearchParams()
   const queryClient = useQueryClient()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const [points, setPoints] = useState(0)
+  const redirectToastShown = useRef(false)
+
+  useEffect(() => {
+    if (searchParams.get('redirected') && !redirectToastShown.current) {
+      redirectToastShown.current = true
+      toast.info("You've already submitted feedback for this course.", {
+        description: 'You can update your existing feedback below.'
+      })
+    }
+  }, [searchParams])
 
   // Parse feedbackId from params
   const feedbackId = params.id ? parseInt(params.id) : null
@@ -56,15 +67,15 @@ export default function EditFeedbackPage() {
         : "We couldn't find that feedback or you don't have permission to edit it."
 
     return (
-      <>
-        <div className="container mx-auto px-4 py-6">
+      <div className="relative">
+        <div className="absolute top-0 left-0 right-0 z-10 container mx-auto px-4 py-6">
           <GenericBreadcrumb items={breadcrumbItems} />
         </div>
         <PermissionError
           message={errorMessage}
           onBackToProfile={() => navigate('/profile')}
         />
-      </>
+      </div>
     )
   }
 
@@ -106,8 +117,8 @@ export default function EditFeedbackPage() {
 
   if (isSuccess) {
     return (
-      <>
-        <div className="container mx-auto px-4 py-6">
+      <div className="relative">
+        <div className="absolute top-0 left-0 right-0 z-10 container mx-auto px-4 py-6">
           <GenericBreadcrumb items={breadcrumbItems} />
         </div>
         <EditFeedbackSuccess
@@ -116,7 +127,7 @@ export default function EditFeedbackPage() {
           feedbackId={feedback.id}
           onBackToProfile={() => navigate('/profile')}
         />
-      </>
+      </div>
     )
   }
 

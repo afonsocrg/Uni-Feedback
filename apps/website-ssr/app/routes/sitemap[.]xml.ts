@@ -1,19 +1,8 @@
 import { generateSitemap, type SitemapRoute } from '@forge42/seo-tools/sitemap'
 import { database, schema } from '@uni-feedback/db'
 import { eq } from 'drizzle-orm'
-import type { Route } from './+types/sitemap[.]xml'
 
-export async function loader({ request }: Route.LoaderArgs) {
-  const { routes } = await import('virtual:react-router/server-build')
-
-  // Get the base URL from the request, with fallback for development
-  const url = new URL(request.url)
-  console.log({ url })
-  const siteUrl =
-    process.env.SITE_URL ||
-    `${url.protocol}//${url.host}` ||
-    'http://localhost:5173'
-
+export async function loader() {
   const db = database()
 
   // Get all dynamic route data from database

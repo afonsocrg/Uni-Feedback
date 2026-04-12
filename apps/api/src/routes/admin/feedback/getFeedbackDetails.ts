@@ -1,8 +1,8 @@
+import { BadRequestError, NotFoundError } from '@routes/utils/errorHandling'
 import { database } from '@uni-feedback/db'
 import { courses, degrees, faculties, feedback } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
-import { IRequest } from 'itty-router'
 import { z } from 'zod'
 
 const FeedbackDetailsParamsSchema = z.object({
@@ -71,61 +71,56 @@ export class GetFeedbackDetails extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: any, context: any) {
-    try {
-      const { params } = await this.getValidatedData<typeof this.schema>()
-      const { id } = params
+  async handle() {
+    const { params } = await this.getValidatedData<typeof this.schema>()
+    const { id } = params
 
-      if (!id || isNaN(id)) {
-        return Response.json({ error: 'Invalid feedback ID' }, { status: 400 })
-      }
-
-      // Get feedback with course, degree, and faculty info
-      const feedbackResult = await database()
-        .select({
-          id: feedback.id,
-          email: feedback.email,
-          schoolYear: feedback.schoolYear,
-          rating: feedback.rating,
-          workloadRating: feedback.workloadRating,
-          comment: feedback.comment,
-          approvedAt: feedback.approvedAt,
-          createdAt: feedback.createdAt,
-          courseId: courses.id,
-          courseName: courses.name,
-          courseAcronym: courses.acronym,
-          degreeId: degrees.id,
-          degreeName: degrees.name,
-          degreeAcronym: degrees.acronym,
-          facultyId: faculties.id,
-          facultyName: faculties.name,
-          facultyShortName: faculties.shortName
-        })
-        .from(feedback)
-        .leftJoin(courses, eq(feedback.courseId, courses.id))
-        .leftJoin(degrees, eq(courses.degreeId, degrees.id))
-        .leftJoin(faculties, eq(degrees.facultyId, faculties.id))
-        .where(eq(feedback.id, id))
-        .limit(1)
-
-      if (!feedbackResult.length) {
-        return Response.json({ error: 'Feedback not found' }, { status: 404 })
-      }
-
-      const fb = feedbackResult[0]
-
-      const response = {
-        ...fb,
-        approved: fb.approvedAt !== null,
-        approvedAt: fb.approvedAt?.toISOString() || null,
-        createdAt: fb.createdAt?.toISOString() || '',
-        updatedAt: fb.createdAt?.toISOString() || '' // Use createdAt as fallback for updatedAt
-      }
-
-      return Response.json(response)
-    } catch (error) {
-      console.error('Get feedback details error:', error)
-      return Response.json({ error: 'Internal server error' }, { status: 500 })
+    if (!id || isNaN(id)) {
+      throw new BadRequestError('Invalid feedback ID')
     }
+
+    // Get feedback with course, degree, and faculty info
+    const feedbackResult = await database()
+      .select({
+        id: feedback.id,
+        email: feedback.email,
+        schoolYear: feedback.schoolYear,
+        rating: feedback.rating,
+        workloadRating: feedback.workloadRating,
+        comment: feedback.comment,
+        approvedAt: feedback.approvedAt,
+        createdAt: feedback.createdAt,
+        courseId: courses.id,
+        courseName: courses.name,
+        courseAcronym: courses.acronym,
+        degreeId: degrees.id,
+        degreeName: degrees.name,
+        degreeAcronym: degrees.acronym,
+        facultyId: faculties.id,
+        facultyName: faculties.name,
+        facultyShortName: faculties.shortName
+      })
+      .from(feedback)
+      .leftJoin(courses, eq(feedback.courseId, courses.id))
+      .leftJoin(degrees, eq(courses.degreeId, degrees.id))
+      .leftJoin(faculties, eq(degrees.facultyId, faculties.id))
+      .where(eq(feedback.id, id))
+      .limit(1)
+
+    if (!feedbackResult.length) {
+      throw new NotFoundError('Feedback not found')
+    }
+
+    const fb = feedbackResult[0]
+
+    const response = {
+      ...fb,
+      approved: fb.approvedAt !== null,
+      approvedAt: fb.approvedAt?.toISOString() || null,
+      createdAt: fb.createdAt?.toISOString() || '',
+      updatedAt: fb.createdAt?.toISOString() || '' // Use createdAt as fallback for updatedAt
+    }
+
+    return Response.json(response)
   }
 }

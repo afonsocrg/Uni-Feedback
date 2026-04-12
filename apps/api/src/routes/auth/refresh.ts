@@ -1,7 +1,10 @@
 import { AUTH_CONFIG } from '@config/auth'
+import { UnauthorizedError } from '@routes/utils/errorHandling'
 import { AuthService } from '@services/authService'
 import { setAuthCookies } from '@utils/authCookies'
 import { OpenAPIRoute } from 'chanfana'
+import type { Context } from 'hono'
+import { getCookie } from 'hono/cookie'
 import { z } from 'zod'
 
 export class Refresh extends OpenAPIRoute {
@@ -38,58 +41,44 @@ export class Refresh extends OpenAPIRoute {
     }
   }
 
-  async handle(request: Request, env: any, context: any) {
-    try {
-      // Get refresh token from cookie
-      const cookies = request.headers.get('Cookie') || ''
-      const refreshTokenMatch = cookies.match(
-        new RegExp(`${AUTH_CONFIG.COOKIE_NAME}-refresh=([^;]+)`)
-      )
-      const refreshToken = refreshTokenMatch?.[1]
+  async handle(c: Context) {
+    const env = c.env as Env
+    // Get refresh token from cookie
+    const refreshToken = getCookie(c, `${AUTH_CONFIG.COOKIE_NAME}-refresh`)
 
-      if (!refreshToken) {
-        return Response.json(
-          { error: 'No refresh token provided' },
-          { status: 401 }
-        )
-      }
-
-      // Refresh the session
-      const authService = new AuthService(env)
-      const session = await authService.refreshSession(refreshToken)
-      if (!session) {
-        return Response.json(
-          { error: 'Invalid refresh token' },
-          { status: 401 }
-        )
-      }
-
-      // Get user data
-      const sessionWithUser = await authService.findSessionByAccessToken(
-        session.accessToken
-      )
-      if (!sessionWithUser) {
-        return Response.json({ error: 'Session not found' }, { status: 401 })
-      }
-
-      // Set new tokens in cookies
-      const response = Response.json({
-        user: {
-          id: sessionWithUser.user.id,
-          email: sessionWithUser.user.email,
-          username: sessionWithUser.user.username,
-          superuser: sessionWithUser.user.superuser,
-          referralCode: sessionWithUser.user.referralCode
-        }
-      })
-
-      // Set new authentication cookies
-      setAuthCookies(response, session)
-
-      return response
-    } catch (error) {
-      console.error('Refresh error:', error)
-      return Response.json({ error: 'Internal server error' }, { status: 500 })
+    if (!refreshToken) {
+      throw new UnauthorizedError('No refresh token provided')
     }
+
+    // Refresh the session
+    const authService = new AuthService(env)
+    const session = await authService.refreshSession(refreshToken)
+    if (!session) {
+      throw new UnauthorizedError('Invalid refresh token')
+    }
+
+    // Get user data
+    const sessionWithUser = await authService.findSessionByAccessToken(
+      session.accessToken
+    )
+    if (!sessionWithUser) {
+      throw new UnauthorizedError('Session not found')
+    }
+
+    // Set new tokens in cookies
+    const response = Response.json({
+      user: {
+        id: sessionWithUser.user.id,
+        email: sessionWithUser.user.email,
+        username: sessionWithUser.user.username,
+        superuser: sessionWithUser.user.superuser,
+        referralCode: sessionWithUser.user.referralCode
+      }
+    })
+
+    // Set new authentication cookies
+    setAuthCookies(response, session)
+
+    return response
   }
 }

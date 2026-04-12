@@ -2,7 +2,6 @@ import { database } from '@uni-feedback/db'
 import { degrees } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
 import { and, eq, sql } from 'drizzle-orm'
-import { IRequest } from 'itty-router'
 import { z } from 'zod'
 
 const DegreeTypesQuerySchema = z.object({
@@ -37,40 +36,35 @@ export class GetDegreeTypes extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: any, context: any) {
-    try {
-      const { query } = await this.getValidatedData<typeof this.schema>()
-      const { faculty_id } = query
+  async handle() {
+    const { query } = await this.getValidatedData<typeof this.schema>()
+    const { faculty_id } = query
 
-      // Build where conditions
-      const conditions = [
-        sql`${degrees.type} IS NOT NULL AND ${degrees.type} != ''`
-      ]
+    // Build where conditions
+    const conditions = [
+      sql`${degrees.type} IS NOT NULL AND ${degrees.type} != ''`
+    ]
 
-      if (faculty_id) {
-        conditions.push(eq(degrees.facultyId, faculty_id))
-      }
-
-      const whereClause =
-        conditions.length > 1 ? and(...conditions) : conditions[0]
-
-      // Get distinct degree types
-      const typesResult = await database()
-        .selectDistinct({
-          type: degrees.type
-        })
-        .from(degrees)
-        .where(whereClause)
-        .orderBy(degrees.type)
-
-      const types = typesResult
-        .map((row) => row.type)
-        .filter((type) => type !== null && type !== '')
-
-      return Response.json({ types })
-    } catch (error) {
-      console.error('Get degree types error:', error)
-      return Response.json({ error: 'Internal server error' }, { status: 500 })
+    if (faculty_id) {
+      conditions.push(eq(degrees.facultyId, faculty_id))
     }
+
+    const whereClause =
+      conditions.length > 1 ? and(...conditions) : conditions[0]
+
+    // Get distinct degree types
+    const typesResult = await database()
+      .selectDistinct({
+        type: degrees.type
+      })
+      .from(degrees)
+      .where(whereClause)
+      .orderBy(degrees.type)
+
+    const types = typesResult
+      .map((row) => row.type)
+      .filter((type) => type !== null && type !== '')
+
+    return Response.json({ types })
   }
 }

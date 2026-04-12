@@ -1,8 +1,7 @@
 import { database } from '@uni-feedback/db'
-import { degrees, faculties } from '@uni-feedback/db/schema'
+import { degrees } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
-import { and, eq, or, sql } from 'drizzle-orm'
-import { IRequest } from 'itty-router'
+import { and, eq } from 'drizzle-orm'
 import { z } from 'zod'
 
 const DegreeSuggestionsQuerySchema = z.object({
@@ -51,35 +50,30 @@ export class GetDegreeSuggestions extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: any, context: any) {
-    try {
-      const { query } = await this.getValidatedData<typeof this.schema>()
-      const { faculty_id } = query
+  async handle() {
+    const { query } = await this.getValidatedData<typeof this.schema>()
+    const { faculty_id } = query
 
-      // Build where conditions
-      const conditions = []
+    // Build where conditions
+    const conditions = []
 
-      if (faculty_id) {
-        conditions.push(eq(degrees.facultyId, faculty_id))
-      }
-
-      const whereClause = conditions.length > 0 ? and(...conditions) : undefined
-
-      // Get degrees with just id, name, and acronym
-      const degreesResult = await database()
-        .select({
-          id: degrees.id,
-          name: degrees.name,
-          acronym: degrees.acronym
-        })
-        .from(degrees)
-        .where(whereClause)
-        .orderBy(degrees.name)
-
-      return Response.json(degreesResult)
-    } catch (error) {
-      console.error('Get degree suggestions error:', error)
-      return Response.json({ error: 'Internal server error' }, { status: 500 })
+    if (faculty_id) {
+      conditions.push(eq(degrees.facultyId, faculty_id))
     }
+
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined
+
+    // Get degrees with just id, name, and acronym
+    const degreesResult = await database()
+      .select({
+        id: degrees.id,
+        name: degrees.name,
+        acronym: degrees.acronym
+      })
+      .from(degrees)
+      .where(whereClause)
+      .orderBy(degrees.name)
+
+    return Response.json(degreesResult)
   }
 }

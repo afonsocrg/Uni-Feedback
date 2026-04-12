@@ -1,11 +1,13 @@
+import { requireAdmin } from '@middleware'
 import { StatsService } from '@services'
 import { database } from '@uni-feedback/db'
 import { feedback, feedbackFull } from '@uni-feedback/db/schema'
 import { detectChanges, notifyAdminChange } from '@utils/notificationHelpers'
 import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
-import { IRequest } from 'itty-router'
+import type { Context } from 'hono'
 import { z } from 'zod'
+import { BadRequestError, NotFoundError } from '../../utils'
 
 const FeedbackUpdateParamsSchema = z.object({
   id: z.string().transform((val) => parseInt(val, 10))
@@ -76,126 +78,123 @@ export class UpdateFeedback extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: any, context: any) {
-    try {
-      const { params, body } = await this.getValidatedData<typeof this.schema>()
-      const { id: feedbackId } = params
-      const updates = body
+  async handle(c: Context) {
+    const env = c.env
+    const authContext = await requireAdmin(c)
+    const { params, body } = await this.getValidatedData<typeof this.schema>()
+    const { id: feedbackId } = params
+    const updates = body
 
-      if (!feedbackId || isNaN(feedbackId)) {
-        return Response.json({ error: 'Invalid feedback ID' }, { status: 400 })
-      }
+    if (!feedbackId || isNaN(feedbackId)) {
+      throw new BadRequestError('Invalid feedback ID')
+    }
 
-      if (Object.keys(updates).length === 0) {
-        return Response.json(
-          { error: 'No update fields provided' },
-          { status: 400 }
+    if (Object.keys(updates).length === 0) {
+      throw new BadRequestError('No update fields provided')
+    }
+
+    // Check if feedback exists
+    const existingFeedback = await database()
+      .select()
+      .from(feedback)
+      .where(eq(feedback.id, feedbackId))
+      .limit(1)
+
+    if (!existingFeedback.length) {
+      throw new NotFoundError('Feedback not found')
+    }
+
+    // Prepare update data
+    const updateData: Record<string, unknown> = {}
+
+    if (updates.schoolYear !== undefined) {
+      updateData.schoolYear = updates.schoolYear
+    }
+
+    if (updates.rating !== undefined) {
+      updateData.rating = updates.rating
+    }
+
+    if (updates.workloadRating !== undefined) {
+      updateData.workloadRating = updates.workloadRating
+    }
+
+    if (updates.comment !== undefined) {
+      updateData.comment = updates.comment
+    }
+
+    // Detect changes for notification (compare with original feedback fields)
+    const originalData = {
+      schoolYear: existingFeedback[0].schoolYear,
+      rating: existingFeedback[0].rating,
+      workloadRating: existingFeedback[0].workloadRating,
+      comment: existingFeedback[0].comment
+    }
+    const newData = {
+      ...originalData,
+      ...updates
+    }
+    const changes = detectChanges(originalData, newData, [
+      'schoolYear',
+      'rating',
+      'workloadRating',
+      'comment'
+    ])
+
+    // Perform update
+    await database()
+      .update(feedbackFull)
+      .set(updateData)
+      .where(eq(feedbackFull.id, feedbackId))
+
+    // Get updated feedback
+    const updatedFeedback = await database()
+      .select()
+      .from(feedback)
+      .where(eq(feedback.id, feedbackId))
+      .limit(1)
+
+    const fb = updatedFeedback[0]
+
+    // Send notification if changes were made
+    if (changes.length > 0) {
+      await notifyAdminChange({
+        env,
+        user: authContext.user,
+        resourceType: 'feedback',
+        resourceId: feedbackId,
+        resourceName: `Feedback #${feedbackId}`,
+        action: 'updated',
+        changes
+      })
+    }
+
+    // Update stats if rating or workload changed and feedback is approved
+    const ratingChanged =
+      updates.rating !== undefined || updates.workloadRating !== undefined
+    if (ratingChanged && fb.approvedAt !== null) {
+      try {
+        const statsService = new StatsService()
+        await statsService.onFeedbackEdited(fb.courseId)
+      } catch (statsError) {
+        console.error(
+          'Failed to update stats after admin feedback update:',
+          statsError
         )
       }
-
-      // Check if feedback exists
-      const existingFeedback = await database()
-        .select()
-        .from(feedback)
-        .where(eq(feedback.id, feedbackId))
-        .limit(1)
-
-      if (!existingFeedback.length) {
-        return Response.json({ error: 'Feedback not found' }, { status: 404 })
-      }
-
-      // Prepare update data
-      const updateData: any = {}
-
-      if (updates.schoolYear !== undefined) {
-        updateData.schoolYear = updates.schoolYear
-      }
-
-      if (updates.rating !== undefined) {
-        updateData.rating = updates.rating
-      }
-
-      if (updates.workloadRating !== undefined) {
-        updateData.workloadRating = updates.workloadRating
-      }
-
-      if (updates.comment !== undefined) {
-        updateData.comment = updates.comment
-      }
-
-      // Detect changes for notification (compare with original feedback fields)
-      const originalData = {
-        schoolYear: existingFeedback[0].schoolYear,
-        rating: existingFeedback[0].rating,
-        workloadRating: existingFeedback[0].workloadRating,
-        comment: existingFeedback[0].comment
-      }
-      const newData = {
-        ...originalData,
-        ...updates
-      }
-      const changes = detectChanges(originalData, newData, [
-        'schoolYear',
-        'rating',
-        'workloadRating',
-        'comment'
-      ])
-
-      // Perform update
-      await database()
-        .update(feedbackFull)
-        .set(updateData)
-        .where(eq(feedbackFull.id, feedbackId))
-
-      // Get updated feedback
-      const updatedFeedback = await database()
-        .select()
-        .from(feedback)
-        .where(eq(feedback.id, feedbackId))
-        .limit(1)
-
-      const fb = updatedFeedback[0]
-
-      // Send notification if changes were made
-      if (changes.length > 0) {
-        await notifyAdminChange({
-          env,
-          user: context.user,
-          resourceType: 'feedback',
-          resourceId: feedbackId,
-          resourceName: `Feedback #${feedbackId}`,
-          action: 'updated',
-          changes
-        })
-      }
-
-      // Update stats if rating or workload changed and feedback is approved
-      const ratingChanged =
-        updates.rating !== undefined || updates.workloadRating !== undefined
-      if (ratingChanged && fb.approvedAt !== null) {
-        try {
-          const statsService = new StatsService()
-          await statsService.onFeedbackEdited(fb.courseId)
-        } catch (statsError) {
-          console.error('Failed to update stats after admin feedback update:', statsError)
-        }
-      }
-
-      const response = {
-        id: fb.id,
-        schoolYear: fb.schoolYear,
-        rating: fb.rating,
-        workloadRating: fb.workloadRating,
-        comment: fb.comment,
-        approved: fb.approvedAt !== null,
-        updatedAt: fb.updatedAt,
-        message: 'Feedback updated successfully'
-      }
-
-      return Response.json(response)
-    } catch (error) {
-      console.error('Update feedback error:', error)
-      return Response.json({ error: 'Internal server error' }, { status: 500 })
     }
+
+    const response = {
+      id: fb.id,
+      schoolYear: fb.schoolYear,
+      rating: fb.rating,
+      workloadRating: fb.workloadRating,
+      comment: fb.comment,
+      approved: fb.approvedAt !== null,
+      updatedAt: fb.updatedAt,
+      message: 'Feedback updated successfully'
+    }
+
+    return Response.json(response)
   }
 }

@@ -280,7 +280,7 @@ export async function getUsers(): Promise<User[]> {
  * Get current user profile
  */
 export async function getProfile(): Promise<ProfileResponse> {
-  return apiGet<ProfileResponse>('/auth/profile')
+  return apiGet<ProfileResponse>('/profile')
 }
 
 /**
@@ -288,20 +288,20 @@ export async function getProfile(): Promise<ProfileResponse> {
  * Permanently deletes account by anonymizing personal data while preserving feedback
  */
 export async function deleteAccount(): Promise<{ message: string }> {
-  return apiDelete<{ message: string }>('/auth/profile')
+  return apiDelete<{ message: string }>('/profile')
 }
 
 /**
  * Get current user statistics (points, referrals, feedback count)
  */
 export async function getUserStats(): Promise<UserStatsResponse> {
-  return apiGet<UserStatsResponse>('/auth/profile/stats')
+  return apiGet<UserStatsResponse>('/profile/stats')
 }
 
 /**
  * Get current user's feedback
  */
 export async function getUserFeedback(): Promise<UserFeedbackResponse> {
-  const result = apiGet<UserFeedbackResponse>('/auth/profile/feedback')
+  const result = apiGet<UserFeedbackResponse>('/profile/feedback')
   return result
 }

@@ -1,6 +1,6 @@
-import { config } from 'dotenv'
 import { DatabaseContext } from '@uni-feedback/db'
 import * as schema from '@uni-feedback/db/schema'
+import { config } from 'dotenv'
 import { drizzle } from 'drizzle-orm/postgres-js'
 import fs from 'fs'
 import path from 'path'
@@ -23,7 +23,7 @@ const TEST_DATABASE_URL = process.env.DATABASE_URL_TEST
 if (!TEST_DATABASE_URL) {
   throw new Error(
     'DATABASE_URL_TEST environment variable is required.\n' +
-    'Create a test database and set: export DATABASE_URL_TEST="postgres://user:pass@localhost:5433/uni_feedback_test"'
+      'Create a test database and set: export DATABASE_URL_TEST="postgres://user:pass@localhost:5433/uni_feedback_test"'
   )
 }
 
@@ -34,10 +34,7 @@ let db: ReturnType<typeof drizzle<typeof schema>>
  * Run all migrations in order
  */
 async function runMigrations() {
-  const migrationsDir = path.resolve(
-    __dirname,
-    '../../../packages/db/drizzle'
-  )
+  const migrationsDir = path.resolve(__dirname, '../../../packages/db/drizzle')
 
   const migrationFiles = fs
     .readdirSync(migrationsDir)
@@ -108,6 +105,22 @@ export function getTestDb() {
  */
 export async function withTestDb<T>(fn: () => Promise<T>): Promise<T> {
   return DatabaseContext.run(db, fn)
+}
+
+/**
+ * Minimal Env fixture for integration tests.
+ * Auth service uses DatabaseContext (not env) so only required fields need real values.
+ */
+export const testEnv: Env = {
+  API_PORT: 3001,
+  DATABASE_URL: process.env.DATABASE_URL_TEST ?? '',
+  ALLOWED_ORIGINS: 'http://localhost:3000',
+  NODE_ENV: 'development',
+  API_URL: 'http://localhost:3001',
+  DASHBOARD_URL: 'http://localhost:4000',
+  WEBSITE_URL: 'http://localhost:3000',
+  VALIDATE_EMAIL_SUFFIX: false,
+  REQUIRE_FEEDBACK_AUTH: true
 }
 
 /**

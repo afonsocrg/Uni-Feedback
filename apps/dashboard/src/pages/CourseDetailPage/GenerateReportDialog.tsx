@@ -58,9 +58,7 @@ export function GenerateReportDialog({
     }
 
     const interval = setInterval(() => {
-      setCurrentMessageIndex(
-        (prev) => (prev + 1) % LOADING_MESSAGES.length
-      )
+      setCurrentMessageIndex((prev) => (prev + 1) % LOADING_MESSAGES.length)
     }, 4500) // Change message every 4.5 seconds
 
     return () => clearInterval(interval)
@@ -138,10 +136,7 @@ export function GenerateReportDialog({
               </div>
             </div>
             <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => handleOpenChange(false)}
-              >
+              <Button variant="outline" onClick={() => handleOpenChange(false)}>
                 Cancel
               </Button>
               <Button onClick={handleGenerate} disabled={!selectedYear}>

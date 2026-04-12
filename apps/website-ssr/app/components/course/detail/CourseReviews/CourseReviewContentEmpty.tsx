@@ -1,8 +1,8 @@
 import { Button } from '@uni-feedback/ui'
 import { Link } from 'react-router'
 import { AskForFeedback, type CourseDetail } from '~/components'
-import { analytics, getPageName } from '~/utils/analytics'
 import { getFullUrl } from '~/utils'
+import { analytics, getPageName } from '~/utils/analytics'
 
 interface CourseReviewContentEmptyProps {
   reviewFormUrl: string

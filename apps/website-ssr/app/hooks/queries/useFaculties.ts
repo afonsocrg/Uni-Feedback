@@ -1,9 +1,9 @@
+import { useQuery } from '@tanstack/react-query'
 import {
   getFaculties,
   getFacultyDegrees,
   getFacultyDetails
 } from '@uni-feedback/api-client'
-import { useQuery } from '@tanstack/react-query'
 import { infrequentDataConfig } from './config'
 
 export function useFaculties() {

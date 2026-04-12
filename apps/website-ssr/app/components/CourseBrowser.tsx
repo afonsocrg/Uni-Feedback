@@ -1,5 +1,6 @@
 import { type CourseSearchResult, type Faculty } from '@uni-feedback/api-client'
-import { ChevronRight, Loader2 } from 'lucide-react'
+import { StarRating } from '@uni-feedback/ui'
+import { ChevronRight, Loader2, Pencil } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useFacultyDegrees, useSearchCourses } from '~/hooks/queries'
 import { useDebounce } from '~/hooks/useDebounce'
@@ -89,9 +90,7 @@ export function CourseBrowser({
       return
     }
 
-    if (selectedDegreeId !== undefined) {
-      storage.setSelectedDegreeId(selectedDegreeId)
-    }
+    storage.setSelectedDegreeId(selectedDegreeId)
   }, [selectedDegreeId])
 
   const handleCourseClick = (course: CourseSearchResult) => {
@@ -103,7 +102,13 @@ export function CourseBrowser({
   }
 
   return (
-    <div className={compact ? 'py-1 px-3 pb-4 md:px-6 md:pb-6' : 'max-w-3xl mx-auto px-4 py-8'}>
+    <div
+      className={
+        compact
+          ? 'py-1 px-3 pb-4 md:px-6 md:pb-6'
+          : 'max-w-3xl mx-auto px-4 py-8'
+      }
+    >
       <div className={compact ? 'space-y-6' : 'space-y-8 pt-[15vh]'}>
         {/* Header - hidden in compact mode */}
         {!compact && (
@@ -194,9 +199,21 @@ export function CourseBrowser({
                         {course.name}
                       </h3>
                       <p className="text-sm text-gray-500">{course.acronym}</p>
+                      {course.hasUserFeedback && course.userRating && (
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs text-gray-400">
+                            Your rating:
+                          </span>
+                          <StarRating value={course.userRating} size="sm" />
+                        </div>
+                      )}
                     </div>
                     <div className="flex-shrink-0">
-                      <ChevronRight className="w-6 h-6 text-primaryBlue group-hover:translate-x-1 transition-transform" />
+                      {course.hasUserFeedback ? (
+                        <Pencil className="w-5 h-5 text-primaryBlue group-hover:scale-110 transition-transform" />
+                      ) : (
+                        <ChevronRight className="w-6 h-6 text-primaryBlue group-hover:translate-x-1 transition-transform" />
+                      )}
                     </div>
                   </div>
                 </button>

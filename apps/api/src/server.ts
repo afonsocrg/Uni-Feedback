@@ -2,10 +2,12 @@
 import './config'
 
 import { router } from '@routes'
+import { handleError } from '@routes/utils/errorHandling'
 import { DatabaseContext } from '@uni-feedback/db'
 import * as schema from '@uni-feedback/db/schema'
 import { createServerAdapter } from '@whatwg-node/server'
 import { drizzle } from 'drizzle-orm/postgres-js'
+import type { ExecutionContext } from 'hono'
 import { createServer } from 'node:http'
 import postgres from 'postgres'
 
@@ -100,10 +102,14 @@ function createEnv(): Env {
 
 // Create a single connection pool that will be reused
 let sql: ReturnType<typeof postgres> | null = null
-let db: ReturnType<typeof drizzle> | null = null
+let db:
+  | import('drizzle-orm/postgres-js').PostgresJsDatabase<typeof schema>
+  | null = null
 
 // Initialize the database connection pool
-function initializeDatabase() {
+function initializeDatabase(): import('drizzle-orm/postgres-js').PostgresJsDatabase<
+  typeof schema
+> {
   if (!globalEnv) {
     globalEnv = createEnv()
   }
@@ -131,13 +137,27 @@ const createFetchHandler = () => {
 
       // Run the request within database context
       return await DatabaseContext.run(database, async () => {
-        return await router.fetch(request, globalEnv, {})
+        // Create an execution context for Chanfana/Hono compatibility
+        // In Node.js environment, these are mostly no-ops
+        const executionContext: ExecutionContext = {
+          waitUntil: (promise: Promise<unknown>) => {
+            // In Node.js, we can just let the promise run
+            promise.catch((err) => console.error('Background task error:', err))
+          },
+          passThroughOnException: () => {
+            // No-op in Node.js
+          },
+          props: {}
+        }
+        return await router.fetch(request, globalEnv as Env, executionContext)
       })
     } catch (error) {
-      console.error('Server error:', error)
-      return new Response(JSON.stringify({ error: 'Internal server error' }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' }
+      const url = new URL(request.url)
+      return handleError(error, {
+        endpoint: url.pathname,
+        method: request.method,
+        userAgent: request.headers.get('user-agent') || undefined,
+        ip: request.headers.get('x-forwarded-for') || undefined
       })
     }
   }

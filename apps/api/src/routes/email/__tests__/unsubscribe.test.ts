@@ -1,10 +1,12 @@
+import { NotFoundError } from '@routes/utils/errorHandling'
+import type { Context } from 'hono'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { cleanAllTables, withTestDb } from '../../../../test/setup'
 import {
   createEmailPreferences,
   createUser,
   getEmailPreferencesByToken
 } from '../../../../test/helpers'
+import { cleanAllTables, withTestDb } from '../../../../test/setup'
 import { Unsubscribe } from '../unsubscribe'
 
 describe('Unsubscribe Route', () => {
@@ -17,14 +19,22 @@ describe('Unsubscribe Route', () => {
   })
 
   /**
-   * Helper to create a mock request with body
+   * Helper to create a mock Context
    */
-  function createMockRequest(body: object): Request {
-    return new Request('http://localhost/email/unsubscribe', {
+  function createMockContext(body: object): Context {
+    const request = new Request('http://localhost/email/unsubscribe', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
     })
+
+    return {
+      req: request,
+      env: {} as Env,
+      get: () => ({}),
+      set: () => {},
+      json: (data: unknown) => Response.json(data)
+    } as unknown as Context
   }
 
   describe('POST /email/unsubscribe', () => {
@@ -41,8 +51,8 @@ describe('Unsubscribe Route', () => {
           query: { token: prefs.unsubscribeToken }
         })
 
-        const request = createMockRequest({ token: prefs.unsubscribeToken })
-        const response = await unsubscribeHandler.handle(request, {} as Env, {})
+        const context = createMockContext({ token: prefs.unsubscribeToken })
+        const response = await unsubscribeHandler.handle(context)
 
         expect(response.status).toBe(200)
         const data = await response.json()
@@ -57,21 +67,24 @@ describe('Unsubscribe Route', () => {
       })
     })
 
-    it('should return 404 for invalid token', async () => {
+    it('should throw NotFoundError for invalid token', async () => {
       await withTestDb(async () => {
         // @ts-expect-error - mocking protected method for testing
         unsubscribeHandler.getValidatedData = async () => ({
           query: { token: 'invalid-token-that-does-not-exist' }
         })
 
-        const request = createMockRequest({
+        const context = createMockContext({
           token: 'invalid-token-that-does-not-exist'
         })
-        const response = await unsubscribeHandler.handle(request, {} as Env, {})
 
-        expect(response.status).toBe(404)
-        const data = await response.json()
-        expect(data.error).toContain('Invalid unsubscribe token')
+        // Expect the handler to throw NotFoundError
+        await expect(unsubscribeHandler.handle(context)).rejects.toThrow(
+          NotFoundError
+        )
+        await expect(unsubscribeHandler.handle(context)).rejects.toThrow(
+          'Invalid unsubscribe token'
+        )
       })
     })
 
@@ -88,8 +101,8 @@ describe('Unsubscribe Route', () => {
           query: { token: prefs.unsubscribeToken }
         })
 
-        const request = createMockRequest({ token: prefs.unsubscribeToken })
-        const response = await unsubscribeHandler.handle(request, {} as Env, {})
+        const context = createMockContext({ token: prefs.unsubscribeToken })
+        const response = await unsubscribeHandler.handle(context)
 
         expect(response.status).toBe(200)
         const data = await response.json()
@@ -109,14 +122,14 @@ describe('Unsubscribe Route', () => {
           query: { token: prefs.unsubscribeToken }
         })
 
-        const request = createMockRequest({ token: prefs.unsubscribeToken })
+        const context = createMockContext({ token: prefs.unsubscribeToken })
 
         // First unsubscribe
-        const response1 = await unsubscribeHandler.handle(request, {} as Env, {})
+        const response1 = await unsubscribeHandler.handle(context)
         expect(response1.status).toBe(200)
 
         // Second unsubscribe (should still succeed)
-        const response2 = await unsubscribeHandler.handle(request, {} as Env, {})
+        const response2 = await unsubscribeHandler.handle(context)
         expect(response2.status).toBe(200)
         const data = await response2.json()
         expect(data.message).toContain('already unsubscribed')

@@ -1,7 +1,7 @@
+import { requireAdmin } from '@middleware'
 import { ReportingService } from '@services'
-import { NotFoundError } from '@services/errors'
 import { OpenAPIRoute } from 'chanfana'
-import { IRequest } from 'itty-router'
+import type { Context } from 'hono'
 import { z } from 'zod'
 
 const GenerateDegreeReportBodySchema = z.object({
@@ -63,44 +63,30 @@ export class GenerateDegreeReport extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: any, context: any) {
-    try {
-      const data = await request.json()
-      const validatedBody = GenerateDegreeReportBodySchema.parse(data)
-      const { degreeId, schoolYear, curriculumYear, terms } = validatedBody
+  async handle(c: Context) {
+    const env = c.env
+    const data = await this.getValidatedData<typeof this.schema>()
+    const { degreeId, schoolYear, curriculumYear, terms } = data.body
+    const authContext = await requireAdmin(c)
 
-      const filters = {
-        ...(curriculumYear !== undefined ? { curriculumYear } : {}),
-        ...(terms !== undefined ? { terms } : {})
-      }
-
-      const reportingService = new ReportingService(env)
-      const presignedUrl = await reportingService.generateAndStoreDegreeReport(
-        degreeId,
-        schoolYear,
-        Object.keys(filters).length > 0 ? filters : undefined,
-        context.user?.id
-      )
-
-      return Response.json({
-        success: true,
-        presignedUrl,
-        expiresIn: 3600,
-        message: 'Semester report generated successfully'
-      })
-    } catch (error: any) {
-      console.error('Generate semester report error:', error)
-
-      if (error instanceof NotFoundError) {
-        return Response.json({ error: error.message }, { status: 404 })
-      }
-
-      return Response.json(
-        {
-          error: 'Failed to generate semester report. Please try again later.'
-        },
-        { status: 500 }
-      )
+    const filters = {
+      ...(curriculumYear !== undefined ? { curriculumYear } : {}),
+      ...(terms !== undefined ? { terms } : {})
     }
+
+    const reportingService = new ReportingService(env)
+    const presignedUrl = await reportingService.generateAndStoreDegreeReport(
+      degreeId,
+      schoolYear,
+      Object.keys(filters).length > 0 ? filters : undefined,
+      authContext.user.id
+    )
+
+    return Response.json({
+      success: true,
+      presignedUrl,
+      expiresIn: 3600,
+      message: 'Semester report generated successfully'
+    })
   }
 }

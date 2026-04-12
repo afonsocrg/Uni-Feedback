@@ -1,8 +1,7 @@
 import { AIService } from '@services'
 import { contentJson, OpenAPIRoute } from 'chanfana'
-import { IRequest } from 'itty-router'
+import { Context } from 'hono'
 import { z } from 'zod'
-import { withErrorHandling } from '../utils'
 
 const CategorizeFeedbackRequestSchema = z
   .object({
@@ -47,33 +46,32 @@ export class CategorizeFeedback extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: Env, context: any) {
-    return withErrorHandling(request, async () => {
-      // Authenticate user (required to prevent abuse)
-      // const authCheck = await authenticateUser(request, env, context)
-      // if (authCheck) return authCheck
+  async handle(c: Context) {
+    const env = c.env as Env
 
-      // Get validated request body
-      const { body } = await this.getValidatedData<typeof this.schema>()
+    // Authenticate user (required to prevent abuse)
+    // const authContext = await requireAuth(c)
 
-      // Validate minimum character count
-      // if (body.comment.length < 50) {
-      //   throw new BusinessLogicError(
-      //     'Comment must be at least 50 characters for categorization'
-      //   )
-      // }
+    // Get validated request body
+    const { body } = await this.getValidatedData<typeof this.schema>()
 
-      // Call AI service to categorize feedback
-      const aiService = new AIService(env)
-      const categories = await aiService.categorizeFeedback(body.comment)
+    // Validate minimum character count
+    // if (body.comment.length < 50) {
+    //   throw new BusinessLogicError(
+    //     'Comment must be at least 50 characters for categorization'
+    //   )
+    // }
 
-      // Return categories without storing in database
-      return Response.json(
-        {
-          categories
-        },
-        { status: 200 }
-      )
-    })
+    // Call AI service to categorize feedback
+    const aiService = new AIService(env)
+    const categories = await aiService.categorizeFeedback(body.comment)
+
+    // Return categories without storing in database
+    return Response.json(
+      {
+        categories
+      },
+      { status: 200 }
+    )
   }
 }

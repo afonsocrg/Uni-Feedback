@@ -1,14 +1,12 @@
 import {
+  GiveawayRecapCommunity,
+  GiveawayRecapCTA,
   GiveawayRecapHero,
   GiveawayRecapThankYou,
-  GiveawayRecapWinner,
-  GiveawayRecapCommunity,
-  GiveawayRecapCTA
+  GiveawayRecapWinner
 } from '~/components/giveaway'
 
-import type { Route } from './+types/giveaway'
-
-export function meta({}: Route.MetaArgs) {
+export function meta() {
   return [
     { title: 'Giveaway Recap - Thank You! | Uni Feedback' },
     {

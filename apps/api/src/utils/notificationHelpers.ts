@@ -15,8 +15,8 @@ interface NotifyChangeArgs {
   action: 'updated' | 'created' | 'deleted' | 'added' | 'removed'
   changes?: Array<{
     field: string
-    oldValue: any
-    newValue: any
+    oldValue: unknown
+    newValue: unknown
   }>
   addedItem?: string
   removedItem?: string
@@ -43,8 +43,8 @@ export async function notifyAdminChange(args: NotifyChangeArgs) {
 }
 
 export function detectChanges(
-  oldData: any,
-  newData: any,
+  oldData: Record<string, unknown>,
+  newData: Record<string, unknown>,
   fieldsToTrack: string[]
 ) {
   const changes = []

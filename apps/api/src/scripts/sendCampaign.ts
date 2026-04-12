@@ -142,7 +142,7 @@ try {
   if (userIds.length === 0) {
     throw new Error('No user IDs provided')
   }
-} catch (error) {
+} catch (_error) {
   console.error(`❌ Invalid --users format: ${args.users}`)
   console.error('   Expected comma-separated numbers, e.g., --users=1,2,3')
   process.exit(1)
@@ -423,7 +423,9 @@ async function main() {
     console.log(`📤 EXPORT MODE - Will export to ${args.export}\n`)
   } else if (isSend) {
     if (args.plain) {
-      console.log('🚀 SEND MODE (plain text) - High-deliverability mode enabled')
+      console.log(
+        '🚀 SEND MODE (plain text) - High-deliverability mode enabled'
+      )
       console.log('   No HTML, no List-Unsubscribe headers, no auto-footer\n')
     } else {
       console.log('🚀 SEND MODE - Emails will be sent via Resend!\n')

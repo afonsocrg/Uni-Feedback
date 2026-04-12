@@ -1,9 +1,29 @@
+import type { Session, User } from '@uni-feedback/db/schema'
+
 declare global {
   type RequestHandler = (
     env: Env,
     req: Request,
     handler?: RequestHandler
   ) => Promise<Response>
+
+  /**
+   * Request context passed through middleware chain.
+   * Populated by auth middleware with user/session data.
+   */
+  interface RequestContext {
+    user?: User
+    session?: { user: User; session: Session }
+  }
+
+  /**
+   * Request context after successful authentication.
+   * Use this type in routes that require authentication.
+   */
+  interface AuthenticatedRequestContext {
+    user: User
+    session: { user: User; session: Session }
+  }
 
   interface Env {
     API_PORT: number

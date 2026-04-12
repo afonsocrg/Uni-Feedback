@@ -3,7 +3,7 @@ import { courses } from './course'
 import { degrees } from './degree'
 import { emailPreferences } from './emailPreferences'
 import { faculties } from './faculty'
-import { feedback, feedbackFull } from './feedback'
+import { feedbackFull } from './feedback'
 import { feedbackAnalysis } from './feedbackAnalysis'
 import { feedbackFlags } from './feedbackFlag'
 import { helpfulVotes } from './helpfulVote'
@@ -11,24 +11,9 @@ import { pointRegistry } from './pointRegistry'
 import { reports } from './report'
 import { users } from './user'
 
-// Feedback relations (view - automatically excludes deleted feedback)
-export const feedbackRelations = relations(feedback, ({ one }) => ({
-  course: one(courses, {
-    fields: [feedback.courseId],
-    references: [courses.id]
-  }),
-  user: one(users, {
-    fields: [feedback.userId],
-    references: [users.id]
-  }),
-  analysis: one(feedbackAnalysis, {
-    fields: [feedback.id],
-    references: [feedbackAnalysis.feedbackId]
-  })
-}))
-
-// FeedbackFull relations (table - includes deleted feedback)
-// Use this when you need to see all feedback including soft-deleted ones
+// FeedbackFull relations (table - includes all feedback)
+// Note: Drizzle relations only work with tables, not views.
+// Use the `feedback` view for queries that should exclude soft-deleted feedback.
 export const feedbackFullRelations = relations(feedbackFull, ({ one }) => ({
   course: one(courses, {
     fields: [feedbackFull.courseId],
@@ -50,7 +35,7 @@ export const courseRelations = relations(courses, ({ one, many }) => ({
     fields: [courses.degreeId],
     references: [degrees.id]
   }),
-  feedbacks: many(feedback)
+  feedbacks: many(feedbackFull)
 }))
 
 // Degree relations
@@ -69,7 +54,7 @@ export const facultyRelations = relations(faculties, ({ many }) => ({
 
 // User relations
 export const userRelations = relations(users, ({ one, many }) => ({
-  feedbacks: many(feedback),
+  feedbacks: many(feedbackFull),
   points: many(pointRegistry),
   helpfulVotes: many(helpfulVotes),
   feedbackFlags: many(feedbackFlags),

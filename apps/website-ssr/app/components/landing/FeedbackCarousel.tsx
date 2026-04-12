@@ -1,5 +1,5 @@
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 import type { Feedback } from '@uni-feedback/db'
 import { LandingFeedbackCard } from '~/components'
@@ -14,18 +14,6 @@ export function FeedbackCarousel({
   browseLink
 }: FeedbackCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [isDesktop, setIsDesktop] = useState(true)
-
-  useEffect(() => {
-    const checkScreenSize = () => {
-      setIsDesktop(window.innerWidth >= 768)
-    }
-
-    checkScreenSize()
-    window.addEventListener('resize', checkScreenSize)
-
-    return () => window.removeEventListener('resize', checkScreenSize)
-  }, [])
 
   // Add 1 to account for the placeholder card
   const totalItems = feedbacks.length + 1

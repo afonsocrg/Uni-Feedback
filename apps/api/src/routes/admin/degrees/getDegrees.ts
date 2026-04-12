@@ -1,9 +1,7 @@
 import { database } from '@uni-feedback/db'
 import { degrees, faculties } from '@uni-feedback/db/schema'
-import { PaginatedResponse } from '@types'
 import { OpenAPIRoute } from 'chanfana'
 import { and, count, eq, or, sql } from 'drizzle-orm'
-import { IRequest } from 'itty-router'
 import { z } from 'zod'
 
 const DegreesQuerySchema = z.object({
@@ -74,84 +72,79 @@ export class GetDegrees extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: any, context: any) {
-    try {
-      const { query } = await this.getValidatedData<typeof this.schema>()
-      const { page, limit, search, faculty_id, type } = query
+  async handle() {
+    const { query } = await this.getValidatedData<typeof this.schema>()
+    const { page, limit, search, faculty_id, type } = query
 
-      // Build where conditions
-      const conditions = []
+    // Build where conditions
+    const conditions = []
 
-      if (search) {
-        conditions.push(
-          or(
-            sql`LOWER(${degrees.name}) LIKE ${`%${search.toLowerCase()}%`}`,
-            sql`LOWER(${degrees.acronym}) LIKE ${`%${search.toLowerCase()}%`}`
-          )
+    if (search) {
+      conditions.push(
+        or(
+          sql`LOWER(${degrees.name}) LIKE ${`%${search.toLowerCase()}%`}`,
+          sql`LOWER(${degrees.acronym}) LIKE ${`%${search.toLowerCase()}%`}`
         )
-      }
+      )
+    }
 
-      if (faculty_id) {
-        conditions.push(eq(degrees.facultyId, faculty_id))
-      }
+    if (faculty_id) {
+      conditions.push(eq(degrees.facultyId, faculty_id))
+    }
 
-      if (type) {
-        conditions.push(eq(degrees.type, type))
-      }
+    if (type) {
+      conditions.push(eq(degrees.type, type))
+    }
 
-      const whereClause = conditions.length > 0 ? and(...conditions) : undefined
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined
 
-      // Get total count
-      const totalResult = await database()
-        .select({ count: count() })
-        .from(degrees)
-        .leftJoin(faculties, eq(degrees.facultyId, faculties.id))
-        .where(whereClause)
+    // Get total count
+    const totalResult = await database()
+      .select({ count: count() })
+      .from(degrees)
+      .leftJoin(faculties, eq(degrees.facultyId, faculties.id))
+      .where(whereClause)
 
-      const total = totalResult[0].count
-      const totalPages = Math.ceil(total / limit)
-      const offset = (page - 1) * limit
+    const total = totalResult[0].count
+    const totalPages = Math.ceil(total / limit)
+    const offset = (page - 1) * limit
 
-      // Get degrees with course count
-      const degreesResult = await database()
-        .select({
-          id: degrees.id,
-          name: degrees.name,
-          acronym: degrees.acronym,
-          type: degrees.type,
-          facultyId: degrees.facultyId,
-          facultyName: faculties.name,
-          facultyShortName: faculties.shortName,
-          createdAt: degrees.createdAt,
-          courseCount: sql<number>`(
+    // Get degrees with course count
+    const degreesResult = await database()
+      .select({
+        id: degrees.id,
+        name: degrees.name,
+        acronym: degrees.acronym,
+        type: degrees.type,
+        facultyId: degrees.facultyId,
+        facultyName: faculties.name,
+        facultyShortName: faculties.shortName,
+        createdAt: degrees.createdAt,
+        courseCount: sql<number>`(
             SELECT COUNT(*) 
             FROM courses 
             WHERE courses.degree_id = ${degrees.id}
           )`
-        })
-        .from(degrees)
-        .leftJoin(faculties, eq(degrees.facultyId, faculties.id))
-        .where(whereClause)
-        .orderBy(degrees.name)
-        .limit(limit)
-        .offset(offset)
+      })
+      .from(degrees)
+      .leftJoin(faculties, eq(degrees.facultyId, faculties.id))
+      .where(whereClause)
+      .orderBy(degrees.name)
+      .limit(limit)
+      .offset(offset)
 
-      const response: PaginatedResponse<any> = {
-        data: degreesResult.map((degree) => ({
-          ...degree,
-          courseCount: Number(degree.courseCount),
-          createdAt: degree.createdAt?.toISOString() || ''
-        })),
-        total,
-        page,
-        limit,
-        totalPages
-      }
-
-      return Response.json(response)
-    } catch (error) {
-      console.error('Get degrees error:', error)
-      return Response.json({ error: 'Internal server error' }, { status: 500 })
+    const response = {
+      data: degreesResult.map((degree) => ({
+        ...degree,
+        courseCount: Number(degree.courseCount),
+        createdAt: degree.createdAt?.toISOString() || ''
+      })),
+      total,
+      page,
+      limit,
+      totalPages
     }
+
+    return Response.json(response)
   }
 }

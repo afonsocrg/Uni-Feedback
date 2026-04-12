@@ -76,7 +76,7 @@ export function CoursePageFeedbackCard({
         setIsHighlighted(false)
       }, 3000)
     }
-  }, [feedback.id])
+  }, [feedback.id, feedbackAnchorId])
 
   // Track when feedback item becomes visible (intersection observer)
   useEffect(() => {
@@ -93,13 +93,14 @@ export function CoursePageFeedbackCard({
       { threshold: 0.5 } // Trigger when 50% of card is visible
     )
 
-    if (cardRef.current) {
-      observer.observe(cardRef.current)
+    const card = cardRef.current
+    if (card) {
+      observer.observe(card)
     }
 
     return () => {
-      if (cardRef.current) {
-        observer.unobserve(cardRef.current)
+      if (card) {
+        observer.unobserve(card)
       }
     }
   }, [feedback.id, feedback.courseId])

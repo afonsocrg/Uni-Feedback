@@ -1,10 +1,12 @@
+import { requireAdmin } from '@middleware'
 import { database } from '@uni-feedback/db'
 import { courses } from '@uni-feedback/db/schema'
 import { notifyAdminChange } from '@utils/notificationHelpers'
 import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
-import { IRequest } from 'itty-router'
+import type { Context } from 'hono'
 import { z } from 'zod'
+import { BadRequestError, NotFoundError } from '../../utils'
 
 const AddTermSchema = z.object({
   term: z
@@ -67,67 +69,64 @@ export class AddCourseTerm extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: any, context: any) {
-    try {
-      const { params, body } = await this.getValidatedData<typeof this.schema>()
-      const { id } = params
-      const { term } = body
+  async handle(c: Context) {
+    const env = c.env as Env
+    const authContext = await requireAdmin(c)
+    const { params, body } = await this.getValidatedData<typeof this.schema>()
+    const { id } = params
+    const { term } = body
 
-      // Get current course and terms
-      const course = await database()
-        .select({
-          id: courses.id,
-          name: courses.name,
-          acronym: courses.acronym,
-          terms: courses.terms
-        })
-        .from(courses)
-        .where(eq(courses.id, id))
-        .limit(1)
-
-      if (course.length === 0) {
-        return Response.json({ error: 'Course not found' }, { status: 404 })
-      }
-
-      const currentTerms = (course[0].terms as string[]) || []
-
-      // Check if term already exists
-      if (currentTerms.includes(term)) {
-        return Response.json({ error: 'Term already exists' }, { status: 400 })
-      }
-
-      // Add new term
-      const updatedTerms = [...currentTerms, term].sort()
-
-      // Update course
-      await database()
-        .update(courses)
-        .set({
-          terms: updatedTerms,
-          updatedAt: new Date()
-        })
-        .where(eq(courses.id, id))
-
-      // Send notification
-      await notifyAdminChange({
-        env,
-        user: context.user,
-        resourceType: 'course',
-        resourceId: id,
-        resourceName: course[0].name,
-        resourceShortName: course[0].acronym,
-        action: 'added',
-        addedItem: `term "${term}"`
+    // Get current course and terms
+    const course = await database()
+      .select({
+        id: courses.id,
+        name: courses.name,
+        acronym: courses.acronym,
+        terms: courses.terms
       })
+      .from(courses)
+      .where(eq(courses.id, id))
+      .limit(1)
 
-      return Response.json({
-        courseId: id,
-        terms: updatedTerms,
-        message: 'Term added successfully'
-      })
-    } catch (error) {
-      console.error('Add course term error:', error)
-      return Response.json({ error: 'Internal server error' }, { status: 500 })
+    if (course.length === 0) {
+      throw new NotFoundError('Course not found')
     }
+
+    const currentTerms = (course[0].terms as string[]) || []
+
+    // Check if term already exists
+    if (currentTerms.includes(term)) {
+      throw new BadRequestError('Term already exists')
+    }
+
+    // Add new term
+    const updatedTerms = [...currentTerms, term].sort()
+
+    // Update course
+    await database()
+      .update(courses)
+      .set({
+        terms: updatedTerms,
+        updatedAt: new Date()
+      })
+      .where(eq(courses.id, id))
+
+    // Send notification
+    await notifyAdminChange({
+      env,
+      user: authContext.user,
+      resourceType: 'course',
+      resourceId: id,
+      resourceName: course[0].name,
+      resourceShortName: course[0].acronym,
+      action: 'added',
+      addedItem: `term "${term}"`
+    })
+
+    return Response.json({
+      courseId: id,
+      terms: updatedTerms,
+      message: 'Term added successfully'
+    })
   }
 }

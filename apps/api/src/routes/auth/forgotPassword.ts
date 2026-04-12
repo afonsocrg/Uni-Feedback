@@ -1,7 +1,8 @@
-import { OpenAPIRoute } from 'chanfana'
-import { z } from 'zod'
 import { AuthService } from '@services/authService'
 import { EmailService } from '@services/emailService'
+import { OpenAPIRoute } from 'chanfana'
+import type { Context } from 'hono'
+import { z } from 'zod'
 
 export class ForgotPassword extends OpenAPIRoute {
   schema = {
@@ -33,38 +34,34 @@ export class ForgotPassword extends OpenAPIRoute {
     }
   }
 
-  async handle(request: Request, env: any, context: any) {
-    try {
-      const data = await this.getValidatedData<typeof this.schema>()
-      const { email } = data.body
+  async handle(c: Context) {
+    const env = c.env as Env
+    const data = await this.getValidatedData<typeof this.schema>()
+    const { email } = data.body
 
-      // Find user by email
-      const authService = new AuthService(env)
-      const user = await authService.findUserByEmail(email)
+    // Find user by email
+    const authService = new AuthService(env)
+    const user = await authService.findUserByEmail(email)
 
-      if (user) {
-        // Create password reset token
-        const resetToken = await authService.createPasswordResetToken(user.id)
+    if (user) {
+      // Create password reset token
+      const resetToken = await authService.createPasswordResetToken(user.id)
 
-        // Send password reset email
-        const dashboardUrl = env.DASHBOARD_URL || 'http://localhost:5174'
-        const emailService = new EmailService(env)
-        await emailService.sendPasswordResetEmail(
-          email,
-          user.username,
-          resetToken.token,
-          dashboardUrl
-        )
-      }
-
-      // Always return success to prevent email enumeration
-      return Response.json({
-        message:
-          'If an account with that email exists, a password reset link has been sent.'
-      })
-    } catch (error) {
-      console.error('Forgot password error:', error)
-      return Response.json({ error: 'Internal server error' }, { status: 500 })
+      // Send password reset email
+      const dashboardUrl = env.DASHBOARD_URL
+      const emailService = new EmailService(env)
+      await emailService.sendPasswordResetEmail(
+        email,
+        user.username,
+        resetToken.token,
+        dashboardUrl
+      )
     }
+
+    // Always return success to prevent email enumeration
+    return Response.json({
+      message:
+        'If an account with that email exists, a password reset link has been sent.'
+    })
   }
 }

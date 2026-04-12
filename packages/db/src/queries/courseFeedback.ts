@@ -1,6 +1,6 @@
-import { and, eq, inArray, isNotNull, or, sql, type SQL } from 'drizzle-orm'
-import { courseRelationships, courses, feedback } from '../schema'
+import { and, eq, inArray, isNotNull, or, type SQL } from 'drizzle-orm'
 import { database } from '../context'
+import { courseRelationships, courses, feedback } from '../schema'
 
 /**
  * Get all course IDs that should be included when fetching feedback for a given course.

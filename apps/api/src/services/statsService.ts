@@ -142,7 +142,9 @@ export class StatsService {
     const result = await db
       .select({
         averageRating: sql<number | null>`avg(${feedback.rating})::real`,
-        averageWorkload: sql<number | null>`avg(${feedback.workloadRating})::real`,
+        averageWorkload: sql<
+          number | null
+        >`avg(${feedback.workloadRating})::real`,
         totalFeedbackCount: sql<number>`count(distinct ${feedback.id})::integer`
       })
       .from(feedback)

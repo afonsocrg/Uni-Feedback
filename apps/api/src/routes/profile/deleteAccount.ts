@@ -1,8 +1,8 @@
-import { authenticateUser } from '@middleware'
+import { requireAuth } from '@middleware'
 import { AuthService } from '@services/authService'
 import { clearAuthCookies } from '@utils/authCookies'
 import { OpenAPIRoute } from 'chanfana'
-import { IRequest } from 'itty-router'
+import type { Context } from 'hono'
 import { z } from 'zod'
 
 export class DeleteAccount extends OpenAPIRoute {
@@ -45,28 +45,22 @@ export class DeleteAccount extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: any, context: any) {
-    try {
-      // Authenticate user
-      const authCheck = await authenticateUser(request, env, context)
-      if (authCheck) return authCheck
+  async handle(c: Context) {
+    const env = c.env as Env
+    // Authenticate user
+    const authContext = await requireAuth(c)
+    const userId = authContext.user.id
 
-      const userId = context.user.id
+    // Delete user account (anonymize data)
+    const authService = new AuthService(env)
+    await authService.deleteUserAccount(userId)
 
-      // Delete user account (anonymize data)
-      const authService = new AuthService(env)
-      await authService.deleteUserAccount(userId)
+    // Clear authentication cookies
+    const response = Response.json({
+      message: 'Account deleted successfully'
+    })
+    clearAuthCookies(response)
 
-      // Clear authentication cookies
-      const response = Response.json({
-        message: 'Account deleted successfully'
-      })
-      clearAuthCookies(response)
-
-      return response
-    } catch (error) {
-      console.error('Delete account error:', error)
-      return Response.json({ error: 'Internal server error' }, { status: 500 })
-    }
+    return response
   }
 }

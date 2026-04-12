@@ -1,6 +1,7 @@
-import { requireAdmin, requireSuperuser } from '@middleware/auth'
-import { fromIttyRouter } from 'chanfana'
-import { AutoRouter, IRequest } from 'itty-router'
+import { requireAdmin } from '@middleware'
+import { fromHono } from 'chanfana'
+import { Hono } from 'hono'
+import { GetFacultyDetails } from '../faculties'
 import {
   CreateCourseGroup,
   // DeleteCourseGroup, // Commented out - users should not be able to delete course groups
@@ -44,11 +45,17 @@ import { RefreshStats } from './stats'
 import { GetDegreeSuggestions } from './suggestions'
 import { GetUsers } from './users'
 
-const router = fromIttyRouter(
-  AutoRouter({ before: [requireAdmin], base: '/admin' })
-)
+const app = new Hono()
+
+app.use('*', async (c, next) => {
+  await requireAdmin(c)
+  await next()
+})
+
+const router = fromHono(app, { passthroughErrors: true })
 
 // Faculty routes
+router.get('/faculties/:id', GetFacultyDetails)
 router.put('/faculties/:id', UpdateFaculty)
 router.get('/faculties/:id/email-suffixes', GetFacultyEmailSuffixes)
 router.post('/faculties/:id/email-suffixes', AddFacultyEmailSuffix)
@@ -96,15 +103,6 @@ router.post('/reports/degree', GenerateDegreeReport)
 // Stats routes
 router.post('/stats/refresh', RefreshStats)
 
-// User routes - Wrapped with superuser middleware
-class GetUsersWithAuth extends GetUsers {
-  async handle(request: IRequest, env: any, context: any) {
-    const authCheck = await requireSuperuser(request, env, context)
-    if (authCheck) return authCheck
-
-    return super.handle(request, env, context)
-  }
-}
-router.get('/users', GetUsersWithAuth)
+router.get('/users', GetUsers)
 
 export { router }

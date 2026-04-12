@@ -106,6 +106,8 @@ export interface CourseSearchResult {
     name: string
     shortName: string
   }
+  hasUserFeedback: boolean
+  userRating: number | null
 }
 
 export interface CourseSearchResponse {
@@ -121,4 +123,14 @@ export interface SearchCoursesParams {
   degree_id?: number
   limit?: number
   offset?: number
+}
+
+export interface FeedbackRecommendation {
+  id: number
+  acronym: string
+  name: string
+}
+
+export interface FeedbackRecommendationsResponse {
+  recommendations: FeedbackRecommendation[]
 }

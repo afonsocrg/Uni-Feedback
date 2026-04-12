@@ -1,8 +1,11 @@
-import { OpenAPIRoute } from 'chanfana'
-import { z } from 'zod'
-import { AuthService } from '@services/authService'
 import { AUTH_CONFIG } from '@config/auth'
+import { requireAuth } from '@middleware'
+import { AuthService } from '@services/authService'
 import { clearAuthCookies } from '@utils/authCookies'
+import { OpenAPIRoute } from 'chanfana'
+import type { Context } from 'hono'
+import { getCookie } from 'hono/cookie'
+import { z } from 'zod'
 
 export class Logout extends OpenAPIRoute {
   schema = {
@@ -22,29 +25,24 @@ export class Logout extends OpenAPIRoute {
     }
   }
 
-  async handle(request: Request, env: any, context: any) {
-    try {
-      // Get access token from cookie
-      const cookies = request.headers.get('Cookie') || ''
-      const accessTokenMatch = cookies.match(
-        new RegExp(`${AUTH_CONFIG.COOKIE_NAME}-access=([^;]+)`)
-      )
-      const accessToken = accessTokenMatch?.[1]
+  async handle(c: Context) {
+    // Use existing auth logic to get session (handles cookie extraction internally)
+    await requireAuth(c)
+    const env = c.env as Env
 
-      if (accessToken) {
-        // Delete the session
-        const authService = new AuthService(env)
-        await authService.deleteSession(accessToken)
-      }
+    // Get access token from cookie
+    const accessToken = getCookie(c, `${AUTH_CONFIG.COOKIE_NAME}-access`)
 
-      // Clear authentication cookies
-      const response = Response.json({ message: 'Logout successful' })
-      clearAuthCookies(response)
-
-      return response
-    } catch (error) {
-      console.error('Logout error:', error)
-      return Response.json({ error: 'Internal server error' }, { status: 500 })
+    // Delete the session from database
+    if (accessToken) {
+      const authService = new AuthService(env)
+      await authService.deleteSession(accessToken)
     }
+
+    // Clear authentication cookies
+    const response = Response.json({ message: 'Logout successful' })
+    clearAuthCookies(response)
+
+    return response
   }
 }

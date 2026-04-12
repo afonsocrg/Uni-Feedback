@@ -1,6 +1,5 @@
 import { StatsService } from '@services'
 import { OpenAPIRoute } from 'chanfana'
-import { IRequest } from 'itty-router'
 import { z } from 'zod'
 
 const RefreshStatsResponseSchema = z.object({
@@ -38,24 +37,15 @@ export class RefreshStats extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: any, context: any) {
-    try {
-      const statsService = new StatsService()
-      const result = await statsService.refreshAllStats()
+  async handle() {
+    const statsService = new StatsService()
+    const result = await statsService.refreshAllStats()
 
-      return Response.json({
-        success: true,
-        coursesUpdated: result.coursesUpdated,
-        degreesUpdated: result.degreesUpdated,
-        refreshedAt: new Date().toISOString()
-      })
-    } catch (error: any) {
-      console.error('Refresh stats error:', error)
-
-      return Response.json(
-        { error: 'Failed to refresh statistics. Please try again later.' },
-        { status: 500 }
-      )
-    }
+    return Response.json({
+      success: true,
+      coursesUpdated: result.coursesUpdated,
+      degreesUpdated: result.degreesUpdated,
+      refreshedAt: new Date().toISOString()
+    })
   }
 }

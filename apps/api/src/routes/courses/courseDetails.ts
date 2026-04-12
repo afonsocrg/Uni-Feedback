@@ -1,9 +1,10 @@
+import { NotFoundError } from '@routes/utils/errorHandling'
+import { CourseFeedbackService } from '@services'
 import { database } from '@uni-feedback/db'
 import { courses, degrees } from '@uni-feedback/db/schema'
-import { CourseFeedbackService } from '@services'
 import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
-import { IRequest } from 'itty-router'
+import type { Context } from 'hono'
 import { z } from 'zod'
 
 const DegreeSchema = z.object({
@@ -56,8 +57,10 @@ export class GetCourse extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: any, context: any) {
-    const courseId = parseInt(request.params.id)
+  async handle(c: Context) {
+    const env = c.env as Env
+    const { params } = await this.getValidatedData<typeof this.schema>()
+    const courseId = params.id
     const courseFeedbackService = new CourseFeedbackService(env)
 
     // Get course details
@@ -86,7 +89,7 @@ export class GetCourse extends OpenAPIRoute {
       .where(eq(courses.id, courseId))
 
     if (courseResult.length === 0) {
-      return Response.json({ error: 'Course not found' }, { status: 404 })
+      throw new NotFoundError('Course not found')
     }
 
     // Get aggregated feedback stats including related courses

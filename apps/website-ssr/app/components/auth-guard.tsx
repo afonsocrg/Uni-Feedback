@@ -5,9 +5,10 @@ import { useAuth } from '~/hooks'
 
 interface AuthGuardProps {
   children: React.ReactNode
+  loadingComponent?: React.ReactNode
 }
 
-export function AuthGuard({ children }: AuthGuardProps) {
+export function AuthGuard({ children, loadingComponent }: AuthGuardProps) {
   const { isAuthenticated, user, isLoading, isLoggingOut } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
@@ -34,6 +35,10 @@ export function AuthGuard({ children }: AuthGuardProps) {
 
   // Show loading animation while checking auth, redirecting, or logging out
   if (isLoading || isLoggingOut || !isAuthenticated || !user) {
+    if (loadingComponent) {
+      return <>{loadingComponent}</>
+    }
+
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="flex flex-col items-center gap-3">

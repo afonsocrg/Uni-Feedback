@@ -1,9 +1,9 @@
-import { database } from '@uni-feedback/db'
-import { feedback } from '@uni-feedback/db/schema'
+import { NotFoundError } from '@routes/utils/errorHandling'
 import { CourseFeedbackService, CourseService } from '@services'
+import { feedback } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
 import { desc } from 'drizzle-orm'
-import { IRequest } from 'itty-router'
+import type { Context } from 'hono'
 import { z } from 'zod'
 
 const FeedbackSchema = z.object({
@@ -52,14 +52,16 @@ export class GetCourseFeedback extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: Env, context: any) {
-    const courseId = parseInt(request.params.id)
+  async handle(c: Context) {
+    const env = c.env as Env
+    const { params } = await this.getValidatedData<typeof this.schema>()
+    const courseId = params.id
     const courseFeedbackService = new CourseFeedbackService(env)
     const courseService = new CourseService(env)
 
     // First validate that the course exists
     if (!(await courseService.courseExists(courseId))) {
-      return Response.json({ error: 'Course not found' }, { status: 404 })
+      throw new NotFoundError('Course not found')
     }
 
     const feedbackData = await courseFeedbackService

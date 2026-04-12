@@ -12,7 +12,7 @@ export async function getFaculties(): Promise<Faculty[]> {
 export async function getFacultyDetails(
   facultyId: number
 ): Promise<FacultyDetails> {
-  const response = await fetch(`${API_BASE_URL}/faculties/${facultyId}`)
+  const response = await fetch(`${API_BASE_URL}/admin/faculties/${facultyId}`)
   if (!response.ok) {
     throw new Error('Failed to fetch faculty details')
   }

@@ -8,13 +8,13 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  EditableStarRating,
   Label,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-  EditableStarRating,
   WorkloadRatingSelect
 } from '@uni-feedback/ui'
 import { getCurrentSchoolYear } from '@uni-feedback/utils'
@@ -69,7 +69,11 @@ export function EditFeedbackDialog({
   })
 
   const handleSave = () => {
-    const updates: any = {}
+    const updates: {
+      schoolYear?: number | null
+      rating?: number
+      workloadRating?: number | null
+    } = {}
 
     if (schoolYear !== (initialSchoolYear?.toString() || '')) {
       updates.schoolYear = schoolYear ? parseInt(schoolYear) : null

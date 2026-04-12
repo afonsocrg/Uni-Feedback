@@ -1,6 +1,8 @@
+import { BadRequestError } from '@routes/utils/errorHandling'
 import { AuthService } from '@services/authService'
 import { setAuthCookies } from '@utils/authCookies'
 import { OpenAPIRoute } from 'chanfana'
+import type { Context } from 'hono'
 import { z } from 'zod'
 
 export class VerifyOtp extends OpenAPIRoute {
@@ -50,45 +52,40 @@ export class VerifyOtp extends OpenAPIRoute {
     }
   }
 
-  async handle(request: Request, env: any, context: any) {
-    try {
-      const data = await this.getValidatedData<typeof this.schema>()
-      const { email, otp } = data.body
+  async handle(c: Context) {
+    const env = c.env as Env
+    const data = await this.getValidatedData<typeof this.schema>()
+    const { email, otp } = data.body
 
-      const authService = new AuthService(env)
+    const authService = new AuthService(env)
 
-      // Verify OTP
-      const result = await authService.verifyOtpToken(email, otp)
+    // Verify OTP
+    const result = await authService.verifyOtpToken(email, otp)
 
-      // Check if verification failed
-      if ('error' in result) {
-        const errorResponse: { error: string; attemptsRemaining?: number } = {
-          error: result.error
-        }
-        if (result.attemptsRemaining !== undefined) {
-          errorResponse.attemptsRemaining = result.attemptsRemaining
-        }
-        return Response.json(errorResponse, { status: 400 })
-      }
-
-      // Success - create response with user data
-      const response = Response.json({
-        user: {
-          id: result.user.id,
-          email: result.user.email,
-          username: result.user.username,
-          role: result.user.role,
-          referralCode: result.user.referralCode
-        }
-      })
-
-      // Set auth cookies
-      setAuthCookies(response, result)
-
-      return response
-    } catch (error) {
-      console.error('Verify OTP error:', error)
-      return Response.json({ error: 'Internal server error' }, { status: 500 })
+    // Check if verification failed
+    if ('error' in result) {
+      throw new BadRequestError(
+        result.error,
+        result.attemptsRemaining !== undefined
+          ? { attemptsRemaining: result.attemptsRemaining }
+          : undefined
+      )
     }
+
+    // Success - create response with user data
+    const response = Response.json({
+      user: {
+        id: result.user.id,
+        email: result.user.email,
+        username: result.user.username,
+        role: result.user.role,
+        referralCode: result.user.referralCode
+      }
+    })
+
+    // Set auth cookies
+    setAuthCookies(response, result)
+
+    return response
   }
 }

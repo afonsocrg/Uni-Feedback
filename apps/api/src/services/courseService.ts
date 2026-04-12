@@ -1,5 +1,5 @@
-import { courses } from '@uni-feedback/db/schema'
 import { database } from '@uni-feedback/db'
+import { courses } from '@uni-feedback/db/schema'
 import { eq } from 'drizzle-orm'
 
 export class CourseService {

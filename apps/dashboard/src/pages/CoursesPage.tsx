@@ -1,10 +1,9 @@
 import { PaginationControls } from '@components'
-import { useDebouncedSearch, useAdminFilters } from '@hooks'
+import { useAdminFilters, useDebouncedSearch } from '@hooks'
 import { useQuery } from '@tanstack/react-query'
-import { cn } from '@uni-feedback/ui'
 import {
-  getAllTerms,
   getAdminCoursesNew,
+  getAllTerms,
   getDegreeSuggestions,
   getFaculties,
   type AdminCoursesQuery
@@ -17,6 +16,7 @@ import {
   CardHeader,
   CardTitle,
   Chip,
+  cn,
   Command,
   CommandEmpty,
   CommandGroup,

@@ -1,3 +1,3 @@
-export * from './get'
-export * from './facultyDetails'
 export * from './degrees'
+export * from './facultyDetails'
+export * from './get'

@@ -64,7 +64,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             role: response.user.role
           })
         }
-      } catch (error) {
+      } catch {
         // Not logged in or session expired
         setUser(null)
       } finally {

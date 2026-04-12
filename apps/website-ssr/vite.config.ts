@@ -3,11 +3,10 @@ import tailwindcss from '@tailwindcss/vite'
 import { defineConfig } from 'vite'
 import devtoolsJson from 'vite-plugin-devtools-json'
 import { plugin as markdown, Mode } from 'vite-plugin-markdown'
-import tsconfigPaths from 'vite-tsconfig-paths'
 
 export default defineConfig(({ isSsrBuild }) => ({
   build: {
-    rollupOptions: isSsrBuild
+    rolldownOptions: isSsrBuild
       ? {
           input: './server/app.ts'
         }
@@ -16,7 +15,6 @@ export default defineConfig(({ isSsrBuild }) => ({
   plugins: [
     tailwindcss(),
     reactRouter(),
-    tsconfigPaths(),
     devtoolsJson(),
     markdown({ mode: [Mode.MARKDOWN] })
   ],
@@ -34,6 +32,7 @@ export default defineConfig(({ isSsrBuild }) => ({
     ]
   },
   resolve: {
+    tsconfigPaths: true,
     alias: {
       // Ensure we use the correct React Router v7 packages
       'react-router-dom': 'react-router'

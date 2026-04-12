@@ -1,8 +1,8 @@
+import { NotFoundError } from '@routes/utils/errorHandling'
 import { database } from '@uni-feedback/db'
 import { courses, degrees, faculties } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
 import { eq, sql } from 'drizzle-orm'
-import { IRequest } from 'itty-router'
 import { z } from 'zod'
 
 const AdminDegreeDetailSchema = z.object({
@@ -56,79 +56,77 @@ export class GetDegreeDetails extends OpenAPIRoute {
     }
   }
 
-  async handle(request: IRequest, env: any, context: any) {
-    try {
-      const { params } = await this.getValidatedData<typeof this.schema>()
-      const { id } = params
+  async handle() {
+    const { params } = await this.getValidatedData<typeof this.schema>()
+    const { id } = params
 
-      // Get degree with faculty info and course count
-      const degreeResult = await database()
-        .select({
-          id: degrees.id,
-          name: degrees.name,
-          acronym: degrees.acronym,
-          type: degrees.type,
-          description: degrees.description,
-          facultyId: degrees.facultyId,
-          facultyName: faculties.name,
-          facultyShortName: faculties.shortName,
-          createdAt: degrees.createdAt,
-          updatedAt: degrees.updatedAt,
-          courseCount: sql<number>`(
+    // Get degree with faculty info and course count
+    const degreeResult = await database()
+      .select({
+        id: degrees.id,
+        name: degrees.name,
+        acronym: degrees.acronym,
+        type: degrees.type,
+        description: degrees.description,
+        facultyId: degrees.facultyId,
+        facultyName: faculties.name,
+        facultyShortName: faculties.shortName,
+        createdAt: degrees.createdAt,
+        updatedAt: degrees.updatedAt,
+        courseCount: sql<number>`(
             SELECT COUNT(*)
             FROM courses
             WHERE courses.degree_id = ${degrees.id}
           )`
-        })
-        .from(degrees)
-        .leftJoin(faculties, eq(degrees.facultyId, faculties.id))
-        .where(eq(degrees.id, id))
-        .limit(1)
+      })
+      .from(degrees)
+      .leftJoin(faculties, eq(degrees.facultyId, faculties.id))
+      .where(eq(degrees.id, id))
+      .limit(1)
 
-      if (degreeResult.length === 0) {
-        return Response.json({ error: 'Degree not found' }, { status: 404 })
-      }
-
-      const degree = degreeResult[0]
-
-      // Get report options (curriculum years and terms)
-      const coursesResult = await database()
-        .select({
-          curriculumYear: courses.curriculumYear,
-          terms: courses.terms
-        })
-        .from(courses)
-        .where(eq(courses.degreeId, id))
-
-      const curriculumYearSet = new Set<number>()
-      const termSet = new Set<string>()
-
-      for (const course of coursesResult) {
-        if (course.curriculumYear !== null && course.curriculumYear !== undefined) {
-          curriculumYearSet.add(course.curriculumYear)
-        }
-        if (course.terms && Array.isArray(course.terms)) {
-          for (const term of course.terms as string[]) {
-            termSet.add(term)
-          }
-        }
-      }
-
-      const response = {
-        ...degree,
-        courseCount: Number(degree.courseCount),
-        reportOptions: {
-          curriculumYears: Array.from(curriculumYearSet).sort((a, b) => a - b),
-          terms: Array.from(termSet).sort()
-        },
-        createdAt: degree.createdAt?.toISOString() || '',
-        updatedAt: degree.updatedAt?.toISOString() || ''
-      }
-
-      return Response.json(response)
-    } catch (error) {
-      console.error('Get degree details error:', error)
-      return Response.json({ error: 'Internal server error' }, { status: 500 })
+    if (degreeResult.length === 0) {
+      throw new NotFoundError('Degree not found')
     }
+
+    const degree = degreeResult[0]
+
+    // Get report options (curriculum years and terms)
+    const coursesResult = await database()
+      .select({
+        curriculumYear: courses.curriculumYear,
+        terms: courses.terms
+      })
+      .from(courses)
+      .where(eq(courses.degreeId, id))
+
+    const curriculumYearSet = new Set<number>()
+    const termSet = new Set<string>()
+
+    for (const course of coursesResult) {
+      if (
+        course.curriculumYear !== null &&
+        course.curriculumYear !== undefined
+      ) {
+        curriculumYearSet.add(course.curriculumYear)
+      }
+      if (course.terms && Array.isArray(course.terms)) {
+        for (const term of course.terms as string[]) {
+          termSet.add(term)
+        }
+      }
+    }
+
+    const response = {
+      ...degree,
+      courseCount: Number(degree.courseCount),
+      reportOptions: {
+        curriculumYears: Array.from(curriculumYearSet).sort((a, b) => a - b),
+        terms: Array.from(termSet).sort()
+      },
+      createdAt: degree.createdAt?.toISOString() || '',
+      updatedAt: degree.updatedAt?.toISOString() || ''
+    }
+
+    return Response.json(response)
   }
 }

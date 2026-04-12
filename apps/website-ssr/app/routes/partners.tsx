@@ -33,11 +33,6 @@ export function meta() {
 export default function PartnersPage({ loaderData }: Route.ComponentProps) {
   const { partners } = loaderData
 
-  // Generate initials from short name (e.g., "AEIST" -> "AE")
-  const getInitials = (shortName: string) => {
-    return shortName.slice(0, 2).toUpperCase()
-  }
-
   return (
     <div className="container mx-auto px-4 py-16 md:py-24">
       <div className="max-w-4xl mx-auto">

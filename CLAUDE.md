@@ -12,7 +12,8 @@ Uni Feedback is a platform for university students to share anonymous course rev
 # Monorepo (run from root) - Uses Turborepo
 pnpm run dev        # Start all development servers in parallel
 pnpm run build      # Build all applications and packages
-pnpm run format     # Format code (MUST run before commits)
+pnpm run format     # Format code
+pnpm run format:check # Check if code is formatted (used by CI pipeline)
 pnpm run lint       # Lint all packages
 pnpm run type-check # Type check all packages
 
@@ -131,6 +132,22 @@ cp apps/website-ssr/.env.example apps/website-ssr/.env
 # Update DATABASE_URL password in both files
 ```
 
+## Git Hooks
+
+**Pre-commit hook** automatically runs quality checks before commits.
+
+**One-time setup** (after cloning the repo):
+```bash
+ln -sf ../../ops/pre-commit.sh .git/hooks/pre-commit
+```
+
+The hook runs:
+- ✅ Format check (`pnpm run format:check`)
+- ✅ Type check (`pnpm run type-check`)
+- ✅ Lint (`pnpm run lint`)
+
+If any check fails, the commit is blocked. Run `pnpm run format` to fix formatting issues, then commit again.
+
 ## Documentation Rules
 
 - **When defining new practices or architectural decisions**, document them as a skill in `.claude/skills/`
@@ -144,6 +161,7 @@ cp apps/website-ssr/.env.example apps/website-ssr/.env
 
 - **ALWAYS** ask for user approval before creating commits
 - **NEVER** include author information in commit messages
-- **ALWAYS** run `pnpm run format` after you do your edits.
 - Use conventional commit format when possible
 - Always use pnpm
+
+**Note:** The pre-commit hook auto-formats staged files via `lint-staged`. Lint and type-check run in CI (GitHub Actions) before every deployment.
