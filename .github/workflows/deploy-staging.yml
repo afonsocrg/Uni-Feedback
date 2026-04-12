@@ -6,6 +6,13 @@ on:
       - staging
   workflow_dispatch:
 
+env:
+  # actions/checkout@v4 and docker/build-push-action@v6 don't yet ship Node.js 24-compatible
+  # versions. This opts the runner into Node.js 24 in the meantime (recommended by GitHub):
+  # https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+  # Remove once the actions ship updated major versions.
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build-and-push:
     name: Build and Push Docker Images
