@@ -90,9 +90,7 @@ export function CourseBrowser({
       return
     }
 
-    if (selectedDegreeId !== undefined) {
-      storage.setSelectedDegreeId(selectedDegreeId)
-    }
+    storage.setSelectedDegreeId(selectedDegreeId)
   }, [selectedDegreeId])
 
   const handleCourseClick = (course: CourseSearchResult) => {

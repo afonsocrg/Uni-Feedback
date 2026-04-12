@@ -61,9 +61,13 @@ export const storage = {
     return value ? Number(value) : undefined
   },
 
-  setSelectedDegreeId(id: number): void {
+  setSelectedDegreeId(id: number | undefined): void {
     if (typeof window === 'undefined') return
-    localStorage.setItem(STORAGE_KEYS.SELECTED_DEGREE_ID, id.toString())
+    if (id !== undefined) {
+      localStorage.setItem(STORAGE_KEYS.SELECTED_DEGREE_ID, id.toString())
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.SELECTED_DEGREE_ID)
+    }
   },
 
   // Feedback Draft
