@@ -1,6 +1,7 @@
+import { getAuthContext } from '@middleware'
 import { BadRequestError } from '@routes/utils/errorHandling'
 import { database } from '@uni-feedback/db'
-import { courses, degrees, faculties } from '@uni-feedback/db/schema'
+import { courses, degrees, faculties, feedback } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
 import { and, eq, or, sql } from 'drizzle-orm'
 import type { Context } from 'hono'
@@ -19,7 +20,8 @@ const CourseSearchResultSchema = z.object({
     id: z.number(),
     name: z.string(),
     shortName: z.string()
-  })
+  }),
+  hasUserFeedback: z.boolean()
 })
 
 const SearchResponseSchema = z.object({
@@ -75,7 +77,7 @@ export class SearchCourses extends OpenAPIRoute {
     }
   }
 
-  async handle(_c: Context) {
+  async handle(c: Context) {
     const { query } = await this.getValidatedData<typeof this.schema>()
     const { q, faculty_id, degree_id, limit, offset } = query
 
@@ -85,6 +87,9 @@ export class SearchCourses extends OpenAPIRoute {
         'At least one search parameter (q, faculty_id, or degree_id) is required'
       )
     }
+
+    const authContext = await getAuthContext(c)
+    const userId = authContext?.user?.id ?? null
 
     const conditions = []
 
@@ -107,39 +112,90 @@ export class SearchCourses extends OpenAPIRoute {
       conditions.push(eq(degrees.facultyId, faculty_id))
     }
 
-    // Query with joins to get nested faculty/degree info
-    // No feedback aggregation for fast queries
-    const results = await database()
-      .select({
-        id: courses.id,
-        name: courses.name,
-        acronym: courses.acronym,
-        degree: {
-          id: degrees.id,
-          name: degrees.name,
-          acronym: degrees.acronym
-        },
-        faculty: {
-          id: faculties.id,
-          name: faculties.name,
-          shortName: faculties.shortName
-        }
-      })
-      .from(courses)
-      .innerJoin(degrees, eq(courses.degreeId, degrees.id))
-      .innerJoin(faculties, eq(degrees.facultyId, faculties.id))
-      .where(conditions.length > 0 ? and(...conditions) : undefined)
-      .limit(limit)
-      .offset(offset)
-      .orderBy(courses.name)
+    const db = database()
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined
 
-    // Get total count for pagination
-    const [{ count }] = await database()
+    let results: Array<{
+      id: number
+      name: string
+      acronym: string
+      degree: { id: number; name: string; acronym: string }
+      faculty: { id: number; name: string; shortName: string }
+      hasUserFeedback: boolean
+    }>
+
+    if (userId) {
+      const rows = await db
+        .select({
+          id: courses.id,
+          name: courses.name,
+          acronym: courses.acronym,
+          degree: {
+            id: degrees.id,
+            name: degrees.name,
+            acronym: degrees.acronym
+          },
+          faculty: {
+            id: faculties.id,
+            name: faculties.name,
+            shortName: faculties.shortName
+          },
+          hasUserFeedback: sql<boolean>`(${feedback.id} IS NOT NULL)`
+        })
+        .from(courses)
+        .innerJoin(degrees, eq(courses.degreeId, degrees.id))
+        .innerJoin(faculties, eq(degrees.facultyId, faculties.id))
+        .leftJoin(
+          feedback,
+          and(eq(feedback.courseId, courses.id), eq(feedback.userId, userId))
+        )
+        .where(whereClause)
+        .orderBy(
+          sql`CASE WHEN ${feedback.id} IS NOT NULL THEN 1 ELSE 0 END`,
+          courses.name
+        )
+        .limit(limit)
+        .offset(offset)
+
+      results = rows.map((r) => ({
+        ...r,
+        hasUserFeedback: Boolean(r.hasUserFeedback)
+      }))
+    } else {
+      const rows = await db
+        .select({
+          id: courses.id,
+          name: courses.name,
+          acronym: courses.acronym,
+          degree: {
+            id: degrees.id,
+            name: degrees.name,
+            acronym: degrees.acronym
+          },
+          faculty: {
+            id: faculties.id,
+            name: faculties.name,
+            shortName: faculties.shortName
+          }
+        })
+        .from(courses)
+        .innerJoin(degrees, eq(courses.degreeId, degrees.id))
+        .innerJoin(faculties, eq(degrees.facultyId, faculties.id))
+        .where(whereClause)
+        .orderBy(courses.name)
+        .limit(limit)
+        .offset(offset)
+
+      results = rows.map((r) => ({ ...r, hasUserFeedback: false }))
+    }
+
+    // Get total count for pagination (independent of user auth)
+    const [{ count }] = await db
       .select({ count: sql<number>`count(*)` })
       .from(courses)
       .innerJoin(degrees, eq(courses.degreeId, degrees.id))
       .innerJoin(faculties, eq(degrees.facultyId, faculties.id))
-      .where(conditions.length > 0 ? and(...conditions) : undefined)
+      .where(whereClause)
 
     return Response.json({
       courses: results,

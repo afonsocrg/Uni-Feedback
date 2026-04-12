@@ -1,5 +1,4 @@
 import { API_BASE_URL } from './config'
-import { MeicFeedbackAPIError } from './errors'
 import {
   Course,
   CourseDetail,
@@ -7,6 +6,7 @@ import {
   Feedback,
   SearchCoursesParams
 } from './types'
+import { apiGet } from './utils'
 
 // Re-export types for convenience
 export type { CourseSearchResponse, SearchCoursesParams } from './types'
@@ -81,23 +81,10 @@ export async function searchCourses(
     throw new Error('At least one search parameter required')
   }
 
-  const url = new URL(`${API_BASE_URL}/courses/search`)
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined) {
-      url.searchParams.append(key, value.toString())
-    }
-  })
+  const queryString = Object.entries(params)
+    .filter(([, value]) => value !== undefined)
+    .map(([key, value]) => `${key}=${encodeURIComponent(String(value))}`)
+    .join('&')
 
-  const response = await fetch(url.toString())
-  if (!response.ok) {
-    const errorData = await response.json()
-    throw new MeicFeedbackAPIError(
-      errorData.error || 'Failed to search courses',
-      {
-        status: response.status,
-        data: errorData
-      }
-    )
-  }
-  return response.json()
+  return apiGet<CourseSearchResponse>(`/courses/search?${queryString}`)
 }

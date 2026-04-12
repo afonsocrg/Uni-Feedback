@@ -1,5 +1,5 @@
 import { type CourseSearchResult, type Faculty } from '@uni-feedback/api-client'
-import { ChevronRight, Loader2 } from 'lucide-react'
+import { CheckCircle2, ChevronRight, Loader2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useFacultyDegrees, useSearchCourses } from '~/hooks/queries'
 import { useDebounce } from '~/hooks/useDebounce'
@@ -201,7 +201,13 @@ export function CourseBrowser({
                       </h3>
                       <p className="text-sm text-gray-500">{course.acronym}</p>
                     </div>
-                    <div className="flex-shrink-0">
+                    <div className="flex-shrink-0 flex items-center gap-2">
+                      {course.hasUserFeedback && (
+                        <span className="flex items-center gap-1 text-xs font-medium text-green-700 bg-green-50 border border-green-200 px-2 py-1 rounded-full">
+                          <CheckCircle2 className="w-3 h-3" />
+                          Submitted
+                        </span>
+                      )}
                       <ChevronRight className="w-6 h-6 text-primaryBlue group-hover:translate-x-1 transition-transform" />
                     </div>
                   </div>

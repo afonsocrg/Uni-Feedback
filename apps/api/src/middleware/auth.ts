@@ -8,12 +8,12 @@ import {
 } from '../routes/utils/errorHandling'
 
 /**
- * Authenticates the user and returns an AuthenticatedRequestContext.
- * Throws UnauthorizedError if authentication fails.
+ * Resolves the authenticated user from the request context or session cookie.
+ * Returns null if no valid session is found — never throws.
  */
-export async function requireAuth(
+export async function getAuthContext(
   c: Context
-): Promise<AuthenticatedRequestContext> {
+): Promise<AuthenticatedRequestContext | null> {
   const context = (c.get('requestContext') as RequestContext) || {}
 
   // Short-circuit if already authenticated (e.g. by upstream middleware)
@@ -25,14 +25,14 @@ export async function requireAuth(
   const accessToken = getCookie(c, `${AUTH_CONFIG.COOKIE_NAME}-access`)
 
   if (!accessToken) {
-    throw new UnauthorizedError('Authentication required')
+    return null
   }
 
   // Verify session
   const authService = new AuthService(env)
   const sessionData = await authService.findSessionByAccessToken(accessToken)
   if (!sessionData) {
-    throw new UnauthorizedError('Invalid or expired session')
+    return null
   }
 
   // Add user to context
@@ -47,7 +47,21 @@ export async function requireAuth(
 }
 
 /**
- * Authenticates the user and verifies admin role.
+ * Requires the user to be authenticated.
+ * Throws UnauthorizedError if no valid session is found.
+ */
+export async function requireAuth(
+  c: Context
+): Promise<AuthenticatedRequestContext> {
+  const context = await getAuthContext(c)
+  if (!context) {
+    throw new UnauthorizedError('Authentication required')
+  }
+  return context
+}
+
+/**
+ * Requires the user to be authenticated and have admin role.
  * Throws UnauthorizedError if not authenticated, ForbiddenError if not admin.
  */
 export async function requireAdmin(
@@ -68,7 +82,7 @@ export async function requireAdmin(
 }
 
 /**
- * Authenticates the user and verifies superuser role.
+ * Requires the user to be authenticated and have superuser role.
  * Throws UnauthorizedError if not authenticated, ForbiddenError if not superuser.
  */
 export async function requireSuperuser(
