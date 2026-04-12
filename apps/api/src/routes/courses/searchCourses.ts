@@ -21,7 +21,8 @@ const CourseSearchResultSchema = z.object({
     name: z.string(),
     shortName: z.string()
   }),
-  hasUserFeedback: z.boolean()
+  hasUserFeedback: z.boolean(),
+  userRating: z.number().nullable()
 })
 
 const SearchResponseSchema = z.object({
@@ -122,6 +123,7 @@ export class SearchCourses extends OpenAPIRoute {
       degree: { id: number; name: string; acronym: string }
       faculty: { id: number; name: string; shortName: string }
       hasUserFeedback: boolean
+      userRating: number | null
     }>
 
     if (userId) {
@@ -140,7 +142,8 @@ export class SearchCourses extends OpenAPIRoute {
             name: faculties.name,
             shortName: faculties.shortName
           },
-          hasUserFeedback: sql<boolean>`(${feedback.id} IS NOT NULL)`
+          hasUserFeedback: sql<boolean>`(${feedback.id} IS NOT NULL)`,
+          userRating: feedback.rating
         })
         .from(courses)
         .innerJoin(degrees, eq(courses.degreeId, degrees.id))
@@ -186,7 +189,11 @@ export class SearchCourses extends OpenAPIRoute {
         .limit(limit)
         .offset(offset)
 
-      results = rows.map((r) => ({ ...r, hasUserFeedback: false }))
+      results = rows.map((r) => ({
+        ...r,
+        hasUserFeedback: false,
+        userRating: null
+      }))
     }
 
     // Get total count for pagination (independent of user auth)

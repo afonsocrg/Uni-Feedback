@@ -107,6 +107,7 @@ export interface CourseSearchResult {
     shortName: string
   }
   hasUserFeedback: boolean
+  userRating: number | null
 }
 
 export interface CourseSearchResponse {
