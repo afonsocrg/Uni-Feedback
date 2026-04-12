@@ -7,12 +7,12 @@ import {
   type FeedbackRecommendation
 } from '@uni-feedback/api-client'
 import { database } from '@uni-feedback/db'
-import { courses } from '@uni-feedback/db/schema'
+import { courses, feedback } from '@uni-feedback/db/schema'
 import { getCurrentSchoolYear } from '@uni-feedback/utils'
-import { eq } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { useSearchParams } from 'react-router'
+import { redirect, useSearchParams } from 'react-router'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import {
@@ -23,6 +23,7 @@ import {
 } from '~/components'
 import { useAuth } from '~/hooks'
 import { useSubmitFeedback } from '~/hooks/queries'
+import { getCurrentUserId } from '~/lib/auth.server'
 import {
   analytics,
   getPageName,
@@ -63,13 +64,28 @@ export function meta({ loaderData }: Route.MetaArgs) {
   ]
 }
 
-export async function loader({ params }: Route.LoaderArgs) {
+export async function loader({ params, request }: Route.LoaderArgs) {
   const courseId = parseInt(params.courseId, 10)
   if (isNaN(courseId)) {
     throw new Response('Invalid course ID', { status: 400 })
   }
 
   const db = database()
+
+  // If the user is authenticated and already has feedback for this course,
+  // redirect them to the edit page directly.
+  const userId = await getCurrentUserId(request)
+  if (userId) {
+    const [existing] = await db
+      .select({ id: feedback.id })
+      .from(feedback)
+      .where(and(eq(feedback.userId, userId), eq(feedback.courseId, courseId)))
+      .limit(1)
+
+    if (existing) {
+      throw redirect(`/feedback/${existing.id}/edit?redirected=1`)
+    }
+  }
 
   // Fetch course with degree and faculty
   const course = await db.query.courses.findFirst({
