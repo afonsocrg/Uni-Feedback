@@ -12,8 +12,8 @@ Uni Feedback is a platform for university students to share anonymous course rev
 # Monorepo (run from root) - Uses Turborepo
 pnpm run dev        # Start all development servers in parallel
 pnpm run build      # Build all applications and packages
-pnpm run format     # Format code (runs automatically via hook on every file edit)
-pnpm run format:check # Check if code is formatted (used by git pre-commit hook)
+pnpm run format     # Format code
+pnpm run format:check # Check if code is formatted (used by CI pipeline)
 pnpm run lint       # Lint all packages
 pnpm run type-check # Type check all packages
 
@@ -164,6 +164,4 @@ If any check fails, the commit is blocked. Run `pnpm run format` to fix formatti
 - Use conventional commit format when possible
 - Always use pnpm
 
-**Note:** Code quality checks (format, lint, type-check) run automatically:
-- Claude Code edits: Auto-formatted via PostToolUse hook
-- Manual commits: Validated via git pre-commit hook (check-only, fails if issues found)
+**Note:** The pre-commit hook auto-formats staged files via `lint-staged`. Lint and type-check run in CI (GitHub Actions) before every deployment.

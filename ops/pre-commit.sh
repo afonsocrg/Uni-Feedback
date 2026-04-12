@@ -1,21 +1,10 @@
 #!/bin/bash
 # Pre-commit hook for uni-feedback
-# Ensures code quality before allowing commits
+# Auto-formats staged files before committing
 
-set -e  # Exit on any error
+set -e
 
-echo "🔍 Running pre-commit checks..."
+echo "Formatting staged files..."
+pnpm lint-staged
 
-# Check formatting (fail if files need formatting)
-echo "  📝 Checking code formatting..."
-pnpm run format:check
-
-# Type check
-echo "  🔧 Type checking..."
-pnpm run type-check
-
-# Lint
-echo "  ✨ Linting..."
-pnpm run lint
-
-echo "✅ All pre-commit checks passed!"
+echo "Done!"
