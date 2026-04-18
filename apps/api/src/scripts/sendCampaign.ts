@@ -42,7 +42,10 @@
 
 import { config } from 'dotenv'
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
-import { resolve } from 'node:path'
+import { dirname, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
 
 // Load .env from scripts directory if it exists, otherwise fall back to api/.env
 const scriptsEnvPath = resolve(__dirname, '.env')

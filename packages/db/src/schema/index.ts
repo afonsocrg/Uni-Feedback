@@ -1,4 +1,5 @@
 export * from './aiCategorizationCache'
+export * from './correctionRequest'
 export * from './course'
 export * from './courseGroup'
 export * from './courseGroupsCourses'

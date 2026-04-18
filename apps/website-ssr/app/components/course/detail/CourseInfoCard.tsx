@@ -1,5 +1,8 @@
+import type { CorrectionRequestField } from '@uni-feedback/api-client'
 import { Chip, StarRating, WorkloadRatingDisplay } from '@uni-feedback/ui'
 import { Clock, ExternalLink, FileCheck, Star } from 'lucide-react'
+import { useState } from 'react'
+import { CorrectionRequestDialog } from '.'
 
 export interface CourseInfoCardProps {
   course: {
@@ -31,6 +34,34 @@ export interface CourseInfoCardProps {
 
 export function CourseInfoCard({ course }: CourseInfoCardProps) {
   const averageWorkload = Number(course.averageWorkload) || 0
+  const [correctionDialogOpen, setCorrectionDialogOpen] = useState(false)
+
+  const getCurrentValue = (
+    field: CorrectionRequestField
+  ): string | undefined => {
+    switch (field) {
+      case 'name':
+        return course.name
+      case 'acronym':
+        return course.acronym
+      case 'ects':
+        return course.ects?.toString()
+      case 'terms':
+        return course.terms?.join(', ')
+      case 'url':
+        return course.url ?? undefined
+      case 'has_mandatory_exam':
+        return course.hasMandatoryExam?.toString()
+      case 'description':
+        return course.description ?? undefined
+      case 'assessment':
+        return course.assessment ?? undefined
+      case 'bibliography':
+        return course.bibliography ?? undefined
+      default:
+        return undefined
+    }
+  }
 
   return (
     <div className="mb-12">
@@ -41,7 +72,7 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
           {course.name}
         </h1>
 
-        {/* Badges and link */}
+        {/* Badges, link, and report button */}
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-sm text-gray-500 font-medium">
             {course.acronym}
@@ -74,6 +105,13 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
               </a>
             </>
           )}
+          <span className="text-gray-300">•</span>
+          <button
+            onClick={() => setCorrectionDialogOpen(true)}
+            className="text-sm text-gray-400 hover:text-gray-600 hover:underline cursor-pointer"
+          >
+            Report incorrect info
+          </button>
         </div>
 
         {/* Stats Grid - 3 columns on desktop */}
@@ -154,6 +192,14 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
           </div>
         </div>
       </div>
+
+      <CorrectionRequestDialog
+        courseId={course.id}
+        courseName={course.name}
+        getCurrentValue={getCurrentValue}
+        open={correctionDialogOpen}
+        onOpenChange={setCorrectionDialogOpen}
+      />
     </div>
   )
 }

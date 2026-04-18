@@ -1,4 +1,5 @@
 import { relations } from 'drizzle-orm'
+import { correctionRequests } from './correctionRequest'
 import { courses } from './course'
 import { degrees } from './degree'
 import { emailPreferences } from './emailPreferences'
@@ -115,6 +116,26 @@ export const reportRelations = relations(reports, ({ one }) => ({
     references: [users.id]
   })
 }))
+
+// Correction Request relations
+export const correctionRequestRelations = relations(
+  correctionRequests,
+  ({ one }) => ({
+    course: one(courses, {
+      fields: [correctionRequests.courseId],
+      references: [courses.id]
+    }),
+    user: one(users, {
+      fields: [correctionRequests.userId],
+      references: [users.id]
+    }),
+    resolvedBy: one(users, {
+      fields: [correctionRequests.resolvedBy],
+      references: [users.id],
+      relationName: 'correctionRequestResolver'
+    })
+  })
+)
 
 // Email Preferences relations
 export const emailPreferencesRelations = relations(
