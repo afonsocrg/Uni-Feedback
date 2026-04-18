@@ -6,7 +6,26 @@ import {
   Feedback,
   SearchCoursesParams
 } from './types'
-import { apiGet } from './utils'
+import { apiGet, apiPostVoid } from './utils'
+
+export {
+  CORRECTION_REQUEST_FIELD_LABELS,
+  CORRECTION_REQUEST_FIELDS,
+  type CorrectionRequestField
+} from '@uni-feedback/db/schema'
+
+export interface SubmitCorrectionRequestData {
+  field: string
+  notes: string
+  currentValue?: string
+}
+
+export async function submitCorrectionRequest(
+  courseId: number,
+  data: SubmitCorrectionRequestData
+): Promise<void> {
+  await apiPostVoid(`/courses/${courseId}/correction-requests`, data)
+}
 
 // Re-export types for convenience
 export type { CourseSearchResponse, SearchCoursesParams } from './types'

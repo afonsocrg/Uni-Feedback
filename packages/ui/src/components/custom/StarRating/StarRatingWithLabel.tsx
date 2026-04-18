@@ -3,7 +3,7 @@ import { StarRating, StarRatingProps } from './StarRating'
 
 type RatingLabel = [string, string, string, string, string]
 
-const RATING_LABELS: RatingLabel = [
+export const RATING_LABELS: RatingLabel = [
   'Terrible',
   'Poor',
   'Average',
@@ -11,29 +11,21 @@ const RATING_LABELS: RatingLabel = [
   'Excellent'
 ]
 
+export const defaultLabelFunction = (rating: number): string =>
+  rating >= 1 && rating <= 5 ? RATING_LABELS[rating - 1] : ''
+
 export interface StarRatingWithLabelProps extends StarRatingProps {
-  labels?: RatingLabel
   labelFunction?: (rating: number) => string
   labelPosition?: 'bottom' | 'right'
 }
 
 export function StarRatingWithLabel({
-  labels,
-  labelFunction,
+  labelFunction = defaultLabelFunction,
   labelPosition = 'right',
   ...starRatingProps
 }: StarRatingWithLabelProps) {
-  if (!labels) {
-    labels = RATING_LABELS
-  }
-
   const { value } = starRatingProps
-
-  const label = labelFunction
-    ? labelFunction(value)
-    : value >= 1 && value <= 5
-      ? labels[value - 1]
-      : ''
+  const label = labelFunction(value)
 
   if (labelPosition === 'bottom') {
     return (

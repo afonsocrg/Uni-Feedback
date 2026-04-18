@@ -4,7 +4,11 @@ import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { router as adminRouter } from './admin/router'
 import { router as authRouter } from './auth/router'
-import { SearchCourses, SubmitFeedback } from './courses'
+import {
+  SearchCourses,
+  SubmitCorrectionRequest,
+  SubmitFeedback
+} from './courses'
 import { router as emailRouter } from './email/router'
 import { GetFaculties, GetFacultyDegrees } from './faculties'
 import {
@@ -61,6 +65,7 @@ router.get('/faculties/:facultyId/degrees', GetFacultyDegrees)
 
 router.get('/courses/search', SearchCourses)
 router.post('/courses/:id/feedback', SubmitFeedback)
+router.post('/courses/:id/correction-requests', SubmitCorrectionRequest)
 
 router.post('/feedback/categorize-preview', CategorizeFeedback)
 router.get('/feedback/:id/edit', GetFeedbackForEdit)

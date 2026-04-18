@@ -1,8 +1,10 @@
 import {
+  CORRECTION_REQUEST_FIELD_LABELS,
   Course,
   Degree,
   Faculty,
   REPORT_CATEGORY_LABELS,
+  type CorrectionRequestField,
   type ReportCategory
 } from '@uni-feedback/db/schema'
 import {
@@ -83,9 +85,9 @@ export async function sendCourseReviewReceived(
   const ratingStars = getStarsString(rating)
   const workloadLabel = getWorkloadLabel(workloadRating)
 
-  const manageFeedbackUrl = `https://admin.uni-feedback.com/feedback/${id}`
+  const manageFeedbackUrl = `${env.DASHBOARD_URL}/feedback/${id}`
   const viewFeedbackUrl = getFeedbackPermalinkUrl(
-    'https://uni-feedback.com',
+    env.WEBSITE_URL,
     course.id,
     id
   )
@@ -286,7 +288,7 @@ export async function sendReportNotification(
   const categoryLabel = REPORT_CATEGORY_LABELS[category] || category
   const truncatedDetails =
     details.length > 200 ? details.slice(0, 200) + '...' : details
-  const manageFeedbackUrl = `https://admin.uni-feedback.com/feedback/${feedbackId}`
+  const manageFeedbackUrl = `${env.DASHBOARD_URL}/feedback/${feedbackId}`
 
   const message = `
 🚨 FEEDBACK REPORT!
@@ -450,6 +452,56 @@ ${statusEmoji} SEMESTER REPORT GENERATION ${statusText} ${statusEmoji}
   }
 
   message = message.trim()
+
+  return sendToTelegram(env, message)
+}
+
+interface SendCorrectionRequestNotificationArgs {
+  correctionRequestId: number
+  courseId: number
+  courseName: string
+  field: CorrectionRequestField
+  notes: string
+  currentValue?: string | null
+  userId: number
+  userEmail: string
+}
+
+export async function sendCorrectionRequestNotification(
+  env: Env,
+  args: SendCorrectionRequestNotificationArgs
+) {
+  const {
+    correctionRequestId,
+    courseId,
+    courseName,
+    field,
+    notes,
+    currentValue,
+    userId,
+    userEmail
+  } = args
+
+  const fieldLabel = CORRECTION_REQUEST_FIELD_LABELS[field] || field
+  const viewCourseUrl = `${env.WEBSITE_URL}/courses/${courseId}`
+  const editCourseUrl = `${env.DASHBOARD_URL}/courses/${courseId}`
+
+  const message = `
+✏️ CORRECTION REQUEST!
+
+A user has reported incorrect course information.
+
+📋 Request ID: #${correctionRequestId}
+📚 Course: ${courseName} (#${courseId})
+👤 User: ${userEmail} (#${userId})
+🏷️ Field: ${fieldLabel}
+${currentValue ? `📖 Current Value: ${currentValue}\n` : ''}
+💬 Notes: ${notes}
+
+🕒 Timestamp: ${new Date().toISOString()}
+[👀 View Course](${viewCourseUrl})
+[✏️ Edit Course](${editCourseUrl})
+`.trim()
 
   return sendToTelegram(env, message)
 }

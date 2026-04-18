@@ -1,3 +1,4 @@
+export * from './CorrectionRequestDialog'
 export * from './CourseAssessment'
 export * from './CourseBibliography'
 export * from './CourseDescription'
