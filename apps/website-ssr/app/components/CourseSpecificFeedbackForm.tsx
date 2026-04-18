@@ -1,13 +1,7 @@
 import { type CourseSearchResult } from '@uni-feedback/api-client'
 import {
   EditableStarRating,
-  // EditableWorkloadRatingBars,
-  // EditableWorkloadRatingDropdown,
-  // EditableWorkloadRatingList,
   EditableWorkloadRatingPills,
-  // EditableWorkloadRatingScale,
-  // EditableWorkloadRatingSegmented,
-  // EditableWorkloadRatingSlider,
   Form,
   FormControl,
   FormField,
@@ -37,10 +31,6 @@ import { AuthenticatedButton } from '~/components/common'
 import { useFeedbackDraft } from '~/hooks'
 import type { FeedbackFormData } from '~/routes/feedback.new'
 import { analytics } from '~/utils/analytics'
-// import {
-//   WorkloadInputDebugPanel,
-//   type WorkloadInputType
-// } from './WorkloadInputDebugPanel'
 
 interface CourseWithDetails {
   id: number

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import {
+  defaultLabelFunction,
   StarRatingWithLabel,
   StarRatingWithLabelProps
 } from './StarRatingWithLabel'
@@ -12,6 +13,7 @@ export interface EditableStarRatingProps extends StarRatingWithLabelProps {
 export function EditableStarRating({
   onChange,
   disabled = false,
+  labelFunction = defaultLabelFunction,
   ...starRatingWithLabelProps
 }: EditableStarRatingProps) {
   const [hoverValue, setHoverValue] = useState<number | null>(null)
@@ -29,20 +31,23 @@ export function EditableStarRating({
     <div className="relative" onMouseLeave={() => setHoverValue(null)}>
       <StarRatingWithLabel
         {...starRatingWithLabelProps}
+        labelFunction={labelFunction}
         value={displayValue}
         variant={variant}
       />
       <div className="absolute top-0 left-0 flex">
         {[...Array(5)].map((_, index) => (
-          <div
+          <button
             key={index}
+            type="button"
+            aria-label={labelFunction(index + 1)}
             className={`cursor-pointer ${sizeClasses[size]}`}
             style={{ width: '1em' }}
             onMouseEnter={() => setHoverValue(index + 1)}
             onClick={() => onChange(index + 1)}
           >
             <span className="invisible">★</span>
-          </div>
+          </button>
         ))}
       </div>
     </div>

@@ -8,7 +8,6 @@ interface EditableStarRatingFieldProps {
   onSave: (newValue: number | null) => void
   disabled?: boolean
   size?: 'sm' | 'md' | 'lg'
-  labels?: [string, string, string, string, string]
   labelFunction?: (rating: number) => string
   labelPosition?: 'bottom' | 'right'
 }
@@ -19,7 +18,6 @@ export function EditableStarRatingField({
   onSave,
   disabled = false,
   size = 'md',
-  labels,
   labelFunction,
   labelPosition = 'right'
 }: EditableStarRatingFieldProps) {
@@ -35,7 +33,6 @@ export function EditableStarRatingField({
           onChange={isEditing ? setEditValue : () => {}}
           disabled={!isEditing}
           size={size}
-          labels={labels}
           labelFunction={labelFunction}
           labelPosition={labelPosition}
         />
