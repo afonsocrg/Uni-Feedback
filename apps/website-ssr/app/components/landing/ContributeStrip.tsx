@@ -8,7 +8,7 @@ export function ContributeStrip() {
       >
         Already taken a course?{' '}
         <span className="text-primary font-medium">
-          Share your experience →
+          Leave the review you needed. →
         </span>
       </a>
     </div>

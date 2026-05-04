@@ -107,21 +107,19 @@ export function HeroSection({
           {/* Hero text + search — z-10 so dropdown floats above the partners strip */}
           <div className="relative z-10 text-center max-w-3xl w-full">
             <h1 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-foreground mb-4">
-              Discover what students{' '}
-              <span className="text-primary">really think</span>
-              <br />
-              about the courses you're taking
+              Know what you're getting into.
             </h1>
 
             <p className="text-base sm:text-lg text-muted-foreground max-w-xl mx-auto mb-6">
-              Anonymous feedback from students who've been there.
+              Workload, professors, the tips students share with each other...
+              Anonymous feedback from students who took them.
             </p>
 
             <HeroSearchBar />
 
             <p className="text-xs text-muted-foreground/60 mt-2">
-              {stats.totalFeedback.toLocaleString()}+ feedbacks ·{' '}
-              {stats.contributors} contributors · {stats.coursesWithFeedback}{' '}
+              {stats.totalFeedback.toLocaleString()}+ reviews ·{' '}
+              {stats.contributors}+ contributors · {stats.coursesWithFeedback}+
               courses covered
             </p>
           </div>
@@ -162,7 +160,7 @@ export function HeroSection({
             href="/partners"
             className="text-xs text-muted-foreground hover:text-foreground transition-colors inline-block mt-2"
           >
-            View all partners
+            See all
           </a>
         </div>
       </section>

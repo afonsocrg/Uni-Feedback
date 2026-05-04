@@ -6,9 +6,11 @@ import {
   ContributeCTASection,
   ContributeStrip,
   CTASection,
+  FounderSection,
   HeroSection,
   LandingFAQSection,
   LiveFeedSection,
+  MoreThanYourNetworkSection,
   TestimonialsSection,
   TrustSection
 } from '~/components'
@@ -175,9 +177,11 @@ export default function LandingPage({ loaderData }: Route.ComponentProps) {
         stats={stats}
       />
       <ContributeStrip />
+      <FounderSection />
       <LiveFeedSection feedbacks={recentFeedbacks} />
-      <BrowseSection faculties={faculties} degrees={degrees} />
+      <MoreThanYourNetworkSection />
       <TrustSection />
+      <BrowseSection faculties={faculties} degrees={degrees} />
       <TestimonialsSection testimonials={testimonials} />
       <ContributeCTASection contributors={stats.contributors} />
       <LandingFAQSection />

@@ -1,15 +1,35 @@
-const TRUST_ITEMS = [
+import type { LucideIcon } from 'lucide-react'
+import { ClipboardCheck, EyeOff, Shield, UserCheck } from 'lucide-react'
+
+interface TrustItem {
+  Icon: LucideIcon
+  heading: string
+  body: string
+  finePrint?: string
+}
+
+const TRUST_ITEMS: TrustItem[] = [
   {
-    heading: 'Your privacy is guaranteed',
-    body: 'We never show who wrote what. Your name, your email, your identity — none of it is ever visible to other students. You can speak freely.'
+    Icon: Shield,
+    heading: 'A space that belongs to students',
+    body: 'Uni Feedback is student-run and independent from any university. No institution can influence what gets published here. That means you get the full picture: the good, the bad, and the ugly. Every opinion, from every student who cared enough to share it.'
   },
   {
-    heading: 'Only verified students can review',
-    body: 'Every reviewer signs in with their institutional email. No anonymous trolls. No fake reviews. Every opinion you read comes from a real student.'
+    Icon: UserCheck,
+    heading: 'Only real students, from real universities',
+    body: 'We want our feedback to be legit. Every contributor authenticates with their university email before submitting.'
   },
   {
-    heading: 'Every review is personally read by our team',
-    body: 'We read every single submission before it goes live. Out of 1,900+ reviews, fewer than 10 were ever removed. The community speaks for itself.'
+    Icon: EyeOff,
+    heading: 'Your feedback is 100% anonymous',
+    body: 'We want students to feel safe sharing their experience. Nobody — not other students, not professors, not your university — will ever know you wrote it.',
+    finePrint:
+      'Internally, your submission is linked to your account so you can manage it, and so our team can reach out if something needs attention. That link never leaves Uni Feedback.'
+  },
+  {
+    Icon: ClipboardCheck,
+    heading: 'All feedback is reviewed',
+    body: "We read every submission. If something doesn't follow our guidelines, we remove it and reach out to the author to explain why and invite them to update it. Every opinion is welcome. All of them."
   }
 ]
 
@@ -17,28 +37,19 @@ export function TrustSection() {
   return (
     <section className="py-16 md:py-24">
       <div className="container mx-auto px-4">
-        <div className="max-w-3xl mx-auto space-y-16">
-          {TRUST_ITEMS.map((item, i) => (
-            <div
-              key={item.heading}
-              className={`flex flex-col md:flex-row gap-6 md:gap-12 items-start ${
-                i % 2 === 1 ? 'md:flex-row-reverse' : ''
-              }`}
-            >
-              <div className="md:w-1/2 space-y-3">
-                <h3 className="font-heading text-xl md:text-2xl font-semibold tracking-tight">
-                  {item.heading}
-                </h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  {item.body}
+        <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-10 md:gap-14">
+          {TRUST_ITEMS.map((item) => (
+            <div key={item.heading} className="space-y-3">
+              <item.Icon className="size-6 text-primary" />
+              <h3 className="font-semibold text-lg">{item.heading}</h3>
+              <p className="text-muted-foreground leading-relaxed text-sm">
+                {item.body}
+              </p>
+              {item.finePrint && (
+                <p className="text-xs text-muted-foreground/70 border-l-2 border-primary/30 pl-3 mt-3">
+                  {item.finePrint}
                 </p>
-              </div>
-              {/* Decorative number */}
-              <div className="md:w-1/2 flex items-center justify-center">
-                <span className="text-8xl font-bold text-muted/30 select-none">
-                  0{i + 1}
-                </span>
-              </div>
+              )}
             </div>
           ))}
         </div>
