@@ -9,8 +9,9 @@ import {
   SubmitCorrectionRequest,
   SubmitFeedback
 } from './courses'
+import { SearchDegrees } from './degrees'
 import { router as emailRouter } from './email/router'
-import { GetFaculties, GetFacultyDegrees } from './faculties'
+import { GetFaculties, GetFacultyDegrees, SearchFaculties } from './faculties'
 import {
   AddHelpfulVote,
   CategorizeFeedback,
@@ -61,9 +62,11 @@ router.get('/health', () =>
 // Public routes
 // ---------------------------------------------------------
 router.get('/faculties', GetFaculties)
+router.get('/faculties/search', SearchFaculties)
 router.get('/faculties/:facultyId/degrees', GetFacultyDegrees)
 
 router.get('/courses/search', SearchCourses)
+router.get('/degrees/search', SearchDegrees)
 router.post('/courses/:id/feedback', SubmitFeedback)
 router.post('/courses/:id/correction-requests', SubmitCorrectionRequest)
 

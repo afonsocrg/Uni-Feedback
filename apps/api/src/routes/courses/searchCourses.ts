@@ -1,7 +1,13 @@
 import { getAuthContext } from '@middleware'
 import { BadRequestError } from '@routes/utils/errorHandling'
 import { database } from '@uni-feedback/db'
-import { courses, degrees, faculties, feedback } from '@uni-feedback/db/schema'
+import {
+  courseStats,
+  courses,
+  degrees,
+  faculties,
+  feedback
+} from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
 import { and, eq, or, sql } from 'drizzle-orm'
 import type { Context } from 'hono'
@@ -22,7 +28,9 @@ const CourseSearchResultSchema = z.object({
     shortName: z.string()
   }),
   hasUserFeedback: z.boolean(),
-  userRating: z.number().nullable()
+  userRating: z.number().nullable(),
+  avgRating: z.number().nullable(),
+  reviewCount: z.number()
 })
 
 const SearchResponseSchema = z.object({
@@ -124,6 +132,8 @@ export class SearchCourses extends OpenAPIRoute {
       faculty: { id: number; name: string; shortName: string }
       hasUserFeedback: boolean
       userRating: number | null
+      avgRating: number | null
+      reviewCount: number
     }>
 
     if (userId) {
@@ -143,7 +153,9 @@ export class SearchCourses extends OpenAPIRoute {
             shortName: faculties.shortName
           },
           hasUserFeedback: sql<boolean>`(${feedback.id} IS NOT NULL)`,
-          userRating: feedback.rating
+          userRating: feedback.rating,
+          avgRating: courseStats.averageRating,
+          reviewCount: courseStats.totalFeedbackCount
         })
         .from(courses)
         .innerJoin(degrees, eq(courses.degreeId, degrees.id))
@@ -152,6 +164,7 @@ export class SearchCourses extends OpenAPIRoute {
           feedback,
           and(eq(feedback.courseId, courses.id), eq(feedback.userId, userId))
         )
+        .leftJoin(courseStats, eq(courseStats.courseId, courses.id))
         .where(whereClause)
         .orderBy(
           sql`CASE WHEN ${feedback.id} IS NOT NULL THEN 1 ELSE 0 END`,
@@ -162,7 +175,8 @@ export class SearchCourses extends OpenAPIRoute {
 
       results = rows.map((r) => ({
         ...r,
-        hasUserFeedback: Boolean(r.hasUserFeedback)
+        hasUserFeedback: Boolean(r.hasUserFeedback),
+        reviewCount: r.reviewCount ?? 0
       }))
     } else {
       const rows = await db
@@ -179,11 +193,14 @@ export class SearchCourses extends OpenAPIRoute {
             id: faculties.id,
             name: faculties.name,
             shortName: faculties.shortName
-          }
+          },
+          avgRating: courseStats.averageRating,
+          reviewCount: courseStats.totalFeedbackCount
         })
         .from(courses)
         .innerJoin(degrees, eq(courses.degreeId, degrees.id))
         .innerJoin(faculties, eq(degrees.facultyId, faculties.id))
+        .leftJoin(courseStats, eq(courseStats.courseId, courses.id))
         .where(whereClause)
         .orderBy(courses.name)
         .limit(limit)
@@ -192,7 +209,8 @@ export class SearchCourses extends OpenAPIRoute {
       results = rows.map((r) => ({
         ...r,
         hasUserFeedback: false,
-        userRating: null
+        userRating: null,
+        reviewCount: r.reviewCount ?? 0
       }))
     }
 

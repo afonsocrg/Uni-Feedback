@@ -3,6 +3,11 @@
 /* Docs: https://tailwindcss.com/docs/detecting-classes-in-source-files#explicitly-registering-sources */
 @source "../../../packages/ui";
 
+:root {
+  /* Header height: py-4 (2rem) + size-8 logo (2rem). Update here if the header height changes. */
+  --header-height: 4rem;
+}
+
 /* Category chip activation animation */
 @keyframes scale-pulse {
   0% {

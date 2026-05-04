@@ -108,6 +108,50 @@ export interface CourseSearchResult {
   }
   hasUserFeedback: boolean
   userRating: number | null
+  avgRating: number | null
+  reviewCount: number
+}
+
+export interface DegreeSearchResult {
+  id: number
+  name: string
+  acronym: string
+  slug: string | null
+  faculty: {
+    id: number
+    name: string
+    shortName: string
+    slug: string | null
+  }
+  reviewCount: number
+}
+
+export interface DegreeSearchResponse {
+  degrees: DegreeSearchResult[]
+  total: number
+}
+
+export interface FacultySearchResult {
+  id: number
+  name: string
+  shortName: string
+  slug: string | null
+  reviewCount: number
+}
+
+export interface FacultySearchResponse {
+  faculties: FacultySearchResult[]
+  total: number
+}
+
+export interface SearchFacultiesParams {
+  q?: string
+  limit?: number
+}
+
+export interface SearchDegreesParams {
+  q?: string
+  limit?: number
 }
 
 export interface CourseSearchResponse {

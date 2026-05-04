@@ -1,5 +1,12 @@
 import { API_BASE_URL } from './config'
-import { type Degree, type Faculty, type FacultyDetails } from './types'
+import {
+  type Degree,
+  type Faculty,
+  type FacultyDetails,
+  type FacultySearchResponse,
+  type SearchFacultiesParams
+} from './types'
+import { apiGet } from './utils'
 
 export async function getFaculties(): Promise<Faculty[]> {
   const response = await fetch(`${API_BASE_URL}/faculties`)
@@ -25,4 +32,18 @@ export async function getFacultyDegrees(facultyId: number): Promise<Degree[]> {
     throw new Error('Failed to fetch faculty degrees')
   }
   return response.json()
+}
+
+export async function searchFaculties(
+  params: SearchFacultiesParams
+): Promise<FacultySearchResponse> {
+  const queryString = Object.entries(params)
+    .filter(([, value]) => value !== undefined)
+    .map(([key, value]) => `${key}=${encodeURIComponent(String(value))}`)
+    .join('&')
+
+  return apiGet<FacultySearchResponse>(
+    `/faculties/search${queryString ? `?${queryString}` : ''}`,
+    { requiresAuth: false }
+  )
 }

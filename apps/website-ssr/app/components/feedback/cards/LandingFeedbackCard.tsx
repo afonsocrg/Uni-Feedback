@@ -1,6 +1,6 @@
 import type { Feedback } from '@uni-feedback/db/schema'
 import { StarRating, WorkloadRatingDisplay } from '@uni-feedback/ui'
-import { getRelativeTime } from '@uni-feedback/utils'
+import { getFeedbackPermalink, getRelativeTime } from '@uni-feedback/utils'
 import { FeedbackMarkdown } from '~/components'
 import { getTruncatedText } from '~/lib/textUtils'
 
@@ -25,51 +25,46 @@ export function LandingFeedbackCard({ feedback }: LandingFeedbackCardProps) {
       ? getTruncatedText(feedback.comment, maxCommentLength) + '...'
       : feedback.comment
 
-  const relativeTime = getRelativeTime(feedback.createdAt)
+  const href = getFeedbackPermalink(feedback.courseId, feedback.id)
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow h-full flex flex-col">
-      {/* Course and faculty info */}
-      <div className="mb-3">
-        <a
-          href={`/courses/${feedback.courseId}`}
-          className="font-medium text-gray-700 text-sm truncate mb-1 hover:text-primary hover:underline transition-colors block"
-        >
-          {feedback.course.name}
-        </a>
-        <p className="text-xs text-gray-500">
-          {feedback.course.degree?.faculty.shortName || 'University'}
-        </p>
-      </div>
-
-      {/* Header with rating and workload */}
-      <div className="flex flex-wrap items-center mb-4 gap-2">
+    <a
+      href={href}
+      className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md hover:border-gray-200 transition-all flex flex-col"
+    >
+      {/* Ratings row */}
+      <div className="flex items-center justify-between mb-3">
         <StarRating value={feedback.rating} size="sm" />
         {feedback.workloadRating && (
-          <div className="inline-flex items-center text-xs text-gray-500 font-medium">
-            <span className="mr-1">Workload:</span>
-            <WorkloadRatingDisplay rating={feedback.workloadRating} />
-          </div>
+          <WorkloadRatingDisplay rating={feedback.workloadRating} />
         )}
       </div>
 
-      {/* Comment preview */}
-      <div className="flex-1">
+      {/* Comment */}
+      <div>
         {truncatedComment ? (
           <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed line-clamp-4 text-start">
             <FeedbackMarkdown>{truncatedComment}</FeedbackMarkdown>
           </div>
         ) : (
-          <p className="text-gray-500 italic text-sm">
-            This user did not leave any comment
-          </p>
+          <p className="text-gray-400 italic text-sm">No comment left</p>
         )}
       </div>
 
-      {/* Timestamp */}
+      {/* Footer: course + faculty + timestamp */}
       <div className="mt-3 pt-3 border-t border-gray-100">
-        <p className="text-xs text-gray-400">{relativeTime}</p>
+        <p className="text-xs font-medium text-gray-700 truncate">
+          {feedback.course.name}
+        </p>
+        <div className="flex items-center justify-between mt-0.5">
+          <p className="text-xs text-gray-400">
+            {feedback.course.degree?.faculty.shortName ?? 'University'}
+          </p>
+          <p className="text-xs text-gray-400">
+            {getRelativeTime(feedback.createdAt)}
+          </p>
+        </div>
       </div>
-    </div>
+    </a>
   )
 }
