@@ -1,6 +1,7 @@
 export function ContributeStrip() {
   return (
     <div className="relative flex items-center justify-center py-6">
+      <div className="absolute inset-x-0 top-1/2 bottom-0 bg-muted/30" />
       <div className="absolute inset-x-0 top-1/2 h-px bg-border" />
       <a
         href="/feedback/new"

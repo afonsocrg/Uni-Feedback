@@ -1,0 +1,65 @@
+import type { StudentClub } from '@uni-feedback/db'
+import { getAssetUrl } from '~/utils'
+
+interface SupportersSectionProps {
+  studentClubs: StudentClub[]
+}
+
+export function SupportersSection({ studentClubs }: SupportersSectionProps) {
+  return (
+    <>
+      <style>{`
+        @keyframes scroll {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .supporters-carousel:hover .animate-scroll {
+          animation-play-state: paused;
+        }
+        .animate-scroll {
+          animation: scroll 40s linear infinite;
+          display: flex;
+          gap: 2rem;
+          width: max-content;
+        }
+      `}</style>
+      <div className="w-full text-center pt-4 pb-8 px-4">
+        <p className="text-xs text-muted-foreground mb-4">Supported by</p>
+        <div className="relative overflow-hidden w-full supporters-carousel">
+          <div className="animate-scroll">
+            {studentClubs.map((club) => {
+              const logoUrl = getAssetUrl(club.logoHorizontal)
+              if (!club.logoHorizontal || !logoUrl) return null
+              return (
+                <img
+                  key={club.id}
+                  alt={`${club.name} logo`}
+                  src={logoUrl}
+                  className="h-6 md:h-8 flex-shrink-0 opacity-50 hover:opacity-100 grayscale hover:grayscale-0 transition-all"
+                />
+              )
+            })}
+            {studentClubs.map((club) => {
+              const logoUrl = getAssetUrl(club.logoHorizontal)
+              if (!club.logoHorizontal || !logoUrl) return null
+              return (
+                <img
+                  key={`dup-${club.id}`}
+                  alt={`${club.name} logo`}
+                  src={logoUrl}
+                  className="h-6 md:h-8 flex-shrink-0 opacity-50 hover:opacity-100 grayscale hover:grayscale-0 transition-all"
+                />
+              )
+            })}
+          </div>
+        </div>
+        <a
+          href="/partners"
+          className="text-xs text-muted-foreground hover:text-foreground transition-colors inline-block mt-2"
+        >
+          See all
+        </a>
+      </div>
+    </>
+  )
+}

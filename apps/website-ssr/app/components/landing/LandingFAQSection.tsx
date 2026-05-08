@@ -63,10 +63,10 @@ const LANDING_FAQ_ITEMS: FAQItem[] = [
 
 export function LandingFAQSection() {
   return (
-    <section id="faq" className="py-16 md:py-24">
+    <section id="faq" className="py-16 md:py-24 bg-muted/30">
       <div className="container mx-auto px-4">
         <div className="max-w-3xl mx-auto">
-          <h2 className="font-heading text-3xl md:text-4xl font-semibold tracking-tight text-center mb-4">
+          <h2 className="font-heading text-3xl md:text-4xl font-semibold tracking-tight text-center mb-4 text-balance">
             Frequently Asked Questions
           </h2>
           <p className="text-center text-muted-foreground mb-12">
@@ -74,7 +74,7 @@ export function LandingFAQSection() {
           </p>
           <FAQ items={LANDING_FAQ_ITEMS} />
           <p className="text-center text-sm text-muted-foreground mt-8">
-            Have another question? Find me on{' '}
+            Have another question? DM us on{' '}
             <a
               href="https://instagram.com/unifeedback"
               className="text-primary hover:underline font-medium"

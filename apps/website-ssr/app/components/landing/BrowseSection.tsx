@@ -38,11 +38,11 @@ export function BrowseSection({ faculties, degrees }: BrowseSectionProps) {
   const filteredDegrees = allFilteredDegrees.slice(0, 9)
 
   return (
-    <section className="py-16 md:py-24 bg-muted/30">
+    <section className="py-16 md:py-24">
       <div className="container mx-auto px-4">
         <div className="max-w-5xl mx-auto">
           <div className="mb-8">
-            <h2 className="font-heading text-2xl md:text-3xl font-semibold tracking-tight">
+            <h2 className="font-heading text-2xl md:text-3xl font-semibold tracking-tight text-balance">
               What are you studying?
             </h2>
           </div>
@@ -171,15 +171,15 @@ function DegreeGrid({
                 {degree.acronym}
               </p>
             </div>
-            <div className="flex items-center gap-3 mt-3">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-3">
               {degree.courseCount > 0 && (
-                <span className="text-xs text-muted-foreground/70">
+                <span className="text-xs text-muted-foreground/70 whitespace-nowrap">
                   {degree.courseCount} course
                   {degree.courseCount !== 1 ? 's' : ''}
                 </span>
               )}
               {degree.feedbackCount > 0 && (
-                <span className="text-xs text-muted-foreground/70">
+                <span className="text-xs text-muted-foreground/70 whitespace-nowrap">
                   {degree.feedbackCount} feedback
                   {degree.feedbackCount !== 1 ? 's' : ''}
                 </span>

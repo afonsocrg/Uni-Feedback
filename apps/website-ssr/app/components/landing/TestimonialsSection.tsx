@@ -10,10 +10,10 @@ export function TestimonialsSection({
   testimonials
 }: TestimonialsSectionProps) {
   return (
-    <section id="testimonials" className="py-16 md:py-24">
+    <section id="testimonials" className="py-16 md:py-24 bg-muted/30">
       <div className="container mx-auto px-4">
         <div className="max-w-5xl mx-auto">
-          <h2 className="font-heading text-3xl md:text-4xl font-semibold tracking-tight mb-4">
+          <h2 className="font-heading text-3xl md:text-4xl font-semibold tracking-tight mb-4 text-balance">
             What students say about us
           </h2>
           <p className="text-muted-foreground mb-12">

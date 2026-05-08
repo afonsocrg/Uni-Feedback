@@ -11,6 +11,7 @@ import {
   LandingFAQSection,
   LiveFeedSection,
   MoreThanYourNetworkSection,
+  SupportersSection,
   TestimonialsSection,
   TrustSection
 } from '~/components'
@@ -38,8 +39,7 @@ export async function loader() {
     testimonials,
     recentFeedbacks,
     totalFeedbackResult,
-    contributorResult,
-    coursesWithFeedbackResult
+    contributorResult
   ] = await Promise.all([
     db.query.studentClubs.findMany({
       where: (clubs, { eq }) => eq(clubs.isActive, true),
@@ -123,17 +123,6 @@ export async function loader() {
           isNull(schema.feedbackFull.deletedAt),
           isNotNull(schema.feedbackFull.approvedAt)
         )
-      ),
-    db
-      .select({
-        count: sql<number>`count(distinct ${schema.feedbackFull.courseId})`
-      })
-      .from(schema.feedbackFull)
-      .where(
-        and(
-          isNull(schema.feedbackFull.deletedAt),
-          isNotNull(schema.feedbackFull.approvedAt)
-        )
       )
   ])
 
@@ -145,10 +134,7 @@ export async function loader() {
     testimonials,
     stats: {
       totalFeedback: roundDownToNice(Number(totalFeedbackResult[0].count)),
-      contributors: roundDownToNice(Number(contributorResult[0].count)),
-      coursesWithFeedback: roundDownToNice(
-        Number(coursesWithFeedbackResult[0].count)
-      )
+      contributors: roundDownToNice(Number(contributorResult[0].count))
     }
   }
 }
@@ -171,13 +157,10 @@ export default function LandingPage({ loaderData }: Route.ComponentProps) {
 
   return (
     <>
-      <HeroSection
-        studentClubs={studentClubs}
-        recentFeedbacks={recentFeedbacks}
-        stats={stats}
-      />
-      <ContributeStrip />
+      <HeroSection stats={stats} />
       <LiveFeedSection feedbacks={recentFeedbacks} />
+      <SupportersSection studentClubs={studentClubs} />
+      <ContributeStrip />
       <FounderSection />
       <MoreThanYourNetworkSection />
       <TrustSection />

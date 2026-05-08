@@ -42,17 +42,17 @@ export function LiveFeedSection({ feedbacks }: LiveFeedSectionProps) {
   }
 
   return (
-    <section className="py-16 md:py-24">
+    <section className="pb-8">
       <style>{`
         .live-feed-scroll::-webkit-scrollbar { display: none; }
       `}</style>
       <div className="container mx-auto px-4">
         <div className="max-w-5xl mx-auto">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="font-heading text-2xl md:text-3xl font-semibold tracking-tight">
-              What students are saying
-            </h2>
-            <div className="hidden md:flex items-center gap-2">
+          <div className="hidden md:flex justify-between items-center gap-2 mb-4">
+            <span className="text-xs font-medium tracking-widest uppercase text-muted-foreground">
+              Recent feedback
+            </span>
+            <div className="space-x-2">
               <button
                 onClick={() => scroll('left')}
                 disabled={atStart}
