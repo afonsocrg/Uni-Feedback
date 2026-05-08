@@ -1,5 +1,5 @@
 import { Separator } from '@uni-feedback/ui'
-import { GraduationCap } from 'lucide-react'
+import { GraduationCap, Instagram } from 'lucide-react'
 import { useLastVisitedPath } from '~/hooks/useLastVisitedPath'
 import { analytics, getPageName } from '~/utils/analytics'
 import { FooterLink } from './FooterLink'
@@ -46,7 +46,6 @@ export function LandingFooter() {
     {
       title: 'About',
       links: [
-        { href: '/#how-it-works', label: 'How It Works' },
         { href: '/#testimonials', label: 'Testimonials' },
         { href: '/supporters', label: 'Supporters' }
         // {
@@ -59,16 +58,14 @@ export function LandingFooter() {
       title: 'Help',
       links: [
         { href: '/#faq', label: 'FAQ' },
-        { href: '/guidelines', label: 'Feedback Guidelines' },
-        { href: '/#contact', label: 'Contact Us' }
+        { href: '/guidelines', label: 'Feedback Guidelines' }
       ]
     },
     {
       title: 'Legal',
       links: [
         { href: '/terms', label: 'Terms of Service' },
-        { href: '/privacy', label: 'Privacy Policy' },
-        { href: '/giveaway/rules', label: 'Giveaway Rules' }
+        { href: '/privacy', label: 'Privacy Policy' }
       ]
     }
   ]
@@ -86,6 +83,15 @@ export function LandingFooter() {
               From students, for students. Your companion for building a better
               and successful university experience.
             </p>
+            <a
+              href="https://www.instagram.com/unifeedback"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagram"
+              className="inline-flex text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Instagram className="size-5" />
+            </a>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-x-8 gap-y-6 flex-1">
             {FOOTER_LINK_GROUPS.map((group) => (
