@@ -58,7 +58,8 @@ export function LandingFooter() {
       title: 'Help',
       links: [
         { href: '/#faq', label: 'FAQ' },
-        { href: '/guidelines', label: 'Feedback Guidelines' }
+        { href: '/guidelines', label: 'Feedback Guidelines' },
+        { href: '/contact', label: 'Contact' }
       ]
     },
     {

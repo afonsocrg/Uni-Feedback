@@ -32,6 +32,7 @@ export default [
     route('/privacy', 'routes/privacy.tsx'),
     route('/guidelines', 'routes/guidelines.tsx'),
     route('/points', 'routes/points.tsx'),
+    route('/contact', 'routes/contact.tsx'),
 
     // Protected routes (require authentication)
     layout('routes/auth-layout.tsx', [

@@ -4,12 +4,12 @@ const LANDING_FAQ_ITEMS: FAQItem[] = [
   {
     question: 'Is Uni Feedback affiliated with my university?',
     answer:
-      'No. This is a student-run platform, independent from any university. No institution controls what gets published here. Students share their honest experience freely.'
+      '**No.** This is a student-run platform, independent from any university. No institution controls what gets published here. Students share their honest experience freely.'
   },
   {
     question: 'Can professors see who wrote a review?',
     answer:
-      "Professors can read reviews, yes. But they'll never know who wrote what. Your identity is never revealed to anyone. Not professors, not other students, not your university."
+      "**No.** Professors can read reviews, but they'll never know who wrote what. Your identity is never revealed to anyone — not to professors, other students, or your university."
   },
   {
     question: 'How do I know reviews are real?',
@@ -19,7 +19,7 @@ const LANDING_FAQ_ITEMS: FAQItem[] = [
   {
     question: 'How recent is the feedback?',
     answer:
-      "The most recent reviews always appear first. Every review also shows which school year it's from, so you always know how old the feedback is."
+      "**The most recent reviews always appear first.** Every review also shows which school year it's from, so you always know how old the feedback is."
   },
   {
     question: "My course isn't listed. What can I do?",
@@ -38,17 +38,17 @@ const LANDING_FAQ_ITEMS: FAQItem[] = [
   {
     question: 'How long until my review appears after I submit it?',
     answer:
-      "Your feedback is published immediately. I read every submission. If something doesn't follow our guidelines, I'll reach out and let you know."
+      "**Your feedback is published immediately.** I read every submission. If something doesn't follow our guidelines, I'll reach out and let you know."
   },
   {
     question: 'Can I edit or delete my feedback after submitting?',
     answer:
-      "Yes. Go to your [profile page](/profile) to see all the feedback you've submitted. You can edit or delete it from there."
+      "**Yes.** Go to your [profile page](/profile) to see all the feedback you've submitted. You can edit or delete it from there."
   },
   {
     question: 'Who runs Uni Feedback? Is it a company?',
     answer:
-      "Uni Feedback is run by me, Afonso. I'm someone who really wants to solve this problem and help students make more informed decisions."
+      "Uni Feedback is run by me, Afonso. I'm someone who really wants to help students make more informed decisions."
   },
   {
     question: 'What happens if I see a review that seems fake or unfair?',
