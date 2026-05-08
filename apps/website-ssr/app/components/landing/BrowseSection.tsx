@@ -32,26 +32,19 @@ export function BrowseSection({ faculties, degrees }: BrowseSectionProps) {
 
   const selectedFaculty = faculties.find((f) => f.id === selectedFacultyId)
 
-  const filteredDegrees = degrees
-    .filter((d) => d.facultyId === selectedFacultyId)
-    .slice(0, 9)
+  const allFilteredDegrees = degrees.filter(
+    (d) => d.facultyId === selectedFacultyId
+  )
+  const filteredDegrees = allFilteredDegrees.slice(0, 9)
 
   return (
     <section className="py-16 md:py-24 bg-muted/30">
       <div className="container mx-auto px-4">
         <div className="max-w-5xl mx-auto">
-          <div className="flex items-center justify-between mb-8">
+          <div className="mb-8">
             <h2 className="font-heading text-2xl md:text-3xl font-semibold tracking-tight">
               What are you studying?
             </h2>
-            {selectedFaculty?.slug && (
-              <a
-                href={`/${selectedFaculty.slug}`}
-                className="hidden md:block text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                See all degrees →
-              </a>
-            )}
           </div>
 
           {/* Mobile: tabs */}
@@ -104,14 +97,26 @@ export function BrowseSection({ faculties, degrees }: BrowseSectionProps) {
               ))}
             </div>
 
-            {/* Right: degrees grid */}
-            <DegreeGrid degrees={filteredDegrees} />
+            {/* Right: degrees grid + footer link */}
+            <div className="flex flex-col gap-3">
+              <DegreeGrid degrees={filteredDegrees} />
+              {selectedFaculty?.slug && allFilteredDegrees.length > 9 && (
+                <div className="text-right">
+                  <a
+                    href={`/${selectedFaculty.slug}`}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    See all degrees →
+                  </a>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Mobile: degree grid */}
           <div className="md:hidden">
             <DegreeGrid degrees={filteredDegrees} mobileLimit={6} />
-            {selectedFaculty?.slug && (
+            {selectedFaculty?.slug && allFilteredDegrees.length > 6 && (
               <div className="text-center mt-4">
                 <a
                   href={`/${selectedFaculty.slug}`}

@@ -14,7 +14,7 @@ const LANDING_FAQ_ITEMS: FAQItem[] = [
   {
     question: 'How do I know reviews are real?',
     answer:
-      'Every reviewer signs in with their institutional email before submitting. Your email is never displayed or shared.'
+      'Every contributor signs in with their institutional email before submitting. Your email is never displayed or shared.'
   },
   {
     question: 'How recent is the feedback?',

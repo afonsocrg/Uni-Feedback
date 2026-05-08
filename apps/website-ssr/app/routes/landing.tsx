@@ -177,15 +177,15 @@ export default function LandingPage({ loaderData }: Route.ComponentProps) {
         stats={stats}
       />
       <ContributeStrip />
-      <FounderSection />
       <LiveFeedSection feedbacks={recentFeedbacks} />
+      <FounderSection />
       <MoreThanYourNetworkSection />
       <TrustSection />
       <BrowseSection faculties={faculties} degrees={degrees} />
       <TestimonialsSection testimonials={testimonials} />
       <ContributeCTASection contributors={stats.contributors} />
       <LandingFAQSection />
-      <CTASection />
+      <CTASection contributors={stats.contributors} />
     </>
   )
 }

@@ -6,10 +6,8 @@ export function ContributeStrip() {
         href="/feedback/new"
         className="relative bg-background border rounded-full px-5 py-2 text-sm text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-colors shadow-sm"
       >
-        Already taken a course?{' '}
-        <span className="text-primary font-medium">
-          Leave the review you needed. →
-        </span>
+        Taken a course?{' '}
+        <span className="text-primary font-medium">Leave a review →</span>
       </a>
     </div>
   )

@@ -112,7 +112,7 @@ export function HeroSection({
 
             <p className="text-base sm:text-lg text-muted-foreground max-w-xl mx-auto mb-6">
               Workload, professors, the tips students share with each other...
-              Anonymous feedback from students who took them.
+              Anonymous feedback from students who took the course.
             </p>
 
             <HeroSearchBar />

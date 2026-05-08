@@ -9,9 +9,10 @@ export function MoreThanYourNetworkSection() {
             from a student we've <span className="text-primary">never met</span>
             .
           </p>
-          <p className="text-sm text-muted-foreground max-w-[560px] mx-auto">
-            Here we have feedback from all students across all years. Not just
-            the ones you happen to know.
+          <p className="text-md text-muted-foreground max-w-[560px] mx-auto">
+            Here you can find feedback from students across all years.
+            <br />
+            Not just the students you happen to know.
           </p>
         </div>
       </div>
