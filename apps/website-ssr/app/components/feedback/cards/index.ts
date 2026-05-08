@@ -1,4 +1,5 @@
 export * from './CoursePageFeedbackCard'
+export * from './FeedbackCardFooter'
 export * from './LandingFeedbackCard'
 export * from './ProfileFeedbackCard'
 export * from './ReportFeedbackFeedbackCard'
