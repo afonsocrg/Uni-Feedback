@@ -34,7 +34,7 @@ export const getPageName = (path: string): string => {
   if (path === '/giveaway') return 'giveaway'
   if (path === '/giveaway/rules') return 'giveaway_rules'
   if (path === '/points') return 'points'
-  if (path === '/partners') return 'partners'
+  if (path === '/supporters') return 'supporters'
   if (path === '/terms') return 'terms'
   if (path === '/privacy') return 'privacy'
   if (path === '/guidelines') return 'guidelines'

@@ -23,42 +23,44 @@ export function SupportersSection({ studentClubs }: SupportersSectionProps) {
           width: max-content;
         }
       `}</style>
-      <div className="w-full text-center pt-4 pb-8 px-4">
-        <p className="text-xs text-muted-foreground mb-4">Supported by</p>
-        <div className="relative overflow-hidden w-full supporters-carousel">
-          <div className="animate-scroll">
-            {studentClubs.map((club) => {
-              const logoUrl = getAssetUrl(club.logoHorizontal)
-              if (!club.logoHorizontal || !logoUrl) return null
-              return (
-                <img
-                  key={club.id}
-                  alt={`${club.name} logo`}
-                  src={logoUrl}
-                  className="h-6 md:h-8 flex-shrink-0 opacity-50 hover:opacity-100 grayscale hover:grayscale-0 transition-all"
-                />
-              )
-            })}
-            {studentClubs.map((club) => {
-              const logoUrl = getAssetUrl(club.logoHorizontal)
-              if (!club.logoHorizontal || !logoUrl) return null
-              return (
-                <img
-                  key={`dup-${club.id}`}
-                  alt={`${club.name} logo`}
-                  src={logoUrl}
-                  className="h-6 md:h-8 flex-shrink-0 opacity-50 hover:opacity-100 grayscale hover:grayscale-0 transition-all"
-                />
-              )
-            })}
+      <div className="container mx-auto px-4 pt-4 pb-8">
+        <div className="max-w-5xl mx-auto text-center">
+          <p className="text-xs text-muted-foreground mb-4">Supported by</p>
+          <div className="relative overflow-hidden w-full supporters-carousel">
+            <div className="animate-scroll">
+              {studentClubs.map((club) => {
+                const logoUrl = getAssetUrl(club.logoHorizontal)
+                if (!club.logoHorizontal || !logoUrl) return null
+                return (
+                  <img
+                    key={club.id}
+                    alt={`${club.name} logo`}
+                    src={logoUrl}
+                    className="h-6 md:h-8 flex-shrink-0 opacity-50 hover:opacity-100 grayscale hover:grayscale-0 transition-all"
+                  />
+                )
+              })}
+              {studentClubs.map((club) => {
+                const logoUrl = getAssetUrl(club.logoHorizontal)
+                if (!club.logoHorizontal || !logoUrl) return null
+                return (
+                  <img
+                    key={`dup-${club.id}`}
+                    alt={`${club.name} logo`}
+                    src={logoUrl}
+                    className="h-6 md:h-8 flex-shrink-0 opacity-50 hover:opacity-100 grayscale hover:grayscale-0 transition-all"
+                  />
+                )
+              })}
+            </div>
           </div>
+          <a
+            href="/supporters"
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors inline-block mt-2"
+          >
+            See all
+          </a>
         </div>
-        <a
-          href="/partners"
-          className="text-xs text-muted-foreground hover:text-foreground transition-colors inline-block mt-2"
-        >
-          See all
-        </a>
       </div>
     </>
   )

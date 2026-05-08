@@ -42,7 +42,7 @@ export async function loader() {
       priority: 0.6
     },
     {
-      url: '/partners',
+      url: '/supporters',
       lastmod: new Date().toISOString(),
       changefreq: 'monthly' as const,
       priority: 0.5

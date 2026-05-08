@@ -27,7 +27,7 @@ export default [
       '/courses/:courseId/feedback',
       'routes/course.$courseId.feedback.tsx'
     ),
-    route('/partners', 'routes/partners.tsx'),
+    route('/supporters', 'routes/supporters.tsx'),
     route('/terms', 'routes/terms.tsx'),
     route('/privacy', 'routes/privacy.tsx'),
     route('/guidelines', 'routes/guidelines.tsx'),

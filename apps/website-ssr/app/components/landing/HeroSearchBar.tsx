@@ -88,7 +88,7 @@ export function HeroSearchBar() {
           onKeyDown={handleKeyDown}
           onFocus={() => hasResults && setOpen(true)}
           placeholder="Search courses, degrees, faculties..."
-          className="w-full pl-12 pr-4 h-14 text-base rounded-xl border-2 border-input bg-background shadow-lg focus:outline-none focus:border-primary transition-colors"
+          className="w-full pl-12 pr-4 h-12 text-base font-light rounded-xl border border-input bg-background shadow-sm focus:outline-none focus:border-primary transition-colors placeholder:text-muted-foreground/50"
           aria-label="Search courses, degrees and faculties"
           autoComplete="off"
         />

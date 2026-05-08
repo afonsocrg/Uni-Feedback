@@ -48,7 +48,7 @@ export function LandingFooter() {
       links: [
         { href: '/#how-it-works', label: 'How It Works' },
         { href: '/#testimonials', label: 'Testimonials' },
-        { href: '/partners', label: 'Partners' }
+        { href: '/supporters', label: 'Supporters' }
         // {
         //   href: 'https://github.com/afonsocrg/uni-feedback',
         //   label: 'Open Source'

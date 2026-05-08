@@ -16,7 +16,6 @@ export function LiveFeedSection({ feedbacks }: LiveFeedSectionProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [atStart, setAtStart] = useState(true)
   const [atEnd, setAtEnd] = useState(false)
-
   const updateBounds = () => {
     const el = scrollRef.current
     if (!el) return
@@ -105,15 +104,6 @@ export function LiveFeedSection({ feedbacks }: LiveFeedSectionProps) {
               </div>
             </div>
           </div>
-
-          {/* <div className="text-center mt-8">
-          <a
-            href="/browse"
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Browse all reviews →
-          </a>
-        </div> */}
         </div>
       </div>
     </section>
