@@ -2,7 +2,6 @@ import { database } from '@uni-feedback/db'
 import { degreeStats, degrees, faculties } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
 import { eq, or, sql } from 'drizzle-orm'
-import type { Context } from 'hono'
 import { z } from 'zod'
 
 const DegreeSearchResultSchema = z.object({
@@ -54,7 +53,7 @@ export class SearchDegrees extends OpenAPIRoute {
     }
   }
 
-  async handle(c: Context) {
+  async handle() {
     const { query } = await this.getValidatedData<typeof this.schema>()
     const { q, limit } = query
 

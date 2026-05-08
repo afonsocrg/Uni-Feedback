@@ -15,6 +15,9 @@ coverage/
 .next/
 out/
 
+# React Router generated types
+**/.react-router/
+
 # Cache directories
 .cache/
 .parcel-cache/

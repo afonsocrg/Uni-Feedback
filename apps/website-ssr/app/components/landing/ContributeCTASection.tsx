@@ -1,12 +1,6 @@
 import { Button } from '@uni-feedback/ui'
 
-interface ContributeCTASectionProps {
-  contributors: number
-}
-
-export function ContributeCTASection({
-  contributors
-}: ContributeCTASectionProps) {
+export function ContributeCTASection() {
   return (
     <section className="py-16 md:py-24">
       <div className="container mx-auto px-4">

@@ -166,7 +166,7 @@ export default function LandingPage({ loaderData }: Route.ComponentProps) {
       <TrustSection />
       <BrowseSection faculties={faculties} degrees={degrees} />
       <TestimonialsSection testimonials={testimonials} />
-      <ContributeCTASection contributors={stats.contributors} />
+      <ContributeCTASection />
       <LandingFAQSection />
       <CTASection contributors={stats.contributors} />
     </>
