@@ -31,6 +31,7 @@ export default [
     route('/terms', 'routes/terms.tsx'),
     route('/privacy', 'routes/privacy.tsx'),
     route('/guidelines', 'routes/guidelines.tsx'),
+    route('/guidelines/full', 'routes/guidelines.full.tsx'),
     route('/points', 'routes/points.tsx'),
     route('/contact', 'routes/contact.tsx'),
 
