@@ -12,12 +12,14 @@ export function CTASection({ contributors }: CTASectionProps) {
           <h2 className="font-heading text-3xl md:text-4xl font-semibold tracking-tight text-balance">
             Join {contributors}+ students who already contributed.
           </h2>
-          <Button size="lg" className="text-base px-8 mt-2" asChild>
-            <a href="/feedback/new">Add my experience →</a>
-          </Button>
-          <p className="text-xs text-muted-foreground/60">
-            100% anonymous · Takes 2 minutes
-          </p>
+          <div className="flex flex-col items-center gap-2 mt-2">
+            <Button size="lg" className="text-base px-8" asChild>
+              <a href="/feedback/new">Add my experience →</a>
+            </Button>
+            <p className="text-xs text-muted-foreground/60">
+              100% anonymous · Takes 2 minutes
+            </p>
+          </div>
         </div>
       </div>
     </section>
