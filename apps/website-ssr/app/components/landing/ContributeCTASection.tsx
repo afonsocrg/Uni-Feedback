@@ -9,7 +9,7 @@ export function ContributeCTASection() {
             Share what you wish you'd known.
           </h2>
           <p className="text-muted-foreground text-base">
-            Your feedback, once, helps hundreds of students for years.
+            Give feedback once, helps hundreds of students for years.
           </p>
           <Button size="lg" className="text-base px-8" asChild>
             <a href="/feedback/new">Help the next student →</a>

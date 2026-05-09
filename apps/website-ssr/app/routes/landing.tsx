@@ -158,13 +158,14 @@ export default function LandingPage({ loaderData }: Route.ComponentProps) {
   return (
     <>
       <HeroSection stats={stats} />
+      {/* <UniversitiesStrip faculties={faculties} /> */}
       <LiveFeedSection feedbacks={recentFeedbacks} />
       <SupportersSection studentClubs={studentClubs} />
       <ContributeStrip />
-      <FounderSection />
-      <MoreThanYourNetworkSection />
       <TrustSection />
       <BrowseSection faculties={faculties} degrees={degrees} />
+      <MoreThanYourNetworkSection />
+      <FounderSection />
       <TestimonialsSection testimonials={testimonials} />
       <ContributeCTASection />
       <LandingFAQSection />

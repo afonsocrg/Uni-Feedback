@@ -2,6 +2,10 @@ import { FAQ, type FAQItem } from './FAQ'
 
 const LANDING_FAQ_ITEMS: FAQItem[] = [
   {
+    question: 'Is Uni Feedback free?',
+    answer: 'Yes. Completely free. For everyone.'
+  },
+  {
     question: 'Is Uni Feedback affiliated with my university?',
     answer:
       '**No.** This is a student-run platform, independent from any university. No institution controls what gets published here. Students share their honest experience freely.'
@@ -9,18 +13,23 @@ const LANDING_FAQ_ITEMS: FAQItem[] = [
   {
     question: 'Can professors see who wrote a review?',
     answer:
-      "**No.** Professors can read reviews, but they'll never know who wrote what. Your identity is never revealed to anyone — not to professors, other students, or your university."
+      "**No.** Professors can read reviews, but they'll never know who wrote what. Your identity is never revealed to anyone. Not to professors, other students, or your university."
   },
   {
     question: 'How do I know reviews are real?',
     answer:
-      'Every contributor signs in with their institutional email before submitting. Your email is never displayed or shared.'
+      'Every contributor signs in with their university email before submitting. Your email is never displayed or shared.'
   },
   {
-    question: 'How recent is the feedback?',
+    question: 'Do I need to create an account to submit feedback?',
     answer:
-      "**The most recent reviews always appear first.** Every review also shows which school year it's from, so you always know how old the feedback is."
+      'You need to authenticate with your university email to submit. When you do it for the first time, an account is automatically created.'
   },
+  // {
+  //   question: 'How recent is the feedback?',
+  //   answer:
+  //     "**The most recent reviews always appear first.** Every review also shows which school year it's from, so you always know how old the feedback is."
+  // },
   {
     question: "My course isn't listed. What can I do?",
     answer:
@@ -29,11 +38,6 @@ const LANDING_FAQ_ITEMS: FAQItem[] = [
   {
     question: 'What language should I write my feedback in?',
     answer: "Write in the language you're most comfortable with."
-  },
-  {
-    question: 'Do I need to create an account to submit feedback?',
-    answer:
-      'You need to authenticate with your university email to submit. When you do it for the first time, an account is automatically created.'
   },
   {
     question: 'How long until my review appears after I submit it?',
@@ -54,10 +58,6 @@ const LANDING_FAQ_ITEMS: FAQItem[] = [
     question: 'What happens if I see a review that seems fake or unfair?',
     answer:
       "You can report it. Whenever I receive a report, I'll re-evaluate the review and remove it if it doesn't follow our guidelines."
-  },
-  {
-    question: 'Is Uni Feedback free?',
-    answer: 'Yes. Completely free. For everyone.'
   }
 ]
 
