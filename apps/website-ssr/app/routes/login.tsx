@@ -9,14 +9,19 @@ import {
 import { isValidEmail } from '@uni-feedback/utils'
 import { HelpCircle } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router'
 import { toast } from 'sonner'
 import { OtpInputStage } from '~/components/AuthDialog/OtpInputStage'
 import type { AuthUser } from '~/context/AuthContext'
 import { useAuth, useOtpAuth } from '~/hooks'
+import type { Lang } from '~/i18n/config'
 import { STORAGE_KEYS } from '~/utils/constants'
+import { getLocalePath } from '~/utils/i18n-routes'
 
 export default function LoginPage() {
+  const { t, i18n } = useTranslation('feedback')
+  const lang = i18n.language as Lang
   const [email, setEmail] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [showOtpInput, setShowOtpInput] = useState(false)
@@ -32,9 +37,9 @@ export default function LoginPage() {
   // Redirect to profile if user is already logged in
   useEffect(() => {
     if (user) {
-      navigate('/profile')
+      navigate(getLocalePath('profile', lang))
     }
-  }, [user, navigate])
+  }, [user, navigate, lang])
 
   // Load saved email from localStorage on mount
   useEffect(() => {
@@ -48,7 +53,7 @@ export default function LoginPage() {
     e.preventDefault()
 
     if (!email) {
-      toast.error('Please enter your email')
+      toast.error(t('auth.toast_email_required'))
       return
     }
 
@@ -61,15 +66,13 @@ export default function LoginPage() {
         // Save email to localStorage for next time
         localStorage.setItem(STORAGE_KEYS.LAST_LOGIN_EMAIL, email)
         setShowOtpInput(true)
-        toast.success('Check your email for the verification code!')
+        toast.success(t('auth.toast_code_sent'))
       } else {
-        toast.error(result.error || 'Failed to send verification code')
+        toast.error(result.error || t('auth.toast_send_failed'))
       }
     } catch (error) {
       toast.error(
-        error instanceof Error
-          ? error.message
-          : 'Failed to send verification code'
+        error instanceof Error ? error.message : t('auth.toast_send_failed')
       )
     }
 
@@ -77,9 +80,10 @@ export default function LoginPage() {
   }
 
   const handleOtpSuccess = (user: AuthUser) => {
-    const redirectTo = searchParams.get('redirect') || '/'
+    const redirectTo =
+      searchParams.get('redirect') || getLocalePath('home', lang)
     setUser(user)
-    toast.success('Successfully logged in!')
+    toast.success(t('auth.toast_logged_in'))
     navigate(redirectTo)
   }
 
@@ -92,11 +96,11 @@ export default function LoginPage() {
       <div className="w-full max-w-md space-y-6">
         <div className="flex flex-col items-center space-y-2">
           <h1 className="text-xl font-semibold text-center">
-            Login or Sign up
+            {t('auth.title')}
           </h1>
           {referralCode && (
             <p className="text-sm text-muted-foreground">
-              You've been invited! Code: {referralCode}
+              {t('auth.invited', { code: referralCode })}
             </p>
           )}
         </div>
@@ -105,9 +109,7 @@ export default function LoginPage() {
           {showOtpInput ? (
             <div className="space-y-4">
               <div className="text-center space-y-2">
-                <p className="text-muted-foreground">
-                  We sent a verification code to
-                </p>
+                <p className="text-muted-foreground">{t('auth.otp_sent')}</p>
                 <p className="font-semibold">{email}</p>
               </div>
 
@@ -123,7 +125,7 @@ export default function LoginPage() {
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <label htmlFor="email" className="text-sm font-medium">
-                    University Email
+                    {t('auth.email_label')}
                   </label>
                   <Popover>
                     <PopoverTrigger asChild>
@@ -138,17 +140,18 @@ export default function LoginPage() {
                       <div className="space-y-3 text-sm">
                         <div>
                           <p className="font-medium mb-1">
-                            University Email Required
+                            {t('auth.email_required_title')}
                           </p>
                           <p className="text-muted-foreground">
-                            We require a university email to ensure only
-                            verified students can submit feedback.
+                            {t('auth.email_required_desc')}
                           </p>
                         </div>
                         <div className="pt-2 border-t">
-                          <p className="font-medium mb-1">Need Help?</p>
+                          <p className="font-medium mb-1">
+                            {t('auth.need_help')}
+                          </p>
                           <p className="text-muted-foreground">
-                            Email us at{' '}
+                            {t('auth.help_desc')}{' '}
                             <a
                               href="mailto:help@uni-feedback.com"
                               className="underline hover:text-foreground transition-colors"
@@ -164,7 +167,7 @@ export default function LoginPage() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="your.email@university.edu"
+                  placeholder={t('auth.placeholder')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isLoading}
@@ -178,7 +181,7 @@ export default function LoginPage() {
                 className="w-full"
                 disabled={isLoading || !isValidEmail(email)}
               >
-                {isLoading ? 'Sending...' : 'Send verification code'}
+                {isLoading ? t('auth.sending') : t('auth.submit')}
               </Button>
             </form>
           )}
@@ -186,19 +189,19 @@ export default function LoginPage() {
 
         {/* Terms & Privacy Notice */}
         <p className="text-xs text-center text-muted-foreground px-4">
-          By continuing, you agree to our{' '}
+          {t('auth.terms_prefix')}{' '}
           <a
-            href="/terms"
+            href={getLocalePath('terms', lang)}
             className="underline hover:text-foreground transition-colors"
           >
-            Terms
+            {t('auth.terms_link')}
           </a>
           {' & '}
           <a
-            href="/privacy"
+            href={getLocalePath('privacy', lang)}
             className="underline hover:text-foreground transition-colors"
           >
-            Privacy Policy
+            {t('auth.privacy_link')}
           </a>
         </p>
       </div>

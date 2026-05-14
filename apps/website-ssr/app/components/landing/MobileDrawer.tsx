@@ -6,7 +6,11 @@ import {
   SheetTrigger
 } from '@uni-feedback/ui'
 import { LogOut, Menu, User } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import { LanguageSwitcher } from '~/components/layout/LanguageSwitcher'
+import type { Lang } from '~/i18n/config'
 import { analytics, getPageName } from '~/utils/analytics'
+import { getLocalePath, getReviewPath } from '~/utils/i18n-routes'
 
 interface MobileDrawerProps {
   browseLink: string
@@ -24,6 +28,9 @@ export function MobileDrawer({
   user,
   logout
 }: MobileDrawerProps) {
+  const { t, i18n } = useTranslation()
+  const lang = i18n.language as Lang
+
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -34,8 +41,9 @@ export function MobileDrawer({
       <SheetContent side="left" className="w-[300px] sm:w-[350px] p-0">
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="p-6 pb-4">
-            <h2 className="text-lg font-semibold">Menu</h2>
+          <div className="p-6 pb-4 flex items-center justify-between">
+            <h2 className="text-lg font-semibold">{t('nav.menu')}</h2>
+            <LanguageSwitcher />
           </div>
           <Separator />
 
@@ -47,7 +55,7 @@ export function MobileDrawer({
                 className="w-full justify-start h-12 text-base px-4"
                 asChild
               >
-                <a href={browseLink}>Browse Courses</a>
+                <a href={browseLink}>{t('nav.browse_courses')}</a>
               </Button>
               <Button
                 variant="ghost"
@@ -55,7 +63,7 @@ export function MobileDrawer({
                 asChild
               >
                 <a
-                  href="/feedback/new?from=nav_drawer"
+                  href={`${getReviewPath(lang)}?from=nav_drawer`}
                   onClick={() => {
                     analytics.navigation.feedbackFormLinkClicked({
                       source: 'mobile_menu',
@@ -63,7 +71,7 @@ export function MobileDrawer({
                     })
                   }}
                 >
-                  Give Feedback
+                  {t('nav.give_feedback')}
                 </a>
               </Button>
             </div>
@@ -74,7 +82,6 @@ export function MobileDrawer({
             <Separator className="mb-4" />
             {isAuthenticated ? (
               <div className="space-y-3">
-                {/* User Info */}
                 <div className="flex items-center gap-3 px-4 py-2 rounded-lg bg-muted/50">
                   <div className="size-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                     <User className="size-5 text-primary" />
@@ -89,35 +96,33 @@ export function MobileDrawer({
                   </div>
                 </div>
 
-                {/* Profile Link */}
                 <Button
                   variant="ghost"
                   className="w-full justify-start h-11 text-base px-4"
                   asChild
                 >
-                  <a href="/profile">
+                  <a href={getLocalePath('profile', lang)}>
                     <User className="size-5 mr-3" />
-                    Profile
+                    {t('nav.profile')}
                   </a>
                 </Button>
 
-                {/* Logout Button */}
                 <Button
                   variant="ghost"
                   className="w-full justify-start h-11 text-base px-4 text-destructive hover:text-destructive hover:bg-destructive/10"
                   onClick={logout}
                 >
                   <LogOut className="size-5 mr-3" />
-                  Logout
+                  {t('nav.logout')}
                 </Button>
               </div>
             ) : (
               <div className="space-y-3">
                 <p className="text-sm text-muted-foreground px-4">
-                  Sign in to access your profile
+                  {t('nav.sign_in_prompt')}
                 </p>
                 <Button className="w-full h-11" asChild>
-                  <a href="/login">Sign in</a>
+                  <a href={getLocalePath('login', lang)}>{t('nav.sign_in')}</a>
                 </Button>
               </div>
             )}

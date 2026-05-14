@@ -1,7 +1,9 @@
 import { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import { useAuth } from '~/hooks'
+import { detectLang } from '~/utils/i18n-routes'
 
 interface AuthGuardProps {
   children: React.ReactNode
@@ -12,28 +14,23 @@ export function AuthGuard({ children, loadingComponent }: AuthGuardProps) {
   const { isAuthenticated, user, isLoading, isLoggingOut } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
+  const { t } = useTranslation('feedback')
 
   useEffect(() => {
-    // Skip redirect if user is actively logging out
-    if (isLoggingOut) {
-      return
-    }
+    if (isLoggingOut) return
 
-    // Only redirect after auth has been checked (not loading)
     if (!isLoading && (!isAuthenticated || !user)) {
-      // Show toast notification
-      toast.error('Whoops! This page is for legends only. Log in to continue')
+      toast.error(t('auth.unauthorized_toast'))
 
-      // Redirect to login with current location as redirect parameter
-      // Use replace: true to avoid adding to history (prevents back button issues)
+      const lang = detectLang(location.pathname)
+      const loginPath = lang === 'en' ? '/en/login' : '/login'
       const redirectUrl = `${location.pathname}${location.search}`
-      navigate(`/login?redirect=${encodeURIComponent(redirectUrl)}`, {
+      navigate(`${loginPath}?redirect=${encodeURIComponent(redirectUrl)}`, {
         replace: true
       })
     }
-  }, [isLoading, isAuthenticated, user, isLoggingOut, navigate, location])
+  }, [isLoading, isAuthenticated, user, isLoggingOut, navigate, location, t])
 
-  // Show loading animation while checking auth, redirecting, or logging out
   if (isLoading || isLoggingOut || !isAuthenticated || !user) {
     if (loadingComponent) {
       return <>{loadingComponent}</>
@@ -43,7 +40,7 @@ export function AuthGuard({ children, loadingComponent }: AuthGuardProps) {
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="flex flex-col items-center gap-3">
           <div className="size-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
-          <p className="text-sm text-muted-foreground">Loading...</p>
+          <p className="text-sm text-muted-foreground">{t('auth.loading')}</p>
         </div>
       </div>
     )

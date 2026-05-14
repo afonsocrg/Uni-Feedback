@@ -6,8 +6,10 @@ import {
 } from '@uni-feedback/ui'
 import { getFeedbackPermalink } from '@uni-feedback/utils'
 import { HelpCircle } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { MessagePage } from '~/components'
+import { getLocalePath, type Lang } from '~/utils/i18n-routes'
 
 interface EditFeedbackSuccessProps {
   points?: number
@@ -22,6 +24,9 @@ export function EditFeedbackSuccess({
   feedbackId,
   onBackToProfile
 }: EditFeedbackSuccessProps) {
+  const { i18n } = useTranslation()
+  const lang = i18n.language as Lang
+
   const hasPoints = points !== undefined
   const feedbackUrl =
     courseId && feedbackId
@@ -67,7 +72,7 @@ export function EditFeedbackSuccess({
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Link
-                    to="/points"
+                    to={getLocalePath('points', lang)}
                     className="text-gray-400 hover:text-gray-600 transition-colors"
                   >
                     <HelpCircle className="w-4 h-4" />

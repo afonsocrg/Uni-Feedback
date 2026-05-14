@@ -1,17 +1,19 @@
 import { Card, CardContent } from '@uni-feedback/ui'
 import { BookOpen, Pen, Users } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 export function OurImpactSection() {
+  const { t } = useTranslation('landing')
+
   return (
     <section className="py-16 md:py-24">
       <div className="container mx-auto px-4">
         <div className="max-w-5xl mx-auto text-center">
           <h2 className="font-heading text-3xl md:text-4xl font-semibold tracking-tight mb-4">
-            Our Impact
+            {t('impact.title')}
           </h2>
           <p className="text-muted-foreground mb-12 max-w-2xl mx-auto">
-            Join a growing community of students making better academic
-            decisions
+            {t('impact.subtitle')}
           </p>
           <div className="grid md:grid-cols-3 gap-8">
             <Card>
@@ -21,7 +23,7 @@ export function OurImpactSection() {
                 </div>
                 <div className="text-4xl font-bold text-primary">502+</div>
                 <div className="text-sm text-muted-foreground">
-                  Courses Reviewed
+                  {t('impact.courses_reviewed')}
                 </div>
               </CardContent>
             </Card>
@@ -32,7 +34,7 @@ export function OurImpactSection() {
                 </div>
                 <div className="text-4xl font-bold text-primary">5,000+</div>
                 <div className="text-sm text-muted-foreground">
-                  Students Helped
+                  {t('impact.students_helped')}
                 </div>
               </CardContent>
             </Card>
@@ -43,7 +45,7 @@ export function OurImpactSection() {
                 </div>
                 <div className="text-4xl font-bold text-primary">1,200+</div>
                 <div className="text-sm text-muted-foreground">
-                  Active Contributors
+                  {t('impact.contributors')}
                 </div>
               </CardContent>
             </Card>

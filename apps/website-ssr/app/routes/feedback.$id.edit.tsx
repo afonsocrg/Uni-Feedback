@@ -2,6 +2,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { editFeedback, MeicFeedbackAPIError } from '@uni-feedback/api-client'
 import { Loader2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams, useSearchParams } from 'react-router'
 import { toast } from 'sonner'
 import {
@@ -13,8 +14,13 @@ import {
   type EditFeedbackFormData
 } from '~/components'
 import { useFeedbackForEdit } from '~/hooks/queries'
+import type { Lang } from '~/i18n/config'
+import { getLocalePath } from '~/utils/i18n-routes'
 
 export default function EditFeedbackPage() {
+  const { t, i18n } = useTranslation('feedback')
+  const lang = i18n.language as Lang
+  const profilePath = getLocalePath('profile', lang)
   const navigate = useNavigate()
   const params = useParams()
   const [searchParams] = useSearchParams()
@@ -27,11 +33,11 @@ export default function EditFeedbackPage() {
   useEffect(() => {
     if (searchParams.get('redirected') && !redirectToastShown.current) {
       redirectToastShown.current = true
-      toast.info("You've already submitted feedback for this course.", {
-        description: 'You can update your existing feedback below.'
+      toast.info(t('edit.already_submitted'), {
+        description: t('edit.can_update')
       })
     }
-  }, [searchParams])
+  }, [searchParams, t])
 
   // Parse feedbackId from params
   const feedbackId = params.id ? parseInt(params.id) : null
@@ -40,8 +46,8 @@ export default function EditFeedbackPage() {
   const { data, isLoading, error } = useFeedbackForEdit(feedbackId)
 
   const breadcrumbItems: BreadcrumbItemData[] = [
-    { label: 'Profile', href: '/profile' },
-    { label: 'Edit Feedback', isActive: true }
+    { label: t('edit.breadcrumb_profile'), href: profilePath },
+    { label: t('edit.page_title'), isActive: true }
   ]
 
   // Loading state
@@ -73,7 +79,7 @@ export default function EditFeedbackPage() {
         </div>
         <PermissionError
           message={errorMessage}
-          onBackToProfile={() => navigate('/profile')}
+          onBackToProfile={() => navigate(profilePath)}
         />
       </div>
     )
@@ -94,7 +100,7 @@ export default function EditFeedbackPage() {
 
       setPoints(response.points)
       setIsSuccess(true)
-      toast.success('Feedback updated successfully!')
+      toast.success(t('edit.toast_updated'))
 
       // Invalidate queries to refetch updated data
       await Promise.all([
@@ -125,7 +131,7 @@ export default function EditFeedbackPage() {
           points={points}
           courseId={feedback.courseId}
           feedbackId={feedback.id}
-          onBackToProfile={() => navigate('/profile')}
+          onBackToProfile={() => navigate(profilePath)}
         />
       </div>
     )
@@ -139,7 +145,7 @@ export default function EditFeedbackPage() {
       <EditFeedbackContent
         feedback={feedback}
         onSubmit={handleSubmit}
-        onCancel={() => navigate('/profile')}
+        onCancel={() => navigate(profilePath)}
         isSubmitting={isSubmitting}
       />
     </>

@@ -1,11 +1,17 @@
 import type { StudentClub } from '@uni-feedback/db'
+import { useTranslation } from 'react-i18next'
+import type { Lang } from '~/i18n/config'
 import { getAssetUrl } from '~/utils'
+import { getLocalePath } from '~/utils/i18n-routes'
 
 interface SupportersSectionProps {
   studentClubs: StudentClub[]
 }
 
 export function SupportersSection({ studentClubs }: SupportersSectionProps) {
+  const { t, i18n } = useTranslation('landing')
+  const lang = i18n.language as Lang
+
   return (
     <>
       <style>{`
@@ -25,7 +31,9 @@ export function SupportersSection({ studentClubs }: SupportersSectionProps) {
       `}</style>
       <div className="container mx-auto px-4 pt-4 pb-8">
         <div className="max-w-5xl mx-auto text-center">
-          <p className="text-xs text-muted-foreground mb-4">Supported by</p>
+          <p className="text-xs text-muted-foreground mb-4">
+            {t('supporters_section.title')}
+          </p>
           <div className="relative overflow-hidden w-full supporters-carousel">
             <div className="animate-scroll">
               {studentClubs.map((club) => {
@@ -55,10 +63,10 @@ export function SupportersSection({ studentClubs }: SupportersSectionProps) {
             </div>
           </div>
           <a
-            href="/supporters"
+            href={getLocalePath('supporters', lang)}
             className="text-xs text-muted-foreground hover:text-foreground transition-colors inline-block mt-2"
           >
-            See all
+            {t('supporters_section.see_all')}
           </a>
         </div>
       </div>

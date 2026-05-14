@@ -1,23 +1,9 @@
 import { CheckCircle, ShieldCheck, UserX } from 'lucide-react'
-
-const COPY = {
-  badge: 'Trusted & Secure',
-  heading: 'Reviews You Can Trust',
-  features: [
-    {
-      title: 'Verified Feedback',
-      description:
-        'We manually review and approve every feedback to ensure it comes from a student who actually took the course.'
-    },
-    {
-      title: '100% Anonymous',
-      description:
-        'Your feedback is always anonymous, and we never disclose information about the students who submit it.'
-    }
-  ]
-}
+import { useTranslation } from 'react-i18next'
 
 export function TrustedSection() {
+  const { t } = useTranslation('landing')
+
   return (
     <section id="trusted-and-secure" className="py-16 md:py-24">
       <div className="container mx-auto px-4">
@@ -26,10 +12,10 @@ export function TrustedSection() {
             <div className="space-y-6">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium">
                 <ShieldCheck className="size-4" />
-                {COPY.badge}
+                {t('trust.title')}
               </div>
               <h2 className="font-heading text-3xl md:text-4xl font-semibold tracking-tight">
-                {COPY.heading}
+                {t('trust.verified.title')}
               </h2>
               <div className="space-y-4 pt-4">
                 <div className="flex gap-4">
@@ -38,10 +24,10 @@ export function TrustedSection() {
                   </div>
                   <div>
                     <h3 className="font-semibold mb-1">
-                      {COPY.features[0].title}
+                      {t('trust.verified.subtitle')}
                     </h3>
                     <p className="text-sm text-muted-foreground">
-                      {COPY.features[0].description}
+                      {t('trust.verified.desc')}
                     </p>
                   </div>
                 </div>
@@ -51,10 +37,10 @@ export function TrustedSection() {
                   </div>
                   <div>
                     <h3 className="font-semibold mb-1">
-                      {COPY.features[1].title}
+                      {t('trust.anonymous.title')}
                     </h3>
                     <p className="text-sm text-muted-foreground">
-                      {COPY.features[1].description}
+                      {t('trust.anonymous.desc')}
                     </p>
                   </div>
                 </div>

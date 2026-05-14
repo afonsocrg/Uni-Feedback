@@ -1,8 +1,13 @@
 import { Button } from '@uni-feedback/ui'
 import { ArrowRight } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
+import { getLocalePath, type Lang } from '~/utils/i18n-routes'
 
 export function GiveawayRecapCTA() {
+  const { i18n } = useTranslation()
+  const lang = i18n.language as Lang
+
   return (
     <section className="py-20 bg-gradient-to-b from-primary/5 to-background">
       <div className="container mx-auto px-4">
@@ -17,7 +22,7 @@ export function GiveawayRecapCTA() {
 
           <div className="flex justify-center">
             <Button asChild size="lg" className="group">
-              <Link to="/courses">
+              <Link to={getLocalePath('browse', lang)}>
                 Share your experience
                 <ArrowRight className="size-4 ml-2 group-hover:translate-x-1 transition-transform" />
               </Link>

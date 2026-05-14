@@ -1,0 +1,179 @@
+{
+  "hero": {
+    "title": "Descobre o que os alunos realmente pensam sobre as tuas cadeiras",
+    "subtitle": "Feedback anónimo de alunos verificados",
+    "stats": "{{feedbackCount}}+ feedbacks · {{contributors}}+ contribuidores · 100% gratuito"
+  },
+  "search": {
+    "placeholder": "Pesquisa cursos, licenciaturas, faculdades...",
+    "aria_label": "Pesquisar cursos, licenciaturas e faculdades",
+    "tab_courses": "Cursos",
+    "tab_degrees": "Licenciaturas",
+    "tab_faculties": "Faculdades",
+    "browse_all": "Ver todos os cursos →",
+    "reviews_count": "{{count}} avaliações"
+  },
+  "cta": {
+    "join_text": "Junta-te a {{count}}+ estudantes que já contribuíram.",
+    "button": "Partilhar a minha experiência →",
+    "note": "100% anónimo · 2 minutos"
+  },
+  "contribute_cta": {
+    "title": "Partilha o que gostavas de ter sabido.",
+    "subtitle": "Dá feedback uma vez, ajuda centenas de estudantes durante anos.",
+    "button": "Ajudar o próximo estudante →"
+  },
+  "contribute_strip": {
+    "text": "Já fizeste um curso? Deixa uma avaliação →"
+  },
+  "how_it_works": {
+    "title": "Como Funciona",
+    "browse": {
+      "title": "Explora Cursos",
+      "desc": "Pesquisa e filtra centenas de cursos para encontrar os que se encaixam nos teus interesses e critérios."
+    },
+    "read": {
+      "title": "Lê Feedback",
+      "desc": "Vê o que os antigos estudantes dizem sobre o curso, o seu conteúdo, carga de trabalho, estilo de ensino, etc."
+    },
+    "enroll": {
+      "title": "Inscreve-te com Confiança",
+      "desc": "Usa o que aprendeste para escolher os cursos certos para ti."
+    }
+  },
+  "trust": {
+    "title": "Fiável & Seguro",
+    "verified": {
+      "title": "Avaliações em que Podes Confiar",
+      "subtitle": "Feedback Verificado",
+      "desc": "Revemos e aprovamos manualmente cada feedback para garantir que vem de um estudante que realmente frequentou o curso."
+    },
+    "anonymous": {
+      "title": "100% Anónimo",
+      "desc": "O teu feedback é sempre anónimo e nunca divulgamos informação sobre os estudantes que o submetem."
+    },
+    "space": {
+      "title": "Um espaço que pertence aos estudantes",
+      "desc": "O Uni Feedback é gerido por estudantes e independente de qualquer universidade. Nenhuma instituição pode influenciar o que é publicado aqui. Aqui encontras o bom, o mau e o feio."
+    },
+    "real_students": {
+      "title": "Apenas estudantes reais, de universidades reais",
+      "desc": "Queremos que o nosso feedback seja legítimo. Cada contribuidor autentica-se com o seu email universitário antes de submeter."
+    },
+    "anonymous_submissions": {
+      "title": "O teu feedback é 100% anónimo",
+      "desc": "Queremos que os estudantes se sintam seguros ao partilhar a sua experiência. Ninguém — nem outros estudantes, nem professores, nem a tua universidade — saberá que foste tu a escrevê-lo.",
+      "note": "Internamente, a tua submissão está associada à tua conta para que possas geri-la e para que a nossa equipa possa contactar-te se algo precisar de atenção. Esta ligação nunca sai do Uni Feedback."
+    },
+    "reviewed": {
+      "title": "Todo o feedback é revisto",
+      "desc": "Lemos todas as submissões. Se algo não seguir as nossas diretrizes, removemo-lo e contactamos o autor para o ajudar a atualizá-lo, para que possa voltar a estar disponível. Toda a opinião é bem-vinda. Todas elas."
+    }
+  },
+  "testimonials": {
+    "title": "O que os estudantes dizem sobre nós",
+    "subtitle": "Estudantes reais a partilhar a sua experiência com o Uni Feedback",
+    "cta": "Usas o Uni Feedback? Diz-nos o que pensas!"
+  },
+  "browse_section": {
+    "title": "O que estás a estudar?",
+    "see_all": "Ver todas as licenciaturas →",
+    "no_degrees": "Ainda não há licenciaturas disponíveis para esta universidade."
+  },
+  "faq": {
+    "title": "Perguntas Frequentes",
+    "subtitle": "Tudo o que precisas de saber sobre o Uni Feedback",
+    "items": [
+      {
+        "question": "O Uni Feedback é gratuito?",
+        "answer": "Sim. Completamente gratuito. Para toda a gente."
+      },
+      {
+        "question": "O Uni Feedback está afiliado à minha universidade?",
+        "answer": "**Não.** Esta é uma plataforma gerida por estudantes, independente de qualquer universidade. Nenhuma instituição controla o que é publicado aqui. Os estudantes partilham a sua experiência honestamente."
+      },
+      {
+        "question": "Os professores conseguem ver quem escreveu uma avaliação?",
+        "answer": "**Não.** Os professores podem ler as avaliações, mas nunca saberão quem escreveu o quê. A tua identidade nunca é revelada a ninguém — nem a professores, nem a outros estudantes, nem à tua universidade."
+      },
+      {
+        "question": "Como sei que as avaliações são verdadeiras?",
+        "answer": "Todos os contribuidores autenticam-se com o seu email universitário antes de submeter. O teu email nunca é exibido nem partilhado."
+      },
+      {
+        "question": "Preciso de criar uma conta para submeter feedback?",
+        "answer": "Precisas de te autenticar com o teu email universitário para submeter. Quando o fazes pela primeira vez, uma conta é criada automaticamente."
+      },
+      {
+        "question": "O meu curso não está listado. O que posso fazer?",
+        "answer": "[Entra em contacto comigo!](mailto:afonso@uni-feedback.com) Terei todo o gosto em adicionar o teu curso, licenciatura ou universidade."
+      },
+      {
+        "question": "Em que língua devo escrever o meu feedback?",
+        "answer": "Escreve na língua em que te sentes mais confortável."
+      },
+      {
+        "question": "Quanto tempo demora a minha avaliação a aparecer depois de a submeter?",
+        "answer": "**O teu feedback é publicado imediatamente.** Leio todas as submissões. Se algo não seguir as nossas diretrizes, entrarei em contacto contigo."
+      },
+      {
+        "question": "Posso editar ou eliminar o meu feedback depois de o submeter?",
+        "answer": "**Sim.** Vai à tua [página de perfil](/perfil) para ver todos os feedbacks que submeteste. Podes editá-los ou eliminá-los a partir daí."
+      },
+      {
+        "question": "Quem gere o Uni Feedback? É uma empresa?",
+        "answer": "O Uni Feedback é gerido por mim, o Afonso. Sou alguém que quer mesmo ajudar os estudantes a tomar decisões mais informadas."
+      },
+      {
+        "question": "O que acontece se vir uma avaliação que parece falsa ou injusta?",
+        "answer": "Podes denunciá-la. Sempre que recebo uma denúncia, reavaliarei o feedback e removê-lo-ei se não cumprir as nossas diretrizes."
+      }
+    ],
+    "contact_prompt": "Tens outra pergunta? Envia-nos uma mensagem no <0>Instagram</0> ou escreve para <1>afonso@uni-feedback.com</1>."
+  },
+  "impact": {
+    "title": "O Nosso Impacto",
+    "subtitle": "Junta-te a uma comunidade crescente de estudantes a tomar melhores decisões académicas",
+    "courses_reviewed": "Cursos Avaliados",
+    "students_helped": "Estudantes Ajudados",
+    "contributors": "Contribuidores Ativos"
+  },
+  "more_than_network": {
+    "quote": "Às vezes o feedback mais útil vem de alguém que nunca conhecemos.",
+    "desc": "Aqui podes encontrar feedback de centenas de estudantes. Não apenas daqueles que conheces."
+  },
+  "loved_by_students": {
+    "title": "Adorado por Centenas de Estudantes em"
+  },
+  "supporters_section": {
+    "title": "Apoiado por",
+    "see_all": "Ver todos"
+  },
+  "feedback_carousel": {
+    "want_more": "Queres ver mais?",
+    "subtitle": "Explora centenas de feedbacks de estudantes como tu",
+    "button": "Ver Mais Feedback",
+    "prev_aria": "Feedback anterior",
+    "next_aria": "Próximo feedback",
+    "go_to_aria": "Ir para o feedback {{index}}"
+  },
+  "recent_feed": {
+    "title": "Feedback recente",
+    "scroll_left": "Deslizar para a esquerda",
+    "scroll_right": "Deslizar para a direita"
+  },
+  "universities_strip": {
+    "prefix": "Atualmente a suportar"
+  },
+  "founder": {
+    "quote1": "Na universidade, os meus amigos e eu costumávamos perguntar a outros estudantes sobre os cursos (carga de trabalho, professores, exames, dicas, etc.). Mas as respostas perdiam-se nos grupos de chat.",
+    "quote2": "Por isso criei um lugar para todo esse feedback.",
+    "attribution": "— Afonso"
+  },
+  "contact_section": {
+    "title": "Entra em Contacto",
+    "desc": "Encontraste um bug? Tens uma sugestão? Só queres dizer olá? Adorava ouvir-te. O teu feedback (😉) ajuda a tornar o Uni Feedback melhor para toda a gente.",
+    "email": "Envia um Email",
+    "linkedin": "Conectar no LinkedIn"
+  }
+}

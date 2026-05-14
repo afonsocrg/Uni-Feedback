@@ -1,0 +1,52 @@
+{
+  "meta": {
+    "title": "Browse Universities - Uni Feedback",
+    "description": "Choose your university to explore degrees and courses with honest, anonymous student reviews."
+  },
+  "page": {
+    "title": "Select Your University",
+    "request_link": "Don't see your university? Request it here"
+  },
+  "degree_page": {
+    "search_placeholder": "Search by name or acronym...",
+    "sort_label": "Sort By",
+    "sort_default": "Most Reviews",
+    "year_label": "Year",
+    "year_option": "{{year}} year",
+    "all_years": "All Years",
+    "term_label": "Term",
+    "all_terms": "All Terms",
+    "group_label": "Course Group",
+    "all_groups": "All Groups",
+    "exam_label": "Exam",
+    "exam_any": "Exam: Any",
+    "exam_mandatory": "Exam: Mandatory",
+    "exam_optional": "Exam: Optional",
+    "sort_highest_rating": "Highest Rating",
+    "sort_alphabetical": "Alphabetical",
+    "sort_most_reviews": "Most Reviews",
+    "sort_workload": "Workload Rating",
+    "missing_course": "Missing a course?",
+    "request_link": "Request it here",
+    "no_courses": "No courses found for this degree.",
+    "no_results": "No courses match your search criteria."
+  },
+  "faculty_page": {
+    "title": "Select Your Degree",
+    "search_placeholder": "Search degrees...",
+    "filter_label": "Degree Type",
+    "filter_placeholder": "All Degree Types",
+    "missing_degree": "Missing a degree?",
+    "request_link": "Request it here",
+    "no_degrees": "No degrees found for this university.",
+    "no_results": "No degrees found matching your search."
+  },
+  "browse_section": {
+    "no_degrees": "No degrees available for this university yet.",
+    "see_all": "See all degrees →",
+    "course_count_one": "{{count}} course",
+    "course_count_other": "{{count}} courses",
+    "feedback_count_one": "{{count}} feedback",
+    "feedback_count_other": "{{count}} feedbacks"
+  }
+}

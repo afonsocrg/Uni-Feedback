@@ -1,10 +1,13 @@
 import { MeicFeedbackAPIError } from '@uni-feedback/api-client'
 import { CheckCircle, Home, Loader2, User, XCircle } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router'
 import { toast } from 'sonner'
 import { MessagePage } from '~/components'
 import { useAuth, useMagicLinkAuth } from '~/hooks'
+import type { Lang } from '~/utils/i18n-routes'
+import { getLocalePath } from '~/utils/i18n-routes'
 
 /**
  * Client-side magic link verification (SPA approach)
@@ -22,6 +25,8 @@ export default function LoginToken() {
   const { token } = useParams()
   const navigate = useNavigate()
   const { setUser } = useAuth()
+  const { i18n } = useTranslation()
+  const lang = i18n.language as Lang
   const [status, setStatus] = useState<'verifying' | 'success' | 'error'>(
     'verifying'
   )
@@ -33,7 +38,6 @@ export default function LoginToken() {
   const hasVerified = useRef(false)
 
   useEffect(() => {
-    // Skip if already verified (prevents Strict Mode double execution)
     if (hasVerified.current) {
       return
     }
@@ -45,26 +49,19 @@ export default function LoginToken() {
     }
 
     const verify = async () => {
-      // Mark as verified before async call to prevent race conditions
       hasVerified.current = true
 
       try {
-        // Call API directly from browser - cookies will be set correctly
         const response = await callMagicLink({ token })
-
-        // Update client-side auth context
         setUser(response.user)
         setStatus('success')
       } catch (error) {
-        // Check if this is an expired token with requestId
         if (error instanceof MeicFeedbackAPIError && error.requestId) {
-          // Redirect to login page to continue polling
           toast.info(error.message)
-          navigate('/login')
+          navigate(getLocalePath('login', lang))
           return
         }
 
-        // Handle other errors
         setStatus('error')
         setErrorMessage(
           error instanceof Error ? error.message : 'Verification failed'
@@ -73,7 +70,7 @@ export default function LoginToken() {
     }
 
     verify()
-  }, [token, setUser, navigate, callMagicLink])
+  }, [token, setUser, navigate, callMagicLink, lang])
 
   if (status === 'success') {
     return (
@@ -82,12 +79,12 @@ export default function LoginToken() {
         buttons={[
           {
             label: 'Go to Home',
-            href: '/',
+            href: getLocalePath('home', lang),
             icon: Home
           },
           {
             label: 'View Profile',
-            href: '/profile',
+            href: getLocalePath('profile', lang),
             variant: 'outline',
             icon: User
           }
@@ -129,7 +126,7 @@ export default function LoginToken() {
             <div className="text-center space-y-4">
               <p className="text-muted-foreground">{errorMessage}</p>
               <Link
-                to="/login"
+                to={getLocalePath('login', lang)}
                 className="text-primary hover:underline inline-block"
               >
                 Request a new link

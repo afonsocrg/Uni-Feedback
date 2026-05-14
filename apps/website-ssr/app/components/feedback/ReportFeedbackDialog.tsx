@@ -27,11 +27,13 @@ import {
 import { AlertTriangle, Loader2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { AuthenticatedButton, ReportFeedbackFeedbackCard } from '~/components'
 import { analytics, getPageName } from '~/utils/analytics'
+import { getLocalePath, type Lang } from '~/utils/i18n-routes'
 
 const reportFormSchema = z.object({
   category: z.enum(REPORT_CATEGORIES),
@@ -64,6 +66,9 @@ export function ReportFeedbackDialog({
   open,
   onOpenChange
 }: ReportFeedbackDialogProps) {
+  const { i18n } = useTranslation()
+  const lang = i18n.language as Lang
+
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
 
@@ -161,7 +166,7 @@ export function ReportFeedbackDialog({
             <p className="text-sm text-muted-foreground">
               Report this feedback only if it breaks our{' '}
               <Link
-                to="/guidelines"
+                to={getLocalePath('guidelines', lang)}
                 className="font-medium text-primary hover:underline"
               >
                 guidelines

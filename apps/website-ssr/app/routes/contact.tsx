@@ -1,4 +1,5 @@
 import { Mail } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 export function meta() {
   return [
@@ -11,6 +12,8 @@ export function meta() {
 }
 
 export default function ContactPage() {
+  const { t } = useTranslation('legal')
+
   return (
     <div>
       <div className="container mx-auto px-4 py-16 md:py-24">
@@ -21,19 +24,11 @@ export default function ContactPage() {
 
           <div>
             <h1 className="text-2xl md:text-3xl font-semibold mb-4">
-              Get in touch
+              {t('contact.title')}
             </h1>
 
             <p className="text-muted-foreground mb-8 leading-relaxed">
-              Found a bug? Have an idea for a new feature? Or just want to say
-              hi and share how Uni Feedback has helped you? Drop me an email at{' '}
-              <a
-                href="mailto:afonso@uni-feedback.com"
-                className="text-foreground font-medium hover:underline"
-              >
-                afonso@uni-feedback.com
-              </a>
-              ! I read every email and reply as soon as I can.
+              {t('contact.desc')}
             </p>
 
             <a
@@ -41,7 +36,7 @@ export default function ContactPage() {
               className="inline-flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90 transition-colors px-6 py-3 rounded-lg font-medium"
             >
               <Mail className="size-4" />
-              Email me
+              {t('contact.email_btn')}
             </a>
             <p className="text-xs text-muted-foreground mt-3"></p>
           </div>

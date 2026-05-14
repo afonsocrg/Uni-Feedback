@@ -5,8 +5,10 @@ import {
   DialogTitle
 } from '@uni-feedback/ui'
 import { ArrowRight, Check, X } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { FEEDBACK_CATEGORIES } from '~/utils/constants'
+import { getLocalePath, type Lang } from '~/utils/i18n-routes'
 
 interface ReviewTipsDialogProps {
   open: boolean
@@ -17,6 +19,9 @@ export function ReviewTipsDialog({
   open,
   onOpenChange
 }: ReviewTipsDialogProps) {
+  const { i18n } = useTranslation()
+  const lang = i18n.language as Lang
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[500px]">
@@ -81,7 +86,7 @@ export function ReviewTipsDialog({
         {/* Footer with link */}
         <div className="pt-2">
           <Link
-            to="/guidelines"
+            to={getLocalePath('guidelines', lang)}
             className="text-sm text-primaryBlue hover:text-primaryBlue/80 font-medium inline-flex items-center gap-1"
             onClick={() => onOpenChange(false)}
           >

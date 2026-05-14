@@ -1,7 +1,10 @@
 import type { Degree, Faculty } from '@uni-feedback/db/schema'
 import { Button, WarningAlert } from '@uni-feedback/ui'
 import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { loadDegreeFilters, saveDegreeFilters } from '~/utils/filterStorage'
+import type { Lang } from '~/utils/i18n-routes'
+import { getDegreePath } from '~/utils/i18n-routes'
 import { userPreferences } from '~/utils/userPreferences'
 import { BrowsePageLayout, DegreeCard } from '.'
 import { FilterChip } from './common/FilterChip'
@@ -28,6 +31,8 @@ export function FacultyPageContent({
   faculty,
   degrees
 }: FacultyPageContentProps) {
+  const { t, i18n } = useTranslation('browse')
+  const lang = i18n.language as Lang
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedType, setSelectedType] = useState<string | null>(null)
 
@@ -70,41 +75,40 @@ export function FacultyPageContent({
     if (!degree.slug) {
       throw new Error('Degree slug is missing ' + JSON.stringify(degree))
     }
-    return `/${faculty.slug}/${degree.slug}`
+    return getDegreePath(lang, faculty.slug, degree.slug)
   }
 
   const handleDegreeClick = (degree: Degree) => {
-    // Save to localStorage immediately when user clicks
     userPreferences.set({
       lastSelectedFacultySlug: faculty.slug,
       lastSelectedDegreeSlug: degree.slug,
-      lastVisitedPath: `/${faculty.slug}/${degree.slug}`
+      lastVisitedPath: getDegreePath(lang, faculty.slug, degree.slug)
     })
   }
 
   return (
     <BrowsePageLayout
-      title="Select Your Degree"
+      title={t('faculty_page.title')}
       faculty={faculty}
       searchBar={
         <SearchInput
           value={searchQuery}
           onChange={setSearchQuery}
-          placeholder="Search degrees..."
+          placeholder={t('faculty_page.search_placeholder')}
         />
       }
       filterChips={
         availableTypes.length > 0 ? (
           <div className="flex flex-wrap gap-2 items-center">
             <FilterChip
-              label="Degree Type"
+              label={t('faculty_page.filter_label')}
               options={availableTypes.map((type) => ({
                 value: type,
                 label: type
               }))}
               selectedValue={selectedType}
               onValueChange={handleTypeChange}
-              placeholder="All Degree Types"
+              placeholder={t('faculty_page.filter_placeholder')}
             />
           </div>
         ) : undefined
@@ -113,7 +117,7 @@ export function FacultyPageContent({
         <WarningAlert
           message={
             <>
-              Missing a degree?{' '}
+              {t('faculty_page.missing_degree')}{' '}
               <Button
                 variant="link"
                 size="xs"
@@ -125,7 +129,7 @@ export function FacultyPageContent({
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  Request it here
+                  {t('faculty_page.request_link')}
                 </a>
               </Button>
             </>
@@ -135,11 +139,11 @@ export function FacultyPageContent({
     >
       {!degrees || degrees.length === 0 ? (
         <div className="text-center text-gray-500 py-8">
-          No degrees found for this university.
+          {t('faculty_page.no_degrees')}
         </div>
       ) : filteredDegrees.length === 0 ? (
         <div className="text-center text-gray-500 py-8">
-          No degrees found matching your search.
+          {t('faculty_page.no_results')}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

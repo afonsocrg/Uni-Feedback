@@ -1,0 +1,43 @@
+{
+  "nav": {
+    "menu": "Menu",
+    "browse_courses": "Procurar Cadeiras",
+    "give_feedback": "Dar Feedback",
+    "give_feedback_cta": "Dá Feedback!",
+    "profile": "Perfil",
+    "logout": "Sair",
+    "sign_in": "Entrar",
+    "sign_in_prompt": "Inicia sessão para aceder ao teu perfil",
+    "sign_in_to_platform": "Entrar no Uni Feedback",
+    "loading": "A carregar..."
+  },
+  "footer": {
+    "tagline": "De estudantes, para estudantes. O teu companheiro para uma vida universitária melhor e mais bem-sucedida.",
+    "built_by": "Feito com ❤️ por @afonsocrg",
+    "copyright": "© {{year}} Uni Feedback. Todos os direitos reservados.",
+    "groups": {
+      "explore": "Explorar",
+      "rewards": "Recompensas",
+      "about": "Sobre",
+      "help": "Ajuda",
+      "legal": "Legal"
+    },
+    "links": {
+      "browse_courses": "Procurar Cadeiras",
+      "give_feedback": "Dar Feedback",
+      "earn_points": "Ganhar Pontos",
+      "giveaway": "Sorteio",
+      "testimonials": "Testemunhos",
+      "supporters": "Apoiantes",
+      "faq": "FAQ",
+      "guidelines": "Diretrizes de Feedback",
+      "contact": "Contacto",
+      "terms": "Termos de Serviço",
+      "privacy": "Política de Privacidade"
+    }
+  },
+  "lang_switcher": {
+    "switch_to_en": "EN",
+    "switch_to_pt": "PT"
+  }
+}

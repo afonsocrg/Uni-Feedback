@@ -1,6 +1,7 @@
 import { database, schema } from '@uni-feedback/db'
 import { and, eq, gt, sql } from 'drizzle-orm'
 import { useEffect } from 'react'
+import { useLocation } from 'react-router'
 import { FacultyPageContent } from '~/components'
 import { userPreferences } from '~/utils'
 import { SITE_URL } from '~/utils/constants'
@@ -148,15 +149,16 @@ export async function loader({ params }: Route.LoaderArgs) {
 }
 
 export default function FacultyPage({ loaderData }: Route.ComponentProps) {
+  const location = useLocation()
   // Persist selection when component mounts
   useEffect(() => {
     if (loaderData.faculty?.slug) {
       userPreferences.set({
         lastSelectedFacultySlug: loaderData.faculty.slug,
-        lastVisitedPath: `/${loaderData.faculty.slug}`
+        lastVisitedPath: location.pathname
       })
     }
-  }, [loaderData.faculty?.slug])
+  }, [loaderData.faculty?.slug, location.pathname])
 
   return (
     <FacultyPageContent

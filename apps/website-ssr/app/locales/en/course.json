@@ -1,0 +1,10 @@
+{
+  "meta": {
+    "not_found_title": "Course Not Found - Uni Feedback",
+    "not_found_desc": "The requested course was not found.",
+    "feedback_title": "Give Feedback for {{courseName}} - Uni Feedback",
+    "feedback_desc": "Share your experience with {{courseName}} ({{acronym}}) at {{faculty}}. Your anonymous feedback helps fellow students make informed decisions.",
+    "reviews_title": "Read honest, anonymous student reviews for {{courseName}} ({{acronym}})",
+    "reviews_desc": "Get insights on workload, assessment, and course content to help you make informed decisions."
+  }
+}

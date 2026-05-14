@@ -1,0 +1,178 @@
+{
+  "contact": {
+    "meta_title": "Contact - Uni Feedback",
+    "title": "Get in touch",
+    "desc": "Found a bug? Have an idea for a new feature? Or just want to say hi and share how Uni Feedback has helped you? Drop me an email at afonso@uni-feedback.com! I read every email and reply as soon as I can.",
+    "email_btn": "Email me"
+  },
+  "supporters": {
+    "meta_title": "Our Supporters - Uni Feedback",
+    "page_title": "Our Supporters",
+    "subtitle": "Student clubs and unions that have joined Uni Feedback to help build a better academic community",
+    "section_title": "Our Supporters",
+    "thanks": "A huge thanks to everyone who joined us on this mission!",
+    "join_cta": "Want to join us? Reach out"
+  },
+  "guidelines": {
+    "meta_title": "How to Write Great Feedback | Uni Feedback",
+    "meta_desc": "Learn how to write helpful, honest course reviews that actually help other students make better decisions.",
+    "title": "How to Write Great Feedback",
+    "subtitle": "Learn how to write helpful, honest course reviews that actually help other students make better decisions.",
+    "intro1": "Uni Feedback exists so students can help each other make better course choices. Every review you write might be the thing that helps other students decide to take or avoid a course. That's why the quality of what you write matters.",
+    "intro2": "All reviews are anonymous. Nobody will know who wrote what, so feel free to share your real experience without worrying about how it comes across.",
+    "our_values_title": "Our values",
+    "value_honest_title": "Be honest.",
+    "value_honest_desc": "Your review has to reflect your actual experience. Share what you genuinely went through, not what you think sounds good, and not what you think others want to hear.",
+    "value_helpful_title": "Be helpful.",
+    "value_helpful_desc": "Write as if you're advising a friend who is about to decide whether to take this course. What do they actually need to know?",
+    "writing_title": "Writing great feedback",
+    "writing_relevant_title": "Talk about whatever felt relevant to you.",
+    "writing_relevant_desc": "If something stood out during your time in the course (good or bad), it's probably relevant to other students too. Based on the feedback we've collected, students tend to care about teaching, assessment, materials, and tips. But don't feel limited to these. Cover what actually mattered to you.",
+    "writing_specific_title": "Be specific.",
+    "writing_specific_desc": "Vague opinions don't help anyone decide anything. \"The midterm covered 3 weeks of content with no practice problems beforehand\" is ten times more useful than \"midterms were unfair.\" That includes naming professors when relevant, especially when you're praising someone.",
+    "writing_personal_title": "Don't get personal.",
+    "writing_personal_desc": "Once feedback shifts to impressions of someone's character, it starts losing value. Talk about what happened and how it affected you. The more grounded in real experience your feedback is, the more weight it carries.",
+    "writing_friend_title": "Write like you're talking to a friend.",
+    "writing_friend_desc": "A review that sounds like a student talking to another student is much more useful than a polished, formal one. Remember you're talking to someone who wants to know what this course was like, not for a project report.",
+    "writing_angry_title": "If you're angry, wait.",
+    "writing_angry_desc": "A review written in frustration rarely gives other students the information they actually need. Step away, breathe in, then write.",
+    "ai_title": "Using AI to write your review",
+    "ai_desc1": "Using AI to help write your review is fine. I often use it myself to organize my thoughts or find the right words for something I want to say. That's totally valid, but keep in mind:",
+    "ai_point1": "Your review has to reflect your experience. If an AI invented details, exaggerated things, or filled in gaps you don't actually know about, that defeats the purpose. Other students are counting on real experiences.",
+    "ai_point2": "Don't over-polish it. This is a platform for students talking to other students. There's no one to impress and no one who'll know it's you. A review that sounds overly formal or corporate loses the warmth that makes it actually useful. Use your own voice, just make sure your thoughts come through clearly.",
+    "not_allowed_title": "What we don't allow",
+    "not_allowed_intro": "Most of this is common sense, and most people never need to read this list. But just so we're all on the same page:",
+    "not_allowed_items": [
+      "Insults or personal attacks (anything targeting appearance, age, gender, race, religion, or disability)",
+      "Profanity or vulgarity (swearing, crude language, sexually explicit content. You know.)",
+      "Personal contact information (a professor's home address, personal email, phone number, etc.)",
+      "Copying another review (we check for near-exact matches)",
+      "Fabricated or AI-generated content (that doesn't reflect a real personal experience)"
+    ],
+    "not_allowed_report": "If you see a review that violates these guidelines, use the flag button. Don't post a counter-review.",
+    "quick_rules_title": "A few quick rules",
+    "quick_rules": [
+      "You can only submit one feedback per course",
+      "You should have taken or be currently taking the course",
+      "We never edit your submission to make it comply. Either it stays as written, or it's removed",
+      "If we do remove a review, we'll reach out to explain why and help you update it so it can go up again"
+    ],
+    "questions": "Got questions or spotted something that shouldn't be here? Reach out at afonso@uni-feedback.com",
+    "give_feedback_link": "Give feedback",
+    "full_guidelines_link": "For the complete moderation policy, see the full guidelines"
+  },
+  "points": {
+    "meta_title": "How Points Work | Uni Feedback",
+    "meta_desc": "Learn how to earn Uni Feedback Points by sharing course reviews and inviting friends.",
+    "page_title": "Uni Feedback Points",
+    "intro": "Points reflect how much you're helping other students. By sharing your feedback and letting other people know about Uni Feedback, you help build a better academic environment for everyone!",
+    "how_to_earn": "How to earn points",
+    "give_feedback_title": "Give Feedback",
+    "give_feedback_desc": "If your feedback follows our guidelines, you'll earn points based on how helpful it is:",
+    "give_feedback_points": [
+      "+1 point base for submitting feedback;",
+      "+4 points for each feedback category you mention (see below);",
+      "+3 bonus points if you cover all 4 categories."
+    ],
+    "give_feedback_cta": "Ready to share your experience? Give feedback",
+    "invite_title": "Invite Friends",
+    "invite_desc": "Bring your classmates to Uni Feedback! You get points once they sign up and post their first feedback:",
+    "invite_points": [
+      "+10 points for each of your first 5 friends",
+      "+5 points for the next 10",
+      "+1 point for each friend after that"
+    ],
+    "invite_from_profile": "You can invite friends from your profile page",
+    "check_points": "You can check your current points on your profile page",
+    "categories_title": "Feedback categories",
+    "categories_desc": "We look for these four things because they're what students actually care about. Mention them naturally in your feedback to unlock bonus points. Cover all four to get an extra 3-point bonus!",
+    "questions": "Got questions or something not clear? Email us at help@uni-feedback.com, and we'll get back to you!"
+  },
+  "giveaway": {
+    "meta_title": "Giveaway Recap - Thank You! | Uni Feedback",
+    "meta_desc": "Thank you to everyone who participated in the Uni Feedback giveaway! See what we accomplished together."
+  },
+  "giveaway_rules": {
+    "meta_title": "Giveaway Rules | Uni Feedback",
+    "meta_desc": "Official rules for the Uni Feedback Giveaway. Learn about eligibility, how to enter, and prize details.",
+    "page_title": "Official Uni Feedback Giveaway Rules",
+    "intro": "This page sets out the official rules for the Uni Feedback Giveaway. By taking part, you agree to the rules below.",
+    "section_eligibility": "1. Eligibility",
+    "university_status_title": "University status",
+    "university_status_desc": "You must be a student at IST, SBE, FCT, or IMS and have a valid university email address.",
+    "account_verification_title": "Account verification",
+    "account_verification_desc": "You must log in to Uni Feedback using your university email address.",
+    "one_account_title": "One account per student",
+    "one_account_desc": "Only one account per student is allowed. Multiple accounts, shared accounts, or variations of the same email address will result in disqualification.",
+    "section_period": "2. Giveaway Period",
+    "period_desc1": "The giveaway runs until February 27 2026, 23:59:59 (Lisbon time).",
+    "period_desc2": "Only points earned until this time will count toward the draw, unless stated otherwise below.",
+    "period_winner": "The winner will be selected and contacted by March 2nd.",
+    "section_enter": "3. How to Enter",
+    "approved_feedback_title": "Approved feedback",
+    "approved_feedback_desc": "To enter, you must submit at least one feedback for a course taken during the 2025/2026 academic year.",
+    "all_feedback_must": "All feedback must:",
+    "all_feedback_items": [
+      "Be submitted during the giveaway period",
+      "Comply with our Feedback Guidelines",
+      "Be approved by Uni Feedback before the draw"
+    ],
+    "zero_points_note": "Feedbacks that are not approved earn 0 entries.",
+    "existing_users_title": "Existing users",
+    "existing_users_desc": "If you submitted feedback before the giveaway period, those points remain valid where applicable. To activate your points for this giveaway, you must log in to the platform before the giveaway deadline (points will be awarded automatically).",
+    "section_points": "4. Points, Entries & Winner Selection",
+    "weighted_draw_title": "Weighted draw",
+    "weighted_draw_desc": "The winner is selected through a random weighted draw.",
+    "weighted_draw_note": "1 point = 1 entry in the draw",
+    "points_calc_title": "Points calculation",
+    "points_calc_desc": "How points are earned for feedback and referrals is explained on the Point System Page.",
+    "giveaway_limits_title": "Giveaway-specific limits",
+    "giveaway_limits_desc": "For this giveaway, we will only consider points earned from:",
+    "giveaway_limits_items": [
+      "Referrals, and/or",
+      "Feedback for courses taken during the 2025/2026 academic year"
+    ],
+    "section_winner": "5. Winner Announcement & Prize",
+    "prize_title": "The prize",
+    "prize_desc": "One (1) NOS Alive Festival – 1-Day Pass for the July 10th 2026.",
+    "prize_note": "The prize is awarded as is and has no cash alternative.",
+    "notification_title": "Notification",
+    "notification_desc": "The winner will be notified via their university email address.",
+    "announcement_title": "Public announcement",
+    "announcement_desc": "For transparency, the winner will be publicly announced as:",
+    "announcement_format": "[First Name] [Last Initial] from [University] (e.g. João M. from IST).",
+    "announcement_note": "All course feedback remains fully anonymous.",
+    "claim_deadline_title": "Claim deadline",
+    "claim_deadline_desc": "The winner must reply to the notification email within 7 days. If the prize is not claimed, a backup winner will be selected.",
+    "section_fraud": "6. Anti-Fraud & Disqualification",
+    "content_integrity_title": "Content integrity",
+    "content_integrity_desc": "Plagiarized, AI-generated, low-effort, or spam feedback are not allowed and will receive 0 points.",
+    "referral_abuse_title": "Referral abuse",
+    "referral_abuse_desc": "Self-referrals or any attempt to manipulate the referral system will result in immediate disqualification.",
+    "right_to_review_title": "Right to review",
+    "right_to_review_desc": "Uni Feedback reserves the right to review, audit, and disqualify accounts at any point before or after the draw if abuse or rule violations are detected.",
+    "section_final": "7. Final Notes",
+    "final_privacy": "For information about how your data is handled, please see our Privacy Policy.",
+    "final_decisions": "All decisions related to feedback approval, point allocation, disqualification, and winner selection are final.",
+    "final_questions": "Got questions about the giveaway rules? Email us at help@uni-feedback.com"
+  },
+  "unsubscribe": {
+    "invalid_title": "Invalid Link",
+    "invalid_desc": "This unsubscribe link is invalid. Please use the link from your email.",
+    "go_home": "Go to Home",
+    "processing_title": "Processing your request...",
+    "processing_desc": "Please wait a moment",
+    "failed_title": "Unsubscribe Failed",
+    "success_title": "Unsubscribed"
+  },
+  "terms": {
+    "meta_title": "Terms of Service | Uni Feedback"
+  },
+  "privacy": {
+    "meta_title": "Privacy Policy | Uni Feedback"
+  },
+  "guidelines_full": {
+    "meta_title": "Feedback Guidelines | Uni Feedback",
+    "meta_desc": "Official posting guidelines for Uni Feedback."
+  }
+}

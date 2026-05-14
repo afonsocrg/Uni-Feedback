@@ -33,7 +33,11 @@ But the answers got buried in group chats.
 
 So I built a single place for all that feedback.
 */
+import { useTranslation } from 'react-i18next'
+
 export function FounderSection() {
+  const { t } = useTranslation('landing')
+
   return (
     <section className="py-24 md:py-32">
       <div className="container mx-auto px-4">
@@ -41,13 +45,11 @@ export function FounderSection() {
           className="max-w-[680px] mx-auto space-y-6 text-muted-foreground"
           style={{ fontSize: '18px', lineHeight: '1.8' }}
         >
-          <p>
-            In university, my friends and I would often ask other students about
-            courses (workload, professors, exams, tips, etc.). But the answers
-            would get lost in group chats.
+          <p>{t('founder.quote1')}</p>
+          <p>{t('founder.quote2')}</p>
+          <p className="text-foreground italic font-medium mt-10">
+            {t('founder.attribution')}
           </p>
-          <p>So I built a place for all that feedback.</p>
-          <p className="text-foreground italic font-medium mt-10">— Afonso</p>
         </div>
       </div>
     </section>

@@ -1,5 +1,12 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { getAssetUrl } from '~/utils'
+import type { Lang } from '~/utils/i18n-routes'
+import {
+  getDegreePath,
+  getFacultyPath,
+  getLocalePath
+} from '~/utils/i18n-routes'
 
 interface FacultyInfo {
   id: number
@@ -26,6 +33,8 @@ interface BrowseSectionProps {
 }
 
 export function BrowseSection({ faculties, degrees }: BrowseSectionProps) {
+  const { t, i18n } = useTranslation('landing')
+  const lang = i18n.language as Lang
   const [selectedFacultyId, setSelectedFacultyId] = useState<number>(
     faculties[0]?.id ?? 0
   )
@@ -43,7 +52,7 @@ export function BrowseSection({ faculties, degrees }: BrowseSectionProps) {
         <div className="max-w-5xl mx-auto">
           <div className="mb-8">
             <h2 className="font-heading text-2xl md:text-3xl font-semibold tracking-tight text-balance">
-              What are you studying?
+              {t('browse_section.title')}
             </h2>
           </div>
 
@@ -99,14 +108,14 @@ export function BrowseSection({ faculties, degrees }: BrowseSectionProps) {
 
             {/* Right: degrees grid + footer link */}
             <div className="flex flex-col gap-3">
-              <DegreeGrid degrees={filteredDegrees} />
+              <DegreeGrid degrees={filteredDegrees} lang={lang} t={t} />
               {selectedFaculty?.slug && allFilteredDegrees.length > 9 && (
                 <div className="text-right">
                   <a
-                    href={`/${selectedFaculty.slug}`}
+                    href={getFacultyPath(lang, selectedFaculty.slug)}
                     className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    See all degrees →
+                    {t('browse_section.see_all')}
                   </a>
                 </div>
               )}
@@ -115,14 +124,19 @@ export function BrowseSection({ faculties, degrees }: BrowseSectionProps) {
 
           {/* Mobile: degree grid */}
           <div className="md:hidden">
-            <DegreeGrid degrees={filteredDegrees} mobileLimit={6} />
+            <DegreeGrid
+              degrees={filteredDegrees}
+              mobileLimit={6}
+              lang={lang}
+              t={t}
+            />
             {selectedFaculty?.slug && allFilteredDegrees.length > 6 && (
               <div className="text-center mt-4">
                 <a
-                  href={`/${selectedFaculty.slug}`}
+                  href={getFacultyPath(lang, selectedFaculty.slug)}
                   className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  See all degrees →
+                  {t('browse_section.see_all')}
                 </a>
               </div>
             )}
@@ -135,15 +149,19 @@ export function BrowseSection({ faculties, degrees }: BrowseSectionProps) {
 
 function DegreeGrid({
   degrees,
-  mobileLimit
+  mobileLimit,
+  lang,
+  t
 }: {
   degrees: DegreeWithStats[]
   mobileLimit?: number
+  lang: Lang
+  t: (key: string) => string
 }) {
   if (degrees.length === 0) {
     return (
       <p className="text-sm text-muted-foreground text-center py-8">
-        No degrees available for this university yet.
+        {t('browse_section.no_degrees')}
       </p>
     )
   }
@@ -153,8 +171,8 @@ function DegreeGrid({
       {degrees.map((degree, i) => {
         const href =
           degree.faculty.slug && degree.slug
-            ? `/${degree.faculty.slug}/${degree.slug}`
-            : '/browse'
+            ? getDegreePath(lang, degree.faculty.slug, degree.slug)
+            : getLocalePath('browse', lang)
         const hiddenOnMobile =
           mobileLimit !== undefined && i >= mobileLimit ? 'hidden md:block' : ''
         return (

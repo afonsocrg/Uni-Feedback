@@ -1,0 +1,52 @@
+{
+  "meta": {
+    "title": "Explorar Universidades - Uni Feedback",
+    "description": "Escolhe a tua universidade para encontrares feedback cadeiras com feedback anónimo de alunos verificados."
+  },
+  "page": {
+    "title": "Seleciona a Tua Universidade",
+    "request_link": "Não vês a tua universidade? Pede aqui"
+  },
+  "degree_page": {
+    "search_placeholder": "Pesquisar por nome ou sigla...",
+    "sort_label": "Ordenar Por",
+    "sort_default": "Mais Avaliações",
+    "year_label": "Ano",
+    "year_option": "{{year}}º ano",
+    "all_years": "Todos os Anos",
+    "term_label": "Semestre",
+    "all_terms": "Todos os Semestres",
+    "group_label": "Grupo de Cadeiras",
+    "all_groups": "Todos os Grupos",
+    "exam_label": "Exame",
+    "exam_any": "Exame: Qualquer",
+    "exam_mandatory": "Exame: Obrigatório",
+    "exam_optional": "Exame: Facultativo",
+    "sort_highest_rating": "Melhor Classificação",
+    "sort_alphabetical": "Alfabético",
+    "sort_most_reviews": "Mais Avaliações",
+    "sort_workload": "Carga de Trabalho",
+    "missing_course": "Falta alguma cadeira?",
+    "request_link": "Pede aqui",
+    "no_courses": "Não há cadeiras disponíveis para esta licenciatura.",
+    "no_results": "Nenhuma cadeira corresponde à tua pesquisa."
+  },
+  "faculty_page": {
+    "title": "Seleciona a Tua Licenciatura",
+    "search_placeholder": "Pesquisar licenciaturas...",
+    "filter_label": "Tipo de Licenciatura",
+    "filter_placeholder": "Todos os Tipos",
+    "missing_degree": "Falta uma licenciatura?",
+    "request_link": "Pede aqui",
+    "no_degrees": "Não há licenciaturas disponíveis para esta universidade.",
+    "no_results": "Nenhuma licenciatura encontrada com essa pesquisa."
+  },
+  "browse_section": {
+    "no_degrees": "Ainda não há licenciaturas disponíveis para esta universidade.",
+    "see_all": "Ver todas as licenciaturas →",
+    "course_count_one": "{{count}} cadeira",
+    "course_count_other": "{{count}} cadeiras",
+    "feedback_count_one": "{{count}} feedback",
+    "feedback_count_other": "{{count}} feedbacks"
+  }
+}

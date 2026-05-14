@@ -1,5 +1,8 @@
 import { Button } from '@uni-feedback/ui'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
+import type { Lang } from '~/i18n/config'
+import { getLocalePath, getReviewPath } from '~/utils/i18n-routes'
 
 export function meta() {
   return [
@@ -69,6 +72,9 @@ const prohibitedItems = [
 ]
 
 export default function GuidelinesPage() {
+  const { i18n } = useTranslation('legal')
+  const lang = i18n.language as Lang
+
   return (
     <div className="container mx-auto px-4 py-16 md:py-18">
       <div className="mx-auto max-w-3xl">
@@ -221,12 +227,12 @@ export default function GuidelinesPage() {
             </a>
           </p>
           <Button asChild>
-            <Link to="/feedback/new">Give feedback</Link>
+            <Link to={getReviewPath(lang)}>Give feedback</Link>
           </Button>
           <p className="text-sm text-muted-foreground">
             For the complete moderation policy, see the{' '}
             <Link
-              to="/guidelines/full"
+              to={getLocalePath('guidelines-full', lang)}
               className="underline hover:text-foreground"
             >
               full guidelines

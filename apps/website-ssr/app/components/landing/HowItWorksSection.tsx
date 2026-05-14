@@ -1,12 +1,15 @@
 import { FileText, PenSquare, Search } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 export function HowItWorksSection() {
+  const { t } = useTranslation('landing')
+
   return (
     <section id="how-it-works" className="bg-muted/30 py-16 md:py-24">
       <div className="container mx-auto px-4">
         <div className="max-w-5xl mx-auto">
           <h2 className="font-heading text-3xl md:text-4xl font-semibold tracking-tight text-center mb-12">
-            How It Works
+            {t('how_it_works.title')}
           </h2>
           <div className="grid md:grid-cols-3 gap-6 md:gap-12">
             <div className="flex items-start gap-4 md:flex-col md:items-center md:text-center md:gap-4">
@@ -15,11 +18,10 @@ export function HowItWorksSection() {
               </div>
               <div>
                 <h3 className="text-lg md:text-xl font-semibold">
-                  Browse Courses
+                  {t('how_it_works.browse.title')}
                 </h3>
                 <p className="text-muted-foreground text-sm mt-1 md:mt-2">
-                  Search and filter hundreds of courses to find the ones that
-                  fit your interests and criteria.
+                  {t('how_it_works.browse.desc')}
                 </p>
               </div>
             </div>
@@ -29,11 +31,10 @@ export function HowItWorksSection() {
               </div>
               <div>
                 <h3 className="text-lg md:text-xl font-semibold">
-                  Read Feedback
+                  {t('how_it_works.read.title')}
                 </h3>
                 <p className="text-muted-foreground text-sm mt-1 md:mt-2">
-                  See what past students say about the course, its contents,
-                  workload, teaching style, etc.
+                  {t('how_it_works.read.desc')}
                 </p>
               </div>
             </div>
@@ -43,10 +44,10 @@ export function HowItWorksSection() {
               </div>
               <div>
                 <h3 className="text-lg md:text-xl font-semibold">
-                  Enroll With Confidence
+                  {t('how_it_works.enroll.title')}
                 </h3>
                 <p className="text-muted-foreground text-sm mt-1 md:mt-2">
-                  Use what you learned to choose the right courses for you.
+                  {t('how_it_works.enroll.desc')}
                 </p>
               </div>
             </div>

@@ -1,4 +1,6 @@
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
+import { getLocalePath, type Lang } from '~/utils/i18n-routes'
 
 import { FAQ, type FAQItem } from '~/components/landing'
 
@@ -57,6 +59,9 @@ const GIVEAWAY_FAQ_ITEMS: FAQItem[] = [
 ]
 
 export function GiveawayFAQSection() {
+  const { i18n } = useTranslation()
+  const lang = i18n.language as Lang
+
   return (
     <section className="bg-white py-16 md:py-24">
       <div className="container mx-auto px-4">
@@ -68,7 +73,7 @@ export function GiveawayFAQSection() {
             Here are the most common questions about the giveaway. For all the
             details, check the{' '}
             <Link
-              to="/giveaway/rules"
+              to={getLocalePath('giveaway-rules', lang)}
               className="underline hover:text-foreground"
             >
               official rules

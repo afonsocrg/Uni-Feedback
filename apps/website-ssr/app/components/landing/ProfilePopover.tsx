@@ -6,6 +6,9 @@ import {
   Separator
 } from '@uni-feedback/ui'
 import { LogOut, User } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import type { Lang } from '~/i18n/config'
+import { getLocalePath } from '~/utils/i18n-routes'
 
 interface ProfilePopoverProps {
   isAuthenticated: boolean
@@ -21,6 +24,9 @@ export function ProfilePopover({
   user,
   logout
 }: ProfilePopoverProps) {
+  const { t, i18n } = useTranslation()
+  const lang = i18n.language as Lang
+
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -45,9 +51,9 @@ export function ProfilePopover({
                 size="sm"
                 asChild
               >
-                <a href="/profile">
+                <a href={getLocalePath('profile', lang)}>
                   <User className="size-4 mr-2" />
-                  Profile
+                  {t('nav.profile')}
                 </a>
               </Button>
             </div>
@@ -59,16 +65,16 @@ export function ProfilePopover({
               onClick={logout}
             >
               <LogOut className="size-4 mr-2" />
-              Logout
+              {t('nav.logout')}
             </Button>
           </div>
         ) : (
           <div className="space-y-3">
             <p className="text-sm text-muted-foreground">
-              Sign in to Uni Feedback
+              {t('nav.sign_in_to_platform')}
             </p>
             <Button className="w-full" size="sm" asChild>
-              <a href="/login">Sign in</a>
+              <a href={getLocalePath('login', lang)}>{t('nav.sign_in')}</a>
             </Button>
           </div>
         )}

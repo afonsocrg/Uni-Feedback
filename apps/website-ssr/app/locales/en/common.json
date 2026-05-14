@@ -1,0 +1,43 @@
+{
+  "nav": {
+    "menu": "Menu",
+    "browse_courses": "Browse Courses",
+    "give_feedback": "Give Feedback",
+    "give_feedback_cta": "Give Feedback!",
+    "profile": "Profile",
+    "logout": "Logout",
+    "sign_in": "Sign in",
+    "sign_in_prompt": "Sign in to access your profile",
+    "sign_in_to_platform": "Sign in to Uni Feedback",
+    "loading": "Loading..."
+  },
+  "footer": {
+    "tagline": "From students, for students. Your companion for building a better and successful university experience.",
+    "built_by": "Built with ❤️ by @afonsocrg",
+    "copyright": "© {{year}} Uni Feedback. All rights reserved.",
+    "groups": {
+      "explore": "Explore",
+      "rewards": "Rewards",
+      "about": "About",
+      "help": "Help",
+      "legal": "Legal"
+    },
+    "links": {
+      "browse_courses": "Browse Courses",
+      "give_feedback": "Give Feedback",
+      "earn_points": "Earn Points",
+      "giveaway": "Giveaway",
+      "testimonials": "Testimonials",
+      "supporters": "Supporters",
+      "faq": "FAQ",
+      "guidelines": "Feedback Guidelines",
+      "contact": "Contact",
+      "terms": "Terms of Service",
+      "privacy": "Privacy Policy"
+    }
+  },
+  "lang_switcher": {
+    "switch_to_en": "EN",
+    "switch_to_pt": "PT"
+  }
+}

@@ -21,6 +21,7 @@ import {
 import { Loader2, Pencil, Send } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { type UseFormReturn } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import {
   ChangeCourseDialog,
@@ -31,6 +32,7 @@ import { AuthenticatedButton } from '~/components/common'
 import { useFeedbackDraft } from '~/hooks'
 import type { FeedbackFormData } from '~/routes/feedback.new'
 import { analytics } from '~/utils/analytics'
+import { getLocalePath, type Lang } from '~/utils/i18n-routes'
 
 interface CourseWithDetails {
   id: number
@@ -62,6 +64,9 @@ export function CourseSpecificFeedbackForm({
   onSubmit,
   isSubmitting
 }: CourseSpecificFeedbackFormProps) {
+  const { i18n } = useTranslation()
+  const lang = i18n.language as Lang
+
   // Workload input type state for debug panel (disabled for production)
   // const [workloadInputType, setWorkloadInputType] =
   //   useState<WorkloadInputType>('chips')
@@ -387,7 +392,7 @@ export function CourseSpecificFeedbackForm({
               <p className="text-xs text-gray-500 text-center mt-4">
                 By submitting, you agree to our{' '}
                 <Link
-                  to="/terms"
+                  to={getLocalePath('terms', lang)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-primaryBlue hover:text-primaryBlue/80 underline"
@@ -396,7 +401,7 @@ export function CourseSpecificFeedbackForm({
                 </Link>{' '}
                 and{' '}
                 <Link
-                  to="/privacy"
+                  to={getLocalePath('privacy', lang)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-primaryBlue hover:text-primaryBlue/80 underline"

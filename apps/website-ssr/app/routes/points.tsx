@@ -1,7 +1,10 @@
 import { PenSquare, Users } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
+import type { Lang } from '~/i18n/config'
 import { analytics, getPageName } from '~/utils/analytics'
 import { FEEDBACK_CATEGORIES } from '~/utils/constants'
+import { getLocalePath, getReviewPath } from '~/utils/i18n-routes'
 
 export function meta() {
   return [
@@ -15,6 +18,9 @@ export function meta() {
 }
 
 export default function PointsPage() {
+  const { i18n } = useTranslation('legal')
+  const lang = i18n.language as Lang
+
   return (
     <div className="container mx-auto px-4 py-16 md:py-18">
       <div className="mx-auto max-w-3xl">
@@ -49,7 +55,7 @@ export default function PointsPage() {
               <p className="text-muted-foreground">
                 If your feedback follows our{' '}
                 <Link
-                  to="/guidelines"
+                  to={getLocalePath('guidelines', lang)}
                   className="font-medium underline hover:text-foreground"
                 >
                   guidelines
@@ -79,7 +85,7 @@ export default function PointsPage() {
               <p className="text-muted-foreground">
                 Ready to share your experience?{' '}
                 <Link
-                  to="/feedback/new?from=points"
+                  to={`${getReviewPath(lang)}?from=points`}
                   className="font-medium text-primary hover:underline"
                   onClick={() => {
                     analytics.navigation.feedbackFormLinkClicked({
@@ -120,7 +126,7 @@ export default function PointsPage() {
               <p className="text-muted-foreground">
                 You can invite friends from your{' '}
                 <Link
-                  to="/profile"
+                  to={getLocalePath('profile', lang)}
                   className="font-medium text-primary hover:underline"
                 >
                   profile page
@@ -133,7 +139,7 @@ export default function PointsPage() {
             <p className="text-muted-foreground">
               You can check your current points on your{' '}
               <Link
-                to="/profile"
+                to={getLocalePath('profile', lang)}
                 className="font-medium text-primary hover:underline"
               >
                 profile page

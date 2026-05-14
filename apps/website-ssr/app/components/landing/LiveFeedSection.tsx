@@ -1,6 +1,7 @@
 import type { FeedbackFull } from '@uni-feedback/db'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { LandingFeedbackCard } from '~/components/feedback/cards/LandingFeedbackCard'
 
 interface LiveFeedSectionProps {
@@ -13,6 +14,7 @@ interface LiveFeedSectionProps {
 }
 
 export function LiveFeedSection({ feedbacks }: LiveFeedSectionProps) {
+  const { t } = useTranslation('landing')
   const scrollRef = useRef<HTMLDivElement>(null)
   const [atStart, setAtStart] = useState(true)
   const [atEnd, setAtEnd] = useState(false)
@@ -49,14 +51,14 @@ export function LiveFeedSection({ feedbacks }: LiveFeedSectionProps) {
         <div className="max-w-5xl mx-auto">
           <div className="hidden md:flex justify-between items-center gap-2 mb-4">
             <span className="text-xs font-medium tracking-widest uppercase text-muted-foreground">
-              Recent feedback
+              {t('recent_feed.title')}
             </span>
             <div className="space-x-2">
               <button
                 onClick={() => scroll('left')}
                 disabled={atStart}
                 className="cursor-pointer text-muted-foreground hover:text-foreground transition-colors disabled:opacity-30 disabled:cursor-default"
-                aria-label="Scroll left"
+                aria-label={t('recent_feed.scroll_left')}
               >
                 <ArrowLeft className="size-5" />
               </button>
@@ -64,7 +66,7 @@ export function LiveFeedSection({ feedbacks }: LiveFeedSectionProps) {
                 onClick={() => scroll('right')}
                 disabled={atEnd}
                 className="cursor-pointer text-muted-foreground hover:text-foreground transition-colors disabled:opacity-30 disabled:cursor-default"
-                aria-label="Scroll right"
+                aria-label={t('recent_feed.scroll_right')}
               >
                 <ArrowRight className="size-5" />
               </button>

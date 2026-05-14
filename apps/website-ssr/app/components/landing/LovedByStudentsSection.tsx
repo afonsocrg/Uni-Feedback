@@ -1,4 +1,5 @@
 import type { Faculty } from '@uni-feedback/db'
+import { useTranslation } from 'react-i18next'
 import { getAssetUrl } from '~/utils'
 
 interface LovedByStudentsSectionProps {
@@ -8,12 +9,14 @@ interface LovedByStudentsSectionProps {
 export function LovedByStudentsSection({
   faculties
 }: LovedByStudentsSectionProps) {
+  const { t } = useTranslation('landing')
+
   return (
     <section className="bg-muted/30 py-16 md:py-24">
       <div className="container mx-auto px-4">
         <div className="max-w-3xl mx-auto text-center space-y-8">
           <h2 className="font-heading text-3xl md:text-4xl font-semibold tracking-tight">
-            Loved by Hundreds of Students at
+            {t('loved_by_students.title')}
           </h2>
           <div className="flex flex-wrap items-center justify-center gap-8">
             {faculties.map((faculty) => {

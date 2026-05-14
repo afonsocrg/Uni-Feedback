@@ -1,14 +1,21 @@
 import { Button } from '@uni-feedback/ui'
+import { useTranslation } from 'react-i18next'
+import { LanguageSwitcher } from '~/components/layout/LanguageSwitcher'
 import { useAuth } from '~/hooks/useAuth'
 import { useLastVisitedPath } from '~/hooks/useLastVisitedPath'
+import type { Lang } from '~/i18n/config'
 import { analytics, getPageName } from '~/utils/analytics'
+import { getLocalePath, getReviewPath } from '~/utils/i18n-routes'
 import { Logo } from './Logo'
 import { MobileDrawer } from './MobileDrawer'
 import { ProfilePopover } from './ProfilePopover'
 
 export function LandingHeader() {
+  const { t, i18n } = useTranslation()
+  const lang = i18n.language as Lang
   const lastVisitedPath = useLastVisitedPath()
-  const browseLink = lastVisitedPath !== '/' ? lastVisitedPath : '/browse'
+  const browsePath = getLocalePath('browse', lang)
+  const browseLink = lastVisitedPath !== '/' ? lastVisitedPath : browsePath
   const { user, isAuthenticated, logout } = useAuth()
 
   return (
@@ -19,9 +26,10 @@ export function LandingHeader() {
           <Logo variant="desktop" />
 
           <div className="flex items-center gap-3">
+            <LanguageSwitcher />
             <Button size="sm" variant="ghost" asChild>
               <a
-                href="/feedback/new?from=navbar"
+                href={`${getReviewPath(lang)}?from=navbar`}
                 onClick={() => {
                   analytics.navigation.feedbackFormLinkClicked({
                     source: 'navbar',
@@ -29,7 +37,7 @@ export function LandingHeader() {
                   })
                 }}
               >
-                Give Feedback!
+                {t('nav.give_feedback_cta')}
               </a>
             </Button>
             <Button
@@ -37,7 +45,7 @@ export function LandingHeader() {
               className="shadow-lg shadow-primary/20 bg-gradient-to-br from-primary to-primary/90"
               asChild
             >
-              <a href={browseLink}>Browse Courses</a>
+              <a href={browseLink}>{t('nav.browse_courses')}</a>
             </Button>
 
             <ProfilePopover
@@ -57,7 +65,7 @@ export function LandingHeader() {
             logout={logout}
           />
           <Logo variant="mobile" />
-          <div className="size-9" /> {/* Spacer for centered logo */}
+          <div className="size-9" />
         </div>
       </div>
     </header>

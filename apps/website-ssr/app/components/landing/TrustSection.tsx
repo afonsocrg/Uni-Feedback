@@ -1,72 +1,39 @@
 import { Popover, PopoverContent, PopoverTrigger } from '@uni-feedback/ui'
-import type { LucideIcon } from 'lucide-react'
 import { ClipboardCheck, EyeOff, Info, Shield, UserCheck } from 'lucide-react'
-import type { ReactNode } from 'react'
-
-interface TrustItem {
-  Icon: LucideIcon
-  heading: string
-  body: ReactNode
-  finePrint?: string
-}
-
-const TRUST_ITEMS: TrustItem[] = [
-  {
-    Icon: Shield,
-    heading: 'A space that belongs to students',
-    body: (
-      <>
-        Uni Feedback is student-run and{' '}
-        <strong>independent from any university</strong>. No institution can
-        influence what gets published here. Here you&apos;ll find the good, the
-        bad, and the ugly.
-      </>
-    )
-  },
-  {
-    Icon: UserCheck,
-    heading: 'Only real students, from real universities',
-    body: (
-      <>
-        We want our feedback to be legit. Every contributor authenticates with
-        their <strong>university email</strong> before submitting.
-      </>
-    )
-  },
-  {
-    Icon: EyeOff,
-    heading: 'Your feedback is 100% anonymous',
-    body: (
-      <>
-        We want students to feel safe sharing their experience.{' '}
-        <strong>Nobody</strong>, not other students, not professors, not your
-        university, will ever know you wrote it.
-      </>
-    ),
-    finePrint:
-      'Internally, your submission is linked to your account so you can manage it, and so our team can reach out if something needs attention. That link never leaves Uni Feedback.'
-  },
-  {
-    Icon: ClipboardCheck,
-    heading: 'All feedback is reviewed',
-    body: (
-      <>
-        We read <em>every</em> submission. If something doesn&apos;t follow our
-        guidelines, we remove it and reach out to help the author update it, so
-        it can go back up.
-        <br />
-        Every opinion is welcome. <strong>All of them.</strong>
-      </>
-    )
-  }
-]
+import { useTranslation } from 'react-i18next'
 
 export function TrustSection() {
+  const { t } = useTranslation('landing')
+
+  const items = [
+    {
+      Icon: Shield,
+      heading: t('trust.space.title'),
+      body: t('trust.space.desc')
+    },
+    {
+      Icon: UserCheck,
+      heading: t('trust.real_students.title'),
+      body: t('trust.real_students.desc')
+    },
+    {
+      Icon: EyeOff,
+      heading: t('trust.anonymous_submissions.title'),
+      body: t('trust.anonymous_submissions.desc'),
+      finePrint: t('trust.anonymous_submissions.note')
+    },
+    {
+      Icon: ClipboardCheck,
+      heading: t('trust.reviewed.title'),
+      body: t('trust.reviewed.desc')
+    }
+  ]
+
   return (
     <section className="py-16 md:py-24 bg-muted/30">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-10 md:gap-14">
-          {TRUST_ITEMS.map((item) => (
+          {items.map((item) => (
             <div key={item.heading} className="space-y-3">
               <item.Icon className="size-6 text-primary" />
               <h3 className="font-semibold text-lg">{item.heading}</h3>

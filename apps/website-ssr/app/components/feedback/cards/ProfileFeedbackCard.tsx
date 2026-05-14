@@ -25,10 +25,12 @@ import {
   Trash2
 } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { toast } from 'sonner'
 import { FeedbackCategoryChips, FeedbackMarkdown } from '~/components'
 import { getTruncatedText } from '~/lib/textUtils'
+import { getLocalePath, type Lang } from '~/utils/i18n-routes'
 
 interface ProfileFeedbackCardProps {
   feedback: {
@@ -54,6 +56,9 @@ interface ProfileFeedbackCardProps {
 }
 
 export function ProfileFeedbackCard({ feedback }: ProfileFeedbackCardProps) {
+  const { i18n } = useTranslation()
+  const lang = i18n.language as Lang
+
   const [isExpanded, setIsExpanded] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -185,7 +190,7 @@ export function ProfileFeedbackCard({ feedback }: ProfileFeedbackCardProps) {
                       </div>
                     )}
                     <Link
-                      to="/points"
+                      to={getLocalePath('points', lang)}
                       className="text-sm text-primary hover:underline inline-block"
                     >
                       Learn more about points →

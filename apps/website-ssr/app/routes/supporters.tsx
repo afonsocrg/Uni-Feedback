@@ -1,4 +1,5 @@
 import { database } from '@uni-feedback/db'
+import { useTranslation } from 'react-i18next'
 import { getAssetUrl } from '~/utils'
 import type { Route } from './+types/supporters'
 
@@ -31,6 +32,7 @@ export function meta() {
 }
 
 export default function SupportersPage({ loaderData }: Route.ComponentProps) {
+  const { t } = useTranslation('legal')
   const { supporters } = loaderData
 
   return (
@@ -39,10 +41,10 @@ export default function SupportersPage({ loaderData }: Route.ComponentProps) {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-2xl md:text-3xl font-semibold mb-2">
-            Our Supporters
+            {t('supporters.section_title')}
           </h1>
           <p className="text-sm text-muted-foreground">
-            A huge thanks to everyone who joined us on this mission!
+            {t('supporters.thanks')}
           </p>
         </div>
 
@@ -79,12 +81,11 @@ export default function SupportersPage({ loaderData }: Route.ComponentProps) {
         {/* Support CTA */}
         <div className="text-center mt-16 pt-12 text-sm">
           <p className="text-muted-foreground">
-            Want to join us?{' '}
             <a
               href="mailto:afonso@uni-feedback.com"
               className="text-primary hover:underline font-medium"
             >
-              Reach out
+              {t('supporters.join_cta')}
             </a>
           </p>
         </div>

@@ -11,7 +11,14 @@ import {
 } from '@uni-feedback/ui'
 import { getFeedbackPermalink } from '@uni-feedback/utils'
 import { ChevronRight, HelpCircle } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
+import {
+  getCourseFeedbackPath,
+  getLocalePath,
+  getReviewPath,
+  type Lang
+} from '~/utils/i18n-routes'
 
 interface FeedbackSubmitSuccessProps {
   pointsEarned?: number
@@ -30,6 +37,9 @@ export function SubmitFeedbackSuccess({
   isLoadingRecommendations = false,
   onSubmitAnother
 }: FeedbackSubmitSuccessProps) {
+  const { i18n } = useTranslation()
+  const lang = i18n.language as Lang
+
   const hasPoints = pointsEarned !== undefined && pointsEarned > 0
   const feedbackUrl =
     courseId && feedbackId
@@ -72,7 +82,7 @@ export function SubmitFeedbackSuccess({
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Link
-                          to="/points"
+                          to={getLocalePath('points', lang)}
                           className="text-gray-400 hover:text-gray-600 transition-colors"
                         >
                           <HelpCircle className="w-4 h-4" />
@@ -109,7 +119,7 @@ export function SubmitFeedbackSuccess({
                 {recommendations.map((course, index) => (
                   <div key={course.id}>
                     <a
-                      href={`/courses/${course.id}/feedback?from=recommendations`}
+                      href={`${getCourseFeedbackPath(lang, course.id)}?from=recommendations`}
                       className="block w-full px-4 py-3 hover:bg-gray-50 transition-colors group cursor-pointer"
                     >
                       <div className="flex items-center justify-between">
@@ -132,7 +142,7 @@ export function SubmitFeedbackSuccess({
               {/* Subtle secondary action below */}
               <div className="text-center pt-1">
                 <a
-                  href="/feedback/new"
+                  href={getReviewPath(lang)}
                   className="text-sm text-gray-500 hover:text-gray-700"
                 >
                   Give feedback to another course
@@ -149,7 +159,7 @@ export function SubmitFeedbackSuccess({
                 You've reviewed all available courses in your curriculum
               </p>
               <Button asChild variant="outline" className="w-full">
-                <a href="/browse">Browse all courses</a>
+                <a href={getLocalePath('browse', lang)}>Browse all courses</a>
               </Button>
             </Card>
           ) : (
