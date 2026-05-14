@@ -13,25 +13,35 @@ export function LanguageSwitcher() {
     lang
   )
 
+  const active = 'text-foreground'
+  const inactive =
+    'text-muted-foreground hover:text-foreground transition-colors'
+
   return (
     <div className="flex items-center gap-1 text-sm font-medium">
-      <span
-        className={lang === 'pt' ? 'text-foreground' : 'text-muted-foreground'}
-      >
-        PT
-      </span>
+      {lang === 'pt' ? (
+        <span className={active}>PT</span>
+      ) : (
+        <Link
+          to={targetPath}
+          className={inactive}
+          aria-label="Mudar para Português"
+        >
+          PT
+        </Link>
+      )}
       <span className="text-muted-foreground">|</span>
-      <Link
-        to={targetPath}
-        className={
-          lang === 'en'
-            ? 'text-foreground'
-            : 'text-muted-foreground hover:text-foreground transition-colors'
-        }
-        aria-label={`Switch to ${targetLang === 'en' ? 'English' : 'Português'}`}
-      >
-        EN
-      </Link>
+      {lang === 'en' ? (
+        <span className={active}>EN</span>
+      ) : (
+        <Link
+          to={targetPath}
+          className={inactive}
+          aria-label="Switch to English"
+        >
+          EN
+        </Link>
+      )}
     </div>
   )
 }
