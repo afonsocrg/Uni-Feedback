@@ -32,8 +32,8 @@ export const routeMap = {
     file: 'routes/feedback.new.tsx'
   },
   supporters: {
-    paths: { pt: '/apoiadores', en: '/en/supporters' },
-    file: 'routes/supporters.tsx'
+    paths: { pt: '/apoiantes', en: '/en/supporters' },
+    file: 'routes/apoiantes.tsx'
   },
   terms: {
     paths: { pt: '/termos', en: '/en/terms' },
