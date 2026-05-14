@@ -2,16 +2,16 @@
   "hero": {
     "title": "Descobre o que os alunos realmente pensam sobre as tuas cadeiras",
     "subtitle": "Feedback anónimo de alunos verificados",
-    "stats": "{{feedbackCount}}+ feedbacks · {{contributors}}+ contribuidores · 100% gratuito"
+    "stats": "{{feedbackCount}}+ feedbacks de {{contributors}}+ alunos · 100% gratuito"
   },
   "search": {
-    "placeholder": "Procura cadeiras, licenciaturas, faculdades...",
-    "aria_label": "Procura cadeiras, licenciaturas, faculdades...",
+    "placeholder": "Procura cadeiras, cursos, faculdades...",
+    "aria_label": "Procura cadeiras, cursos, faculdades...",
     "tab_courses": "Cadeiras",
-    "tab_degrees": "Licenciaturas",
+    "tab_degrees": "Cursos",
     "tab_faculties": "Faculdades",
     "browse_all": "Mais resultados →",
-    "reviews_count": "{{count}} avaliações"
+    "reviews_count": "{{count}} feedbacks"
   },
   "cta": {
     "join_text": "Junta-te a {{count}}+ alunos que já contribuíram.",
@@ -27,9 +27,9 @@
     "text": "Fizeste alguma cadeira? Diz-nos o que achaste! →"
   },
   "how_it_works": {
-    "title": "Como Funciona",
+    "title": "Como funciona",
     "browse": {
-      "title": "Explora Cadeiras",
+      "title": "Explora cadeiras",
       "desc": "Pesquisa e filtra centenas de cadeiras para encontrar as que se encaixam nos teus interesses e critérios."
     },
     "read": {
@@ -37,15 +37,15 @@
       "desc": "Vê o que os antigos alunos dizem sobre a cadeira, o seu conteúdo, carga de trabalho, estilo de ensino, etc."
     },
     "enroll": {
-      "title": "Inscreve-te com Confiança",
+      "title": "Inscreve-te com confiança",
       "desc": "Usa o que aprendeste para escolher as cadeiras certas para ti."
     }
   },
   "trust": {
     "title": "Fiável & Seguro",
     "verified": {
-      "title": "Avaliações em que Podes Confiar",
-      "subtitle": "Feedback Verificado",
+      "title": "Avaliações de confiança",
+      "subtitle": "Feedback verificado",
       "desc": "Revemos e aprovamos manualmente cada feedback para garantir que vem de um aluno que realmente frequentou a cadeira."
     },
     "anonymous": {
@@ -78,10 +78,10 @@
   "browse_section": {
     "title": "Que curso estás a tirar?",
     "see_all": "Ver todos os cursos →",
-    "no_degrees": "Ainda não há licenciaturas disponíveis para esta faculdade."
+    "no_degrees": "Ainda não há cursos disponíveis para esta faculdade."
   },
   "faq": {
-    "title": "Perguntas Frequentes",
+    "title": "Perguntas frequentes",
     "subtitle": "Tudo o que precisas de saber sobre o Uni Feedback",
     "items": [
       {
@@ -106,7 +106,7 @@
       },
       {
         "question": "A minha cadeira não está listada. O que posso fazer?",
-        "answer": "[Entra em contacto comigo!](mailto:afonso@uni-feedback.com) Terei todo o gosto em adicionar a tua cadeira, licenciatura ou faculdade."
+        "answer": "[Entra em contacto comigo!](mailto:afonso@uni-feedback.com) Terei todo o gosto em adicionar a tua cadeira, curso ou faculdade."
       },
       {
         "question": "Em que língua devo escrever o meu feedback?",
@@ -132,11 +132,11 @@
     "contact_prompt": "Tens outra pergunta? Envia-nos uma mensagem no <0>Instagram</0> ou escreve para <1>afonso@uni-feedback.com</1>. Leio todos os e-mails!"
   },
   "impact": {
-    "title": "O Nosso Impacto",
+    "title": "O nosso impacto",
     "subtitle": "Junta-te a uma comunidade crescente de alunos a tomar melhores decisões académicas",
-    "courses_reviewed": "Cadeiras Avaliadas",
-    "students_helped": "Alunos Ajudados",
-    "contributors": "Contribuidores Ativos"
+    "courses_reviewed": "Cadeiras avaliadas",
+    "students_helped": "Alunos ajudados",
+    "contributors": "Contribuidores ativos"
   },
   "more_than_network": {
     "quote": "Às vezes o feedback mais útil vem de alguém que nunca conhecemos.",
@@ -152,7 +152,7 @@
   "feedback_carousel": {
     "want_more": "Queres ver mais?",
     "subtitle": "Explora centenas de feedbacks de alunos como tu",
-    "button": "Ver Mais Feedback",
+    "button": "Ver mais feedback",
     "prev_aria": "Feedback anterior",
     "next_aria": "Próximo feedback",
     "go_to_aria": "Ir para o feedback {{index}}"
@@ -171,7 +171,7 @@
     "attribution": "— Afonso"
   },
   "contact_section": {
-    "title": "Entra em Contacto",
+    "title": "Entra em contacto",
     "desc": "Encontraste um bug? Tens uma sugestão? Só queres dizer olá? Adorava ouvir-te. O teu feedback (😉) ajuda a tornar o Uni Feedback melhor para toda a gente.",
     "email": "Envia um Email",
     "linkedin": "Conectar no LinkedIn"

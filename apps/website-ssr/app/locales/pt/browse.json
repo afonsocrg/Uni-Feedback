@@ -1,16 +1,16 @@
 {
   "meta": {
     "title": "Explorar Faculdades - Uni Feedback",
-    "description": "Escolhe a tua faculdade para encontrares feedback cadeiras com feedback anónimo de alunos verificados."
+    "description": "Encontra feedback anónimo de alunos sobre cadeiras, professores, exames e carga de trabalho."
   },
   "page": {
-    "title": "Escolhe a Tua Faculdade",
+    "title": "Escolhe a tua faculdade",
     "request_link": "Não vês a tua faculdade? Pede aqui"
   },
   "degree_page": {
     "search_placeholder": "Pesquisar por nome ou sigla...",
     "sort_label": "Ordenar Por",
-    "sort_default": "Mais Avaliações",
+    "sort_default": "Mais feedback",
     "year_label": "Ano",
     "year_option": "{{year}}º ano",
     "all_years": "Todos os Anos",
@@ -22,13 +22,13 @@
     "exam_any": "Exame: Qualquer",
     "exam_mandatory": "Exame: Obrigatório",
     "exam_optional": "Exame: Facultativo",
-    "sort_highest_rating": "Melhor Classificação",
-    "sort_alphabetical": "Alfabético",
-    "sort_most_reviews": "Mais Avaliações",
-    "sort_workload": "Carga de Trabalho",
+    "sort_highest_rating": "Melhor avaliadas",
+    "sort_alphabetical": "A-Z",
+    "sort_most_reviews": "Mais feedback",
+    "sort_workload": "Carga de trabalho",
     "missing_course": "Falta alguma cadeira?",
     "request_link": "Pede aqui",
-    "no_courses": "Não há cadeiras disponíveis para esta licenciatura.",
+    "no_courses": "Não há cadeiras disponíveis para este curso.",
     "no_results": "Nenhuma cadeira corresponde à tua pesquisa."
   },
   "faculty_page": {
@@ -39,10 +39,10 @@
     "missing_degree": "Falta um curso?",
     "request_link": "Pede aqui",
     "no_degrees": "Não há cursos disponíveis para esta faculdade.",
-    "no_results": "Não encontrámos nenhum curso com estes filtros..."
+    "no_results": "Nenhum curso corresponde aos filtros."
   },
   "course_browser": {
-    "title": "Que cadeira queres availar?",
+    "title": "Que cadeira queres avaliar?",
     "subtitle": "Pesquisa ou navega para encontrar a tua cadeira.",
     "search_placeholder": "Procurar por nome ou sigla...",
     "university_label": "Faculdade",
@@ -56,7 +56,7 @@
     "previous": "← Anterior",
     "pagination": "{{from}}-{{to}} de {{total}}",
     "next": "Próximo →",
-    "dialog_title": "Escolher outra cadeira"
+    "dialog_title": "Outra cadeira"
   },
   "browse_section": {
     "no_degrees": "Ainda não há cursos disponíveis para esta faculdade.",
@@ -64,6 +64,6 @@
     "course_count_one": "{{count}} cadeira",
     "course_count_other": "{{count}} cadeiras",
     "feedback_count_one": "{{count}} feedback",
-    "feedback_count_other": "{{count}} feedbacks"
+    "feedback_count_other": "{{count}} feedback"
   }
 }
