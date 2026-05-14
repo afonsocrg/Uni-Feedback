@@ -42,8 +42,8 @@
     "no_results": "Nenhum curso corresponde aos filtros."
   },
   "course_browser": {
-    "title": "Que cadeira queres avaliar?",
-    "subtitle": "Pesquisa ou navega para encontrar a tua cadeira.",
+    "title": "Sobre que cadeira é o teu feedback?",
+    "subtitle": "",
     "search_placeholder": "Procurar por nome ou sigla...",
     "university_label": "Faculdade",
     "all_universities": "Todas as Faculdades",

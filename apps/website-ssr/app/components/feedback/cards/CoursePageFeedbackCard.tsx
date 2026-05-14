@@ -2,6 +2,7 @@ import { Button, StarRating, WorkloadRatingDisplay } from '@uni-feedback/ui'
 import { getRelativeTime } from '@uni-feedback/utils'
 import { Flag, GraduationCap, Link } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   FeedbackMarkdown,
   HelpfulVoteButton,
@@ -35,6 +36,8 @@ interface CoursePageFeedbackCardProps {
 export function CoursePageFeedbackCard({
   feedback
 }: CoursePageFeedbackCardProps) {
+  const { t, i18n } = useTranslation('course')
+  const { t: tCommon } = useTranslation('common')
   const [isExpanded, setIsExpanded] = useState(false)
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false)
   const [isHighlighted, setIsHighlighted] = useState(false)
@@ -45,7 +48,10 @@ export function CoursePageFeedbackCard({
   const characterLimit = 600
   const isLongComment =
     feedback.comment && feedback.comment.length > characterLimit
-  const relativeTime = getRelativeTime(new Date(feedback.createdAt))
+  const relativeTime = getRelativeTime(
+    new Date(feedback.createdAt),
+    i18n.language
+  )
 
   const feedbackAnchorId = `feedback-${feedback.id}`
 
@@ -122,13 +128,24 @@ export function CoursePageFeedbackCard({
             <StarRating value={feedback.rating} />
             {feedback.workloadRating && (
               <div className="inline-flex items-center px-3 py-1 text-xs text-gray-500 font-medium">
-                <span className="mr-1">Workload:</span>
-                <WorkloadRatingDisplay rating={feedback.workloadRating} />
+                <span className="mr-1">{t('card.workload_prefix')}</span>
+                <WorkloadRatingDisplay
+                  rating={feedback.workloadRating}
+                  label={
+                    (
+                      tCommon('workload_ratings', {
+                        returnObjects: true
+                      }) as string[]
+                    )[Math.round(feedback.workloadRating) - 1]
+                  }
+                />
               </div>
             )}
             {feedback.isFromDifferentCourse && (
               <Tooltip
-                content={`Feedback submitted by a student from ${feedback.degree.name}`}
+                content={t('card.from_different_course', {
+                  degreeName: feedback.degree.name
+                })}
               >
                 <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border border-blue-200 bg-blue-50 text-blue-700">
                   <GraduationCap className="w-3 h-3 mr-1.5" />
@@ -158,14 +175,12 @@ export function CoursePageFeedbackCard({
               onClick={() => setIsExpanded(!isExpanded)}
               className="mt-3 p-0 h-auto text-sm"
             >
-              {isExpanded ? 'Show less' : 'Show more'}
+              {isExpanded ? t('card.show_less') : t('card.show_more')}
             </Button>
           )}
         </div>
       ) : (
-        <p className="text-gray-500 italic text-sm">
-          This user did not leave any comment
-        </p>
+        <p className="text-gray-500 italic text-sm">{t('card.no_comment')}</p>
       )}
 
       {/* Footer with actions */}
@@ -183,7 +198,9 @@ export function CoursePageFeedbackCard({
             className="h-8 px-2 text-gray-400 hover:text-gray-600"
           >
             {isCopied && (
-              <span className="text-xs font-medium mr-1">Copied!</span>
+              <span className="text-xs font-medium mr-1">
+                {t('card.copied')}
+              </span>
             )}
             <Link className="size-4" />
           </Button>

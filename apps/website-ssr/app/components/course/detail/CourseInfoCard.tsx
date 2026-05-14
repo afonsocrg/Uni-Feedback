@@ -2,6 +2,7 @@ import type { CorrectionRequestField } from '@uni-feedback/api-client'
 import { Chip, StarRating, WorkloadRatingDisplay } from '@uni-feedback/ui'
 import { Clock, ExternalLink, FileCheck, Star } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { CorrectionRequestDialog } from '.'
 
 export interface CourseInfoCardProps {
@@ -33,6 +34,8 @@ export interface CourseInfoCardProps {
 }
 
 export function CourseInfoCard({ course }: CourseInfoCardProps) {
+  const { t } = useTranslation('course')
+  const { t: tCommon } = useTranslation('common')
   const averageWorkload = Number(course.averageWorkload) || 0
   const [correctionDialogOpen, setCorrectionDialogOpen] = useState(false)
 
@@ -100,7 +103,7 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
                 rel="noopener noreferrer"
                 className="text-sm text-primaryBlue hover:underline inline-flex items-center gap-1"
               >
-                Course Page
+                {t('info.course_page')}
                 <ExternalLink className="size-3" />
               </a>
             </>
@@ -110,7 +113,7 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
             onClick={() => setCorrectionDialogOpen(true)}
             className="text-sm text-gray-400 hover:text-gray-600 hover:underline cursor-pointer"
           >
-            Report incorrect info
+            {t('info.report_incorrect')}
           </button>
         </div>
 
@@ -122,7 +125,7 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
             <div className="flex-1 min-w-0">
               <div className="flex items-baseline gap-1.5">
                 <span className="text-sm font-medium text-gray-700">
-                  Feedback
+                  {t('info.feedback_label')}
                 </span>
                 {course.totalFeedbackCount > 0 && (
                   <span className="text-xs text-gray-400">
@@ -132,7 +135,9 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
               </div>
               <div className="flex items-center gap-1.5 mt-0.5">
                 {course.totalFeedbackCount === 0 ? (
-                  <span className="text-xs text-gray-500">No reviews yet</span>
+                  <span className="text-xs text-gray-500">
+                    {t('info.no_reviews')}
+                  </span>
                 ) : (
                   <>
                     <StarRating
@@ -155,13 +160,23 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
             <div className="flex-1 min-w-0">
               <div className="flex items-baseline gap-1.5">
                 <span className="text-sm font-medium text-gray-700">
-                  Workload
+                  {t('info.workload_label')}
                 </span>
               </div>
               <div className="flex items-center gap-1.5 mt-0.5">
                 {averageWorkload ? (
                   <>
-                    <WorkloadRatingDisplay rating={averageWorkload} size="sm" />
+                    <WorkloadRatingDisplay
+                      rating={averageWorkload}
+                      size="sm"
+                      label={
+                        (
+                          tCommon('workload_ratings', {
+                            returnObjects: true
+                          }) as string[]
+                        )[Math.round(averageWorkload) - 1]
+                      }
+                    />
                   </>
                 ) : (
                   <span className="text-xs text-gray-500">--</span>
@@ -175,17 +190,31 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
             <FileCheck className="size-5 text-gray-400 flex-shrink-0" />
             <div className="flex-1 min-w-0">
               <div className="flex items-baseline gap-1.5 mb-0.5">
-                <span className="text-sm font-medium text-gray-700">Exam</span>
+                <span className="text-sm font-medium text-gray-700">
+                  {t('info.exam_label')}
+                </span>
               </div>
               <div className="flex items-center gap-2">
                 {course.hasMandatoryExam !== null ? (
                   course.hasMandatoryExam ? (
-                    <Chip label="Mandatory" color="red" size="xs" />
+                    <Chip
+                      label={t('info.exam_mandatory')}
+                      color="red"
+                      size="xs"
+                    />
                   ) : (
-                    <Chip label="Optional" color="green" size="xs" />
+                    <Chip
+                      label={t('info.exam_optional')}
+                      color="green"
+                      size="xs"
+                    />
                   )
                 ) : (
-                  <Chip label="Not specified" size="xs" color="gray" />
+                  <Chip
+                    label={t('info.exam_not_specified')}
+                    size="xs"
+                    color="gray"
+                  />
                 )}
               </div>
             </div>

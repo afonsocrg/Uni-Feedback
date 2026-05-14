@@ -1,4 +1,5 @@
 import { getRelativeTime } from '@uni-feedback/utils'
+import { useTranslation } from 'react-i18next'
 
 interface FeedbackCardFooterProps {
   courseName: string
@@ -11,6 +12,7 @@ export function FeedbackCardFooter({
   facultyShortName,
   createdAt
 }: FeedbackCardFooterProps) {
+  const { i18n } = useTranslation()
   return (
     <div className="pt-3 border-t border-gray-100">
       <p className="text-xs text-gray-600 truncate mb-0.5">{courseName}</p>
@@ -19,7 +21,7 @@ export function FeedbackCardFooter({
           {facultyShortName ?? 'University'}
         </p>
         <p className="text-xs text-gray-400 shrink-0">
-          {getRelativeTime(createdAt)}
+          {getRelativeTime(createdAt, i18n.language)}
         </p>
       </div>
     </div>

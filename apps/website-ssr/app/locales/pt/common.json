@@ -36,8 +36,18 @@
       "privacy": "Política de Privacidade"
     }
   },
+  "breadcrumb": {
+    "select_uni": "Escolher Faculdade"
+  },
   "lang_switcher": {
     "switch_to_en": "EN",
     "switch_to_pt": "PT"
-  }
+  },
+  "workload_ratings": [
+    "Muito pesada",
+    "Pesada",
+    "Moderada",
+    "Leve",
+    "Muito leve"
+  ]
 }

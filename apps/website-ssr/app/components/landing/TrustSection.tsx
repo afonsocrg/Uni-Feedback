@@ -1,9 +1,13 @@
 import { Popover, PopoverContent, PopoverTrigger } from '@uni-feedback/ui'
 import { ClipboardCheck, EyeOff, Info, Shield, UserCheck } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+import { Trans, useTranslation } from 'react-i18next'
+import { Link } from 'react-router'
+import type { Lang } from '~/i18n/config'
+import { getLocalePath } from '~/utils/i18n-routes'
 
 export function TrustSection() {
-  const { t } = useTranslation('landing')
+  const { t, i18n } = useTranslation('landing')
+  const guidelinesUrl = getLocalePath('guidelines', i18n.language as Lang)
 
   const items = [
     {
@@ -25,7 +29,18 @@ export function TrustSection() {
     {
       Icon: ClipboardCheck,
       heading: t('trust.reviewed.title'),
-      body: t('trust.reviewed.desc')
+      bodyNode: (
+        <Trans
+          i18nKey="trust.reviewed.desc"
+          ns="landing"
+          components={[
+            <Link
+              to={guidelinesUrl}
+              className="underline hover:text-foreground"
+            />
+          ]}
+        />
+      )
     }
   ]
 
@@ -38,7 +53,7 @@ export function TrustSection() {
               <item.Icon className="size-6 text-primary" />
               <h3 className="font-semibold text-lg">{item.heading}</h3>
               <p className="text-muted-foreground leading-relaxed text-sm">
-                {item.body}
+                {'bodyNode' in item ? item.bodyNode : item.body}
                 {item.finePrint && (
                   <Popover>
                     <PopoverTrigger asChild>

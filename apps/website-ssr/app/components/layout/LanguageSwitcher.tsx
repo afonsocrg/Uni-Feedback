@@ -7,7 +7,6 @@ export function LanguageSwitcher() {
   const { i18n } = useTranslation()
   const location = useLocation()
   const lang = i18n.language as Lang
-  const targetLang: Lang = lang === 'pt' ? 'en' : 'pt'
   const targetPath = getEquivalentPath(
     location.pathname + location.search,
     lang

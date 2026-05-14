@@ -23,7 +23,7 @@ export function Breadcrumb({
   degree,
   course
 }: BreadcrumbProps) {
-  const { i18n } = useTranslation()
+  const { t, i18n } = useTranslation()
   const lang = i18n.language as Lang
 
   const browsePath = getLocalePath('browse', lang)
@@ -62,7 +62,7 @@ export function Breadcrumb({
       label: (
         <>
           <Home className="h-3 w-3 mr-1" />
-          Select Uni
+          {t('breadcrumb.select_uni')}
         </>
       ),
       href: browsePath,

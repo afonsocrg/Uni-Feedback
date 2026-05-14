@@ -1,6 +1,7 @@
 import type { Course } from '@uni-feedback/db/schema'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@uni-feedback/ui'
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Breadcrumb,
   CourseAssessment,
@@ -47,6 +48,7 @@ export function CourseDetailContent({
   course,
   feedback
 }: CourseDetailContentProps) {
+  const { t } = useTranslation('course')
   const [showLeftFade, setShowLeftFade] = useState(false)
   const [showRightFade, setShowRightFade] = useState(false)
   const tabsListRef = useRef<HTMLDivElement>(null)
@@ -110,16 +112,16 @@ export function CourseDetailContent({
             >
               <TabsList className="inline-flex justify-start bg-transparent border-b-2 border-gray-200 rounded-none min-w-full gap-6 px-0">
                 <TabsTrigger value="feedback" className={tabClasses}>
-                  Feedback
+                  {t('tabs.feedback')}
                 </TabsTrigger>
                 <TabsTrigger value="description" className={tabClasses}>
-                  Description
+                  {t('tabs.description')}
                 </TabsTrigger>
                 <TabsTrigger value="assessment" className={tabClasses}>
-                  Assessment
+                  {t('tabs.assessment')}
                 </TabsTrigger>
                 <TabsTrigger value="bibliography" className={tabClasses}>
-                  Bibliography
+                  {t('tabs.bibliography')}
                 </TabsTrigger>
               </TabsList>
             </div>

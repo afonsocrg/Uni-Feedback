@@ -6,12 +6,14 @@ export interface EditableWorkloadRatingPillsProps {
   value: number
   onChange: (value: number) => void
   disabled?: boolean
+  labels?: string[]
 }
 
 export function EditableWorkloadRatingPills({
   value,
   onChange,
-  disabled = false
+  disabled = false,
+  labels
 }: EditableWorkloadRatingPillsProps) {
   const [hoveredRating, setHoveredRating] = useState<number | null>(null)
 
@@ -35,6 +37,7 @@ export function EditableWorkloadRatingPills({
           >
             <WorkloadRatingDisplay
               rating={rating}
+              label={labels?.[rating - 1]}
               muted={!isHighlighted}
               className={cn(
                 isHighlighted && 'shadow-sm',

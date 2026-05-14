@@ -36,6 +36,7 @@
     "writing_friend_desc": "A review that sounds like a student talking to another student is much more useful than a polished, formal one. Remember you're talking to someone who wants to know what this course was like, not for a project report.",
     "writing_angry_title": "If you're angry, wait.",
     "writing_angry_desc": "A review written in frustration rarely gives other students the information they actually need. Step away, breathe in, then write.",
+    "writing_critical_note": "It's fine to be critical. It's fine to give a 1-star rating. We will never remove a review just because it's negative.",
     "ai_title": "Using AI to write your review",
     "ai_desc1": "Using AI to help write your review is fine. I often use it myself to organize my thoughts or find the right words for something I want to say. That's totally valid, but keep in mind:",
     "ai_point1": "Your review has to reflect your experience. If an AI invented details, exaggerated things, or filled in gaps you don't actually know about, that defeats the purpose. Other students are counting on real experiences.",
@@ -57,24 +58,26 @@
       "We never edit your submission to make it comply. Either it stays as written, or it's removed",
       "If we do remove a review, we'll reach out to explain why and help you update it so it can go up again"
     ],
-    "questions": "Got questions or spotted something that shouldn't be here? Reach out at afonso@uni-feedback.com",
+    "questions": "Got questions or spotted something that shouldn't be here? Reach out at",
     "give_feedback_link": "Give feedback",
-    "full_guidelines_link": "For the complete moderation policy, see the full guidelines"
+    "full_guidelines_prefix": "For the complete moderation policy, see the",
+    "full_guidelines_link": "full guidelines"
   },
   "points": {
     "meta_title": "How Points Work | Uni Feedback",
     "meta_desc": "Learn how to earn Uni Feedback Points by sharing course reviews and inviting friends.",
     "page_title": "Uni Feedback Points",
-    "intro": "Points reflect how much you're helping other students. By sharing your feedback and letting other people know about Uni Feedback, you help build a better academic environment for everyone!",
+    "intro_highlight": "Points reflect how much you're helping other students.",
+    "intro_rest": "By sharing your feedback and letting other people know about Uni Feedback, you help build a better academic environment for everyone!",
     "how_to_earn": "How to earn points",
     "give_feedback_title": "Give Feedback",
-    "give_feedback_desc": "If your feedback follows our guidelines, you'll earn points based on how helpful it is:",
+    "give_feedback_desc": "If your feedback follows our <0>guidelines</0>, you'll earn points based on how helpful it is:",
     "give_feedback_points": [
       "+1 point base for submitting feedback;",
       "+4 points for each feedback category you mention (see below);",
       "+3 bonus points if you cover all 4 categories."
     ],
-    "give_feedback_cta": "Ready to share your experience? Give feedback",
+    "give_feedback_cta": "Ready to share your experience? <0>Give feedback</0>",
     "invite_title": "Invite Friends",
     "invite_desc": "Bring your classmates to Uni Feedback! You get points once they sign up and post their first feedback:",
     "invite_points": [
@@ -82,11 +85,11 @@
       "+5 points for the next 10",
       "+1 point for each friend after that"
     ],
-    "invite_from_profile": "You can invite friends from your profile page",
-    "check_points": "You can check your current points on your profile page",
+    "invite_from_profile": "You can invite friends from your <0>profile page</0>",
+    "check_points": "You can check your current points on your <0>profile page</0>",
     "categories_title": "Feedback categories",
     "categories_desc": "We look for these four things because they're what students actually care about. Mention them naturally in your feedback to unlock bonus points. Cover all four to get an extra 3-point bonus!",
-    "questions": "Got questions or something not clear? Email us at help@uni-feedback.com, and we'll get back to you!"
+    "questions": "Got questions or something not clear? Email us at <0>help@uni-feedback.com</0>, and we'll get back to you!"
   },
   "giveaway": {
     "meta_title": "Giveaway Recap - Thank You! | Uni Feedback",

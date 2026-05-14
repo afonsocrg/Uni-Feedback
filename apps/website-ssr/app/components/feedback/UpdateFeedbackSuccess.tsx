@@ -4,7 +4,6 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@uni-feedback/ui'
-import { getFeedbackPermalink } from '@uni-feedback/utils'
 import { HelpCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'

@@ -1,6 +1,6 @@
 {
   "hero": {
-    "title": "Descobre o que os alunos realmente pensam sobre as tuas cadeiras",
+    "title": "Descobre o que os alunos <highlight>realmente pensam</highlight> sobre as tuas cadeiras",
     "subtitle": "Feedback anónimo de alunos verificados",
     "stats": "{{feedbackCount}}+ feedbacks de {{contributors}}+ alunos · 100% gratuito"
   },
@@ -54,25 +54,25 @@
     },
     "space": {
       "title": "Um espaço que pertence aos alunos",
-      "desc": "O Uni Feedback é feito de alunos para alunos, e independente de qualquer faculdade. Nenhuma instituição pode influenciar o que é publicado aqui. Aqui encontras o bom, o mau e o feio."
+      "desc": "O Uni Feedback é feito por alunos, para alunos, e não pertence a nenhuma faculdade. Nenhuma instituição controla o que aqui aparece. Aqui encontras opiniões honestas, sem filtros."
     },
     "real_students": {
-      "title": "Apenas alunos reais, de faculdades reais",
-      "desc": "Queremos que o nosso feedback seja legítimo. Cada contribuidor autentica-se com o seu email universitário antes de submeter."
+      "title": "Alunos reais, de faculdades reais",
+      "desc": "Para manter o feedback útil e verdadeiro, cada pessoa autentica-se com o email da sua faculdade antes de poder submeter feedback."
     },
     "anonymous_submissions": {
       "title": "O teu feedback é 100% anónimo",
-      "desc": "Queremos que os alunos se sintam seguros ao partilhar a sua experiência. Ninguém — nem outros alunos, nem professores, nem a tua faculdade — saberá que foste tu a escrevê-lo.",
+      "desc": "Podes partilhar a tua experiência sem te preocupares. Ninguém (nem outros alunos, nem professores, nem a tua faculdade) sabe quem escreveu o quê.",
       "note": "Internamente, a tua submissão está associada à tua conta para que possas geri-la e para que a nossa equipa possa contactar-te se algo precisar de atenção. Esta ligação nunca sai do Uni Feedback."
     },
     "reviewed": {
-      "title": "Todo o feedback é revisto",
-      "desc": "Lemos todas as submissões. Se algo não seguir as nossas guidelines, removemo-lo e contactamos o autor para o ajudar a atualizá-lo, para que possa voltar a estar disponível. Toda a opinião é bem-vinda. Todas elas."
+      "title": "Revemos todo o feedback",
+      "desc": "Lemos todas as submissões. Se algo não seguir as nossas <0>guidelines</0>, é removido e falamos contigo para te ajudar a ajustar e voltar a publicar."
     }
   },
   "testimonials": {
     "title": "O que os alunos dizem sobre nós",
-    "subtitle": "Alunos reais a partilhar a sua experiência com o Uni Feedback",
+    "subtitle": "",
     "cta": "Já usaste o Uni Feedback? Diz-nos o que achaste!"
   },
   "browse_section": {
@@ -114,7 +114,7 @@
       },
       {
         "question": "Quanto tempo demora a minha avaliação a aparecer depois de a submeter?",
-        "answer": "**O teu feedback é publicado imediatamente.** Leio todas as submissões. Se algo não seguir as nossas guidelines, entrarei em contacto contigo."
+        "answer": "**O teu feedback é publicado imediatamente.** Leio todas as submissões. Se algo não seguir as nossas [guidelines]({{guidelinesUrl}}), entrarei em contacto contigo."
       },
       {
         "question": "Posso editar ou eliminar o meu feedback depois de o submeter?",
@@ -126,7 +126,7 @@
       },
       {
         "question": "O que acontece se vir uma avaliação que parece falsa ou injusta?",
-        "answer": "Podes reportá-la. Sempre que recebo um report, reavalio o feedback em causa e removo-o se não cumprir as nossas guidelines."
+        "answer": "Podes reportá-la. Sempre que recebo um report, reavalio o feedback em causa e removo-o se não cumprir as nossas [guidelines](/guidelines)."
       }
     ],
     "contact_prompt": "Tens outra pergunta? Envia-nos uma mensagem no <0>Instagram</0> ou escreve para <1>afonso@uni-feedback.com</1>. Leio todos os e-mails!"
@@ -139,7 +139,7 @@
     "contributors": "Contribuidores ativos"
   },
   "more_than_network": {
-    "quote": "Às vezes o feedback mais útil vem de alguém que nunca conhecemos.",
+    "quote": "Às vezes o <highlight>feedback mais útil</highlight> vem de alguém que <highlight>nunca conhecemos</highlight>.",
     "desc": "Aqui podes encontrar feedback de centenas de alunos. Não apenas daqueles que conheces."
   },
   "loved_by_students": {
@@ -166,13 +166,13 @@
     "prefix": "Atualmente a suportar"
   },
   "founder": {
-    "quote1": "Na faculdade, os meus amigos e eu costumávamos perguntar a outros alunos sobre as cadeiras (carga de trabalho, professores, exames, dicas, etc.). Mas as respostas perdiam-se nos grupos de chat.",
-    "quote2": "Por isso criei um lugar para todo esse feedback.",
+    "quote1": "Na faculdade, os meus amigos e eu costumávamos perguntar uns aos outros por feedback sobre as cadeiras (carga de trabalho, professores, exames, dicas, etc.). Mas as respostas perdiam-se nos grupos de chat...",
+    "quote2": "Por isso criei este site para compilar todo esse feedback.",
     "attribution": "— Afonso"
   },
   "contact_section": {
     "title": "Entra em contacto",
-    "desc": "Encontraste um bug? Tens uma sugestão? Só queres dizer olá? Adorava ouvir-te. O teu feedback (😉) ajuda a tornar o Uni Feedback melhor para toda a gente.",
+    "desc": "Tens um bug, ideia ou feedback? Envia-me um email para afonso@uni-feedback.com. Respondo sempre que consigo.",
     "email": "Envia um Email",
     "linkedin": "Conectar no LinkedIn"
   }

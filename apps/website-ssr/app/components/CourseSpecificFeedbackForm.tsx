@@ -64,7 +64,8 @@ export function CourseSpecificFeedbackForm({
   onSubmit,
   isSubmitting
 }: CourseSpecificFeedbackFormProps) {
-  const { i18n } = useTranslation()
+  const { t, i18n } = useTranslation('feedback')
+  const { t: tCommon } = useTranslation('common')
   const lang = i18n.language as Lang
 
   // Workload input type state for debug panel (disabled for production)
@@ -270,7 +271,7 @@ export function CourseSpecificFeedbackForm({
                   type="button"
                   onClick={() => setShowYearSelector(true)}
                   className="flex items-center gap-0.5 text-xs text-gray-400 hover:text-primaryBlue cursor-pointer"
-                  aria-label="Change school year"
+                  aria-label={t('form.change_year_aria')}
                 >
                   <span>
                     {formatSchoolYearString(schoolYear, {
@@ -285,7 +286,7 @@ export function CourseSpecificFeedbackForm({
                 onClick={() => setShowChangeCourseDialog(true)}
                 className="text-xs text-primaryBlue hover:text-primaryBlue/80 whitespace-nowrap cursor-pointer"
               >
-                Change course
+                {t('form.change_course')}
               </button>
             </div>
           </div>
@@ -305,7 +306,7 @@ export function CourseSpecificFeedbackForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-base font-medium text-gray-900">
-                        How was the course?
+                        {t('form.rating_label')}
                         <span className="text-red-500">*</span>
                       </FormLabel>
                       <FormControl>
@@ -314,6 +315,13 @@ export function CourseSpecificFeedbackForm({
                             value={field.value}
                             onChange={field.onChange}
                             size="lg"
+                            labelFunction={(rating) =>
+                              (
+                                t('form.star_ratings', {
+                                  returnObjects: true
+                                }) as string[]
+                              )[rating - 1] ?? ''
+                            }
                           />
                         </div>
                       </FormControl>
@@ -329,7 +337,7 @@ export function CourseSpecificFeedbackForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-base font-medium text-gray-900">
-                        How heavy was the workload?
+                        {t('form.workload_label')}
                         <span className="text-red-500">*</span>
                       </FormLabel>
                       <FormControl>
@@ -337,6 +345,11 @@ export function CourseSpecificFeedbackForm({
                           <EditableWorkloadRatingPills
                             value={field.value}
                             onChange={field.onChange}
+                            labels={
+                              tCommon('workload_ratings', {
+                                returnObjects: true
+                              }) as string[]
+                            }
                           />
                           {/* Other input types (disabled for production):
                           <EditableWorkloadRatingSegmented value={field.value} onChange={field.onChange} size="sm" />
@@ -373,40 +386,40 @@ export function CourseSpecificFeedbackForm({
                   allowedEmailSuffixes:
                     currentCourse.degree.faculty.emailSuffixes,
                   universityName: currentCourse.degree.faculty.shortName,
-                  successDescription: 'Submitting your feedback...'
+                  successDescription: t('form.auth_success_desc')
                 }}
               >
                 {isSubmitting ? (
                   <>
                     <Loader2 className="size-4 animate-spin" />
-                    <span>Submitting...</span>
+                    <span>{t('form.submitting')}</span>
                   </>
                 ) : (
                   <>
                     <Send className="size-4" />
-                    <span>Give Feedback</span>
+                    <span>{t('form.submit')}</span>
                   </>
                 )}
               </AuthenticatedButton>
 
               <p className="text-xs text-gray-500 text-center mt-4">
-                By submitting, you agree to our{' '}
+                {t('form.terms_prefix')}{' '}
                 <Link
                   to={getLocalePath('terms', lang)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-primaryBlue hover:text-primaryBlue/80 underline"
                 >
-                  Terms of Service
+                  {t('form.terms_link')}
                 </Link>{' '}
-                and{' '}
+                {t('form.terms_conjunction')}{' '}
                 <Link
                   to={getLocalePath('privacy', lang)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-primaryBlue hover:text-primaryBlue/80 underline"
                 >
-                  Privacy Policy
+                  {t('form.privacy_link')}
                 </Link>
                 .
               </p>

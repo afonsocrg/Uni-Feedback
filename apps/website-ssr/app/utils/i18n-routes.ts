@@ -22,8 +22,8 @@ for (const key of Object.keys(routeMap) as (keyof typeof routeMap)[]) {
 
 function swapDynamicPath(path: string, from: Lang): string {
   if (from === 'pt') {
-    if (path.startsWith('/cursos/')) {
-      const rest = path.slice('/cursos/'.length)
+    if (path.startsWith('/cadeiras/')) {
+      const rest = path.slice('/cadeiras/'.length)
       return `/en/courses/${rest}`
     }
     const editMatch = path.match(/^\/feedback\/([^/]+)\/editar$/)
@@ -33,7 +33,7 @@ function swapDynamicPath(path: string, from: Lang): string {
     const withoutEn = path.slice(3) // remove '/en'
     if (withoutEn.startsWith('/courses/')) {
       const rest = withoutEn.slice('/courses/'.length)
-      return `/cursos/${rest}`
+      return `/cadeiras/${rest}`
     }
     const editMatch = withoutEn.match(/^\/feedback\/([^/]+)\/edit$/)
     if (editMatch) return `/feedback/${editMatch[1]}/editar`
@@ -59,13 +59,13 @@ export function getReviewPath(lang: Lang, courseId?: number): string {
 }
 
 export function getCoursePath(lang: Lang, courseId: number): string {
-  return lang === 'en' ? `/en/courses/${courseId}` : `/cursos/${courseId}`
+  return lang === 'en' ? `/en/courses/${courseId}` : `/cadeiras/${courseId}`
 }
 
 export function getCourseFeedbackPath(lang: Lang, courseId: number): string {
   return lang === 'en'
     ? `/en/courses/${courseId}/feedback`
-    : `/cursos/${courseId}/feedback`
+    : `/cadeiras/${courseId}/feedback`
 }
 
 export function getFacultyPath(lang: Lang, facultySlug: string): string {

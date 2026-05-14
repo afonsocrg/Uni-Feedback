@@ -33,7 +33,11 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 import { AuthenticatedButton, ReportFeedbackFeedbackCard } from '~/components'
 import { analytics, getPageName } from '~/utils/analytics'
-import { getLocalePath, type Lang } from '~/utils/i18n-routes'
+import {
+  getCourseFeedbackPath,
+  getLocalePath,
+  type Lang
+} from '~/utils/i18n-routes'
 
 const reportFormSchema = z.object({
   category: z.enum(REPORT_CATEGORIES),
@@ -175,7 +179,7 @@ export function ReportFeedbackDialog({
               <br />
               If you just disagree with it, you can{' '}
               <Link
-                to={`/courses/${feedback.courseId}/feedback`}
+                to={getCourseFeedbackPath(lang, feedback.courseId)}
                 className="font-medium text-primary hover:underline"
                 onClick={() => {
                   analytics.navigation.feedbackFormLinkClicked({

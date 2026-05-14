@@ -56,28 +56,10 @@ export const VERIFICATION_CONFIG = {
 
 // Feedback categories for scoring and guidance
 export const FEEDBACK_CATEGORIES = [
-  {
-    icon: GraduationCap,
-    title: 'Teaching',
-    description:
-      'How the professor teaches. Were classes engaging? Easy to follow? Were they available outside class?'
-  },
-  {
-    icon: ClipboardCheck,
-    title: 'Assessment',
-    description:
-      'Exams, projects, grading. Was it fair? Clear? How hard was it really?'
-  },
-  {
-    icon: BookOpen,
-    title: 'Materials',
-    description:
-      'Slides, readings, platforms. Did they actually help you study or were they useless?'
-  },
-  {
-    icon: Lightbulb,
-    title: 'Tips',
-    description:
-      'The stuff no one tells you. Study hacks, mistakes to avoid, or what you wish you knew before enrolling.'
-  }
+  { key: 'teaching' as const, icon: GraduationCap },
+  { key: 'assessment' as const, icon: ClipboardCheck },
+  { key: 'materials' as const, icon: BookOpen },
+  { key: 'tips' as const, icon: Lightbulb }
 ] as const
+
+export type FeedbackCategoryKey = (typeof FEEDBACK_CATEGORIES)[number]['key']

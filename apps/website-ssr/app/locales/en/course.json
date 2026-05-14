@@ -6,5 +6,48 @@
     "feedback_desc": "Share your experience with {{courseName}} ({{acronym}}) at {{faculty}}. Your anonymous feedback helps fellow students make informed decisions.",
     "reviews_title": "Read honest, anonymous student reviews for {{courseName}} ({{acronym}})",
     "reviews_desc": "Get insights on workload, assessment, and course content to help you make informed decisions."
+  },
+  "tabs": {
+    "feedback": "Feedback",
+    "description": "Description",
+    "assessment": "Assessment",
+    "bibliography": "Bibliography"
+  },
+  "info": {
+    "course_page": "Course Page",
+    "report_incorrect": "Report incorrect info",
+    "feedback_label": "Feedback",
+    "no_reviews": "No reviews yet",
+    "workload_label": "Workload",
+    "exam_label": "Exam",
+    "exam_mandatory": "Mandatory",
+    "exam_optional": "Optional",
+    "exam_not_specified": "Not specified"
+  },
+  "reviews": {
+    "heading": "Student Feedback",
+    "give_feedback": "Give Feedback!",
+    "empty_heading": "No feedback for this course yet",
+    "empty_desc": "Be the first to share your experience, or ask your friends to leave feedback! Your input helps future students make better choices.",
+    "ask_for_feedback": "Ask for feedback",
+    "outdated_warning": "The reviews below this point may be outdated. Course content, teaching methods, and requirements may have changed since then.",
+    "pre_mepp": "Pre-MEPP"
+  },
+  "description": {
+    "no_content": "We don't have a description for this course yet."
+  },
+  "assessment": {
+    "no_content": "We don't have assessment information for this course yet."
+  },
+  "bibliography": {
+    "no_content": "We don't have a bibliography for this course yet."
+  },
+  "card": {
+    "workload_prefix": "Workload:",
+    "from_different_course": "Feedback submitted by a student from {{degreeName}}",
+    "show_more": "Show more",
+    "show_less": "Show less",
+    "no_comment": "This user did not leave any comment",
+    "copied": "Copied!"
   }
 }

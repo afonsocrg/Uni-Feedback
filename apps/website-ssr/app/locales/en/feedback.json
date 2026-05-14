@@ -25,6 +25,47 @@
     "meta_title": "Find Your Course - Uni Feedback",
     "meta_desc": "Search and select a course to leave feedback"
   },
+  "categories": {
+    "teaching": {
+      "title": "Teaching",
+      "description": "How the professor teaches. Were classes engaging? Easy to follow? Were they available outside class?"
+    },
+    "assessment": {
+      "title": "Assessment",
+      "description": "Exams, projects, grading. Was it fair? Clear? How hard was it really?"
+    },
+    "materials": {
+      "title": "Materials",
+      "description": "Slides, readings, platforms. Did they actually help you study or were they useless?"
+    },
+    "tips": {
+      "title": "Tips",
+      "description": "The stuff no one tells you. Study hacks, mistakes to avoid, or what you wish you knew before enrolling."
+    }
+  },
+  "form": {
+    "change_course": "Change course",
+    "change_year_aria": "Change school year",
+    "rating_label": "How was the course?",
+    "workload_label": "How heavy was the workload?",
+    "submitting": "Submitting...",
+    "submit": "Give Feedback",
+    "auth_success_desc": "Submitting your feedback...",
+    "terms_prefix": "By submitting, you agree to our",
+    "terms_link": "Terms of Service",
+    "terms_conjunction": "and",
+    "privacy_link": "Privacy Policy",
+    "comment_label": "Share your experience",
+    "comment_hint": "Sharing your thoughts helps others the most! Here are some aspects to consider:",
+    "comment_placeholder": "What should other students know? (e.g., tips for the exam, how to handle the labs...)",
+    "star_ratings": ["Terrible", "Poor", "Average", "Good", "Excellent"],
+    "categories": {
+      "teaching": "Teaching",
+      "assessment": "Assessment",
+      "materials": "Materials",
+      "tips": "Tips"
+    }
+  },
   "edit": {
     "breadcrumb_profile": "Profile",
     "page_title": "Edit Feedback",

@@ -1,6 +1,6 @@
 {
   "hero": {
-    "title": "Know what students really think about your courses",
+    "title": "Know what students <highlight>really think</highlight> about your courses",
     "subtitle": "Anonymous feedback from verified students",
     "stats": "{{feedbackCount}}+ reviews · {{contributors}}+ contributors · 100% free"
   },
@@ -67,7 +67,7 @@
     },
     "reviewed": {
       "title": "All feedback is reviewed",
-      "desc": "We read every submission. If something doesn't follow our guidelines, we remove it and reach out to help the author update it, so it can go back up. Every opinion is welcome. All of them."
+      "desc": "We read every submission. If something doesn't follow our <0>guidelines</0>, we remove it and reach out to help the author update it, so it can go back up. Every opinion is welcome. All of them."
     }
   },
   "testimonials": {
@@ -114,7 +114,7 @@
       },
       {
         "question": "How long until my review appears after I submit it?",
-        "answer": "**Your feedback is published immediately.** I read every submission. If something doesn't follow our guidelines, I'll reach out and let you know."
+        "answer": "**Your feedback is published immediately.** I read every submission. If something doesn't follow our [guidelines]({{guidelinesUrl}}), I'll reach out and let you know."
       },
       {
         "question": "Can I edit or delete my feedback after submitting?",
@@ -126,7 +126,7 @@
       },
       {
         "question": "What happens if I see a review that seems fake or unfair?",
-        "answer": "You can report it. Whenever I receive a report, I'll re-evaluate the review and remove it if it doesn't follow our guidelines."
+        "answer": "You can report it. Whenever I receive a report, I'll re-evaluate the review and remove it if it doesn't follow our [guidelines]({{guidelinesUrl}})."
       }
     ],
     "contact_prompt": "Have another question? DM us on <0>Instagram</0> or write to <1>afonso@uni-feedback.com</1>."
@@ -139,7 +139,7 @@
     "contributors": "Active Contributors"
   },
   "more_than_network": {
-    "quote": "Sometimes the most useful feedback comes from someone we've never met.",
+    "quote": "Sometimes the <highlight>most useful feedback</highlight> comes from someone we've <highlight>never met</highlight>.",
     "desc": "Here you can find feedback from hundreds students. Not just those you happen to know."
   },
   "loved_by_students": {

@@ -8,6 +8,7 @@ import {
 import { Share2 } from 'lucide-react'
 import posthog from 'posthog-js'
 import { useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { FaWhatsapp } from 'react-icons/fa'
 import { CopyButton } from '~/components'
 import { addUtmParams, getAskForFeedbackMessage, openWhatsapp } from '~/utils'
@@ -17,7 +18,7 @@ interface AskForFeedbackProps {
   course: Course
 }
 export function AskForFeedback({ reviewFormUrl, course }: AskForFeedbackProps) {
-  // const { data: course } = useCourseDetails(courseId)
+  const { t } = useTranslation('course')
   const handleWhatsapp = useCallback(() => {
     if (!course) return
     posthog.capture('request_feedback', {
@@ -54,7 +55,7 @@ export function AskForFeedback({ reviewFormUrl, course }: AskForFeedbackProps) {
           className="gap-2 active:bg-gray-100 dark:active:bg-gray-800"
         >
           <Share2 className="size-4" />
-          Ask for feedback
+          {t('reviews.ask_for_feedback')}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-48 p-2">

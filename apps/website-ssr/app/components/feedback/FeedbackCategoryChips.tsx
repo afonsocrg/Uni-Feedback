@@ -8,6 +8,7 @@ import {
   Loader2,
   type LucideIcon
 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { CategoryChip } from '~/components'
 
 interface FeedbackCategoryChipsProps {
@@ -19,12 +20,18 @@ interface FeedbackCategoryChipsProps {
 
 const CATEGORY_CONFIG: Record<
   keyof FeedbackCategories,
-  { label: string; icon: LucideIcon }
+  { translationKey: string; icon: LucideIcon }
 > = {
-  hasTeaching: { label: 'Teaching', icon: GraduationCap },
-  hasAssessment: { label: 'Assessment', icon: ClipboardCheck },
-  hasMaterials: { label: 'Materials', icon: BookOpen },
-  hasTips: { label: 'Tips', icon: Lightbulb }
+  hasTeaching: {
+    translationKey: 'form.categories.teaching',
+    icon: GraduationCap
+  },
+  hasAssessment: {
+    translationKey: 'form.categories.assessment',
+    icon: ClipboardCheck
+  },
+  hasMaterials: { translationKey: 'form.categories.materials', icon: BookOpen },
+  hasTips: { translationKey: 'form.categories.tips', icon: Lightbulb }
 }
 
 export function FeedbackCategoryChips({
@@ -33,6 +40,7 @@ export function FeedbackCategoryChips({
   orientation = 'horizontal',
   onHelpClick
 }: FeedbackCategoryChipsProps) {
+  const { t } = useTranslation('feedback')
   return (
     <div
       className={
@@ -48,10 +56,11 @@ export function FeedbackCategoryChips({
       {(
         Object.entries(CATEGORY_CONFIG) as [
           keyof FeedbackCategories,
-          { label: string; icon: LucideIcon }
+          { translationKey: string; icon: LucideIcon }
         ][]
-      ).map(([key, { label, icon }]) => {
+      ).map(([key, { translationKey, icon }]) => {
         const isActive = categories?.[key] ?? false
+        const label = t(translationKey)
         return (
           <CategoryChip
             key={key}

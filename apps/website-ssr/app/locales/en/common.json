@@ -36,8 +36,12 @@
       "privacy": "Privacy Policy"
     }
   },
+  "breadcrumb": {
+    "select_uni": "Select Uni"
+  },
   "lang_switcher": {
     "switch_to_en": "EN",
     "switch_to_pt": "PT"
-  }
+  },
+  "workload_ratings": ["Very heavy", "Heavy", "Moderate", "Light", "Very light"]
 }

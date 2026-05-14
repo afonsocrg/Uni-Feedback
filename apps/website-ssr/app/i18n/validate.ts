@@ -14,15 +14,9 @@ import type ptLanding from '../locales/pt/landing.json'
 import type ptLegal from '../locales/pt/legal.json'
 
 // These assignments fail at compile time if EN is missing keys that exist in PT.
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const _common: typeof ptCommon = enCommon
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const _landing: typeof ptLanding = enLanding
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const _browse: typeof ptBrowse = enBrowse
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const _course: typeof ptCourse = enCourse
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const _feedback: typeof ptFeedback = enFeedback
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const _legal: typeof ptLegal = enLegal

@@ -25,6 +25,47 @@
     "meta_title": "Encontrar a Tua Cadeira - Uni Feedback",
     "meta_desc": "Pesquisa e seleciona uma cadeira para deixar feedback"
   },
+  "categories": {
+    "teaching": {
+      "title": "Ensino",
+      "description": "Como o professor leciona. As aulas eram interessantes? Fáceis de seguir? Estava disponível fora da aula?"
+    },
+    "assessment": {
+      "title": "Avaliação",
+      "description": "Exames, projetos, avaliação. Era justo? Claro? Quão difícil era realmente?"
+    },
+    "materials": {
+      "title": "Materiais",
+      "description": "Slides, leituras, plataformas. Ajudavam mesmo a estudar ou eram inúteis?"
+    },
+    "tips": {
+      "title": "Dicas",
+      "description": "As coisas que ninguém te conta. Truques de estudo, erros a evitar, ou o que gostavas de saber antes de te inscrever."
+    }
+  },
+  "form": {
+    "change_course": "Mudar de cadeira",
+    "change_year_aria": "Mudar ano letivo",
+    "rating_label": "Como foi a cadeira?",
+    "workload_label": "Qual foi a carga de trabalho?",
+    "submitting": "A submeter...",
+    "submit": "Dar Feedback",
+    "auth_success_desc": "A submeter o teu feedback...",
+    "terms_prefix": "Ao submeter, aceitas os nossos",
+    "terms_link": "Termos de Serviço",
+    "terms_conjunction": "e a nossa",
+    "privacy_link": "Política de Privacidade",
+    "comment_label": "Partilha a tua experiência",
+    "comment_hint": "O teu feedback é o que mais ajuda os outros! Aqui estão alguns aspetos a considerar:",
+    "comment_placeholder": "O que devem os outros alunos saber? (ex: dicas para o exame, como lidar com os laboratórios...)",
+    "star_ratings": ["Terrível", "Má", "Razoável", "Boa", "Excelente"],
+    "categories": {
+      "teaching": "Ensino",
+      "assessment": "Avaliação",
+      "materials": "Materiais",
+      "tips": "Dicas"
+    }
+  },
   "edit": {
     "breadcrumb_profile": "Perfil",
     "page_title": "Editar Feedback",

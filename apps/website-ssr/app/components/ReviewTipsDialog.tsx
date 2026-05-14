@@ -19,7 +19,7 @@ export function ReviewTipsDialog({
   open,
   onOpenChange
 }: ReviewTipsDialogProps) {
-  const { i18n } = useTranslation()
+  const { t, i18n } = useTranslation('feedback')
   const lang = i18n.language as Lang
 
   return (
@@ -67,14 +67,16 @@ export function ReviewTipsDialog({
             </p>
             <div className="space-y-3">
               {FEEDBACK_CATEGORIES.map((category) => (
-                <div key={category.title} className="flex gap-3">
+                <div key={category.key} className="flex gap-3">
                   <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-gray-100">
                     <category.icon className="size-4 text-gray-600" />
                   </div>
                   <div>
-                    <h4 className="font-medium text-sm">{category.title}</h4>
+                    <h4 className="font-medium text-sm">
+                      {t(`categories.${category.key}.title`)}
+                    </h4>
                     <p className="text-xs text-gray-600">
-                      {category.description}
+                      {t(`categories.${category.key}.description`)}
                     </p>
                   </div>
                 </div>

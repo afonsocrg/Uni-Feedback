@@ -30,7 +30,7 @@ import { Link } from 'react-router'
 import { toast } from 'sonner'
 import { FeedbackCategoryChips, FeedbackMarkdown } from '~/components'
 import { getTruncatedText } from '~/lib/textUtils'
-import { getLocalePath, type Lang } from '~/utils/i18n-routes'
+import { getCoursePath, getLocalePath, type Lang } from '~/utils/i18n-routes'
 
 interface ProfileFeedbackCardProps {
   feedback: {
@@ -67,7 +67,10 @@ export function ProfileFeedbackCard({ feedback }: ProfileFeedbackCardProps) {
   const characterLimit = 600
   const isLongComment =
     feedback.comment && feedback.comment.length > characterLimit
-  const relativeTime = getRelativeTime(new Date(feedback.createdAt))
+  const relativeTime = getRelativeTime(
+    new Date(feedback.createdAt),
+    i18n.language
+  )
 
   const handleDelete = async () => {
     setIsDeleting(true)
@@ -110,7 +113,7 @@ export function ProfileFeedbackCard({ feedback }: ProfileFeedbackCardProps) {
             <PopoverContent className="w-48 p-2">
               <div className="flex flex-col gap-1">
                 <Link
-                  to={`/courses/${feedback.courseId}`}
+                  to={getCoursePath(lang, feedback.courseId)}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -123,7 +126,12 @@ export function ProfileFeedbackCard({ feedback }: ProfileFeedbackCardProps) {
                     Open Course Page
                   </Button>
                 </Link>
-                <Link to={`/feedback/${feedback.id}/edit`}>
+                <Link
+                  to={getLocalePath('feedback-edit', lang).replace(
+                    ':id',
+                    String(feedback.id)
+                  )}
+                >
                   <Button
                     variant="ghost"
                     size="sm"

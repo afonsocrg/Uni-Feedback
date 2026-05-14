@@ -1,5 +1,5 @@
 import { PenSquare, Users } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+import { Trans, useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import type { Lang } from '~/i18n/config'
 import { analytics, getPageName } from '~/utils/analytics'
@@ -18,8 +18,16 @@ export function meta() {
 }
 
 export default function PointsPage() {
-  const { i18n } = useTranslation('legal')
+  const { t, i18n } = useTranslation('legal')
+  const { t: tFeedback } = useTranslation('feedback')
   const lang = i18n.language as Lang
+
+  const giveFeedbackPoints = t('points.give_feedback_points', {
+    returnObjects: true
+  }) as string[]
+  const invitePoints = t('points.invite_points', {
+    returnObjects: true
+  }) as string[]
 
   return (
     <div className="container mx-auto px-4 py-16 md:py-18">
@@ -27,21 +35,22 @@ export default function PointsPage() {
         {/* Hero */}
         <div className="mb-12">
           <h1 className="mb-4 text-3xl font-semibold md:text-4xl">
-            Uni Feedback Points
+            {t('points.page_title')}
           </h1>
           <p className="text-muted-foreground">
             <span className="text-lg font-semibold">
-              Points reflect how much you're helping other students.
+              {t('points.intro_highlight')}
             </span>
             <br />
-            By sharing your feedback and letting other people know about Uni
-            Feedback, you help build a better academic environment for everyone!
+            {t('points.intro_rest')}
           </p>
         </div>
 
         {/* How You Earn Points */}
         <section className="mb-16">
-          <h2 className="mb-8 text-2xl font-semibold">How to earn points</h2>
+          <h2 className="mb-8 text-2xl font-semibold">
+            {t('points.how_to_earn')}
+          </h2>
 
           <div className="grid gap-12 md:grid-cols-2">
             {/* Give Feedback */}
@@ -50,52 +59,44 @@ export default function PointsPage() {
                 <div className="flex size-10 items-center justify-center rounded-full bg-muted">
                   <PenSquare className="size-5 text-muted-foreground" />
                 </div>
-                <h3 className="text-xl font-semibold">Give Feedback</h3>
+                <h3 className="text-xl font-semibold">
+                  {t('points.give_feedback_title')}
+                </h3>
               </div>
               <p className="text-muted-foreground">
-                If your feedback follows our{' '}
-                <Link
-                  to={getLocalePath('guidelines', lang)}
-                  className="font-medium underline hover:text-foreground"
-                >
-                  guidelines
-                </Link>
-                , you'll earn points based on how helpful it is:
+                <Trans
+                  i18nKey="points.give_feedback_desc"
+                  ns="legal"
+                  components={[
+                    <Link
+                      to={getLocalePath('guidelines', lang)}
+                      className="font-medium underline hover:text-foreground"
+                    />
+                  ]}
+                />
               </p>
               <ul className="mt-2 ml-4 list-disc space-y-1 text-muted-foreground mb-3">
-                <li>
-                  <strong>+1 point</strong> base for submitting feedback;
-                </li>
-                <li>
-                  <strong>+4 points</strong> for each feedback category you
-                  mention (
-                  <a
-                    href="#feedback-categories"
-                    className="font-medium underline hover:text-foreground"
-                  >
-                    see below
-                  </a>
-                  );
-                </li>
-                <li>
-                  <strong>+3 bonus points</strong> if you cover all 4
-                  categories.
-                </li>
+                {giveFeedbackPoints.map((point, i) => (
+                  <li key={i}>{point}</li>
+                ))}
               </ul>
               <p className="text-muted-foreground">
-                Ready to share your experience?{' '}
-                <Link
-                  to={`${getReviewPath(lang)}?from=points`}
-                  className="font-medium text-primary hover:underline"
-                  onClick={() => {
-                    analytics.navigation.feedbackFormLinkClicked({
-                      source: 'points_page',
-                      referrerPage: getPageName(window.location.pathname)
-                    })
-                  }}
-                >
-                  Give feedback
-                </Link>
+                <Trans
+                  i18nKey="points.give_feedback_cta"
+                  ns="legal"
+                  components={[
+                    <Link
+                      to={`${getReviewPath(lang)}?from=points`}
+                      className="font-medium text-primary hover:underline"
+                      onClick={() => {
+                        analytics.navigation.feedbackFormLinkClicked({
+                          source: 'points_page',
+                          referrerPage: getPageName(window.location.pathname)
+                        })
+                      }}
+                    />
+                  ]}
+                />
               </p>
             </div>
 
@@ -105,70 +106,68 @@ export default function PointsPage() {
                 <div className="flex size-10 items-center justify-center rounded-full bg-muted">
                   <Users className="size-5 text-muted-foreground" />
                 </div>
-                <h3 className="text-xl font-semibold">Invite Friends</h3>
+                <h3 className="text-xl font-semibold">
+                  {t('points.invite_title')}
+                </h3>
               </div>
-              <p className="text-muted-foreground">
-                Bring your classmates to Uni Feedback!
-                <br />
-                You get points once they sign up and post their first feedback:
-              </p>
+              <p className="text-muted-foreground">{t('points.invite_desc')}</p>
               <ul className="mt-2 ml-4 list-disc space-y-1 text-muted-foreground mb-3">
-                <li>
-                  <strong>+10 points</strong> for each of your first 5 friends
-                </li>
-                <li>
-                  <strong>+5 points</strong> for the next 10
-                </li>
-                <li>
-                  <strong>+1 point</strong> for each friend after that
-                </li>
+                {invitePoints.map((point, i) => (
+                  <li key={i}>{point}</li>
+                ))}
               </ul>
               <p className="text-muted-foreground">
-                You can invite friends from your{' '}
-                <Link
-                  to={getLocalePath('profile', lang)}
-                  className="font-medium text-primary hover:underline"
-                >
-                  profile page
-                </Link>
+                <Trans
+                  i18nKey="points.invite_from_profile"
+                  ns="legal"
+                  components={[
+                    <Link
+                      to={getLocalePath('profile', lang)}
+                      className="font-medium text-primary hover:underline"
+                    />
+                  ]}
+                />
               </p>
             </div>
           </div>
 
           <div className="mt-8 text-center">
             <p className="text-muted-foreground">
-              You can check your current points on your{' '}
-              <Link
-                to={getLocalePath('profile', lang)}
-                className="font-medium text-primary hover:underline"
-              >
-                profile page
-              </Link>
+              <Trans
+                i18nKey="points.check_points"
+                ns="legal"
+                components={[
+                  <Link
+                    to={getLocalePath('profile', lang)}
+                    className="font-medium text-primary hover:underline"
+                  />
+                ]}
+              />
             </p>
           </div>
         </section>
 
         {/* Feedback Categories */}
         <section id="feedback-categories" className="mb-16">
-          <h2 className="mb-2 text-2xl font-semibold">Feedback categories</h2>
+          <h2 className="mb-2 text-2xl font-semibold">
+            {t('points.categories_title')}
+          </h2>
           <p className="mb-8 text-muted-foreground">
-            We look for these four things because they're what students actually
-            care about.
-            <br />
-            Mention them <em>naturally</em> in your feedback to unlock bonus
-            points. Cover all four to get an extra 3-point bonus!
+            {t('points.categories_desc')}
           </p>
 
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
             {FEEDBACK_CATEGORIES.map((category) => (
-              <div key={category.title} className="flex gap-4">
+              <div key={category.key} className="flex gap-4">
                 <div className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-muted">
                   <category.icon className="size-6 text-muted-foreground" />
                 </div>
                 <div>
-                  <h3 className="font-semibold">{category.title}</h3>
+                  <h3 className="font-semibold">
+                    {tFeedback(`categories.${category.key}.title`)}
+                  </h3>
                   <p className="text-sm text-muted-foreground">
-                    {category.description}
+                    {tFeedback(`categories.${category.key}.description`)}
                   </p>
                 </div>
               </div>
@@ -179,14 +178,16 @@ export default function PointsPage() {
         {/* Contact CTA */}
         <div className="border-t pt-8">
           <p className="text-muted-foreground text-sm">
-            Got questions or something not clear? Email us at{' '}
-            <a
-              href="mailto:help@uni-feedback.com"
-              className="font-medium text-primary hover:underline"
-            >
-              help@uni-feedback.com
-            </a>
-            , and we'll get back to you!
+            <Trans
+              i18nKey="points.questions"
+              ns="legal"
+              components={[
+                <a
+                  href="mailto:help@uni-feedback.com"
+                  className="font-medium text-primary hover:underline"
+                />
+              ]}
+            />
           </p>
         </div>
       </div>
