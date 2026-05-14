@@ -12,7 +12,7 @@
     "loading": "A carregar..."
   },
   "footer": {
-    "tagline": "De estudantes, para estudantes. O teu companheiro para uma vida universitária melhor e mais bem-sucedida.",
+    "tagline": "De alunos, para alunos. O teu companheiro para uma vida universitária melhor e mais bem-sucedida.",
     "built_by": "Feito com ❤️ por @afonsocrg",
     "copyright": "© {{year}} Uni Feedback. Todos os direitos reservados.",
     "groups": {
@@ -30,7 +30,7 @@
       "testimonials": "Testemunhos",
       "supporters": "Apoiantes",
       "faq": "FAQ",
-      "guidelines": "Diretrizes de Feedback",
+      "guidelines": "Como dar feedback?",
       "contact": "Contacto",
       "terms": "Termos de Serviço",
       "privacy": "Política de Privacidade"

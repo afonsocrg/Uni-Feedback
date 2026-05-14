@@ -1,10 +1,10 @@
 {
   "meta": {
-    "not_found_title": "Curso Não Encontrado - Uni Feedback",
-    "not_found_desc": "O curso solicitado não foi encontrado.",
+    "not_found_title": "Cadeira Não Encontrada - Uni Feedback",
+    "not_found_desc": "A cadeira solicitada não foi encontrada.",
     "feedback_title": "Dar Feedback para {{courseName}} - Uni Feedback",
     "feedback_desc": "Partilha a tua experiência com {{courseName}} ({{acronym}}) em {{faculty}}. O teu feedback anónimo ajuda os colegas a tomar decisões informadas.",
     "reviews_title": "Avaliações de {{courseName}} ({{acronym}}) - Uni Feedback",
-    "reviews_desc": "Lê avaliações anónimas e honestas de estudantes para {{courseName}} ({{acronym}}). Obtém informações sobre carga de trabalho, avaliações e conteúdo do curso para tomar decisões informadas."
+    "reviews_desc": "Lê avaliações anónimas e honestas de alunos para {{courseName}} ({{acronym}}). Obtém informações sobre carga de trabalho, avaliações e conteúdo da cadeira para tomar decisões informadas."
   }
 }

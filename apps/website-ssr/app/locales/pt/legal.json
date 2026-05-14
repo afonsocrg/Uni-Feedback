@@ -8,38 +8,38 @@
   "supporters": {
     "meta_title": "Os Nossos Apoiantes - Uni Feedback",
     "page_title": "Os Nossos Apoiantes",
-    "subtitle": "Clubes e associações de estudantes que se juntaram ao Uni Feedback para ajudar a construir uma comunidade académica melhor",
+    "subtitle": "Clubes e associações de alunos que se juntaram ao Uni Feedback para ajudar a construir uma comunidade académica melhor",
     "section_title": "Os Nossos Apoiantes",
     "thanks": "Um enorme obrigado a todos os que se juntaram a nós nesta missão!",
     "join_cta": "Queres juntar-te a nós? Entra em contacto"
   },
   "guidelines": {
     "meta_title": "Como Escrever Bom Feedback | Uni Feedback",
-    "meta_desc": "Aprende a escrever avaliações úteis e honestas que realmente ajudam outros estudantes a tomar melhores decisões.",
+    "meta_desc": "Aprende a escrever avaliações úteis e honestas que realmente ajudam outros alunos a tomar melhores decisões.",
     "title": "Como Escrever Bom Feedback",
-    "subtitle": "Aprende a escrever avaliações úteis e honestas que realmente ajudam outros estudantes a tomar melhores decisões.",
-    "intro1": "O Uni Feedback existe para que os estudantes se possam ajudar mutuamente a fazer melhores escolhas de cursos. Cada avaliação que escreves pode ser o que ajuda outros estudantes a decidir se fazem ou não um curso. É por isso que a qualidade do que escreves importa.",
+    "subtitle": "Aprende a escrever avaliações úteis e honestas que realmente ajudam outros alunos a tomar melhores decisões.",
+    "intro1": "O Uni Feedback existe para que os alunos se possam ajudar mutuamente a fazer melhores escolhas de cadeiras. Cada avaliação que escreves pode ser o que ajuda outros alunos a decidir se fazem ou não uma cadeira. É por isso que a qualidade do que escreves importa.",
     "intro2": "Todas as avaliações são anónimas. Ninguém saberá quem escreveu o quê, por isso sente-te à vontade para partilhar a tua experiência real sem te preocupares com como irá parecer.",
     "our_values_title": "Os nossos valores",
     "value_honest_title": "Sê honesto.",
     "value_honest_desc": "A tua avaliação tem de refletir a tua experiência real. Partilha o que realmente viveste, não o que achas que soa bem, e não o que achas que os outros querem ouvir.",
     "value_helpful_title": "Sê útil.",
-    "value_helpful_desc": "Escreve como se estivesses a aconselhar um amigo que está prestes a decidir se faz ou não este curso. O que é que ele realmente precisa de saber?",
+    "value_helpful_desc": "Escreve como se estivesses a aconselhar um amigo que está prestes a decidir se faz ou não esta cadeira. O que é que ele realmente precisa de saber?",
     "writing_title": "Como escrever bom feedback",
     "writing_relevant_title": "Fala sobre o que te pareceu relevante.",
-    "writing_relevant_desc": "Se algo se destacou durante o teu tempo no curso (bom ou mau), provavelmente é relevante para outros estudantes também. Com base no feedback que recolhemos, os estudantes tendem a interessar-se por ensino, avaliação, materiais e dicas. Mas não te limites a estes. Aborda o que realmente importou para ti.",
+    "writing_relevant_desc": "Se algo se destacou durante o teu tempo na cadeira (bom ou mau), provavelmente é relevante para outros alunos também. Com base no feedback que recolhemos, os alunos tendem a interessar-se por ensino, avaliação, materiais e dicas. Mas não te limites a estes. Aborda o que realmente importou para ti.",
     "writing_specific_title": "Sê específico.",
     "writing_specific_desc": "Opiniões vagas não ajudam ninguém a decidir. \"O exame intercalar cobriu 3 semanas de conteúdo sem problemas de prática antes\" é dez vezes mais útil do que \"os exames eram injustos.\" Isso inclui mencionar professores quando relevante, especialmente quando elogias alguém.",
     "writing_personal_title": "Não te tornes pessoal.",
     "writing_personal_desc": "Quando o feedback muda para impressões sobre o carácter de alguém, começa a perder valor. Fala sobre o que aconteceu e como te afetou. Quanto mais baseado em experiência real for o teu feedback, mais peso terá.",
     "writing_friend_title": "Escreve como se estivesses a falar com um amigo.",
-    "writing_friend_desc": "Uma avaliação que soa como um estudante a falar com outro é muito mais útil do que uma polida e formal. Lembra-te que estás a falar com alguém que quer saber como foi este curso, não para um relatório de projeto.",
+    "writing_friend_desc": "Uma avaliação que soa como um aluno a falar com outro é muito mais útil do que uma polida e formal. Lembra-te que estás a falar com alguém que quer saber como foi esta cadeira, não para um relatório de projeto.",
     "writing_angry_title": "Se estiveres zangado, espera.",
-    "writing_angry_desc": "Uma avaliação escrita na frustração raramente dá a outros estudantes a informação que realmente precisam. Afasta-te, respira fundo e depois escreve.",
+    "writing_angry_desc": "Uma avaliação escrita na frustração raramente dá a outros alunos a informação que realmente precisam. Afasta-te, respira fundo e depois escreve.",
     "ai_title": "Usar IA para escrever a tua avaliação",
     "ai_desc1": "Usar IA para ajudar a escrever a tua avaliação está bem. Uso-a frequentemente para organizar os meus pensamentos ou encontrar as palavras certas para algo que quero dizer. Isso é totalmente válido, mas tem em conta:",
-    "ai_point1": "A tua avaliação tem de refletir a tua experiência. Se a IA inventou detalhes, exagerou ou preencheu lacunas que realmente não sabes, isso derrota o propósito. Outros estudantes contam com experiências reais.",
-    "ai_point2": "Não a sobre-polishes. Esta é uma plataforma para estudantes que falam com outros estudantes. Não há ninguém para impressionar e ninguém saberá que és tu. Uma avaliação que soa demasiado formal ou corporativa perde o calor que a torna realmente útil. Usa a tua própria voz, mas garante que os teus pensamentos ficam claros.",
+    "ai_point1": "A tua avaliação tem de refletir a tua experiência. Se a IA inventou detalhes, exagerou ou preencheu lacunas que realmente não sabes, isso derrota o propósito. Outros alunos contam com experiências reais.",
+    "ai_point2": "Não a sobre-polishes. Esta é uma plataforma para alunos que falam com outros alunos. Não há ninguém para impressionar e ninguém saberá que és tu. Uma avaliação que soa demasiado formal ou corporativa perde o calor que a torna realmente útil. Usa a tua própria voz, mas garante que os teus pensamentos ficam claros.",
     "not_allowed_title": "O que não permitimos",
     "not_allowed_intro": "A maior parte disto é senso comum, e a maioria das pessoas nunca precisa de ler esta lista. Mas para ficarmos todos na mesma página:",
     "not_allowed_items": [
@@ -49,26 +49,26 @@
       "Copiar outra avaliação (verificamos correspondências quase exatas)",
       "Conteúdo fabricado ou gerado por IA (que não reflete uma experiência pessoal real)"
     ],
-    "not_allowed_report": "Se vires uma avaliação que viola estas diretrizes, usa o botão de denúncia. Não publiques uma contra-avaliação.",
+    "not_allowed_report": "Se vires uma avaliação que viola estas guidelines, usa o botão de report. Não publiques uma contra-avaliação.",
     "quick_rules_title": "Algumas regras rápidas",
     "quick_rules": [
-      "Só podes submeter um feedback por curso",
-      "Devias estar a frequentar ou ter frequentado o curso",
+      "Só podes submeter um feedback por cadeira",
+      "Devias estar a frequentar ou ter frequentado a cadeira",
       "Nunca editamos a tua submissão para a fazer cumprir. Ou fica como está escrita, ou é removida",
       "Se removermos uma avaliação, entraremos em contacto para explicar o porquê e ajudar-te a atualizá-la para que possa voltar a aparecer"
     ],
     "questions": "Tens perguntas ou viste algo que não deveria estar aqui? Entra em contacto em afonso@uni-feedback.com",
     "give_feedback_link": "Dar feedback",
-    "full_guidelines_link": "Para a política de moderação completa, vê as diretrizes completas"
+    "full_guidelines_link": "Para a política de moderação completa, vê as guidelines completas"
   },
   "points": {
     "meta_title": "Como Funcionam os Pontos | Uni Feedback",
-    "meta_desc": "Aprende como ganhar Pontos do Uni Feedback ao partilhar avaliações de cursos e ao convidar amigos.",
+    "meta_desc": "Aprende como ganhar Pontos do Uni Feedback ao partilhar avaliações de cadeiras e ao convidar amigos.",
     "page_title": "Pontos Uni Feedback",
-    "intro": "Os pontos refletem o quanto estás a ajudar outros estudantes. Ao partilhar o teu feedback e ao dar a conhecer o Uni Feedback a outras pessoas, ajudas a construir um ambiente académico melhor para toda a gente!",
+    "intro": "Os pontos refletem o quanto estás a ajudar outros alunos. Ao partilhar o teu feedback e ao dar a conhecer o Uni Feedback a outras pessoas, ajudas a construir um ambiente académico melhor para toda a gente!",
     "how_to_earn": "Como ganhar pontos",
     "give_feedback_title": "Dar Feedback",
-    "give_feedback_desc": "Se o teu feedback seguir as nossas diretrizes, ganharás pontos com base na sua utilidade:",
+    "give_feedback_desc": "Se o teu feedback seguir as nossas guidelines, ganhas pontos com base no quão completo for:",
     "give_feedback_points": [
       "+1 ponto base por submeter feedback;",
       "+4 pontos por cada categoria de feedback que mencionas (ver abaixo);",
@@ -85,7 +85,7 @@
     "invite_from_profile": "Podes convidar amigos a partir da tua página de perfil",
     "check_points": "Podes verificar os teus pontos atuais na tua página de perfil",
     "categories_title": "Categorias de feedback",
-    "categories_desc": "Procuramos estas quatro coisas porque são o que os estudantes realmente se preocupam. Menciona-as naturalmente no teu feedback para desbloquear pontos bónus. Abrange todas as quatro para obter um bónus extra de 3 pontos!",
+    "categories_desc": "Procuramos estas quatro coisas porque são o que os alunos realmente se preocupam. Menciona-as naturalmente no teu feedback para desbloquear pontos bónus. Abrange todas as quatro para obter um bónus extra de 3 pontos!",
     "questions": "Tens perguntas ou algo pouco claro? Envia-nos um email para help@uni-feedback.com e respondemos-te!"
   },
   "giveaway": {
@@ -99,22 +99,22 @@
     "intro": "Esta página estabelece as regras oficiais para o Sorteio do Uni Feedback. Ao participar, concordas com as regras abaixo.",
     "section_eligibility": "1. Elegibilidade",
     "university_status_title": "Estatuto universitário",
-    "university_status_desc": "Deves ser estudante do IST, SBE, FCT ou IMS e ter um endereço de email universitário válido.",
+    "university_status_desc": "Deves ser aluno do IST, SBE, FCT ou IMS e ter um endereço de email universitário válido.",
     "account_verification_title": "Verificação de conta",
     "account_verification_desc": "Deves iniciar sessão no Uni Feedback com o teu endereço de email universitário.",
-    "one_account_title": "Uma conta por estudante",
-    "one_account_desc": "Apenas uma conta por estudante é permitida. Múltiplas contas, contas partilhadas ou variações do mesmo endereço de email resultarão em desqualificação.",
+    "one_account_title": "Uma conta por aluno",
+    "one_account_desc": "Apenas uma conta por aluno é permitida. Múltiplas contas, contas partilhadas ou variações do mesmo endereço de email resultarão em desqualificação.",
     "section_period": "2. Período do Sorteio",
     "period_desc1": "O sorteio decorre até 27 de fevereiro de 2026, 23:59:59 (hora de Lisboa).",
     "period_desc2": "Apenas os pontos ganhos até este momento contarão para o sorteio, salvo indicação em contrário abaixo.",
     "period_winner": "O vencedor será selecionado e contactado até 2 de março.",
     "section_enter": "3. Como Participar",
     "approved_feedback_title": "Feedback aprovado",
-    "approved_feedback_desc": "Para participar, deves submeter pelo menos um feedback para um curso frequentado durante o ano letivo 2025/2026.",
+    "approved_feedback_desc": "Para participar, deves submeter pelo menos um feedback para uma cadeira frequentada durante o ano letivo 2025/2026.",
     "all_feedback_must": "Todo o feedback deve:",
     "all_feedback_items": [
       "Ser submetido durante o período do sorteio",
-      "Cumprir as nossas Diretrizes de Feedback",
+      "Seguir as nossas Guidelines de Feedback",
       "Ser aprovado pelo Uni Feedback antes do sorteio"
     ],
     "zero_points_note": "Feedbacks não aprovados ganham 0 entradas.",
@@ -130,7 +130,7 @@
     "giveaway_limits_desc": "Para este sorteio, apenas consideraremos pontos ganhos de:",
     "giveaway_limits_items": [
       "Referências, e/ou",
-      "Feedback para cursos frequentados durante o ano letivo 2025/2026"
+      "Feedback para cadeiras frequentadas durante o ano letivo 2025/2026"
     ],
     "section_winner": "5. Anúncio do Vencedor & Prémio",
     "prize_title": "O prémio",
@@ -140,8 +140,8 @@
     "notification_desc": "O vencedor será notificado através do seu endereço de email universitário.",
     "announcement_title": "Anúncio público",
     "announcement_desc": "Para transparência, o vencedor será anunciado publicamente como:",
-    "announcement_format": "[Nome Próprio] [Inicial do Apelido] de [Universidade] (ex: João M. do IST).",
-    "announcement_note": "Todo o feedback de cursos permanece completamente anónimo.",
+    "announcement_format": "[Nome Próprio] [Inicial do Apelido] de [Faculdade] (ex: João M. do IST).",
+    "announcement_note": "Todo o feedback de cadeiras permanece completamente anónimo.",
     "claim_deadline_title": "Prazo de reclamação",
     "claim_deadline_desc": "O vencedor deve responder ao email de notificação no prazo de 7 dias. Se o prémio não for reclamado, um vencedor de reserva será selecionado.",
     "section_fraud": "6. Anti-Fraude & Desqualificação",
@@ -172,7 +172,7 @@
     "meta_title": "Política de Privacidade | Uni Feedback"
   },
   "guidelines_full": {
-    "meta_title": "Diretrizes de Feedback | Uni Feedback",
-    "meta_desc": "Diretrizes oficiais de publicação do Uni Feedback."
+    "meta_title": "Guidelines de Feedback | Uni Feedback",
+    "meta_desc": "Guidelines oficiais de publicação do Uni Feedback."
   }
 }

@@ -41,6 +41,23 @@
     "no_degrees": "No degrees found for this university.",
     "no_results": "No degrees found matching your search."
   },
+  "course_browser": {
+    "title": "Find a course to give feedback",
+    "subtitle": "Search or browse to find your course.",
+    "search_placeholder": "Search course by name or acronym...",
+    "university_label": "University",
+    "all_universities": "All Universities",
+    "degree_label": "Degree",
+    "all_degrees": "All Degrees",
+    "search_degree_placeholder": "Search degree...",
+    "loading": "Searching courses...",
+    "no_results": "No courses found. Try adjusting your search or filters.",
+    "your_rating": "Your rating:",
+    "previous": "← Previous",
+    "pagination": "{{from}}-{{to}} of {{total}}",
+    "next": "Next →",
+    "dialog_title": "Choose another course"
+  },
   "browse_section": {
     "no_degrees": "No degrees available for this university yet.",
     "see_all": "See all degrees →",

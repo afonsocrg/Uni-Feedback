@@ -16,7 +16,7 @@ export const routeMap = {
     file: 'routes/unsubscribe.tsx'
   },
   browse: {
-    paths: { pt: '/navegar', en: '/en/browse' },
+    paths: { pt: '/procurar', en: '/en/browse' },
     file: 'routes/browse.tsx'
   },
   giveaway: {
@@ -44,11 +44,11 @@ export const routeMap = {
     file: 'routes/privacy.tsx'
   },
   guidelines: {
-    paths: { pt: '/diretrizes', en: '/en/guidelines' },
+    paths: { pt: '/guidelines', en: '/en/guidelines' },
     file: 'routes/guidelines.tsx'
   },
   'guidelines-full': {
-    paths: { pt: '/diretrizes/completo', en: '/en/guidelines/full' },
+    paths: { pt: '/guidelines/completo', en: '/en/guidelines/full' },
     file: 'routes/guidelines.full.tsx'
   },
   points: {

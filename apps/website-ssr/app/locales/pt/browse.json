@@ -1,11 +1,11 @@
 {
   "meta": {
-    "title": "Explorar Universidades - Uni Feedback",
-    "description": "Escolhe a tua universidade para encontrares feedback cadeiras com feedback anónimo de alunos verificados."
+    "title": "Explorar Faculdades - Uni Feedback",
+    "description": "Escolhe a tua faculdade para encontrares feedback cadeiras com feedback anónimo de alunos verificados."
   },
   "page": {
-    "title": "Seleciona a Tua Universidade",
-    "request_link": "Não vês a tua universidade? Pede aqui"
+    "title": "Escolhe a Tua Faculdade",
+    "request_link": "Não vês a tua faculdade? Pede aqui"
   },
   "degree_page": {
     "search_placeholder": "Pesquisar por nome ou sigla...",
@@ -32,18 +32,35 @@
     "no_results": "Nenhuma cadeira corresponde à tua pesquisa."
   },
   "faculty_page": {
-    "title": "Seleciona a Tua Licenciatura",
-    "search_placeholder": "Pesquisar licenciaturas...",
-    "filter_label": "Tipo de Licenciatura",
+    "title": "Escolhe o teu curso",
+    "search_placeholder": "Procurar cursos...",
+    "filter_label": "Tipo de curso",
     "filter_placeholder": "Todos os Tipos",
-    "missing_degree": "Falta uma licenciatura?",
+    "missing_degree": "Falta um curso?",
     "request_link": "Pede aqui",
-    "no_degrees": "Não há licenciaturas disponíveis para esta universidade.",
-    "no_results": "Nenhuma licenciatura encontrada com essa pesquisa."
+    "no_degrees": "Não há cursos disponíveis para esta faculdade.",
+    "no_results": "Não encontrámos nenhum curso com estes filtros..."
+  },
+  "course_browser": {
+    "title": "Que cadeira queres availar?",
+    "subtitle": "Pesquisa ou navega para encontrar a tua cadeira.",
+    "search_placeholder": "Procurar por nome ou sigla...",
+    "university_label": "Faculdade",
+    "all_universities": "Todas as Faculdades",
+    "degree_label": "Curso",
+    "all_degrees": "Todos os cursos",
+    "search_degree_placeholder": "Pesquisar curso...",
+    "loading": "A procurar cadeiras...",
+    "no_results": "Nenhuma cadeira encontrada. Tenta ajustar a tua pesquisa ou filtros.",
+    "your_rating": "O teu feedback:",
+    "previous": "← Anterior",
+    "pagination": "{{from}}-{{to}} de {{total}}",
+    "next": "Próximo →",
+    "dialog_title": "Escolher outra cadeira"
   },
   "browse_section": {
-    "no_degrees": "Ainda não há licenciaturas disponíveis para esta universidade.",
-    "see_all": "Ver todas as licenciaturas →",
+    "no_degrees": "Ainda não há cursos disponíveis para esta faculdade.",
+    "see_all": "Ver todos os cursos →",
     "course_count_one": "{{count}} cadeira",
     "course_count_other": "{{count}} cadeiras",
     "feedback_count_one": "{{count}} feedback",

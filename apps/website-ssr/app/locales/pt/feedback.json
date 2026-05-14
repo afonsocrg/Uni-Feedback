@@ -5,10 +5,10 @@
     "otp_sent": "Enviámos um código de verificação para",
     "email_label": "Email Universitário",
     "email_required_title": "Email Universitário Obrigatório",
-    "email_required_desc": "Pedimos um email universitário para garantir que apenas estudantes verificados podem submeter feedback.",
+    "email_required_desc": "Pedimos um email universitário para garantir que apenas alunos verificados podem submeter feedback.",
     "need_help": "Precisas de Ajuda?",
     "help_desc": "Envia-nos um email para",
-    "placeholder": "teu.email@universidade.pt",
+    "placeholder": "teu.email@faculdade.pt",
     "sending": "A enviar...",
     "submit": "Enviar código de verificação",
     "terms_prefix": "Ao continuar, aceitas os nossos",
@@ -22,14 +22,14 @@
     "loading": "A carregar..."
   },
   "new": {
-    "meta_title": "Encontrar o Teu Curso - Uni Feedback",
-    "meta_desc": "Pesquisa e seleciona um curso para deixar feedback"
+    "meta_title": "Encontrar a Tua Cadeira - Uni Feedback",
+    "meta_desc": "Pesquisa e seleciona uma cadeira para deixar feedback"
   },
   "edit": {
     "breadcrumb_profile": "Perfil",
     "page_title": "Editar Feedback",
     "loading": "A carregar feedback...",
-    "already_submitted": "Já submeteste feedback para este curso.",
+    "already_submitted": "Já submeteste feedback para esta cadeira.",
     "can_update": "Podes atualizar o teu feedback existente abaixo.",
     "toast_updated": "Feedback atualizado com sucesso!"
   },
@@ -51,11 +51,11 @@
     "my_feedback_title": "O Meu Feedback",
     "my_feedback_cta": "Dá Feedback!",
     "my_feedback_empty": "Ainda não submeteste feedback.",
-    "my_feedback_browse": "Explorar Cursos",
+    "my_feedback_browse": "Explorar Cadeiras",
     "delete_account_btn": "Eliminar Conta",
-    "delete_account_desc": "Elimina permanentemente a tua conta e anonimiza os teus dados. O teu feedback será preservado anonimamente para ajudar outros estudantes.",
+    "delete_account_desc": "Elimina permanentemente a tua conta e anonimiza os teus dados. O teu feedback será preservado anonimamente para ajudar outros alunos.",
     "delete_dialog_title": "Eliminar Conta",
-    "delete_dialog_desc": "Esta ação não pode ser revertida. As tuas informações pessoais serão permanentemente eliminadas, mas o teu feedback permanecerá anónimo para ajudar outros estudantes.",
+    "delete_dialog_desc": "Esta ação não pode ser revertida. As tuas informações pessoais serão permanentemente eliminadas, mas o teu feedback permanecerá anónimo para ajudar outros alunos.",
     "delete_confirm_placeholder": "Introduz o teu email",
     "delete_cancel": "Cancelar",
     "delete_deleting": "A eliminar...",
