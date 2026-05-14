@@ -16,12 +16,9 @@ import { useTranslation } from 'react-i18next'
 import { redirect, useSearchParams } from 'react-router'
 import { toast } from 'sonner'
 import { z } from 'zod'
-import {
-  CourseSpecificFeedbackForm,
-  DuplicateFeedbackResolution,
-  SubmitFeedbackSuccess,
-  UpdateFeedbackSuccess
-} from '~/components'
+import { SubmitFeedbackSuccess, UpdateFeedbackSuccess } from '~/components'
+import { CourseSpecificFeedbackForm } from '~/components/CourseSpecificFeedbackForm'
+import { DuplicateFeedbackResolution } from '~/components/feedback/DuplicateFeedbackResolution'
 import { useAuth } from '~/hooks'
 import { useSubmitFeedback } from '~/hooks/queries'
 import type { Lang } from '~/i18n/config'

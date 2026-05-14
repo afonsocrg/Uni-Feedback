@@ -3,9 +3,9 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
-  RichTextEditor
+  FormMessage
 } from '@uni-feedback/ui'
+import { RichTextEditor } from '@uni-feedback/ui/components/custom/RichTextEditor'
 import { useEffect, useState } from 'react'
 import type { Control, FieldValues } from 'react-hook-form'
 import { useWatch } from 'react-hook-form'

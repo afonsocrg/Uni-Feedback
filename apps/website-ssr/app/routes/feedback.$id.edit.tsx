@@ -6,13 +6,15 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams, useSearchParams } from 'react-router'
 import { toast } from 'sonner'
 import {
-  EditFeedbackContent,
   EditFeedbackSuccess,
   GenericBreadcrumb,
   PermissionError,
-  type BreadcrumbItemData,
-  type EditFeedbackFormData
+  type BreadcrumbItemData
 } from '~/components'
+import {
+  EditFeedbackContent,
+  type EditFeedbackFormData
+} from '~/components/feedback/EditFeedbackContent'
 import { useFeedbackForEdit } from '~/hooks/queries'
 import type { Lang } from '~/i18n/config'
 import { getLocalePath } from '~/utils/i18n-routes'

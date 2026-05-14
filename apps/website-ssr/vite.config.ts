@@ -7,10 +7,25 @@ import { plugin as markdown, Mode } from 'vite-plugin-markdown'
 export default defineConfig(({ isSsrBuild }) => ({
   build: {
     rolldownOptions: isSsrBuild
-      ? {
-          input: './server/app.ts'
+      ? { input: './server/app.ts' }
+      : {
+          output: {
+            manualChunks(id) {
+              if (id.includes('@radix-ui/')) return 'vendor-radix'
+              if (
+                id.includes('react-markdown') ||
+                id.includes('/remark-') ||
+                id.includes('/rehype-') ||
+                id.includes('/micromark') ||
+                id.includes('/unified') ||
+                id.includes('/mdast-') ||
+                id.includes('/hast-') ||
+                id.includes('/unist-')
+              )
+                return 'vendor-markdown'
+            }
+          }
         }
-      : undefined
   },
   plugins: [
     tailwindcss(),
