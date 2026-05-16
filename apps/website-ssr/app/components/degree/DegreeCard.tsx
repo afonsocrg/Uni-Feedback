@@ -1,6 +1,7 @@
 import type { Degree } from '@uni-feedback/db/schema'
 import { Chip } from '@uni-feedback/ui'
 import { BookOpen, MessageSquare } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { SelectionCard } from '~/components'
 
 interface DegreeCardProps {
@@ -13,6 +14,7 @@ interface DegreeCardProps {
 }
 
 export function DegreeCard({ degree, href, onClick }: DegreeCardProps) {
+  const { t } = useTranslation('browse')
   return (
     <SelectionCard
       title={degree.name}
@@ -28,13 +30,18 @@ export function DegreeCard({ degree, href, onClick }: DegreeCardProps) {
       <div className="flex flex-wrap items-center gap-2 text-sm text-gray-600 mt-auto">
         <div className="flex items-center gap-1">
           <BookOpen className="w-4 h-4" />
-          <span>{degree.courseCount ?? 0} courses</span>
+          <span>
+            {t('browse_section.course_count', {
+              count: degree.courseCount ?? 0
+            })}
+          </span>
         </div>
         <div className="flex items-center gap-1">
           <MessageSquare className="w-4 h-4" />
           <span>
-            {degree.feedbackCount ?? 0} feedback
-            {(degree.feedbackCount ?? 0) == 1 ? '' : 's'}
+            {t('browse_section.feedback_count', {
+              count: degree.feedbackCount ?? 0
+            })}
           </span>
         </div>
       </div>

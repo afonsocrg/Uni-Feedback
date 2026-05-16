@@ -2,6 +2,7 @@ import { Button, StarRating, WorkloadRatingDisplay } from '@uni-feedback/ui'
 import { getRelativeTime } from '@uni-feedback/utils'
 import { GraduationCap } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { FeedbackMarkdown, Tooltip } from '~/components'
 import { getTruncatedText } from '~/lib/textUtils'
 
@@ -21,11 +22,15 @@ interface SimpleFeedbackCardProps {
 }
 
 export function SimpleFeedbackCard({ feedback }: SimpleFeedbackCardProps) {
+  const { i18n } = useTranslation()
   const [isExpanded, setIsExpanded] = useState(false)
   const characterLimit = 600
   const isLongComment =
     feedback.comment && feedback.comment.length > characterLimit
-  const relativeTime = getRelativeTime(new Date(feedback.createdAt))
+  const relativeTime = getRelativeTime(
+    new Date(feedback.createdAt),
+    i18n.language
+  )
 
   return (
     <div className="bg-white rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] p-6 mb-6 hover:shadow-[0px_6px_24px_rgba(0,0,0,0.08)] transition-shadow">

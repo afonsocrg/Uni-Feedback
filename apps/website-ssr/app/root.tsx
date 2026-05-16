@@ -1,3 +1,4 @@
+import '~/i18n/types'
 import './app.css'
 
 import Clarity from '@microsoft/clarity'
@@ -6,21 +7,30 @@ import { QueryClient } from '@tanstack/react-query'
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import posthog from 'posthog-js'
 import React, { useEffect } from 'react'
+import { I18nextProvider } from 'react-i18next'
 import {
   isRouteErrorResponse,
   Links,
   Meta,
   Outlet,
   Scripts,
-  ScrollRestoration
+  ScrollRestoration,
+  useLoaderData
 } from 'react-router'
 import { Toaster } from 'sonner'
 import { NotFound } from '~/components'
+import type { Lang } from '~/i18n/config'
+import { defaultLang, i18n } from '~/i18n/config'
 import { AuthProvider } from '~/providers/AuthProvider'
 import { AuthRefreshProvider } from '~/providers/AuthRefreshProvider'
 import { userPreferences } from '~/utils'
+import { detectLang } from '~/utils/i18n-routes'
 import type { Route } from './+types/root'
 import { LandingLayout } from './components/landing'
+
+// Module-level lang used for SSR: set by loader before renderToString runs.
+// Safe for Node.js single-threaded synchronous rendering.
+let _ssrLang: Lang = defaultLang
 
 export const links: Route.LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -35,6 +45,14 @@ export const links: Route.LinksFunction = () => [
   }
 ]
 
+export async function loader({ request }: Route.LoaderArgs) {
+  const url = new URL(request.url)
+  const lang = detectLang(url.pathname)
+  _ssrLang = lang
+  i18n.changeLanguage(lang)
+  return { lang }
+}
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -42,12 +60,11 @@ const queryClient = new QueryClient({
       refetchOnWindowFocus: false,
       refetchOnMount: false,
       refetchOnReconnect: false,
-      gcTime: 1000 * 60 * 60 * 24 // 24 hours for SSR hydration
+      gcTime: 1000 * 60 * 60 * 24
     }
   }
 })
 
-// Create persister only on client side to avoid SSR issues
 const persister =
   typeof window !== 'undefined'
     ? createAsyncStoragePersister({
@@ -56,7 +73,6 @@ const persister =
     : undefined
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  // Inject runtime environment variables for Docker/SSR
   const envScript =
     typeof process !== 'undefined'
       ? `window.ENV = ${JSON.stringify({
@@ -69,7 +85,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       : ''
 
   return (
-    <html lang="en" className="scroll-smooth">
+    <html lang={_ssrLang} className="scroll-smooth">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -92,13 +108,20 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  const { lang } = useLoaderData<typeof loader>()
+
   useEffect(() => {
-    // Initialize user preferences and handle migration
     userPreferences.initialize()
 
-    // Initialize PostHog (client-side only, disabled in development)
+    // Sync lang attribute and i18n on client-side navigation
+    if (i18n.language !== lang) {
+      i18n.changeLanguage(lang)
+    }
+    document.documentElement.lang = lang
+  }, [lang])
+
+  useEffect(() => {
     if (typeof window !== 'undefined' && !import.meta.env.DEV) {
-      // Read from runtime injection (Docker/SSR) or fallback to build-time
       const windowEnv = (
         window as typeof window & { ENV?: Record<string, string> }
       ).ENV
@@ -129,7 +152,7 @@ export default function App() {
           person_profiles: 'identified_only',
           capture_pageview: true,
           capture_pageleave: true,
-          defaults: '2025-05-24' // Use 2025 defaults for automatic SPA pageview tracking
+          defaults: '2025-05-24'
         })
         console.log('[PostHog] Successfully initialized')
       } catch (error) {
@@ -138,10 +161,10 @@ export default function App() {
     } else if (import.meta.env.DEV) {
       console.log('[PostHog] Disabled in development mode')
     }
+  }, [])
 
-    // Initialize Microsoft Clarity (client-side only, disabled in development)
+  useEffect(() => {
     if (typeof window !== 'undefined' && !import.meta.env.DEV) {
-      // Read from runtime injection (Docker/SSR) or fallback to build-time
       const windowEnv = (
         window as typeof window & { ENV?: Record<string, string> }
       ).ENV
@@ -172,26 +195,27 @@ export default function App() {
   }, [])
 
   return (
-    <AuthProvider>
-      <AuthRefreshProvider>
-        <PersistQueryClientProvider
-          client={queryClient}
-          persistOptions={{ persister }}
-        >
-          <Toaster position="top-right" richColors />
-          <Outlet />
-          {import.meta.env.DEV && (
-            <React.Suspense fallback={null}>
-              <ReactQueryDevtools initialIsOpen={false} />
-            </React.Suspense>
-          )}
-        </PersistQueryClientProvider>
-      </AuthRefreshProvider>
-    </AuthProvider>
+    <I18nextProvider i18n={i18n}>
+      <AuthProvider>
+        <AuthRefreshProvider>
+          <PersistQueryClientProvider
+            client={queryClient}
+            persistOptions={{ persister }}
+          >
+            <Toaster position="top-right" richColors />
+            <Outlet />
+            {import.meta.env.DEV && (
+              <React.Suspense fallback={null}>
+                <ReactQueryDevtools initialIsOpen={false} />
+              </React.Suspense>
+            )}
+          </PersistQueryClientProvider>
+        </AuthRefreshProvider>
+      </AuthProvider>
+    </I18nextProvider>
   )
 }
 
-// Lazy load devtools only in development
 const ReactQueryDevtools = import.meta.env.DEV
   ? React.lazy(() =>
       import('@tanstack/react-query-devtools').then((m) => ({

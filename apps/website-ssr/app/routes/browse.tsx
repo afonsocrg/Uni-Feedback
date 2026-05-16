@@ -1,6 +1,8 @@
 import { database } from '@uni-feedback/db'
 import { Button, WarningAlert } from '@uni-feedback/ui'
 import { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useLocation } from 'react-router'
 import { BrowsePageLayout, FacultySelector } from '~/components'
 import { userPreferences } from '~/utils'
 import { SITE_URL } from '~/utils/constants'
@@ -89,21 +91,21 @@ export async function loader() {
 }
 
 export default function BrowsePage({ loaderData }: Route.ComponentProps) {
-  // Persist selection when component mounts
+  const { t } = useTranslation('browse')
+  const location = useLocation()
+
+  // Persist the actual visited path (lang-aware)
   useEffect(() => {
-    userPreferences.set({
-      lastVisitedPath: '/browse'
-    })
-  }, [])
+    userPreferences.set({ lastVisitedPath: location.pathname })
+  }, [location.pathname])
 
   return (
     <BrowsePageLayout
-      title="Select Your University"
+      title={t('page.title')}
       actions={
         <WarningAlert
           message={
             <>
-              Don't see your university?{' '}
               <Button
                 variant="link"
                 size="xs"
@@ -115,7 +117,7 @@ export default function BrowsePage({ loaderData }: Route.ComponentProps) {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  Request it here
+                  {t('page.request_link')}
                 </a>
               </Button>
             </>

@@ -5,8 +5,10 @@ import {
   DialogTitle
 } from '@uni-feedback/ui'
 import { ArrowRight, Check, X } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { FEEDBACK_CATEGORIES } from '~/utils/constants'
+import { getLocalePath, type Lang } from '~/utils/i18n-routes'
 
 interface ReviewTipsDialogProps {
   open: boolean
@@ -17,6 +19,9 @@ export function ReviewTipsDialog({
   open,
   onOpenChange
 }: ReviewTipsDialogProps) {
+  const { t, i18n } = useTranslation('feedback')
+  const lang = i18n.language as Lang
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[500px]">
@@ -62,14 +67,16 @@ export function ReviewTipsDialog({
             </p>
             <div className="space-y-3">
               {FEEDBACK_CATEGORIES.map((category) => (
-                <div key={category.title} className="flex gap-3">
+                <div key={category.key} className="flex gap-3">
                   <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-gray-100">
                     <category.icon className="size-4 text-gray-600" />
                   </div>
                   <div>
-                    <h4 className="font-medium text-sm">{category.title}</h4>
+                    <h4 className="font-medium text-sm">
+                      {t(`categories.${category.key}.title`)}
+                    </h4>
                     <p className="text-xs text-gray-600">
-                      {category.description}
+                      {t(`categories.${category.key}.description`)}
                     </p>
                   </div>
                 </div>
@@ -81,7 +88,7 @@ export function ReviewTipsDialog({
         {/* Footer with link */}
         <div className="pt-2">
           <Link
-            to="/guidelines"
+            to={getLocalePath('guidelines', lang)}
             className="text-sm text-primaryBlue hover:text-primaryBlue/80 font-medium inline-flex items-center gap-1"
             onClick={() => onOpenChange(false)}
           >

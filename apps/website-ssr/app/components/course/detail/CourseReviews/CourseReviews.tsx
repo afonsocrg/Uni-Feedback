@@ -1,6 +1,7 @@
 import type { Feedback } from '@uni-feedback/db/schema'
 import { Button } from '@uni-feedback/ui'
 import { useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import {
   AskForFeedback,
@@ -16,6 +17,7 @@ interface CourseReviewsProps {
 }
 
 export function CourseReviews({ course, feedback }: CourseReviewsProps) {
+  const { t } = useTranslation('course')
   const reviewFormUrl = useMemo(() => {
     return `/courses/${course.id}/feedback?from=course_reviews`
   }, [course.id])
@@ -24,7 +26,7 @@ export function CourseReviews({ course, feedback }: CourseReviewsProps) {
     <>
       <div className="flex flex-wrap gap-2 justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold text-gray-800">
-          Student Feedback
+          {t('reviews.heading')}
         </h2>
         {feedback && feedback.length > 0 && (
           <div className="flex gap-3">
@@ -43,7 +45,7 @@ export function CourseReviews({ course, feedback }: CourseReviewsProps) {
                   })
                 }}
               >
-                Give Feedback!
+                {t('reviews.give_feedback')}
               </Link>
             </Button>
           </div>

@@ -1,4 +1,5 @@
 import { Button } from '@uni-feedback/ui'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { AskForFeedback, type CourseDetail } from '~/components'
 import { getFullUrl } from '~/utils'
@@ -13,16 +14,16 @@ export function CourseReviewContentEmpty({
   reviewFormUrl,
   course
 }: CourseReviewContentEmptyProps) {
+  const { t } = useTranslation('course')
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center gap-6 rounded-lg">
       <div className="text-5xl">💬</div>
       <div>
         <h3 className="text-xl font-semibold mb-2">
-          No feedback for this course yet
+          {t('reviews.empty_heading')}
         </h3>
         <p className="text-gray-600 max-w-md mx-auto">
-          Be the first to share your experience, or ask your friends to leave
-          feedback! Your input helps future students make better choices.
+          {t('reviews.empty_desc')}
         </p>
       </div>
       <div className="flex flex-col sm:flex-row gap-3 mt-2">
@@ -41,7 +42,7 @@ export function CourseReviewContentEmpty({
               })
             }}
           >
-            Give Feedback!
+            {t('reviews.give_feedback')}
           </Link>
         </Button>
       </div>

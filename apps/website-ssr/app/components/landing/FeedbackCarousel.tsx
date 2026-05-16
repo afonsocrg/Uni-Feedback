@@ -1,5 +1,6 @@
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import type { Feedback } from '@uni-feedback/db'
 import { LandingFeedbackCard } from '~/components'
@@ -13,6 +14,7 @@ export function FeedbackCarousel({
   feedbacks,
   browseLink
 }: FeedbackCarouselProps) {
+  const { t } = useTranslation('landing')
   const [currentIndex, setCurrentIndex] = useState(0)
 
   // Add 1 to account for the placeholder card
@@ -52,7 +54,7 @@ export function FeedbackCarousel({
           <button
             onClick={handlePrev}
             className="flex-shrink-0 cursor-pointer hover:opacity-70 transition-opacity"
-            aria-label="Previous feedback"
+            aria-label={t('feedback_carousel.prev_aria')}
           >
             <ChevronLeft className="size-8 text-gray-700" />
           </button>
@@ -78,17 +80,17 @@ export function FeedbackCarousel({
                 <div className="bg-white rounded-xl border-2 border-dashed border-gray-200 p-6 h-full flex flex-col items-center justify-center text-center gap-4">
                   <div>
                     <h3 className="font-semibold text-gray-900 text-lg mb-2">
-                      Want to see more?
+                      {t('feedback_carousel.want_more')}
                     </h3>
                     <p className="text-sm text-gray-600 mb-4">
-                      Browse hundreds of feedbacks from students like you
+                      {t('feedback_carousel.subtitle')}
                     </p>
                   </div>
                   <a
                     href={browseLink}
                     className="text-primary hover:underline font-medium flex items-center gap-2"
                   >
-                    More Feedback
+                    {t('feedback_carousel.button')}
                     <ArrowRight className="size-4" />
                   </a>
                 </div>
@@ -100,7 +102,7 @@ export function FeedbackCarousel({
           <button
             onClick={handleNext}
             className="flex-shrink-0 cursor-pointer hover:opacity-70 transition-opacity"
-            aria-label="Next feedback"
+            aria-label={t('feedback_carousel.next_aria')}
           >
             <ChevronRight className="size-8 text-gray-700" />
           </button>
@@ -117,7 +119,9 @@ export function FeedbackCarousel({
                   ? 'w-8 bg-primary'
                   : 'w-2 bg-gray-300 hover:bg-gray-400'
               }`}
-              aria-label={`Go to feedback ${index + 1}`}
+              aria-label={t('feedback_carousel.go_to_aria', {
+                index: index + 1
+              })}
               aria-current={index === currentIndex ? 'true' : 'false'}
             />
           ))}

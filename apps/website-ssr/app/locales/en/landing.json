@@ -1,0 +1,179 @@
+{
+  "hero": {
+    "title": "Know what students <highlight>really think</highlight> about your courses",
+    "subtitle": "Anonymous feedback from verified students",
+    "stats": "{{feedbackCount}}+ reviews · {{contributors}}+ contributors · 100% free"
+  },
+  "search": {
+    "placeholder": "Search courses, degrees, faculties...",
+    "aria_label": "Search courses, degrees and faculties",
+    "tab_courses": "Courses",
+    "tab_degrees": "Degrees",
+    "tab_faculties": "Faculties",
+    "browse_all": "Browse all courses →",
+    "reviews_count": "{{count}} reviews"
+  },
+  "cta": {
+    "join_text": "Join {{count}}+ students who already contributed.",
+    "button": "Add my experience →",
+    "note": "100% anonymous · Takes 2 minutes"
+  },
+  "contribute_cta": {
+    "title": "Share what you wish you'd known.",
+    "subtitle": "Give feedback once, helps hundreds of students for years.",
+    "button": "Help the next student →"
+  },
+  "contribute_strip": {
+    "text": "Taken a course? Leave a review →"
+  },
+  "how_it_works": {
+    "title": "How It Works",
+    "browse": {
+      "title": "Browse Courses",
+      "desc": "Search and filter hundreds of courses to find the ones that fit your interests and criteria."
+    },
+    "read": {
+      "title": "Read Feedback",
+      "desc": "See what past students say about the course, its contents, workload, teaching style, etc."
+    },
+    "enroll": {
+      "title": "Enroll With Confidence",
+      "desc": "Use what you learned to choose the right courses for you."
+    }
+  },
+  "trust": {
+    "title": "Trusted & Secure",
+    "verified": {
+      "title": "Reviews You Can Trust",
+      "subtitle": "Verified Feedback",
+      "desc": "We manually review and approve every feedback to ensure it comes from a student who actually took the course."
+    },
+    "anonymous": {
+      "title": "100% Anonymous",
+      "desc": "Your feedback is always anonymous, and we never disclose information about the students who submit it."
+    },
+    "space": {
+      "title": "A space that belongs to students",
+      "desc": "Uni Feedback is student-run and independent from any university. No institution can influence what gets published here. Here you'll find the good, the bad, and the ugly."
+    },
+    "real_students": {
+      "title": "Only real students, from real universities",
+      "desc": "We want our feedback to be legit. Every contributor authenticates with their university email before submitting."
+    },
+    "anonymous_submissions": {
+      "title": "Your feedback is 100% anonymous",
+      "desc": "We want students to feel safe sharing their experience. Nobody, not other students, not professors, not your university, will ever know you wrote it.",
+      "note": "Internally, your submission is linked to your account so you can manage it, and so our team can reach out if something needs attention. That link never leaves Uni Feedback."
+    },
+    "reviewed": {
+      "title": "All feedback is reviewed",
+      "desc": "We read every submission. If something doesn't follow our <0>guidelines</0>, we remove it and reach out to help the author update it, so it can go back up. Every opinion is welcome. All of them."
+    }
+  },
+  "testimonials": {
+    "title": "What students say about us",
+    "subtitle": "Real students sharing their experience with Uni Feedback",
+    "cta": "Using Uni Feedback? Tell us what you think!"
+  },
+  "browse_section": {
+    "title": "What are you studying?",
+    "see_all": "See all degrees →",
+    "no_degrees": "No degrees available for this university yet."
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "subtitle": "Everything you need to know about Uni Feedback",
+    "items": [
+      {
+        "question": "Is Uni Feedback free?",
+        "answer": "Yes. Completely free. For everyone."
+      },
+      {
+        "question": "Is Uni Feedback affiliated with my university?",
+        "answer": "**No.** This is a student-run platform, independent from any university. No institution controls what gets published here. Students share their honest experience freely."
+      },
+      {
+        "question": "Can professors see who wrote a review?",
+        "answer": "**No.** Professors can read reviews, but they'll never know who wrote what. Your identity is never revealed to anyone. Not to professors, other students, or your university."
+      },
+      {
+        "question": "How do I know reviews are real?",
+        "answer": "Every contributor signs in with their university email before submitting. Your email is never displayed or shared."
+      },
+      {
+        "question": "Do I need to create an account to submit feedback?",
+        "answer": "You need to authenticate with your university email to submit. When you do it for the first time, an account is automatically created."
+      },
+      {
+        "question": "My course isn't listed. What can I do?",
+        "answer": "[Reach out to me!](mailto:afonso@uni-feedback.com) I'll be happy to add your course, degree, or university."
+      },
+      {
+        "question": "What language should I write my feedback in?",
+        "answer": "Write in the language you're most comfortable with."
+      },
+      {
+        "question": "How long until my review appears after I submit it?",
+        "answer": "**Your feedback is published immediately.** I read every submission. If something doesn't follow our [guidelines]({{guidelinesUrl}}), I'll reach out and let you know."
+      },
+      {
+        "question": "Can I edit or delete my feedback after submitting?",
+        "answer": "**Yes.** Go to your [profile page](/en/profile) to see all the feedback you've submitted. You can edit or delete it from there."
+      },
+      {
+        "question": "Who runs Uni Feedback? Is it a company?",
+        "answer": "Uni Feedback is run by me, Afonso. I'm someone who really wants to help students make more informed decisions."
+      },
+      {
+        "question": "What happens if I see a review that seems fake or unfair?",
+        "answer": "You can report it. Whenever I receive a report, I'll re-evaluate the review and remove it if it doesn't follow our [guidelines]({{guidelinesUrl}})."
+      }
+    ],
+    "contact_prompt": "Have another question? DM us on <0>Instagram</0> or write to <1>afonso@uni-feedback.com</1>."
+  },
+  "impact": {
+    "title": "Our Impact",
+    "subtitle": "Join a growing community of students making better academic decisions",
+    "courses_reviewed": "Courses Reviewed",
+    "students_helped": "Students Helped",
+    "contributors": "Active Contributors"
+  },
+  "more_than_network": {
+    "quote": "Sometimes the <highlight>most useful feedback</highlight> comes from someone we've <highlight>never met</highlight>.",
+    "desc": "Here you can find feedback from hundreds students. Not just those you happen to know."
+  },
+  "loved_by_students": {
+    "title": "Loved by Hundreds of Students at"
+  },
+  "supporters_section": {
+    "title": "Supported by",
+    "see_all": "See all"
+  },
+  "feedback_carousel": {
+    "want_more": "Want to see more?",
+    "subtitle": "Browse hundreds of feedbacks from students like you",
+    "button": "More Feedback",
+    "prev_aria": "Previous feedback",
+    "next_aria": "Next feedback",
+    "go_to_aria": "Go to feedback {{index}}"
+  },
+  "recent_feed": {
+    "title": "Recent feedback",
+    "scroll_left": "Scroll left",
+    "scroll_right": "Scroll right"
+  },
+  "universities_strip": {
+    "prefix": "Currently supporting"
+  },
+  "founder": {
+    "quote1": "In university, my friends and I would often ask other students about courses (workload, professors, exams, tips, etc.). But the answers would get lost in group chats.",
+    "quote2": "So I built a place for all that feedback.",
+    "attribution": "— Afonso"
+  },
+  "contact_section": {
+    "title": "Get in Touch",
+    "desc": "Found a bug? Have a suggestion? Just want to say hi? I'd love to hear from you. Your feedback (😉) helps make Uni Feedback better for everyone.",
+    "email": "Email Me",
+    "linkedin": "Connect on LinkedIn"
+  }
+}

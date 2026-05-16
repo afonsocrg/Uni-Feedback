@@ -7,8 +7,11 @@ import type {
 import { Button, WarningAlert } from '@uni-feedback/ui'
 import { toOrdinal } from '@uni-feedback/utils'
 import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { insensitiveMatch } from '~/utils'
 import { loadCourseFilters, saveCourseFilters } from '~/utils/filterStorage'
+import type { Lang } from '~/utils/i18n-routes'
+import { getCoursePath } from '~/utils/i18n-routes'
 import { BrowsePageLayout, CourseCard } from '.'
 import { FilterChip } from './common/FilterChip'
 import { SearchInput } from './common/SearchInput'
@@ -41,6 +44,8 @@ export function DegreePageContent({
   courses,
   courseGroups
 }: DegreePageContentProps) {
+  const { t, i18n } = useTranslation('browse')
+  const lang = i18n.language as Lang
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCurriculumYear, setSelectedCurriculumYear] = useState<
     number | null
@@ -125,7 +130,9 @@ export function DegreePageContent({
   // Filter options
   const curriculumYearOptions = availableCurriculumYears.map((year) => ({
     value: year.toString(),
-    label: `${toOrdinal(year)} year`
+    label: t('degree_page.year_option', {
+      year: lang === 'en' ? toOrdinal(year) : year
+    })
   }))
 
   const termOptions = availableTerms.map((term) => ({
@@ -139,15 +146,15 @@ export function DegreePageContent({
   }))
 
   const examTypeOptions = [
-    { value: 'true', label: 'Exam: Mandatory' },
-    { value: 'false', label: 'Exam: Optional' }
+    { value: 'true', label: t('degree_page.exam_mandatory') },
+    { value: 'false', label: t('degree_page.exam_optional') }
   ]
 
   const sortOptions: { value: SortOption; label: string }[] = [
-    { value: 'rating', label: 'Highest Rating' },
-    { value: 'alphabetical', label: 'Alphabetical' },
-    { value: 'reviews', label: 'Most Reviews' },
-    { value: 'workload', label: 'Workload Rating' }
+    { value: 'rating', label: t('degree_page.sort_highest_rating') },
+    { value: 'alphabetical', label: t('degree_page.sort_alphabetical') },
+    { value: 'reviews', label: t('degree_page.sort_most_reviews') },
+    { value: 'workload', label: t('degree_page.sort_workload') }
   ]
 
   // Filtered courses based on search and filters
@@ -223,7 +230,7 @@ export function DegreePageContent({
   ])
 
   const getCourseUrl = (course: CourseWithFeedback) => {
-    return `/courses/${course.id}`
+    return getCoursePath(lang, course.id)
   }
 
   return (
@@ -235,59 +242,59 @@ export function DegreePageContent({
         <SearchInput
           value={searchQuery}
           onChange={setSearchQuery}
-          placeholder="Search by name or acronym..."
+          placeholder={t('degree_page.search_placeholder')}
         />
       }
       filterChips={
         <div className="flex flex-wrap gap-2 items-center">
           <FilterChip
-            label="Sort By"
+            label={t('degree_page.sort_label')}
             options={sortOptions}
             selectedValue={sortBy}
             onValueChange={(value) => setSortBy(value as SortOption)}
-            placeholder="Most Reviews"
+            placeholder={t('degree_page.sort_default')}
             variant="sort"
           />
           {curriculumYearOptions.length > 0 && (
             <FilterChip
-              label="Year"
+              label={t('degree_page.year_label')}
               options={curriculumYearOptions}
               selectedValue={selectedCurriculumYear?.toString() ?? null}
               onValueChange={(value) =>
                 setSelectedCurriculumYear(value ? Number(value) : null)
               }
-              placeholder="All Years"
+              placeholder={t('degree_page.all_years')}
             />
           )}
           {termOptions.length > 0 && (
             <FilterChip
-              label="Term"
+              label={t('degree_page.term_label')}
               options={termOptions}
               selectedValue={selectedTerm}
               onValueChange={setSelectedTerm}
-              placeholder="All Terms"
+              placeholder={t('degree_page.all_terms')}
             />
           )}
           {courseGroupOptions.length > 0 && (
             <FilterChip
-              label="Course Group"
+              label={t('degree_page.group_label')}
               options={courseGroupOptions}
               selectedValue={selectedCourseGroupId?.toString() ?? null}
               onValueChange={(value) =>
                 setSelectedCourseGroupId(value ? Number(value) : null)
               }
-              placeholder="All Groups"
+              placeholder={t('degree_page.all_groups')}
             />
           )}
           {hasExamFilterOptions && (
             <FilterChip
-              label="Exam"
+              label={t('degree_page.exam_label')}
               options={examTypeOptions}
               selectedValue={mandatoryExamFilter?.toString() ?? null}
               onValueChange={(value) =>
                 setMandatoryExamFilter(value === null ? null : value === 'true')
               }
-              placeholder="Exam: Any"
+              placeholder={t('degree_page.exam_any')}
             />
           )}
         </div>
@@ -296,7 +303,7 @@ export function DegreePageContent({
         <WarningAlert
           message={
             <>
-              Missing a course?{' '}
+              {t('degree_page.missing_course')}{' '}
               <Button
                 variant="link"
                 size="xs"
@@ -308,7 +315,7 @@ export function DegreePageContent({
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  Request it here
+                  {t('degree_page.request_link')}
                 </a>
               </Button>
             </>
@@ -318,11 +325,11 @@ export function DegreePageContent({
     >
       {!courses || courses.length === 0 ? (
         <div className="text-center text-gray-500 py-8">
-          No courses found for this degree.
+          {t('degree_page.no_courses')}
         </div>
       ) : filteredCourses.length === 0 ? (
         <div className="text-center text-gray-500 py-8">
-          No courses match your search criteria.
+          {t('degree_page.no_results')}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

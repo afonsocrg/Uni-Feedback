@@ -1,6 +1,13 @@
 import type { Course, Degree, Faculty } from '@uni-feedback/db/schema'
 import { Home } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { userPreferences } from '~/utils'
+import type { Lang } from '~/utils/i18n-routes'
+import {
+  getDegreePath,
+  getFacultyPath,
+  getLocalePath
+} from '~/utils/i18n-routes'
 import { GenericBreadcrumb, type BreadcrumbItemData } from './GenericBreadcrumb'
 
 interface BreadcrumbProps {
@@ -16,30 +23,37 @@ export function Breadcrumb({
   degree,
   course
 }: BreadcrumbProps) {
+  const { t, i18n } = useTranslation()
+  const lang = i18n.language as Lang
+
+  const browsePath = getLocalePath('browse', lang)
+
   const handleHomeClick = () => {
-    // Clear user preferences and navigate to browse page
     userPreferences.set({
       lastSelectedFacultySlug: undefined,
       lastSelectedDegreeSlug: undefined,
-      lastVisitedPath: '/browse'
+      lastVisitedPath: browsePath
     })
   }
 
   const handleFacultyClick = () => {
-    // Update preferences to faculty level only
     userPreferences.set({
       lastSelectedFacultySlug: faculty?.slug ?? undefined,
       lastSelectedDegreeSlug: undefined,
-      lastVisitedPath: `/${faculty?.slug}`
+      lastVisitedPath: faculty?.slug
+        ? getFacultyPath(lang, faculty.slug)
+        : browsePath
     })
   }
 
   const handleDegreeClick = () => {
-    // Update preferences to degree level
     userPreferences.set({
       lastSelectedFacultySlug: faculty?.slug ?? undefined,
       lastSelectedDegreeSlug: degree?.slug ?? undefined,
-      lastVisitedPath: `/${faculty?.slug}/${degree?.slug}`
+      lastVisitedPath:
+        faculty?.slug && degree?.slug
+          ? getDegreePath(lang, faculty.slug, degree.slug)
+          : browsePath
     })
   }
 
@@ -48,10 +62,10 @@ export function Breadcrumb({
       label: (
         <>
           <Home className="h-3 w-3 mr-1" />
-          Select Uni
+          {t('breadcrumb.select_uni')}
         </>
       ),
-      href: '/browse',
+      href: browsePath,
       onClick: handleHomeClick
     }
   ]
@@ -59,7 +73,7 @@ export function Breadcrumb({
   if (faculty) {
     items.push({
       label: faculty.shortName,
-      href: `/${faculty.slug}`,
+      href: getFacultyPath(lang, faculty.slug),
       onClick: handleFacultyClick
     })
   }
@@ -67,7 +81,7 @@ export function Breadcrumb({
   if (faculty && degree) {
     items.push({
       label: degree.acronym,
-      href: course ? `/${faculty.slug}/${degree.slug}` : undefined,
+      href: course ? getDegreePath(lang, faculty.slug, degree.slug) : undefined,
       onClick: course ? handleDegreeClick : undefined,
       isActive: !course
     })

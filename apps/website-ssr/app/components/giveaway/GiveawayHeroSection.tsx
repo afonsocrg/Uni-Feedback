@@ -1,8 +1,13 @@
 import { Button } from '@uni-feedback/ui'
 import { ArrowRight } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
+import { getLocalePath, type Lang } from '~/utils/i18n-routes'
 
 export function GiveawayHeroSection() {
+  const { i18n } = useTranslation()
+  const lang = i18n.language as Lang
+
   return (
     <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden">
       {/* Background Image */}
@@ -37,7 +42,7 @@ export function GiveawayHeroSection() {
             </Button>
             <div>
               <Link
-                to="/giveaway/rules"
+                to={getLocalePath('giveaway-rules', lang)}
                 className="text-sm text-white/90 hover:text-white underline"
               >
                 View Official Rules

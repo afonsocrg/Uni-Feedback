@@ -5,7 +5,10 @@ import {
   TabsList,
   TabsTrigger
 } from '@uni-feedback/ui'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
+import type { Lang } from '~/utils/i18n-routes'
+import { getLocalePath } from '~/utils/i18n-routes'
 import { markdown } from '../../../../legal/giveaway_rules.md'
 
 export function meta() {
@@ -20,6 +23,9 @@ export function meta() {
 }
 
 function StructuredVersion() {
+  const { i18n } = useTranslation()
+  const lang = i18n.language as Lang
+
   return (
     <div className="mx-auto max-w-3xl">
       {/* Hero */}
@@ -108,7 +114,7 @@ function StructuredVersion() {
               <li>
                 Comply with our{' '}
                 <Link
-                  to="/guidelines"
+                  to={getLocalePath('guidelines', lang)}
                   className="font-medium text-primary hover:underline"
                 >
                   Feedback Guidelines
@@ -154,7 +160,7 @@ function StructuredVersion() {
               How points are earned for feedback and referrals is explained on
               the{' '}
               <Link
-                to="/points"
+                to={getLocalePath('points', lang)}
                 className="font-medium text-primary hover:underline"
               >
                 Point System Page
@@ -270,7 +276,7 @@ function StructuredVersion() {
           <p>
             For information about how your data is handled, please see our{' '}
             <Link
-              to="/privacy"
+              to={getLocalePath('privacy', lang)}
               className="font-medium text-primary hover:underline"
             >
               Privacy Policy

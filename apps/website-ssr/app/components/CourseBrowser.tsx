@@ -2,6 +2,7 @@ import { type CourseSearchResult, type Faculty } from '@uni-feedback/api-client'
 import { StarRating } from '@uni-feedback/ui'
 import { ChevronRight, Loader2, Pencil } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useFacultyDegrees, useSearchCourses } from '~/hooks/queries'
 import { useDebounce } from '~/hooks/useDebounce'
 import { storage } from '~/utils/storage'
@@ -22,6 +23,7 @@ export function CourseBrowser({
   onCourseSelectWithDetails,
   compact = false
 }: CourseBrowserProps) {
+  const { t } = useTranslation('browse')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedFacultyId, setSelectedFacultyId] = useState<
     number | undefined
@@ -114,10 +116,10 @@ export function CourseBrowser({
         {!compact && (
           <div className="text-center space-y-2">
             <h1 className="text-xl md:text-4xl font-bold text-gray-900 tracking-tight">
-              Find a course to give feedback
+              {t('course_browser.title')}
             </h1>
             <p className="text-gray-500 text-base md:text-lg">
-              Search or browse to find your course.
+              {t('course_browser.subtitle')}
             </p>
           </div>
         )}
@@ -127,12 +129,12 @@ export function CourseBrowser({
           <SearchInput
             value={searchQuery}
             onChange={setSearchQuery}
-            placeholder="Search course by name or acronym..."
+            placeholder={t('course_browser.search_placeholder')}
           />
 
           <div className="flex flex-wrap gap-2 items-center">
             <FilterChip
-              label="University"
+              label={t('course_browser.university_label')}
               options={faculties.map((f) => ({
                 value: f.id.toString(),
                 label: f.shortName
@@ -145,12 +147,12 @@ export function CourseBrowser({
                 }
                 setSelectedFacultyId(newFacultyId)
               }}
-              placeholder="All Universities"
+              placeholder={t('course_browser.all_universities')}
             />
 
             {selectedFacultyId && degrees.length > 0 && (
               <SearchableFilterChip
-                label="Degree"
+                label={t('course_browser.degree_label')}
                 options={degrees.map((d) => ({
                   value: d.id.toString(),
                   label: `${d.acronym} - ${d.name}`
@@ -159,8 +161,10 @@ export function CourseBrowser({
                 onValueChange={(val) =>
                   setSelectedDegreeId(val ? Number(val) : undefined)
                 }
-                placeholder="All Degrees"
-                searchPlaceholder="Search degree..."
+                placeholder={t('course_browser.all_degrees')}
+                searchPlaceholder={t(
+                  'course_browser.search_degree_placeholder'
+                )}
               />
             )}
 
@@ -174,11 +178,11 @@ export function CourseBrowser({
         {isLoading ? (
           <div className="text-center py-16">
             <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2 text-primaryBlue" />
-            <p className="text-gray-600">Searching courses...</p>
+            <p className="text-gray-600">{t('course_browser.loading')}</p>
           </div>
         ) : results?.courses.length === 0 ? (
           <div className="text-center py-16 text-gray-500">
-            <p>No courses found. Try adjusting your search or filters.</p>
+            <p>{t('course_browser.no_results')}</p>
           </div>
         ) : (
           <>
@@ -202,7 +206,7 @@ export function CourseBrowser({
                       {course.hasUserFeedback && course.userRating && (
                         <div className="flex items-center gap-1.5">
                           <span className="text-xs text-gray-400">
-                            Your rating:
+                            {t('course_browser.your_rating')}
                           </span>
                           <StarRating value={course.userRating} size="sm" />
                         </div>
@@ -228,18 +232,21 @@ export function CourseBrowser({
                   onClick={() => setOffset(Math.max(0, offset - limit))}
                   className="text-gray-600 hover:text-primaryBlue disabled:text-gray-300 disabled:cursor-not-allowed cursor-pointer transition-colors"
                 >
-                  ← Previous
+                  {t('course_browser.previous')}
                 </button>
                 <span className="text-gray-400 text-xs">
-                  {offset + 1}-{Math.min(offset + limit, results.total)} of{' '}
-                  {results.total}
+                  {t('course_browser.pagination', {
+                    from: offset + 1,
+                    to: Math.min(offset + limit, results.total),
+                    total: results.total
+                  })}
                 </span>
                 <button
                   disabled={offset + limit >= results.total}
                   onClick={() => setOffset(offset + limit)}
                   className="text-gray-600 hover:text-primaryBlue disabled:text-gray-300 disabled:cursor-not-allowed cursor-pointer transition-colors"
                 >
-                  Next →
+                  {t('course_browser.next')}
                 </button>
               </div>
             )}

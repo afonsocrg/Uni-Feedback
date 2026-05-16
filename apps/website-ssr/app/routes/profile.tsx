@@ -23,6 +23,7 @@ import {
 import { AlertTriangle, Check, Copy, HelpCircle, User } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -33,8 +34,10 @@ import {
 } from '~/components'
 import { useRequiredAuth } from '~/hooks'
 import { useProfileFeedback, useProfileStats } from '~/hooks/queries'
+import type { Lang } from '~/i18n/config'
 import { analytics, getPageName } from '~/utils/analytics'
 import { STORAGE_KEYS } from '~/utils/constants'
+import { getLocalePath, getReviewPath } from '~/utils/i18n-routes'
 
 export function meta() {
   return [
@@ -53,6 +56,8 @@ const deleteAccountSchema = z.object({
 type DeleteAccountFormData = z.infer<typeof deleteAccountSchema>
 
 export default function ProfilePage() {
+  const { t, i18n } = useTranslation('feedback')
+  const lang = i18n.language as Lang
   const { user, logout } = useRequiredAuth()
   const navigate = useNavigate()
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
@@ -107,7 +112,7 @@ export default function ProfilePage() {
       localStorage.removeItem(STORAGE_KEYS.AUTH_USER)
       setShowDeleteDialog(false)
       toast.success('Your account has been deleted successfully')
-      navigate('/')
+      navigate(getLocalePath('home', lang))
       await logout()
     } catch (error) {
       console.error('Delete account error:', error)
@@ -171,10 +176,10 @@ export default function ProfilePage() {
                           friends. Points unlock rewards and recognition!
                         </p>
                         <Link
-                          to="/points"
+                          to={getLocalePath('points', lang)}
                           className="text-primary hover:underline text-xs font-medium"
                         >
-                          Learn more &rarr;
+                          {t('profile.learn_more')}
                         </Link>
                       </PopoverContent>
                     </Popover>
@@ -253,7 +258,7 @@ export default function ProfilePage() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold">Your Feedback</h2>
             <Link
-              to="/feedback/new?from=profile"
+              to={`${getReviewPath(lang)}?from=profile`}
               onClick={() => {
                 analytics.navigation.feedbackFormLinkClicked({
                   source: 'profile_page',
@@ -261,7 +266,7 @@ export default function ProfilePage() {
                 })
               }}
             >
-              <Button>Give Feedback!</Button>
+              <Button>{t('profile.my_feedback_cta')}</Button>
             </Link>
           </div>
           {isFeedbackLoading ? (
@@ -281,8 +286,10 @@ export default function ProfilePage() {
               <p className="text-sm text-muted-foreground mb-4">
                 You haven't submitted any feedback yet.
               </p>
-              <Link to="/browse">
-                <Button variant="outline">Browse Courses</Button>
+              <Link to={getLocalePath('browse', lang)}>
+                <Button variant="outline">
+                  {t('profile.my_feedback_browse')}
+                </Button>
               </Link>
             </div>
           )}

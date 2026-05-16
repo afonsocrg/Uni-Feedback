@@ -1,6 +1,8 @@
 import { Button } from '@uni-feedback/ui'
 import { ArrowRight, LogIn, PenSquare, Trophy } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { analytics, getPageName } from '~/utils/analytics'
+import { getReviewPath, type Lang } from '~/utils/i18n-routes'
 
 const STEPS = [
   {
@@ -29,6 +31,9 @@ const STEPS = [
 ]
 
 export function HowToWinSection() {
+  const { i18n } = useTranslation()
+  const lang = i18n.language as Lang
+
   return (
     <section id="how-to-win" className="bg-white py-16 md:py-24 scroll-mt-16">
       <div className="container mx-auto px-4">
@@ -59,7 +64,7 @@ export function HowToWinSection() {
           <div className="text-center">
             <Button size="lg" className="text-lg px-8" asChild>
               <a
-                href="/feedback/new?from=giveaway"
+                href={`${getReviewPath(lang)}?from=giveaway`}
                 onClick={() => {
                   analytics.navigation.feedbackFormLinkClicked({
                     source: 'giveaway_how_to_win',

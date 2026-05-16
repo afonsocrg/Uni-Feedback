@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { getAssetUrl } from '~/utils'
 
 interface Faculty {
@@ -12,6 +13,7 @@ interface UniversitiesStripProps {
 }
 
 export function UniversitiesStrip({ faculties }: UniversitiesStripProps) {
+  const { t } = useTranslation('landing')
   const withLogos = faculties.filter((f) => f.logoHorizontal || f.logo)
 
   if (withLogos.length === 0) return null
@@ -19,7 +21,7 @@ export function UniversitiesStrip({ faculties }: UniversitiesStripProps) {
   return (
     <div className="w-full py-3 px-4">
       <p className="text-xs text-muted-foreground text-center mb-2">
-        Currently supporting
+        {t('universities_strip.prefix')}
       </p>
       <div className="overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <div className="flex gap-6 items-center justify-center w-max mx-auto px-2">

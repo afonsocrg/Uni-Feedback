@@ -1,4 +1,5 @@
 import { Markdown } from '@uni-feedback/ui'
+import { useTranslation } from 'react-i18next'
 
 interface CourseDescriptionProps {
   course: {
@@ -7,17 +8,18 @@ interface CourseDescriptionProps {
 }
 
 export function CourseDescription({ course }: CourseDescriptionProps) {
+  const { t } = useTranslation('course')
   return (
     <div className="mb-8">
       <div className="flex items-center gap-2 mb-4">
-        <h2 className="text-2xl font-semibold text-gray-800">Description</h2>
+        <h2 className="text-2xl font-semibold text-gray-800">
+          {t('tabs.description')}
+        </h2>
       </div>
       {course.description ? (
         <Markdown>{course.description}</Markdown>
       ) : (
-        <p className="text-gray-600 italic">
-          We don't have a description for this course yet.
-        </p>
+        <p className="text-gray-600 italic">{t('description.no_content')}</p>
       )}
     </div>
   )

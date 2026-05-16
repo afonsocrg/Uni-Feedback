@@ -10,8 +10,15 @@ import {
 } from '@uni-feedback/api-client'
 import { Search } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import type { Lang } from '~/i18n/config'
+import { getCoursePath, getLocalePath } from '~/utils/i18n-routes'
 
 export function HeroSearchBar() {
+  const { t, i18n } = useTranslation('landing')
+  const lang = i18n.language as Lang
+  const browsePath = getLocalePath('browse', lang)
+
   const [query, setQuery] = useState('')
   const [courses, setCourses] = useState<CourseSearchResult[]>([])
   const [degrees, setDegrees] = useState<DegreeSearchResult[]>([])
@@ -67,7 +74,7 @@ export function HeroSearchBar() {
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && query.trim()) {
-      window.location.href = '/browse'
+      window.location.href = browsePath
     }
     if (e.key === 'Escape') {
       setOpen(false)
@@ -87,9 +94,9 @@ export function HeroSearchBar() {
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
           onFocus={() => hasResults && setOpen(true)}
-          placeholder="Search courses, degrees, faculties..."
+          placeholder={t('search.placeholder')}
           className="w-full pl-12 pr-4 h-12 text-base font-light rounded-xl border border-input bg-background shadow-sm focus:outline-none focus:border-primary transition-colors placeholder:text-muted-foreground/50"
-          aria-label="Search courses, degrees and faculties"
+          aria-label={t('search.aria_label')}
           autoComplete="off"
         />
       </div>
@@ -99,12 +106,12 @@ export function HeroSearchBar() {
           {courses.length > 0 && (
             <>
               <div className="px-3 pt-3 pb-1 text-xs text-semibold text-muted-foreground/70">
-                Courses
+                {t('search.tab_courses')}
               </div>
               {courses.map((course) => (
                 <a
                   key={course.id}
-                  href={`/courses/${course.id}`}
+                  href={getCoursePath(lang, course.id)}
                   className="flex items-center justify-between pl-6 pr-3 py-2.5 hover:bg-muted transition-colors"
                 >
                   <div className="min-w-0 mr-3">
@@ -134,13 +141,13 @@ export function HeroSearchBar() {
           {degrees.length > 0 && (
             <>
               <div className="px-3 pt-3 pb-1 text-xs text-muted-foreground/70">
-                Degrees
+                {t('search.tab_degrees')}
               </div>
               {degrees.map((degree) => {
                 const href =
                   degree.faculty.slug && degree.slug
                     ? `/${degree.faculty.slug}/${degree.slug}`
-                    : '/browse'
+                    : browsePath
                 return (
                   <a
                     key={degree.id}
@@ -157,7 +164,9 @@ export function HeroSearchBar() {
                     </div>
                     {degree.reviewCount > 0 && (
                       <span className="text-xs text-muted-foreground flex-shrink-0">
-                        {degree.reviewCount} reviews
+                        {t('search.reviews_count', {
+                          count: degree.reviewCount
+                        })}
                       </span>
                     )}
                   </a>
@@ -169,10 +178,10 @@ export function HeroSearchBar() {
           {faculties.length > 0 && (
             <>
               <div className="px-3 pt-3 pb-1 text-xs text-muted-foreground/70 border-t">
-                Faculties
+                {t('search.tab_faculties')}
               </div>
               {faculties.map((faculty) => {
-                const href = faculty.slug ? `/${faculty.slug}` : '/browse'
+                const href = faculty.slug ? `/${faculty.slug}` : browsePath
                 return (
                   <a
                     key={faculty.id}
@@ -184,7 +193,9 @@ export function HeroSearchBar() {
                     </span>
                     {faculty.reviewCount > 0 && (
                       <span className="text-xs text-muted-foreground flex-shrink-0 ml-3">
-                        {faculty.reviewCount} reviews
+                        {t('search.reviews_count', {
+                          count: faculty.reviewCount
+                        })}
                       </span>
                     )}
                   </a>
@@ -195,10 +206,10 @@ export function HeroSearchBar() {
 
           <div className="border-t px-3 py-2.5">
             <a
-              href="/browse"
+              href={browsePath}
               className="text-xs text-muted-foreground hover:text-foreground transition-colors"
             >
-              Browse all courses →
+              {t('search.browse_all')}
             </a>
           </div>
         </div>

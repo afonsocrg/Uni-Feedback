@@ -25,10 +25,12 @@ import {
   Trash2
 } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { toast } from 'sonner'
 import { FeedbackCategoryChips, FeedbackMarkdown } from '~/components'
 import { getTruncatedText } from '~/lib/textUtils'
+import { getCoursePath, getLocalePath, type Lang } from '~/utils/i18n-routes'
 
 interface ProfileFeedbackCardProps {
   feedback: {
@@ -54,6 +56,9 @@ interface ProfileFeedbackCardProps {
 }
 
 export function ProfileFeedbackCard({ feedback }: ProfileFeedbackCardProps) {
+  const { i18n } = useTranslation()
+  const lang = i18n.language as Lang
+
   const [isExpanded, setIsExpanded] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -62,7 +67,10 @@ export function ProfileFeedbackCard({ feedback }: ProfileFeedbackCardProps) {
   const characterLimit = 600
   const isLongComment =
     feedback.comment && feedback.comment.length > characterLimit
-  const relativeTime = getRelativeTime(new Date(feedback.createdAt))
+  const relativeTime = getRelativeTime(
+    new Date(feedback.createdAt),
+    i18n.language
+  )
 
   const handleDelete = async () => {
     setIsDeleting(true)
@@ -105,7 +113,7 @@ export function ProfileFeedbackCard({ feedback }: ProfileFeedbackCardProps) {
             <PopoverContent className="w-48 p-2">
               <div className="flex flex-col gap-1">
                 <Link
-                  to={`/courses/${feedback.courseId}`}
+                  to={getCoursePath(lang, feedback.courseId)}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -118,7 +126,12 @@ export function ProfileFeedbackCard({ feedback }: ProfileFeedbackCardProps) {
                     Open Course Page
                   </Button>
                 </Link>
-                <Link to={`/feedback/${feedback.id}/edit`}>
+                <Link
+                  to={getLocalePath('feedback-edit', lang).replace(
+                    ':id',
+                    String(feedback.id)
+                  )}
+                >
                   <Button
                     variant="ghost"
                     size="sm"
@@ -185,7 +198,7 @@ export function ProfileFeedbackCard({ feedback }: ProfileFeedbackCardProps) {
                       </div>
                     )}
                     <Link
-                      to="/points"
+                      to={getLocalePath('points', lang)}
                       className="text-sm text-primary hover:underline inline-block"
                     >
                       Learn more about points →

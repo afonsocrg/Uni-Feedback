@@ -3,12 +3,13 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
-  RichTextEditor
+  FormMessage
 } from '@uni-feedback/ui'
+import { RichTextEditor } from '@uni-feedback/ui/components/custom/RichTextEditor'
 import { useEffect, useState } from 'react'
 import type { Control, FieldValues } from 'react-hook-form'
 import { useWatch } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { ReviewTipsDialog } from '~/components'
 import { useDebounce } from '~/hooks'
 import { useFeedbackCategorization } from '~/hooks/useFeedbackCategorization'
@@ -23,7 +24,7 @@ export function CommentSection({
   control,
   onDebouncedChange
 }: CommentSectionProps) {
-  // Internal state for review tips dialog
+  const { t } = useTranslation('feedback')
   const [showReviewTips, setShowReviewTips] = useState(false)
 
   // Only this component watches the comment field - uses useWatch not form.watch
@@ -53,13 +54,10 @@ export function CommentSection({
         render={({ field }) => (
           <FormItem>
             <FormLabel className="text-base font-medium text-gray-900">
-              Share your experience
+              {t('form.comment_label')}
             </FormLabel>
             <div className="space-y-1.5">
-              <p className="text-xs text-gray-400">
-                Sharing your thoughts helps others the most! Here are some
-                aspects to consider:
-              </p>
+              <p className="text-xs text-gray-400">{t('form.comment_hint')}</p>
               <FeedbackCategoryChips
                 categories={categories}
                 isLoading={isCategorizing}
@@ -68,7 +66,7 @@ export function CommentSection({
             </div>
             <FormControl>
               <RichTextEditor
-                placeholder="What should other students know? (e.g., tips for the exam, how to handle the labs...)"
+                placeholder={t('form.comment_placeholder')}
                 value={field.value}
                 onChange={field.onChange}
               />

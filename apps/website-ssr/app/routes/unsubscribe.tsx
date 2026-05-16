@@ -1,12 +1,17 @@
 import { unsubscribeFromReminders } from '@uni-feedback/api-client'
 import { CheckCircle, Home, Loader2, XCircle } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
 import { MessagePage } from '~/components'
+import type { Lang } from '~/i18n/config'
+import { getLocalePath } from '~/utils/i18n-routes'
 
 type UnsubscribeStatus = 'loading' | 'success' | 'error' | 'no-token'
 
 export default function Unsubscribe() {
+  const { t, i18n } = useTranslation('legal')
+  const lang = i18n.language as Lang
   const [searchParams] = useSearchParams()
   const token = searchParams.get('token')
 
@@ -44,11 +49,11 @@ export default function Unsubscribe() {
   if (status === 'no-token') {
     return (
       <MessagePage
-        heading="Invalid Link"
+        heading={t('unsubscribe.invalid_title')}
         buttons={[
           {
-            label: 'Go to Home',
-            href: '/',
+            label: t('unsubscribe.go_home'),
+            href: getLocalePath('home', lang),
             icon: Home
           }
         ]}
@@ -56,11 +61,7 @@ export default function Unsubscribe() {
         <div className="flex justify-center">
           <XCircle className="size-16 text-red-500" />
         </div>
-        <p>
-          This unsubscribe link is invalid.
-          <br />
-          Please use the link from your email.
-        </p>
+        <p>{t('unsubscribe.invalid_desc')}</p>
       </MessagePage>
     )
   }
@@ -72,10 +73,10 @@ export default function Unsubscribe() {
           <div className="flex flex-col items-center space-y-4">
             <Loader2 className="size-16 text-primary animate-spin" />
             <h1 className="text-2xl font-bold text-center">
-              Processing your request...
+              {t('unsubscribe.processing_title')}
             </h1>
             <p className="text-center text-muted-foreground">
-              Please wait a moment
+              {t('unsubscribe.processing_desc')}
             </p>
           </div>
         </div>
@@ -86,11 +87,11 @@ export default function Unsubscribe() {
   if (status === 'error') {
     return (
       <MessagePage
-        heading="Unsubscribe Failed"
+        heading={t('unsubscribe.failed_title')}
         buttons={[
           {
-            label: 'Go to Home',
-            href: '/',
+            label: t('unsubscribe.go_home'),
+            href: getLocalePath('home', lang),
             icon: Home
           }
         ]}
@@ -105,11 +106,11 @@ export default function Unsubscribe() {
 
   return (
     <MessagePage
-      heading="Unsubscribed"
+      heading={t('unsubscribe.success_title')}
       buttons={[
         {
-          label: 'Go to Home',
-          href: '/',
+          label: t('unsubscribe.go_home'),
+          href: getLocalePath('home', lang),
           icon: Home
         }
       ]}

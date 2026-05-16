@@ -1,7 +1,10 @@
 import { Separator } from '@uni-feedback/ui'
 import { GraduationCap, Instagram } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useLastVisitedPath } from '~/hooks/useLastVisitedPath'
+import type { Lang } from '~/i18n/config'
 import { analytics, getPageName } from '~/utils/analytics'
+import { getLocalePath, getReviewPath } from '~/utils/i18n-routes'
 import { FooterLink } from './FooterLink'
 
 interface FooterLinkItem {
@@ -16,17 +19,20 @@ interface FooterLinkGroup {
 }
 
 export function LandingFooter() {
+  const { t, i18n } = useTranslation()
+  const lang = i18n.language as Lang
   const lastVisitedPath = useLastVisitedPath()
-  const browseLink = lastVisitedPath !== '/' ? lastVisitedPath : '/browse'
+  const browsePath = getLocalePath('browse', lang)
+  const browseLink = lastVisitedPath !== '/' ? lastVisitedPath : browsePath
 
   const FOOTER_LINK_GROUPS: FooterLinkGroup[] = [
     {
-      title: 'Explore',
+      title: t('footer.groups.explore'),
       links: [
-        { href: browseLink, label: 'Browse Courses' },
+        { href: browseLink, label: t('footer.links.browse_courses') },
         {
-          href: '/feedback/new?from=footer',
-          label: 'Give Feedback',
+          href: `${getReviewPath(lang)}?from=footer`,
+          label: t('footer.links.give_feedback'),
           onClick: () => {
             analytics.navigation.feedbackFormLinkClicked({
               source: 'footer',
@@ -37,17 +43,29 @@ export function LandingFooter() {
       ]
     },
     {
-      title: 'Rewards',
+      title: t('footer.groups.rewards'),
       links: [
-        { href: '/points', label: 'Earn Points' },
-        { href: '/giveaway', label: 'Giveaway' }
+        {
+          href: getLocalePath('points', lang),
+          label: t('footer.links.earn_points')
+        },
+        {
+          href: getLocalePath('giveaway', lang),
+          label: t('footer.links.giveaway')
+        }
       ]
     },
     {
-      title: 'About',
+      title: t('footer.groups.about'),
       links: [
-        { href: '/#testimonials', label: 'Testimonials' },
-        { href: '/supporters', label: 'Supporters' }
+        {
+          href: `${getLocalePath('home', lang)}#testimonials`,
+          label: t('footer.links.testimonials')
+        },
+        {
+          href: getLocalePath('supporters', lang),
+          label: t('footer.links.supporters')
+        }
         // {
         //   href: 'https://github.com/afonsocrg/uni-feedback',
         //   label: 'Open Source'
@@ -55,18 +73,30 @@ export function LandingFooter() {
       ]
     },
     {
-      title: 'Help',
+      title: t('footer.groups.help'),
       links: [
-        { href: '/#faq', label: 'FAQ' },
-        { href: '/guidelines', label: 'Feedback Guidelines' },
-        { href: '/contact', label: 'Contact' }
+        {
+          href: `${getLocalePath('home', lang)}#faq`,
+          label: t('footer.links.faq')
+        },
+        {
+          href: getLocalePath('guidelines', lang),
+          label: t('footer.links.guidelines')
+        },
+        {
+          href: getLocalePath('contact', lang),
+          label: t('footer.links.contact')
+        }
       ]
     },
     {
-      title: 'Legal',
+      title: t('footer.groups.legal'),
       links: [
-        { href: '/terms', label: 'Terms of Service' },
-        { href: '/privacy', label: 'Privacy Policy' }
+        { href: getLocalePath('terms', lang), label: t('footer.links.terms') },
+        {
+          href: getLocalePath('privacy', lang),
+          label: t('footer.links.privacy')
+        }
       ]
     }
   ]
@@ -81,8 +111,7 @@ export function LandingFooter() {
               <span className="text-lg font-semibold">Uni Feedback</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              From students, for students. Your companion for building a better
-              and successful university experience.
+              {t('footer.tagline')}
             </p>
             <a
               href="https://www.instagram.com/unifeedback"
@@ -113,8 +142,8 @@ export function LandingFooter() {
         </div>
         <Separator className="my-8" />
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-          <p>Built with ❤️ by @afonsocrg</p>
-          <p>© {new Date().getFullYear()} Uni Feedback. All rights reserved.</p>
+          <p>{t('footer.built_by')}</p>
+          <p>{t('footer.copyright', { year: new Date().getFullYear() })}</p>
         </div>
       </div>
     </footer>

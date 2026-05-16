@@ -4,13 +4,14 @@ import { AuthGuard, ProfilePageSkeleton } from '~/components'
 export default function AuthLayout() {
   const location = useLocation()
 
-  // Determine loading component based on route
   const getLoadingComponent = () => {
-    if (location.pathname === '/profile') {
+    if (
+      location.pathname === '/perfil' ||
+      location.pathname === '/en/profile'
+    ) {
       return <ProfilePageSkeleton />
     }
-    // Add more route-specific skeletons here as needed
-    return undefined // Falls back to default spinner
+    return undefined
   }
 
   return (

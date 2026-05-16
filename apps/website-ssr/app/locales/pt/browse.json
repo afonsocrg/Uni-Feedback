@@ -1,0 +1,69 @@
+{
+  "meta": {
+    "title": "Explorar Faculdades - Uni Feedback",
+    "description": "Encontra feedback anónimo de alunos sobre cadeiras, professores, exames e carga de trabalho."
+  },
+  "page": {
+    "title": "Escolhe a tua faculdade",
+    "request_link": "Não vês a tua faculdade? Pede aqui"
+  },
+  "degree_page": {
+    "search_placeholder": "Pesquisar por nome ou sigla...",
+    "sort_label": "Ordenar Por",
+    "sort_default": "Mais feedback",
+    "year_label": "Ano",
+    "year_option": "{{year}}º ano",
+    "all_years": "Todos os Anos",
+    "term_label": "Semestre",
+    "all_terms": "Todos os Semestres",
+    "group_label": "Grupo de Cadeiras",
+    "all_groups": "Todos os Grupos",
+    "exam_label": "Exame",
+    "exam_any": "Exame: Qualquer",
+    "exam_mandatory": "Exame: Obrigatório",
+    "exam_optional": "Exame: Facultativo",
+    "sort_highest_rating": "Melhor avaliadas",
+    "sort_alphabetical": "A-Z",
+    "sort_most_reviews": "Mais feedback",
+    "sort_workload": "Carga de trabalho",
+    "missing_course": "Falta alguma cadeira?",
+    "request_link": "Pede aqui",
+    "no_courses": "Não há cadeiras disponíveis para este curso.",
+    "no_results": "Nenhuma cadeira corresponde à tua pesquisa."
+  },
+  "faculty_page": {
+    "title": "Escolhe o teu curso",
+    "search_placeholder": "Procurar cursos...",
+    "filter_label": "Tipo de curso",
+    "filter_placeholder": "Todos os Tipos",
+    "missing_degree": "Falta um curso?",
+    "request_link": "Pede aqui",
+    "no_degrees": "Não há cursos disponíveis para esta faculdade.",
+    "no_results": "Nenhum curso corresponde aos filtros."
+  },
+  "course_browser": {
+    "title": "Sobre que cadeira é o teu feedback?",
+    "subtitle": "",
+    "search_placeholder": "Procurar por nome ou sigla...",
+    "university_label": "Faculdade",
+    "all_universities": "Todas as Faculdades",
+    "degree_label": "Curso",
+    "all_degrees": "Todos os cursos",
+    "search_degree_placeholder": "Pesquisar curso...",
+    "loading": "A procurar cadeiras...",
+    "no_results": "Nenhuma cadeira encontrada. Tenta ajustar a tua pesquisa ou filtros.",
+    "your_rating": "O teu feedback:",
+    "previous": "← Anterior",
+    "pagination": "{{from}}-{{to}} de {{total}}",
+    "next": "Próximo →",
+    "dialog_title": "Outra cadeira"
+  },
+  "browse_section": {
+    "no_degrees": "Ainda não há cursos disponíveis para esta faculdade.",
+    "see_all": "Ver todos os cursos →",
+    "course_count_one": "{{count}} cadeira",
+    "course_count_other": "{{count}} cadeiras",
+    "feedback_count_one": "{{count}} feedback",
+    "feedback_count_other": "{{count}} feedback"
+  }
+}

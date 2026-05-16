@@ -12,23 +12,23 @@ import { getCurrentSchoolYear } from '@uni-feedback/utils'
 import { and, eq } from 'drizzle-orm'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { redirect, useSearchParams } from 'react-router'
 import { toast } from 'sonner'
 import { z } from 'zod'
-import {
-  CourseSpecificFeedbackForm,
-  DuplicateFeedbackResolution,
-  SubmitFeedbackSuccess,
-  UpdateFeedbackSuccess
-} from '~/components'
+import { SubmitFeedbackSuccess, UpdateFeedbackSuccess } from '~/components'
+import { CourseSpecificFeedbackForm } from '~/components/CourseSpecificFeedbackForm'
+import { DuplicateFeedbackResolution } from '~/components/feedback/DuplicateFeedbackResolution'
 import { useAuth } from '~/hooks'
 import { useSubmitFeedback } from '~/hooks/queries'
+import type { Lang } from '~/i18n/config'
 import { getCurrentUserId } from '~/lib/auth.server'
 import {
   analytics,
   getPageName,
   type FeedbackEntryPoint
 } from '~/utils/analytics'
+import { detectLang, getReviewPath } from '~/utils/i18n-routes'
 
 import type { Route } from './+types/course.$courseId.feedback'
 
@@ -83,7 +83,12 @@ export async function loader({ params, request }: Route.LoaderArgs) {
       .limit(1)
 
     if (existing) {
-      throw redirect(`/feedback/${existing.id}/edit?redirected=1`)
+      const lang = detectLang(new URL(request.url).pathname)
+      const editPath =
+        lang === 'en'
+          ? `/en/feedback/${existing.id}/edit`
+          : `/feedback/${existing.id}/editar`
+      throw redirect(`${editPath}?redirected=1`)
     }
   }
 
@@ -109,6 +114,8 @@ export async function loader({ params, request }: Route.LoaderArgs) {
 export default function CourseSpecificFeedbackPage({
   loaderData
 }: Route.ComponentProps) {
+  const { i18n } = useTranslation('feedback')
+  const lang = i18n.language as Lang
   const { course } = loaderData
   const [searchParams] = useSearchParams()
   const submitFeedbackMutation = useSubmitFeedback()
@@ -330,7 +337,7 @@ export default function CourseSpecificFeedbackPage({
     setDuplicateFeedback(null)
 
     // Redirect to feedback browser to select another course
-    window.location.href = '/feedback/new'
+    window.location.href = getReviewPath(lang)
   }
 
   // Show submit success screen

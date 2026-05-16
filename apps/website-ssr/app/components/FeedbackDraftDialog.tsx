@@ -11,6 +11,7 @@ import {
 } from '@uni-feedback/ui'
 import { getRelativeTime } from '@uni-feedback/utils'
 import { Clock } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { FeedbackMarkdown } from './feedback'
 
 interface FeedbackDraftDialogProps {
@@ -36,7 +37,8 @@ export function FeedbackDraftDialog({
   onRestore,
   onDiscard
 }: FeedbackDraftDialogProps) {
-  const timeAgo = getRelativeTime(draftTimestamp)
+  const { i18n } = useTranslation()
+  const timeAgo = getRelativeTime(draftTimestamp, i18n.language)
   const hasComment = comment.trim().length > 0
 
   return (

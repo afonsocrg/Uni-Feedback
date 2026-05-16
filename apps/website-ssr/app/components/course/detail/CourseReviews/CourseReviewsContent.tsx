@@ -4,6 +4,7 @@ import { CourseReviewContentEmpty, SchoolYearSection } from '~/components'
 import { WarningAlert } from '@uni-feedback/ui'
 import { getCurrentSchoolYear } from '@uni-feedback/utils'
 import { useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { CourseDetail } from '~/components'
 
 const itemVariants = {
@@ -25,6 +26,7 @@ export function CourseReviewsContent({
   courseId,
   feedback
 }: CourseReviewsContentProps) {
+  const { t } = useTranslation('course')
   const reviewFormUrl = useMemo(() => {
     return `/courses/${courseId}/feedback?from=course_reviews`
   }, [courseId])
@@ -57,7 +59,7 @@ export function CourseReviewsContent({
         return (
           <div key={schoolYear}>
             {isFirstOutdated && (
-              <WarningAlert message="The reviews below this point may be outdated. Course content, teaching methods, and requirements may have changed since then." />
+              <WarningAlert message={t('reviews.outdated_warning')} />
             )}
             <SchoolYearSection
               schoolYear={schoolYear}

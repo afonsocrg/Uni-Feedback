@@ -1,94 +1,42 @@
+import { Trans, useTranslation } from 'react-i18next'
+import type { Lang } from '~/i18n/config'
+import { getLocalePath } from '~/utils/i18n-routes'
 import { FAQ, type FAQItem } from './FAQ'
 
-const LANDING_FAQ_ITEMS: FAQItem[] = [
-  {
-    question: 'Is Uni Feedback free?',
-    answer: 'Yes. Completely free. For everyone.'
-  },
-  {
-    question: 'Is Uni Feedback affiliated with my university?',
-    answer:
-      '**No.** This is a student-run platform, independent from any university. No institution controls what gets published here. Students share their honest experience freely.'
-  },
-  {
-    question: 'Can professors see who wrote a review?',
-    answer:
-      "**No.** Professors can read reviews, but they'll never know who wrote what. Your identity is never revealed to anyone. Not to professors, other students, or your university."
-  },
-  {
-    question: 'How do I know reviews are real?',
-    answer:
-      'Every contributor signs in with their university email before submitting. Your email is never displayed or shared.'
-  },
-  {
-    question: 'Do I need to create an account to submit feedback?',
-    answer:
-      'You need to authenticate with your university email to submit. When you do it for the first time, an account is automatically created.'
-  },
-  // {
-  //   question: 'How recent is the feedback?',
-  //   answer:
-  //     "**The most recent reviews always appear first.** Every review also shows which school year it's from, so you always know how old the feedback is."
-  // },
-  {
-    question: "My course isn't listed. What can I do?",
-    answer:
-      "[Reach out to me!](mailto:afonso@uni-feedback.com) I'll be happy to add your course, degree, or university."
-  },
-  {
-    question: 'What language should I write my feedback in?',
-    answer: "Write in the language you're most comfortable with."
-  },
-  {
-    question: 'How long until my review appears after I submit it?',
-    answer:
-      "**Your feedback is published immediately.** I read every submission. If something doesn't follow our guidelines, I'll reach out and let you know."
-  },
-  {
-    question: 'Can I edit or delete my feedback after submitting?',
-    answer:
-      "**Yes.** Go to your [profile page](/profile) to see all the feedback you've submitted. You can edit or delete it from there."
-  },
-  {
-    question: 'Who runs Uni Feedback? Is it a company?',
-    answer:
-      "Uni Feedback is run by me, Afonso. I'm someone who really wants to help students make more informed decisions."
-  },
-  {
-    question: 'What happens if I see a review that seems fake or unfair?',
-    answer:
-      "You can report it. Whenever I receive a report, I'll re-evaluate the review and remove it if it doesn't follow our guidelines."
-  }
-]
-
 export function LandingFAQSection() {
+  const { t, i18n } = useTranslation('landing')
+  const guidelinesUrl = getLocalePath('guidelines', i18n.language as Lang)
+  const items = t('faq.items', {
+    returnObjects: true,
+    guidelinesUrl
+  }) as FAQItem[]
+
   return (
     <section id="faq" className="py-16 md:py-24 bg-muted/30">
       <div className="container mx-auto px-4">
         <div className="max-w-3xl mx-auto">
           <h2 className="font-heading text-3xl md:text-4xl font-semibold tracking-tight text-center mb-4 text-balance">
-            Frequently Asked Questions
+            {t('faq.title')}
           </h2>
           <p className="text-center text-muted-foreground mb-12">
-            Everything you need to know about Uni Feedback
+            {t('faq.subtitle')}
           </p>
-          <FAQ items={LANDING_FAQ_ITEMS} />
+          <FAQ items={items} />
           <p className="text-center text-sm text-muted-foreground mt-8">
-            Have another question? DM us on{' '}
-            <a
-              href="https://instagram.com/unifeedback"
-              className="text-primary hover:underline font-medium"
-            >
-              Instagram
-            </a>{' '}
-            or write to{' '}
-            <a
-              href="mailto:afonso@uni-feedback.com"
-              className="text-primary hover:underline font-medium"
-            >
-              afonso@uni-feedback.com
-            </a>
-            .
+            <Trans
+              i18nKey="faq.contact_prompt"
+              ns="landing"
+              components={[
+                <a
+                  href="https://instagram.com/unifeedback"
+                  className="text-primary hover:underline font-medium"
+                />,
+                <a
+                  href="mailto:afonso@uni-feedback.com"
+                  className="text-primary hover:underline font-medium"
+                />
+              ]}
+            />
           </p>
         </div>
       </div>

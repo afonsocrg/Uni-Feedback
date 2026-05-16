@@ -1,7 +1,9 @@
 import type { Feedback } from '@uni-feedback/db/schema'
 import { StarRating, WorkloadRatingDisplay } from '@uni-feedback/ui'
-import { getFeedbackPermalink } from '@uni-feedback/utils'
+import { useTranslation } from 'react-i18next'
 import { stripMarkdown } from '~/lib/textUtils'
+import type { Lang } from '~/utils/i18n-routes'
+import { getCoursePath } from '~/utils/i18n-routes'
 import { FeedbackCardFooter } from './FeedbackCardFooter'
 
 interface LandingFeedbackCardProps {
@@ -18,7 +20,9 @@ interface LandingFeedbackCardProps {
 }
 
 export function LandingFeedbackCard({ feedback }: LandingFeedbackCardProps) {
-  const href = getFeedbackPermalink(feedback.courseId, feedback.id)
+  const { i18n } = useTranslation()
+  const lang = i18n.language as Lang
+  const href = `${getCoursePath(lang, feedback.courseId)}#feedback-${feedback.id}`
   const plainComment = feedback.comment ? stripMarkdown(feedback.comment) : null
   const faculty = feedback.course.degree?.faculty.shortName ?? null
 

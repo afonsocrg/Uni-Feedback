@@ -1,0 +1,53 @@
+{
+  "meta": {
+    "not_found_title": "Cadeira Não Encontrada - Uni Feedback",
+    "not_found_desc": "A cadeira solicitada não foi encontrada.",
+    "feedback_title": "Dar Feedback para {{courseName}} - Uni Feedback",
+    "feedback_desc": "Partilha a tua experiência com {{courseName}} ({{acronym}}) em {{faculty}}. O teu feedback anónimo ajuda os colegas a tomar decisões informadas.",
+    "reviews_title": "Avaliações de {{courseName}} ({{acronym}}) - Uni Feedback",
+    "reviews_desc": "Lê avaliações anónimas e honestas de alunos para {{courseName}} ({{acronym}}). Obtém informações sobre carga de trabalho, avaliações e conteúdo da cadeira para tomar decisões informadas."
+  },
+  "tabs": {
+    "feedback": "Feedback",
+    "description": "Descrição",
+    "assessment": "Avaliação",
+    "bibliography": "Bibliografia"
+  },
+  "info": {
+    "course_page": "Página da Cadeira",
+    "report_incorrect": "Reportar informação incorreta",
+    "feedback_label": "Feedback",
+    "no_reviews": "Sem avaliações ainda",
+    "workload_label": "Carga de trabalho",
+    "exam_label": "Exame",
+    "exam_mandatory": "Obrigatório",
+    "exam_optional": "Opcional",
+    "exam_not_specified": "Não especificado"
+  },
+  "reviews": {
+    "heading": "Feedback dos Alunos",
+    "give_feedback": "Dá Feedback!",
+    "empty_heading": "Ainda não há feedback para esta cadeira",
+    "empty_desc": "Sê o primeiro a partilhar a tua experiência, ou pede aos teus amigos que deixem feedback! A tua contribuição ajuda os futuros alunos a tomar melhores decisões.",
+    "ask_for_feedback": "Pedir feedback",
+    "outdated_warning": "As avaliações abaixo deste ponto podem estar desatualizadas. O conteúdo, os métodos de ensino e os requisitos da cadeira podem ter mudado desde então.",
+    "pre_mepp": "Pré-MEPP"
+  },
+  "description": {
+    "no_content": "Ainda não temos uma descrição para esta cadeira."
+  },
+  "assessment": {
+    "no_content": "Ainda não temos informação sobre a avaliação desta cadeira."
+  },
+  "bibliography": {
+    "no_content": "Ainda não temos a bibliografia para esta cadeira."
+  },
+  "card": {
+    "workload_prefix": "Carga:",
+    "from_different_course": "Feedback submetido por um aluno de {{degreeName}}",
+    "show_more": "Ver mais",
+    "show_less": "Ver menos",
+    "no_comment": "Este aluno não deixou comentário",
+    "copied": "Copiado!"
+  }
+}
