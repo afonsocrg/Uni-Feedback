@@ -1,4 +1,3 @@
-import { API_BASE_URL } from './config'
 import {
   type Degree,
   type Faculty,
@@ -9,29 +8,19 @@ import {
 import { apiGet } from './utils'
 
 export async function getFaculties(): Promise<Faculty[]> {
-  const response = await fetch(`${API_BASE_URL}/faculties`)
-  if (!response.ok) {
-    throw new Error('Failed to fetch faculties')
-  }
-  return response.json()
+  return apiGet<Faculty[]>('/faculties', { requiresAuth: false })
 }
 
 export async function getFacultyDetails(
   facultyId: number
 ): Promise<FacultyDetails> {
-  const response = await fetch(`${API_BASE_URL}/admin/faculties/${facultyId}`)
-  if (!response.ok) {
-    throw new Error('Failed to fetch faculty details')
-  }
-  return response.json()
+  return apiGet<FacultyDetails>(`/admin/faculties/${facultyId}`)
 }
 
 export async function getFacultyDegrees(facultyId: number): Promise<Degree[]> {
-  const response = await fetch(`${API_BASE_URL}/faculties/${facultyId}/degrees`)
-  if (!response.ok) {
-    throw new Error('Failed to fetch faculty degrees')
-  }
-  return response.json()
+  return apiGet<Degree[]>(`/faculties/${facultyId}/degrees`, {
+    requiresAuth: false
+  })
 }
 
 export async function searchFaculties(

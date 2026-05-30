@@ -3,6 +3,7 @@ import { MeicFeedbackAPIError } from './errors'
 
 interface ApiOptions {
   requiresAuth?: boolean
+  skipDefaultHeaders?: boolean
 }
 
 /**
@@ -12,13 +13,17 @@ async function apiFetch(
   endpoint: string,
   options: RequestInit & ApiOptions = {}
 ): Promise<Response> {
-  const { requiresAuth = true, ...fetchOptions } = options
+  const {
+    requiresAuth = true,
+    skipDefaultHeaders = false,
+    ...fetchOptions
+  } = options
 
   const url = `${API_BASE_URL}${endpoint}`
 
-  const defaultHeaders: HeadersInit = {
-    'Content-Type': 'application/json'
-  }
+  const defaultHeaders: HeadersInit = skipDefaultHeaders
+    ? {}
+    : { 'Content-Type': 'application/json' }
 
   const config: RequestInit = {
     ...fetchOptions,
@@ -37,30 +42,34 @@ async function apiFetch(
 
   // Handle 401 Unauthorized errors with token refresh
   if (response.status === 401 && requiresAuth) {
+    let retryResponse: Response | undefined
     try {
-      // Attempt to refresh the access token
       const refreshResponse = await fetch(`${API_BASE_URL}/auth/refresh`, {
         method: 'POST',
         credentials: 'include'
       })
-
       if (refreshResponse.ok) {
-        // Retry the original request with the new token
-        const retryResponse = await fetch(url, config)
-
-        if (!retryResponse.ok) {
-          const error = await retryResponse
-            .json()
-            .catch(() => ({ error: 'Request failed' }))
-          throw new Error(
-            error.error || `Request failed with status ${retryResponse.status}`
-          )
-        }
-
-        return retryResponse
+        retryResponse = await fetch(url, config)
       }
     } catch {
-      // If refresh fails, fall through to original error handling
+      // refresh or network error — fall through to original error handling
+    }
+
+    if (retryResponse !== undefined) {
+      if (!retryResponse.ok) {
+        const error = await retryResponse
+          .json()
+          .catch(() => ({ error: 'Request failed' }))
+        if (error.error) {
+          throw new MeicFeedbackAPIError(error.error, {
+            status: retryResponse.status,
+            requestId: error.requestId,
+            data: error.data
+          })
+        }
+        throw new Error(`Request failed with status ${retryResponse.status}`)
+      }
+      return retryResponse
     }
   }
 
@@ -185,6 +194,24 @@ export async function apiPostBlob(
   const blob = await response.blob()
 
   return { blob, filename }
+}
+
+/**
+ * POST request wrapper for multipart/form-data uploads.
+ * Does NOT set Content-Type — the browser sets it automatically with the correct boundary.
+ */
+export async function apiPostFormData<T>(
+  endpoint: string,
+  formData: FormData,
+  options: ApiOptions = {}
+): Promise<T> {
+  const response = await apiFetch(endpoint, {
+    method: 'POST',
+    body: formData,
+    skipDefaultHeaders: true,
+    ...options
+  })
+  return response.json()
 }
 
 /**

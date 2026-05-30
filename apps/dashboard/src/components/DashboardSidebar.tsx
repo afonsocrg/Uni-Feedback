@@ -17,6 +17,7 @@ import {
   GraduationCap,
   Home,
   MessageSquare,
+  Mic,
   Users
 } from 'lucide-react'
 import { NavUser } from './NavUser'
@@ -53,6 +54,11 @@ const items = [
     title: 'Feedback',
     url: '/feedback',
     icon: MessageSquare
+  },
+  {
+    title: 'Audio Feedback',
+    url: '/audio-feedback',
+    icon: Mic
   },
   {
     title: 'Giveaway',

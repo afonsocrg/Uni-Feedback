@@ -2,6 +2,7 @@ import { requireAdmin } from '@middleware'
 import { fromHono } from 'chanfana'
 import { Hono } from 'hono'
 import { GetFacultyDetails } from '../faculties'
+import { ProcessAudio, SubmitAudioFeedback } from './audioFeedback'
 import {
   CreateCourseGroup,
   // DeleteCourseGroup, // Commented out - users should not be able to delete course groups
@@ -92,6 +93,10 @@ router.delete('/feedback/:id/approved', UnapproveFeedback)
 router.put('/feedback/:id/analysis', UpdateFeedbackAnalysis)
 router.post('/feedback/populate-analysis', PopulateFeedbackAnalysis)
 router.post('/feedback/recalculate-points', RecalculatePoints)
+
+// Audio Feedback routes
+router.post('/audio-feedback/process', ProcessAudio)
+router.post('/audio-feedback/submit', SubmitAudioFeedback)
 
 // Suggestions routes
 router.get('/suggestions/degrees', GetDegreeSuggestions)

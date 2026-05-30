@@ -1,3 +1,4 @@
+export * from './AudioFeedbackPage'
 export * from './auth'
 export * from './CourseDetailPage'
 export * from './CoursesPage'

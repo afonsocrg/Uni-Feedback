@@ -10,6 +10,13 @@ export interface FeedbackCategories {
   hasTips: boolean
 }
 
+export interface AudioFeedbackExtraction {
+  transcript: string
+  comment: string | null
+  rating: number | null
+  workloadRating: number | null
+}
+
 export interface CourseReportSummary {
   aiSummary: string // 2-3 sentence executive summary (100-500 characters)
   emotions: string[] // Exactly 3 single-word emotions
@@ -111,6 +118,110 @@ export class AIService {
     }
 
     return await response.json()
+  }
+
+  /**
+   * Transcribe audio and extract structured feedback fields using a multimodal AI model.
+   *
+   * @param audioBuffer - Raw audio bytes (WebM/Opus from browser MediaRecorder)
+   * @param mimeType - Audio MIME type (e.g. 'audio/webm')
+   * @returns Extracted transcript + structured feedback fields (nullable if AI confidence is low)
+   */
+  async processAudioFeedback(
+    audioBuffer: Buffer,
+    mimeType: string
+  ): Promise<AudioFeedbackExtraction> {
+    const base64Audio = audioBuffer.toString('base64')
+
+    const dataUri = `data:${mimeType};base64,${base64Audio}`
+
+    const payload = {
+      model: 'google/gemini-2.5-flash',
+      messages: [
+        {
+          role: 'system',
+          content: `You are a university feedback assistant. The user will provide an audio recording of a student giving their opinion about a university course.
+
+Your task is to:
+1. Transcribe the audio accurately
+2. Extract a written comment with the student's feedback. Use the same language as the student spoke. Write the comment in the first person, as if it was the student writing this review. Feel free to restructure the comment, so that it's better organized than an audio message. Format the text (with whitespace) so that it's easier to read.
+3. Infer a star rating (1-5, where 5 is best) from the sentiment
+4. Infer a workload rating (1=Very Heavy, 2=Heavy, 3=Moderate, 4=Light, 5=Very Light)
+
+Set comment, rating, or workloadRating to null if you cannot confidently extract them from the audio.`
+        },
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'image_url',
+              image_url: { url: dataUri }
+            },
+            {
+              type: 'text',
+              text: 'Please transcribe this student course review and extract the structured feedback fields.'
+            }
+          ]
+        }
+      ],
+      response_format: {
+        type: 'json_schema',
+        json_schema: {
+          name: 'audio_feedback_extraction',
+          strict: true,
+          schema: {
+            type: 'object',
+            properties: {
+              transcript: {
+                type: 'string',
+                description: 'Verbatim transcription of the audio'
+              },
+              comment: {
+                type: ['string', 'null'],
+                description:
+                  'Polished written summary of the feedback, in the language the student spoke. Null if audio is unclear or contains no feedback.'
+              },
+              rating: {
+                type: ['number', 'null'],
+                description:
+                  'Overall course rating 1-5 (5=best). Null if cannot be inferred.'
+              },
+              workloadRating: {
+                type: ['number', 'null'],
+                description:
+                  'Workload rating 1-5 (1=Very Heavy, 5=Very Light). Null if cannot be inferred.'
+              }
+            },
+            required: ['transcript', 'comment', 'rating', 'workloadRating'],
+            additionalProperties: false
+          }
+        }
+      }
+    }
+
+    const data = await this.callOpenRouter(payload)
+
+    if (!data.choices?.[0]?.message?.content) {
+      throw new Error(
+        `OpenRouter audio API returned unexpected response: ${JSON.stringify(data)}`
+      )
+    }
+
+    let content: AudioFeedbackExtraction
+    try {
+      content = JSON.parse(data.choices[0].message.content)
+    } catch {
+      throw new Error(
+        `Failed to parse AI response as JSON: ${data.choices[0].message.content}`
+      )
+    }
+
+    return {
+      transcript: content.transcript ?? '',
+      comment: content.comment ?? null,
+      rating: content.rating ?? null,
+      workloadRating: content.workloadRating ?? null
+    }
   }
 
   /**

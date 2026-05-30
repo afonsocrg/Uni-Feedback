@@ -1,4 +1,11 @@
-import { apiDelete, apiGet, apiPost, apiPostBlob, apiPut } from './utils'
+import {
+  apiDelete,
+  apiGet,
+  apiPost,
+  apiPostBlob,
+  apiPostFormData,
+  apiPut
+} from './utils'
 
 // Generic Pagination Types
 export interface PaginatedResponse<T> {
@@ -881,4 +888,50 @@ export async function generateCourseReport(
     { courseId, schoolYear }
   )
   return data.presignedUrl
+}
+
+// Audio Feedback
+
+export interface AudioFeedbackProcessResult {
+  audioId: number
+  transcript: string
+  comment: string | null
+  rating: number | null
+  workloadRating: number | null
+}
+
+export interface SubmitAudioFeedbackParams {
+  audioId: number
+  courseId: number
+  schoolYear: number
+  rating: number
+  workloadRating: number
+  comment?: string
+  email: string
+  consentGiven: true
+}
+
+/**
+ * Upload audio to R2 and run AI extraction. Returns audioId + pre-filled feedback fields.
+ */
+export async function processAudioFeedback(
+  audio: Blob,
+  courseId: number
+): Promise<AudioFeedbackProcessResult> {
+  const form = new FormData()
+  form.append('audio', audio, 'recording.webm')
+  form.append('courseId', String(courseId))
+  return apiPostFormData<AudioFeedbackProcessResult>(
+    '/admin/audio-feedback/process',
+    form
+  )
+}
+
+/**
+ * Submit the verified in-person feedback linked to the processed audio recording.
+ */
+export async function submitAudioFeedback(
+  params: SubmitAudioFeedbackParams
+): Promise<{ feedbackId: number }> {
+  return apiPost<{ feedbackId: number }>('/admin/audio-feedback/submit', params)
 }

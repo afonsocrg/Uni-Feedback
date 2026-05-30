@@ -100,4 +100,50 @@ export class R2Service {
 
     await this.client.send(command)
   }
+
+  /**
+   * Generate R2 key for an audio recording.
+   * Format: audio/courses/:id/:timestamp.webm
+   */
+  generateAudioKey(courseId: number): string {
+    return `audio/courses/${courseId}/${Date.now()}.webm`
+  }
+
+  /**
+   * Delete an audio file from R2 storage.
+   *
+   * @param key - R2 object key
+   */
+  async deleteAudio(key: string): Promise<void> {
+    const command = new DeleteObjectCommand({
+      Bucket: this.bucketName,
+      Key: key
+    })
+    await this.client.send(command)
+  }
+
+  /**
+   * Upload an audio file to R2 storage.
+   *
+   * @param key - R2 object key
+   * @param buffer - Audio buffer
+   * @param mimeType - Audio MIME type (default: audio/webm)
+   */
+  async uploadAudio(
+    key: string,
+    buffer: Buffer,
+    mimeType = 'audio/webm'
+  ): Promise<void> {
+    const command = new PutObjectCommand({
+      Bucket: this.bucketName,
+      Key: key,
+      Body: buffer,
+      ContentType: mimeType,
+      Metadata: {
+        uploadedAt: new Date().toISOString()
+      }
+    })
+
+    await this.client.send(command)
+  }
 }

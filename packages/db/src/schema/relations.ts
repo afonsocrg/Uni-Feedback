@@ -1,4 +1,5 @@
 import { relations } from 'drizzle-orm'
+import { audioRecordings } from './audioRecording'
 import { correctionRequests } from './correctionRequest'
 import { courses } from './course'
 import { degrees } from './degree'
@@ -27,6 +28,10 @@ export const feedbackFullRelations = relations(feedbackFull, ({ one }) => ({
   analysis: one(feedbackAnalysis, {
     fields: [feedbackFull.id],
     references: [feedbackAnalysis.feedbackId]
+  }),
+  audioRecording: one(audioRecordings, {
+    fields: [feedbackFull.id],
+    references: [audioRecordings.feedbackId]
   })
 }))
 
@@ -144,6 +149,21 @@ export const emailPreferencesRelations = relations(
     user: one(users, {
       fields: [emailPreferences.userId],
       references: [users.id]
+    })
+  })
+)
+
+// Audio Recording relations
+export const audioRecordingRelations = relations(
+  audioRecordings,
+  ({ one }) => ({
+    feedback: one(feedbackFull, {
+      fields: [audioRecordings.feedbackId],
+      references: [feedbackFull.id]
+    }),
+    course: one(courses, {
+      fields: [audioRecordings.courseId],
+      references: [courses.id]
     })
   })
 )
