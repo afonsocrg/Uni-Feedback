@@ -1,10 +1,10 @@
 import { useTranslation } from 'react-i18next'
-import type { Lang } from '~/i18n/config'
+import { useLang } from '~/hooks'
 import { getReviewPath } from '~/utils/i18n-routes'
 
 export function ContributeStrip() {
-  const { t, i18n } = useTranslation('landing')
-  const lang = i18n.language as Lang
+  const { t } = useTranslation('landing')
+  const lang = useLang()
 
   return (
     <div className="relative flex items-center justify-center py-6">

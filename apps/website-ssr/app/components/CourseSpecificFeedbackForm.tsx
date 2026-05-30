@@ -26,10 +26,10 @@ import { Link } from 'react-router'
 import { ChangeCourseDialog, FeedbackDraftDialog } from '~/components'
 import { AuthenticatedButton } from '~/components/common'
 import { CommentSection } from '~/components/feedback/CommentSection'
-import { useFeedbackDraft } from '~/hooks'
+import { useFeedbackDraft, useLang } from '~/hooks'
 import type { FeedbackFormData } from '~/routes/feedback.new'
 import { analytics } from '~/utils/analytics'
-import { getLocalePath, type Lang } from '~/utils/i18n-routes'
+import { getLocalePath } from '~/utils/i18n-routes'
 
 interface CourseWithDetails {
   id: number
@@ -61,9 +61,9 @@ export function CourseSpecificFeedbackForm({
   onSubmit,
   isSubmitting
 }: CourseSpecificFeedbackFormProps) {
-  const { t, i18n } = useTranslation('feedback')
+  const { t } = useTranslation('feedback')
   const { t: tCommon } = useTranslation('common')
-  const lang = i18n.language as Lang
+  const lang = useLang()
 
   // Workload input type state for debug panel (disabled for production)
   // const [workloadInputType, setWorkloadInputType] =

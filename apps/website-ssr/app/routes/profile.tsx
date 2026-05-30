@@ -32,9 +32,8 @@ import {
   ProfileFeedbackCard,
   ProfilePageSkeleton
 } from '~/components'
-import { useRequiredAuth } from '~/hooks'
+import { useLang, useRequiredAuth } from '~/hooks'
 import { useProfileFeedback, useProfileStats } from '~/hooks/queries'
-import type { Lang } from '~/i18n/config'
 import { analytics, getPageName } from '~/utils/analytics'
 import { STORAGE_KEYS } from '~/utils/constants'
 import { getLocalePath, getReviewPath } from '~/utils/i18n-routes'
@@ -56,8 +55,8 @@ const deleteAccountSchema = z.object({
 type DeleteAccountFormData = z.infer<typeof deleteAccountSchema>
 
 export default function ProfilePage() {
-  const { t, i18n } = useTranslation('feedback')
-  const lang = i18n.language as Lang
+  const { t } = useTranslation('feedback')
+  const lang = useLang()
   const { user, logout } = useRequiredAuth()
   const navigate = useNavigate()
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)

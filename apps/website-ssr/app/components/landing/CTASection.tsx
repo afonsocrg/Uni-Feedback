@@ -1,6 +1,6 @@
 import { Button } from '@uni-feedback/ui'
 import { useTranslation } from 'react-i18next'
-import type { Lang } from '~/i18n/config'
+import { useLang } from '~/hooks'
 import { getReviewPath } from '~/utils/i18n-routes'
 
 interface CTASectionProps {
@@ -8,8 +8,8 @@ interface CTASectionProps {
 }
 
 export function CTASection({ contributors }: CTASectionProps) {
-  const { t, i18n } = useTranslation('landing')
-  const lang = i18n.language as Lang
+  const { t } = useTranslation('landing')
+  const lang = useLang()
 
   return (
     <section className="py-16 md:py-24">

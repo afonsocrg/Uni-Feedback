@@ -1,9 +1,12 @@
 import { PenSquare, Users } from 'lucide-react'
 import { Trans, useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
-import type { Lang } from '~/i18n/config'
+import { useLang } from '~/hooks'
 import { analytics, getPageName } from '~/utils/analytics'
-import { FEEDBACK_CATEGORIES } from '~/utils/constants'
+import {
+  FEEDBACK_CATEGORIES,
+  type FeedbackCategoryKey
+} from '~/utils/constants'
 import { getLocalePath, getReviewPath } from '~/utils/i18n-routes'
 
 export function meta() {
@@ -18,9 +21,31 @@ export function meta() {
 }
 
 export default function PointsPage() {
-  const { t, i18n } = useTranslation('legal')
+  const { t } = useTranslation('legal')
   const { t: tFeedback } = useTranslation('feedback')
-  const lang = i18n.language as Lang
+  const lang = useLang()
+
+  const categoryLabels: Record<
+    FeedbackCategoryKey,
+    { title: string; description: string }
+  > = {
+    teaching: {
+      title: tFeedback('categories.teaching.title'),
+      description: tFeedback('categories.teaching.description')
+    },
+    assessment: {
+      title: tFeedback('categories.assessment.title'),
+      description: tFeedback('categories.assessment.description')
+    },
+    materials: {
+      title: tFeedback('categories.materials.title'),
+      description: tFeedback('categories.materials.description')
+    },
+    tips: {
+      title: tFeedback('categories.tips.title'),
+      description: tFeedback('categories.tips.description')
+    }
+  }
 
   const giveFeedbackPoints = t('points.give_feedback_points', {
     returnObjects: true
@@ -164,10 +189,10 @@ export default function PointsPage() {
                 </div>
                 <div>
                   <h3 className="font-semibold">
-                    {tFeedback(`categories.${category.key}.title`)}
+                    {categoryLabels[category.key].title}
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    {tFeedback(`categories.${category.key}.description`)}
+                    {categoryLabels[category.key].description}
                   </p>
                 </div>
               </div>

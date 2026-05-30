@@ -1,8 +1,8 @@
 import { StarRating, WorkloadRatingDisplay } from '@uni-feedback/ui'
 import { getRelativeTime } from '@uni-feedback/utils'
 import { GraduationCap } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
 import { FeedbackMarkdown, Tooltip } from '~/components'
+import { useLang } from '~/hooks'
 
 interface ReportFeedbackFeedbackCardProps {
   feedback: {
@@ -22,11 +22,8 @@ interface ReportFeedbackFeedbackCardProps {
 export function ReportFeedbackFeedbackCard({
   feedback
 }: ReportFeedbackFeedbackCardProps) {
-  const { i18n } = useTranslation()
-  const relativeTime = getRelativeTime(
-    new Date(feedback.createdAt),
-    i18n.language
-  )
+  const lang = useLang()
+  const relativeTime = getRelativeTime(new Date(feedback.createdAt), lang)
 
   return (
     <div className="bg-muted/50 border rounded-lg p-4 max-h-48 overflow-y-auto">

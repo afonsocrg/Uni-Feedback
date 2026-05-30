@@ -1,11 +1,12 @@
 import { Trans, useTranslation } from 'react-i18next'
-import type { Lang } from '~/i18n/config'
+import { useLang } from '~/hooks'
 import { getLocalePath } from '~/utils/i18n-routes'
 import { FAQ, type FAQItem } from './FAQ'
 
 export function LandingFAQSection() {
-  const { t, i18n } = useTranslation('landing')
-  const guidelinesUrl = getLocalePath('guidelines', i18n.language as Lang)
+  const { t } = useTranslation('landing')
+  const lang = useLang()
+  const guidelinesUrl = getLocalePath('guidelines', lang)
   const items = t('faq.items', {
     returnObjects: true,
     guidelinesUrl

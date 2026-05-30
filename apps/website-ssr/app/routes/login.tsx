@@ -14,14 +14,13 @@ import { useNavigate, useSearchParams } from 'react-router'
 import { toast } from 'sonner'
 import { OtpInputStage } from '~/components/AuthDialog/OtpInputStage'
 import type { AuthUser } from '~/context/AuthContext'
-import { useAuth, useOtpAuth } from '~/hooks'
-import type { Lang } from '~/i18n/config'
+import { useAuth, useLang, useOtpAuth } from '~/hooks'
 import { STORAGE_KEYS } from '~/utils/constants'
 import { getLocalePath } from '~/utils/i18n-routes'
 
 export default function LoginPage() {
-  const { t, i18n } = useTranslation('feedback')
-  const lang = i18n.language as Lang
+  const { t } = useTranslation('feedback')
+  const lang = useLang()
   const [email, setEmail] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [showOtpInput, setShowOtpInput] = useState(false)

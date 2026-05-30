@@ -1,8 +1,8 @@
 import type { Course, Degree, Faculty } from '@uni-feedback/db/schema'
 import { Home } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { useLang } from '~/hooks'
 import { userPreferences } from '~/utils'
-import type { Lang } from '~/utils/i18n-routes'
 import {
   getDegreePath,
   getFacultyPath,
@@ -23,8 +23,8 @@ export function Breadcrumb({
   degree,
   course
 }: BreadcrumbProps) {
-  const { t, i18n } = useTranslation()
-  const lang = i18n.language as Lang
+  const { t } = useTranslation()
+  const lang = useLang()
 
   const browsePath = getLocalePath('browse', lang)
 

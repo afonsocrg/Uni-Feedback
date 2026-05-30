@@ -2,8 +2,8 @@ import type { Degree, Faculty } from '@uni-feedback/db/schema'
 import { Button, WarningAlert } from '@uni-feedback/ui'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useLang } from '~/hooks'
 import { loadDegreeFilters, saveDegreeFilters } from '~/utils/filterStorage'
-import type { Lang } from '~/utils/i18n-routes'
 import { getDegreePath } from '~/utils/i18n-routes'
 import { userPreferences } from '~/utils/userPreferences'
 import { BrowsePageLayout, DegreeCard } from '.'
@@ -31,8 +31,8 @@ export function FacultyPageContent({
   faculty,
   degrees
 }: FacultyPageContentProps) {
-  const { t, i18n } = useTranslation('browse')
-  const lang = i18n.language as Lang
+  const { t } = useTranslation('browse')
+  const lang = useLang()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedType, setSelectedType] = useState<string | null>(null)
 

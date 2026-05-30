@@ -1,12 +1,11 @@
 import { Button } from '@uni-feedback/ui'
 import { PenSquare } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+import { useLang } from '~/hooks'
 import { analytics, getPageName } from '~/utils/analytics'
-import { getReviewPath, type Lang } from '~/utils/i18n-routes'
+import { getReviewPath } from '~/utils/i18n-routes'
 
 export function GiveawayCTASection() {
-  const { i18n } = useTranslation()
-  const lang = i18n.language as Lang
+  const lang = useLang()
 
   return (
     <section className="py-16 md:py-24 bg-primary text-primary-foreground">

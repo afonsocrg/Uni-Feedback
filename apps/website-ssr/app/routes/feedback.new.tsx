@@ -1,10 +1,8 @@
 import { getFaculties } from '@uni-feedback/api-client'
 import { useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router'
 import { CourseBrowser } from '~/components'
-import { useAuth } from '~/hooks'
-import type { Lang } from '~/i18n/config'
+import { useAuth, useLang } from '~/hooks'
 import { analytics } from '~/utils/analytics'
 import { getCourseFeedbackPath } from '~/utils/i18n-routes'
 import { storage } from '~/utils/storage'
@@ -40,8 +38,7 @@ export async function loader() {
 export default function FeedbackBrowserPage({
   loaderData
 }: Route.ComponentProps) {
-  const { i18n } = useTranslation('feedback')
-  const lang = i18n.language as Lang
+  const lang = useLang()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const { isAuthenticated } = useAuth()

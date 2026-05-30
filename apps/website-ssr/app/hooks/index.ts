@@ -2,6 +2,7 @@ export * from './queries'
 export * from './useAuth'
 export * from './useDebounce'
 export * from './useFeedbackDraft'
+export * from './useLang'
 export * from './useLastVisitedPath'
 export * from './useLocalStorage'
 // @deprecated - Use useOtpAuth instead. Magic links are being replaced by OTP authentication.

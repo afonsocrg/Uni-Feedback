@@ -9,6 +9,7 @@ import {
   ReportFeedbackDialog,
   Tooltip
 } from '~/components'
+import { useLang } from '~/hooks'
 import { getTruncatedText } from '~/lib/textUtils'
 import { analytics } from '~/utils/analytics'
 
@@ -36,7 +37,8 @@ interface CoursePageFeedbackCardProps {
 export function CoursePageFeedbackCard({
   feedback
 }: CoursePageFeedbackCardProps) {
-  const { t, i18n } = useTranslation('course')
+  const { t } = useTranslation('course')
+  const lang = useLang()
   const { t: tCommon } = useTranslation('common')
   const [isExpanded, setIsExpanded] = useState(false)
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false)
@@ -48,10 +50,7 @@ export function CoursePageFeedbackCard({
   const characterLimit = 600
   const isLongComment =
     feedback.comment && feedback.comment.length > characterLimit
-  const relativeTime = getRelativeTime(
-    new Date(feedback.createdAt),
-    i18n.language
-  )
+  const relativeTime = getRelativeTime(new Date(feedback.createdAt), lang)
 
   const feedbackAnchorId = `feedback-${feedback.id}`
 

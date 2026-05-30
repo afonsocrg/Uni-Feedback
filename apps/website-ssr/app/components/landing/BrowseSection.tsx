@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useLang } from '~/hooks'
 import { getAssetUrl } from '~/utils'
-import type { Lang } from '~/utils/i18n-routes'
 import {
   getDegreePath,
   getFacultyPath,
-  getLocalePath
+  getLocalePath,
+  type Lang
 } from '~/utils/i18n-routes'
 
 interface FacultyInfo {
@@ -33,8 +34,8 @@ interface BrowseSectionProps {
 }
 
 export function BrowseSection({ faculties, degrees }: BrowseSectionProps) {
-  const { t, i18n } = useTranslation('landing')
-  const lang = i18n.language as Lang
+  const { t } = useTranslation('landing')
+  const lang = useLang()
   const [selectedFacultyId, setSelectedFacultyId] = useState<number>(
     faculties[0]?.id ?? 0
   )

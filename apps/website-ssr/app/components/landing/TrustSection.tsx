@@ -2,12 +2,13 @@ import { Popover, PopoverContent, PopoverTrigger } from '@uni-feedback/ui'
 import { ClipboardCheck, EyeOff, Info, Shield, UserCheck } from 'lucide-react'
 import { Trans, useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
-import type { Lang } from '~/i18n/config'
+import { useLang } from '~/hooks'
 import { getLocalePath } from '~/utils/i18n-routes'
 
 export function TrustSection() {
-  const { t, i18n } = useTranslation('landing')
-  const guidelinesUrl = getLocalePath('guidelines', i18n.language as Lang)
+  const { t } = useTranslation('landing')
+  const lang = useLang()
+  const guidelinesUrl = getLocalePath('guidelines', lang)
 
   const items = [
     {

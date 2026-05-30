@@ -4,14 +4,14 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
 import { MessagePage } from '~/components'
-import type { Lang } from '~/i18n/config'
+import { useLang } from '~/hooks'
 import { getLocalePath } from '~/utils/i18n-routes'
 
 type UnsubscribeStatus = 'loading' | 'success' | 'error' | 'no-token'
 
 export default function Unsubscribe() {
-  const { t, i18n } = useTranslation('legal')
-  const lang = i18n.language as Lang
+  const { t } = useTranslation('legal')
+  const lang = useLang()
   const [searchParams] = useSearchParams()
   const token = searchParams.get('token')
 

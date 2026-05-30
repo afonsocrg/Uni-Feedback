@@ -64,6 +64,6 @@
     "course_count_one": "{{count}} course",
     "course_count_other": "{{count}} courses",
     "feedback_count_one": "{{count}} feedback",
-    "feedback_count_other": "{{count}} feedbacks"
+    "feedback_count_other": "{{count}} feedback"
   }
 }

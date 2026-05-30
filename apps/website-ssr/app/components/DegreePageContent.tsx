@@ -8,9 +8,9 @@ import { Button, WarningAlert } from '@uni-feedback/ui'
 import { toOrdinal } from '@uni-feedback/utils'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useLang } from '~/hooks'
 import { insensitiveMatch } from '~/utils'
 import { loadCourseFilters, saveCourseFilters } from '~/utils/filterStorage'
-import type { Lang } from '~/utils/i18n-routes'
 import { getCoursePath } from '~/utils/i18n-routes'
 import { BrowsePageLayout, CourseCard } from '.'
 import { FilterChip } from './common/FilterChip'
@@ -44,8 +44,8 @@ export function DegreePageContent({
   courses,
   courseGroups
 }: DegreePageContentProps) {
-  const { t, i18n } = useTranslation('browse')
-  const lang = i18n.language as Lang
+  const { t } = useTranslation('browse')
+  const lang = useLang()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCurriculumYear, setSelectedCurriculumYear] = useState<
     number | null

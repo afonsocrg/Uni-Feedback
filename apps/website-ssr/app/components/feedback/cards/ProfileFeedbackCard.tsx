@@ -25,12 +25,12 @@ import {
   Trash2
 } from 'lucide-react'
 import { useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { toast } from 'sonner'
 import { FeedbackCategoryChips, FeedbackMarkdown } from '~/components'
+import { useLang } from '~/hooks'
 import { getTruncatedText } from '~/lib/textUtils'
-import { getCoursePath, getLocalePath, type Lang } from '~/utils/i18n-routes'
+import { getCoursePath, getLocalePath } from '~/utils/i18n-routes'
 
 interface ProfileFeedbackCardProps {
   feedback: {
@@ -56,8 +56,7 @@ interface ProfileFeedbackCardProps {
 }
 
 export function ProfileFeedbackCard({ feedback }: ProfileFeedbackCardProps) {
-  const { i18n } = useTranslation()
-  const lang = i18n.language as Lang
+  const lang = useLang()
 
   const [isExpanded, setIsExpanded] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
@@ -67,10 +66,7 @@ export function ProfileFeedbackCard({ feedback }: ProfileFeedbackCardProps) {
   const characterLimit = 600
   const isLongComment =
     feedback.comment && feedback.comment.length > characterLimit
-  const relativeTime = getRelativeTime(
-    new Date(feedback.createdAt),
-    i18n.language
-  )
+  const relativeTime = getRelativeTime(new Date(feedback.createdAt), lang)
 
   const handleDelete = async () => {
     setIsDeleting(true)

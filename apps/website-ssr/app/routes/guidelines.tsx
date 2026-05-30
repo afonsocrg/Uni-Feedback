@@ -1,7 +1,7 @@
 import { Button } from '@uni-feedback/ui'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
-import type { Lang } from '~/i18n/config'
+import { useLang } from '~/hooks'
 import { getLocalePath, getReviewPath } from '~/utils/i18n-routes'
 
 export function meta() {
@@ -16,8 +16,8 @@ export function meta() {
 }
 
 export default function GuidelinesPage() {
-  const { t, i18n } = useTranslation('legal')
-  const lang = i18n.language as Lang
+  const { t } = useTranslation('legal')
+  const lang = useLang()
 
   const writingItems = [
     {

@@ -1,12 +1,10 @@
-import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router'
-import type { Lang } from '~/i18n/config'
+import { useLang } from '~/hooks'
 import { getEquivalentPath } from '~/utils/i18n-routes'
 
 export function LanguageSwitcher() {
-  const { i18n } = useTranslation()
   const location = useLocation()
-  const lang = i18n.language as Lang
+  const lang = useLang()
   const targetPath = getEquivalentPath(
     location.pathname + location.search,
     lang

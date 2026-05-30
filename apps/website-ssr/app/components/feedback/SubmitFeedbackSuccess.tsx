@@ -9,15 +9,15 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@uni-feedback/ui'
-import { getFeedbackPermalink } from '@uni-feedback/utils'
 import { ChevronRight, HelpCircle } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
+import { useLang } from '~/hooks'
 import {
   getCourseFeedbackPath,
+  getCoursePath,
+  getFeedbackAnchor,
   getLocalePath,
-  getReviewPath,
-  type Lang
+  getReviewPath
 } from '~/utils/i18n-routes'
 
 interface FeedbackSubmitSuccessProps {
@@ -37,15 +37,14 @@ export function SubmitFeedbackSuccess({
   isLoadingRecommendations = false,
   onSubmitAnother
 }: FeedbackSubmitSuccessProps) {
-  const { i18n } = useTranslation()
-  const lang = i18n.language as Lang
+  const lang = useLang()
 
   const hasPoints = pointsEarned !== undefined && pointsEarned > 0
   const feedbackUrl =
     courseId && feedbackId
-      ? getFeedbackPermalink(courseId, feedbackId)
+      ? getFeedbackAnchor(lang, courseId, feedbackId)
       : courseId
-        ? `/courses/${courseId}`
+        ? getCoursePath(lang, courseId)
         : undefined
 
   const hasRecommendations = recommendations.length > 0

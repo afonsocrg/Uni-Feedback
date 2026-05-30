@@ -1,6 +1,5 @@
 import type { Faculty } from '@uni-feedback/db/schema'
-import { useTranslation } from 'react-i18next'
-import type { Lang } from '~/utils/i18n-routes'
+import { useLang } from '~/hooks'
 import { getFacultyPath } from '~/utils/i18n-routes'
 import { userPreferences } from '~/utils/userPreferences'
 import { SelectionCard } from '.'
@@ -10,8 +9,7 @@ interface FacultySelectorProps {
 }
 
 export function FacultySelector({ faculties }: FacultySelectorProps) {
-  const { i18n } = useTranslation()
-  const lang = i18n.language as Lang
+  const lang = useLang()
 
   const getFacultyUrl = (faculty: Faculty) => {
     return getFacultyPath(lang, faculty.slug)

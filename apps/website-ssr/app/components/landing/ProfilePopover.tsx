@@ -7,7 +7,7 @@ import {
 } from '@uni-feedback/ui'
 import { LogOut, User } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import type { Lang } from '~/i18n/config'
+import { useLang } from '~/hooks'
 import { getLocalePath } from '~/utils/i18n-routes'
 
 interface ProfilePopoverProps {
@@ -24,8 +24,8 @@ export function ProfilePopover({
   user,
   logout
 }: ProfilePopoverProps) {
-  const { t, i18n } = useTranslation()
-  const lang = i18n.language as Lang
+  const { t } = useTranslation()
+  const lang = useLang()
 
   return (
     <Popover>

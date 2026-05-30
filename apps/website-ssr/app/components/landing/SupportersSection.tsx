@@ -1,6 +1,6 @@
 import type { StudentClub } from '@uni-feedback/db'
 import { useTranslation } from 'react-i18next'
-import type { Lang } from '~/i18n/config'
+import { useLang } from '~/hooks'
 import { getAssetUrl } from '~/utils'
 import { getLocalePath } from '~/utils/i18n-routes'
 
@@ -9,8 +9,8 @@ interface SupportersSectionProps {
 }
 
 export function SupportersSection({ studentClubs }: SupportersSectionProps) {
-  const { t, i18n } = useTranslation('landing')
-  const lang = i18n.language as Lang
+  const { t } = useTranslation('landing')
+  const lang = useLang()
 
   return (
     <>

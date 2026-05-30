@@ -1,12 +1,11 @@
 import { Button } from '@uni-feedback/ui'
 import { ArrowRight, Gift } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
-import { getLocalePath, type Lang } from '~/utils/i18n-routes'
+import { useLang } from '~/hooks'
+import { getLocalePath } from '~/utils/i18n-routes'
 
 export function GiveawayPromoSection() {
-  const { i18n } = useTranslation()
-  const lang = i18n.language as Lang
+  const lang = useLang()
 
   return (
     <section className="relative overflow-hidden">

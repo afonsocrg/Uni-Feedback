@@ -1,6 +1,6 @@
-import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
-import { getLocalePath, type Lang } from '~/utils/i18n-routes'
+import { useLang } from '~/hooks'
+import { getLocalePath } from '~/utils/i18n-routes'
 
 import { FAQ, type FAQItem } from '~/components/landing'
 
@@ -59,8 +59,7 @@ const GIVEAWAY_FAQ_ITEMS: FAQItem[] = [
 ]
 
 export function GiveawayFAQSection() {
-  const { i18n } = useTranslation()
-  const lang = i18n.language as Lang
+  const lang = useLang()
 
   return (
     <section className="bg-white py-16 md:py-24">

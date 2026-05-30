@@ -1,9 +1,8 @@
 import { Button } from '@uni-feedback/ui'
 import { useTranslation } from 'react-i18next'
 import { LanguageSwitcher } from '~/components/layout/LanguageSwitcher'
-import { useAuth } from '~/hooks/useAuth'
+import { useAuth, useLang } from '~/hooks'
 import { useLastVisitedPath } from '~/hooks/useLastVisitedPath'
-import type { Lang } from '~/i18n/config'
 import { analytics, getPageName } from '~/utils/analytics'
 import { getLocalePath, getReviewPath } from '~/utils/i18n-routes'
 import { Logo } from './Logo'
@@ -11,8 +10,8 @@ import { MobileDrawer } from './MobileDrawer'
 import { ProfilePopover } from './ProfilePopover'
 
 export function LandingHeader() {
-  const { t, i18n } = useTranslation()
-  const lang = i18n.language as Lang
+  const { t } = useTranslation()
+  const lang = useLang()
   const lastVisitedPath = useLastVisitedPath()
   const browsePath = getLocalePath('browse', lang)
   const browseLink = lastVisitedPath !== '/' ? lastVisitedPath : browsePath

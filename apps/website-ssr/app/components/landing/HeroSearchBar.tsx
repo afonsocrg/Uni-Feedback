@@ -11,12 +11,12 @@ import {
 import { Search } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import type { Lang } from '~/i18n/config'
+import { useLang } from '~/hooks'
 import { getCoursePath, getLocalePath } from '~/utils/i18n-routes'
 
 export function HeroSearchBar() {
-  const { t, i18n } = useTranslation('landing')
-  const lang = i18n.language as Lang
+  const { t } = useTranslation('landing')
+  const lang = useLang()
   const browsePath = getLocalePath('browse', lang)
 
   const [query, setQuery] = useState('')

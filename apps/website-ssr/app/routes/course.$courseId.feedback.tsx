@@ -12,16 +12,14 @@ import { getCurrentSchoolYear } from '@uni-feedback/utils'
 import { and, eq } from 'drizzle-orm'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { useTranslation } from 'react-i18next'
 import { redirect, useSearchParams } from 'react-router'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { SubmitFeedbackSuccess, UpdateFeedbackSuccess } from '~/components'
 import { CourseSpecificFeedbackForm } from '~/components/CourseSpecificFeedbackForm'
 import { DuplicateFeedbackResolution } from '~/components/feedback/DuplicateFeedbackResolution'
-import { useAuth } from '~/hooks'
+import { useAuth, useLang } from '~/hooks'
 import { useSubmitFeedback } from '~/hooks/queries'
-import type { Lang } from '~/i18n/config'
 import { getCurrentUserId } from '~/lib/auth.server'
 import {
   analytics,
@@ -114,8 +112,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
 export default function CourseSpecificFeedbackPage({
   loaderData
 }: Route.ComponentProps) {
-  const { i18n } = useTranslation('feedback')
-  const lang = i18n.language as Lang
+  const lang = useLang()
   const { course } = loaderData
   const [searchParams] = useSearchParams()
   const submitFeedbackMutation = useSubmitFeedback()

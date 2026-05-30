@@ -5,9 +5,8 @@ import {
   TabsList,
   TabsTrigger
 } from '@uni-feedback/ui'
-import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
-import type { Lang } from '~/utils/i18n-routes'
+import { useLang } from '~/hooks'
 import { getLocalePath } from '~/utils/i18n-routes'
 import { markdown } from '../../../../legal/giveaway_rules.md'
 
@@ -23,8 +22,7 @@ export function meta() {
 }
 
 function StructuredVersion() {
-  const { i18n } = useTranslation()
-  const lang = i18n.language as Lang
+  const lang = useLang()
 
   return (
     <div className="mx-auto max-w-3xl">

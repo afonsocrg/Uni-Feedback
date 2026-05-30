@@ -8,7 +8,7 @@ import {
 import { LogOut, Menu, User } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { LanguageSwitcher } from '~/components/layout/LanguageSwitcher'
-import type { Lang } from '~/i18n/config'
+import { useLang } from '~/hooks'
 import { analytics, getPageName } from '~/utils/analytics'
 import { getLocalePath, getReviewPath } from '~/utils/i18n-routes'
 
@@ -28,8 +28,8 @@ export function MobileDrawer({
   user,
   logout
 }: MobileDrawerProps) {
-  const { t, i18n } = useTranslation()
-  const lang = i18n.language as Lang
+  const { t } = useTranslation()
+  const lang = useLang()
 
   return (
     <Sheet>

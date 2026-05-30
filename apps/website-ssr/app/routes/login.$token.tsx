@@ -1,12 +1,10 @@
 import { MeicFeedbackAPIError } from '@uni-feedback/api-client'
 import { CheckCircle, Home, Loader2, User, XCircle } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router'
 import { toast } from 'sonner'
 import { MessagePage } from '~/components'
-import { useAuth, useMagicLinkAuth } from '~/hooks'
-import type { Lang } from '~/utils/i18n-routes'
+import { useAuth, useLang, useMagicLinkAuth } from '~/hooks'
 import { getLocalePath } from '~/utils/i18n-routes'
 
 /**
@@ -25,8 +23,7 @@ export default function LoginToken() {
   const { token } = useParams()
   const navigate = useNavigate()
   const { setUser } = useAuth()
-  const { i18n } = useTranslation()
-  const lang = i18n.language as Lang
+  const lang = useLang()
   const [status, setStatus] = useState<'verifying' | 'success' | 'error'>(
     'verifying'
   )

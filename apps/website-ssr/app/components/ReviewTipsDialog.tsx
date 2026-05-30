@@ -7,8 +7,12 @@ import {
 import { ArrowRight, Check, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
-import { FEEDBACK_CATEGORIES } from '~/utils/constants'
-import { getLocalePath, type Lang } from '~/utils/i18n-routes'
+import { useLang } from '~/hooks'
+import {
+  FEEDBACK_CATEGORIES,
+  type FeedbackCategoryKey
+} from '~/utils/constants'
+import { getLocalePath } from '~/utils/i18n-routes'
 
 interface ReviewTipsDialogProps {
   open: boolean
@@ -19,8 +23,30 @@ export function ReviewTipsDialog({
   open,
   onOpenChange
 }: ReviewTipsDialogProps) {
-  const { t, i18n } = useTranslation('feedback')
-  const lang = i18n.language as Lang
+  const { t } = useTranslation('feedback')
+  const lang = useLang()
+
+  const categoryLabels: Record<
+    FeedbackCategoryKey,
+    { title: string; description: string }
+  > = {
+    teaching: {
+      title: t('categories.teaching.title'),
+      description: t('categories.teaching.description')
+    },
+    assessment: {
+      title: t('categories.assessment.title'),
+      description: t('categories.assessment.description')
+    },
+    materials: {
+      title: t('categories.materials.title'),
+      description: t('categories.materials.description')
+    },
+    tips: {
+      title: t('categories.tips.title'),
+      description: t('categories.tips.description')
+    }
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -73,10 +99,10 @@ export function ReviewTipsDialog({
                   </div>
                   <div>
                     <h4 className="font-medium text-sm">
-                      {t(`categories.${category.key}.title`)}
+                      {categoryLabels[category.key].title}
                     </h4>
                     <p className="text-xs text-gray-600">
-                      {t(`categories.${category.key}.description`)}
+                      {categoryLabels[category.key].description}
                     </p>
                   </div>
                 </div>

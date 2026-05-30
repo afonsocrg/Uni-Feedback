@@ -27,17 +27,13 @@ import {
 import { AlertTriangle, Loader2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { AuthenticatedButton, ReportFeedbackFeedbackCard } from '~/components'
+import { useLang } from '~/hooks'
 import { analytics, getPageName } from '~/utils/analytics'
-import {
-  getCourseFeedbackPath,
-  getLocalePath,
-  type Lang
-} from '~/utils/i18n-routes'
+import { getCourseFeedbackPath, getLocalePath } from '~/utils/i18n-routes'
 
 const reportFormSchema = z.object({
   category: z.enum(REPORT_CATEGORIES),
@@ -70,8 +66,7 @@ export function ReportFeedbackDialog({
   open,
   onOpenChange
 }: ReportFeedbackDialogProps) {
-  const { i18n } = useTranslation()
-  const lang = i18n.language as Lang
+  const lang = useLang()
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)

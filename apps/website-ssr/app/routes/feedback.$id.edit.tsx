@@ -15,13 +15,13 @@ import {
   EditFeedbackContent,
   type EditFeedbackFormData
 } from '~/components/feedback/EditFeedbackContent'
+import { useLang } from '~/hooks'
 import { useFeedbackForEdit } from '~/hooks/queries'
-import type { Lang } from '~/i18n/config'
 import { getLocalePath } from '~/utils/i18n-routes'
 
 export default function EditFeedbackPage() {
-  const { t, i18n } = useTranslation('feedback')
-  const lang = i18n.language as Lang
+  const { t } = useTranslation('feedback')
+  const lang = useLang()
   const profilePath = getLocalePath('profile', lang)
   const navigate = useNavigate()
   const params = useParams()
