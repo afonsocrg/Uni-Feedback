@@ -2,7 +2,10 @@ import { useQuery } from '@tanstack/react-query'
 import type { CourseSearchResult, Faculty } from '@uni-feedback/api-client'
 import { getFaculties, searchCourses } from '@uni-feedback/api-client'
 import { Button, Input, Label } from '@uni-feedback/ui'
-import { getCurrentSchoolYear } from '@uni-feedback/utils'
+import {
+  formatSchoolYearString,
+  getCurrentSchoolYear
+} from '@uni-feedback/utils'
 import { Search } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
@@ -203,7 +206,7 @@ export function StepCourseSelect({
         >
           {buildSchoolYearOptions(currentSchoolYear).map((y) => (
             <option key={y} value={y}>
-              {y}/{y + 1}
+              {formatSchoolYearString(y)}
             </option>
           ))}
         </select>
