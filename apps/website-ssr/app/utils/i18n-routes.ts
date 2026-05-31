@@ -1,13 +1,16 @@
 import type { Lang } from '~/i18n/config'
-import { routeMap } from './route-map'
+import { LANG_PREFIXES, type RouteKey, routeMap } from './route-map'
 
-export type { RouteKey } from './route-map'
-export type { Lang }
+export type { Lang, RouteKey }
 
 const COURSE_SEGMENT: Record<Lang, string> = { pt: 'cadeiras', en: 'courses' }
 
-export function getLocalePath(key: keyof typeof routeMap, lang: Lang): string {
-  return routeMap[key].paths[lang]
+export function getLocalePath(key: RouteKey, lang: Lang): string {
+  const def = routeMap[key]
+  const prefix = LANG_PREFIXES[lang]
+  if ('index' in def) return prefix ?? '/'
+  const slug = def.slugs[lang]
+  return prefix != null ? `${prefix}/${slug}` : `/${slug}`
 }
 
 export function detectLang(pathname: string): Lang {
@@ -17,9 +20,17 @@ export function detectLang(pathname: string): Lang {
 // Reverse lookup tables derived from routeMap
 const ptToEn: Record<string, string> = {}
 const enToPt: Record<string, string> = {}
-for (const key of Object.keys(routeMap) as (keyof typeof routeMap)[]) {
-  ptToEn[routeMap[key].paths.pt] = routeMap[key].paths.en
-  enToPt[routeMap[key].paths.en] = routeMap[key].paths.pt
+for (const key of Object.keys(routeMap) as RouteKey[]) {
+  const def = routeMap[key]
+  if ('index' in def) {
+    ptToEn[LANG_PREFIXES.pt ?? '/'] = LANG_PREFIXES.en ?? '/'
+    enToPt[LANG_PREFIXES.en ?? '/'] = LANG_PREFIXES.pt ?? '/'
+  } else {
+    const ptPath = `${LANG_PREFIXES.pt != null ? LANG_PREFIXES.pt : ''}/${def.slugs.pt}`
+    const enPath = `${LANG_PREFIXES.en != null ? LANG_PREFIXES.en : ''}/${def.slugs.en}`
+    ptToEn[ptPath] = enPath
+    enToPt[enPath] = ptPath
+  }
 }
 
 function swapDynamicPath(path: string, from: Lang): string {

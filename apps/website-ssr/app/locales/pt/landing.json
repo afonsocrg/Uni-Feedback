@@ -98,15 +98,15 @@
       },
       {
         "question": "Como sei que as avaliações são verdadeiras?",
-        "answer": "Todos os contribuidores autenticam-se com o seu email universitário antes de submeter. O teu email nunca é exibido nem partilhado."
+        "answer": "Antes de contribuir, todas as pessoas têm de se autenticar com o mail da faculdade. Os e-mails nunca são partilhados com ninguém!"
       },
       {
         "question": "Preciso de criar uma conta para submeter feedback?",
         "answer": "Precisas de te autenticar com o teu email da faculdade para submeter feedback. Quando o fizeres pela primeira vez, criamos uma conta automaticamente."
       },
       {
-        "question": "A minha cadeira não está listada. O que posso fazer?",
-        "answer": "[Entra em contacto comigo!](mailto:afonso@uni-feedback.com) Terei todo o gosto em adicionar a tua cadeira, curso ou faculdade."
+        "question": "O meu curso não está no Uni Feedback. O que posso fazer?",
+        "answer": "[Entra em contacto comigo](mailto:afonso@uni-feedback.com)! Tenho todo o gosto em adicionar o teu curso / faculdade ao Uni Feedback!!"
       },
       {
         "question": "Em que língua devo escrever o meu feedback?",
@@ -114,7 +114,7 @@
       },
       {
         "question": "Quanto tempo demora a minha avaliação a aparecer depois de a submeter?",
-        "answer": "**O teu feedback é publicado imediatamente.** Leio todas as submissões. Se algo não seguir as nossas [guidelines]({{guidelinesUrl}}), entrarei em contacto contigo."
+        "answer": "O teu feedback é publicado logo quando o submeteres. Leio todas as submissões. Se algo não seguir as nossas [guidelines]({{guidelinesUrl}}), entrarei em contacto contigo."
       },
       {
         "question": "Posso editar ou eliminar o meu feedback depois de o submeter?",
@@ -122,10 +122,10 @@
       },
       {
         "question": "Quem gere o Uni Feedback? É uma empresa?",
-        "answer": "O Uni Feedback é gerido por mim, Afonso. Sou uma pessoa que quer mesmo ajudar os alunos a tomar decisões mais informadas."
+        "answer": "O Uni Feedback é gerido por mim, Afonso. Sou uma pessoa que quer mesmo os alunos a tomar decisões mais informadas e trazer mais transparência ao mundo académico em Portugal."
       },
       {
-        "question": "O que acontece se vir uma avaliação que parece falsa ou injusta?",
+        "question": "O que acontece se vir um feedback que parece falso ou injusto?",
         "answer": "Podes reportá-la. Sempre que recebo um report, reavalio o feedback em causa e removo-o se não cumprir as nossas [guidelines](/guidelines)."
       }
     ],
@@ -172,7 +172,7 @@
   },
   "contact_section": {
     "title": "Entra em contacto",
-    "desc": "Tens um bug, ideia ou feedback? Envia-me um email para afonso@uni-feedback.com. Respondo sempre que consigo.",
+    "desc": "Encontraste algum bug, ou queres dar uma sugestão? Envia-me um email para afonso@uni-feedback.com. Respondo sempre que consigo.",
     "email": "Envia um Email",
     "linkedin": "Conectar no LinkedIn"
   }

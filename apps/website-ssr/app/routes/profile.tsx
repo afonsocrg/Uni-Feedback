@@ -48,11 +48,9 @@ export function meta() {
   ]
 }
 
-const deleteAccountSchema = z.object({
-  emailConfirmation: z.string().email('Please enter a valid email address')
-})
-
-type DeleteAccountFormData = z.infer<typeof deleteAccountSchema>
+type DeleteAccountFormData = {
+  emailConfirmation: string
+}
 
 export default function ProfilePage() {
   const { t } = useTranslation('feedback')
@@ -63,10 +61,13 @@ export default function ProfilePage() {
   const [isDeleting, setIsDeleting] = useState(false)
   const [copiedReferral, setCopiedReferral] = useState(false)
 
-  // Fetch user stats and feedback
   const { data: statsData, isLoading: isStatsLoading } = useProfileStats()
   const { data: feedbackData, isLoading: isFeedbackLoading } =
     useProfileFeedback()
+
+  const deleteAccountSchema = z.object({
+    emailConfirmation: z.string().email(t('profile.delete_email_invalid'))
+  })
 
   const form = useForm<DeleteAccountFormData>({
     resolver: zodResolver(deleteAccountSchema),
@@ -88,10 +89,10 @@ export default function ProfilePage() {
     try {
       await navigator.clipboard.writeText(referralUrl)
       setCopiedReferral(true)
-      toast.success('Referral link copied!')
+      toast.success(t('profile.toast_referral_copied'))
       setTimeout(() => setCopiedReferral(false), 2000)
     } catch {
-      toast.error('Failed to copy referral link')
+      toast.error(t('profile.toast_referral_failed'))
     }
   }
 
@@ -99,7 +100,7 @@ export default function ProfilePage() {
     if (values.emailConfirmation !== user.email) {
       form.setError('emailConfirmation', {
         type: 'manual',
-        message: 'Email does not match your account email'
+        message: t('profile.delete_email_mismatch')
       })
       return
     }
@@ -110,7 +111,7 @@ export default function ProfilePage() {
       await deleteAccount()
       localStorage.removeItem(STORAGE_KEYS.AUTH_USER)
       setShowDeleteDialog(false)
-      toast.success('Your account has been deleted successfully')
+      toast.success(t('profile.toast_deleted'))
       navigate(getLocalePath('home', lang))
       await logout()
     } catch (error) {
@@ -118,7 +119,7 @@ export default function ProfilePage() {
       toast.error(
         error instanceof Error
           ? error.message
-          : 'Failed to delete account. Please try again.'
+          : t('profile.toast_delete_failed')
       )
     } finally {
       setIsDeleting(false)
@@ -132,7 +133,9 @@ export default function ProfilePage() {
   return (
     <div className="min-h-full bg-gray-50/30">
       <div className="container mx-auto px-4 pt-6">
-        <GenericBreadcrumb items={[{ label: 'Profile', isActive: true }]} />
+        <GenericBreadcrumb
+          items={[{ label: t('profile.page_title'), isActive: true }]}
+        />
       </div>
       <div className="mx-auto px-4 py-8 max-w-4xl">
         {/* Top Section: User Info + Stats */}
@@ -150,29 +153,30 @@ export default function ProfilePage() {
                 </p>
                 {isStatsLoading ? (
                   <p className="text-sm text-muted-foreground">
-                    Loading stats...
+                    {t('profile.loading_stats')}
                   </p>
                 ) : stats ? (
                   <p className="text-2xl font-bold text-primaryBlue flex items-center gap-1">
                     {stats.totalPoints}{' '}
                     <span className="text-sm text-muted-foreground font-normal">
-                      points
+                      {t('profile.points')}
                     </span>
                     <Popover>
                       <PopoverTrigger asChild>
                         <button
                           type="button"
                           className="cursor-pointer"
-                          aria-label="How do points work?"
+                          aria-label={t('profile.how_points_work')}
                         >
                           <HelpCircle className="size-4 text-muted-foreground hover:text-primary transition-colors" />
                         </button>
                       </PopoverTrigger>
                       <PopoverContent className="w-64 text-sm">
-                        <p className="font-medium mb-2">How do points work?</p>
+                        <p className="font-medium mb-2">
+                          {t('profile.how_points_work')}
+                        </p>
                         <p className="text-muted-foreground mb-3">
-                          Earn points by submitting feedback and referring
-                          friends. Points unlock rewards and recognition!
+                          {t('profile.points_desc')}
                         </p>
                         <Link
                           to={getLocalePath('points', lang)}
@@ -185,7 +189,7 @@ export default function ProfilePage() {
                   </p>
                 ) : (
                   <p className="text-sm text-muted-foreground">
-                    Failed to load stats
+                    {t('profile.stats_failed')}
                   </p>
                 )}
               </div>
@@ -197,20 +201,22 @@ export default function ProfilePage() {
                 <Separator />
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">
-                    {stats.feedbackCount} Feedback
-                    {stats.feedbackCount !== 1 ? 's' : ''}
+                    {t('profile.feedback_count', {
+                      count: stats.feedbackCount
+                    })}
                   </span>
                   <span className="font-medium">
-                    {stats.feedbackPoints} pts
+                    {stats.feedbackPoints} {t('profile.pts')}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">
-                    {stats.referralCount} Referral
-                    {stats.referralCount !== 1 ? 's' : ''}
+                    {t('profile.referral_count', {
+                      count: stats.referralCount
+                    })}
                   </span>
                   <span className="font-medium">
-                    {stats.referralPoints} pts
+                    {stats.referralPoints} {t('profile.pts')}
                   </span>
                 </div>
               </div>
@@ -222,10 +228,10 @@ export default function ProfilePage() {
             {user.referralCode && (
               <div>
                 <p className="text-sm font-semibold mb-1">
-                  Invite your friends!
+                  {t('profile.referral_title')}
                 </p>
                 <p className="text-xs text-muted-foreground mb-3">
-                  Earn points for every friend who posts their first feedback
+                  {t('profile.referral_desc')}
                 </p>
                 <div className="relative">
                   <Input
@@ -238,7 +244,7 @@ export default function ProfilePage() {
                     size="icon"
                     onClick={handleShareReferralLink}
                     className="absolute right-1 top-1/2 -translate-y-1/2 size-8"
-                    title="Copy referral link"
+                    title={t('profile.copy_referral')}
                   >
                     {copiedReferral ? (
                       <Check className="size-4" />
@@ -255,7 +261,9 @@ export default function ProfilePage() {
         {/* Your Feedback Section */}
         <div className="mb-12">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold">Your Feedback</h2>
+            <h2 className="text-lg font-semibold">
+              {t('profile.my_feedback_title')}
+            </h2>
             <Link
               to={`${getReviewPath(lang)}?from=profile`}
               onClick={() => {
@@ -271,7 +279,7 @@ export default function ProfilePage() {
           {isFeedbackLoading ? (
             <div className="text-center py-8">
               <p className="text-sm text-muted-foreground">
-                Loading feedback...
+                {t('profile.loading_feedback')}
               </p>
             </div>
           ) : feedbackData && feedbackData.feedback?.length > 0 ? (
@@ -283,7 +291,7 @@ export default function ProfilePage() {
           ) : (
             <div className="text-center py-8 border rounded-lg">
               <p className="text-sm text-muted-foreground mb-4">
-                You haven't submitted any feedback yet.
+                {t('profile.my_feedback_empty')}
               </p>
               <Link to={getLocalePath('browse', lang)}>
                 <Button variant="outline">
@@ -298,10 +306,11 @@ export default function ProfilePage() {
         <div className="pt-8 border-t">
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
             <div className="flex-1">
-              <h3 className="font-medium mb-1">Delete Account</h3>
+              <h3 className="font-medium mb-1">
+                {t('profile.delete_account_btn')}
+              </h3>
               <p className="text-sm text-muted-foreground">
-                Permanently delete your account and anonymize your data. Your
-                feedback will be preserved anonymously to help other students.
+                {t('profile.delete_account_desc')}
               </p>
             </div>
             <Button
@@ -309,7 +318,7 @@ export default function ProfilePage() {
               onClick={() => setShowDeleteDialog(true)}
               className="sm:flex-shrink-0"
             >
-              Delete Account
+              {t('profile.delete_account_btn')}
             </Button>
           </div>
         </div>
@@ -328,12 +337,10 @@ export default function ProfilePage() {
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <AlertTriangle className="size-5 text-destructive" />
-                Delete Account
+                {t('profile.delete_dialog_title')}
               </DialogTitle>
               <DialogDescription className="text-sm">
-                This action cannot be undone. Your personal information will be
-                permanently deleted, but your feedback will remain anonymous to
-                help other students.
+                {t('profile.delete_dialog_desc')}
               </DialogDescription>
             </DialogHeader>
 
@@ -349,13 +356,15 @@ export default function ProfilePage() {
                     <FormItem>
                       <FormLabel className="text-sm">
                         <span className="text-center">
-                          Type {user.email} to confirm
+                          {t('profile.delete_confirm_label', {
+                            email: user.email
+                          })}
                         </span>
                       </FormLabel>
                       <FormControl>
                         <Input
                           type="email"
-                          placeholder="Enter your email"
+                          placeholder={t('profile.delete_confirm_placeholder')}
                           className="text-sm"
                           {...field}
                           disabled={isDeleting}
@@ -373,7 +382,7 @@ export default function ProfilePage() {
                     onClick={() => setShowDeleteDialog(false)}
                     disabled={isDeleting}
                   >
-                    Cancel
+                    {t('profile.delete_cancel')}
                   </Button>
                   <Button
                     type="submit"
@@ -383,7 +392,9 @@ export default function ProfilePage() {
                       form.watch('emailConfirmation') !== user.email
                     }
                   >
-                    {isDeleting ? 'Deleting...' : 'Delete Account'}
+                    {isDeleting
+                      ? t('profile.delete_deleting')
+                      : t('profile.delete_confirm_btn')}
                   </Button>
                 </DialogFooter>
               </form>

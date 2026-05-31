@@ -8,7 +8,7 @@
     "dev:website-ssr": "dotenv -- node server.js",
     "start": "node server.js",
     "lint": "eslint .",
-    "typecheck": "react-router typegen && tsc -b",
+    "type-check": "react-router typegen && tsc -b",
     "clean": "rm -rf node_modules build .react-router"
   },
   "dependencies": {

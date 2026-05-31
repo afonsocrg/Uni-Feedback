@@ -2,7 +2,7 @@
   "contact": {
     "meta_title": "Contacto - Uni Feedback",
     "title": "Entra em Contacto",
-    "desc": "Tens um bug, ideia ou feedback? Envia-me um email para afonso@uni-feedback.com. Respondo sempre que consigo!",
+    "desc": "Encontraste algum bug, ou queres dar uma sugestão? Envia-me um email para afonso@uni-feedback.com. Respondo sempre que consigo.",
     "email_btn": "Envia-me um Email"
   },
   "supporters": {
@@ -30,7 +30,7 @@
     "writing_relevant_desc": "Se algo te marcou na cadeira (para o bem ou para o mal) provavelmente vai ser útil para outros alunos também. Normalmente isso passa por professores, avaliações, materiais de estudo e dicas, mas não te limites a isso.",
     "writing_specific_title": "Sê específico.",
     "writing_specific_desc": "Comentários vagos não ajudam muito. “O teste cobriu 3 semanas de matéria que nunca tínhamos visto nas práticas” é muito mais útil do que “o teste foi injusto”.",
-    "writing_personal_title": "Não leves para o lado pessoal.",
+    "writing_personal_title": "Mantém-no factual.",
     "writing_personal_desc": "Quando o feedback passa para opiniões sobre a pessoa do professor, perde utilidade. Foca-te no que aconteceu e no impacto que teve em ti.",
     "writing_friend_title": "Escreve como falarias com um amigo.",
     "writing_friend_desc": "Isto não é um relatório. Quanto mais natural e direto for o teu feedback, mais útil vai ser para quem o lê.",
