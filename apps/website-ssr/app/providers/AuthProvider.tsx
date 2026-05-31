@@ -9,6 +9,7 @@ import { useLocation, useNavigate } from 'react-router'
 import { useLocalStorage } from '~/hooks'
 import { identifyUser, resetUser } from '~/utils/analytics'
 import { STORAGE_KEYS } from '~/utils/constants'
+import { detectLang, getLocalePath } from '~/utils/i18n-routes'
 import {
   AuthContext,
   type AuthContextType,
@@ -89,12 +90,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setIsLoading(true)
     setIsLoggingOut(true)
 
-    // Check if currently on a protected route (within auth-layout)
-    // Protected routes: /profile, /feedback/:id/edit
-    // Public routes that should NOT redirect: /feedback/new
+    const lang = detectLang(location.pathname)
+    const profilePath = getLocalePath('profile', lang)
+    const feedbackEditPattern =
+      lang === 'en'
+        ? /^\/en\/feedback\/[^/]+\/edit(\/.*)?$/
+        : /^\/feedback\/[^/]+\/editar(\/.*)?$/
     const isOnProtectedRoute =
-      location.pathname === '/profile' ||
-      location.pathname.match(/^\/feedback\/\d+\/edit\/?.*$/) !== null
+      location.pathname === profilePath ||
+      feedbackEditPattern.test(location.pathname)
 
     try {
       await apiLogout()
@@ -109,7 +113,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       // Navigate away from protected routes after clearing auth state
       if (isOnProtectedRoute) {
-        navigate('/')
+        navigate(getLocalePath('home', lang))
       }
 
       // isLoggingOut will be reset by the useEffect watching location.pathname

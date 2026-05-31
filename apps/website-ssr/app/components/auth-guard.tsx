@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import { useAuth } from '~/hooks'
-import { detectLang } from '~/utils/i18n-routes'
+import { detectLang, getLocalePath } from '~/utils/i18n-routes'
 
 interface AuthGuardProps {
   children: React.ReactNode
@@ -23,7 +23,7 @@ export function AuthGuard({ children, loadingComponent }: AuthGuardProps) {
       toast.error(t('auth.unauthorized_toast'))
 
       const lang = detectLang(location.pathname)
-      const loginPath = lang === 'en' ? '/en/login' : '/login'
+      const loginPath = getLocalePath('login', lang)
       const redirectUrl = `${location.pathname}${location.search}`
       navigate(`${loginPath}?redirect=${encodeURIComponent(redirectUrl)}`, {
         replace: true
