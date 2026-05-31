@@ -1,11 +1,46 @@
-import { generateSitemap, type SitemapRoute } from '@forge42/seo-tools/sitemap'
 import { database, schema } from '@uni-feedback/db'
 import { eq } from 'drizzle-orm'
+import { getLocalePath } from '~/utils/i18n-routes'
+
+const DOMAIN = 'https://uni-feedback.com'
+
+interface PagePair {
+  pt: string
+  en: string
+  changefreq: string
+  priority: number
+}
+
+function renderUrlEntry(
+  pair: PagePair,
+  lang: 'pt' | 'en',
+  lastmod: string
+): string {
+  const loc = `${DOMAIN}${pair[lang]}`
+  return [
+    '  <url>',
+    `    <loc>${loc}</loc>`,
+    `    <xhtml:link rel="alternate" hreflang="pt" href="${DOMAIN}${pair.pt}"/>`,
+    `    <xhtml:link rel="alternate" hreflang="en" href="${DOMAIN}${pair.en}"/>`,
+    `    <xhtml:link rel="alternate" hreflang="x-default" href="${DOMAIN}${pair.pt}"/>`,
+    `    <lastmod>${lastmod}</lastmod>`,
+    `    <changefreq>${pair.changefreq}</changefreq>`,
+    `    <priority>${pair.priority}</priority>`,
+    '  </url>'
+  ].join('\n')
+}
+
+function renderPair(pair: PagePair, lastmod: string): string {
+  return [
+    renderUrlEntry(pair, 'pt', lastmod),
+    renderUrlEntry(pair, 'en', lastmod)
+  ].join('\n')
+}
 
 export async function loader() {
   const db = database()
+  const lastmod = new Date().toISOString()
 
-  // Get all dynamic route data from database
   const [faculties, degrees, courses] = await Promise.all([
     db.select({ slug: schema.faculties.slug }).from(schema.faculties),
     db
@@ -21,90 +56,84 @@ export async function loader() {
     db.select({ id: schema.courses.id }).from(schema.courses)
   ])
 
-  // Static routes
-  const staticUrls: SitemapRoute[] = [
+  const staticPairs: PagePair[] = [
     {
-      url: '/',
-      lastmod: new Date().toISOString(),
-      changefreq: 'weekly' as const,
+      pt: getLocalePath('home', 'pt'),
+      en: getLocalePath('home', 'en'),
+      changefreq: 'weekly',
       priority: 1.0
     },
     {
-      url: '/browse',
-      lastmod: new Date().toISOString(),
-      changefreq: 'weekly' as const,
+      pt: getLocalePath('browse', 'pt'),
+      en: getLocalePath('browse', 'en'),
+      changefreq: 'weekly',
       priority: 0.9
     },
     {
-      url: '/feedback/new',
-      lastmod: new Date().toISOString(),
-      changefreq: 'monthly' as const,
+      pt: getLocalePath('feedback-new', 'pt'),
+      en: getLocalePath('feedback-new', 'en'),
+      changefreq: 'monthly',
       priority: 0.6
     },
     {
-      url: '/apoiantes',
-      lastmod: new Date().toISOString(),
-      changefreq: 'monthly' as const,
+      pt: getLocalePath('supporters', 'pt'),
+      en: getLocalePath('supporters', 'en'),
+      changefreq: 'monthly',
       priority: 0.5
     },
     {
-      url: '/terms',
-      lastmod: new Date().toISOString(),
-      changefreq: 'yearly' as const,
+      pt: getLocalePath('terms', 'pt'),
+      en: getLocalePath('terms', 'en'),
+      changefreq: 'yearly',
       priority: 0.3
     },
     {
-      url: '/privacy',
-      lastmod: new Date().toISOString(),
-      changefreq: 'yearly' as const,
+      pt: getLocalePath('privacy', 'pt'),
+      en: getLocalePath('privacy', 'en'),
+      changefreq: 'yearly',
       priority: 0.3
     }
   ]
 
-  // Build dynamic URLs
-  const dynamicUrls = [
-    // Faculty pages
-    ...faculties.map(
-      (f) =>
-        ({
-          url: `/${f.slug}`,
-          lastmod: new Date().toISOString(),
-          changefreq: 'weekly' as const,
-          priority: 0.7
-        }) as SitemapRoute
-    ),
-    // Degree pages
-    ...degrees.map(
-      (d) =>
-        ({
-          url: `/${d.facultySlug}/${d.degreeSlug}`,
-          lastmod: new Date().toISOString(),
-          changefreq: 'weekly' as const,
-          priority: 0.8
-        }) as SitemapRoute
-    ),
-    // Course pages
-    ...courses.map(
-      (c) =>
-        ({
-          url: `/courses/${c.id}`,
-          lastmod: new Date().toISOString(),
-          changefreq: 'weekly' as const,
-          priority: 0.9
-        }) as SitemapRoute
-    )
+  const dynamicPairs: PagePair[] = [
+    ...faculties
+      .filter((f) => f.slug)
+      .map((f) => ({
+        pt: `/${f.slug}`,
+        en: `/en/${f.slug}`,
+        changefreq: 'weekly',
+        priority: 0.7
+      })),
+    ...degrees
+      .filter((d) => d.facultySlug && d.degreeSlug)
+      .map((d) => ({
+        pt: `/${d.facultySlug}/${d.degreeSlug}`,
+        en: `/en/${d.facultySlug}/${d.degreeSlug}`,
+        changefreq: 'weekly',
+        priority: 0.8
+      })),
+    ...courses.map((c) => ({
+      pt: `/cadeiras/${c.id}`,
+      en: `/en/courses/${c.id}`,
+      changefreq: 'weekly',
+      priority: 0.9
+    }))
   ]
 
-  // Generate sitemap with static routes from React Router + dynamic URLs
-  const sitemap = await generateSitemap({
-    domain: 'https://uni-feedback.com',
-    routes: [...staticUrls, ...dynamicUrls]
-  })
+  const xml = [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"',
+    '        xmlns:xhtml="http://www.w3.org/1999/xhtml">',
+    ...[...staticPairs, ...dynamicPairs].map((pair) =>
+      renderPair(pair, lastmod)
+    ),
+    '</urlset>'
+  ].join('\n')
 
-  return new Response(sitemap, {
+  return new Response(xml, {
     headers: {
       'Content-Type': 'application/xml',
-      'Cache-Control': 'public, max-age=3600' // Cache for 1 hour
+      'Cache-Control': 'public, max-age=3600'
     }
   })
 }

@@ -26,7 +26,11 @@ import {
   getPageName,
   type FeedbackEntryPoint
 } from '~/utils/analytics'
-import { detectLang, getReviewPath } from '~/utils/i18n-routes'
+import {
+  detectLang,
+  getFeedbackEditPath,
+  getReviewPath
+} from '~/utils/i18n-routes'
 
 import type { Route } from './+types/course.$courseId.feedback'
 
@@ -51,7 +55,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
 
   const { course } = loaderData
   const title = `Give Feedback for ${course.name} - Uni Feedback`
-  const description = `Share your experience with ${course.name} (${course.acronym}) at ${course.degree.faculty.shortName}. Your anonymous feedback helps fellow students make informed decisions.`
+  const description = `Share your experience with ${course.name} (${course.acronym}) at ${course.degree?.faculty?.shortName ?? ''}. Your anonymous feedback helps fellow students make informed decisions.`
 
   return [
     { title },
@@ -82,11 +86,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
 
     if (existing) {
       const lang = detectLang(new URL(request.url).pathname)
-      const editPath =
-        lang === 'en'
-          ? `/en/feedback/${existing.id}/edit`
-          : `/feedback/${existing.id}/editar`
-      throw redirect(`${editPath}?redirected=1`)
+      throw redirect(`${getFeedbackEditPath(lang, existing.id)}?redirected=1`)
     }
   }
 

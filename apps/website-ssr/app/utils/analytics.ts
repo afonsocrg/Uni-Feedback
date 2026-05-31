@@ -1,4 +1,5 @@
 import posthog from 'posthog-js'
+import { detectLang, getLocalePath } from '~/utils/i18n-routes'
 
 /**
  * Core event tracking function
@@ -14,41 +15,36 @@ export const trackEvent = (
   posthog.capture(eventName, properties)
 }
 
-/**
- * Get a human-readable page name for a given pathname
- * Maps URL paths to analytics-friendly page names based on app routes
- *
- * @param path - The pathname to categorize (e.g., window.location.pathname)
- * @returns Page name for analytics tracking
- *
- * @example
- * getPageName('/') // 'home'
- * getPageName('/courses/123') // 'course_detail'
- * getPageName('/ist/leic') // 'degree_page'
- */
 export const getPageName = (path: string): string => {
-  // Exact matches first (most specific)
-  if (path === '/') return 'home'
-  if (path === '/browse') return 'browse'
-  if (path === '/profile') return 'profile'
-  if (path === '/giveaway') return 'giveaway'
-  if (path === '/giveaway/rules') return 'giveaway_rules'
-  if (path === '/points') return 'points'
-  if (path === '/apoiantes') return 'supporters'
-  if (path === '/terms') return 'terms'
-  if (path === '/privacy') return 'privacy'
-  if (path === '/guidelines') return 'guidelines'
-  if (path === '/login') return 'login'
+  const lang = detectLang(path)
 
-  // Dynamic routes (order matters - most specific first)
-  if (path.startsWith('/courses/')) return 'course_detail'
-  if (path.startsWith('/feedback/') && path.endsWith('/edit'))
-    return 'feedback_edit'
-  if (path === '/feedback/new') return 'feedback_form'
+  // Static routes
+  if (path === getLocalePath('home', lang)) return 'home'
+  if (path === getLocalePath('browse', lang)) return 'browse'
+  if (path === getLocalePath('profile', lang)) return 'profile'
+  if (path === getLocalePath('giveaway', lang)) return 'giveaway'
+  if (path === getLocalePath('giveaway-rules', lang)) return 'giveaway_rules'
+  if (path === getLocalePath('points', lang)) return 'points'
+  if (path === getLocalePath('supporters', lang)) return 'supporters'
+  if (path === getLocalePath('terms', lang)) return 'terms'
+  if (path === getLocalePath('privacy', lang)) return 'privacy'
+  if (path === getLocalePath('guidelines', lang)) return 'guidelines'
+  if (path === getLocalePath('login', lang)) return 'login'
+  if (path === getLocalePath('feedback-new', lang)) return 'feedback_form'
 
-  // Faculty/Degree pages (/:facultySlug/:degreeSlug or /:facultySlug)
-  // These are last because they're catch-all patterns
-  const pathParts = path.split('/').filter(Boolean)
+  // Dynamic routes
+  const coursePrefix = lang === 'en' ? '/en/courses/' : '/cadeiras/'
+  if (path.startsWith(coursePrefix)) return 'course_detail'
+
+  const feedbackEditPattern =
+    lang === 'en'
+      ? /^\/en\/feedback\/[^/]+\/edit(\/.*)?$/
+      : /^\/feedback\/[^/]+\/editar(\/.*)?$/
+  if (feedbackEditPattern.test(path)) return 'feedback_edit'
+
+  // Faculty/Degree pages — catch-all, must be last
+  const pathWithoutLangPrefix = lang === 'en' ? path.slice('/en'.length) : path
+  const pathParts = pathWithoutLangPrefix.split('/').filter(Boolean)
   if (pathParts.length === 2) return 'degree_page'
   if (pathParts.length === 1) return 'faculty_page'
 

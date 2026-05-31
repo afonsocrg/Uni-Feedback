@@ -15,7 +15,8 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-  useLoaderData
+  useLoaderData,
+  useLocation
 } from 'react-router'
 import { Toaster } from 'sonner'
 import { NotFound } from '~/components'
@@ -24,7 +25,7 @@ import { defaultLang, i18n } from '~/i18n/config'
 import { AuthProvider } from '~/providers/AuthProvider'
 import { AuthRefreshProvider } from '~/providers/AuthRefreshProvider'
 import { userPreferences } from '~/utils'
-import { detectLang } from '~/utils/i18n-routes'
+import { detectLang, getEquivalentPath } from '~/utils/i18n-routes'
 import type { Route } from './+types/root'
 import { LandingLayout } from './components/landing'
 
@@ -72,6 +73,26 @@ const persister =
       })
     : undefined
 
+const SITE_ORIGIN = 'https://uni-feedback.com'
+
+function HreflangLinks() {
+  const { pathname } = useLocation()
+  const lang = detectLang(pathname)
+  const ptPath = lang === 'pt' ? pathname : getEquivalentPath(pathname, 'en')
+  const enPath = lang === 'en' ? pathname : getEquivalentPath(pathname, 'pt')
+  return (
+    <>
+      <link rel="alternate" hreflang="pt" href={`${SITE_ORIGIN}${ptPath}`} />
+      <link rel="alternate" hreflang="en" href={`${SITE_ORIGIN}${enPath}`} />
+      <link
+        rel="alternate"
+        hreflang="x-default"
+        href={`${SITE_ORIGIN}${ptPath}`}
+      />
+    </>
+  )
+}
+
 export function Layout({ children }: { children: React.ReactNode }) {
   const envScript =
     typeof process !== 'undefined'
@@ -91,6 +112,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
+        <HreflangLinks />
         {envScript && (
           <script
             dangerouslySetInnerHTML={{ __html: envScript }}
@@ -200,7 +222,7 @@ export default function App() {
         <AuthRefreshProvider>
           <PersistQueryClientProvider
             client={queryClient}
-            persistOptions={{ persister }}
+            persistOptions={{ persister: persister! }}
           >
             <Toaster position="top-right" richColors />
             <Outlet />

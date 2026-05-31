@@ -105,6 +105,12 @@ export function getDegreePath(
     : `/${facultySlug}/${degreeSlug}`
 }
 
+export function getFeedbackEditPath(lang: Lang, feedbackId: number): string {
+  return lang === 'en'
+    ? `/en/feedback/${feedbackId}/edit`
+    : `/feedback/${feedbackId}/editar`
+}
+
 export function getFeedbackAnchor(
   lang: Lang,
   courseId: number,
