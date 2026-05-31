@@ -22,13 +22,19 @@ import {
   ReportFeedback
 } from './feedback'
 import { router as profileRouter } from './profile/router'
-import { NotFoundError, handleError } from './utils'
+import { AppError, NotFoundError, handleError } from './utils'
 
 const app = new Hono()
 
 // Error handling middleware - handles all errors including from chanfana routes
-app.onError((err) => {
-  console.error('Error caught by Hono middleware:', err)
+app.onError((err, c) => {
+  if (err instanceof AppError) {
+    console.log(
+      `[${err.statusCode}] ${c.req.method} ${c.req.path} — ${err.message}`
+    )
+  } else {
+    console.error('Unexpected error caught by Hono middleware:', err)
+  }
   return handleError(err)
 })
 
