@@ -73,7 +73,7 @@ export function Breadcrumb({
   if (faculty) {
     items.push({
       label: faculty.shortName,
-      href: getFacultyPath(lang, faculty.slug),
+      href: faculty.slug ? getFacultyPath(lang, faculty.slug) : undefined,
       onClick: handleFacultyClick
     })
   }
@@ -81,7 +81,10 @@ export function Breadcrumb({
   if (faculty && degree) {
     items.push({
       label: degree.acronym,
-      href: course ? getDegreePath(lang, faculty.slug, degree.slug) : undefined,
+      href:
+        course && faculty.slug && degree.slug
+          ? getDegreePath(lang, faculty.slug, degree.slug)
+          : undefined,
       onClick: course ? handleDegreeClick : undefined,
       isActive: !course
     })
