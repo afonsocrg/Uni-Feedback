@@ -55,7 +55,7 @@ export function validateFormData(
   }
 
   const errors: Record<string, string[]> = {}
-  result.error.errors.forEach((error) => {
+  result.error.issues.forEach((error) => {
     const field = error.path[0] as string
     if (!errors[field]) {
       errors[field] = []

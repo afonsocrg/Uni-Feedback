@@ -11,18 +11,21 @@ interface FacultySelectorProps {
 export function FacultySelector({ faculties }: FacultySelectorProps) {
   const lang = useLang()
 
-  const getFacultyUrl = (faculty: Faculty) => {
-    return getFacultyPath(lang, faculty.slug)
-  }
+  const sluggedFaculties = faculties.filter(
+    (f): f is Faculty & { slug: string } => f.slug !== null
+  )
 
-  const handleFacultyClick = (faculty: Faculty) => {
+  const getFacultyUrl = (faculty: Faculty & { slug: string }) =>
+    getFacultyPath(lang, faculty.slug)
+
+  const handleFacultyClick = (faculty: Faculty & { slug: string }) => {
     userPreferences.set({
       lastSelectedFacultySlug: faculty.slug,
       lastVisitedPath: getFacultyPath(lang, faculty.slug)
     })
   }
 
-  if (!faculties || faculties.length === 0) {
+  if (!sluggedFaculties.length) {
     return (
       <div className="text-center py-12">
         <p className="text-gray-600">No faculties available.</p>
@@ -32,7 +35,7 @@ export function FacultySelector({ faculties }: FacultySelectorProps) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {faculties.map((faculty) => (
+      {sluggedFaculties.map((faculty) => (
         <SelectionCard
           key={faculty.id}
           title={faculty.shortName}

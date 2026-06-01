@@ -1,4 +1,3 @@
-import type { Course, Degree, Faculty } from '@uni-feedback/db/schema'
 import { Home } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useLang } from '~/hooks'
@@ -12,9 +11,9 @@ import { GenericBreadcrumb, type BreadcrumbItemData } from './GenericBreadcrumb'
 
 interface BreadcrumbProps {
   className?: string
-  faculty?: Faculty
-  degree?: Degree
-  course?: Course
+  faculty?: { slug?: string | null; shortName: string }
+  degree?: { slug?: string | null; acronym: string }
+  course?: { acronym: string }
 }
 
 export function Breadcrumb({

@@ -1,4 +1,4 @@
-import type { Testimonial } from '@uni-feedback/db'
+import type { Testimonial } from '@uni-feedback/db/schema'
 import { useTranslation } from 'react-i18next'
 import { getAssetUrl } from '~/utils'
 import { TestimonialCard } from './TestimonialCard'

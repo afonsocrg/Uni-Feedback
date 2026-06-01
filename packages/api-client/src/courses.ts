@@ -1,5 +1,5 @@
 import { API_BASE_URL } from './config'
-import {
+import type {
   Course,
   CourseDetail,
   CourseSearchResponse,

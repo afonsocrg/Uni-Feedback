@@ -131,7 +131,7 @@ export const routeConfig = [
       },
       {
         key: 'supporters',
-        file: 'routes/apoiantes.tsx',
+        file: 'routes/supporters.tsx',
         slugs: { pt: 'apoiantes', en: 'supporters' }
       },
       {

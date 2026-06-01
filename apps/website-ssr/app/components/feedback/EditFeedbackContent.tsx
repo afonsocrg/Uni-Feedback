@@ -31,7 +31,7 @@ interface EditFeedbackContentProps {
     rating: number
     workloadRating: number
     comment: string | null
-    schoolYear: number
+    schoolYear: number | null
     courseName: string
     courseCode: string
     degreeName: string
@@ -65,7 +65,7 @@ export function EditFeedbackContent({
       rating: feedback.rating,
       workloadRating: feedback.workloadRating,
       comment: feedback.comment || '',
-      schoolYear: feedback.schoolYear
+      schoolYear: feedback.schoolYear ?? getCurrentSchoolYear()
     }
   })
 

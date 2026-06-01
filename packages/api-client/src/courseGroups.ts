@@ -1,5 +1,5 @@
 import { API_BASE_URL } from './config'
-import { CourseGroup } from './types'
+import type { CourseGroup } from './types'
 
 export async function getCourseGroups(
   degreeId: number

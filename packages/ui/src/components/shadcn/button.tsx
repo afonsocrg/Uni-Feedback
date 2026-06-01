@@ -27,7 +27,7 @@ export const buttonVariants = cva(
         lg: 'h-10 rounded-md px-6 has-[>svg]:px-4',
         icon: 'size-9'
       },
-      popover: {
+      popoverTrigger: {
         true: 'justify-start gap-2'
       }
     },
@@ -41,7 +41,7 @@ export const buttonVariants = cva(
 export interface ButtonProps extends React.ComponentProps<'button'> {
   variant?: VariantProps<typeof buttonVariants>['variant']
   size?: VariantProps<typeof buttonVariants>['size']
-  popover?: boolean
+  popoverTrigger?: boolean
   asChild?: boolean
 }
 
@@ -49,7 +49,7 @@ export function Button({
   className,
   variant,
   size,
-  popover = false,
+  popoverTrigger = false,
   asChild = false,
   ...props
 }: ButtonProps) {
@@ -58,7 +58,9 @@ export function Button({
   return (
     <Comp
       data-slot="button"
-      className={cn(buttonVariants({ variant, size, className, popover }))}
+      className={cn(
+        buttonVariants({ variant, size, className, popoverTrigger })
+      )}
       {...props}
     />
   )

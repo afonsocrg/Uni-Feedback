@@ -9,7 +9,7 @@ interface ReportFeedbackFeedbackCardProps {
     rating: number
     workloadRating: number | null
     comment: string | null
-    createdAt: string
+    createdAt: Date | string | null
     isFromDifferentCourse: number
     degree: {
       id: number
@@ -23,7 +23,9 @@ export function ReportFeedbackFeedbackCard({
   feedback
 }: ReportFeedbackFeedbackCardProps) {
   const lang = useLang()
-  const relativeTime = getRelativeTime(new Date(feedback.createdAt), lang)
+  const relativeTime = feedback.createdAt
+    ? getRelativeTime(new Date(feedback.createdAt), lang)
+    : ''
 
   return (
     <div className="bg-muted/50 border rounded-lg p-4 max-h-48 overflow-y-auto">

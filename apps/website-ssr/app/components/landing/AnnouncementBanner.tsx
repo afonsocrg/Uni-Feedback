@@ -67,8 +67,25 @@ export function AnnouncementBanner({
 
   if (!shouldRender) return null
 
-  const Wrapper = href ? Link : 'div'
-  const wrapperProps = href ? { to: href } : {}
+  const innerContent = (
+    <>
+      {/* Desktop: static text */}
+      <div className="hidden sm:block text-center text-sm font-medium text-white/95">
+        {children}
+      </div>
+
+      {/* Mobile: marquee animation */}
+      <div className="sm:hidden overflow-hidden w-full">
+        <div className="animate-marquee flex whitespace-nowrap text-sm font-medium text-white/95">
+          <span className="mx-8">{children}</span>
+          <span className="mx-8">{children}</span>
+        </div>
+      </div>
+    </>
+  )
+
+  const wrapperClassName =
+    'relative flex items-center justify-center py-2 pl-4 pr-10 cursor-pointer'
 
   return (
     <div
@@ -89,23 +106,13 @@ export function AnnouncementBanner({
       {/* Bottom metallic shadow */}
       <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-black/20 to-transparent pointer-events-none" />
 
-      <Wrapper
-        {...wrapperProps}
-        className="relative flex items-center justify-center py-2 pl-4 pr-10 cursor-pointer"
-      >
-        {/* Desktop: static text */}
-        <div className="hidden sm:block text-center text-sm font-medium text-white/95">
-          {children}
-        </div>
-
-        {/* Mobile: marquee animation */}
-        <div className="sm:hidden overflow-hidden w-full">
-          <div className="animate-marquee flex whitespace-nowrap text-sm font-medium text-white/95">
-            <span className="mx-8">{children}</span>
-            <span className="mx-8">{children}</span>
-          </div>
-        </div>
-      </Wrapper>
+      {href ? (
+        <Link to={href} className={wrapperClassName}>
+          {innerContent}
+        </Link>
+      ) : (
+        <div className={wrapperClassName}>{innerContent}</div>
+      )}
 
       <button
         onClick={handleDismiss}

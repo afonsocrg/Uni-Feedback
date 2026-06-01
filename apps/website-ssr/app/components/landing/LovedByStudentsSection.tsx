@@ -1,4 +1,4 @@
-import type { Faculty } from '@uni-feedback/db'
+import type { Faculty } from '@uni-feedback/db/schema'
 import { useTranslation } from 'react-i18next'
 import { getAssetUrl } from '~/utils'
 
@@ -20,8 +20,8 @@ export function LovedByStudentsSection({
           </h2>
           <div className="flex flex-wrap items-center justify-center gap-8">
             {faculties.map((faculty) => {
+              if (!faculty.logoHorizontal) return null
               const logoUrl = getAssetUrl(faculty.logoHorizontal)
-              if (!logoUrl) return null
 
               return (
                 <a

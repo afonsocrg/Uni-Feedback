@@ -13,13 +13,14 @@ import { useLang } from '~/hooks'
 import { getTruncatedText } from '~/lib/textUtils'
 import { analytics } from '~/utils/analytics'
 
-interface CourseFeedback {
+export interface CourseFeedback {
   id: number
   courseId: number
   rating: number
   workloadRating: number | null
   comment: string | null
-  createdAt: string
+  createdAt: Date | string | null
+  schoolYear?: number | null
   isFromDifferentCourse: number
   helpfulVoteCount: number
   hasVoted: boolean
@@ -50,7 +51,9 @@ export function CoursePageFeedbackCard({
   const characterLimit = 600
   const isLongComment =
     feedback.comment && feedback.comment.length > characterLimit
-  const relativeTime = getRelativeTime(new Date(feedback.createdAt), lang)
+  const relativeTime = feedback.createdAt
+    ? getRelativeTime(new Date(feedback.createdAt), lang)
+    : ''
 
   const feedbackAnchorId = `feedback-${feedback.id}`
 

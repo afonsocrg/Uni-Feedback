@@ -15,20 +15,26 @@ import { useDebounce } from '~/hooks'
 import { useFeedbackCategorization } from '~/hooks/useFeedbackCategorization'
 import { FeedbackCategoryChips } from './FeedbackCategoryChips'
 
-interface CommentSectionProps {
-  control: Control<FieldValues>
+type WithComment = FieldValues & { comment?: string }
+
+interface CommentSectionProps<T extends WithComment> {
+  control: Control<T>
   onDebouncedChange?: (comment: string) => void
 }
 
-export function CommentSection({
+export function CommentSection<T extends WithComment>({
   control,
   onDebouncedChange
-}: CommentSectionProps) {
+}: CommentSectionProps<T>) {
   const { t } = useTranslation('feedback')
   const [showReviewTips, setShowReviewTips] = useState(false)
 
-  // Only this component watches the comment field - uses useWatch not form.watch
-  const comment = useWatch({ control, name: 'comment' }) || ''
+  // Narrowed to Control<FieldValues> so react-hook-form's useWatch/FormField accept
+  // the literal string 'comment' as a valid Path — the generic T guarantees the field exists.
+  const baseControl = control as Control<FieldValues>
+
+  const comment =
+    (useWatch({ control: baseControl, name: 'comment' }) as string) || ''
 
   // Debounce comment for draft saving (500ms)
   const debouncedComment = useDebounce(comment, 500)
@@ -50,7 +56,7 @@ export function CommentSection({
     <>
       <FormField
         name="comment"
-        control={control}
+        control={baseControl}
         render={({ field }) => (
           <FormItem>
             <FormLabel className="text-base font-medium text-gray-900">

@@ -82,11 +82,11 @@ function HreflangLinks() {
   const enPath = lang === 'en' ? pathname : getEquivalentPath(pathname, 'pt')
   return (
     <>
-      <link rel="alternate" hreflang="pt" href={`${SITE_ORIGIN}${ptPath}`} />
-      <link rel="alternate" hreflang="en" href={`${SITE_ORIGIN}${enPath}`} />
+      <link rel="alternate" hrefLang="pt" href={`${SITE_ORIGIN}${ptPath}`} />
+      <link rel="alternate" hrefLang="en" href={`${SITE_ORIGIN}${enPath}`} />
       <link
         rel="alternate"
-        hreflang="x-default"
+        hrefLang="x-default"
         href={`${SITE_ORIGIN}${ptPath}`}
       />
     </>

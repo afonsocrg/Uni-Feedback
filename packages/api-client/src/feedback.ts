@@ -27,6 +27,7 @@ export type CreateFeedbackRequest = {
 export type CreateFeedbackResponse = {
   message: string
   pointsEarned: number
+  feedbackId?: number
 }
 
 export type FeedbackCategories = {

@@ -49,7 +49,7 @@ interface ReportFeedbackDialogProps {
     rating: number
     workloadRating: number | null
     comment: string | null
-    createdAt: string
+    createdAt: Date | string | null
     isFromDifferentCourse: number
     degree: {
       id: number

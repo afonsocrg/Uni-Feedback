@@ -40,7 +40,7 @@ export function FeedbackCategoryChips({
   orientation = 'horizontal',
   onHelpClick
 }: FeedbackCategoryChipsProps) {
-  const { t } = useTranslation('feedback')
+  const t = useTranslation('feedback').t as (key: string) => string
   return (
     <div
       className={

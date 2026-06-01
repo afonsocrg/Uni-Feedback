@@ -38,6 +38,8 @@ import type { Route } from './+types/course.$courseId.feedback'
 const feedbackSchema = z.object({
   schoolYear: z.number().min(2000, 'Invalid school year'),
   courseId: z.number().min(1, 'Course is required'),
+  facultyId: z.number().min(1, 'Faculty is required'),
+  degreeId: z.number().min(1, 'Degree is required'),
   rating: z.number().min(1, 'Rating is required').max(5),
   workloadRating: z.number().min(1, 'Workload rating is required').max(5),
   comment: z.string().optional()
@@ -106,7 +108,15 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     throw new Response('Course not found', { status: 404 })
   }
 
-  return { course }
+  // TypeScript doesn't narrow the variable type after property null-checks,
+  // so we assert the narrowed shape for the component props.
+  const narrowedCourse = course as typeof course & {
+    degree: NonNullable<(typeof course)['degree']> & {
+      faculty: NonNullable<NonNullable<(typeof course)['degree']>['faculty']>
+    }
+  }
+
+  return { course: narrowedCourse }
 }
 
 export default function CourseSpecificFeedbackPage({
@@ -144,6 +154,8 @@ export default function CourseSpecificFeedbackPage({
     defaultValues: {
       schoolYear: getCurrentSchoolYear(),
       courseId: course.id,
+      facultyId: course.degree.faculty.id,
+      degreeId: course.degree.id,
       rating: 0,
       workloadRating: 0,
       comment: ''

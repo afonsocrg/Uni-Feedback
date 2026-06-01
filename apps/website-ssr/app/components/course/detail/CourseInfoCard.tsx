@@ -168,7 +168,6 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
                   <>
                     <WorkloadRatingDisplay
                       rating={averageWorkload}
-                      size="sm"
                       label={
                         (
                           tCommon('workload_ratings', {

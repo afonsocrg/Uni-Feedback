@@ -1,16 +1,23 @@
-import type { FeedbackFull } from '@uni-feedback/db'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LandingFeedbackCard } from '~/components/feedback/cards/LandingFeedbackCard'
 
+interface FeedbackWithCourse {
+  id: number
+  courseId: number
+  rating: number
+  workloadRating: number | null
+  comment: string | null
+  createdAt: Date | null
+  course: {
+    name: string
+    degree: { faculty: { shortName: string } } | null
+  }
+}
+
 interface LiveFeedSectionProps {
-  feedbacks: (FeedbackFull & {
-    course: {
-      name: string
-      degree: { faculty: { shortName: string } } | null
-    }
-  })[]
+  feedbacks: FeedbackWithCourse[]
 }
 
 export function LiveFeedSection({ feedbacks }: LiveFeedSectionProps) {

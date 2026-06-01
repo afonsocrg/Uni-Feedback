@@ -1,9 +1,4 @@
-import type {
-  Course,
-  CourseGroup,
-  Degree,
-  Faculty
-} from '@uni-feedback/db/schema'
+import type { Degree, Faculty } from '@uni-feedback/db/schema'
 import { Button, WarningAlert } from '@uni-feedback/ui'
 import { toOrdinal } from '@uni-feedback/utils'
 import { useEffect, useMemo, useState } from 'react'
@@ -16,13 +11,21 @@ import { BrowsePageLayout, CourseCard } from '.'
 import { FilterChip } from './common/FilterChip'
 import { SearchInput } from './common/SearchInput'
 
-interface CourseWithFeedback extends Course {
+interface CourseWithFeedback {
+  id: number
+  name: string
+  acronym: string
+  curriculumYear: number | null
+  terms: string[] | null | undefined
+  hasMandatoryExam: boolean | null
   averageRating: number
   averageWorkload: number
   totalFeedbackCount: number
 }
 
-interface CourseGroupWithIds extends CourseGroup {
+interface CourseGroupWithIds {
+  id: number
+  name: string
   courseIds: number[]
 }
 
@@ -61,7 +64,7 @@ export function DegreePageContent({
 
   // Load filters from localStorage on mount (only if faculty and degree match)
   useEffect(() => {
-    if (!degree.slug) return
+    if (!faculty.slug || !degree.slug) return
 
     const savedFilters = loadCourseFilters(faculty.slug, degree.slug)
     if (savedFilters) {
@@ -75,7 +78,7 @@ export function DegreePageContent({
 
   // Save filters to localStorage whenever they change
   useEffect(() => {
-    if (!degree.slug) return
+    if (!faculty.slug || !degree.slug) return
 
     saveCourseFilters(faculty.slug, degree.slug, {
       curriculumYear: selectedCurriculumYear,
@@ -114,9 +117,6 @@ export function DegreePageContent({
     courses.forEach((course) => {
       if (Array.isArray(course.terms)) {
         course.terms.forEach((term) => terms.add(term))
-      } else if (typeof course.terms === 'string') {
-        // Handle string format like "1,2,3"
-        course.terms.split(',').forEach((term) => terms.add(term.trim()))
       }
     })
     return Array.from(terms).sort()
@@ -174,12 +174,7 @@ export function DegreePageContent({
           !selectedTerm ||
           (Array.isArray(course.terms)
             ? course.terms.includes(selectedTerm)
-            : typeof course.terms === 'string'
-              ? course.terms
-                  .split(',')
-                  .map((t) => t.trim())
-                  .includes(selectedTerm)
-              : false)
+            : false)
 
         const matchesCourseGroup =
           !selectedCourseGroupId ||

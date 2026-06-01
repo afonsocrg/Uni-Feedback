@@ -130,7 +130,26 @@ export async function loader() {
     studentClubs,
     faculties,
     degrees,
-    recentFeedbacks,
+    recentFeedbacks: recentFeedbacks
+      .filter(
+        (f): f is typeof f & { course: NonNullable<(typeof f)['course']> } =>
+          f.course !== null
+      )
+      .map((f) => ({
+        id: f.id,
+        courseId: f.courseId,
+        rating: f.rating,
+        workloadRating: f.workloadRating,
+        comment: f.comment,
+        createdAt: f.createdAt,
+        course: {
+          name: f.course.name,
+          degree:
+            f.course.degree?.faculty != null
+              ? { faculty: { shortName: f.course.degree.faculty.shortName } }
+              : null
+        }
+      })),
     testimonials,
     stats: {
       totalFeedback: roundDownToNice(Number(totalFeedbackResult[0].count)),

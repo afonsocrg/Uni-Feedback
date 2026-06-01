@@ -109,7 +109,7 @@ export function BrowseSection({ faculties, degrees }: BrowseSectionProps) {
 
             {/* Right: degrees grid + footer link */}
             <div className="flex flex-col gap-3">
-              <DegreeGrid degrees={filteredDegrees} lang={lang} t={t} />
+              <DegreeGrid degrees={filteredDegrees} lang={lang} />
               {selectedFaculty?.slug && allFilteredDegrees.length > 9 && (
                 <div className="text-right">
                   <a
@@ -125,12 +125,7 @@ export function BrowseSection({ faculties, degrees }: BrowseSectionProps) {
 
           {/* Mobile: degree grid */}
           <div className="md:hidden">
-            <DegreeGrid
-              degrees={filteredDegrees}
-              mobileLimit={6}
-              lang={lang}
-              t={t}
-            />
+            <DegreeGrid degrees={filteredDegrees} mobileLimit={6} lang={lang} />
             {selectedFaculty?.slug && allFilteredDegrees.length > 6 && (
               <div className="text-center mt-4">
                 <a
@@ -151,14 +146,13 @@ export function BrowseSection({ faculties, degrees }: BrowseSectionProps) {
 function DegreeGrid({
   degrees,
   mobileLimit,
-  lang,
-  t
+  lang
 }: {
   degrees: DegreeWithStats[]
   mobileLimit?: number
   lang: Lang
-  t: (key: string) => string
 }) {
+  const { t } = useTranslation('landing')
   if (degrees.length === 0) {
     return (
       <p className="text-sm text-muted-foreground text-center py-8">

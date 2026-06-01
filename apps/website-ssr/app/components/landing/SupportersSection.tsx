@@ -1,4 +1,4 @@
-import type { StudentClub } from '@uni-feedback/db'
+import type { StudentClub } from '@uni-feedback/db/schema'
 import { useTranslation } from 'react-i18next'
 import { useLang } from '~/hooks'
 import { getAssetUrl } from '~/utils'
@@ -37,6 +37,7 @@ export function SupportersSection({ studentClubs }: SupportersSectionProps) {
           <div className="relative overflow-hidden w-full supporters-carousel">
             <div className="animate-scroll">
               {studentClubs.map((club) => {
+                if (!club.logoHorizontal) return null
                 const logoUrl = getAssetUrl(club.logoHorizontal)
                 if (!club.logoHorizontal || !logoUrl) return null
                 return (
@@ -49,6 +50,7 @@ export function SupportersSection({ studentClubs }: SupportersSectionProps) {
                 )
               })}
               {studentClubs.map((club) => {
+                if (!club.logoHorizontal) return null
                 const logoUrl = getAssetUrl(club.logoHorizontal)
                 if (!club.logoHorizontal || !logoUrl) return null
                 return (

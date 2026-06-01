@@ -1,4 +1,4 @@
-import type { Degree, Faculty } from '@services/meicFeedbackAPI'
+import type { Degree, Faculty } from '@uni-feedback/db/schema'
 
 /**
  * Converts a faculty shortName to a URL-safe slug

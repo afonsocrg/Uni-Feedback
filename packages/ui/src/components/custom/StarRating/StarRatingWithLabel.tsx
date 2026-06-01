@@ -1,5 +1,5 @@
 import { cn } from '../../../utils'
-import { StarRating, StarRatingProps } from './StarRating'
+import { StarRating, type StarRatingProps } from './StarRating'
 
 type RatingLabel = [string, string, string, string, string]
 

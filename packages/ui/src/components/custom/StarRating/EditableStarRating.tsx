@@ -2,7 +2,7 @@ import { useState } from 'react'
 import {
   defaultLabelFunction,
   StarRatingWithLabel,
-  StarRatingWithLabelProps
+  type StarRatingWithLabelProps
 } from './StarRatingWithLabel'
 
 export interface EditableStarRatingProps extends StarRatingWithLabelProps {

@@ -1,6 +1,9 @@
 import { cn } from '../../utils'
 
-function Skeleton({ className, ...props }: React.ComponentProps<'div'>) {
+function Skeleton({
+  className,
+  ...props
+}: Omit<React.HTMLAttributes<HTMLDivElement>, 'children'>) {
   return (
     <div
       data-slot="skeleton"

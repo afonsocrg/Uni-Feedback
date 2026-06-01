@@ -14,8 +14,8 @@ interface SelectionCardProps {
   onClick?: () => void
   href?: string
   className?: string
-  children?: React.ReactElement
-  icon?: React.ReactElement
+  children?: React.ReactNode
+  icon?: React.ReactNode
   logo?: string
 }
 
@@ -53,22 +53,22 @@ export function SelectionCard({
             </div>
             {subtitle && (
               <CardDescription className="text-sm font-medium">
-                {subtitle}
+                <>{subtitle}</>
               </CardDescription>
             )}
           </div>
         </div>
       </CardHeader>
-      {(description || children) && (
+      {description || children ? (
         <CardContent className="flex-1 flex flex-col">
           {description && (
             <p className="text-sm text-gray-600 transition-colors">
               {description}
             </p>
           )}
-          {children}
+          <>{children}</>
         </CardContent>
-      )}
+      ) : null}
     </Card>
   )
 

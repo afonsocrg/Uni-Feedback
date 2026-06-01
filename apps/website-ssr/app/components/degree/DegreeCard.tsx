@@ -1,11 +1,13 @@
-import type { Degree } from '@uni-feedback/db/schema'
 import { Chip } from '@uni-feedback/ui'
 import { BookOpen, MessageSquare } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { SelectionCard } from '~/components'
 
 interface DegreeCardProps {
-  degree: Degree & {
+  degree: {
+    name: string
+    acronym: string
+    type: string
     courseCount?: number
     feedbackCount?: number
   }

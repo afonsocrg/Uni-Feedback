@@ -84,7 +84,9 @@ export function meta({ loaderData }: Route.MetaArgs) {
           name: 'Anonymous Student'
         },
         ...(f.comment && { reviewBody: f.comment }),
-        datePublished: new Date(f.createdAt).toISOString().split('T')[0]
+        datePublished: f.createdAt
+          ? new Date(f.createdAt).toISOString().split('T')[0]
+          : undefined
       }))
     })
   }
@@ -175,16 +177,18 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   // Get degree information
   let degree = null
   if (course.degreeId) {
+    const degreeId = course.degreeId
     degree = await db.query.degrees.findFirst({
-      where: (degrees, { eq }) => eq(degrees.id, course.degreeId)
+      where: (degrees, { eq }) => eq(degrees.id, degreeId)
     })
   }
 
   // Get faculty information if degree exists
   let faculty = null
   if (degree?.facultyId) {
+    const facultyId = degree.facultyId
     faculty = await db.query.faculties.findFirst({
-      where: (faculties, { eq }) => eq(faculties.id, degree.facultyId)
+      where: (faculties, { eq }) => eq(faculties.id, facultyId)
     })
   }
 
@@ -233,6 +237,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   return {
     course: {
       ...course,
+      terms: course.terms as string[] | null,
       ...aggregation,
       degree,
       faculty

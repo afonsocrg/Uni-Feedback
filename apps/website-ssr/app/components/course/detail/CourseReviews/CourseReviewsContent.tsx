@@ -1,4 +1,3 @@
-import type { Feedback } from '@uni-feedback/db/schema'
 import { CourseReviewContentEmpty, SchoolYearSection } from '~/components'
 // import { useCourseFeedback } from '@hooks'
 import { WarningAlert } from '@uni-feedback/ui'
@@ -6,20 +5,12 @@ import { getCurrentSchoolYear } from '@uni-feedback/utils'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { CourseDetail } from '~/components'
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { type: 'spring', stiffness: 300 }
-  }
-}
+import type { CourseFeedback } from '~/components/feedback/cards/CoursePageFeedbackCard'
 
 interface CourseReviewsContentProps {
   courseId: number
   course: CourseDetail
-  feedback: Feedback[]
+  feedback: CourseFeedback[]
 }
 export function CourseReviewsContent({
   course,
@@ -64,7 +55,6 @@ export function CourseReviewsContent({
             <SchoolYearSection
               schoolYear={schoolYear}
               feedback={yearFeedback}
-              variants={itemVariants}
             />
           </div>
         )
@@ -82,9 +72,9 @@ function isSchoolYearOutdated(schoolYear: number) {
 
 // Helper function to group feedback by school year
 const groupReviewsBySchoolYear = (
-  reviews: Feedback[]
-): Map<number, Feedback[]> => {
-  const grouped = new Map<number, Feedback[]>()
+  reviews: CourseFeedback[]
+): Map<number, CourseFeedback[]> => {
+  const grouped = new Map<number, CourseFeedback[]>()
 
   reviews.forEach((f) => {
     if (!f.schoolYear) return

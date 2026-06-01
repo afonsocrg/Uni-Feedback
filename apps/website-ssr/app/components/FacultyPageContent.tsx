@@ -1,4 +1,4 @@
-import type { Degree, Faculty } from '@uni-feedback/db/schema'
+import type { Faculty } from '@uni-feedback/db/schema'
 import { Button, WarningAlert } from '@uni-feedback/ui'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -10,7 +10,12 @@ import { BrowsePageLayout, DegreeCard } from '.'
 import { FilterChip } from './common/FilterChip'
 import { SearchInput } from './common/SearchInput'
 
-interface DegreeWithCounts extends Degree {
+interface DegreeWithCounts {
+  id: number
+  type: string
+  name: string
+  acronym: string
+  slug: string | null
   courseCount: number
   feedbackCount: number
 }
@@ -38,6 +43,7 @@ export function FacultyPageContent({
 
   // Read from localStorage after hydration (only if same faculty)
   useEffect(() => {
+    if (!faculty.slug) return
     const savedFilters = loadDegreeFilters(faculty.slug)
     if (savedFilters) {
       setSelectedType(savedFilters.degreeType)
@@ -47,7 +53,7 @@ export function FacultyPageContent({
   // Wrapper that persists to localStorage when filter changes
   const handleTypeChange = (newType: string | null) => {
     setSelectedType(newType)
-    saveDegreeFilters(faculty.slug, { degreeType: newType })
+    if (faculty.slug) saveDegreeFilters(faculty.slug, { degreeType: newType })
   }
 
   const availableTypes = useMemo(() => {
@@ -71,18 +77,24 @@ export function FacultyPageContent({
     )
   }, [degrees, searchQuery, selectedType])
 
-  const getDegreeUrl = (degree: Degree) => {
+  const getDegreeUrl = (degree: DegreeWithCounts) => {
+    if (!faculty.slug) {
+      throw new Error('Faculty slug is missing ' + JSON.stringify(faculty))
+    }
     if (!degree.slug) {
       throw new Error('Degree slug is missing ' + JSON.stringify(degree))
     }
     return getDegreePath(lang, faculty.slug, degree.slug)
   }
 
-  const handleDegreeClick = (degree: Degree) => {
+  const handleDegreeClick = (degree: DegreeWithCounts) => {
     userPreferences.set({
-      lastSelectedFacultySlug: faculty.slug,
-      lastSelectedDegreeSlug: degree.slug,
-      lastVisitedPath: getDegreePath(lang, faculty.slug, degree.slug)
+      lastSelectedFacultySlug: faculty.slug ?? undefined,
+      lastSelectedDegreeSlug: degree.slug ?? undefined,
+      lastVisitedPath:
+        faculty.slug && degree.slug
+          ? getDegreePath(lang, faculty.slug, degree.slug)
+          : undefined
     })
   }
 

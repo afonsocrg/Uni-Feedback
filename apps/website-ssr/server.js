@@ -54,14 +54,14 @@ async function shutdown() {
   await new Promise((resolve) => {
     server.close(() => {
       console.log('HTTP server closed')
-      resolve()
+      resolve(undefined)
     })
   })
 
   // Close database connection pool
   try {
     if (DEVELOPMENT) {
-      const source = await import('./server/app.ts')
+      const source = await import('./server/app')
       await source.client.end({ timeout: 5 })
     } else {
       const source = await import(BUILD_PATH)

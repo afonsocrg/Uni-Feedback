@@ -127,7 +127,7 @@ export function GiveawayRecapChart() {
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                 <XAxis
                   dataKey="date"
-                  tickFormatter={(value) => {
+                  tickFormatter={(value: string) => {
                     const date = new Date(value)
                     return date.toLocaleDateString('en-GB', {
                       day: 'numeric',

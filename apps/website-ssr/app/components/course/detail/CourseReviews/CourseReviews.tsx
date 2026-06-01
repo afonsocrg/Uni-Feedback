@@ -1,4 +1,3 @@
-import type { Feedback } from '@uni-feedback/db/schema'
 import { Button } from '@uni-feedback/ui'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -8,12 +7,13 @@ import {
   CourseReviewsContent,
   type CourseDetail
 } from '~/components'
+import type { CourseFeedback } from '~/components/feedback/cards/CoursePageFeedbackCard'
 import { getFullUrl } from '~/utils'
 import { analytics, getPageName } from '~/utils/analytics'
 
 interface CourseReviewsProps {
   course: CourseDetail
-  feedback: Feedback[]
+  feedback: CourseFeedback[]
 }
 
 export function CourseReviews({ course, feedback }: CourseReviewsProps) {

@@ -1,6 +1,11 @@
 {
   "extends": "./tsconfig.json",
-  "include": ["server.js", "vite.config.ts"],
+  "include": [
+    "server.js",
+    "vite.config.ts",
+    "server/**/*",
+    ".react-router/types/+server-build.d.ts"
+  ],
   "compilerOptions": {
     "composite": true,
     "strict": true,

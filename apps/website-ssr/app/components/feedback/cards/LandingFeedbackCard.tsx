@@ -1,4 +1,3 @@
-import type { Feedback } from '@uni-feedback/db/schema'
 import { StarRating, WorkloadRatingDisplay } from '@uni-feedback/ui'
 import { useLang } from '~/hooks'
 import { stripMarkdown } from '~/lib/textUtils'
@@ -6,14 +5,16 @@ import { getFeedbackAnchor } from '~/utils/i18n-routes'
 import { FeedbackCardFooter } from './FeedbackCardFooter'
 
 interface LandingFeedbackCardProps {
-  feedback: Feedback & {
+  feedback: {
+    id: number
+    courseId: number
+    rating: number
+    workloadRating: number | null
+    comment: string | null
+    createdAt: Date | null
     course: {
       name: string
-      degree: {
-        faculty: {
-          shortName: string
-        }
-      } | null
+      degree: { faculty: { shortName: string } } | null
     }
   }
 }

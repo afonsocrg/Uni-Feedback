@@ -3,10 +3,11 @@ import { Check } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { cn } from '~/utils'
 
-interface CategoryChipProps {
+interface CategoryChipProps extends React.AriaAttributes {
   label: string
   isActive: boolean
   className?: string
+  icon?: React.ComponentType<{ className?: string }>
 }
 
 // Muted state for inactive categories

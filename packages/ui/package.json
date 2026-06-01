@@ -8,6 +8,10 @@
       "types": "./src/index.ts",
       "import": "./src/index.ts"
     },
+    "./components/custom/RichTextEditor": {
+      "types": "./src/components/custom/RichTextEditor/index.ts",
+      "import": "./src/components/custom/RichTextEditor/index.ts"
+    },
     "./components/*": "./src/components/*",
     "./hooks/*": "./src/hooks/*",
     "./hooks": "./src/hooks/index.ts",
@@ -66,8 +70,8 @@
     "zod": "^4.0.10"
   },
   "devDependencies": {
-    "@types/react": "^18.3.23",
-    "@types/react-dom": "^18.3.7",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
     "typescript": "^5.8.3",
     "vite-plugin-dts": "^4.5.4",
     "vite-tsconfig-paths": "^5.1.4"

@@ -33,6 +33,12 @@
   "lint-staged": {
     "**/*.{js,jsx,ts,tsx,json,md}": "prettier --write"
   },
+  "pnpm": {
+    "overrides": {
+      "@types/react": "^19.0.0",
+      "@types/react-dom": "^19.0.0"
+    }
+  },
   "devDependencies": {
     "lint-staged": "^16.4.0",
     "prettier": "^3.8.1",

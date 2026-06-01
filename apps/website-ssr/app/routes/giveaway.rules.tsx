@@ -310,33 +310,35 @@ function MarkdownVersion() {
       <Markdown
         className="prose-lg text-muted-foreground"
         components={{
-          h1: ({ ...props }) => (
+          h1: ({ node: _node, ref: _ref, ...props }) => (
             <h1
               {...props}
               className="text-3xl font-semibold text-gray-900 mb-4"
             />
           ),
-          h2: ({ ...props }) => (
+          h2: ({ node: _node, ref: _ref, ...props }) => (
             <h2
               {...props}
               className="text-2xl font-semibold text-gray-900 mt-10 mb-4"
             />
           ),
-          h3: ({ ...props }) => (
+          h3: ({ node: _node, ref: _ref, ...props }) => (
             <h3
               {...props}
               className="text-lg font-semibold text-gray-900 mt-5 mb-1"
             />
           ),
-          ul: ({ ...props }) => (
+          ul: ({ node: _node, ref: _ref, ...props }) => (
             <ul
               {...props}
               className="ml-6 list-disc space-y-1 text-muted-foreground"
             />
           ),
-          p: ({ ...props }) => <p {...props} className="mt-2" />,
+          p: ({ node: _node, ref: _ref, ...props }) => (
+            <p {...props} className="mt-2" />
+          ),
           hr: () => <hr className="my-8 border-t border-gray-200" />,
-          strong: ({ ...props }) => (
+          strong: ({ node: _node, ref: _ref, ...props }) => (
             <strong {...props} className="text-foreground font-semibold" />
           )
         }}

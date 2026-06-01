@@ -9,6 +9,7 @@ import {
   CourseDescription,
   CourseInfoCard
 } from '~/components'
+import type { CourseFeedback } from '~/components/feedback/cards/CoursePageFeedbackCard'
 import { cn } from '~/utils'
 import { CourseReviews } from '.'
 
@@ -20,28 +21,19 @@ export interface CourseDetail extends Course {
     id: number
     name: string
     acronym: string
-    slug: string
+    slug: string | null
   } | null
   faculty?: {
     id: number
     name: string
     shortName: string
-    slug: string
+    slug: string | null
   } | null
 }
 
 interface CourseDetailContentProps {
   course: CourseDetail
-  feedback: Array<{
-    id: number
-    courseId: number
-    email?: string | null
-    schoolYear?: number | null
-    rating: number
-    workloadRating?: number | null
-    comment?: string | null
-    createdAt: Date | null
-  }>
+  feedback: CourseFeedback[]
 }
 
 export function CourseDetailContent({

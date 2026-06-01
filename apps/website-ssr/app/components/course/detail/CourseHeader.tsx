@@ -90,12 +90,16 @@ export function CourseHeader({ course }: CourseHeaderProps) {
             </PopoverTrigger>
             <PopoverContent className="w-48 p-2">
               <div className="flex flex-col gap-2">
-                <Button popover variant="ghost" onClick={handleWhatsapp}>
+                <Button popoverTrigger variant="ghost" onClick={handleWhatsapp}>
                   <FaWhatsapp className="size-4" />
                   WhatsApp
                 </Button>
                 {navigator.clipboard && (
-                  <CopyButton popover variant="ghost" onClick={handleCopyUrl} />
+                  <CopyButton
+                    popoverTrigger
+                    variant="ghost"
+                    onClick={handleCopyUrl}
+                  />
                 )}
               </div>
             </PopoverContent>

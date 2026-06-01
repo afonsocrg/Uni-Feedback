@@ -1,12 +1,12 @@
-import type { Feedback } from '@uni-feedback/db/schema'
 import { Chip } from '@uni-feedback/ui'
 import { formatSchoolYearString } from '@uni-feedback/utils'
 import { useTranslation } from 'react-i18next'
 import { CoursePageFeedbackCard } from '~/components'
+import type { CourseFeedback } from '~/components/feedback/cards/CoursePageFeedbackCard'
 
 interface SchoolYearSectionProps {
   schoolYear: number
-  feedback: Feedback[]
+  feedback: CourseFeedback[]
 }
 
 const firstMEPPYear = 2021

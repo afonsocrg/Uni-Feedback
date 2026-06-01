@@ -32,7 +32,7 @@ export function OtpInputStage({
   const [isVerifying, setIsVerifying] = useState(false)
   const [error, setError] = useState<string>()
   const [attemptsRemaining, setAttemptsRemaining] = useState<number>()
-  const [cooldownSeconds, setCooldownSeconds] = useState(
+  const [cooldownSeconds, setCooldownSeconds] = useState<number>(
     OTP_CONFIG.COOLDOWN_SECONDS
   )
   const lastSubmittedOtp = useRef<string>('')

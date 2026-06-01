@@ -2,11 +2,23 @@ import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import type { Feedback } from '@uni-feedback/db'
 import { LandingFeedbackCard } from '~/components'
 
+type FeedbackWithCourse = {
+  id: number
+  courseId: number
+  rating: number
+  workloadRating: number | null
+  comment: string | null
+  createdAt: Date | null
+  course: {
+    name: string
+    degree: { faculty: { shortName: string } } | null
+  }
+}
+
 interface FeedbackCarouselProps {
-  feedbacks: Feedback[]
+  feedbacks: FeedbackWithCourse[]
   browseLink: string
 }
 

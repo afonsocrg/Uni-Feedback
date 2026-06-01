@@ -1,5 +1,5 @@
+import type { AnyPgColumn } from 'drizzle-orm/pg-core'
 import {
-  AnyPgColumn,
   boolean,
   integer,
   pgEnum,
