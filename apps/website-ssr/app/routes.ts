@@ -1,5 +1,6 @@
 import { type RouteConfig, route } from '@react-router/dev/routes'
-import { buildRoutes, routeConfig } from './utils/route-map'
+import { buildRoutes } from './utils/route-builder'
+import { routeConfig } from './utils/route-map'
 
 export default [
   route('sitemap.xml', 'routes/sitemap[.]xml.ts'),
