@@ -11,7 +11,7 @@ export const ADD_COURSE_FORM_URL =
 
 // Site URL for meta tags, sitemaps, and canonical URLs
 export const SITE_URL =
-  import.meta.env.VITE_PUBLIC_SITE_URL || 'https://uni-feedback.com'
+  import.meta.env.VITE_PUBLIC_SITE_URL || 'http://localhost:3000'
 
 // LocalStorage keys
 // Convention: All keys should be prefixed with 'uni-feedback-' for namespace isolation

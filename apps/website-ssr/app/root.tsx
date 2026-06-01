@@ -25,6 +25,7 @@ import { defaultLang, i18n } from '~/i18n/config'
 import { AuthProvider } from '~/providers/AuthProvider'
 import { AuthRefreshProvider } from '~/providers/AuthRefreshProvider'
 import { userPreferences } from '~/utils'
+import { SITE_URL } from '~/utils/constants'
 import { detectLang, getEquivalentPath } from '~/utils/i18n-routes'
 import type { Route } from './+types/root'
 import { LandingLayout } from './components/landing'
@@ -73,8 +74,6 @@ const persister =
       })
     : undefined
 
-const SITE_ORIGIN = 'https://uni-feedback.com'
-
 function HreflangLinks() {
   const { pathname } = useLocation()
   const lang = detectLang(pathname)
@@ -82,12 +81,12 @@ function HreflangLinks() {
   const enPath = lang === 'en' ? pathname : getEquivalentPath(pathname, 'pt')
   return (
     <>
-      <link rel="alternate" hrefLang="pt" href={`${SITE_ORIGIN}${ptPath}`} />
-      <link rel="alternate" hrefLang="en" href={`${SITE_ORIGIN}${enPath}`} />
+      <link rel="alternate" hrefLang="pt" href={`${SITE_URL}${ptPath}`} />
+      <link rel="alternate" hrefLang="en" href={`${SITE_URL}${enPath}`} />
       <link
         rel="alternate"
         hrefLang="x-default"
-        href={`${SITE_ORIGIN}${ptPath}`}
+        href={`${SITE_URL}${ptPath}`}
       />
     </>
   )

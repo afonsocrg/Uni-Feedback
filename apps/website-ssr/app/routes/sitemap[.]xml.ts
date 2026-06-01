@@ -1,8 +1,9 @@
 import { database, schema } from '@uni-feedback/db'
 import { eq } from 'drizzle-orm'
+import { SITE_URL } from '~/utils/constants'
 import { getLocalePath } from '~/utils/i18n-routes'
 
-const DOMAIN = 'https://uni-feedback.com'
+const DOMAIN = SITE_URL
 
 interface PagePair {
   pt: string
