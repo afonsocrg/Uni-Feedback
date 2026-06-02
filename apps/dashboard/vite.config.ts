@@ -46,17 +46,20 @@ export default defineConfig({
   ],
   server: {
     port: 5174,
-    ...(tunnelHost ? { allowedHosts: [tunnelHost] } : {}),
-    // Proxies /api-proxy/* to the local API so dashboard and API share the same origin via tunnel,
-    // avoiding iOS ITP blocking cross-origin auth cookies. No effect on production builds.
-    // Set VITE_API_BASE_URL=/api-proxy in .env to activate this proxy.
-    proxy: {
-      '/api-proxy': {
-        target: 'http://localhost:3001',
-        rewrite: (path) => path.replace(/^\/api-proxy/, ''),
-        changeOrigin: true
-      }
-    }
+    ...(tunnelHost
+      ? {
+          allowedHosts: [tunnelHost],
+          // Proxies /api-proxy/* to the local API so dashboard and API share the same origin,
+          // avoiding iOS ITP blocking cross-origin auth cookies.
+          proxy: {
+            '/api-proxy': {
+              target: 'http://localhost:3001',
+              rewrite: (path) => path.replace(/^\/api-proxy/, ''),
+              changeOrigin: true
+            }
+          }
+        }
+      : {})
   },
   optimizeDeps: {
     exclude: ['lucide-react']
