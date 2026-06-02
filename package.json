@@ -17,6 +17,7 @@
     "dev": "pnpm run dev:all",
     "dev:all": "turbo dev:api dev:website-ssr dev:dashboard @uni-feedback/ui#dev db --parallel --ui=tui",
     "dev:dashboard": "turbo dev:db dev:api dev:dashboard --parallel --ui=tui",
+    "dev:network": "turbo dev:api dev:website-ssr dev:network @uni-feedback/ui#dev db --parallel --ui=tui",
     "dev:website-ssr": "turbo dev:db dev:api dev:website-ssr --parallel --ui=tui",
     "start": "turbo start --parallel",
     "test": "turbo test",

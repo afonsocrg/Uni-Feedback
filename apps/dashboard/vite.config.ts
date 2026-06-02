@@ -23,6 +23,10 @@ function getAlias() {
   return alias
 }
 
+// Tunnel host for mobile device testing via Cloudflare tunnel (see afonsocrg/dev/mobile_debugging.md).
+// Set TUNNEL_HOST in apps/dashboard/.env. Leave unset for normal local development.
+const tunnelHost = process.env.TUNNEL_HOST
+
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
@@ -41,7 +45,18 @@ export default defineConfig({
     }
   ],
   server: {
-    port: 5174
+    port: 5174,
+    ...(tunnelHost ? { allowedHosts: [tunnelHost] } : {}),
+    // Proxies /api-proxy/* to the local API so dashboard and API share the same origin via tunnel,
+    // avoiding iOS ITP blocking cross-origin auth cookies. No effect on production builds.
+    // Set VITE_API_BASE_URL=/api-proxy in .env to activate this proxy.
+    proxy: {
+      '/api-proxy': {
+        target: 'http://localhost:3001',
+        rewrite: (path) => path.replace(/^\/api-proxy/, ''),
+        changeOrigin: true
+      }
+    }
   },
   optimizeDeps: {
     exclude: ['lucide-react']
