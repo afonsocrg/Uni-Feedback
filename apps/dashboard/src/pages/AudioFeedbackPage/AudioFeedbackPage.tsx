@@ -4,8 +4,9 @@ import type {
 } from '@uni-feedback/api-client'
 import { Button } from '@uni-feedback/ui'
 import { getCurrentSchoolYear } from '@uni-feedback/utils'
-import { CheckCircle2 } from 'lucide-react'
+import { CheckCircle2, ExternalLink } from 'lucide-react'
 import { useState } from 'react'
+import { QRCode } from 'react-qr-code'
 import { StepConsent } from './StepConsent'
 import { StepCourseSelect } from './StepCourseSelect'
 import { StepPlayback } from './StepPlayback'
@@ -73,16 +74,35 @@ export function AudioFeedbackPage() {
     setSubmittedFeedbackId(feedbackId)
   }
 
-  if (submittedFeedbackId !== null) {
+  if (submittedFeedbackId !== null && course !== null) {
+    const websiteUrl =
+      import.meta.env.VITE_WEBSITE_URL ||
+      window.location.origin.replace(':5174', ':5173')
+    const feedbackUrl = `${websiteUrl}/cadeiras/${course.id}#feedback-${submittedFeedbackId}`
+
     return (
       <div className="max-w-2xl mx-auto px-4 py-12 flex flex-col items-center gap-6 text-center">
         <CheckCircle2 className="h-16 w-16 text-green-500" />
         <div>
           <h2 className="text-2xl font-semibold">Feedback Submitted!</h2>
           <p className="text-muted-foreground mt-1">
-            Feedback #{submittedFeedbackId} is now live.
+            The review for {course.acronym} is now live.
           </p>
         </div>
+
+        <div className="w-full rounded-lg border bg-card p-6 flex flex-col items-center gap-4">
+          <QRCode value={feedbackUrl} size={180} />
+          <a
+            href={feedbackUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 text-sm text-primary hover:underline break-all text-center"
+          >
+            <ExternalLink className="h-3.5 w-3.5 flex-shrink-0" />
+            {feedbackUrl}
+          </a>
+        </div>
+
         <Button onClick={reset} size="lg">
           Collect Another
         </Button>
