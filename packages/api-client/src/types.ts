@@ -165,6 +165,7 @@ export interface SearchCoursesParams {
   q?: string
   faculty_id?: number
   degree_id?: number
+  sort?: 'name' | 'review_count_asc'
   limit?: number
   offset?: number
 }

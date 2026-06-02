@@ -9,7 +9,7 @@ import {
   feedback
 } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
-import { and, eq, or, sql } from 'drizzle-orm'
+import { and, asc, eq, or, sql } from 'drizzle-orm'
 import type { Context } from 'hono'
 import { z } from 'zod'
 
@@ -57,6 +57,10 @@ export class SearchCourses extends OpenAPIRoute {
           .optional()
           .describe('Filter by faculty ID'),
         degree_id: z.coerce.number().optional().describe('Filter by degree ID'),
+        sort: z
+          .enum(['name', 'review_count_asc'])
+          .default('name')
+          .describe('Sort order'),
         limit: z.coerce
           .number()
           .min(1)
@@ -88,7 +92,7 @@ export class SearchCourses extends OpenAPIRoute {
 
   async handle(c: Context) {
     const { query } = await this.getValidatedData<typeof this.schema>()
-    const { q, faculty_id, degree_id, limit, offset } = query
+    const { q, faculty_id, degree_id, sort, limit, offset } = query
 
     // Validate at least one search parameter is provided
     if (!q && !faculty_id && !degree_id) {
@@ -167,8 +171,15 @@ export class SearchCourses extends OpenAPIRoute {
         .leftJoin(courseStats, eq(courseStats.courseId, courses.id))
         .where(whereClause)
         .orderBy(
-          sql`CASE WHEN ${feedback.id} IS NOT NULL THEN 1 ELSE 0 END`,
-          courses.name
+          ...(sort === 'review_count_asc'
+            ? [
+                asc(sql`COALESCE(${courseStats.totalFeedbackCount}, 0)`),
+                asc(courses.name)
+              ]
+            : [
+                sql`CASE WHEN ${feedback.id} IS NOT NULL THEN 1 ELSE 0 END`,
+                asc(courses.name)
+              ])
         )
         .limit(limit)
         .offset(offset)
@@ -202,7 +213,14 @@ export class SearchCourses extends OpenAPIRoute {
         .innerJoin(faculties, eq(degrees.facultyId, faculties.id))
         .leftJoin(courseStats, eq(courseStats.courseId, courses.id))
         .where(whereClause)
-        .orderBy(courses.name)
+        .orderBy(
+          ...(sort === 'review_count_asc'
+            ? [
+                asc(sql`COALESCE(${courseStats.totalFeedbackCount}, 0)`),
+                asc(courses.name)
+              ]
+            : [asc(courses.name)])
+        )
         .limit(limit)
         .offset(offset)
 

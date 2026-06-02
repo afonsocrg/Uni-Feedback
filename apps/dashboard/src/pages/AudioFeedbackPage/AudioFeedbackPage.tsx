@@ -114,7 +114,6 @@ export function AudioFeedbackPage() {
 
       {step === 1 && (
         <StepCourseSelect
-          selected={course}
           onSelect={setCourse}
           schoolYear={schoolYear}
           onSchoolYearChange={setSchoolYear}
