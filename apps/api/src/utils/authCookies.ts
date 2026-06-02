@@ -5,6 +5,14 @@ import { createCookie } from '@uni-feedback/utils'
 // Type for sessions that include the plain tokens (as returned by AuthService)
 type SessionWithTokens = Session & { accessToken: string; refreshToken: string }
 
+// SameSite=None;Secure is needed in dev to support cross-origin requests (e.g. tunnels for mobile testing)
+const isProd = process.env.NODE_ENV === 'production'
+const cookieDefaults = {
+  httpOnly: true,
+  secure: isProd,
+  sameSite: (isProd ? 'Strict' : 'None') as 'Strict' | 'None'
+}
+
 /**
  * Adds authentication cookies to a Response
  * Mutates the response by adding Set-Cookie headers
@@ -20,9 +28,7 @@ export function setAuthCookies(
   response.headers.append(
     'Set-Cookie',
     createCookie(`${AUTH_CONFIG.COOKIE_NAME}-access`, session.accessToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'Strict',
+      ...cookieDefaults,
       path: '/',
       maxAge: TOKEN_EXPIRATION_S.ACCESS_TOKEN
     })
@@ -32,9 +38,7 @@ export function setAuthCookies(
   response.headers.append(
     'Set-Cookie',
     createCookie(`${AUTH_CONFIG.COOKIE_NAME}-refresh`, session.refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'Strict',
+      ...cookieDefaults,
       path: '/auth/refresh',
       maxAge: TOKEN_EXPIRATION_S.REFRESH_TOKEN_STUDENT
     })
@@ -50,9 +54,7 @@ export function clearAuthCookies(response: Response): void {
   response.headers.append(
     'Set-Cookie',
     createCookie(`${AUTH_CONFIG.COOKIE_NAME}-access`, '', {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'Strict',
+      ...cookieDefaults,
       path: '/',
       maxAge: 0
     })
@@ -62,9 +64,7 @@ export function clearAuthCookies(response: Response): void {
   response.headers.append(
     'Set-Cookie',
     createCookie(`${AUTH_CONFIG.COOKIE_NAME}-refresh`, '', {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'Strict',
+      ...cookieDefaults,
       path: '/auth/refresh',
       maxAge: 0
     })
