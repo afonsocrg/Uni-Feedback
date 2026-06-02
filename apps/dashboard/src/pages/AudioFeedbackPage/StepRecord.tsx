@@ -2,6 +2,8 @@ import { Button } from '@uni-feedback/ui'
 import { Mic, MicOff, Pause, Square } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
+const MAX_DURATION_SECONDS = 300 // 5 minutes
+
 type RecordingState = 'idle' | 'recording' | 'paused'
 
 interface StepRecordProps {
@@ -31,6 +33,12 @@ export function StepRecord({ onRecorded, onBack }: StepRecordProps) {
       streamRef.current?.getTracks().forEach((t) => t.stop())
     }
   }, [])
+
+  useEffect(() => {
+    if (state === 'recording' && elapsed >= MAX_DURATION_SECONDS) {
+      stopRecording()
+    }
+  }, [elapsed, state])
 
   function startTimer() {
     setElapsed(0)
@@ -139,9 +147,24 @@ export function StepRecord({ onRecorded, onBack }: StepRecordProps) {
               <Mic className="h-12 w-12 text-white" />
             </div>
 
-            <div className="text-3xl font-mono font-semibold tabular-nums">
+            <div
+              className={`text-3xl font-mono font-semibold tabular-nums ${
+                elapsed >= MAX_DURATION_SECONDS - 30 ? 'text-destructive' : ''
+              }`}
+            >
               {formatDuration(elapsed)}
+              <span className="text-base font-normal text-muted-foreground ml-1">
+                / {formatDuration(MAX_DURATION_SECONDS)}
+              </span>
             </div>
+
+            {elapsed >= MAX_DURATION_SECONDS - 30 && (
+              <p className="text-sm text-destructive">
+                {MAX_DURATION_SECONDS - elapsed > 0
+                  ? `Recording stops in ${MAX_DURATION_SECONDS - elapsed}s`
+                  : 'Max duration reached — saving recording…'}
+              </p>
+            )}
 
             <div className="flex gap-3">
               {state === 'recording' ? (
