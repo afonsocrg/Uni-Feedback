@@ -19,13 +19,13 @@
 
 ## Development Setup
 
-This is a **Turborepo monorepo** with React frontends and a Cloudflare Workers backend.
+This is a **Turborepo monorepo** with a React Router 7 (SSR) frontend, an Express backend, and a PostgreSQL database.
 
 ### Prerequisites
 
-- **Bun** (latest version)
-- **Node.js** 18+
-- **Git**
+- **Node.js** 22+
+- **pnpm** 9.15.4+
+- **Docker** (for the local database)
 
 ### Quick Start
 
@@ -33,75 +33,92 @@ This is a **Turborepo monorepo** with React frontends and a Cloudflare Workers b
    ```bash
    git clone https://github.com/afonsocrg/MEIC-feedback.git
    cd MEIC-feedback
-   bun install
+   pnpm install
    ```
 
-2. **Set up the shared database:**
+2. **Configure environment variables:**
    ```bash
-   # This script configures both apps to use the same local D1 database
-   ./setup-database.sh
+   cp .env.example .env
+   cp apps/api/.env.example apps/api/.env
+   cp apps/website-ssr/.env.example apps/website-ssr/.env
+   # Update DATABASE_URL and PGPASSWORD in each .env file
    ```
 
-3. **Start all development servers:**
+3. **Start the database:**
+
+   `docker-compose.yml` defines the full stack (db + api + website-ssr), but for local development you only need the database — the apps run natively via pnpm:
    ```bash
-   bun run dev
+   docker compose up db -d
+   ```
+
+4. **Run database migrations:**
+   ```bash
+   cd packages/db
+   pnpm migrate
+   cd ../..
+   ```
+
+5. **Start all development servers:**
+   ```bash
+   pnpm dev
    ```
 
 This will start:
-- **Main website** at http://localhost:5173
-- **Admin dashboard** at http://localhost:5174  
+- **Main website** at http://localhost:3000
+- **Admin dashboard** at http://localhost:5174
 - **API** at http://localhost:3001
-- **SSG website** at http://localhost:5175 (if running)
-
-### Important: Shared Database Setup
-
-Both the API and SSG website apps share the **same local D1 database instance**. This is critical for data consistency between server-side rendering and API responses.
-
-The `setup-database.sh` script creates symbolic links so both apps use:
-- **Same database location:** `packages/database/.wrangler/`
-- **Same schema and migrations:** `packages/database/src/schema/`
-- **Same data:** Changes in one app are immediately visible in the other
 
 ### Project Structure
 
 ```
 uni-feedback/
 ├── apps/
-│   ├── website/           # Main React website (port 5173)
-│   ├── dashboard/         # Admin dashboard (port 5174)
-│   ├── api/              # Cloudflare Workers API (port 3001)
-│   └── website-ssr/      # SSG React Router app (port 5175)
+│   ├── website-ssr/       # Main student-facing website (React Router 7 + SSR)
+│   ├── dashboard/         # Admin dashboard
+│   └── api/               # Express backend
 ├── packages/
-│   ├── database/         # 🗄️ Shared database (schema, migrations)
-│   ├── ui/              # Shared UI components
-│   └── utils/           # Shared utilities
-└── setup-database.sh    # Database configuration script
+│   ├── db/                # Database schema, migrations, Drizzle config
+│   ├── ui/                # Shared UI components
+│   ├── api-client/        # Shared API client functions
+│   └── utils/             # Shared utility functions
+└── docker-compose.yml     # Local database (PostgreSQL)
 ```
 
 ### Available Commands
 
 ```bash
 # Monorepo commands (run from root)
-bun run dev              # Start all development servers
-bun run build            # Build all applications
-bun run format           # Format code (run before commits!)
-bun run lint             # Lint all packages
-bun run type-check       # Type check all packages
+pnpm dev             # Start all development servers
+pnpm build           # Build all applications
+pnpm format          # Format code (run before commits!)
+pnpm lint            # Lint all packages
+pnpm type-check      # Type check all packages
 
-# Database commands (run from packages/database/)
-bun run db:generate      # Generate migrations
-bun run db:migrate       # Apply migrations locally
-bun run db:studio        # Open Drizzle Studio
-bun run db:backup        # Backup database (local + remote)
+# Database commands (run from packages/db/)
+pnpm generate        # Generate a new migration
+pnpm migrate         # Apply pending migrations
+pnpm studio          # Open Drizzle Studio
 ```
 
 ### Tech Stack
 
-- **Frontend:** React 19, TypeScript, Vite, TailwindCSS 4.x, shadcn/ui
-- **Backend:** Cloudflare Workers, Drizzle ORM
-- **Database:** Cloudflare D1 (SQLite)
-- **Monorepo:** Turborepo with Bun workspaces
+- **Frontend:** React 19, React Router 7, TypeScript, Vite, TailwindCSS 4.x, shadcn/ui
+- **Backend:** Node.js, Express, Drizzle ORM
+- **Database:** PostgreSQL (via Docker locally)
+- **Monorepo:** Turborepo with pnpm workspaces
 - **State Management:** TanStack Query
+
+### Git Hooks
+
+The pre-commit hook auto-formats staged files. Set it up once after cloning:
+
+```bash
+ln -sf ../../ops/pre-commit.sh .git/hooks/pre-commit
+```
+
+## Production
+
+In production (and staging), the full stack — database, API, and website — runs inside Docker containers. Images are built by GitHub Actions and pushed to GHCR; the server pulls and runs them via `docker-compose.prod.yml` (or `docker-compose.staging.yml` for staging).
 
 ## Contributing
 
