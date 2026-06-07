@@ -8,8 +8,10 @@ import {
   type CourseDetail
 } from '~/components'
 import type { CourseFeedback } from '~/components/feedback/cards/CoursePageFeedbackCard'
+import { useLang } from '~/hooks'
 import { getFullUrl } from '~/utils'
 import { analytics, getPageName } from '~/utils/analytics'
+import { getCourseFeedbackPath } from '~/utils/i18n-routes'
 
 interface CourseReviewsProps {
   course: CourseDetail
@@ -18,9 +20,10 @@ interface CourseReviewsProps {
 
 export function CourseReviews({ course, feedback }: CourseReviewsProps) {
   const { t } = useTranslation('course')
+  const lang = useLang()
   const reviewFormUrl = useMemo(() => {
-    return `/courses/${course.id}/feedback?from=course_reviews`
-  }, [course.id])
+    return `${getCourseFeedbackPath(lang, course.id)}?from=course_reviews`
+  }, [lang, course.id])
 
   return (
     <>

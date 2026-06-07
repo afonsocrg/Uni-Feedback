@@ -1,7 +1,9 @@
 import { Button, StarRating, WorkloadRatingDisplay } from '@uni-feedback/ui'
 import { useNavigate } from 'react-router'
 import { SelectionCard } from '~/components'
+import { useLang } from '~/hooks'
 import { analytics, getPageName } from '~/utils/analytics'
+import { getCourseFeedbackPath } from '~/utils/i18n-routes'
 
 interface CourseCardProps {
   courseId: number
@@ -29,6 +31,7 @@ export function CourseCard({
   showAverageScores = false
 }: CourseCardProps) {
   const navigate = useNavigate()
+  const lang = useLang()
   const title = useAcronymAsTitle ? acronym : name
   const subtitle = useAcronymAsTitle ? name : acronym
 
@@ -52,7 +55,9 @@ export function CourseCard({
                 referrerPage: getPageName(window.location.pathname),
                 courseId
               })
-              navigate(`/courses/${courseId}/feedback?from=course_card`)
+              navigate(
+                `${getCourseFeedbackPath(lang, courseId)}?from=course_card`
+              )
             }}
           >
             <span>

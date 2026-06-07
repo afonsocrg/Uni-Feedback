@@ -29,7 +29,7 @@ import { CommentSection } from '~/components/feedback/CommentSection'
 import { useFeedbackDraft, useLang } from '~/hooks'
 import type { FeedbackFormData } from '~/routes/feedback.new'
 import { analytics } from '~/utils/analytics'
-import { getLocalePath } from '~/utils/i18n-routes'
+import { getCourseFeedbackPath, getLocalePath } from '~/utils/i18n-routes'
 
 interface CourseWithDetails {
   id: number
@@ -116,9 +116,13 @@ export function CourseSpecificFeedbackForm({
       form.setValue('courseId', newCourse.id)
 
       // Shallow URL update without triggering navigation/reload
-      window.history.pushState(null, '', `/courses/${newCourse.id}/feedback`)
+      window.history.pushState(
+        null,
+        '',
+        getCourseFeedbackPath(lang, newCourse.id)
+      )
     },
-    [currentCourse.id, form]
+    [currentCourse.id, form, lang]
   )
 
   // Watch form values for draft saving (comment is handled separately to avoid re-renders)

@@ -6,6 +6,8 @@ import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { CourseDetail } from '~/components'
 import type { CourseFeedback } from '~/components/feedback/cards/CoursePageFeedbackCard'
+import { useLang } from '~/hooks'
+import { getCourseFeedbackPath } from '~/utils/i18n-routes'
 
 interface CourseReviewsContentProps {
   courseId: number
@@ -18,9 +20,10 @@ export function CourseReviewsContent({
   feedback
 }: CourseReviewsContentProps) {
   const { t } = useTranslation('course')
+  const lang = useLang()
   const reviewFormUrl = useMemo(() => {
-    return `/courses/${courseId}/feedback?from=course_reviews`
-  }, [courseId])
+    return `${getCourseFeedbackPath(lang, courseId)}?from=course_reviews`
+  }, [lang, courseId])
 
   const groupedFeedback = useMemo(() => {
     if (!feedback) return []
