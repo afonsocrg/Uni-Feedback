@@ -4,7 +4,8 @@ import { useEffect } from 'react'
 import { useLocation } from 'react-router'
 import { DegreePageContent } from '~/components'
 import { userPreferences } from '~/utils'
-import { SITE_URL } from '~/utils/constants'
+
+import { getCoursePath, getDegreePath } from '~/utils/i18n-routes'
 
 import type { Route } from './+types/$facultySlug.$degreeSlug'
 
@@ -16,7 +17,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
     ]
   }
 
-  const { faculty, degree, courses } = loaderData
+  const { faculty, degree, courses, origin } = loaderData
 
   // Build title
   const title = `${degree.name} (${degree.acronym}) - ${faculty.shortName} - Course Feedback - Uni Feedback`
@@ -62,7 +63,10 @@ export function meta({ loaderData }: Route.MetaArgs) {
       name: faculty.name,
       alternateName: faculty.shortName
     },
-    url: `${SITE_URL}/${faculty.slug}/${degree.slug}`,
+    ...(faculty.slug &&
+      degree.slug && {
+        url: `${origin}${getDegreePath('pt', faculty.slug, degree.slug)}`
+      }),
     ...(courses.length > 0 && {
       offers: {
         '@type': 'ItemList',
@@ -74,7 +78,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
             '@type': 'Course',
             name: course.name,
             courseCode: course.acronym,
-            url: `${SITE_URL}/courses/${course.id}`,
+            url: `${origin}${getCoursePath('pt', course.id)}`,
             ...(Number(course.totalFeedbackCount) > 0 && {
               aggregateRating: {
                 '@type': 'AggregateRating',
@@ -125,7 +129,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
   ]
 }
 
-export async function loader({ params }: Route.LoaderArgs) {
+export async function loader({ params, request }: Route.LoaderArgs) {
   const { facultySlug, degreeSlug } = params
   const db = database()
 
@@ -202,7 +206,8 @@ export async function loader({ params }: Route.LoaderArgs) {
     faculty,
     degree,
     courses: coursesWithFeedback,
-    courseGroups: formattedCourseGroups
+    courseGroups: formattedCourseGroups,
+    origin: new URL(request.url).origin
   }
 }
 

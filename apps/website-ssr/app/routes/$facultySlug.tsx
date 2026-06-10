@@ -4,7 +4,8 @@ import { useEffect } from 'react'
 import { useLocation } from 'react-router'
 import { FacultyPageContent } from '~/components'
 import { userPreferences } from '~/utils'
-import { SITE_URL } from '~/utils/constants'
+
+import { getDegreePath, getFacultyPath } from '~/utils/i18n-routes'
 
 import type { Route } from './+types/$facultySlug'
 
@@ -16,7 +17,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
     ]
   }
 
-  const { faculty, degrees } = loaderData
+  const { faculty, degrees, origin } = loaderData
 
   // Build title
   const title = `${faculty.name} (${faculty.shortName}) - Degrees & Course Reviews - Uni Feedback`
@@ -55,13 +56,17 @@ export function meta({ loaderData }: Route.MetaArgs) {
     '@type': 'CollegeOrUniversity',
     name: faculty.name,
     alternateName: faculty.shortName,
-    url: `${SITE_URL}/${faculty.slug}`,
+    ...(faculty.slug && {
+      url: `${origin}${getFacultyPath('pt', faculty.slug)}`
+    }),
     ...(degrees.length > 0 && {
       department: degrees.map((degree) => ({
         '@type': 'EducationalOrganization',
         name: degree.name,
         alternateName: degree.acronym,
-        url: `${SITE_URL}/${faculty.slug}/${degree.slug}`
+        ...(degree.slug && {
+          url: `${origin}${getDegreePath('pt', faculty.slug!, degree.slug)}`
+        })
       }))
     })
   }
@@ -99,7 +104,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
   ]
 }
 
-export async function loader({ params }: Route.LoaderArgs) {
+export async function loader({ params, request }: Route.LoaderArgs) {
   const { facultySlug } = params
   const db = database()
 
@@ -144,7 +149,8 @@ export async function loader({ params }: Route.LoaderArgs) {
 
   return {
     faculty,
-    degrees: degreesWithCounts
+    degrees: degreesWithCounts,
+    origin: new URL(request.url).origin
   }
 }
 

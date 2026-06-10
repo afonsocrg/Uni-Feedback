@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router'
 import { BrowsePageLayout, FacultySelector } from '~/components'
 import { userPreferences } from '~/utils'
-import { SITE_URL } from '~/utils/constants'
 
 import type { Route } from './+types/browse'
 
@@ -16,6 +15,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
   const title = 'Browse Universities - Uni Feedback'
 
   // Build description with available faculties
+  const { origin } = loaderData
   const facultyNames = loaderData?.faculties
     ?.map((f) => f.shortName || f.name)
     .slice(0, 5) // First 5 faculties
@@ -42,7 +42,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
           item: {
             '@type': 'CollegeOrUniversity',
             name: faculty.name,
-            url: `${SITE_URL}/${faculty.slug}`
+            url: `${origin}/${faculty.slug}`
           }
         }))
       }
@@ -80,14 +80,14 @@ export function meta({ loaderData }: Route.MetaArgs) {
   ]
 }
 
-export async function loader() {
+export async function loader({ request }: { request: Request }) {
   const db = database()
 
   const faculties = await db.query.faculties.findMany({
     orderBy: (faculties) => [faculties.id]
   })
 
-  return { faculties }
+  return { faculties, origin: new URL(request.url).origin }
 }
 
 export default function BrowsePage({ loaderData }: Route.ComponentProps) {

@@ -25,7 +25,7 @@ import { defaultLang, i18n } from '~/i18n/config'
 import { AuthProvider } from '~/providers/AuthProvider'
 import { AuthRefreshProvider } from '~/providers/AuthRefreshProvider'
 import { userPreferences } from '~/utils'
-import { SITE_URL } from '~/utils/constants'
+
 import { detectLang, getEquivalentPath } from '~/utils/i18n-routes'
 import type { Route } from './+types/root'
 import { LandingLayout } from './components/landing'
@@ -52,7 +52,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   const lang = detectLang(url.pathname)
   _ssrLang = lang
   i18n.changeLanguage(lang)
-  return { lang }
+  return { lang, origin: url.origin }
 }
 
 const queryClient = new QueryClient({
@@ -75,19 +75,16 @@ const persister =
     : undefined
 
 function HreflangLinks() {
+  const { origin } = useLoaderData<typeof loader>()
   const { pathname } = useLocation()
   const lang = detectLang(pathname)
   const ptPath = lang === 'pt' ? pathname : getEquivalentPath(pathname, 'en')
   const enPath = lang === 'en' ? pathname : getEquivalentPath(pathname, 'pt')
   return (
     <>
-      <link rel="alternate" hrefLang="pt" href={`${SITE_URL}${ptPath}`} />
-      <link rel="alternate" hrefLang="en" href={`${SITE_URL}${enPath}`} />
-      <link
-        rel="alternate"
-        hrefLang="x-default"
-        href={`${SITE_URL}${ptPath}`}
-      />
+      <link rel="alternate" hrefLang="pt" href={`${origin}${ptPath}`} />
+      <link rel="alternate" hrefLang="en" href={`${origin}${enPath}`} />
+      <link rel="alternate" hrefLang="x-default" href={`${origin}${ptPath}`} />
     </>
   )
 }
