@@ -84,7 +84,7 @@ export function CourseDetailContent({
         <CourseInfoCard course={course} />
 
         <div className="mt-12">
-          <Tabs defaultValue="feedback">
+          <Tabs defaultValue={feedback.length > 0 ? 'feedback' : 'description'}>
             <div className="relative">
               {/* Left gradient fade (opacity transitions) */}
               <div
