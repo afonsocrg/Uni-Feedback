@@ -2,6 +2,7 @@ import { database, queries, schema } from '@uni-feedback/db'
 import { desc, eq, sql } from 'drizzle-orm'
 import { CourseDetailContent } from '~/components'
 import { getCurrentUserId } from '~/lib/auth.server'
+import { getCoursePath } from '~/utils/i18n-routes'
 
 import type { Route } from './+types/courses.$courseId'
 
@@ -13,7 +14,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
     ]
   }
 
-  const { course, feedback } = loaderData
+  const { course, feedback, origin } = loaderData
 
   // Build a more descriptive title with context
   const titleParts = [course.name]
@@ -52,9 +53,11 @@ export function meta({ loaderData }: Route.MetaArgs) {
   const structuredData = {
     '@context': 'https://schema.org',
     '@type': 'Course',
+    url: `${origin}${getCoursePath('pt', course.id)}`,
     name: course.name,
     courseCode: course.acronym,
     numberOfCredits: course.ects,
+    ...(course.description && { description: course.description }),
     ...(course.faculty && {
       provider: {
         '@type': 'CollegeOrUniversity',
@@ -242,7 +245,8 @@ export async function loader({ params, request }: Route.LoaderArgs) {
       degree,
       faculty
     },
-    feedback
+    feedback,
+    origin: new URL(request.url).origin
   }
 }
 
