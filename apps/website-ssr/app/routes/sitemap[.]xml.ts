@@ -1,9 +1,6 @@
 import { database, schema } from '@uni-feedback/db'
 import { eq } from 'drizzle-orm'
-import { SITE_URL } from '~/utils/constants'
 import { getLocalePath } from '~/utils/i18n-routes'
-
-const DOMAIN = SITE_URL
 
 interface PagePair {
   pt: string
@@ -13,17 +10,18 @@ interface PagePair {
 }
 
 function renderUrlEntry(
+  origin: string,
   pair: PagePair,
   lang: 'pt' | 'en',
   lastmod: string
 ): string {
-  const loc = `${DOMAIN}${pair[lang]}`
+  const loc = `${origin}${pair[lang]}`
   return [
     '  <url>',
     `    <loc>${loc}</loc>`,
-    `    <xhtml:link rel="alternate" hreflang="pt" href="${DOMAIN}${pair.pt}"/>`,
-    `    <xhtml:link rel="alternate" hreflang="en" href="${DOMAIN}${pair.en}"/>`,
-    `    <xhtml:link rel="alternate" hreflang="x-default" href="${DOMAIN}${pair.pt}"/>`,
+    `    <xhtml:link rel="alternate" hreflang="pt" href="${origin}${pair.pt}"/>`,
+    `    <xhtml:link rel="alternate" hreflang="en" href="${origin}${pair.en}"/>`,
+    `    <xhtml:link rel="alternate" hreflang="x-default" href="${origin}${pair.pt}"/>`,
     `    <lastmod>${lastmod}</lastmod>`,
     `    <changefreq>${pair.changefreq}</changefreq>`,
     `    <priority>${pair.priority}</priority>`,
@@ -31,16 +29,17 @@ function renderUrlEntry(
   ].join('\n')
 }
 
-function renderPair(pair: PagePair, lastmod: string): string {
+function renderPair(origin: string, pair: PagePair, lastmod: string): string {
   return [
-    renderUrlEntry(pair, 'pt', lastmod),
-    renderUrlEntry(pair, 'en', lastmod)
+    renderUrlEntry(origin, pair, 'pt', lastmod),
+    renderUrlEntry(origin, pair, 'en', lastmod)
   ].join('\n')
 }
 
-export async function loader() {
+export async function loader({ request }: { request: Request }) {
   const db = database()
   const lastmod = new Date().toISOString()
+  const { origin } = new URL(request.url)
 
   const [faculties, degrees, courses] = await Promise.all([
     db.select({ slug: schema.faculties.slug }).from(schema.faculties),
@@ -126,7 +125,7 @@ export async function loader() {
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"',
     '        xmlns:xhtml="http://www.w3.org/1999/xhtml">',
     ...[...staticPairs, ...dynamicPairs].map((pair) =>
-      renderPair(pair, lastmod)
+      renderPair(origin, pair, lastmod)
     ),
     '</urlset>'
   ].join('\n')
