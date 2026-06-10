@@ -1,6 +1,7 @@
 import { database, schema } from '@uni-feedback/db'
 import { eq } from 'drizzle-orm'
 import { getLocalePath } from '~/utils/i18n-routes'
+import { getRequestOrigin } from '~/utils/request'
 
 interface PagePair {
   pt: string
@@ -39,7 +40,7 @@ function renderPair(origin: string, pair: PagePair, lastmod: string): string {
 export async function loader({ request }: { request: Request }) {
   const db = database()
   const lastmod = new Date().toISOString()
-  const { origin } = new URL(request.url)
+  const origin = getRequestOrigin(request)
 
   const [faculties, degrees, courses] = await Promise.all([
     db.select({ slug: schema.faculties.slug }).from(schema.faculties),

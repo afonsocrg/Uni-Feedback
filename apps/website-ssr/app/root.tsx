@@ -27,6 +27,7 @@ import { AuthRefreshProvider } from '~/providers/AuthRefreshProvider'
 import { userPreferences } from '~/utils'
 
 import { detectLang, getEquivalentPath } from '~/utils/i18n-routes'
+import { getRequestOrigin } from '~/utils/request'
 import type { Route } from './+types/root'
 import { LandingLayout } from './components/landing'
 
@@ -52,7 +53,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   const lang = detectLang(url.pathname)
   _ssrLang = lang
   i18n.changeLanguage(lang)
-  return { lang, origin: url.origin }
+  return { lang, origin: getRequestOrigin(request) }
 }
 
 const queryClient = new QueryClient({

@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router'
 import { BrowsePageLayout, FacultySelector } from '~/components'
 import { userPreferences } from '~/utils'
+import { getRequestOrigin } from '~/utils/request'
 
 import type { Route } from './+types/browse'
 
@@ -87,7 +88,7 @@ export async function loader({ request }: { request: Request }) {
     orderBy: (faculties) => [faculties.id]
   })
 
-  return { faculties, origin: new URL(request.url).origin }
+  return { faculties, origin: getRequestOrigin(request) }
 }
 
 export default function BrowsePage({ loaderData }: Route.ComponentProps) {

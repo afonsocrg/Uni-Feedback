@@ -3,6 +3,7 @@ import { desc, eq, sql } from 'drizzle-orm'
 import { CourseDetailContent } from '~/components'
 import { getCurrentUserId } from '~/lib/auth.server'
 import { getCoursePath } from '~/utils/i18n-routes'
+import { getRequestOrigin } from '~/utils/request'
 
 import type { Route } from './+types/courses.$courseId'
 
@@ -246,7 +247,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
       faculty
     },
     feedback,
-    origin: new URL(request.url).origin
+    origin: getRequestOrigin(request)
   }
 }
 

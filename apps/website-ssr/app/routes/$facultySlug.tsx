@@ -6,6 +6,7 @@ import { FacultyPageContent } from '~/components'
 import { userPreferences } from '~/utils'
 
 import { getDegreePath, getFacultyPath } from '~/utils/i18n-routes'
+import { getRequestOrigin } from '~/utils/request'
 
 import type { Route } from './+types/$facultySlug'
 
@@ -150,7 +151,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   return {
     faculty,
     degrees: degreesWithCounts,
-    origin: new URL(request.url).origin
+    origin: getRequestOrigin(request)
   }
 }
 

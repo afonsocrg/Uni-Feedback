@@ -6,6 +6,7 @@ import { DegreePageContent } from '~/components'
 import { userPreferences } from '~/utils'
 
 import { getCoursePath, getDegreePath } from '~/utils/i18n-routes'
+import { getRequestOrigin } from '~/utils/request'
 
 import type { Route } from './+types/$facultySlug.$degreeSlug'
 
@@ -207,7 +208,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     degree,
     courses: coursesWithFeedback,
     courseGroups: formattedCourseGroups,
-    origin: new URL(request.url).origin
+    origin: getRequestOrigin(request)
   }
 }
 
