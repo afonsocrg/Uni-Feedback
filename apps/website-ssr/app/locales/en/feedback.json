@@ -66,6 +66,42 @@
       "tips": "Tips"
     }
   },
+  "success": {
+    "title": "Legend move 😎!",
+    "subtitle": "Your feedback will help hundreds of students finding the right courses!!",
+    "points_one": "point",
+    "points_other": "points",
+    "how_points_work": "How do points work?",
+    "recommendations_header": "Want to help more? Your peers would love your feedback on these:",
+    "give_another": "Give feedback to another course",
+    "all_reviewed_title": "Mission Accomplished!",
+    "all_reviewed_desc": "You've reviewed all available courses in your curriculum",
+    "browse_all": "Browse all courses",
+    "submit_another": "Submit for another course",
+    "view_feedback": "View your feedback →"
+  },
+  "feedback_card": {
+    "removed_by_moderators": "Removed by moderators",
+    "open_course_page": "Open Course Page",
+    "edit": "Edit",
+    "delete": "Delete",
+    "workload": "Workload:",
+    "points_short": "+{{count}} pts",
+    "earned_points_one": "You earned {{count}} point for giving this feedback",
+    "earned_points_other": "You earned {{count}} points for giving this feedback",
+    "categories_covered": "Categories covered:",
+    "learn_more_points": "Learn more about points →",
+    "show_more": "Show more",
+    "show_less": "Show less",
+    "no_comment": "You did not leave any comment",
+    "toast_deleted": "Feedback deleted successfully",
+    "toast_delete_failed": "Failed to delete feedback",
+    "delete_dialog_title": "Delete Feedback",
+    "delete_dialog_desc": "Are you sure you want to delete this feedback? Once deleted, this feedback will be removed from the platform and will no longer be visible to other students.",
+    "delete_cancel": "Cancel",
+    "delete_deleting": "Deleting...",
+    "delete_confirm": "Delete"
+  },
   "edit": {
     "breadcrumb_profile": "Profile",
     "page_title": "Edit Feedback",

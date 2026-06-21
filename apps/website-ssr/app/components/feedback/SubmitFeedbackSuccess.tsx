@@ -10,6 +10,7 @@ import {
   TooltipTrigger
 } from '@uni-feedback/ui'
 import { ChevronRight, HelpCircle } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { useLang } from '~/hooks'
 import {
@@ -38,6 +39,7 @@ export function SubmitFeedbackSuccess({
   onSubmitAnother
 }: FeedbackSubmitSuccessProps) {
   const lang = useLang()
+  const { t } = useTranslation('feedback')
 
   const hasPoints = pointsEarned !== undefined && pointsEarned > 0
   const feedbackUrl =
@@ -58,14 +60,11 @@ export function SubmitFeedbackSuccess({
           <div className="text-center space-y-6 py-4">
             <div className="space-y-2">
               <h2 className="text-2xl md:text-3xl font-bold text-gray-700">
-                Legend move 😎!
+                {t('success.title')}
               </h2>
             </div>
 
-            <p className="text-base text-gray-500">
-              Your feedback will help hundreds of students finding the right
-              courses!!
-            </p>
+            <p className="text-base text-gray-500">{t('success.subtitle')}</p>
 
             {/* The Reward - Points Display */}
             {hasPoints && (
@@ -75,7 +74,7 @@ export function SubmitFeedbackSuccess({
                 </span>
                 <div className="flex items-center gap-1.5">
                   <span className="text-base font-medium text-gray-600">
-                    point{pointsEarned != 1 ? 's' : ''}
+                    {t('success.points', { count: pointsEarned })}
                   </span>
                   <TooltipProvider>
                     <Tooltip>
@@ -91,7 +90,7 @@ export function SubmitFeedbackSuccess({
                         side="bottom"
                         className="text-white border-gray-900"
                       >
-                        <p>How do points work?</p>
+                        <p>{t('success.how_points_work')}</p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
@@ -110,7 +109,7 @@ export function SubmitFeedbackSuccess({
             <div className="space-y-4 mt-12">
               {/* The Bridge - CTA Header */}
               <p className="text-sm text-gray-500 text-center">
-                Want to help more? Your peers would love your feedback on these:
+                {t('success.recommendations_header')}
               </p>
 
               {/* The Course List - Single white container */}
@@ -144,7 +143,7 @@ export function SubmitFeedbackSuccess({
                   href={getReviewPath(lang)}
                   className="text-sm text-gray-500 hover:text-gray-700"
                 >
-                  Give feedback to another course
+                  {t('success.give_another')}
                 </a>
               </div>
             </div>
@@ -152,13 +151,15 @@ export function SubmitFeedbackSuccess({
             <Card className="p-6 text-center space-y-3 bg-white border-gray-200">
               <div className="text-2xl">🏆</div>
               <h3 className="text-lg font-semibold text-gray-700">
-                Mission Accomplished!
+                {t('success.all_reviewed_title')}
               </h3>
               <p className="text-sm text-gray-600">
-                You've reviewed all available courses in your curriculum
+                {t('success.all_reviewed_desc')}
               </p>
               <Button asChild variant="outline" className="w-full">
-                <a href={getLocalePath('browse', lang)}>Browse all courses</a>
+                <a href={getLocalePath('browse', lang)}>
+                  {t('success.browse_all')}
+                </a>
               </Button>
             </Card>
           ) : (
@@ -168,7 +169,7 @@ export function SubmitFeedbackSuccess({
                 variant="outline"
                 className="w-full"
               >
-                Submit for another course
+                {t('success.submit_another')}
               </Button>
             </div>
           )}
@@ -180,7 +181,7 @@ export function SubmitFeedbackSuccess({
                 href={feedbackUrl}
                 className="text-xs text-gray-400 hover:text-gray-600"
               >
-                View your feedback →
+                {t('success.view_feedback')}
               </a>
             </div>
           )}

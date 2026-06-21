@@ -25,6 +25,7 @@ import {
   Trash2
 } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { toast } from 'sonner'
 import { FeedbackCategoryChips, FeedbackMarkdown } from '~/components'
@@ -57,6 +58,7 @@ interface ProfileFeedbackCardProps {
 
 export function ProfileFeedbackCard({ feedback }: ProfileFeedbackCardProps) {
   const lang = useLang()
+  const { t } = useTranslation('feedback')
 
   const [isExpanded, setIsExpanded] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
@@ -72,14 +74,16 @@ export function ProfileFeedbackCard({ feedback }: ProfileFeedbackCardProps) {
     setIsDeleting(true)
     try {
       await deleteFeedback(feedback.id)
-      toast.success('Feedback deleted successfully')
+      toast.success(t('feedback_card.toast_deleted'))
       setIsDeleteDialogOpen(false)
       // Invalidate queries to refresh the feedback list and stats
       await queryClient.invalidateQueries({ queryKey: ['user', 'feedback'] })
       await queryClient.invalidateQueries({ queryKey: ['user', 'stats'] })
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : 'Failed to delete feedback'
+        error instanceof Error
+          ? error.message
+          : t('feedback_card.toast_delete_failed')
       )
     } finally {
       setIsDeleting(false)
@@ -95,7 +99,10 @@ export function ProfileFeedbackCard({ feedback }: ProfileFeedbackCardProps) {
             <div className="flex items-center gap-2 flex-wrap">
               <span className="font-semibold">{feedback.courseName}</span>
               {!feedback.approvedAt && (
-                <Chip color="red" label="Removed by moderators" />
+                <Chip
+                  color="red"
+                  label={t('feedback_card.removed_by_moderators')}
+                />
               )}
             </div>
           </div>
@@ -106,7 +113,7 @@ export function ProfileFeedbackCard({ feedback }: ProfileFeedbackCardProps) {
                 <EllipsisVertical className="size-4" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-48 p-2">
+            <PopoverContent className="w-auto min-w-48 max-w-xs p-2">
               <div className="flex flex-col gap-1">
                 <Link
                   to={getCoursePath(lang, feedback.courseId)}
@@ -119,7 +126,7 @@ export function ProfileFeedbackCard({ feedback }: ProfileFeedbackCardProps) {
                     className="w-full justify-start"
                   >
                     <ExternalLink className="size-4 mr-2" />
-                    Open Course Page
+                    {t('feedback_card.open_course_page')}
                   </Button>
                 </Link>
                 <Link
@@ -134,7 +141,7 @@ export function ProfileFeedbackCard({ feedback }: ProfileFeedbackCardProps) {
                     className="w-full justify-start"
                   >
                     <Pencil className="size-4 mr-2" />
-                    Edit
+                    {t('feedback_card.edit')}
                   </Button>
                 </Link>
                 <Button
@@ -144,7 +151,7 @@ export function ProfileFeedbackCard({ feedback }: ProfileFeedbackCardProps) {
                   onClick={() => setIsDeleteDialogOpen(true)}
                 >
                   <Trash2 className="size-4 mr-2" />
-                  Delete
+                  {t('feedback_card.delete')}
                 </Button>
               </div>
             </PopoverContent>
@@ -156,7 +163,7 @@ export function ProfileFeedbackCard({ feedback }: ProfileFeedbackCardProps) {
             <StarRating value={feedback.rating} size="sm" />
             {feedback.workloadRating && (
               <div className="inline-flex items-center text-xs text-gray-500 font-medium">
-                <span className="mr-1">Workload:</span>
+                <span className="mr-1">{t('feedback_card.workload')}</span>
                 <WorkloadRatingDisplay rating={feedback.workloadRating} />
               </div>
             )}
@@ -166,20 +173,25 @@ export function ProfileFeedbackCard({ feedback }: ProfileFeedbackCardProps) {
               <Popover>
                 <PopoverTrigger asChild>
                   <div className="flex items-center gap-2 text-sm font-semibold text-primary cursor-pointer">
-                    <span>+{feedback.points} pts</span>
+                    <span>
+                      {t('feedback_card.points_short', {
+                        count: feedback.points
+                      })}
+                    </span>
                     <HelpCircle className="size-4 text-muted-foreground" />
                   </div>
                 </PopoverTrigger>
                 <PopoverContent className="w-80">
                   <div className="space-y-4">
                     <p className="text-sm font-medium">
-                      You earned {feedback.points} points for giving this
-                      feedback
+                      {t('feedback_card.earned_points', {
+                        count: feedback.points
+                      })}
                     </p>
                     {feedback.analysis && (
                       <div>
                         <p className="text-xs text-gray-500 mb-2">
-                          Categories covered:
+                          {t('feedback_card.categories_covered')}
                         </p>
                         <FeedbackCategoryChips
                           orientation="vertical"
@@ -197,7 +209,7 @@ export function ProfileFeedbackCard({ feedback }: ProfileFeedbackCardProps) {
                       to={getLocalePath('points', lang)}
                       className="text-sm text-primary hover:underline inline-block"
                     >
-                      Learn more about points →
+                      {t('feedback_card.learn_more_points')}
                     </Link>
                   </div>
                 </PopoverContent>
@@ -225,13 +237,15 @@ export function ProfileFeedbackCard({ feedback }: ProfileFeedbackCardProps) {
                 onClick={() => setIsExpanded(!isExpanded)}
                 className="mt-3 p-0 h-auto text-sm"
               >
-                {isExpanded ? 'Show less' : 'Show more'}
+                {isExpanded
+                  ? t('feedback_card.show_less')
+                  : t('feedback_card.show_more')}
               </Button>
             )}
           </>
         ) : (
           <p className="text-gray-500 italic text-sm pl-4">
-            You did not leave any comment
+            {t('feedback_card.no_comment')}
           </p>
         )}
       </div>
@@ -245,17 +259,15 @@ export function ProfileFeedbackCard({ feedback }: ProfileFeedbackCardProps) {
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Feedback</DialogTitle>
+            <DialogTitle>{t('feedback_card.delete_dialog_title')}</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this feedback? Once deleted, this
-              feedback will be removed from the platform and will no longer be
-              visible to other students.
+              {t('feedback_card.delete_dialog_desc')}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <DialogClose asChild>
               <Button variant="outline" disabled={isDeleting}>
-                Cancel
+                {t('feedback_card.delete_cancel')}
               </Button>
             </DialogClose>
             <Button
@@ -263,7 +275,9 @@ export function ProfileFeedbackCard({ feedback }: ProfileFeedbackCardProps) {
               onClick={handleDelete}
               disabled={isDeleting}
             >
-              {isDeleting ? 'Deleting...' : 'Delete'}
+              {isDeleting
+                ? t('feedback_card.delete_deleting')
+                : t('feedback_card.delete_confirm')}
             </Button>
           </DialogFooter>
         </DialogContent>

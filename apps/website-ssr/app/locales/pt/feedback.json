@@ -66,6 +66,42 @@
       "tips": "Dicas"
     }
   },
+  "success": {
+    "title": "Feito!! Obrigado 😎!",
+    "subtitle": "O teu feedback vai ajudar imensos alunos a escolher as melhores cadeiras!!",
+    "points_one": "ponto",
+    "points_other": "pontos",
+    "how_points_work": "Como funcionam os pontos?",
+    "recommendations_header": "Queres contribuir mais? Os teus colegas adoravam saber o que achaste sobre estas cadeiras:",
+    "give_another": "Dar feedback a outra cadeira",
+    "all_reviewed_title": "Missão Cumprida!",
+    "all_reviewed_desc": "Já avaliaste todas as cadeiras disponíveis no teu curso",
+    "browse_all": "Explorar todas as cadeiras",
+    "submit_another": "Submeter para outra cadeira",
+    "view_feedback": "Ver o teu feedback →"
+  },
+  "feedback_card": {
+    "removed_by_moderators": "Removido pelos moderadores",
+    "open_course_page": "Ver página da cadeira",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "workload": "Carga de trabalho:",
+    "points_short": "+{{count}} pts",
+    "earned_points_one": "Ganhaste {{count}} ponto por dares este feedback",
+    "earned_points_other": "Ganhaste {{count}} pontos por dares este feedback",
+    "categories_covered": "Categorias abordadas:",
+    "learn_more_points": "Saber mais sobre pontos →",
+    "show_more": "Ver mais",
+    "show_less": "Ver menos",
+    "no_comment": "Não deixaste nenhum comentário",
+    "toast_deleted": "Feedback eliminado com sucesso",
+    "toast_delete_failed": "Falha ao eliminar feedback",
+    "delete_dialog_title": "Eliminar Feedback",
+    "delete_dialog_desc": "Tens a certeza de que queres eliminar este feedback? Depois de eliminado, este feedback será removido da plataforma e deixará de estar visível para outros alunos.",
+    "delete_cancel": "Cancelar",
+    "delete_deleting": "A eliminar...",
+    "delete_confirm": "Eliminar"
+  },
   "edit": {
     "breadcrumb_profile": "Perfil",
     "page_title": "Editar Feedback",
