@@ -272,8 +272,8 @@ export class SubmitFeedback extends OpenAPIRoute {
       rating: body.rating,
       workloadRating: body.workloadRating,
       course: {
-        ...course,
-        terms: course.terms as string[] | null
+        id: course.id,
+        name: course.name
       },
       comment,
       pointsEarned: feedbackPoints

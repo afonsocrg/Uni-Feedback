@@ -2,7 +2,7 @@ import { NotFoundError } from '@routes/utils/errorHandling'
 import { database } from '@uni-feedback/db'
 import { courses, degrees, feedback, reports } from '@uni-feedback/db/schema'
 import { getWorkloadLabel } from '@uni-feedback/utils'
-import { and, desc, eq, inArray, isNotNull } from 'drizzle-orm'
+import { and, desc, eq, inArray, isNotNull, sql } from 'drizzle-orm'
 import ejs from 'ejs'
 import { marked } from 'marked'
 import * as path from 'path'
@@ -269,41 +269,43 @@ export class ReportingService {
     schoolYear: number,
     filters?: ReportFilters
   ) {
-    // Get courses for this degree
-    const degreeCoursesQuery = database()
+    // Get courses for this degree, optionally filtered by offering
+    // (curriculum year and/or academic term name).
+    const conditions = [eq(courses.degreeId, degreeId)]
+
+    if (filters?.curriculumYear !== undefined) {
+      conditions.push(
+        sql`EXISTS (
+          SELECT 1 FROM course_offerings o
+          WHERE o.course_id = ${courses.id}
+            AND o.curriculum_year = ${filters.curriculumYear}
+        )`
+      )
+    }
+
+    if (filters?.terms !== undefined && filters.terms.length > 0) {
+      conditions.push(
+        sql`EXISTS (
+          SELECT 1 FROM course_offerings o
+          JOIN academic_terms t ON t.id = o.academic_term_id
+          WHERE o.course_id = ${courses.id}
+            AND t.name IN (${sql.join(
+              filters.terms.map((term) => sql`${term}`),
+              sql`, `
+            )})
+        )`
+      )
+    }
+
+    const filteredCourses = await database()
       .select({
         courseId: courses.id,
         courseCode: courses.acronym,
         courseName: courses.name,
-        ects: courses.ects,
-        curriculumYear: courses.curriculumYear,
-        terms: courses.terms
+        ects: courses.ects
       })
       .from(courses)
-      .where(eq(courses.degreeId, degreeId))
-
-    const degreeCourses = await degreeCoursesQuery
-
-    let filteredCourses = degreeCourses
-
-    // Apply curriculum year filter
-    if (filters?.curriculumYear !== undefined) {
-      filteredCourses = filteredCourses.filter(
-        (c) => c.curriculumYear === filters.curriculumYear
-      )
-    }
-
-    // Apply terms filter
-    if (filters?.terms !== undefined && filters.terms.length > 0) {
-      filteredCourses = filteredCourses.filter((c) => {
-        const terms = c.terms as string[] | null
-        return (
-          terms !== null &&
-          Array.isArray(terms) &&
-          terms.some((t) => filters.terms!.includes(t))
-        )
-      })
-    }
+      .where(and(...conditions))
 
     type FeedbackRow = {
       id: number

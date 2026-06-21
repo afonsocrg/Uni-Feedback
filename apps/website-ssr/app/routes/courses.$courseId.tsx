@@ -146,7 +146,8 @@ export async function loader({ params, request }: Route.LoaderArgs) {
 
   // Get course details
   const course = await db.query.courses.findFirst({
-    where: (courses, { eq }) => eq(courses.id, courseIdNum)
+    where: (courses, { eq }) => eq(courses.id, courseIdNum),
+    with: { offerings: { with: { academicTerm: true } } }
   })
 
   if (!course) {
@@ -241,7 +242,14 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   return {
     course: {
       ...course,
-      terms: course.terms as string[] | null,
+      offerings: course.offerings.map((o) => ({
+        curriculumYear: o.curriculumYear,
+        academicTerm: {
+          name: o.academicTerm.name,
+          startTick: o.academicTerm.startTick,
+          endTick: o.academicTerm.endTick
+        }
+      })),
       ...aggregation,
       degree,
       faculty

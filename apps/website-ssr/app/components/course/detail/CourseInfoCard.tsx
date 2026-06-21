@@ -1,4 +1,7 @@
-import type { CorrectionRequestField } from '@uni-feedback/api-client'
+import type {
+  CorrectionRequestField,
+  CourseOffering
+} from '@uni-feedback/api-client'
 import { Chip, StarRating, WorkloadRatingDisplay } from '@uni-feedback/ui'
 import { Clock, ExternalLink, FileCheck, Star } from 'lucide-react'
 import { useState } from 'react'
@@ -14,7 +17,7 @@ export interface CourseInfoCardProps {
     description?: string | null
     assessment?: string | null
     bibliography?: string | null
-    terms?: string[] | null
+    offerings: CourseOffering[]
     ects?: number | null
     hasMandatoryExam?: boolean | null
     averageRating: number
@@ -39,6 +42,11 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
   const averageWorkload = Number(course.averageWorkload) || 0
   const [correctionDialogOpen, setCorrectionDialogOpen] = useState(false)
 
+  // Distinct academic term names this course is offered in.
+  const termNames = Array.from(
+    new Set(course.offerings.map((o) => o.academicTerm.name))
+  )
+
   const getCurrentValue = (
     field: CorrectionRequestField
   ): string | undefined => {
@@ -50,7 +58,7 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
       case 'ects':
         return course.ects?.toString()
       case 'terms':
-        return course.terms?.join(', ')
+        return termNames.length > 0 ? termNames.join(', ') : undefined
       case 'url':
         return course.url ?? undefined
       case 'has_mandatory_exam':
@@ -86,11 +94,11 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
               <Chip label={`${course.ects} ECTS`} size="sm" color="gray" />
             </>
           )}
-          {course.terms && course.terms.length > 0 && (
+          {termNames.length > 0 && (
             <>
               <span className="text-gray-300">•</span>
-              {course.terms.map((term) => (
-                <Chip key={term} label={term} color="gray" size="sm" />
+              {termNames.map((name) => (
+                <Chip key={name} label={name} color="gray" size="sm" />
               ))}
             </>
           )}

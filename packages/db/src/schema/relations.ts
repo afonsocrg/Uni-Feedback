@@ -1,7 +1,9 @@
 import { relations } from 'drizzle-orm'
+import { academicTerms } from './academicTerm'
 import { audioRecordings } from './audioRecording'
 import { correctionRequests } from './correctionRequest'
 import { courses } from './course'
+import { courseOfferings } from './courseOffering'
 import { degrees } from './degree'
 import { emailPreferences } from './emailPreferences'
 import { faculties } from './faculty'
@@ -41,8 +43,36 @@ export const courseRelations = relations(courses, ({ one, many }) => ({
     fields: [courses.degreeId],
     references: [degrees.id]
   }),
-  feedbacks: many(feedbackFull)
+  feedbacks: many(feedbackFull),
+  offerings: many(courseOfferings)
 }))
+
+// Course Offering relations
+export const courseOfferingRelations = relations(
+  courseOfferings,
+  ({ one }) => ({
+    course: one(courses, {
+      fields: [courseOfferings.courseId],
+      references: [courses.id]
+    }),
+    academicTerm: one(academicTerms, {
+      fields: [courseOfferings.academicTermId],
+      references: [academicTerms.id]
+    })
+  })
+)
+
+// Academic Term relations
+export const academicTermRelations = relations(
+  academicTerms,
+  ({ one, many }) => ({
+    faculty: one(faculties, {
+      fields: [academicTerms.facultyId],
+      references: [faculties.id]
+    }),
+    offerings: many(courseOfferings)
+  })
+)
 
 // Degree relations
 export const degreeRelations = relations(degrees, ({ one, many }) => ({
@@ -55,7 +85,8 @@ export const degreeRelations = relations(degrees, ({ one, many }) => ({
 
 // Faculty relations
 export const facultyRelations = relations(faculties, ({ many }) => ({
-  degrees: many(degrees)
+  degrees: many(degrees),
+  academicTerms: many(academicTerms)
 }))
 
 // User relations

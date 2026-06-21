@@ -1,6 +1,12 @@
 import { NotFoundError } from '@routes/utils/errorHandling'
 import { database } from '@uni-feedback/db'
-import { courses, degrees, faculties } from '@uni-feedback/db/schema'
+import {
+  academicTerms,
+  courseOfferings,
+  courses,
+  degrees,
+  faculties
+} from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
 import { eq, sql } from 'drizzle-orm'
 import { z } from 'zod'
@@ -90,30 +96,29 @@ export class GetDegreeDetails extends OpenAPIRoute {
 
     const degree = degreeResult[0]
 
-    // Get report options (curriculum years and terms)
-    const coursesResult = await database()
+    // Get report options (curriculum years and academic term names) from the
+    // offerings of this degree's courses.
+    const offeringsResult = await database()
       .select({
-        curriculumYear: courses.curriculumYear,
-        terms: courses.terms
+        curriculumYear: courseOfferings.curriculumYear,
+        termName: academicTerms.name
       })
-      .from(courses)
+      .from(courseOfferings)
+      .innerJoin(courses, eq(courseOfferings.courseId, courses.id))
+      .innerJoin(
+        academicTerms,
+        eq(courseOfferings.academicTermId, academicTerms.id)
+      )
       .where(eq(courses.degreeId, id))
 
     const curriculumYearSet = new Set<number>()
     const termSet = new Set<string>()
 
-    for (const course of coursesResult) {
-      if (
-        course.curriculumYear !== null &&
-        course.curriculumYear !== undefined
-      ) {
-        curriculumYearSet.add(course.curriculumYear)
+    for (const offering of offeringsResult) {
+      if (offering.curriculumYear !== null) {
+        curriculumYearSet.add(offering.curriculumYear)
       }
-      if (course.terms && Array.isArray(course.terms)) {
-        for (const term of course.terms as string[]) {
-          termSet.add(term)
-        }
-      }
+      termSet.add(offering.termName)
     }
 
     const response = {

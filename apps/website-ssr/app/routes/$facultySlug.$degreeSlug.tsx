@@ -1,4 +1,4 @@
-import { database, schema } from '@uni-feedback/db'
+import { database, offeringsSubquery, schema } from '@uni-feedback/db'
 import { eq, sql } from 'drizzle-orm'
 import { useEffect } from 'react'
 import { useLocation } from 'react-router'
@@ -160,9 +160,8 @@ export async function loader({ params, request }: Route.LoaderArgs) {
       name: schema.courses.name,
       acronym: schema.courses.acronym,
       url: schema.courses.url,
-      terms: schema.courses.terms,
+      offerings: offeringsSubquery(),
       hasMandatoryExam: schema.courses.hasMandatoryExam,
-      curriculumYear: schema.courses.curriculumYear,
       averageRating:
         sql<number>`coalesce(${schema.courseStats.averageRating}, 0)`.as(
           'average_rating'

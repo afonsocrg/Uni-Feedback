@@ -150,10 +150,14 @@ export function CoursesTabContent({ degreeId }: CoursesTabContentProps) {
                 </TableCell>
                 <TableCell>{course.ects || 'N/A'}</TableCell>
                 <TableCell>
-                  {course.terms?.length ? (
+                  {course.offerings.length ? (
                     <div className="flex flex-wrap gap-1">
-                      {course.terms.map((term, index) => (
-                        <Chip key={index} label={term} />
+                      {Array.from(
+                        new Set(
+                          course.offerings.map((o) => o.academicTerm.name)
+                        )
+                      ).map((name) => (
+                        <Chip key={name} label={name} />
                       ))}
                     </div>
                   ) : (

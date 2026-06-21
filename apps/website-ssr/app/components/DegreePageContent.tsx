@@ -1,3 +1,4 @@
+import type { CourseOffering } from '@uni-feedback/api-client'
 import type { Degree, Faculty } from '@uni-feedback/db/schema'
 import { Button, WarningAlert } from '@uni-feedback/ui'
 import { toOrdinal } from '@uni-feedback/utils'
@@ -15,8 +16,7 @@ interface CourseWithFeedback {
   id: number
   name: string
   acronym: string
-  curriculumYear: number | null
-  terms: string[] | null | undefined
+  offerings: CourseOffering[]
   hasMandatoryExam: boolean | null
   averageRating: number
   averageWorkload: number
@@ -97,27 +97,26 @@ export function DegreePageContent({
     sortBy
   ])
 
-  // Available curriculum years for filtering
+  // Available curriculum years for filtering (from offerings)
   const availableCurriculumYears = useMemo(() => {
     const years = new Set<number>()
     courses.forEach((course) => {
-      if (
-        course.curriculumYear !== null &&
-        course.curriculumYear !== undefined
-      ) {
-        years.add(course.curriculumYear)
-      }
+      course.offerings.forEach((offering) => {
+        if (offering.curriculumYear !== null) {
+          years.add(offering.curriculumYear)
+        }
+      })
     })
     return Array.from(years).sort((a, b) => a - b)
   }, [courses])
 
-  // Available terms for filtering
+  // Available academic term names for filtering (from offerings)
   const availableTerms = useMemo(() => {
     const terms = new Set<string>()
     courses.forEach((course) => {
-      if (Array.isArray(course.terms)) {
-        course.terms.forEach((term) => terms.add(term))
-      }
+      course.offerings.forEach((offering) => {
+        terms.add(offering.academicTerm.name)
+      })
     })
     return Array.from(terms).sort()
   }, [courses])
@@ -168,13 +167,13 @@ export function DegreePageContent({
 
         const matchesCurriculumYear =
           selectedCurriculumYear === null ||
-          course.curriculumYear === selectedCurriculumYear
+          course.offerings.some(
+            (o) => o.curriculumYear === selectedCurriculumYear
+          )
 
         const matchesTerm =
           !selectedTerm ||
-          (Array.isArray(course.terms)
-            ? course.terms.includes(selectedTerm)
-            : false)
+          course.offerings.some((o) => o.academicTerm.name === selectedTerm)
 
         const matchesCourseGroup =
           !selectedCourseGroupId ||

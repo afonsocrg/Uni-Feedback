@@ -1,3 +1,4 @@
+import type { CourseOffering } from '@uni-feedback/api-client'
 import type { Course } from '@uni-feedback/db/schema'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@uni-feedback/ui'
 import { useEffect, useRef, useState } from 'react'
@@ -14,6 +15,7 @@ import { cn } from '~/utils'
 import { CourseReviews } from '.'
 
 export interface CourseDetail extends Course {
+  offerings: CourseOffering[]
   averageRating: number
   averageWorkload: number
   totalFeedbackCount: number

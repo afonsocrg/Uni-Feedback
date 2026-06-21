@@ -1,7 +1,7 @@
 import { database } from '@uni-feedback/db'
-import { courses, degrees } from '@uni-feedback/db/schema'
+import { academicTerms } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
-import { and, eq, sql } from 'drizzle-orm'
+import { asc, eq } from 'drizzle-orm'
 import { z } from 'zod'
 
 const AllTermsQuerySchema = z.object({
@@ -18,9 +18,9 @@ const AllTermsResponseSchema = z.object({
 export class GetAllTerms extends OpenAPIRoute {
   schema = {
     tags: ['Admin - Courses'],
-    summary: 'Get all distinct course terms',
+    summary: 'Get all academic term names',
     description:
-      'Retrieve all distinct terms from courses with optional faculty filtering',
+      'Retrieve the distinct academic term names (the per-faculty catalog), with optional faculty filtering. Used to populate the course term filter.',
     request: {
       query: AllTermsQuerySchema
     },
@@ -50,39 +50,15 @@ export class GetAllTerms extends OpenAPIRoute {
     const { query } = await this.getValidatedData<typeof this.schema>()
     const { faculty_id } = query
 
-    // Build query for courses with terms
-    const coursesResult = faculty_id
-      ? await database()
-          .selectDistinct({
-            terms: courses.terms
-          })
-          .from(courses)
-          .leftJoin(degrees, eq(courses.degreeId, degrees.id))
-          .where(
-            and(
-              eq(degrees.facultyId, faculty_id),
-              sql`${courses.terms} IS NOT NULL`
-            )
-          )
-      : await database()
-          .selectDistinct({
-            terms: courses.terms
-          })
-          .from(courses)
-          .where(sql`${courses.terms} IS NOT NULL`)
+    // Distinct academic term names from the catalog, optionally scoped to a
+    // faculty. Names can repeat across faculties (e.g. "S1"), so de-dupe.
+    const rows = await database()
+      .selectDistinct({ name: academicTerms.name })
+      .from(academicTerms)
+      .where(faculty_id ? eq(academicTerms.facultyId, faculty_id) : undefined)
+      .orderBy(asc(academicTerms.name))
 
-    // Extract and flatten all terms
-    const allTerms = new Set<string>()
-
-    for (const course of coursesResult) {
-      const terms = course.terms as string[]
-      if (terms && Array.isArray(terms)) {
-        terms.forEach((term) => allTerms.add(term))
-      }
-    }
-
-    // Convert to sorted array
-    const sortedTerms = Array.from(allTerms).sort()
+    const sortedTerms = Array.from(new Set(rows.map((r) => r.name))).sort()
 
     return Response.json({
       terms: sortedTerms

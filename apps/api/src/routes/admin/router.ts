@@ -10,12 +10,9 @@ import {
   UpdateCourseGroup
 } from './courseGroups'
 import {
-  AddCourseTerm,
   GetAllTerms,
   GetCourseDetails,
   GetCourses,
-  GetCourseTerms,
-  RemoveCourseTerm,
   UpdateCourse
 } from './courses'
 import {
@@ -79,9 +76,6 @@ router.get('/courses', GetCourses)
 router.get('/courses/terms', GetAllTerms)
 router.get('/courses/:id', GetCourseDetails)
 router.put('/courses/:id', UpdateCourse)
-router.get('/courses/:id/terms', GetCourseTerms)
-router.post('/courses/:id/terms', AddCourseTerm)
-router.delete('/courses/:id/terms/:term', RemoveCourseTerm)
 
 // Feedback routes
 router.get('/feedback', GetFeedback)

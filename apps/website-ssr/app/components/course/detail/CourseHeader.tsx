@@ -53,10 +53,12 @@ export function CourseHeader({ course }: CourseHeaderProps) {
             <Chip label={course.degree.acronym} />
           </Tooltip>
         )}
-        {course.terms && (
+        {course.offerings.length > 0 && (
           <div className="flex items-center gap-2">
-            {course.terms.map((t) => (
-              <Chip key={t} label={t} />
+            {Array.from(
+              new Set(course.offerings.map((o) => o.academicTerm.name))
+            ).map((name) => (
+              <Chip key={name} label={name} />
             ))}
           </div>
         )}

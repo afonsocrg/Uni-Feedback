@@ -1,3 +1,4 @@
+import type { CourseOffering } from './types'
 import {
   apiDelete,
   apiGet,
@@ -63,7 +64,7 @@ export interface AdminCourse {
   facultyName: string
   facultyShortName: string
   totalFeedbackCount: number
-  terms: string[] | null
+  offerings: CourseOffering[]
   createdAt: string
 }
 
@@ -90,7 +91,7 @@ export interface AdminCourseDetail {
   name: string
   acronym: string
   ects: number | null
-  terms: string[] | null
+  offerings: CourseOffering[]
   description: string | null
   bibliography: string | null
   assessment: string | null
@@ -114,11 +115,6 @@ export interface CourseUpdateData {
   bibliography?: string | null
   assessment?: string | null
   hasMandatoryExam?: boolean | null
-}
-
-export interface CourseTermsResponse {
-  courseId: number
-  terms: string[]
 }
 
 export interface AllTermsResponse {
@@ -654,45 +650,8 @@ export async function updateCourse(
 }
 
 /**
- * Get course terms
- */
-export async function getCourseTerms(
-  courseId: number
-): Promise<CourseTermsResponse> {
-  return apiGet<CourseTermsResponse>(`/admin/courses/${courseId}/terms`)
-}
-
-/**
- * Add term to course
- */
-export async function addCourseTerm(
-  courseId: number,
-  term: string
-): Promise<{ courseId: number; terms: string[]; message: string }> {
-  return apiPost<{
-    courseId: number
-    terms: string[]
-    message: string
-  }>(`/admin/courses/${courseId}/terms`, { term })
-}
-
-/**
- * Remove term from course
- */
-export async function removeCourseTerm(
-  courseId: number,
-  term: string
-): Promise<{ courseId: number; terms: string[]; message: string }> {
-  const encodedTerm = encodeURIComponent(term)
-  return apiDelete<{
-    courseId: number
-    terms: string[]
-    message: string
-  }>(`/admin/courses/${courseId}/terms/${encodedTerm}`)
-}
-
-/**
- * Get all distinct course terms with optional faculty filtering
+ * Get all academic term names (the per-faculty catalog), optionally filtered
+ * by faculty. Used to populate the course term filter.
  */
 export async function getAllTerms(
   facultyId?: number

@@ -1,10 +1,11 @@
 import { CourseFeedbackService } from '@services'
-import { database } from '@uni-feedback/db'
+import { database, offeringsSubquery } from '@uni-feedback/db'
 import { courses, degrees, faculties } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
 import { and, eq, sql } from 'drizzle-orm'
 import type { Context } from 'hono'
 import { z } from 'zod'
+import { CourseOfferingSchema } from './offeringSchema'
 
 const CourseResponseSchema = z.object({
   id: z.number(),
@@ -14,7 +15,7 @@ const CourseResponseSchema = z.object({
   averageRating: z.number(),
   averageWorkload: z.number().nullable(),
   totalFeedbackCount: z.number(),
-  terms: z.array(z.string()),
+  offerings: z.array(CourseOfferingSchema),
   hasMandatoryExam: z.boolean().nullable()
 })
 
@@ -86,7 +87,7 @@ export class GetCourses extends OpenAPIRoute {
             'total_feedback_count'
           ),
         degreeId: courses.degreeId,
-        terms: courses.terms,
+        offerings: offeringsSubquery(),
         hasMandatoryExam: courses.hasMandatoryExam
       })
       .from(courses)

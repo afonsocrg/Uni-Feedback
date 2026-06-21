@@ -56,7 +56,7 @@ interface SendCourseReviewReceivedArgs {
   id: number
   email: string
   schoolYear: number
-  course: Course
+  course: Pick<Course, 'id' | 'name'>
   degree: Degree
   faculty: Faculty
   rating: number

@@ -1,16 +1,17 @@
 import { NotFoundError } from '@routes/utils/errorHandling'
-import { database } from '@uni-feedback/db'
+import { database, offeringsSubquery } from '@uni-feedback/db'
 import { courses, degrees, faculties } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
 import { eq, sql } from 'drizzle-orm'
 import { z } from 'zod'
+import { CourseOfferingSchema } from '../../courses/offeringSchema'
 
 const AdminCourseDetailSchema = z.object({
   id: z.number(),
   name: z.string(),
   acronym: z.string(),
   ects: z.number().nullable(),
-  terms: z.array(z.string()).nullable(),
+  offerings: z.array(CourseOfferingSchema),
   description: z.string().nullable(),
   bibliography: z.string().nullable(),
   assessment: z.string().nullable(),
@@ -70,7 +71,7 @@ export class GetCourseDetails extends OpenAPIRoute {
         name: courses.name,
         acronym: courses.acronym,
         ects: courses.ects,
-        terms: courses.terms,
+        offerings: offeringsSubquery(),
         description: courses.description,
         bibliography: courses.bibliography,
         assessment: courses.assessment,
@@ -104,7 +105,6 @@ export class GetCourseDetails extends OpenAPIRoute {
     const response = {
       ...course,
       totalFeedbackCount: Number(course.totalFeedbackCount),
-      terms: course.terms as string[] | null,
       createdAt: course.createdAt?.toISOString() || '',
       updatedAt: course.updatedAt?.toISOString() || ''
     }

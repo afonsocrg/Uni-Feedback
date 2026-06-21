@@ -1,9 +1,10 @@
 import { PaginationQuerySchema, getPaginatedSchema } from '@types'
-import { database } from '@uni-feedback/db'
+import { database, offeringsSubquery } from '@uni-feedback/db'
 import { courses, degrees, faculties } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
 import { and, count, eq, or, sql } from 'drizzle-orm'
 import { z } from 'zod'
+import { CourseOfferingSchema } from '../../courses/offeringSchema'
 
 const CoursesQuerySchema = PaginationQuerySchema.extend({
   search: z.string().optional(),
@@ -30,7 +31,7 @@ const AdminCourseSchema = z.object({
   facultyName: z.string(),
   facultyShortName: z.string(),
   totalFeedbackCount: z.number(),
-  terms: z.array(z.string()).nullable(),
+  offerings: z.array(CourseOfferingSchema),
   createdAt: z.string()
 })
 
@@ -92,9 +93,13 @@ export class GetCourses extends OpenAPIRoute {
     }
 
     if (term) {
-      // Filter courses that have the specific term in their terms array
+      // Filter courses that have an offering in the named academic term
       conditions.push(
-        sql`JSON_EXTRACT(${courses.terms}, '$') LIKE ${`%"${term}"%`}`
+        sql`EXISTS (
+          SELECT 1 FROM course_offerings o
+          JOIN academic_terms t ON t.id = o.academic_term_id
+          WHERE o.course_id = ${courses.id} AND t.name = ${term}
+        )`
       )
     }
 
@@ -125,7 +130,7 @@ export class GetCourses extends OpenAPIRoute {
         facultyId: faculties.id,
         facultyName: faculties.name,
         facultyShortName: faculties.shortName,
-        terms: courses.terms,
+        offerings: offeringsSubquery(),
         createdAt: courses.createdAt,
         totalFeedbackCount: sql<number>`(
             SELECT COUNT(*)
@@ -145,7 +150,6 @@ export class GetCourses extends OpenAPIRoute {
       data: coursesResult.map((course) => ({
         ...course,
         totalFeedbackCount: Number(course.totalFeedbackCount),
-        terms: course.terms as string[] | null,
         createdAt: course.createdAt?.toISOString() || ''
       })),
       total,

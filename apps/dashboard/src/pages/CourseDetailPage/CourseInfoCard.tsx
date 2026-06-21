@@ -1,4 +1,4 @@
-import { AddBadge, EditableBadge, EditableField } from '@components'
+import { EditableField } from '@components'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { AdminCourseDetail, updateCourse } from '@uni-feedback/api-client'
 import {
@@ -18,35 +18,8 @@ import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { openCourseInWebsite } from '../../utils'
-import { AddTermDialog } from './AddTermDialog'
 import { CourseEditDialog } from './CourseEditDialog'
 import { GenerateReportDialog } from './GenerateReportDialog'
-import { RemoveTermConfirmationDialog } from './RemoveTermConfirmationDialog'
-
-// Utility function to get consistent colors like Chip component
-function getChipColorForLabel(label: string) {
-  // This mirrors the logic from the Chip component
-  const CHIP_COLORS = {
-    blue: { bg: '#E3F2FD', text: '#1976D2' },
-    green: { bg: '#E8F5E9', text: '#2E7D32' },
-    orange: { bg: '#FFF3E0', text: '#E65100' },
-    purple: { bg: '#F3E5F5', text: '#7B1FA2' },
-    red: { bg: '#FFEBEE', text: '#C62828' },
-    cyan: { bg: '#E0F7FA', text: '#00838F' },
-    'light-green': { bg: '#F1F8E9', text: '#558B2F' },
-    amber: { bg: '#FFF8E1', text: '#F57F17' },
-    'deep-purple': { bg: '#EDE7F6', text: '#4527A0' },
-    indigo: { bg: '#E8EAF6', text: '#283593' }
-  }
-
-  const hash = label.split('').reduce((acc, char) => {
-    return char.charCodeAt(0) + ((acc << 5) - acc)
-  }, 0)
-
-  const colorKeys = Object.keys(CHIP_COLORS) as (keyof typeof CHIP_COLORS)[]
-  const index = Math.abs(hash) % colorKeys.length
-  return CHIP_COLORS[colorKeys[index]]
-}
 
 interface CourseInfoCardProps {
   course: AdminCourseDetail
@@ -57,14 +30,17 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
-  const [isAddTermDialogOpen, setIsAddTermDialogOpen] = useState(false)
-  const [isRemoveTermDialogOpen, setIsRemoveTermDialogOpen] = useState(false)
   const [isCourseEditDialogOpen, setIsCourseEditDialogOpen] = useState(false)
   const [isGenerateReportDialogOpen, setIsGenerateReportDialogOpen] =
     useState(false)
-  const [termToRemove, setTermToRemove] = useState<string>('')
 
   const courseId = id ? parseInt(id, 10) : 0
+
+  // Distinct academic term names this course is offered in. Offering
+  // management (add/remove) is deferred; this view is read-only for now.
+  const termNames = Array.from(
+    new Set(course.offerings.map((o) => o.academicTerm.name))
+  )
 
   const updateMutation = useMutation({
     mutationFn: (updates: {
@@ -85,11 +61,6 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
       )
     }
   })
-
-  const handleRemoveTerm = (term: string) => {
-    setTermToRemove(term)
-    setIsRemoveTermDialogOpen(true)
-  }
 
   return (
     <>
@@ -194,48 +165,20 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
                 </TooltipProvider>
               </div>
               <dd className="flex flex-wrap gap-2">
-                {course.terms && course.terms.length > 0
-                  ? course.terms.map((term, index) => (
-                      <EditableBadge
-                        key={index}
-                        value={term}
-                        onRemove={handleRemoveTerm}
-                        disabled={false}
-                        backgroundColor={getChipColorForLabel(term).bg}
-                      />
-                    ))
+                {termNames.length > 0
+                  ? termNames.map((name) => <Chip key={name} label={name} />)
                   : null}
-
-                <AddBadge
-                  label="Add term"
-                  onClick={() => setIsAddTermDialogOpen(true)}
-                />
               </dd>
 
-              {(!course.terms || course.terms.length === 0) && (
+              {termNames.length === 0 && (
                 <p className="text-sm text-muted-foreground">
-                  No terms configured. Click "Add term" to add one.
+                  No offerings configured for this course.
                 </p>
               )}
             </div>
           </div>
         </CardContent>
       </Card>
-
-      <AddTermDialog
-        open={isAddTermDialogOpen}
-        onOpenChange={setIsAddTermDialogOpen}
-        courseId={courseId}
-        facultyId={course.facultyId}
-        existingTerms={course.terms}
-      />
-
-      <RemoveTermConfirmationDialog
-        open={isRemoveTermDialogOpen}
-        onOpenChange={setIsRemoveTermDialogOpen}
-        courseId={courseId}
-        termToRemove={termToRemove}
-      />
 
       <CourseEditDialog
         course={course}

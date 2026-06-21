@@ -26,6 +26,17 @@ export interface CourseGroup {
   courseIds: number[]
 }
 
+export interface AcademicTerm {
+  name: string
+  startTick: number
+  endTick: number
+}
+
+export interface CourseOffering {
+  curriculumYear: number | null
+  academicTerm: AcademicTerm
+}
+
 export interface Course {
   id: number
   name: string
@@ -35,7 +46,7 @@ export interface Course {
   averageRating: number
   averageWorkload: number | null
   totalFeedbackCount: number
-  terms: string[]
+  offerings: CourseOffering[]
   hasMandatoryExam: boolean | null
 }
 

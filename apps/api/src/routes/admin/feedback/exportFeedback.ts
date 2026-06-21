@@ -342,7 +342,11 @@ export class ExportFeedback extends OpenAPIRoute {
         .map((t: string) => `'${t.replace(/'/g, "''")}'`)
         .join(', ')
       conditions.push(
-        sql`EXISTS (SELECT 1 FROM json_each(${courses.terms}) WHERE value IN (${sql.raw(placeholders)}))`
+        sql`EXISTS (
+          SELECT 1 FROM course_offerings o
+          JOIN academic_terms t ON t.id = o.academic_term_id
+          WHERE o.course_id = ${courses.id} AND t.name IN (${sql.raw(placeholders)})
+        )`
       )
     }
 

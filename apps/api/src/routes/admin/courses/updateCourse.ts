@@ -23,7 +23,6 @@ const CourseResponseSchema = z.object({
   name: z.string(),
   acronym: z.string(),
   ects: z.number().nullable(),
-  terms: z.array(z.string()).nullable(),
   description: z.string().nullable(),
   bibliography: z.string().nullable(),
   assessment: z.string().nullable(),
@@ -174,7 +173,6 @@ export class UpdateCourse extends OpenAPIRoute {
         name: courses.name,
         acronym: courses.acronym,
         ects: courses.ects,
-        terms: courses.terms,
         description: courses.description,
         bibliography: courses.bibliography,
         assessment: courses.assessment,
@@ -200,7 +198,6 @@ export class UpdateCourse extends OpenAPIRoute {
 
     const response = {
       ...updatedCourse[0],
-      terms: updatedCourse[0].terms as string[] | null,
       createdAt: updatedCourse[0].createdAt?.toISOString() || '',
       updatedAt: updatedCourse[0].updatedAt?.toISOString() || ''
     }
