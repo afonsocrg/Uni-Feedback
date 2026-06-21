@@ -51,7 +51,10 @@ export function meta({ loaderData }: Route.MetaArgs) {
   if (!loaderData.course) {
     return [
       { title: 'Course Not Found - Uni Feedback' },
-      { name: 'description', content: 'The requested course was not found.' }
+      { name: 'description', content: 'The requested course was not found.' },
+      // Thin submission form: keep out of the index, but follow links so
+      // equity flows to the course detail page.
+      { name: 'robots', content: 'noindex, follow' }
     ]
   }
 
@@ -64,7 +67,11 @@ export function meta({ loaderData }: Route.MetaArgs) {
     { name: 'description', content: description },
     { property: 'og:title', content: title },
     { property: 'og:description', content: description },
-    { property: 'og:type', content: 'website' }
+    { property: 'og:type', content: 'website' },
+    // Thin submission form (near-identical across courses): keep out of the
+    // index to avoid duplicate/doorway signals and cannibalizing the
+    // content-rich course detail page. `follow` preserves link equity.
+    { name: 'robots', content: 'noindex, follow' }
   ]
 }
 
