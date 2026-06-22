@@ -1,5 +1,10 @@
 import { requireAuth } from '@middleware'
-import { AIService, PointService, StatsService } from '@services'
+import {
+  AIService,
+  PointService,
+  StatsService,
+  TeacherMentionService
+} from '@services'
 import { sendCourseReviewReceived } from '@services/telegram'
 import { database } from '@uni-feedback/db'
 import {
@@ -197,6 +202,21 @@ export class SubmitFeedback extends OpenAPIRoute {
     }
 
     const feedbackId = insertResult[0].id
+
+    try {
+      const teacherMentionService = new TeacherMentionService()
+      await teacherMentionService.processFeedbackMentions({
+        feedbackId,
+        courseId,
+        originalComment: comment
+      })
+    } catch (mentionError) {
+      console.error(
+        'Failed to process teacher mentions for feedback:',
+        feedbackId,
+        mentionError
+      )
+    }
 
     // Award points for feedback submission (best-effort)
     let feedbackPoints = 0

@@ -1,0 +1,223 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1728000000000,
+      "tag": "0000_init_postgresql_schema",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1728000001000,
+      "tag": "0002_add-slug-columns",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1728000002000,
+      "tag": "0003_drop-unique-constraints-on-slugs",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1728000003000,
+      "tag": "0004_funny_molly_hayes",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1728000004000,
+      "tag": "0005_add_curriculum_year_to_courses",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1728000005000,
+      "tag": "0006_add_student_clubs_table",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1728000006000,
+      "tag": "0007_add_image_columns_to_faculties",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1728000007000,
+      "tag": "0008_add_testimonials_table",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1728000008000,
+      "tag": "0009_insert_initial_testimonials",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1728000009000,
+      "tag": "0010_add_type_column_to_student_clubs",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1728000010000,
+      "tag": "0011_add_magic_link_authentication",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1728000011000,
+      "tag": "0012_add_user_id_to_feedback",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1728000012000,
+      "tag": "0013_add_polling_to_magic_links",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1728000013000,
+      "tag": "0014_remove_request_id_unique_constraint",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1728000014000,
+      "tag": "0015_add_referral_system",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1728000015000,
+      "tag": "0016_add_point_system",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1728000016000,
+      "tag": "0017_rename_analyzedAt_add_reviewedAt",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1728000017000,
+      "tag": "0018_add_ai_categorization_cache",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1728000018000,
+      "tag": "0019_add_soft_deletion_to_feedback",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1728000019000,
+      "tag": "0020_add_helpful_votes_and_reports",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1728000020000,
+      "tag": "0021_otp_migration",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1728000021000,
+      "tag": "0022_add_course_reports_table",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1728000022000,
+      "tag": "0023_enable_unaccent_extension",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1728000023000,
+      "tag": "0024_add_stats_tables",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1728000024000,
+      "tag": "0025_add_is_mandatory_to_courses",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1728000025000,
+      "tag": "0026_add_email_preferences_table",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1728000026000,
+      "tag": "0027_add_correction_requests",
+      "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1728000027000,
+      "tag": "0028_add_audio_recordings",
+      "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1728000028000,
+      "tag": "0029_add_teachers",
+      "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1728000029000,
+      "tag": "0030_add_feedback_teacher_mentions",
+      "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1728000030000,
+      "tag": "0031_add_teacher_faculty",
+      "breakpoints": true
+    }
+  ]
+}

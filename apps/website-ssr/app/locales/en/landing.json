@@ -5,13 +5,15 @@
     "stats": "{{feedbackCount}}+ reviews · {{contributors}}+ contributors · 100% free"
   },
   "search": {
-    "placeholder": "Search courses, degrees, faculties...",
-    "aria_label": "Search courses, degrees and faculties",
+    "placeholder": "Search courses, degrees, faculties, professors...",
+    "aria_label": "Search courses, degrees, faculties and professors",
     "tab_courses": "Courses",
     "tab_degrees": "Degrees",
     "tab_faculties": "Faculties",
+    "tab_teachers": "Professors",
     "browse_all": "Browse all courses →",
-    "reviews_count": "{{count}} reviews"
+    "reviews_count": "{{count}} reviews",
+    "courses_count": "{{count}} courses"
   },
   "cta": {
     "join_text": "Join {{count}}+ students who already contributed.",

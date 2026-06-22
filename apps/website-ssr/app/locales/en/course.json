@@ -11,6 +11,7 @@
     "feedback": "Feedback",
     "description": "Description",
     "assessment": "Assessment",
+    "professors": "Professors",
     "bibliography": "Bibliography"
   },
   "info": {
@@ -41,6 +42,23 @@
   },
   "bibliography": {
     "no_content": "We don't have a bibliography for this course yet."
+  },
+  "professors": {
+    "no_content": "We don't have professor information for this course yet.",
+    "latest_execution": "Latest recorded execution: {{execution}}",
+    "open_execution": "Open execution page",
+    "profile_label": "Professor",
+    "no_email": "We don't have an email for this professor yet.",
+    "current_professors": "Current professors",
+    "past_professors": "Past professors",
+    "no_current_professors": "We don't have current professors recorded for this course.",
+    "no_past_professors": "We don't have past professors recorded for this course.",
+    "current_courses": "Current courses",
+    "past_courses": "Past courses",
+    "no_current_courses": "We don't have current courses recorded for this professor.",
+    "no_past_courses": "We don't have past courses recorded for this professor.",
+    "relevant_feedback": "Relevant feedback",
+    "no_relevant_feedback": "We don't have comments about teaching staff or this professor yet."
   },
   "card": {
     "workload_prefix": "Workload:",

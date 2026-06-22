@@ -124,6 +124,11 @@ export const routeConfig = [
         }
       },
       {
+        key: 'teacher',
+        file: 'routes/teachers.$teacherId.tsx',
+        slugs: { pt: 'professores/:teacherId', en: 'professors/:teacherId' }
+      },
+      {
         key: 'supporters',
         file: 'routes/supporters.tsx',
         slugs: { pt: 'apoiantes', en: 'supporters' }

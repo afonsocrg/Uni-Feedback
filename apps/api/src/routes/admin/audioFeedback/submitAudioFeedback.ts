@@ -1,5 +1,5 @@
 import { requireAdmin } from '@middleware'
-import { StatsService } from '@services'
+import { StatsService, TeacherMentionService } from '@services'
 import { database } from '@uni-feedback/db'
 import { audioRecordings, feedbackFull } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
@@ -123,6 +123,21 @@ export class SubmitAudioFeedback extends OpenAPIRoute {
 
       return inserted.id
     })
+
+    try {
+      const teacherMentionService = new TeacherMentionService()
+      await teacherMentionService.processFeedbackMentions({
+        feedbackId,
+        courseId,
+        originalComment: commentText
+      })
+    } catch (mentionError) {
+      console.error(
+        'Failed to process teacher mentions after audio feedback submit:',
+        feedbackId,
+        mentionError
+      )
+    }
 
     // Update course stats (best-effort)
     try {
