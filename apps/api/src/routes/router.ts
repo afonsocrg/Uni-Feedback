@@ -22,6 +22,7 @@ import {
   ReportFeedback
 } from './feedback'
 import { router as profileRouter } from './profile/router'
+import { SearchTeachers } from './teachers'
 import { AppError, NotFoundError, handleError } from './utils'
 
 const app = new Hono()
@@ -73,6 +74,7 @@ router.get('/faculties/:facultyId/degrees', GetFacultyDegrees)
 
 router.get('/courses/search', SearchCourses)
 router.get('/degrees/search', SearchDegrees)
+router.get('/teachers/search', SearchTeachers)
 router.post('/courses/:id/feedback', SubmitFeedback)
 router.post('/courses/:id/correction-requests', SubmitCorrectionRequest)
 

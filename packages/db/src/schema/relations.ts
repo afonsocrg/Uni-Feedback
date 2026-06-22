@@ -2,38 +2,45 @@ import { relations } from 'drizzle-orm'
 import { audioRecordings } from './audioRecording'
 import { correctionRequests } from './correctionRequest'
 import { courses } from './course'
+import { coursesTeachers } from './coursesTeachers'
 import { degrees } from './degree'
 import { emailPreferences } from './emailPreferences'
 import { faculties } from './faculty'
 import { feedbackFull } from './feedback'
 import { feedbackAnalysis } from './feedbackAnalysis'
 import { feedbackFlags } from './feedbackFlag'
+import { feedbackTeachers } from './feedbackTeachers'
 import { helpfulVotes } from './helpfulVote'
 import { pointRegistry } from './pointRegistry'
 import { reports } from './report'
+import { teachers } from './teacher'
 import { users } from './user'
 
 // FeedbackFull relations (table - includes all feedback)
 // Note: Drizzle relations only work with tables, not views.
 // Use the `feedback` view for queries that should exclude soft-deleted feedback.
-export const feedbackFullRelations = relations(feedbackFull, ({ one }) => ({
-  course: one(courses, {
-    fields: [feedbackFull.courseId],
-    references: [courses.id]
-  }),
-  user: one(users, {
-    fields: [feedbackFull.userId],
-    references: [users.id]
-  }),
-  analysis: one(feedbackAnalysis, {
-    fields: [feedbackFull.id],
-    references: [feedbackAnalysis.feedbackId]
-  }),
-  audioRecording: one(audioRecordings, {
-    fields: [feedbackFull.id],
-    references: [audioRecordings.feedbackId]
+export const feedbackFullRelations = relations(
+  feedbackFull,
+  ({ one, many }) => ({
+    course: one(courses, {
+      fields: [feedbackFull.courseId],
+      references: [courses.id]
+    }),
+    user: one(users, {
+      fields: [feedbackFull.userId],
+      references: [users.id]
+    }),
+    analysis: one(feedbackAnalysis, {
+      fields: [feedbackFull.id],
+      references: [feedbackAnalysis.feedbackId]
+    }),
+    audioRecording: one(audioRecordings, {
+      fields: [feedbackFull.id],
+      references: [audioRecordings.feedbackId]
+    }),
+    mentionedTeachers: many(feedbackTeachers)
   })
-}))
+)
 
 // Course relations
 export const courseRelations = relations(courses, ({ one, many }) => ({
@@ -41,8 +48,46 @@ export const courseRelations = relations(courses, ({ one, many }) => ({
     fields: [courses.degreeId],
     references: [degrees.id]
   }),
-  feedbacks: many(feedbackFull)
+  feedbacks: many(feedbackFull),
+  teachers: many(coursesTeachers)
 }))
+
+// Teacher relations
+export const teacherRelations = relations(teachers, ({ one, many }) => ({
+  faculty: one(faculties, {
+    fields: [teachers.facultyId],
+    references: [faculties.id]
+  }),
+  courses: many(coursesTeachers),
+  mentionedInFeedbacks: many(feedbackTeachers)
+}))
+
+// Course-Teacher relations
+export const courseTeacherRelations = relations(coursesTeachers, ({ one }) => ({
+  course: one(courses, {
+    fields: [coursesTeachers.courseId],
+    references: [courses.id]
+  }),
+  teacher: one(teachers, {
+    fields: [coursesTeachers.teacherId],
+    references: [teachers.id]
+  })
+}))
+
+// Feedback-Teacher mention relations
+export const feedbackTeacherRelations = relations(
+  feedbackTeachers,
+  ({ one }) => ({
+    feedback: one(feedbackFull, {
+      fields: [feedbackTeachers.feedbackId],
+      references: [feedbackFull.id]
+    }),
+    teacher: one(teachers, {
+      fields: [feedbackTeachers.teacherId],
+      references: [teachers.id]
+    })
+  })
+)
 
 // Degree relations
 export const degreeRelations = relations(degrees, ({ one, many }) => ({
@@ -55,7 +100,8 @@ export const degreeRelations = relations(degrees, ({ one, many }) => ({
 
 // Faculty relations
 export const facultyRelations = relations(faculties, ({ many }) => ({
-  degrees: many(degrees)
+  degrees: many(degrees),
+  teachers: many(teachers)
 }))
 
 // User relations

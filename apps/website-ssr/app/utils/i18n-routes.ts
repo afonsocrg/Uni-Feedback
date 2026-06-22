@@ -4,6 +4,10 @@ import { LANG_PREFIXES, type RouteKey, routeMap } from './route-map'
 export type { Lang, RouteKey }
 
 const COURSE_SEGMENT: Record<Lang, string> = { pt: 'cadeiras', en: 'courses' }
+const TEACHER_SEGMENT: Record<Lang, string> = {
+  pt: 'professores',
+  en: 'professors'
+}
 
 export function getLocalePath(key: RouteKey, lang: Lang): string {
   const def = routeMap[key]
@@ -39,6 +43,10 @@ function swapDynamicPath(path: string, from: Lang): string {
       const rest = path.slice(`/${COURSE_SEGMENT.pt}/`.length)
       return `/en/${COURSE_SEGMENT.en}/${rest}`
     }
+    if (path.startsWith(`/${TEACHER_SEGMENT.pt}/`)) {
+      const rest = path.slice(`/${TEACHER_SEGMENT.pt}/`.length)
+      return `/en/${TEACHER_SEGMENT.en}/${rest}`
+    }
     const editMatch = path.match(/^\/feedback\/([^/]+)\/editar$/)
     if (editMatch) return `/en/feedback/${editMatch[1]}/edit`
     if (import.meta.env.DEV) {
@@ -52,6 +60,10 @@ function swapDynamicPath(path: string, from: Lang): string {
     if (withoutEn.startsWith(`/${COURSE_SEGMENT.en}/`)) {
       const rest = withoutEn.slice(`/${COURSE_SEGMENT.en}/`.length)
       return `/${COURSE_SEGMENT.pt}/${rest}`
+    }
+    if (withoutEn.startsWith(`/${TEACHER_SEGMENT.en}/`)) {
+      const rest = withoutEn.slice(`/${TEACHER_SEGMENT.en}/`.length)
+      return `/${TEACHER_SEGMENT.pt}/${rest}`
     }
     const editMatch = withoutEn.match(/^\/feedback\/([^/]+)\/edit$/)
     if (editMatch) return `/feedback/${editMatch[1]}/editar`
@@ -85,6 +97,12 @@ export function getCoursePath(lang: Lang, courseId: number): string {
   return lang === 'en'
     ? `/en/${COURSE_SEGMENT.en}/${courseId}`
     : `/${COURSE_SEGMENT.pt}/${courseId}`
+}
+
+export function getTeacherPath(lang: Lang, teacherId: number): string {
+  return lang === 'en'
+    ? `/en/${TEACHER_SEGMENT.en}/${teacherId}`
+    : `/${TEACHER_SEGMENT.pt}/${teacherId}`
 }
 
 export function getCourseFeedbackPath(lang: Lang, courseId: number): string {

@@ -1,5 +1,6 @@
 import { isNull } from 'drizzle-orm'
 import {
+  boolean,
   integer,
   pgTable,
   pgView,
@@ -27,6 +28,9 @@ export const feedbackFull = pgTable('feedback_full', {
   workloadRating: integer('workload_rating'),
   comment: text('comment'),
   originalComment: text('original_comment'),
+  mentionsTeachingStaff: boolean('mentions_teaching_staff')
+    .notNull()
+    .default(false),
 
   // This is the date the feedback was approved
   // If null, it means the feedback is pending approval,

@@ -196,6 +196,29 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     })
   }
 
+  // Get teachers for the course
+  const teachers = await db
+    .select({
+      id: schema.teachers.id,
+      name: schema.teachers.name,
+      email: schema.teachers.email,
+      latestSchoolYear: schema.coursesTeachers.latestSchoolYear,
+      latestSemester: schema.coursesTeachers.latestSemester,
+      latestExecutionLabel: schema.coursesTeachers.latestExecutionLabel,
+      latestExecutionUrl: schema.coursesTeachers.latestExecutionUrl
+    })
+    .from(schema.coursesTeachers)
+    .innerJoin(
+      schema.teachers,
+      eq(schema.coursesTeachers.teacherId, schema.teachers.id)
+    )
+    .where(eq(schema.coursesTeachers.courseId, courseIdNum))
+    .orderBy(
+      sql`${schema.coursesTeachers.latestSchoolYear} desc nulls last`,
+      sql`${schema.coursesTeachers.latestSemester} desc nulls last`,
+      schema.teachers.name
+    )
+
   // Get feedback for the course (includes feedback from identical courses)
   const feedback = await db
     .select({
@@ -244,7 +267,8 @@ export async function loader({ params, request }: Route.LoaderArgs) {
       terms: course.terms as string[] | null,
       ...aggregation,
       degree,
-      faculty
+      faculty,
+      teachers
     },
     feedback,
     origin: getRequestOrigin(request)

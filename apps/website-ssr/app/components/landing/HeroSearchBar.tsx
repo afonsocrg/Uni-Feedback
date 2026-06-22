@@ -1,18 +1,24 @@
 import type {
   CourseSearchResult,
   DegreeSearchResult,
-  FacultySearchResult
+  FacultySearchResult,
+  TeacherSearchResult
 } from '@uni-feedback/api-client'
 import {
   searchCourses,
   searchDegrees,
-  searchFaculties
+  searchFaculties,
+  searchTeachers
 } from '@uni-feedback/api-client'
 import { Search } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLang } from '~/hooks'
-import { getCoursePath, getLocalePath } from '~/utils/i18n-routes'
+import {
+  getCoursePath,
+  getLocalePath,
+  getTeacherPath
+} from '~/utils/i18n-routes'
 
 export function HeroSearchBar() {
   const { t } = useTranslation('landing')
@@ -23,6 +29,7 @@ export function HeroSearchBar() {
   const [courses, setCourses] = useState<CourseSearchResult[]>([])
   const [degrees, setDegrees] = useState<DegreeSearchResult[]>([])
   const [faculties, setFaculties] = useState<FacultySearchResult[]>([])
+  const [teachers, setTeachers] = useState<TeacherSearchResult[]>([])
   const [open, setOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -31,22 +38,26 @@ export function HeroSearchBar() {
       setCourses([])
       setDegrees([])
       setFaculties([])
+      setTeachers([])
       setOpen(false)
       return
     }
 
     const timer = setTimeout(async () => {
       try {
-        const [coursesRes, degreesRes, facultiesRes] = await Promise.all([
-          searchCourses({ q: query, limit: 5 }),
-          searchDegrees({ q: query, limit: 3 }),
-          searchFaculties({ q: query, limit: 3 })
-        ])
+        const [coursesRes, degreesRes, facultiesRes, teachersRes] =
+          await Promise.all([
+            searchCourses({ q: query, limit: 5 }),
+            searchDegrees({ q: query, limit: 3 }),
+            searchFaculties({ q: query, limit: 3 }),
+            searchTeachers({ q: query, limit: 3 })
+          ])
         setCourses(
           [...coursesRes.courses].sort((a, b) => b.reviewCount - a.reviewCount)
         )
         setDegrees(degreesRes.degrees)
         setFaculties(facultiesRes.faculties)
+        setTeachers(teachersRes.teachers)
         setOpen(true)
       } catch {
         // fail silently
@@ -70,7 +81,10 @@ export function HeroSearchBar() {
   }, [])
 
   const hasResults =
-    courses.length > 0 || degrees.length > 0 || faculties.length > 0
+    courses.length > 0 ||
+    degrees.length > 0 ||
+    faculties.length > 0 ||
+    teachers.length > 0
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && query.trim()) {
@@ -201,6 +215,39 @@ export function HeroSearchBar() {
                   </a>
                 )
               })}
+            </>
+          )}
+
+          {teachers.length > 0 && (
+            <>
+              <div className="px-3 pt-3 pb-1 text-xs text-muted-foreground/70 border-t">
+                {t('search.tab_teachers')}
+              </div>
+              {teachers.map((teacher) => (
+                <a
+                  key={teacher.id}
+                  href={getTeacherPath(lang, teacher.id)}
+                  className="flex items-center justify-between pl-6 pr-3 py-2.5 hover:bg-muted transition-colors"
+                >
+                  <div className="min-w-0 mr-3">
+                    {teacher.faculty && (
+                      <span className="text-xs text-muted-foreground block truncate">
+                        {teacher.faculty.shortName}
+                      </span>
+                    )}
+                    <span className="text-sm font-medium block truncate">
+                      {teacher.name}
+                    </span>
+                  </div>
+                  {teacher.courseCount > 0 && (
+                    <span className="text-xs text-muted-foreground flex-shrink-0 ml-3">
+                      {t('search.courses_count', {
+                        count: teacher.courseCount
+                      })}
+                    </span>
+                  )}
+                </a>
+              ))}
             </>
           )}
 
