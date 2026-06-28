@@ -368,6 +368,50 @@ export class PointService {
   }
 
   /**
+   * Check if a referred user (referee) has already been awarded their
+   * referral-acceptance bonus for a given referrer. Prevents duplicate awards.
+   *
+   * @param refereeId - The referred user's ID
+   * @param referrerId - The referrer's user ID (stored as referenceId)
+   * @returns True if the referee bonus has already been awarded
+   */
+  async hasReceivedReferralBonus(refereeId: number): Promise<boolean> {
+    const result = await database()
+      .select({ count: count() })
+      .from(pointRegistry)
+      .where(
+        and(
+          eq(pointRegistry.userId, refereeId),
+          eq(pointRegistry.sourceType, 'referral_bonus')
+        )
+      )
+
+    return (result[0]?.count || 0) > 0
+  }
+
+  /**
+   * Award points to a user for accepting a referral (the referee), once they
+   * submit their first approved feedback. Mirrors {@link awardReferralPoints}
+   * so both sides of a successful referral are credited equally.
+   *
+   * @param refereeId - The referred user being rewarded
+   * @param referrerId - The user who referred them (stored as referenceId)
+   * @param points - Number of points to award
+   */
+  async awardReferralBonusPoints(
+    refereeId: number,
+    referrerId: number,
+    points: number
+  ): Promise<void> {
+    await database().insert(pointRegistry).values({
+      userId: refereeId,
+      amount: points,
+      sourceType: 'referral_bonus',
+      comment: `Referral bonus for accepting an invite`
+    })
+  }
+
+  /**
    * Get the points amount for a specific point registry entry.
    *
    * @param userId - The user's ID (if null, returns null)
@@ -532,15 +576,17 @@ export class PointService {
    * Check if user has a referrer and award referral points if applicable.
    * This is called when a user submits feedback or when a new user account is created.
    *
+   * When the conditions below are met, BOTH sides of the referral are credited
+   * the same amount: the referrer (via 'referral') and the referee who accepted
+   * the invite (via 'referral_bonus'). Each side is awarded idempotently.
+   *
    * Conditions for awarding points (all must be true):
    * - User must have submitted at least one feedback
    * - User must have a referrer (referredByUserId set)
-   * - Points must not have been awarded already for this referral
+   * - Points must not have been awarded already (per side)
    *
-   * Points are tiered based on referrer's total referral count.
-   *
-   * @param userId - The user to check for referral point eligibility
-   * @returns True if points were awarded, false otherwise
+   * @param userId - The referred user (referee) to check for eligibility
+   * @returns True if any points were awarded, false otherwise
    */
   async checkAndAwardReferralPoints(userId: number): Promise<boolean> {
     // 1. Get user's referrer
@@ -554,6 +600,7 @@ export class PointService {
     if (!user?.referredByUserId) {
       return false
     }
+    const referrerId = user.referredByUserId
 
     // 2. Check if user has submitted any feedback
     const feedbackCount = await database()
@@ -565,26 +612,30 @@ export class PointService {
       return false
     }
 
-    // 3. Check if points were already awarded
-    const alreadyAwarded = await this.hasReceivedReferralPointsFor(
-      user.referredByUserId,
+    // Both sides earn the same amount. Compute once from the referrer's count.
+    const referralCount = await this.getReferralCount(referrerId)
+    const referralPoints = this.calculateReferralPoints(referralCount)
+
+    let awarded = false
+
+    // 3. Award the referrer (idempotent)
+    const referrerAlreadyAwarded = await this.hasReceivedReferralPointsFor(
+      referrerId,
       userId
     )
-
-    if (alreadyAwarded) {
-      return false
+    if (!referrerAlreadyAwarded) {
+      await this.awardReferralPoints(referrerId, userId, referralPoints)
+      awarded = true
     }
 
-    // 4. Award tiered points based on referrer's referral count
-    const referralCount = await this.getReferralCount(user.referredByUserId)
-    const referralPoints = this.calculateReferralPoints(referralCount)
-    await this.awardReferralPoints(
-      user.referredByUserId,
-      userId,
-      referralPoints
-    )
+    // 4. Award the referee for accepting the invite (idempotent)
+    const refereeAlreadyAwarded = await this.hasReceivedReferralBonus(userId)
+    if (!refereeAlreadyAwarded) {
+      await this.awardReferralBonusPoints(userId, referrerId, referralPoints)
+      awarded = true
+    }
 
-    return true
+    return awarded
   }
 
   /**

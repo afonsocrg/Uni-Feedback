@@ -130,7 +130,7 @@
     "referral_count_other": "{{count}} Referrals",
     "bonus_points": "Pontos bónus",
     "referral_title": "Convida os teus amigos!",
-    "referral_desc": "Ganha pontos por cada amigo que publicar o primeiro feedback",
+    "referral_desc": "Tu e o teu amigo ganham 15 pontos cada quando ele publicar o primeiro feedback",
     "copy_referral": "Copiar link de referral",
     "toast_referral_copied": "Link de referral copiado!",
     "toast_referral_failed": "Falha ao copiar link de referral",

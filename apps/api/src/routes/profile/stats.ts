@@ -3,7 +3,7 @@ import { PointService } from '@services/pointService'
 import { database } from '@uni-feedback/db'
 import { feedback, pointRegistry } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
-import { and, count, eq, sum } from 'drizzle-orm'
+import { and, count, eq, inArray, sum } from 'drizzle-orm'
 import type { Context } from 'hono'
 import { z } from 'zod'
 
@@ -86,14 +86,16 @@ export class GetUserStats extends OpenAPIRoute {
       )
     const referralPoints = referralPointsResult[0]?.value || 0
 
-    // Get bonus points amount (manually-credited campaign bonuses)
+    // Get bonus points amount (campaign bonuses + referral-acceptance bonus).
+    // 'referral_bonus' is the reward the user earned for accepting an invite;
+    // it's grouped here so the breakdown still sums to totalPoints.
     const bonusPointsResult = await database()
       .select({ value: sum(pointRegistry.amount) })
       .from(pointRegistry)
       .where(
         and(
           eq(pointRegistry.userId, userId),
-          eq(pointRegistry.sourceType, 'bonus')
+          inArray(pointRegistry.sourceType, ['bonus', 'referral_bonus'])
         )
       )
     const bonusPoints = bonusPointsResult[0]?.value || 0

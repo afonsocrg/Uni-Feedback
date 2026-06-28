@@ -79,7 +79,7 @@
     ],
     "give_feedback_cta": "Ready to share your experience? <0>Give feedback</0>",
     "invite_title": "Invite Friends",
-    "invite_desc": "Bring your classmates to Uni Feedback! You get 15 points once they sign up and post their first feedback.",
+    "invite_desc": "Bring your classmates to Uni Feedback! When they post their first feedback, you both earn 15 points.",
     "invite_from_profile": "You can invite friends from your <0>profile page</0>",
     "check_points": "You can check your current points on your <0>profile page</0>",
     "giveaway_bonus_badge": "Limited time",
@@ -141,8 +141,8 @@
     "points_normal_feedback_value": "(1–20 points)",
     "points_normal_feedback_desc": "For each feedback you give. The more complete it is, the more points you earn.",
     "points_normal_referral_label": "Invite friends",
-    "points_normal_referral_value": "(+15 points)",
-    "points_normal_referral_desc": "Share the invite link from your <0>profile page</0> with friends. You earn points for each one who gives their first feedback.",
+    "points_normal_referral_value": "(+15 each)",
+    "points_normal_referral_desc": "Share the invite link from your <0>profile page</0> with friends. When a friend gives their first feedback, you both earn 15 points.",
     "points_normal_details": "<0>See how points work</0>.",
     "points_bonus_title": "Just for this giveaway",
     "points_bonus_instagram_label": "Instagram bonus",
@@ -166,7 +166,7 @@
       },
       {
         "question": "How do I enter and earn more points?",
-        "answer": "Each feedback is worth up to 20 points (more detail = more points) and every friend you invite gives you +15. There are also two bonuses: +20 for linking your Instagram and +100 if you submit at least 5 feedbacks worth 20 points. See it all on the [points page](/en/points)."
+        "answer": "Each feedback is worth up to 20 points (more detail = more points) and every friend you invite earns +15 points for each of you — you and them — when they post their first feedback. There are also two bonuses: +20 for linking your Instagram and +100 if you submit at least 5 feedbacks worth 20 points. See it all on the [points page](/en/points)."
       },
       {
         "question": "Where can I see my points?",
@@ -276,8 +276,8 @@
     "points_instagram_desc": "Follow us on Instagram (<0>@unifeedback</0>) and link your Instagram on your profile to earn +20 points. Your profile is private: your Instagram is never shown publicly. We verify follows before the draw.",
     "points_quality_title": "Quality bonus (+100)",
     "points_quality_desc": "Submit at least 5 feedbacks worth 20 points each for 2025/2026 courses to earn +100 extra points.",
-    "points_referral_title": "Referrals (+15 per friend)",
-    "points_referral_desc": "+15 points for each friend you invite who submits their first approved feedback, with no cap. You can invite friends from your profile page.",
+    "points_referral_title": "Referrals (+15 for each of you)",
+    "points_referral_desc": "When a friend you invited submits their first approved feedback, you both earn +15 points — you and them. No cap. You can invite friends from your profile page.",
     "points_which_count": "Which points count: feedback for 2025/2026 courses and referrals made between June 29 and July 31, plus the Instagram and quality bonuses. The points you earned in the February giveaway are also valid in this giveaway.",
     "points_more_prefix": "Learn more about the points system ",
     "points_more_link": "here",

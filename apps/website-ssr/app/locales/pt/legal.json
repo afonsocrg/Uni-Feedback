@@ -79,7 +79,7 @@
     ],
     "give_feedback_cta": "Pronto para partilhar a tua experiência? <0>Dar feedback</0>",
     "invite_title": "Convida Amigos",
-    "invite_desc": "Traz os teus colegas para o Uni Feedback! Ganhas 15 pontos quando eles se registam e publicam o primeiro feedback.",
+    "invite_desc": "Traz os teus colegas para o Uni Feedback! Quando eles publicam o primeiro feedback, ganham 15 pontos cada.",
     "invite_from_profile": "Podes convidar amigos a partir da tua <0>página de perfil</0>",
     "check_points": "Podes verificar os teus pontos atuais na tua <0>página de perfil</0>",
     "giveaway_bonus_badge": "Tempo limitado",
@@ -141,8 +141,8 @@
     "points_normal_feedback_value": "(1 a 20 pontos)",
     "points_normal_feedback_desc": "Por cada feedback que dás. Quanto mais completo, mais pontos ganhas.",
     "points_normal_referral_label": "Convidar amigos",
-    "points_normal_referral_value": "(+15 pontos)",
-    "points_normal_referral_desc": "Partilha o link de convite da tua <0>página de perfil</0> com os teus amigos. Ganhas pontos por cada um que dê o primeiro feedback.",
+    "points_normal_referral_value": "(+15 para cada um)",
+    "points_normal_referral_desc": "Partilha o link de convite da tua <0>página de perfil</0> com os teus amigos. Quando um amigo dá o primeiro feedback, ganham 15 pontos cada.",
     "points_normal_details": "<0>Vê como funcionam os pontos</0>.",
     "points_bonus_title": "Só neste giveaway",
     "points_bonus_instagram_label": "Bónus de Instagram",
@@ -166,7 +166,7 @@
       },
       {
         "question": "Como participo e ganho mais pontos?",
-        "answer": "Cada feedback vale até 20 pontos (mais detalhe = mais pontos) e cada amigo que convidares dá-te +15. Há ainda dois bónus: +20 por ligares o Instagram e +100 se submeteres pelo menos 5 feedbacks de 20 pontos. Vê tudo na [página de pontos](/pontos)."
+        "answer": "Cada feedback vale até 20 pontos (mais detalhe = mais pontos) e cada amigo que convidares dá +15 pontos a cada um — a ti e a ele — quando publica o primeiro feedback. Há ainda dois bónus: +20 por ligares o Instagram e +100 se submeteres pelo menos 5 feedbacks de 20 pontos. Vê tudo na [página de pontos](/pontos)."
       },
       {
         "question": "Onde vejo os meus pontos?",
@@ -276,8 +276,8 @@
     "points_instagram_desc": "Segue-nos no Instagram (<0>@unifeedback</0>) e liga o teu Instagram no teu perfil para ganhares +20 pontos. O teu perfil é privado: o teu Instagram nunca é mostrado publicamente. Verificamos os follows antes do sorteio.",
     "points_quality_title": "Bónus de qualidade (+100 pontos)",
     "points_quality_desc": "Quem submeter pelo menos 5 feedbacks de 20 pontos para cadeiras de 2025/2026 ganha +100 pontos extra.",
-    "points_referral_title": "Referrals (+15 pontos por amigo)",
-    "points_referral_desc": "+15 pontos por cada amigo que convidares e que submeta o seu primeiro feedback aprovado, sem limite. Podes convidar amigos a partir da tua página de perfil.",
+    "points_referral_title": "Referrals (+15 pontos para cada um)",
+    "points_referral_desc": "Quando um amigo que convidaste submete o seu primeiro feedback aprovado, ganham +15 pontos cada — tu e ele. Sem limite. Podes convidar amigos a partir da tua página de perfil.",
     "points_which_count": "Que pontos contam: feedback de cadeiras de 2025/2026 e referrals feitos entre 29 de junho e 31 de julho, mais os bónus de Instagram e de qualidade. Os pontos que ganhaste no giveaway de fevereiro também são válidos neste giveaway.",
     "points_more_prefix": "Sabe mais sobre o sistema de pontos ",
     "points_more_link": "aqui",
