@@ -1,4 +1,5 @@
 import { Award, Medal, Star, TrendingUp, Trophy } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { getAssetUrl } from '~/utils'
 
 const facultyStats = [
@@ -75,12 +76,14 @@ const facultyColors: Record<string, string> = {
 }
 
 export function GiveawayRecapCommunity() {
+  const { t } = useTranslation('legal')
+
   return (
     <section className="py-16 bg-muted/30">
       <div className="container mx-auto px-4">
         <div className="mx-auto max-w-5xl">
           <h2 className="font-heading text-3xl md:text-4xl font-semibold tracking-tight text-center mb-12">
-            Community Highlights
+            {t('giveaway_recap.community_title')}
           </h2>
 
           <div className="grid md:grid-cols-3 gap-8">
@@ -90,10 +93,12 @@ export function GiveawayRecapCommunity() {
                 <Award className="size-6 text-muted-foreground" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold mb-1">Power users</h3>
+                <h3 className="text-lg font-semibold mb-1">
+                  {t('giveaway_recap.power_users_title')}
+                </h3>
                 <p className="text-muted-foreground">
-                  <span className="font-bold text-primary">98</span> students
-                  submitted 5+ feedbacks each
+                  <span className="font-bold text-primary">98</span>{' '}
+                  {t('giveaway_recap.power_users_suffix')}
                 </p>
               </div>
             </div>
@@ -104,12 +109,13 @@ export function GiveawayRecapCommunity() {
                 <Star className="size-6 text-muted-foreground" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold mb-1">Top contributor</h3>
+                <h3 className="text-lg font-semibold mb-1">
+                  {t('giveaway_recap.top_contributor_title')}
+                </h3>
                 <p className="text-muted-foreground">
-                  A Master's student shared{' '}
+                  {t('giveaway_recap.top_contributor_prefix')}{' '}
                   <span className="font-bold text-primary">37</span>{' '}
-                  high-quality feedbacks for all the courses he took since hist
-                  first year in Uni! What a legend!!
+                  {t('giveaway_recap.top_contributor_suffix')}
                 </p>
               </div>
             </div>
@@ -120,10 +126,13 @@ export function GiveawayRecapCommunity() {
                 <TrendingUp className="size-6 text-muted-foreground" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold mb-1">Peak activity</h3>
+                <h3 className="text-lg font-semibold mb-1">
+                  {t('giveaway_recap.peak_activity_title')}
+                </h3>
                 <p className="text-muted-foreground">
-                  Our busiest day was February 23rd, when we collected{' '}
-                  <span className="font-bold text-primary">117</span> feedbacks
+                  {t('giveaway_recap.peak_activity_prefix')}{' '}
+                  <span className="font-bold text-primary">117</span>{' '}
+                  {t('giveaway_recap.peak_activity_suffix')}
                 </p>
               </div>
             </div>
@@ -132,7 +141,7 @@ export function GiveawayRecapCommunity() {
           {/* Faculty Breakdown */}
           <div className="mt-12 mx-auto max-w-4xl">
             <h3 className="text-lg font-semibold mb-6 text-center text-muted-foreground">
-              Participation by faculty
+              {t('giveaway_recap.participation_by_faculty')}
             </h3>
 
             <div className="grid md:grid-cols-3 gap-6 relative">
@@ -153,10 +162,13 @@ export function GiveawayRecapCommunity() {
                     <div className="text-2xl font-bold text-primary">
                       {faculty.points.toLocaleString()}
                     </div>
-                    <div className="text-xs text-muted-foreground">points</div>
+                    <div className="text-xs text-muted-foreground">
+                      {t('giveaway_recap.points_label')}
+                    </div>
                     <div className="text-sm text-muted-foreground mt-2">
-                      {faculty.feedbacks} feedbacks • {faculty.contributors}{' '}
-                      contributors
+                      {faculty.feedbacks} {t('giveaway_recap.feedbacks_label')}{' '}
+                      • {faculty.contributors}{' '}
+                      {t('giveaway_recap.contributors_label')}
                     </div>
                   </div>
                 </div>
@@ -167,7 +179,7 @@ export function GiveawayRecapCommunity() {
           {/* Most Active Degrees */}
           <div className="mt-12 mx-auto max-w-3xl">
             <h3 className="text-lg font-semibold mb-6 text-center text-muted-foreground">
-              Most active degrees
+              {t('giveaway_recap.most_active_degrees')}
             </h3>
 
             <div className="bg-background border rounded-lg divide-y">
@@ -224,15 +236,17 @@ export function GiveawayRecapCommunity() {
                               {degree.points.toLocaleString()}
                             </div>
                             <div className="text-xs text-muted-foreground">
-                              points
+                              {t('giveaway_recap.points_label')}
                             </div>
                           </div>
                           <div className="space-y-0.5">
                             <div className="text-xs text-muted-foreground">
-                              {degree.feedbacks} feedbacks
+                              {degree.feedbacks}{' '}
+                              {t('giveaway_recap.feedbacks_label')}
                             </div>
                             <div className="text-xs text-muted-foreground">
-                              {degree.contributors} contributors
+                              {degree.contributors}{' '}
+                              {t('giveaway_recap.contributors_label')}
                             </div>
                           </div>
                         </div>

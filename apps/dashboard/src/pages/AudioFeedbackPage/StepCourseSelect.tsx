@@ -331,7 +331,7 @@ export function StepCourseSelect({
                 placeholder="Degree"
                 options={degrees.map((d) => ({
                   value: d.id.toString(),
-                  label: `${d.acronym} — ${d.name}`
+                  label: `${d.acronym}: ${d.name}`
                 }))}
                 selectedValue={degreeId?.toString() ?? null}
                 onValueChange={(val) => setDegreeId(val ? Number(val) : null)}

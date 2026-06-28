@@ -152,10 +152,10 @@ export default function LoginPage() {
                           <p className="text-muted-foreground">
                             {t('auth.help_desc')}{' '}
                             <a
-                              href="mailto:help@uni-feedback.com"
+                              href="mailto:afonso@uni-feedback.com"
                               className="underline hover:text-foreground transition-colors"
                             >
-                              help@uni-feedback.com
+                              afonso@uni-feedback.com
                             </a>
                           </p>
                         </div>

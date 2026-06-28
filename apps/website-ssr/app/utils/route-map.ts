@@ -106,6 +106,19 @@ export const routeConfig = [
         slugs: { pt: 'giveaway/regras', en: 'giveaway/rules' }
       },
       {
+        key: 'giveaway-feb-2026',
+        file: 'routes/giveaway.feb-2026.tsx',
+        slugs: { pt: 'giveaway/feb-2026', en: 'giveaway/feb-2026' }
+      },
+      {
+        key: 'giveaway-feb-2026-rules',
+        file: 'routes/giveaway.feb-2026.rules.tsx',
+        slugs: {
+          pt: 'giveaway/feb-2026/regras',
+          en: 'giveaway/feb-2026/rules'
+        }
+      },
+      {
         key: 'feedback-new',
         file: 'routes/feedback.new.tsx',
         slugs: { pt: 'feedback/novo', en: 'feedback/new' }

@@ -162,7 +162,7 @@ export function StepRecord({ onRecorded, onBack }: StepRecordProps) {
               <p className="text-sm text-destructive">
                 {MAX_DURATION_SECONDS - elapsed > 0
                   ? `Recording stops in ${MAX_DURATION_SECONDS - elapsed}s`
-                  : 'Max duration reached — saving recording…'}
+                  : 'Max duration reached, saving recording…'}
               </p>
             )}
 

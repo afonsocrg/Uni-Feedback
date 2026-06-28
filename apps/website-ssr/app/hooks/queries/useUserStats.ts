@@ -1,5 +1,18 @@
 import { useQuery } from '@tanstack/react-query'
-import { getUserFeedback, getUserStats } from '@uni-feedback/api-client'
+import {
+  getProfile,
+  getUserFeedback,
+  getUserStats
+} from '@uni-feedback/api-client'
+
+export function useProfile() {
+  return useQuery({
+    queryKey: ['user', 'profile'],
+    queryFn: () => getProfile(),
+    staleTime: 0,
+    refetchOnMount: 'always'
+  })
+}
 
 export function useProfileStats() {
   return useQuery({

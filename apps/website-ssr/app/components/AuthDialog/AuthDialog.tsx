@@ -126,7 +126,7 @@ export function AuthDialog({
       console.error('OTP request error:', error)
 
       let errorMessage =
-        'Something went wrong. Please contact help@uni-feedback.com'
+        'Something went wrong. Please contact afonso@uni-feedback.com'
 
       if (error instanceof MeicFeedbackAPIError) {
         errorMessage = error.message

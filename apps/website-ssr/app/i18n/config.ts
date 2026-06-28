@@ -23,30 +23,79 @@ export const supportedLangs: Lang[] = ['pt', 'en']
 // Node.js is single-threaded: the loader sets the lang before renderToString runs.
 const i18n = i18next.createInstance()
 
+const resources = {
+  pt: {
+    common: ptCommon,
+    landing: ptLanding,
+    browse: ptBrowse,
+    course: ptCourse,
+    feedback: ptFeedback,
+    legal: ptLegal
+  },
+  en: {
+    common: enCommon,
+    landing: enLanding,
+    browse: enBrowse,
+    course: enCourse,
+    feedback: enFeedback,
+    legal: enLegal
+  }
+}
+
 i18n.use(initReactI18next).init({
   lng: defaultLang,
   fallbackLng: defaultLang,
   ns: ['common', 'landing', 'browse', 'course', 'feedback', 'legal'],
   defaultNS: 'common',
-  resources: {
-    pt: {
-      common: ptCommon,
-      landing: ptLanding,
-      browse: ptBrowse,
-      course: ptCourse,
-      feedback: ptFeedback,
-      legal: ptLegal
-    },
-    en: {
-      common: enCommon,
-      landing: enLanding,
-      browse: enBrowse,
-      course: enCourse,
-      feedback: enFeedback,
-      legal: enLegal
-    }
-  },
+  resources,
   interpolation: { escapeValue: false }
 })
 
 export { i18n }
+
+// HMR: when a locale JSON changes, push the new bundles into the running
+// i18next instance and force a re-render — no full page refresh needed.
+if (import.meta.hot) {
+  // Order MUST match the `deps` array below: [lng, ns] per entry.
+  const hmrBundles: [Lang, string][] = [
+    ['en', 'browse'],
+    ['en', 'common'],
+    ['en', 'course'],
+    ['en', 'feedback'],
+    ['en', 'landing'],
+    ['en', 'legal'],
+    ['pt', 'browse'],
+    ['pt', 'common'],
+    ['pt', 'course'],
+    ['pt', 'feedback'],
+    ['pt', 'landing'],
+    ['pt', 'legal']
+  ]
+  import.meta.hot.accept(
+    [
+      '../locales/en/browse.json',
+      '../locales/en/common.json',
+      '../locales/en/course.json',
+      '../locales/en/feedback.json',
+      '../locales/en/landing.json',
+      '../locales/en/legal.json',
+      '../locales/pt/browse.json',
+      '../locales/pt/common.json',
+      '../locales/pt/course.json',
+      '../locales/pt/feedback.json',
+      '../locales/pt/landing.json',
+      '../locales/pt/legal.json'
+    ],
+    (modules) => {
+      // `modules` arrives in the same order as the deps array above; an entry
+      // is undefined when that specific file didn't change in this update.
+      modules.forEach((mod, i) => {
+        if (!mod) return
+        const [lng, ns] = hmrBundles[i]
+        i18n.addResourceBundle(lng, ns, mod.default, true, true)
+      })
+      // Re-emit to make react-i18next re-render mounted components.
+      i18n.changeLanguage(i18n.language)
+    }
+  )
+}

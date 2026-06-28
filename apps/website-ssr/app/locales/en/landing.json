@@ -168,12 +168,19 @@
   "founder": {
     "quote1": "In university, my friends and I would often ask other students about courses (workload, professors, exams, tips, etc.). But the answers would get lost in group chats.",
     "quote2": "So I built a place for all that feedback.",
-    "attribution": "— Afonso"
+    "attribution": "- Afonso"
   },
   "contact_section": {
     "title": "Get in Touch",
     "desc": "Found a bug? Have a suggestion? Just want to say hi? I'd love to hear from you. Your feedback (😉) helps make Uni Feedback better for everyone.",
     "email": "Email Me",
     "linkedin": "Connect on LinkedIn"
+  },
+  "giveaway_promo": {
+    "eyebrow": "Summer 2026 giveaway",
+    "title": "Win €50 at <fnac>FNAC</fnac>",
+    "subtitle": "Share feedback on this year's courses for a chance at 3 × €50 prizes.",
+    "cta": "Enter now",
+    "banner": "🎁 Giveaway live! Win a €50 FNAC gift card."
   }
 }

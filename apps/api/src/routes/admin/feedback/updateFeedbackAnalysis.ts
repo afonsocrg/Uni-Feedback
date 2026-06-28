@@ -174,6 +174,17 @@ export class UpdateFeedbackAnalysis extends OpenAPIRoute {
         )
         // Continue - analysis update succeeded, points can be fixed manually
       }
+
+      // Toggling category flags can change whether this feedback is "perfect",
+      // so reconcile the giveaway bonus (best-effort).
+      try {
+        await pointService.reconcilePerfectFeedbackBonus(feedbackData.userId)
+      } catch (bonusError) {
+        console.error(
+          `Failed to reconcile perfect-feedback bonus for user ${feedbackData.userId}:`,
+          bonusError
+        )
+      }
     }
 
     // Send Telegram notification

@@ -1,18 +1,19 @@
 import {
-  GiveawayRecapCommunity,
-  GiveawayRecapCTA,
-  GiveawayRecapHero,
-  GiveawayRecapThankYou,
-  GiveawayRecapWinner
+  GiveawayCTASection,
+  GiveawayFAQSection,
+  GiveawayHeroSection,
+  GiveawayPointsSection,
+  GiveawayPrizesSection,
+  HowToWinSection
 } from '~/components/giveaway'
 
 export function meta() {
   return [
-    { title: 'Giveaway Recap - Thank You! | Uni Feedback' },
+    { title: 'Uni Feedback Giveaway: Win €50 at FNAC' },
     {
       name: 'description',
       content:
-        'Thank you to everyone who participated in the Uni Feedback giveaway! See what we accomplished together.'
+        'Share feedback on your courses for a chance to win one of 3 × €50 FNAC gift cards. Ends July 31, 2026.'
     }
   ]
 }
@@ -20,11 +21,12 @@ export function meta() {
 export default function GiveawayPage() {
   return (
     <>
-      <GiveawayRecapHero />
-      <GiveawayRecapThankYou />
-      <GiveawayRecapWinner />
-      <GiveawayRecapCommunity />
-      <GiveawayRecapCTA />
+      <GiveawayHeroSection />
+      <HowToWinSection />
+      <GiveawayPrizesSection />
+      <GiveawayPointsSection />
+      <GiveawayFAQSection />
+      <GiveawayCTASection />
     </>
   )
 }

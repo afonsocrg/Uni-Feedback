@@ -1,6 +1,7 @@
 export * from './cookies'
 export * from './dateTime'
 export * from './email'
+export * from './instagram'
 export * from './ordinal'
 export * from './permalinks'
 export * from './schoolYear'

@@ -9,6 +9,17 @@ import {
 export const ADD_COURSE_FORM_URL =
   'https://docs.google.com/forms/d/e/1FAIpQLSd2FBk_hbv6v0iW-y8wtY6DL-fDIE_GlyA8rSkamSJJfCjCFQ/viewform?usp=header'
 
+// Summer 2026 giveaway deadline — July 31, 2026 23:59:59 Lisbon time
+// (WEST / UTC+1 in summer). Powers the countdowns shown across the giveaway
+// surfaces (hero, CTA, landing promo band, announcement banner).
+export const GIVEAWAY_END_DATE = new Date('2026-07-31T23:59:59+01:00')
+
+// A multi-day ticking countdown reads as "plenty of time" and kills urgency, so
+// we show the plain end date until fewer than this many days remain, then flip
+// to the live countdown for the final stretch (~72h), where the ticking clock
+// actually feels imminent.
+export const GIVEAWAY_COUNTDOWN_THRESHOLD_DAYS = 3
+
 // Site URL for meta tags, sitemaps, and canonical URLs
 export const SITE_URL =
   import.meta.env.VITE_PUBLIC_SITE_URL || 'http://localhost:3000'

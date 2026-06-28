@@ -169,6 +169,17 @@ export class AuthService {
           )
           // Continue - user was created, points can be fixed later
         }
+
+        // Linked feedback may already meet the perfect-feedback threshold
+        try {
+          await pointService.reconcilePerfectFeedbackBonus(user.id)
+        } catch (bonusError) {
+          console.error(
+            'Failed to reconcile perfect-feedback bonus for user:',
+            user.id,
+            bonusError
+          )
+        }
       }
     } catch (linkError) {
       console.error(

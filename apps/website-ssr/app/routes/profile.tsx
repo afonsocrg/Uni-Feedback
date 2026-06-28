@@ -1,5 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { deleteAccount } from '@uni-feedback/api-client'
+import { useQueryClient } from '@tanstack/react-query'
+import {
+  deleteAccount,
+  deleteInstagramHandle,
+  setInstagramHandle
+} from '@uni-feedback/api-client'
 import {
   Button,
   Dialog,
@@ -20,10 +25,19 @@ import {
   PopoverTrigger,
   Separator
 } from '@uni-feedback/ui'
-import { AlertTriangle, Check, Copy, HelpCircle, User } from 'lucide-react'
+import { normalizeInstagramHandle } from '@uni-feedback/utils'
+import {
+  AlertTriangle,
+  Check,
+  Copy,
+  HelpCircle,
+  Loader2,
+  User
+} from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
+import { SiInstagram } from 'react-icons/si'
 import { Link, useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -33,7 +47,11 @@ import {
   ProfilePageSkeleton
 } from '~/components'
 import { useLang, useRequiredAuth } from '~/hooks'
-import { useProfileFeedback, useProfileStats } from '~/hooks/queries'
+import {
+  useProfile,
+  useProfileFeedback,
+  useProfileStats
+} from '~/hooks/queries'
 import { analytics, getPageName } from '~/utils/analytics'
 import { STORAGE_KEYS } from '~/utils/constants'
 import { getLocalePath, getReviewPath } from '~/utils/i18n-routes'
@@ -57,6 +75,7 @@ export default function ProfilePage() {
   const lang = useLang()
   const { user, logout } = useRequiredAuth()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [copiedReferral, setCopiedReferral] = useState(false)
@@ -64,6 +83,12 @@ export default function ProfilePage() {
   const { data: statsData, isLoading: isStatsLoading } = useProfileStats()
   const { data: feedbackData, isLoading: isFeedbackLoading } =
     useProfileFeedback()
+  const { data: profileData } = useProfile()
+
+  const instagramHandle = profileData?.user.instagramHandle ?? null
+  const [isEditingInstagram, setIsEditingInstagram] = useState(false)
+  const [instagramInput, setInstagramInput] = useState('')
+  const [isSavingInstagram, setIsSavingInstagram] = useState(false)
 
   const deleteAccountSchema = z.object({
     emailConfirmation: z.string().email(t('profile.delete_email_invalid'))
@@ -93,6 +118,64 @@ export default function ProfilePage() {
       setTimeout(() => setCopiedReferral(false), 2000)
     } catch {
       toast.error(t('profile.toast_referral_failed'))
+    }
+  }
+
+  const startEditingInstagram = () => {
+    setInstagramInput(instagramHandle ?? '')
+    setIsEditingInstagram(true)
+  }
+
+  const refreshProfileAndStats = () =>
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['user', 'profile'] }),
+      queryClient.invalidateQueries({ queryKey: ['user', 'stats'] })
+    ])
+
+  const handleSaveInstagram = async () => {
+    const normalized = normalizeInstagramHandle(instagramInput)
+    if (!normalized) {
+      toast.error(t('profile.instagram_invalid'))
+      return
+    }
+
+    setIsSavingInstagram(true)
+    try {
+      const wasLinked = instagramHandle !== null
+      await setInstagramHandle(normalized)
+      await refreshProfileAndStats()
+      setIsEditingInstagram(false)
+      toast.success(
+        wasLinked
+          ? t('profile.toast_instagram_updated')
+          : t('profile.toast_instagram_linked')
+      )
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t('profile.toast_instagram_failed')
+      )
+    } finally {
+      setIsSavingInstagram(false)
+    }
+  }
+
+  const handleRemoveInstagram = async () => {
+    setIsSavingInstagram(true)
+    try {
+      await deleteInstagramHandle()
+      await refreshProfileAndStats()
+      setIsEditingInstagram(false)
+      toast.success(t('profile.toast_instagram_removed'))
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t('profile.toast_instagram_failed')
+      )
+    } finally {
+      setIsSavingInstagram(false)
     }
   }
 
@@ -148,7 +231,10 @@ export default function ProfilePage() {
                 <User className="size-8 text-primary" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="break-all text-sm font-medium text-gray-700">
+                <p
+                  className="truncate text-sm font-medium text-gray-700"
+                  title={user.email}
+                >
                   {user.email}
                 </p>
                 {isStatsLoading ? (
@@ -219,12 +305,22 @@ export default function ProfilePage() {
                     {stats.referralPoints} {t('profile.pts')}
                   </span>
                 </div>
+                {stats.bonusPoints > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">
+                      {t('profile.bonus_points')}
+                    </span>
+                    <span className="font-medium">
+                      {stats.bonusPoints} {t('profile.pts')}
+                    </span>
+                  </div>
+                )}
               </div>
             )}
           </div>
 
           {/* Right: Referral Section */}
-          <div className="space-y-3">
+          <div className="space-y-5">
             {user.referralCode && (
               <div>
                 <p className="text-sm font-semibold mb-1">
@@ -255,6 +351,78 @@ export default function ProfilePage() {
                 </div>
               </div>
             )}
+
+            {/* Instagram Section */}
+            <div>
+              <p className="text-sm font-semibold mb-1 flex items-center gap-1.5">
+                <SiInstagram className="size-4" />
+                {t('profile.instagram_title')}
+              </p>
+              <p className="text-xs text-muted-foreground mb-3">
+                {t('profile.instagram_desc')}
+              </p>
+
+              {instagramHandle && !isEditingInstagram ? (
+                <div className="flex items-center gap-2">
+                  <span className="flex-1 text-sm font-medium truncate">
+                    @{instagramHandle}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={startEditingInstagram}
+                    disabled={isSavingInstagram}
+                  >
+                    {t('profile.instagram_edit_btn')}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleRemoveInstagram}
+                    disabled={isSavingInstagram}
+                  >
+                    {isSavingInstagram ? (
+                      <Loader2 className="size-4 animate-spin" />
+                    ) : (
+                      t('profile.instagram_remove_btn')
+                    )}
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Input
+                    value={instagramInput}
+                    onChange={(e) => setInstagramInput(e.target.value)}
+                    placeholder={t('profile.instagram_placeholder')}
+                    className="text-sm bg-white"
+                    disabled={isSavingInstagram}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleSaveInstagram()
+                    }}
+                  />
+                  <Button
+                    onClick={handleSaveInstagram}
+                    disabled={isSavingInstagram || instagramInput.trim() === ''}
+                  >
+                    {isSavingInstagram ? (
+                      <Loader2 className="size-4 animate-spin" />
+                    ) : (
+                      t('profile.instagram_link_btn')
+                    )}
+                  </Button>
+                  {isEditingInstagram && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setIsEditingInstagram(false)}
+                      disabled={isSavingInstagram}
+                    >
+                      {t('profile.instagram_cancel_btn')}
+                    </Button>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

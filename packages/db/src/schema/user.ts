@@ -23,6 +23,7 @@ export const users = pgTable('users', {
   role: userRoleEnum('role').notNull().default('student'),
   superuser: boolean('superuser').default(false), // Keep for backward compatibility
   referralCode: text('referral_code').unique(),
+  instagramHandle: text('instagram_handle'),
   referredByUserId: integer('referred_by_user_id').references(
     (): AnyPgColumn => users.id,
     {

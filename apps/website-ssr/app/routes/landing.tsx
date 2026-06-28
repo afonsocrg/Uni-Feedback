@@ -7,6 +7,7 @@ import {
   ContributeStrip,
   CTASection,
   FounderSection,
+  GiveawayPromoSection,
   HeroSection,
   LandingFAQSection,
   LiveFeedSection,
@@ -178,6 +179,7 @@ export default function LandingPage({ loaderData }: Route.ComponentProps) {
     <>
       <HeroSection stats={stats} />
       {/* <UniversitiesStrip faculties={faculties} /> */}
+      <GiveawayPromoSection />
       <LiveFeedSection feedbacks={recentFeedbacks} />
       <SupportersSection studentClubs={studentClubs} />
       <ContributeStrip />

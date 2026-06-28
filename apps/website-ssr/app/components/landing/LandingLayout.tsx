@@ -1,26 +1,43 @@
-import { LandingFooter, LandingHeader } from '~/components'
+import { useTranslation } from 'react-i18next'
+import { useLocation } from 'react-router'
+import { AnnouncementBanner, LandingFooter, LandingHeader } from '~/components'
+import { GiveawayCountdown } from '~/components/giveaway'
+import { useLang } from '~/hooks'
+import { getLocalePath } from '~/utils/i18n-routes'
 
 interface LandingLayoutProps {
   children: React.ReactNode
 }
 
 export function LandingLayout({ children }: LandingLayoutProps) {
-  // const showAnnouncementBanner = !isGiveawayPage && !isLandingPage
+  const lang = useLang()
+  const { t } = useTranslation('landing')
+  const { pathname } = useLocation()
+
+  // The giveaway pages already lead with the giveaway, and the landing page
+  // has the promo band — so only show the banner elsewhere.
+  const isGiveawayPage = pathname.startsWith(getLocalePath('giveaway', lang))
+  const isLandingPage = pathname === getLocalePath('home', lang)
+  const showAnnouncementBanner = !isGiveawayPage && !isLandingPage
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* {showAnnouncementBanner && (
-        <AnnouncementBanner bannerId="nos-alive-2026-giveaway" href="/giveaway">
+      {showAnnouncementBanner && (
+        <AnnouncementBanner
+          bannerId="fnac-2026-giveaway"
+          href={getLocalePath('giveaway', lang)}
+        >
           <span className="inline-flex items-center gap-2">
-            <Gift className="size-4" />
-            <span>NOS Alive 2026 giveaway has ended! See the results</span>
+            <span>{t('giveaway_promo.banner')}</span>
+            <GiveawayCountdown variant="compact" className="px-2.5 py-0.5" />
             <span className="text-white/80">&rarr;</span>
           </span>
         </AnnouncementBanner>
-      )} */}
+      )}
       <LandingHeader />
       <main className="flex-1">{children}</main>
       <LandingFooter />
+      {/* <GiveawayDevPanel /> */}
     </div>
   )
 }

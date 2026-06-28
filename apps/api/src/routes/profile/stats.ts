@@ -22,7 +22,8 @@ export class GetUserStats extends OpenAPIRoute {
                 feedbackCount: z.number(),
                 feedbackPoints: z.number(),
                 referralCount: z.number(),
-                referralPoints: z.number()
+                referralPoints: z.number(),
+                bonusPoints: z.number()
               })
             })
           }
@@ -85,13 +86,26 @@ export class GetUserStats extends OpenAPIRoute {
       )
     const referralPoints = referralPointsResult[0]?.value || 0
 
+    // Get bonus points amount (manually-credited campaign bonuses)
+    const bonusPointsResult = await database()
+      .select({ value: sum(pointRegistry.amount) })
+      .from(pointRegistry)
+      .where(
+        and(
+          eq(pointRegistry.userId, userId),
+          eq(pointRegistry.sourceType, 'bonus')
+        )
+      )
+    const bonusPoints = bonusPointsResult[0]?.value || 0
+
     return Response.json({
       stats: {
         totalPoints,
         feedbackCount,
         feedbackPoints,
         referralCount,
-        referralPoints
+        referralPoints,
+        bonusPoints
       }
     })
   }

@@ -1,33 +1,44 @@
 import { Button } from '@uni-feedback/ui'
 import { ArrowRight } from 'lucide-react'
+import { Trans, useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { useLang } from '~/hooks'
 import { getLocalePath } from '~/utils/i18n-routes'
+import { GiveawayCountdown } from './GiveawayCountdown'
 
 export function GiveawayHeroSection() {
   const lang = useLang()
+  const { t } = useTranslation('legal')
 
   return (
-    <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden">
-      {/* Background Image */}
+    <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-900 to-zinc-800">
+      {/* Subtle dot-grid texture */}
       <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: "url('/giveaway/image_1.jpg')" }}
+        className="absolute inset-0 opacity-[0.15]"
+        style={{
+          backgroundImage:
+            'radial-gradient(circle, rgba(255,255,255,0.4) 1px, transparent 1px)',
+          backgroundSize: '24px 24px'
+        }}
       />
-
-      {/* Dark Overlay for contrast */}
-      <div className="absolute inset-0 bg-black/50" />
 
       {/* Content */}
       <div className="relative z-10 container mx-auto px-4 py-24 text-center text-white">
         <div className="max-w-3xl mx-auto space-y-6">
+          <p className="text-sm md:text-base font-semibold uppercase tracking-wide text-white/80 drop-shadow-md">
+            {t('giveaway_page.edition_name')}
+          </p>
           <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight drop-shadow-lg">
-            Win a ticket to{' '}
-            <span className="whitespace-nowrap">NOS Alive 2026!</span>
+            <Trans
+              i18nKey="giveaway_page.hero_title"
+              ns="legal"
+              components={{ fnac: <span className="text-[#ecb300]" /> }}
+            />
           </h1>
           <p className="text-xl md:text-2xl text-white/90 drop-shadow-md">
-            Share your feedback. Help others choose better!
+            {t('giveaway_page.hero_subtitle')}
           </p>
+          <GiveawayCountdown className="pt-2" />
           <div className="pt-4 space-y-3">
             <Button
               size="lg"
@@ -35,7 +46,7 @@ export function GiveawayHeroSection() {
               asChild
             >
               <a href="#how-to-win">
-                How to Win
+                {t('giveaway_page.hero_cta_how')}
                 <ArrowRight className="size-5" />
               </a>
             </Button>
@@ -44,7 +55,7 @@ export function GiveawayHeroSection() {
                 to={getLocalePath('giveaway-rules', lang)}
                 className="text-sm text-white/90 hover:text-white underline"
               >
-                View Official Rules
+                {t('giveaway_page.hero_cta_rules')}
               </Link>
             </div>
           </div>

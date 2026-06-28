@@ -180,7 +180,7 @@ export function AudioFeedbackPage() {
       )}
 
       <p className="text-xs text-muted-foreground text-center mt-4">
-        Step {step} of 5 — {STEP_LABELS[step]}
+        Step {step} of 5: {STEP_LABELS[step]}
       </p>
     </div>
   )

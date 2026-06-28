@@ -68,6 +68,10 @@ export class DeleteFeedback extends OpenAPIRoute {
         feedbackId,
         'Feedback deleted by user'
       )
+
+      // Reconcile the perfect-feedback giveaway bonus: deleting a feedback may
+      // drop the user below the threshold, in which case the bonus is removed.
+      await pointService.reconcilePerfectFeedbackBonus(userId)
     } catch (pointError) {
       console.error(
         `Failed to remove points for deleted feedback ${feedbackId}:`,

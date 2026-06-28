@@ -113,6 +113,8 @@ export class ApproveFeedback extends OpenAPIRoute {
       try {
         const pointService = new PointService(env)
         await pointService.restoreFeedbackPoints(userId, feedbackId)
+        // Approving can push the user to the perfect-feedback threshold
+        await pointService.reconcilePerfectFeedbackBonus(userId)
       } catch (pointError) {
         console.error(
           `Failed to restore points for feedback ${feedbackId}:`,

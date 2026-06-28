@@ -168,12 +168,19 @@
   "founder": {
     "quote1": "Na faculdade, os meus amigos e eu costumávamos perguntar uns aos outros por feedback sobre as cadeiras (carga de trabalho, professores, exames, dicas, etc.). Mas as respostas perdiam-se nos grupos de chat...",
     "quote2": "Por isso criei este site para compilar todo esse feedback.",
-    "attribution": "— Afonso"
+    "attribution": "- Afonso"
   },
   "contact_section": {
     "title": "Entra em contacto",
     "desc": "Encontraste algum bug, ou queres dar uma sugestão? Envia-me um email para afonso@uni-feedback.com. Respondo sempre que consigo.",
     "email": "Envia um Email",
     "linkedin": "Conectar no LinkedIn"
+  },
+  "giveaway_promo": {
+    "eyebrow": "Giveaway de Verão 2026",
+    "title": "Ganha 50€ na <fnac>FNAC</fnac>",
+    "subtitle": "Diz-nos o que achaste das tuas cadeiras e habilita-te a 3 prémios de 50€.",
+    "cta": "Participar",
+    "banner": "🎁 Giveaway a decorrer: ganha 50€ na FNAC"
   }
 }

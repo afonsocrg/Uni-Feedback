@@ -40,7 +40,7 @@ export function StepPlayback({
       <div>
         <h2 className="text-xl font-semibold mb-1">Review Recording</h2>
         <p className="text-sm text-muted-foreground">
-          Listen back — if it sounds good, send it for AI processing.
+          Listen back. If it sounds good, send it for AI processing.
         </p>
       </div>
 

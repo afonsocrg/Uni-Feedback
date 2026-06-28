@@ -49,3 +49,19 @@ logs/
 *.log
 
 .claude/*
+.ds-sync/
+ds-bundle/
+.design-sync/
+.design-sync/.cache/
+.design-sync/learnings/
+.design-sync/node_modules
+packages/ui/.ds-compiled.css
+packages/ui/.ds-tw-entry.css
+packages/ui/.ds-entry.ts
+apps/website-ssr/.ds-provider.tsx
+apps/website-ssr/.ds-compiled.css
+apps/website-ssr/.ds-tw-entry.css
+apps/website-ssr/.ds-types/
+apps/website-ssr/index.d.ts
+apps/website-ssr/.ds-tsconfig.json
+apps/website-ssr/.ds-tsconfig.paths.json

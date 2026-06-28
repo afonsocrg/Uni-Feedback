@@ -138,4 +138,4 @@ This giveaway is not sponsored, endorsed, or administered by NOS Alive or Everyt
 
 All decisions related to feedback approval, point allocation, disqualification, and winner selection are final.
 
-Got questions about the giveaway rules? Email us at help@uni-feedback.com
+Got questions about the giveaway rules? Email us at afonso@uni-feedback.com

@@ -1,4 +1,4 @@
-import { apiDelete, apiGet, apiPost, apiPostVoid } from './utils'
+import { apiDelete, apiGet, apiPost, apiPostVoid, apiPut } from './utils'
 
 export interface LoginRequest {
   email: string
@@ -89,6 +89,7 @@ export interface ProfileResponse {
     username: string
     role: string
     referralCode: string | null
+    instagramHandle: string | null
   }
 }
 
@@ -99,6 +100,7 @@ export interface UserStatsResponse {
     feedbackPoints: number
     referralCount: number
     referralPoints: number
+    bonusPoints: number
   }
 }
 
@@ -304,4 +306,21 @@ export async function getUserStats(): Promise<UserStatsResponse> {
 export async function getUserFeedback(): Promise<UserFeedbackResponse> {
   const result = apiGet<UserFeedbackResponse>('/profile/feedback')
   return result
+}
+
+/**
+ * Set or update the current user's Instagram handle.
+ * Awards a one-time bonus the first time a handle is linked.
+ */
+export async function setInstagramHandle(
+  handle: string
+): Promise<ProfileResponse> {
+  return apiPut<ProfileResponse>('/profile/instagram', { handle })
+}
+
+/**
+ * Remove the current user's Instagram handle (and the linking bonus).
+ */
+export async function deleteInstagramHandle(): Promise<{ message: string }> {
+  return apiDelete<{ message: string }>('/profile/instagram')
 }

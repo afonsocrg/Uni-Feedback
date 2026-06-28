@@ -1,6 +1,9 @@
 import { BookOpen, GraduationCap, MessageSquare, Users } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 export function GiveawayRecapHero() {
+  const { t } = useTranslation('legal')
+
   return (
     <>
       {/* Hero Banner with Image */}
@@ -18,10 +21,10 @@ export function GiveawayRecapHero() {
         <div className="relative z-10 container mx-auto px-4 py-16 text-center text-white">
           <div className="max-w-3xl mx-auto space-y-6">
             <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight drop-shadow-lg">
-              Giveaway Recap
+              {t('giveaway_recap.hero_title')}
             </h1>
             <p className="text-xl md:text-2xl text-white/90 drop-shadow-md">
-              The giveaway ended on February 27th. Here's what we accomplished
+              {t('giveaway_recap.hero_subtitle')}
             </p>
           </div>
         </div>
@@ -32,7 +35,7 @@ export function GiveawayRecapHero() {
         <div className="container mx-auto px-4">
           <div className="max-w-2xl mx-auto">
             <h2 className="text-2xl md:text-3xl font-semibold text-center mb-12">
-              Together we collected:
+              {t('giveaway_recap.stats_title')}
             </h2>
 
             <div className="space-y-6 text-base md:text-lg">
@@ -44,7 +47,10 @@ export function GiveawayRecapHero() {
                   <span className="font-bold text-2xl md:text-3xl text-primary">
                     1,144
                   </span>
-                  <span className="text-foreground/80"> feedbacks, from</span>
+                  <span className="text-foreground/80">
+                    {' '}
+                    {t('giveaway_recap.stats_feedbacks_suffix')}
+                  </span>
                 </div>
               </div>
 
@@ -58,7 +64,7 @@ export function GiveawayRecapHero() {
                   </span>
                   <span className="text-foreground/80">
                     {' '}
-                    students, covering
+                    {t('giveaway_recap.stats_students_suffix')}
                   </span>
                 </div>
               </div>
@@ -71,7 +77,10 @@ export function GiveawayRecapHero() {
                   <span className="font-bold text-2xl md:text-3xl text-primary">
                     521
                   </span>
-                  <span className="text-foreground/80"> courses from</span>
+                  <span className="text-foreground/80">
+                    {' '}
+                    {t('giveaway_recap.stats_courses_suffix')}
+                  </span>
                 </div>
               </div>
 
@@ -83,7 +92,10 @@ export function GiveawayRecapHero() {
                   <span className="font-bold text-2xl md:text-3xl text-primary">
                     52
                   </span>
-                  <span className="text-foreground/80"> degrees</span>
+                  <span className="text-foreground/80">
+                    {' '}
+                    {t('giveaway_recap.stats_degrees_suffix')}
+                  </span>
                 </div>
               </div>
             </div>

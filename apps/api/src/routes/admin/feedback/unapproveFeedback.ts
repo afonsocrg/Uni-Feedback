@@ -159,6 +159,8 @@ export class UnapproveFeedback extends OpenAPIRoute {
           feedbackId,
           'Feedback unapproved by admin'
         )
+        // Unapproving can drop the user below the perfect-feedback threshold
+        await pointService.reconcilePerfectFeedbackBonus(userId)
       } catch (pointError) {
         console.error(
           `Failed to zero out points for feedback ${feedbackId}:`,

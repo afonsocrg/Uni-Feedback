@@ -168,6 +168,18 @@ export class EditFeedback extends OpenAPIRoute {
       })
       .where(eq(feedbackFull.id, feedbackId))
 
+    // Reconcile the perfect-feedback giveaway bonus (best-effort).
+    // A comment or school-year change can move the user above/below the
+    // threshold, so re-check after every edit.
+    try {
+      await new PointService(env).reconcilePerfectFeedbackBonus(userId)
+    } catch (bonusError) {
+      console.error(
+        `Failed to reconcile perfect-feedback bonus for user ${userId}:`,
+        bonusError
+      )
+    }
+
     // Fetch updated feedback
     const [updatedFeedback] = await database()
       .select()

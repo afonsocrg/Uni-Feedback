@@ -1,72 +1,80 @@
-import {
-  Markdown,
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger
-} from '@uni-feedback/ui'
+import { Trans, useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { useLang } from '~/hooks'
 import { getLocalePath } from '~/utils/i18n-routes'
-import { markdown } from '../../../../legal/giveaway_rules.md'
 
 export function meta() {
   return [
-    { title: 'Giveaway Rules | Uni Feedback' },
+    { title: 'Summer 2026 Giveaway Rules | Uni Feedback' },
     {
       name: 'description',
       content:
-        'Official rules for the Uni Feedback Giveaway. Learn about eligibility, how to enter, and prize details.'
+        'Official rules for the Uni Feedback Summer 2026 Giveaway. Learn about eligibility, how to enter, points and prizes.'
     }
   ]
 }
 
 function StructuredVersion() {
   const lang = useLang()
+  const { t } = useTranslation('legal')
+
+  const feedbackItems = t('giveaway_rules.points_feedback_items', {
+    returnObjects: true
+  }) as string[]
+  const drawRuleItems = t('giveaway_rules.prizes_rules_items', {
+    returnObjects: true
+  }) as string[]
 
   return (
     <div className="mx-auto max-w-3xl">
       {/* Hero */}
       <div className="mb-12">
         <h1 className="mb-4 text-3xl font-semibold md:text-4xl">
-          Official Uni Feedback Giveaway Rules
+          {t('giveaway_rules.page_title')}
         </h1>
-        <p className="text-muted-foreground">
-          This page sets out the official rules for the Uni Feedback Giveaway.
-          <br />
-          By taking part, you agree to the rules below.
-        </p>
+        <p className="text-muted-foreground">{t('giveaway_rules.intro')}</p>
       </div>
 
       {/* 1. Eligibility */}
       <section className="mb-12">
-        <h2 className="mb-6 text-2xl font-semibold">1. Eligibility</h2>
+        <h2 className="mb-6 text-2xl font-semibold">
+          {t('giveaway_rules.section_eligibility')}
+        </h2>
 
         <div className="space-y-6">
           <div>
-            <h3 className="mb-1 text-lg font-semibold">University status</h3>
+            <h3 className="mb-1 text-lg font-semibold">
+              {t('giveaway_rules.eligibility_status_title')}
+            </h3>
             <p className="text-muted-foreground">
-              You must be a student at IST, SBE, FCT, or IMS and have a valid
-              university email address.
-            </p>
-          </div>
-
-          <div>
-            <h3 className="mb-1 text-lg font-semibold">Account verification</h3>
-            <p className="text-muted-foreground">
-              You must log in to Uni Feedback using your university email
-              address.
+              {t('giveaway_rules.eligibility_status_desc')}
             </p>
           </div>
 
           <div>
             <h3 className="mb-1 text-lg font-semibold">
-              One account per student
+              {t('giveaway_rules.eligibility_account_title')}
             </h3>
             <p className="text-muted-foreground">
-              Only one account per student is allowed. Multiple accounts, shared
-              accounts, or variations of the same email address will result in
-              disqualification.
+              {t('giveaway_rules.eligibility_account_desc')}
+            </p>
+          </div>
+
+          <div>
+            <h3 className="mb-1 text-lg font-semibold">
+              {t('giveaway_rules.eligibility_feedback_title')}
+            </h3>
+            <p className="text-muted-foreground">
+              {t('giveaway_rules.eligibility_feedback_desc')}
+            </p>
+          </div>
+
+          <div>
+            <h3 className="mb-1 text-lg font-semibold">
+              {t('giveaway_rules.eligibility_one_title')}
+            </h3>
+            <p className="text-muted-foreground">
+              {t('giveaway_rules.eligibility_one_desc')}
             </p>
           </div>
         </div>
@@ -74,277 +82,277 @@ function StructuredVersion() {
 
       {/* 2. Giveaway Period */}
       <section className="mb-12">
-        <h2 className="mb-6 text-2xl font-semibold">2. Giveaway Period</h2>
+        <h2 className="mb-6 text-2xl font-semibold">
+          {t('giveaway_rules.section_period')}
+        </h2>
 
         <div className="space-y-4 text-muted-foreground">
-          <p>
-            The giveaway runs until{' '}
-            <strong className="text-foreground">
-              February 27 2026, 23:59:59 (Lisbon time)
-            </strong>
-            .
-          </p>
-          <p>
-            Only points earned until this time will count toward the draw,
-            unless stated otherwise below.
-          </p>
-          <p>
-            The winner will be selected and contacted by{' '}
-            <strong className="text-foreground">March 2nd</strong>.
-          </p>
+          <p>{t('giveaway_rules.period_desc1')}</p>
+          <p>{t('giveaway_rules.period_desc2')}</p>
+          <p>{t('giveaway_rules.period_winner')}</p>
         </div>
       </section>
 
       {/* 3. How to Enter */}
       <section className="mb-12">
-        <h2 className="mb-6 text-2xl font-semibold">3. How to Enter</h2>
-
-        <div className="space-y-6">
-          <div>
-            <h3 className="mb-2 text-lg font-semibold">Approved feedback</h3>
-            <p className="mb-3 text-muted-foreground">
-              To enter, you must submit at least one feedback for a course taken
-              during the 2025/2026 academic year.
-            </p>
-            <p className="mb-2 text-muted-foreground">All feedback must:</p>
-            <ul className="ml-6 list-disc space-y-1 text-muted-foreground">
-              <li>Be submitted during the giveaway period</li>
-              <li>
-                Comply with our{' '}
-                <Link
-                  to={getLocalePath('guidelines', lang)}
-                  className="font-medium text-primary hover:underline"
-                >
-                  Feedback Guidelines
-                </Link>
-              </li>
-              <li>Be approved by Uni Feedback before the draw</li>
-            </ul>
-            <p className="mt-3 text-muted-foreground">
-              Feedbacks that are not approved earn 0 entries.
-            </p>
-          </div>
-
-          <div>
-            <h3 className="mb-2 text-lg font-semibold">Existing users</h3>
-            <p className="text-muted-foreground">
-              If you submitted feedback before the giveaway period, those points
-              remain valid where applicable. To activate your points for this
-              giveaway, you must log in to the platform before the giveaway
-              deadline (points will be awarded automatically).
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* 4. Points, Entries & Winner Selection */}
-      <section className="mb-12">
         <h2 className="mb-6 text-2xl font-semibold">
-          4. Points, Entries & Winner Selection
+          {t('giveaway_rules.section_enter')}
         </h2>
 
         <div className="space-y-6">
           <div>
-            <h3 className="mb-2 text-lg font-semibold">Weighted draw</h3>
-            <p className="text-muted-foreground">
-              The winner is selected through a random weighted draw.
+            <h3 className="mb-2 text-lg font-semibold">
+              {t('giveaway_rules.enter_feedback_title')}
+            </h3>
+            <p className="mb-3 text-muted-foreground">
+              {t('giveaway_rules.enter_feedback_desc')}
             </p>
-            <p className="mt-2 font-medium">1 point = 1 entry in the draw</p>
-          </div>
-
-          <div>
-            <h3 className="mb-2 text-lg font-semibold">Points calculation</h3>
             <p className="text-muted-foreground">
-              How points are earned for feedback and referrals is explained on
-              the{' '}
+              {t('giveaway_rules.enter_guidelines_prefix')}
               <Link
-                to={getLocalePath('points', lang)}
+                to={getLocalePath('guidelines', lang)}
                 className="font-medium text-primary hover:underline"
               >
-                Point System Page
+                {t('giveaway_rules.enter_guidelines_link')}
               </Link>
-              .
+              {t('giveaway_rules.enter_guidelines_suffix')}
             </p>
           </div>
 
           <div>
             <h3 className="mb-2 text-lg font-semibold">
-              Giveaway-specific limits
+              {t('giveaway_rules.enter_existing_title')}
             </h3>
-            <p className="mb-2 text-muted-foreground">
-              For this giveaway, we will only consider points earned from:
+            <p className="text-muted-foreground">
+              {t('giveaway_rules.enter_existing_desc')}
             </p>
+          </div>
+        </div>
+      </section>
+
+      {/* 4. Points & Entries */}
+      <section className="mb-12">
+        <h2 className="mb-6 text-2xl font-semibold">
+          {t('giveaway_rules.section_points')}
+        </h2>
+
+        <div className="space-y-6">
+          <p className="font-medium">{t('giveaway_rules.points_intro')}</p>
+
+          <div>
+            <h3 className="mb-2 text-lg font-semibold">
+              {t('giveaway_rules.points_feedback_title')}
+            </h3>
             <ul className="ml-6 list-disc space-y-1 text-muted-foreground">
-              <li>Referrals, and/or</li>
-              <li>
-                Feedback for courses taken during the 2025/2026 academic year
-              </li>
+              {feedbackItems.map((item, i) => (
+                <li key={i}>{item}</li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="mb-2 text-lg font-semibold">
+              {t('giveaway_rules.points_referral_title')}
+            </h3>
+            <p className="text-muted-foreground">
+              {t('giveaway_rules.points_referral_desc')}
+            </p>
+          </div>
+
+          <div>
+            <h3 className="mb-2 text-lg font-semibold">
+              {t('giveaway_rules.points_instagram_title')}
+            </h3>
+            <p className="text-muted-foreground">
+              <Trans
+                i18nKey="giveaway_rules.points_instagram_desc"
+                ns="legal"
+                components={[
+                  <a
+                    href="https://www.instagram.com/unifeedback/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium text-primary hover:underline"
+                  />
+                ]}
+              />
+            </p>
+          </div>
+
+          <div>
+            <h3 className="mb-2 text-lg font-semibold">
+              {t('giveaway_rules.points_quality_title')}
+            </h3>
+            <p className="text-muted-foreground">
+              {t('giveaway_rules.points_quality_desc')}
+            </p>
+          </div>
+
+          <p className="text-muted-foreground">
+            {t('giveaway_rules.points_which_count')}
+          </p>
+
+          <p className="text-muted-foreground">
+            {t('giveaway_rules.points_more_prefix')}
+            <Link
+              to={getLocalePath('points', lang)}
+              className="font-medium text-primary hover:underline"
+            >
+              {t('giveaway_rules.points_more_link')}
+            </Link>
+            .
+          </p>
+        </div>
+      </section>
+
+      {/* 5. Prizes & Winner Selection */}
+      <section className="mb-12">
+        <h2 className="mb-6 text-2xl font-semibold">
+          {t('giveaway_rules.section_prizes')}
+        </h2>
+
+        <div className="space-y-6">
+          <p className="font-medium">{t('giveaway_rules.prizes_desc')}</p>
+
+          <p className="text-muted-foreground">
+            {t('giveaway_rules.prizes_split_intro')}
+          </p>
+
+          <div>
+            <h3 className="mb-2 text-lg font-semibold">
+              {t('giveaway_rules.prizes_draw_title')}
+            </h3>
+            <p className="text-muted-foreground">
+              {t('giveaway_rules.prizes_draw_desc')}
+            </p>
+          </div>
+
+          <div>
+            <h3 className="mb-2 text-lg font-semibold">
+              {t('giveaway_rules.prizes_recruiter_title')}
+            </h3>
+            <p className="text-muted-foreground">
+              {t('giveaway_rules.prizes_recruiter_desc')}
+            </p>
+          </div>
+
+          <div>
+            <h3 className="mb-2 text-lg font-semibold">
+              {t('giveaway_rules.prizes_rules_title')}
+            </h3>
+            <ul className="ml-6 list-disc space-y-1 text-muted-foreground">
+              {drawRuleItems.map((item, i) => (
+                <li key={i}>{item}</li>
+              ))}
             </ul>
           </div>
         </div>
       </section>
 
-      {/* 5. Winner Announcement & Prize */}
+      {/* 6. Winner Announcement & Privacy */}
       <section className="mb-12">
         <h2 className="mb-6 text-2xl font-semibold">
-          5. Winner Announcement & Prize
+          {t('giveaway_rules.section_winner')}
         </h2>
 
         <div className="space-y-6">
           <div>
-            <h3 className="mb-2 text-lg font-semibold">The prize</h3>
+            <h3 className="mb-2 text-lg font-semibold">
+              {t('giveaway_rules.winner_notification_title')}
+            </h3>
             <p className="text-muted-foreground">
-              One (1) NOS Alive Festival – 1-Day Pass for the July 10th 2026.
-            </p>
-            <p className="mt-1 text-muted-foreground">
-              The prize is awarded as is and has no cash alternative.
+              {t('giveaway_rules.winner_notification_desc')}
             </p>
           </div>
 
           <div>
-            <h3 className="mb-2 text-lg font-semibold">Notification</h3>
+            <h3 className="mb-2 text-lg font-semibold">
+              {t('giveaway_rules.winner_announcement_title')}
+            </h3>
             <p className="text-muted-foreground">
-              The winner will be notified via their university email address.
+              {t('giveaway_rules.winner_announcement_desc')}
             </p>
           </div>
 
           <div>
-            <h3 className="mb-2 text-lg font-semibold">Public announcement</h3>
-            <p className="mb-2 text-muted-foreground">
-              For transparency, the winner will be publicly announced as:
-            </p>
+            <h3 className="mb-2 text-lg font-semibold">
+              {t('giveaway_rules.winner_claim_title')}
+            </h3>
             <p className="text-muted-foreground">
-              [First Name] [Last Initial] from [University] (e.g. João M. from
-              IST).
-            </p>
-            <p className="mt-2 text-muted-foreground">
-              All course feedback remains fully anonymous.
-            </p>
-          </div>
-
-          <div>
-            <h3 className="mb-2 text-lg font-semibold">Claim deadline</h3>
-            <p className="text-muted-foreground">
-              The winner must reply to the notification email within 7 days. If
-              the prize is not claimed, a backup winner will be selected.
+              {t('giveaway_rules.winner_claim_desc')}
             </p>
           </div>
         </div>
       </section>
 
-      {/* 6. Anti-Fraud & Disqualification */}
+      {/* 7. Anti-Fraud & Disqualification */}
       <section className="mb-12">
         <h2 className="mb-6 text-2xl font-semibold">
-          6. Anti-Fraud & Disqualification
+          {t('giveaway_rules.section_fraud')}
         </h2>
 
         <div className="space-y-6">
           <div>
-            <h3 className="mb-2 text-lg font-semibold">Content integrity</h3>
+            <h3 className="mb-2 text-lg font-semibold">
+              {t('giveaway_rules.fraud_content_title')}
+            </h3>
             <p className="text-muted-foreground">
-              Plagiarized, AI-generated, low-effort, or spam feedback are not
-              allowed and will receive 0 points.
+              {t('giveaway_rules.fraud_content_desc')}
             </p>
           </div>
 
           <div>
-            <h3 className="mb-2 text-lg font-semibold">Referral abuse</h3>
+            <h3 className="mb-2 text-lg font-semibold">
+              {t('giveaway_rules.fraud_referral_title')}
+            </h3>
             <p className="text-muted-foreground">
-              Self-referrals or any attempt to manipulate the referral system
-              will result in immediate disqualification.
+              {t('giveaway_rules.fraud_referral_desc')}
             </p>
           </div>
 
           <div>
-            <h3 className="mb-2 text-lg font-semibold">Right to review</h3>
+            <h3 className="mb-2 text-lg font-semibold">
+              {t('giveaway_rules.fraud_review_title')}
+            </h3>
             <p className="text-muted-foreground">
-              Uni Feedback reserves the right to review, audit, and disqualify
-              accounts at any point before or after the draw if abuse or rule
-              violations are detected.
+              {t('giveaway_rules.fraud_review_desc')}
             </p>
           </div>
         </div>
       </section>
 
-      {/* 7. Final Notes */}
+      {/* 8. Final Notes */}
       <section className="mb-8">
-        <h2 className="mb-6 text-2xl font-semibold">7. Final Notes</h2>
+        <h2 className="mb-6 text-2xl font-semibold">
+          {t('giveaway_rules.section_final')}
+        </h2>
 
         <div className="space-y-4 text-muted-foreground">
           <p>
-            For information about how your data is handled, please see our{' '}
+            {t('giveaway_rules.final_privacy_prefix')}
             <Link
               to={getLocalePath('privacy', lang)}
               className="font-medium text-primary hover:underline"
             >
-              Privacy Policy
+              {t('giveaway_rules.final_privacy_link')}
             </Link>
             .
           </p>
+          <p>{t('giveaway_rules.final_decisions')}</p>
           <p>
-            All decisions related to feedback approval, point allocation,
-            disqualification, and winner selection are final.
+            <Trans
+              i18nKey="giveaway_rules.final_questions"
+              ns="legal"
+              components={[
+                <a
+                  href="mailto:afonso@uni-feedback.com"
+                  className="font-medium text-primary hover:underline"
+                />
+              ]}
+            />
           </p>
         </div>
       </section>
-
-      {/* Contact CTA */}
-      <div className="border-t pt-8">
-        <p className="text-sm text-muted-foreground">
-          Got questions about the giveaway rules? Email us at{' '}
-          <a
-            href="mailto:help@uni-feedback.com"
-            className="font-medium text-primary hover:underline"
-          >
-            help@uni-feedback.com
-          </a>
-        </p>
-      </div>
-    </div>
-  )
-}
-
-function MarkdownVersion() {
-  return (
-    <div className="mx-auto max-w-2xl">
-      <Markdown
-        className="prose-lg text-muted-foreground"
-        components={{
-          h1: ({ node: _node, ref: _ref, ...props }) => (
-            <h1
-              {...props}
-              className="text-3xl font-semibold text-gray-900 mb-4"
-            />
-          ),
-          h2: ({ node: _node, ref: _ref, ...props }) => (
-            <h2
-              {...props}
-              className="text-2xl font-semibold text-gray-900 mt-10 mb-4"
-            />
-          ),
-          h3: ({ node: _node, ref: _ref, ...props }) => (
-            <h3
-              {...props}
-              className="text-lg font-semibold text-gray-900 mt-5 mb-1"
-            />
-          ),
-          ul: ({ node: _node, ref: _ref, ...props }) => (
-            <ul
-              {...props}
-              className="ml-6 list-disc space-y-1 text-muted-foreground"
-            />
-          ),
-          p: ({ node: _node, ref: _ref, ...props }) => (
-            <p {...props} className="mt-2" />
-          ),
-          hr: () => <hr className="my-8 border-t border-gray-200" />,
-          strong: ({ node: _node, ref: _ref, ...props }) => (
-            <strong {...props} className="text-foreground font-semibold" />
-          )
-        }}
-      >
-        {markdown}
-      </Markdown>
     </div>
   )
 }
@@ -352,27 +360,7 @@ function MarkdownVersion() {
 export default function GiveawayRulesPage() {
   return (
     <div className="container mx-auto px-4 py-16 md:py-18">
-      <MarkdownVersion />
-    </div>
-  )
-  return (
-    <div className="container mx-auto px-4 py-16 md:py-18">
-      <Tabs defaultValue="structured" className="mx-auto max-w-3xl">
-        <div className="mb-8 flex justify-center">
-          <TabsList>
-            <TabsTrigger value="structured">Structured HTML</TabsTrigger>
-            <TabsTrigger value="markdown">Markdown</TabsTrigger>
-          </TabsList>
-        </div>
-
-        <TabsContent value="structured">
-          <StructuredVersion />
-        </TabsContent>
-
-        <TabsContent value="markdown">
-          <MarkdownVersion />
-        </TabsContent>
-      </Tabs>
+      <StructuredVersion />
     </div>
   )
 }

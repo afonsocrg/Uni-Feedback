@@ -254,6 +254,9 @@ export class SubmitFeedback extends OpenAPIRoute {
 
       // 4. Check for referral bonus (awarded on first feedback submission)
       await pointService.checkAndAwardReferralPoints(userId)
+
+      // 5. Reconcile the perfect-feedback giveaway bonus
+      await pointService.reconcilePerfectFeedbackBonus(userId)
     } catch (pointError) {
       console.error(
         'Failed to award points for feedback:',

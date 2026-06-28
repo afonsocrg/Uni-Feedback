@@ -1,6 +1,7 @@
 import { PenSquare, Users } from 'lucide-react'
 import { Trans, useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
+import { InfoPopover } from '~/components/common'
 import { useLang } from '~/hooks'
 import { analytics, getPageName } from '~/utils/analytics'
 import {
@@ -48,9 +49,6 @@ export default function PointsPage() {
   }
 
   const giveFeedbackPoints = t('points.give_feedback_points', {
-    returnObjects: true
-  }) as string[]
-  const invitePoints = t('points.invite_points', {
     returnObjects: true
   }) as string[]
 
@@ -136,12 +134,7 @@ export default function PointsPage() {
                 </h3>
               </div>
               <p className="text-muted-foreground">{t('points.invite_desc')}</p>
-              <ul className="mt-2 ml-4 list-disc space-y-1 text-muted-foreground mb-3">
-                {invitePoints.map((point, i) => (
-                  <li key={i}>{point}</li>
-                ))}
-              </ul>
-              <p className="text-muted-foreground">
+              <p className="text-muted-foreground mt-2">
                 <Trans
                   i18nKey="points.invite_from_profile"
                   ns="legal"
@@ -169,6 +162,78 @@ export default function PointsPage() {
                 ]}
               />
             </p>
+          </div>
+        </section>
+
+        {/* Giveaway Bonus Points (time-limited) */}
+        <section className="mb-16">
+          <div className="rounded-2xl border border-primary/20 bg-primary/5 p-6 md:p-8">
+            <div className="mb-4 flex items-center gap-3">
+              <span className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary">
+                {t('points.giveaway_bonus_badge')}
+              </span>
+            </div>
+            <h2 className="mb-2 text-2xl font-semibold">
+              {t('points.giveaway_bonus_title')}
+            </h2>
+            <p className="mb-6 text-muted-foreground">
+              <Trans
+                i18nKey="points.giveaway_bonus_desc"
+                ns="legal"
+                components={[
+                  <Link
+                    to={getLocalePath('giveaway', lang)}
+                    className="font-medium text-primary hover:underline"
+                  />
+                ]}
+              />
+            </p>
+
+            <div className="grid gap-6 sm:grid-cols-2">
+              <div>
+                <p className="flex items-center gap-1.5 font-medium">
+                  <span>
+                    {t('points.giveaway_bonus_instagram_label')}{' '}
+                    <span className="text-primary">
+                      {t('points.giveaway_bonus_instagram_value')}
+                    </span>
+                  </span>
+                  <InfoPopover
+                    content={t('points.giveaway_bonus_instagram_privacy')}
+                    label={t('points.giveaway_bonus_instagram_privacy')}
+                  />
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  <Trans
+                    i18nKey="points.giveaway_bonus_instagram_desc"
+                    ns="legal"
+                    components={[
+                      <a
+                        href="https://www.instagram.com/unifeedback/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-medium text-foreground underline hover:text-primary"
+                      />,
+                      <Link
+                        to={getLocalePath('profile', lang)}
+                        className="font-medium text-foreground underline hover:text-primary"
+                      />
+                    ]}
+                  />
+                </p>
+              </div>
+              <div>
+                <p className="font-medium">
+                  {t('points.giveaway_bonus_quality_label')}{' '}
+                  <span className="text-primary">
+                    {t('points.giveaway_bonus_quality_value')}
+                  </span>
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {t('points.giveaway_bonus_quality_desc')}
+                </p>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -208,7 +273,7 @@ export default function PointsPage() {
               ns="legal"
               components={[
                 <a
-                  href="mailto:help@uni-feedback.com"
+                  href="mailto:afonso@uni-feedback.com"
                   className="font-medium text-primary hover:underline"
                 />
               ]}
