@@ -84,7 +84,7 @@ export function HeroSearchBar() {
   return (
     <div
       ref={containerRef}
-      className="relative z-10 w-full max-w-2xl mx-auto text-left"
+      className="relative z-30 w-full max-w-2xl mx-auto text-left"
     >
       <div className="relative flex items-center">
         <Search className="absolute left-4 size-5 text-muted-foreground pointer-events-none" />
