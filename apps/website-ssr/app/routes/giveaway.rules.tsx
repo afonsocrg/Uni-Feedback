@@ -1,16 +1,44 @@
 import { Trans, useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { useLang } from '~/hooks'
-import { getLocalePath } from '~/utils/i18n-routes'
+import { i18n } from '~/i18n/config'
+import { detectLang, getLocalePath } from '~/utils/i18n-routes'
+import { getRequestOrigin } from '~/utils/request'
 
-export function meta() {
+import type { Route } from './+types/giveaway.rules'
+
+export function loader({ request }: Route.LoaderArgs) {
+  const origin = getRequestOrigin(request)
+  const lang = detectLang(new URL(request.url).pathname)
+  return { origin, lang }
+}
+
+export function meta({ loaderData }: Route.MetaArgs) {
+  const { origin, lang } = loaderData
+  const t = i18n.getFixedT(lang, 'legal')
+
+  const title = t('giveaway_rules.meta_title')
+  const description = t('giveaway_rules.meta_desc')
+  const imageUrl = `${origin}/giveaway/og-${lang}.png`
+
   return [
-    { title: 'Summer 2026 Giveaway Rules | Uni Feedback' },
-    {
-      name: 'description',
-      content:
-        'Official rules for the Uni Feedback Summer 2026 Giveaway. Learn about eligibility, how to enter, points and prizes.'
-    }
+    { title },
+    { name: 'description', content: description },
+
+    // Open Graph tags
+    { property: 'og:title', content: title },
+    { property: 'og:description', content: description },
+    { property: 'og:type', content: 'website' },
+    { property: 'og:url', content: `${origin}/giveaway/rules` },
+    { property: 'og:image', content: imageUrl },
+    { property: 'og:image:width', content: '1200' },
+    { property: 'og:image:height', content: '630' },
+
+    // Twitter Card tags
+    { name: 'twitter:card', content: 'summary_large_image' },
+    { name: 'twitter:title', content: title },
+    { name: 'twitter:description', content: description },
+    { name: 'twitter:image', content: imageUrl }
   ]
 }
 
