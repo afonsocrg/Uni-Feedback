@@ -1,6 +1,7 @@
 import { database } from '@uni-feedback/db'
 import { useTranslation } from 'react-i18next'
 import { getAssetUrl } from '~/utils'
+import { buildMeta } from '~/utils/meta'
 import type { Route } from './+types/supporters'
 
 export async function loader() {
@@ -21,14 +22,11 @@ export async function loader() {
 }
 
 export function meta() {
-  return [
-    { title: 'Our Supporters | Uni Feedback' },
-    {
-      name: 'description',
-      content:
-        'Student clubs and unions that have joined Uni Feedback to help build a better academic community'
-    }
-  ]
+  return buildMeta({
+    title: 'Our Supporters | Uni Feedback',
+    description:
+      'Student clubs and unions that have joined Uni Feedback to help build a better academic community'
+  })
 }
 
 export default function SupportersPage({ loaderData }: Route.ComponentProps) {

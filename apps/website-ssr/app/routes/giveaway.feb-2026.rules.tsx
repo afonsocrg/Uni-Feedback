@@ -1,15 +1,13 @@
 import { Markdown } from '@uni-feedback/ui'
+import { buildMeta } from '~/utils/meta'
 import { markdown } from '../../../../legal/giveaway_rules_feb_2026.md'
 
 export function meta() {
-  return [
-    { title: 'Giveaway Rules (Feb 2026) | Uni Feedback' },
-    {
-      name: 'description',
-      content:
-        'Official rules for the February 2026 Uni Feedback giveaway (NOS Alive 2026). Archived for reference.'
-    }
-  ]
+  return buildMeta({
+    title: 'Giveaway Rules (Feb 2026) | Uni Feedback',
+    description:
+      'Official rules for the February 2026 Uni Feedback giveaway (NOS Alive 2026). Archived for reference.'
+  })
 }
 
 export default function GiveawayFeb2026RulesPage() {

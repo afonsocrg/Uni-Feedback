@@ -6,16 +6,17 @@ import { FacultyPageContent } from '~/components'
 import { userPreferences } from '~/utils'
 
 import { getDegreePath, getFacultyPath } from '~/utils/i18n-routes'
+import { buildMeta } from '~/utils/meta'
 import { getRequestOrigin } from '~/utils/request'
 
 import type { Route } from './+types/$facultySlug'
 
 export function meta({ loaderData }: Route.MetaArgs) {
   if (!loaderData.faculty) {
-    return [
-      { title: 'Faculty Not Found - Uni Feedback' },
-      { name: 'description', content: 'The requested faculty was not found.' }
-    ]
+    return buildMeta({
+      title: 'Faculty Not Found - Uni Feedback',
+      description: 'The requested faculty was not found.'
+    })
   }
 
   const { faculty, degrees, origin } = loaderData
@@ -72,37 +73,23 @@ export function meta({ loaderData }: Route.MetaArgs) {
     })
   }
 
-  return [
-    { title },
-    { name: 'description', content: description },
-
-    // Open Graph tags
-    { property: 'og:title', content: title },
-    { property: 'og:description', content: description },
-    { property: 'og:type', content: 'website' },
-
-    // Twitter Card tags
-    { name: 'twitter:card', content: 'summary' },
-    { name: 'twitter:title', content: title },
-    { name: 'twitter:description', content: description },
-
-    // Keywords for SEO
-    {
-      name: 'keywords',
-      content: [
-        faculty.name,
-        faculty.shortName,
-        'degrees',
-        'course reviews',
-        'student feedback',
-        ...degrees.map((d) => d.name),
-        ...degrees.map((d) => d.acronym)
-      ].join(', ')
-    },
-
-    // Schema.org structured data
-    { 'script:ld+json': structuredData }
-  ]
+  return buildMeta({
+    title,
+    description,
+    url: faculty.slug
+      ? `${origin}${getFacultyPath('pt', faculty.slug)}`
+      : undefined,
+    keywords: [
+      faculty.name,
+      faculty.shortName,
+      'degrees',
+      'course reviews',
+      'student feedback',
+      ...degrees.map((d) => d.name),
+      ...degrees.map((d) => d.acronym)
+    ].filter((k): k is string => Boolean(k)),
+    structuredData
+  })
 }
 
 export async function loader({ params, request }: Route.LoaderArgs) {

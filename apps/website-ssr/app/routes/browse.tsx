@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router'
 import { BrowsePageLayout, FacultySelector } from '~/components'
 import { userPreferences } from '~/utils'
+import { buildMeta } from '~/utils/meta'
 import { getRequestOrigin } from '~/utils/request'
 
 import type { Route } from './+types/browse'
@@ -49,36 +50,19 @@ export function meta({ loaderData }: Route.MetaArgs) {
       }
     : null
 
-  return [
-    { title },
-    { name: 'description', content: description },
-
-    // Open Graph tags
-    { property: 'og:title', content: title },
-    { property: 'og:description', content: description },
-    { property: 'og:type', content: 'website' },
-
-    // Twitter Card tags
-    { name: 'twitter:card', content: 'summary' },
-    { name: 'twitter:title', content: title },
-    { name: 'twitter:description', content: description },
-
-    // Keywords for SEO
-    {
-      name: 'keywords',
-      content: [
-        'university reviews',
-        'portuguese universities',
-        'student feedback',
-        'course reviews',
-        'university comparison',
-        ...(loaderData?.faculties?.map((f) => f.name) || [])
-      ].join(', ')
-    },
-
-    // Schema.org structured data
-    ...(structuredData ? [{ 'script:ld+json': structuredData }] : [])
-  ]
+  return buildMeta({
+    title,
+    description,
+    keywords: [
+      'university reviews',
+      'portuguese universities',
+      'student feedback',
+      'course reviews',
+      'university comparison',
+      ...(loaderData?.faculties?.map((f) => f.name) || [])
+    ],
+    structuredData: structuredData ?? undefined
+  })
 }
 
 export async function loader({ request }: { request: Request }) {

@@ -3,16 +3,17 @@ import { desc, eq, sql } from 'drizzle-orm'
 import { CourseDetailContent } from '~/components'
 import { getCurrentUserId } from '~/lib/auth.server'
 import { getCoursePath } from '~/utils/i18n-routes'
+import { buildMeta } from '~/utils/meta'
 import { getRequestOrigin } from '~/utils/request'
 
 import type { Route } from './+types/courses.$courseId'
 
 export function meta({ loaderData }: Route.MetaArgs) {
   if (!loaderData.course) {
-    return [
-      { title: 'Course Not Found - Uni Feedback' },
-      { name: 'description', content: 'The requested course was not found.' }
-    ]
+    return buildMeta({
+      title: 'Course Not Found - Uni Feedback',
+      description: 'The requested course was not found.'
+    })
   }
 
   const { course, feedback, origin } = loaderData
@@ -95,40 +96,22 @@ export function meta({ loaderData }: Route.MetaArgs) {
     })
   }
 
-  return [
-    { title },
-    { name: 'description', content: description },
-
-    // Open Graph tags for social media
-    { property: 'og:title', content: title },
-    { property: 'og:description', content: description },
-    { property: 'og:type', content: 'website' },
-
-    // Twitter Card tags
-    { name: 'twitter:card', content: 'summary' },
-    { name: 'twitter:title', content: title },
-    { name: 'twitter:description', content: description },
-
-    // Keywords for SEO
-    {
-      name: 'keywords',
-      content: [
-        course.name,
-        course.acronym,
-        course.degree?.name,
-        course.faculty?.name,
-        'course reviews',
-        'student feedback',
-        'university reviews',
-        'course ratings'
-      ]
-        .filter(Boolean)
-        .join(', ')
-    },
-
-    // Schema.org structured data
-    { 'script:ld+json': structuredData }
-  ]
+  return buildMeta({
+    title,
+    description,
+    url: `${origin}${getCoursePath('pt', course.id)}`,
+    keywords: [
+      course.name,
+      course.acronym,
+      course.degree?.name,
+      course.faculty?.name,
+      'course reviews',
+      'student feedback',
+      'university reviews',
+      'course ratings'
+    ].filter((k): k is string => Boolean(k)),
+    structuredData
+  })
 }
 
 export async function loader({ params, request }: Route.LoaderArgs) {

@@ -6,16 +6,17 @@ import { DegreePageContent } from '~/components'
 import { userPreferences } from '~/utils'
 
 import { getCoursePath, getDegreePath } from '~/utils/i18n-routes'
+import { buildMeta } from '~/utils/meta'
 import { getRequestOrigin } from '~/utils/request'
 
 import type { Route } from './+types/$facultySlug.$degreeSlug'
 
 export function meta({ loaderData }: Route.MetaArgs) {
   if (!loaderData.faculty || !loaderData.degree) {
-    return [
-      { title: 'Page Not Found - Uni Feedback' },
-      { name: 'description', content: 'The requested page was not found.' }
-    ]
+    return buildMeta({
+      title: 'Page Not Found - Uni Feedback',
+      description: 'The requested page was not found.'
+    })
   }
 
   const { faculty, degree, courses, origin } = loaderData
@@ -95,39 +96,26 @@ export function meta({ loaderData }: Route.MetaArgs) {
     })
   }
 
-  return [
-    { title },
-    { name: 'description', content: description },
-
-    // Open Graph tags
-    { property: 'og:title', content: title },
-    { property: 'og:description', content: description },
-    { property: 'og:type', content: 'website' },
-
-    // Twitter Card tags
-    { name: 'twitter:card', content: 'summary' },
-    { name: 'twitter:title', content: title },
-    { name: 'twitter:description', content: description },
-
-    // Keywords for SEO
-    {
-      name: 'keywords',
-      content: [
-        degree.name,
-        degree.acronym,
-        faculty.name,
-        faculty.shortName,
-        'course reviews',
-        'student feedback',
-        'university courses',
-        ...courses.map((c) => c.name),
-        ...courses.map((c) => c.acronym)
-      ].join(', ')
-    },
-
-    // Schema.org structured data
-    { 'script:ld+json': structuredData }
-  ]
+  return buildMeta({
+    title,
+    description,
+    url:
+      faculty.slug && degree.slug
+        ? `${origin}${getDegreePath('pt', faculty.slug, degree.slug)}`
+        : undefined,
+    keywords: [
+      degree.name,
+      degree.acronym,
+      faculty.name,
+      faculty.shortName,
+      'course reviews',
+      'student feedback',
+      'university courses',
+      ...courses.map((c) => c.name),
+      ...courses.map((c) => c.acronym)
+    ].filter((k): k is string => Boolean(k)),
+    structuredData
+  })
 }
 
 export async function loader({ params, request }: Route.LoaderArgs) {

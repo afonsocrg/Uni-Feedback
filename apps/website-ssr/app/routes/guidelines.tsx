@@ -3,16 +3,14 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { useLang } from '~/hooks'
 import { getLocalePath, getReviewPath } from '~/utils/i18n-routes'
+import { buildMeta } from '~/utils/meta'
 
 export function meta() {
-  return [
-    { title: 'How to Write Great Feedback | Uni Feedback' },
-    {
-      name: 'description',
-      content:
-        'Learn how to write helpful, honest course reviews that actually help other students make better decisions.'
-    }
-  ]
+  return buildMeta({
+    title: 'How to Write Great Feedback | Uni Feedback',
+    description:
+      'Learn how to write helpful, honest course reviews that actually help other students make better decisions.'
+  })
 }
 
 export default function GuidelinesPage() {

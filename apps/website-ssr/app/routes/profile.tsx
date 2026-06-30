@@ -55,15 +55,13 @@ import {
 import { analytics, getPageName } from '~/utils/analytics'
 import { STORAGE_KEYS } from '~/utils/constants'
 import { getLocalePath, getReviewPath } from '~/utils/i18n-routes'
+import { buildMeta } from '~/utils/meta'
 
 export function meta() {
-  return [
-    { title: 'Profile - Uni Feedback' },
-    {
-      name: 'description',
-      content: 'Manage your Uni Feedback account and preferences.'
-    }
-  ]
+  return buildMeta({
+    title: 'Profile - Uni Feedback',
+    description: 'Manage your Uni Feedback account and preferences.'
+  })
 }
 
 type DeleteAccountFormData = {

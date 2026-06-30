@@ -31,6 +31,7 @@ import {
   getFeedbackEditPath,
   getReviewPath
 } from '~/utils/i18n-routes'
+import { buildMeta } from '~/utils/meta'
 
 import type { Route } from './+types/course.$courseId.feedback'
 
@@ -49,30 +50,25 @@ export type FeedbackFormData = z.infer<typeof feedbackSchema>
 
 export function meta({ loaderData }: Route.MetaArgs) {
   if (!loaderData.course) {
-    return [
-      { title: 'Course Not Found - Uni Feedback' },
-      { name: 'description', content: 'The requested course was not found.' },
+    return buildMeta({
+      title: 'Course Not Found - Uni Feedback',
+      description: 'The requested course was not found.',
       // Thin submission form: keep out of the index, but follow links so
       // equity flows to the course detail page.
-      { name: 'robots', content: 'noindex, follow' }
-    ]
+      robots: 'noindex, follow'
+    })
   }
 
   const { course } = loaderData
-  const title = `Give Feedback for ${course.name} - Uni Feedback`
-  const description = `Share your experience with ${course.name} (${course.acronym}) at ${course.degree?.faculty?.shortName ?? ''}. Your anonymous feedback helps fellow students make informed decisions.`
 
-  return [
-    { title },
-    { name: 'description', content: description },
-    { property: 'og:title', content: title },
-    { property: 'og:description', content: description },
-    { property: 'og:type', content: 'website' },
+  return buildMeta({
+    title: `Give Feedback for ${course.name} - Uni Feedback`,
+    description: `Share your experience with ${course.name} (${course.acronym}) at ${course.degree?.faculty?.shortName ?? ''}. Your anonymous feedback helps fellow students make informed decisions.`,
     // Thin submission form (near-identical across courses): keep out of the
     // index to avoid duplicate/doorway signals and cannibalizing the
     // content-rich course detail page. `follow` preserves link equity.
-    { name: 'robots', content: 'noindex, follow' }
-  ]
+    robots: 'noindex, follow'
+  })
 }
 
 export async function loader({ params, request }: Route.LoaderArgs) {

@@ -9,16 +9,14 @@ import {
   type FeedbackCategoryKey
 } from '~/utils/constants'
 import { getLocalePath, getReviewPath } from '~/utils/i18n-routes'
+import { buildMeta } from '~/utils/meta'
 
 export function meta() {
-  return [
-    { title: 'How Points Work | Uni Feedback' },
-    {
-      name: 'description',
-      content:
-        'Learn how to earn Uni Feedback Points by sharing course reviews and inviting friends.'
-    }
-  ]
+  return buildMeta({
+    title: 'How Points Work | Uni Feedback',
+    description:
+      'Learn how to earn Uni Feedback Points by sharing course reviews and inviting friends.'
+  })
 }
 
 export default function PointsPage() {

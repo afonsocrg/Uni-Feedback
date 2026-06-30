@@ -5,6 +5,7 @@ import { CourseBrowser } from '~/components'
 import { useAuth, useLang } from '~/hooks'
 import { analytics } from '~/utils/analytics'
 import { getCourseFeedbackPath } from '~/utils/i18n-routes'
+import { buildMeta } from '~/utils/meta'
 import { storage } from '~/utils/storage'
 
 import type { Route } from './+types/feedback.new'
@@ -20,13 +21,10 @@ export type FeedbackFormData = {
 }
 
 export function meta() {
-  return [
-    { title: 'Find Your Course - Uni Feedback' },
-    {
-      name: 'description',
-      content: 'Search and select a course to leave feedback'
-    }
-  ]
+  return buildMeta({
+    title: 'Find Your Course - Uni Feedback',
+    description: 'Search and select a course to leave feedback'
+  })
 }
 
 // Server loader: fetch faculties (SSR)

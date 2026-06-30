@@ -1,14 +1,12 @@
 import { Mail } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { buildMeta } from '~/utils/meta'
 
 export function meta() {
-  return [
-    { title: 'Contact | Uni Feedback' },
-    {
-      name: 'description',
-      content: 'Get in touch with the Uni Feedback team'
-    }
-  ]
+  return buildMeta({
+    title: 'Contact | Uni Feedback',
+    description: 'Get in touch with the Uni Feedback team'
+  })
 }
 
 export default function ContactPage() {

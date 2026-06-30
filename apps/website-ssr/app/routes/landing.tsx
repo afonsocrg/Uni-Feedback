@@ -16,18 +16,16 @@ import {
   TestimonialsSection,
   TrustSection
 } from '~/components'
+import { buildMeta } from '~/utils/meta'
 
 import type { Route } from './+types/landing'
 
 export function meta() {
-  return [
-    { title: 'Uni Feedback' },
-    {
-      name: 'description',
-      content:
-        'Honest, anonymous student feedback to help you find the right courses.'
-    }
-  ]
+  return buildMeta({
+    title: 'Uni Feedback',
+    description:
+      'Honest, anonymous student feedback to help you find the right courses.'
+  })
 }
 
 export async function loader() {
