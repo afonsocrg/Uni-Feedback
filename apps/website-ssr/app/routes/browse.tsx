@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router'
 import { BrowsePageLayout, FacultySelector } from '~/components'
 import { userPreferences } from '~/utils'
-import { buildMeta } from '~/utils/meta'
+import { buildMeta, metaT } from '~/utils/meta'
 import { getRequestOrigin } from '~/utils/request'
 
 import type { Route } from './+types/browse'
@@ -13,8 +13,8 @@ import type { Route } from './+types/browse'
 const ADD_COURSE_FORM_URL =
   'https://docs.google.com/forms/d/e/1FAIpQLSd2FBk_hbv6v0iW-y8wtY6DL-fDIE_GlyA8rSkamSJJfCjCFQ/viewform'
 
-export function meta({ loaderData }: Route.MetaArgs) {
-  const title = 'Browse Universities - Uni Feedback'
+export function meta({ loaderData, location }: Route.MetaArgs) {
+  const t = metaT(location, 'browse')
 
   // Build description with available faculties
   const { origin } = loaderData
@@ -23,11 +23,13 @@ export function meta({ loaderData }: Route.MetaArgs) {
     .slice(0, 5) // First 5 faculties
     .join(', ')
 
-  let description =
-    'Choose your university to explore degrees and courses with honest, anonymous student reviews.'
+  let description = t('meta.description')
 
   if (facultyNames) {
-    description += ` Available universities: ${facultyNames}${loaderData.faculties.length > 5 ? ', and more' : ''}.`
+    description += t('meta.universities_suffix', {
+      names: facultyNames,
+      more: loaderData.faculties.length > 5 ? t('meta.and_more') : ''
+    })
   }
 
   // Schema.org ItemList for faculties
@@ -51,7 +53,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
     : null
 
   return buildMeta({
-    title,
+    title: t('meta.title'),
     description,
     keywords: [
       'university reviews',

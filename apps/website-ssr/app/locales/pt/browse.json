@@ -1,7 +1,9 @@
 {
   "meta": {
     "title": "Explorar Faculdades - Uni Feedback",
-    "description": "Encontra feedback anónimo de alunos sobre cadeiras, professores, exames e carga de trabalho."
+    "description": "Encontra feedback anónimo de alunos sobre cadeiras, professores, exames e carga de trabalho.",
+    "universities_suffix": " Universidades disponíveis: {{names}}{{more}}.",
+    "and_more": ", e mais"
   },
   "page": {
     "title": "Escolhe a tua faculdade",

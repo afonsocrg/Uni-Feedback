@@ -1,4 +1,7 @@
-import type { MetaDescriptor } from 'react-router'
+import type { Namespace, TFunction } from 'i18next'
+import type { Location, MetaDescriptor } from 'react-router'
+import { i18n } from '~/i18n/config'
+import { detectLang } from '~/utils/i18n-routes'
 
 /**
  * Centralized SEO / social metadata.
@@ -10,6 +13,21 @@ import type { MetaDescriptor } from 'react-router'
  * needs. This keeps tags like `og:site_name` present on every page.
  */
 export const SITE_NAME = 'Uni Feedback'
+
+/**
+ * Fixed-language `t` for use inside a route's `meta` export.
+ *
+ * `meta` runs outside React, so the `useTranslation` hook isn't available.
+ * The language is derived from the URL (same rule as the rest of the app),
+ * and `getFixedT` reads that language explicitly rather than depending on the
+ * shared instance's current state — correct regardless of render timing.
+ */
+export function metaT<Ns extends Namespace>(
+  location: Pick<Location, 'pathname'>,
+  ns: Ns
+): TFunction<Ns> {
+  return i18n.getFixedT(detectLang(location.pathname), ns)
+}
 
 interface MetaImage {
   url: string

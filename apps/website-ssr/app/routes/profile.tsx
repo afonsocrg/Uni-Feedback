@@ -55,12 +55,14 @@ import {
 import { analytics, getPageName } from '~/utils/analytics'
 import { STORAGE_KEYS } from '~/utils/constants'
 import { getLocalePath, getReviewPath } from '~/utils/i18n-routes'
-import { buildMeta } from '~/utils/meta'
+import { buildMeta, metaT } from '~/utils/meta'
+import type { Route } from './+types/profile'
 
-export function meta() {
+export function meta({ location }: Route.MetaArgs) {
+  const t = metaT(location, 'feedback')
   return buildMeta({
-    title: 'Profile - Uni Feedback',
-    description: 'Manage your Uni Feedback account and preferences.'
+    title: t('profile.meta_title'),
+    description: t('profile.meta_desc')
   })
 }
 

@@ -1,12 +1,13 @@
 import { Markdown } from '@uni-feedback/ui'
-import { buildMeta } from '~/utils/meta'
+import { buildMeta, metaT } from '~/utils/meta'
 import { markdown } from '../../../../legal/giveaway_rules_feb_2026.md'
+import type { Route } from './+types/giveaway.feb-2026.rules'
 
-export function meta() {
+export function meta({ location }: Route.MetaArgs) {
+  const t = metaT(location, 'legal')
   return buildMeta({
-    title: 'Giveaway Rules (Feb 2026) | Uni Feedback',
-    description:
-      'Official rules for the February 2026 Uni Feedback giveaway (NOS Alive 2026). Archived for reference.'
+    title: t('giveaway_recap.rules_meta_title'),
+    description: t('giveaway_recap.rules_meta_desc')
   })
 }
 

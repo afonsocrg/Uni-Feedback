@@ -5,13 +5,14 @@ import {
   GiveawayRecapThankYou,
   GiveawayRecapWinner
 } from '~/components/giveaway'
-import { buildMeta } from '~/utils/meta'
+import { buildMeta, metaT } from '~/utils/meta'
+import type { Route } from './+types/giveaway.feb-2026'
 
-export function meta() {
+export function meta({ location }: Route.MetaArgs) {
+  const t = metaT(location, 'legal')
   return buildMeta({
-    title: 'Giveaway Recap (Feb 2026) - Thank You! | Uni Feedback',
-    description:
-      'Thank you to everyone who participated in the February 2026 Uni Feedback giveaway (NOS Alive 2026)! See what we accomplished together.'
+    title: t('giveaway_recap.meta_title'),
+    description: t('giveaway_recap.meta_desc')
   })
 }
 

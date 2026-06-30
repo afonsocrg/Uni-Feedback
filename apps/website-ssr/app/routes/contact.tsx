@@ -1,11 +1,13 @@
 import { Mail } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { buildMeta } from '~/utils/meta'
+import { buildMeta, metaT } from '~/utils/meta'
+import type { Route } from './+types/contact'
 
-export function meta() {
+export function meta({ location }: Route.MetaArgs) {
+  const t = metaT(location, 'legal')
   return buildMeta({
-    title: 'Contact | Uni Feedback',
-    description: 'Get in touch with the Uni Feedback team'
+    title: t('contact.meta_title'),
+    description: t('contact.meta_desc')
   })
 }
 

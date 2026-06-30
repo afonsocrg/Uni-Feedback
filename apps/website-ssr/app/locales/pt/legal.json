@@ -1,12 +1,14 @@
 {
   "contact": {
     "meta_title": "Contacto - Uni Feedback",
+    "meta_desc": "Entra em contacto com a equipa do Uni Feedback",
     "title": "Entra em Contacto",
     "desc": "Encontraste algum bug, ou queres dar uma sugestão? Envia-me um email para afonso@uni-feedback.com. Respondo sempre que consigo.",
     "email_btn": "Envia-me um Email"
   },
   "supporters": {
     "meta_title": "Os Nossos Apoiantes - Uni Feedback",
+    "meta_desc": "Clubes e associações de alunos que se juntaram ao Uni Feedback para ajudar a construir uma comunidade académica melhor",
     "page_title": "Os Nossos Apoiantes",
     "subtitle": "Clubes e associações de alunos que se juntaram ao Uni Feedback para ajudar a construir uma comunidade académica melhor",
     "section_title": "Os Nossos Apoiantes",
@@ -202,6 +204,10 @@
     "cta_button": "Dá Feedback"
   },
   "giveaway_recap": {
+    "meta_title": "Resumo do Giveaway (Fev 2026) - Obrigado! | Uni Feedback",
+    "meta_desc": "Obrigado a todos os que participaram no giveaway de fevereiro de 2026 do Uni Feedback (NOS Alive 2026)! Vê o que alcançámos juntos.",
+    "rules_meta_title": "Regulamento do Giveaway (Fev 2026) | Uni Feedback",
+    "rules_meta_desc": "Regulamento oficial do giveaway de fevereiro de 2026 do Uni Feedback (NOS Alive 2026). Arquivado para referência.",
     "hero_title": "Resumo do Giveaway de Fevereiro 2026",
     "hero_subtitle": "O giveaway terminou a 27 de fevereiro. Aqui está o que conseguimos juntos",
     "stats_title": "Juntos recolhemos:",

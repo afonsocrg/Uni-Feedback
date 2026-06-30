@@ -1,7 +1,9 @@
 {
   "meta": {
     "title": "Browse Universities - Uni Feedback",
-    "description": "Choose your university to explore degrees and courses with honest, anonymous student reviews."
+    "description": "Choose your university to explore degrees and courses with honest, anonymous student reviews.",
+    "universities_suffix": " Available universities: {{names}}{{more}}.",
+    "and_more": ", and more"
   },
   "page": {
     "title": "Select Your University",

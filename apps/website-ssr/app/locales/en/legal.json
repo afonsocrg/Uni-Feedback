@@ -1,12 +1,14 @@
 {
   "contact": {
     "meta_title": "Contact - Uni Feedback",
+    "meta_desc": "Get in touch with the Uni Feedback team",
     "title": "Get in touch",
     "desc": "Found a bug? Have an idea for a new feature? Or just want to say hi and share how Uni Feedback has helped you? Drop me an email at afonso@uni-feedback.com! I read every email and reply as soon as I can.",
     "email_btn": "Email me"
   },
   "supporters": {
     "meta_title": "Our Supporters - Uni Feedback",
+    "meta_desc": "Student clubs and unions that have joined Uni Feedback to help build a better academic community",
     "page_title": "Our Supporters",
     "subtitle": "Student clubs and unions that have joined Uni Feedback to help build a better academic community",
     "section_title": "Our Supporters",
@@ -202,6 +204,10 @@
     "cta_button": "Give Feedback"
   },
   "giveaway_recap": {
+    "meta_title": "Giveaway Recap (Feb 2026) - Thank You! | Uni Feedback",
+    "meta_desc": "Thank you to everyone who participated in the February 2026 Uni Feedback giveaway (NOS Alive 2026)! See what we accomplished together.",
+    "rules_meta_title": "Giveaway Rules (Feb 2026) | Uni Feedback",
+    "rules_meta_desc": "Official rules for the February 2026 Uni Feedback giveaway (NOS Alive 2026). Archived for reference.",
     "hero_title": "February 2026 Giveaway Recap",
     "hero_subtitle": "The giveaway ended on February 27th. Here's what we accomplished",
     "stats_title": "Together we collected:",

@@ -16,15 +16,15 @@ import {
   TestimonialsSection,
   TrustSection
 } from '~/components'
-import { buildMeta } from '~/utils/meta'
+import { buildMeta, metaT } from '~/utils/meta'
 
 import type { Route } from './+types/landing'
 
-export function meta() {
+export function meta({ location }: Route.MetaArgs) {
+  const t = metaT(location, 'landing')
   return buildMeta({
-    title: 'Uni Feedback',
-    description:
-      'Honest, anonymous student feedback to help you find the right courses.'
+    title: t('meta_title'),
+    description: t('meta_desc')
   })
 }
 

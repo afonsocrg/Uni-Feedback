@@ -5,7 +5,7 @@ import { CourseBrowser } from '~/components'
 import { useAuth, useLang } from '~/hooks'
 import { analytics } from '~/utils/analytics'
 import { getCourseFeedbackPath } from '~/utils/i18n-routes'
-import { buildMeta } from '~/utils/meta'
+import { buildMeta, metaT } from '~/utils/meta'
 import { storage } from '~/utils/storage'
 
 import type { Route } from './+types/feedback.new'
@@ -20,10 +20,11 @@ export type FeedbackFormData = {
   comment?: string
 }
 
-export function meta() {
+export function meta({ location }: Route.MetaArgs) {
+  const t = metaT(location, 'feedback')
   return buildMeta({
-    title: 'Find Your Course - Uni Feedback',
-    description: 'Search and select a course to leave feedback'
+    title: t('new.meta_title'),
+    description: t('new.meta_desc')
   })
 }
 

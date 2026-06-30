@@ -9,13 +9,14 @@ import {
   type FeedbackCategoryKey
 } from '~/utils/constants'
 import { getLocalePath, getReviewPath } from '~/utils/i18n-routes'
-import { buildMeta } from '~/utils/meta'
+import { buildMeta, metaT } from '~/utils/meta'
+import type { Route } from './+types/points'
 
-export function meta() {
+export function meta({ location }: Route.MetaArgs) {
+  const t = metaT(location, 'legal')
   return buildMeta({
-    title: 'How Points Work | Uni Feedback',
-    description:
-      'Learn how to earn Uni Feedback Points by sharing course reviews and inviting friends.'
+    title: t('points.meta_title'),
+    description: t('points.meta_desc')
   })
 }
 
