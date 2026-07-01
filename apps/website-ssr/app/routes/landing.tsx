@@ -178,9 +178,9 @@ export default function LandingPage({ loaderData }: Route.ComponentProps) {
     <>
       <HeroSection stats={stats} />
       {/* <UniversitiesStrip faculties={faculties} /> */}
+      <SupportersSection studentClubs={studentClubs} />
       <GiveawayPromoSection />
       <LiveFeedSection feedbacks={recentFeedbacks} />
-      <SupportersSection studentClubs={studentClubs} />
       <ContributeStrip />
       <TrustSection />
       <BrowseSection faculties={faculties} degrees={degrees} />
