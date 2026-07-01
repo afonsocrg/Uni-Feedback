@@ -8,9 +8,10 @@ import {
 import { buildMeta, metaT } from '~/utils/meta'
 import type { Route } from './+types/giveaway.feb-2026'
 
-export function meta({ location }: Route.MetaArgs) {
+export function meta({ location, matches }: Route.MetaArgs) {
   const t = metaT(location, 'legal')
   return buildMeta({
+    matches,
     title: t('giveaway_recap.meta_title'),
     description: t('giveaway_recap.meta_desc')
   })

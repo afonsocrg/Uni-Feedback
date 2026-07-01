@@ -20,9 +20,10 @@ import { buildMeta, metaT } from '~/utils/meta'
 
 import type { Route } from './+types/landing'
 
-export function meta({ location }: Route.MetaArgs) {
+export function meta({ location, matches }: Route.MetaArgs) {
   const t = metaT(location, 'landing')
   return buildMeta({
+    matches,
     title: t('meta_title'),
     description: t('meta_desc')
   })

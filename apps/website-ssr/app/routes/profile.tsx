@@ -58,9 +58,10 @@ import { getLocalePath, getReviewPath } from '~/utils/i18n-routes'
 import { buildMeta, metaT } from '~/utils/meta'
 import type { Route } from './+types/profile'
 
-export function meta({ location }: Route.MetaArgs) {
+export function meta({ location, matches }: Route.MetaArgs) {
   const t = metaT(location, 'feedback')
   return buildMeta({
+    matches,
     title: t('profile.meta_title'),
     description: t('profile.meta_desc')
   })

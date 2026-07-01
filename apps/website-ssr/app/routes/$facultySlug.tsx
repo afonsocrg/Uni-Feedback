@@ -11,9 +11,10 @@ import { getRequestOrigin } from '~/utils/request'
 
 import type { Route } from './+types/$facultySlug'
 
-export function meta({ loaderData }: Route.MetaArgs) {
+export function meta({ loaderData, matches }: Route.MetaArgs) {
   if (!loaderData.faculty) {
     return buildMeta({
+      matches,
       title: 'Faculty Not Found - Uni Feedback',
       description: 'The requested faculty was not found.'
     })
@@ -74,6 +75,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
   }
 
   return buildMeta({
+    matches,
     title,
     description,
     url: faculty.slug

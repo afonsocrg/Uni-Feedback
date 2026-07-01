@@ -11,9 +11,10 @@ import { getRequestOrigin } from '~/utils/request'
 
 import type { Route } from './+types/$facultySlug.$degreeSlug'
 
-export function meta({ loaderData }: Route.MetaArgs) {
+export function meta({ loaderData, matches }: Route.MetaArgs) {
   if (!loaderData.faculty || !loaderData.degree) {
     return buildMeta({
+      matches,
       title: 'Page Not Found - Uni Feedback',
       description: 'The requested page was not found.'
     })
@@ -97,6 +98,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
   }
 
   return buildMeta({
+    matches,
     title,
     description,
     url:

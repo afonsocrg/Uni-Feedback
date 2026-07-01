@@ -1,6 +1,8 @@
 import type { Namespace, TFunction } from 'i18next'
 import type { Location, MetaDescriptor } from 'react-router'
 import { i18n } from '~/i18n/config'
+import type { loader as rootLoader } from '~/root'
+import { SITE_URL } from '~/utils/constants'
 import { detectLang } from '~/utils/i18n-routes'
 
 /**
@@ -36,6 +38,36 @@ interface MetaImage {
   alt?: string
 }
 
+/**
+ * The root loader's return, typed from the loader itself (single source of
+ * truth) — it carries the request-derived `origin` and `lang`. `meta` has no
+ * access to the request, but React Router exposes ancestor loader data through
+ * `matches`, and the root match is always `matches[0]`.
+ */
+type RootData = Awaited<ReturnType<typeof rootLoader>>
+
+function rootData(matches?: readonly [{ data?: RootData }?, ...unknown[]]) {
+  return matches?.[0]?.data
+}
+
+/**
+ * Branded social card shipped for every page that doesn't supply its own.
+ * Static PNGs live in `public/og/`; one per language. Rendered from the
+ * "OG Images" design (1200 × 630). The URL must be absolute for social
+ * scrapers, so it's built off the request `origin` (SITE_URL is only a
+ * dev-time fallback for when no root match is available).
+ */
+function defaultOgImage(root: RootData | undefined): MetaImage {
+  const lang = root?.lang ?? 'pt'
+  const origin = root?.origin ?? SITE_URL
+  return {
+    url: `${origin}/og/og-${lang}.png`,
+    width: 1200,
+    height: 630,
+    alt: SITE_NAME
+  }
+}
+
 interface BuildMetaOptions {
   /** Document title — also used for og:title / twitter:title. */
   title: string
@@ -44,7 +76,17 @@ interface BuildMetaOptions {
   url?: string
   /** og:type. Defaults to 'website'. */
   type?: string
-  /** Absolute image URL (or descriptor) → og:image / twitter:image. */
+  /**
+   * The route's `matches` from `Route.MetaArgs`. Used to read the request
+   * `origin` and `lang` off the root loader so the default OG image is an
+   * absolute, language-correct URL. Pass it on any page that doesn't set its
+   * own `image`.
+   */
+  matches?: readonly [{ data?: RootData }?, ...unknown[]]
+  /**
+   * Absolute image URL (or descriptor) → og:image / twitter:image. Omit to use
+   * the branded per-language default (see {@link defaultOgImage}).
+   */
   image?: string | MetaImage
   /** twitter:card. Defaults to 'summary_large_image' when an image is set, else 'summary'. */
   twitterCard?: 'summary' | 'summary_large_image'
@@ -61,14 +103,17 @@ export function buildMeta({
   description,
   url,
   type = 'website',
+  matches,
   image,
-  twitterCard = image ? 'summary_large_image' : 'summary',
+  twitterCard = 'summary_large_image',
   robots,
   keywords,
   structuredData,
   extra = []
 }: BuildMetaOptions): MetaDescriptor[] {
-  const img = typeof image === 'string' ? { url: image } : image
+  const resolvedImage = image ?? defaultOgImage(rootData(matches))
+  const img =
+    typeof resolvedImage === 'string' ? { url: resolvedImage } : resolvedImage
 
   return [
     { title },

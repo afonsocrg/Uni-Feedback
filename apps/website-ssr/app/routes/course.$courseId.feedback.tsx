@@ -48,9 +48,10 @@ const feedbackSchema = z.object({
 
 export type FeedbackFormData = z.infer<typeof feedbackSchema>
 
-export function meta({ loaderData }: Route.MetaArgs) {
+export function meta({ loaderData, matches }: Route.MetaArgs) {
   if (!loaderData.course) {
     return buildMeta({
+      matches,
       title: 'Course Not Found - Uni Feedback',
       description: 'The requested course was not found.',
       // Thin submission form: keep out of the index, but follow links so
@@ -62,6 +63,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
   const { course } = loaderData
 
   return buildMeta({
+    matches,
     title: `Give Feedback for ${course.name} - Uni Feedback`,
     description: `Share your experience with ${course.name} (${course.acronym}) at ${course.degree?.faculty?.shortName ?? ''}. Your anonymous feedback helps fellow students make informed decisions.`,
     // Thin submission form (near-identical across courses): keep out of the

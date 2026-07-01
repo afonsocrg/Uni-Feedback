@@ -20,9 +20,10 @@ export type FeedbackFormData = {
   comment?: string
 }
 
-export function meta({ location }: Route.MetaArgs) {
+export function meta({ location, matches }: Route.MetaArgs) {
   const t = metaT(location, 'feedback')
   return buildMeta({
+    matches,
     title: t('new.meta_title'),
     description: t('new.meta_desc')
   })

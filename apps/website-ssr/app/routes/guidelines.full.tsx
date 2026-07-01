@@ -3,9 +3,10 @@ import { buildMeta, metaT } from '~/utils/meta'
 import { markdown } from '../../../../legal/guidelines.md'
 import type { Route } from './+types/guidelines.full'
 
-export function meta({ location }: Route.MetaArgs) {
+export function meta({ location, matches }: Route.MetaArgs) {
   const t = metaT(location, 'legal')
   return buildMeta({
+    matches,
     title: t('guidelines_full.meta_title'),
     description: t('guidelines_full.meta_desc')
   })

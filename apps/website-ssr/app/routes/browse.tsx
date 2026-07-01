@@ -13,7 +13,7 @@ import type { Route } from './+types/browse'
 const ADD_COURSE_FORM_URL =
   'https://docs.google.com/forms/d/e/1FAIpQLSd2FBk_hbv6v0iW-y8wtY6DL-fDIE_GlyA8rSkamSJJfCjCFQ/viewform'
 
-export function meta({ loaderData, location }: Route.MetaArgs) {
+export function meta({ loaderData, location, matches }: Route.MetaArgs) {
   const t = metaT(location, 'browse')
 
   // Build description with available faculties
@@ -53,6 +53,7 @@ export function meta({ loaderData, location }: Route.MetaArgs) {
     : null
 
   return buildMeta({
+    matches,
     title: t('meta.title'),
     description,
     keywords: [

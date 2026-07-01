@@ -21,9 +21,10 @@ export async function loader() {
   return { supporters: sortedSupporters }
 }
 
-export function meta({ location }: Route.MetaArgs) {
+export function meta({ location, matches }: Route.MetaArgs) {
   const t = metaT(location, 'legal')
   return buildMeta({
+    matches,
     title: t('supporters.meta_title'),
     description: t('supporters.meta_desc')
   })

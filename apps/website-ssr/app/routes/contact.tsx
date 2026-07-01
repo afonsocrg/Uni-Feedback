@@ -3,9 +3,10 @@ import { useTranslation } from 'react-i18next'
 import { buildMeta, metaT } from '~/utils/meta'
 import type { Route } from './+types/contact'
 
-export function meta({ location }: Route.MetaArgs) {
+export function meta({ location, matches }: Route.MetaArgs) {
   const t = metaT(location, 'legal')
   return buildMeta({
+    matches,
     title: t('contact.meta_title'),
     description: t('contact.meta_desc')
   })

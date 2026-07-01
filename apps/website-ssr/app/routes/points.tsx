@@ -12,9 +12,10 @@ import { getLocalePath, getReviewPath } from '~/utils/i18n-routes'
 import { buildMeta, metaT } from '~/utils/meta'
 import type { Route } from './+types/points'
 
-export function meta({ location }: Route.MetaArgs) {
+export function meta({ location, matches }: Route.MetaArgs) {
   const t = metaT(location, 'legal')
   return buildMeta({
+    matches,
     title: t('points.meta_title'),
     description: t('points.meta_desc')
   })

@@ -8,9 +8,10 @@ import { getRequestOrigin } from '~/utils/request'
 
 import type { Route } from './+types/courses.$courseId'
 
-export function meta({ loaderData }: Route.MetaArgs) {
+export function meta({ loaderData, matches }: Route.MetaArgs) {
   if (!loaderData.course) {
     return buildMeta({
+      matches,
       title: 'Course Not Found - Uni Feedback',
       description: 'The requested course was not found.'
     })
@@ -97,6 +98,7 @@ export function meta({ loaderData }: Route.MetaArgs) {
   }
 
   return buildMeta({
+    matches,
     title,
     description,
     url: `${origin}${getCoursePath('pt', course.id)}`,
