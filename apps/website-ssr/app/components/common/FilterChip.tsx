@@ -23,20 +23,6 @@ interface FilterChipProps {
   variant?: 'filter' | 'sort'
 }
 
-// Consistent color scheme for active filters
-const ACTIVE_FILTER_COLORS = {
-  bg: '#E3F2FD', // Light blue
-  text: '#23729f', // primaryBlue
-  border: '#23729f' // primaryBlue
-}
-
-// Color scheme for sort chips - more prominent
-const SORT_COLORS = {
-  bg: '#23729f', // primaryBlue
-  text: '#FFFFFF', // White
-  border: '#23729f'
-}
-
 export function FilterChip({
   label,
   options,
@@ -67,8 +53,10 @@ export function FilterChip({
     onValueChange(null)
   }
 
-  // Sort chips always show as active with special styling
-  const colors = isSort ? SORT_COLORS : ACTIVE_FILTER_COLORS
+  // Sort chips get a solid brand fill; active filters use the soft blue tint.
+  const activeChipClass = isSort
+    ? 'bg-primaryBlue text-white border-primaryBlue'
+    : 'bg-tint-blue text-tint-blue-fg border-tint-blue-border'
   const showAsActive = isSort || selectedValue
 
   return (
@@ -80,13 +68,9 @@ export function FilterChip({
               variant="outline"
               className={cn(
                 'text-xs px-2 py-0.5 flex items-center gap-1.5',
+                activeChipClass,
                 isSort && 'font-medium'
               )}
-              style={{
-                backgroundColor: colors.bg,
-                color: colors.text,
-                borderColor: colors.border
-              }}
             >
               {isSort && <ArrowDownUp className="w-3 h-3" />}
               <span>{displayLabel}</span>
@@ -114,7 +98,7 @@ export function FilterChip({
               className={cn(
                 'w-full text-left px-3 py-2 rounded-md hover:bg-muted text-sm transition-colors flex items-center justify-between',
                 option.value === selectedValue
-                  ? 'bg-blue-50 text-primaryBlue font-medium'
+                  ? 'bg-primaryBlue/10 text-primaryBlue font-medium'
                   : 'text-foreground'
               )}
             >

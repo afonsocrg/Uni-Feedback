@@ -29,13 +29,6 @@ interface SearchableFilterChipProps {
   searchPlaceholder?: string
 }
 
-// Consistent color scheme for active filters
-const ACTIVE_FILTER_COLORS = {
-  bg: '#E3F2FD',
-  text: '#23729f',
-  border: '#23729f'
-}
-
 export function SearchableFilterChip({
   label,
   options,
@@ -91,12 +84,7 @@ export function SearchableFilterChip({
           {selectedValue ? (
             <Badge
               variant="outline"
-              className="text-xs px-2 py-0.5 flex items-center gap-1.5 max-w-full"
-              style={{
-                backgroundColor: ACTIVE_FILTER_COLORS.bg,
-                color: ACTIVE_FILTER_COLORS.text,
-                borderColor: ACTIVE_FILTER_COLORS.border
-              }}
+              className="text-xs px-2 py-0.5 flex items-center gap-1.5 max-w-full bg-tint-blue text-tint-blue-fg border-tint-blue-border"
             >
               <span className="truncate">{displayLabel}</span>
               <button
@@ -145,7 +133,7 @@ export function SearchableFilterChip({
                   className={cn(
                     'cursor-pointer',
                     option.value === selectedValue &&
-                      'bg-blue-50 text-primaryBlue font-medium'
+                      'bg-primaryBlue/10 text-primaryBlue font-medium'
                   )}
                 >
                   <span className="flex-1">{option.label}</span>
