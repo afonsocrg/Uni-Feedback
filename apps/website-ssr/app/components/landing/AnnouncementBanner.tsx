@@ -89,7 +89,7 @@ export function AnnouncementBanner({
 
   return (
     <div
-      className={`relative overflow-hidden bg-gradient-to-r from-[#1a5a7a] via-[#23729f] to-[#1a5a7a] transition-all duration-300 ease-out ${
+      className={`relative overflow-hidden bg-gradient-to-r from-[#1a5a7a] via-[#23729f] to-[#1a5a7a] dark:from-[#143648] dark:via-[#1c506d] dark:to-[#143648] transition-all duration-300 ease-out ${
         isAnimating
           ? 'max-h-20 opacity-100 translate-y-0'
           : 'max-h-0 opacity-0 -translate-y-full'

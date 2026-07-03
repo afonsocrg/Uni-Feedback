@@ -70,6 +70,10 @@
   --brand: var(--brand-500);
   --brand-foreground: #ffffff;
 
+  /* Brand emphasis — large brand surfaces (CTA bands). Vivid in light. */
+  --brand-emphasis: oklch(0.527 0.098 234.873);
+  --brand-emphasis-foreground: #ffffff;
+
   /* Rating */
   --rating: var(--gold-500); /* filled star */
   --rating-track: #e5e7eb; /* empty star (was gray-200) */
@@ -144,29 +148,34 @@
 }
 
 .dark {
-  /* Surfaces & text */
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
+  /* Surfaces & text — soft dark (not near-black), to lower overall contrast */
+  --background: oklch(0.208 0 0);
+  --foreground: oklch(0.945 0 0);
+  --card: oklch(0.248 0 0);
+  --card-foreground: oklch(0.945 0 0);
+  --popover: oklch(0.248 0 0);
+  --popover-foreground: oklch(0.945 0 0);
   --primary: oklch(0.627 0.128 235.5);
   --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.29 0 0);
+  --secondary-foreground: oklch(0.945 0 0);
+  --muted: oklch(0.29 0 0);
+  --muted-foreground: oklch(0.72 0 0);
+  --accent: oklch(0.29 0 0);
+  --accent-foreground: oklch(0.945 0 0);
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
+  --border: oklch(1 0 0 / 12%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.556 0 0);
 
   /* Brand — lighter so it stays legible on dark surfaces */
   --brand: var(--brand-400);
   --brand-foreground: #ffffff;
+
+  /* Brand emphasis — large brand surfaces (CTA bands): muted deep navy in
+     dark so they don't glare against the page. */
+  --brand-emphasis: oklch(0.33 0.058 240);
+  --brand-emphasis-foreground: oklch(0.95 0 0);
 
   /* Rating */
   --rating: var(--gold-400);
@@ -286,6 +295,8 @@
   --color-primaryBlue: var(--brand);
   --color-brand: var(--brand);
   --color-brand-foreground: var(--brand-foreground);
+  --color-brand-emphasis: var(--brand-emphasis);
+  --color-brand-emphasis-foreground: var(--brand-emphasis-foreground);
 
   /* Rating: text-rating, bg-rating-track */
   --color-rating: var(--rating);
