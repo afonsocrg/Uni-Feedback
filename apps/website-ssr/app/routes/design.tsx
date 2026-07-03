@@ -122,11 +122,15 @@ function ThemeCompare({ children }: { children: React.ReactNode }) {
 
   return (
     <div ref={ref} className="relative">
-      {/* Light side — in normal flow, so it sets the height */}
-      <div className="light">{children}</div>
+      {/* Light side — in normal flow, so it sets the height. bg/text are set
+          explicitly so inherited colors (elements with no text-* class) and
+          backdrop-blur resolve from this themed wrapper, not the page body. */}
+      <div className="light isolate bg-background text-foreground">
+        {children}
+      </div>
       {/* Dark side — overlaid and clipped to the right of the handle */}
       <div
-        className="dark absolute inset-0"
+        className="dark isolate absolute inset-0 bg-background text-foreground"
         style={{ clipPath: `inset(0 0 0 ${pos}%)` }}
         aria-hidden
       >
