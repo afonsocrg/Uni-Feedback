@@ -318,11 +318,11 @@ export function DegreePageContent({
       }
     >
       {!courses || courses.length === 0 ? (
-        <div className="text-center text-gray-500 py-8">
+        <div className="text-center text-muted-foreground py-8">
           {t('degree_page.no_courses')}
         </div>
       ) : filteredCourses.length === 0 ? (
-        <div className="text-center text-gray-500 py-8">
+        <div className="text-center text-muted-foreground py-8">
           {t('degree_page.no_results')}
         </div>
       ) : (

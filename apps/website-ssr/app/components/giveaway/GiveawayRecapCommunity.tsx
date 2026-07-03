@@ -193,7 +193,7 @@ export function GiveawayRecapCommunity() {
                           index === 0
                             ? 'bg-yellow-500 text-white'
                             : index === 1
-                              ? 'bg-gray-300 text-gray-700'
+                              ? 'bg-muted text-foreground'
                               : index === 2
                                 ? 'bg-amber-700 text-amber-100'
                                 : 'bg-muted text-muted-foreground font-bold text-sm'

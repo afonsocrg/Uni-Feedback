@@ -150,11 +150,11 @@ export function FacultyPageContent({
       }
     >
       {!degrees || degrees.length === 0 ? (
-        <div className="text-center text-gray-500 py-8">
+        <div className="text-center text-muted-foreground py-8">
           {t('faculty_page.no_degrees')}
         </div>
       ) : filteredDegrees.length === 0 ? (
-        <div className="text-center text-gray-500 py-8">
+        <div className="text-center text-muted-foreground py-8">
           {t('faculty_page.no_results')}
         </div>
       ) : (

@@ -81,7 +81,7 @@ const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
     )
 
     return (
-      <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-3">
+      <div className="bg-card border border-border rounded-lg shadow-lg p-3">
         <p className="font-semibold text-sm mb-2">{formattedDate}</p>
         {payload
           .filter((entry: TooltipEntry) => entry.value > 0)
@@ -91,11 +91,11 @@ const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
                 className="w-3 h-3 rounded-sm"
                 style={{ backgroundColor: entry.color }}
               />
-              <span className="text-gray-600">{entry.name}:</span>
+              <span className="text-muted-foreground">{entry.name}:</span>
               <span className="font-medium">{entry.value}</span>
             </p>
           ))}
-        <div className="border-t border-gray-200 mt-2 pt-2">
+        <div className="border-t border-border mt-2 pt-2">
           <p className="text-sm font-semibold">
             Total: <span className="text-primary">{total}</span>
           </p>

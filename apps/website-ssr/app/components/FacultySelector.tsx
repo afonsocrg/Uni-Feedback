@@ -28,7 +28,7 @@ export function FacultySelector({ faculties }: FacultySelectorProps) {
   if (!sluggedFaculties.length) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-600">No faculties available.</p>
+        <p className="text-muted-foreground">No faculties available.</p>
       </div>
     )
   }

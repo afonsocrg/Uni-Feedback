@@ -4,11 +4,11 @@ interface WarningAlertProps {
 
 export function WarningAlert({ message }: WarningAlertProps) {
   return (
-    <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+    <div className="bg-tint-amber border-l-4 border-warning p-4 mb-4">
       <div className="flex">
         <div className="flex-shrink-0">
           <svg
-            className="h-5 w-5 text-yellow-400"
+            className="h-5 w-5 text-warning"
             viewBox="0 0 20 20"
             fill="currentColor"
           >
@@ -20,7 +20,7 @@ export function WarningAlert({ message }: WarningAlertProps) {
           </svg>
         </div>
         <div className="ml-3">
-          <p className="text-sm text-yellow-700">{message}</p>
+          <p className="text-sm text-tint-amber-fg">{message}</p>
         </div>
       </div>
     </div>

@@ -49,7 +49,7 @@ export function SelectionCard({
           <div className="flex-1">
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg">{title}</CardTitle>
-              {icon && <div className="text-gray-400">{icon}</div>}
+              {icon && <div className="text-muted-foreground">{icon}</div>}
             </div>
             {subtitle && (
               <CardDescription className="text-sm font-medium">
@@ -62,7 +62,7 @@ export function SelectionCard({
       {description || children ? (
         <CardContent className="flex-1 flex flex-col">
           {description && (
-            <p className="text-sm text-gray-600 transition-colors">
+            <p className="text-sm text-muted-foreground transition-colors">
               {description}
             </p>
           )}

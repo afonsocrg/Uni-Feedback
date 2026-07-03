@@ -225,12 +225,12 @@ export function CourseSpecificFeedbackForm({
       <Form {...form}>
         <div>
           {/* Header - Course Context */}
-          <div className="mb-6 pb-4 border-b border-gray-200">
-            <div className="text-xs text-gray-400 mt-0.5">
+          <div className="mb-6 pb-4 border-b border-border">
+            <div className="text-xs text-muted-foreground mt-0.5">
               {currentCourse.degree.faculty.shortName} ·{' '}
               {currentCourse.degree.name}
             </div>
-            <div className="font-medium text-gray-900 text-[13px]">
+            <div className="font-medium text-foreground text-[13px]">
               {currentCourse.name}
             </div>
             <div className="flex items-center justify-between gap-4 mt-1">
@@ -271,7 +271,7 @@ export function CourseSpecificFeedbackForm({
                 <button
                   type="button"
                   onClick={() => setShowYearSelector(true)}
-                  className="flex items-center gap-0.5 text-xs text-gray-400 hover:text-primaryBlue cursor-pointer"
+                  className="flex items-center gap-0.5 text-xs text-muted-foreground hover:text-primaryBlue cursor-pointer"
                   aria-label={t('form.change_year_aria')}
                 >
                   <span>
@@ -306,7 +306,7 @@ export function CourseSpecificFeedbackForm({
                   name="rating"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-base font-medium text-gray-900">
+                      <FormLabel className="text-base font-medium text-foreground">
                         {t('form.rating_label')}
                         <span className="text-red-500">*</span>
                       </FormLabel>
@@ -337,7 +337,7 @@ export function CourseSpecificFeedbackForm({
                   name="workloadRating"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-base font-medium text-gray-900">
+                      <FormLabel className="text-base font-medium text-foreground">
                         {t('form.workload_label')}
                         <span className="text-red-500">*</span>
                       </FormLabel>
@@ -403,7 +403,7 @@ export function CourseSpecificFeedbackForm({
                 )}
               </AuthenticatedButton>
 
-              <p className="text-xs text-gray-500 text-center mt-4">
+              <p className="text-xs text-muted-foreground text-center mt-4">
                 {t('form.terms_prefix')}{' '}
                 <Link
                   to={getLocalePath('terms', lang)}

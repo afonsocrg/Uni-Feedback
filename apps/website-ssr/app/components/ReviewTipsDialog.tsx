@@ -62,7 +62,7 @@ export function ReviewTipsDialog({
               <Check className="size-4" />
               Do
             </h3>
-            <ul className="space-y-1.5 text-sm text-gray-700 list-disc ml-4 pl-4">
+            <ul className="space-y-1.5 text-sm text-foreground list-disc ml-4 pl-4">
               <li>Be specific: the more details, the better</li>
               <li>Share the good, the bad, and the just OK</li>
               <li>Tell us stuff you'd tell your friends</li>
@@ -76,7 +76,7 @@ export function ReviewTipsDialog({
               <X className="size-4" />
               Don't
             </h3>
-            <ul className="space-y-1.5 text-sm text-gray-700 list-disc ml-4 pl-4">
+            <ul className="space-y-1.5 text-sm text-foreground list-disc ml-4 pl-4">
               <li>Use profanity, threats, or personal insults</li>
               <li>Include personal info like email or phone numbers</li>
               <li>Write in ALL CAPS</li>
@@ -87,21 +87,21 @@ export function ReviewTipsDialog({
           {/* Feedback Categories */}
           <div className="pt-6 mt-2 border-t">
             <h3 className="font-semibold mb-3">What to cover</h3>
-            <p className="text-sm text-gray-600 mb-3">
+            <p className="text-sm text-muted-foreground mb-3">
               Try to mention these four topics naturally in your feedback. Cover
               all four to earn bonus points!
             </p>
             <div className="space-y-3">
               {FEEDBACK_CATEGORIES.map((category) => (
                 <div key={category.key} className="flex gap-3">
-                  <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-gray-100">
-                    <category.icon className="size-4 text-gray-600" />
+                  <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted">
+                    <category.icon className="size-4 text-muted-foreground" />
                   </div>
                   <div>
                     <h4 className="font-medium text-sm">
                       {categoryLabels[category.key].title}
                     </h4>
-                    <p className="text-xs text-gray-600">
+                    <p className="text-xs text-muted-foreground">
                       {categoryLabels[category.key].description}
                     </p>
                   </div>

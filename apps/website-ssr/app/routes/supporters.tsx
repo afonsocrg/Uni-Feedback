@@ -65,7 +65,7 @@ export default function SupportersPage({ loaderData }: Route.ComponentProps) {
                 />
               ) : (
                 <div
-                  className={`h-20 w-20 rounded-lg flex items-center justify-center text-gray-600 transition-all group-hover:scale-105 bg-gray-300`}
+                  className={`h-20 w-20 rounded-lg flex items-center justify-center text-muted-foreground transition-all group-hover:scale-105 bg-muted`}
                 >
                   {supporter.shortName}
                 </div>

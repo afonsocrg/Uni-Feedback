@@ -65,7 +65,7 @@ export function GiveawayRecapTopDegrees() {
                         index === 0
                           ? 'bg-yellow-500 text-white'
                           : index === 1
-                            ? 'bg-gray-300 text-gray-700'
+                            ? 'bg-muted text-foreground'
                             : index === 2
                               ? 'bg-orange-300 text-orange-900'
                               : 'bg-muted text-muted-foreground'

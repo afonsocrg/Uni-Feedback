@@ -59,7 +59,7 @@ export function FeedbackDraftDialog({
               {/* Rating */}
               {rating > 0 && (
                 <div className="flex-1 min-w-[200px]">
-                  <div className="text-sm font-medium text-gray-900 mb-2">
+                  <div className="text-sm font-medium text-foreground mb-2">
                     Course Rating
                   </div>
                   <EditableStarRating
@@ -74,7 +74,7 @@ export function FeedbackDraftDialog({
               {/* Workload Rating */}
               {workloadRating > 0 && (
                 <div className="flex-1 min-w-[200px]">
-                  <div className="text-sm font-medium text-gray-900 mb-2">
+                  <div className="text-sm font-medium text-foreground mb-2">
                     Workload
                   </div>
                   <WorkloadRatingDisplay rating={workloadRating} />
@@ -84,20 +84,22 @@ export function FeedbackDraftDialog({
 
             {/* Comment - always shown */}
             <div>
-              <div className="text-sm font-medium text-gray-900 mb-2">
+              <div className="text-sm font-medium text-foreground mb-2">
                 Your Feedback
               </div>
-              <div className="text-sm text-gray-800 max-h-[200px] overflow-y-auto">
+              <div className="text-sm text-foreground max-h-[200px] overflow-y-auto">
                 {hasComment ? (
                   <FeedbackMarkdown>{comment}</FeedbackMarkdown>
                 ) : (
-                  <p className="text-gray-500 italic">No comment saved</p>
+                  <p className="text-muted-foreground italic">
+                    No comment saved
+                  </p>
                 )}
               </div>
             </div>
 
             {/* Timestamp - secondary information */}
-            <div className="flex items-center gap-1.5 text-xs text-gray-500">
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <Clock className="size-3" />
               <span>Last saved {timeAgo}</span>
             </div>

@@ -27,15 +27,15 @@ export function WorkloadInputDebugPanel({
   return (
     <div className="fixed bottom-4 left-4 z-50">
       {isOpen ? (
-        <div className="bg-white rounded-lg shadow-lg border-2 border-gray-300 p-4 min-w-[280px]">
+        <div className="bg-card rounded-lg shadow-lg border-2 border-border p-4 min-w-[280px]">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-sm text-gray-900">
+            <h3 className="font-semibold text-sm text-foreground">
               Workload Input Type
             </h3>
             <button
               type="button"
               onClick={() => setIsOpen(false)}
-              className="text-gray-400 hover:text-gray-600"
+              className="text-muted-foreground hover:text-muted-foreground"
             >
               ✕
             </button>
@@ -44,7 +44,7 @@ export function WorkloadInputDebugPanel({
             {workloadInputTypes.map((option) => (
               <label
                 key={option.value}
-                className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded"
+                className="flex items-center gap-2 cursor-pointer hover:bg-muted p-2 rounded"
               >
                 <input
                   type="radio"
@@ -56,7 +56,7 @@ export function WorkloadInputDebugPanel({
                   }
                   className="size-4 text-primaryBlue focus:ring-primaryBlue"
                 />
-                <span className="text-sm text-gray-700">{option.label}</span>
+                <span className="text-sm text-foreground">{option.label}</span>
               </label>
             ))}
           </div>

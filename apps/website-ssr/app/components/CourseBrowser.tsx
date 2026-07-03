@@ -115,10 +115,10 @@ export function CourseBrowser({
         {/* Header - hidden in compact mode */}
         {!compact && (
           <div className="text-center space-y-2">
-            <h1 className="text-xl md:text-4xl font-bold text-gray-900 tracking-tight">
+            <h1 className="text-xl md:text-4xl font-bold text-foreground tracking-tight">
               {t('course_browser.title')}
             </h1>
-            <p className="text-gray-500 text-base md:text-lg">
+            <p className="text-muted-foreground text-base md:text-lg">
               {t('course_browser.subtitle')}
             </p>
           </div>
@@ -169,7 +169,7 @@ export function CourseBrowser({
             )}
 
             {isLoadingInitialFilters && (
-              <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
+              <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
             )}
           </div>
         </div>
@@ -178,10 +178,12 @@ export function CourseBrowser({
         {isLoading ? (
           <div className="text-center py-16">
             <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2 text-primaryBlue" />
-            <p className="text-gray-600">{t('course_browser.loading')}</p>
+            <p className="text-muted-foreground">
+              {t('course_browser.loading')}
+            </p>
           </div>
         ) : results?.courses.length === 0 ? (
-          <div className="text-center py-16 text-gray-500">
+          <div className="text-center py-16 text-muted-foreground">
             <p>{t('course_browser.no_results')}</p>
           </div>
         ) : (
@@ -192,20 +194,22 @@ export function CourseBrowser({
                 <button
                   key={course.id}
                   onClick={() => handleCourseClick(course)}
-                  className="w-full p-5 bg-white border border-gray-200 rounded-2xl hover:shadow-xl hover:border-primaryBlue hover:-translate-y-0.5 transition-all text-left group cursor-pointer overflow-hidden"
+                  className="w-full p-5 bg-card border border-border rounded-2xl hover:shadow-xl hover:border-primaryBlue hover:-translate-y-0.5 transition-all text-left group cursor-pointer overflow-hidden"
                 >
                   <div className="flex justify-between items-center gap-4">
                     <div className="flex-1 min-w-0 space-y-1 break-words">
-                      <p className="text-[10px] font-medium text-gray-400 uppercase tracking-wide">
+                      <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
                         {course.faculty.shortName} › {course.degree.name}
                       </p>
-                      <h3 className="text-lg font-bold text-gray-800 leading-tight group-hover:text-primaryBlue transition-colors">
+                      <h3 className="text-lg font-bold text-foreground leading-tight group-hover:text-primaryBlue transition-colors">
                         {course.name}
                       </h3>
-                      <p className="text-sm text-gray-500">{course.acronym}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {course.acronym}
+                      </p>
                       {course.hasUserFeedback && course.userRating && (
                         <div className="flex items-center gap-1.5">
-                          <span className="text-xs text-gray-400">
+                          <span className="text-xs text-muted-foreground">
                             {t('course_browser.your_rating')}
                           </span>
                           <StarRating value={course.userRating} size="sm" />
@@ -230,11 +234,11 @@ export function CourseBrowser({
                 <button
                   disabled={offset === 0}
                   onClick={() => setOffset(Math.max(0, offset - limit))}
-                  className="text-gray-600 hover:text-primaryBlue disabled:text-gray-300 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                  className="text-muted-foreground hover:text-primaryBlue disabled:text-muted-foreground disabled:cursor-not-allowed cursor-pointer transition-colors"
                 >
                   {t('course_browser.previous')}
                 </button>
-                <span className="text-gray-400 text-xs">
+                <span className="text-muted-foreground text-xs">
                   {t('course_browser.pagination', {
                     from: offset + 1,
                     to: Math.min(offset + limit, results.total),
@@ -244,7 +248,7 @@ export function CourseBrowser({
                 <button
                   disabled={offset + limit >= results.total}
                   onClick={() => setOffset(offset + limit)}
-                  className="text-gray-600 hover:text-primaryBlue disabled:text-gray-300 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                  className="text-muted-foreground hover:text-primaryBlue disabled:text-muted-foreground disabled:cursor-not-allowed cursor-pointer transition-colors"
                 >
                   {t('course_browser.next')}
                 </button>
