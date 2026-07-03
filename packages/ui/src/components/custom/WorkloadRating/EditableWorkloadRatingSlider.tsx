@@ -55,7 +55,7 @@ export function EditableWorkloadRatingSlider({
         {/* Slider container */}
         <div className="relative flex-1 min-w-[200px] py-2">
           {/* Track background */}
-          <div className="absolute top-1/2 -translate-y-1/2 w-full h-1.5 bg-gray-200 rounded-full pointer-events-none" />
+          <div className="absolute top-1/2 -translate-y-1/2 w-full h-1.5 bg-muted rounded-full pointer-events-none" />
 
           {/* Filled track */}
           <div
@@ -68,7 +68,7 @@ export function EditableWorkloadRatingSlider({
             {[0, 25, 50, 75, 100].map((position) => (
               <div
                 key={position}
-                className="absolute w-0.5 h-2.5 bg-gray-400 rounded-full -translate-x-1/2"
+                className="absolute w-0.5 h-2.5 bg-muted-foreground rounded-full -translate-x-1/2"
                 style={{ left: `${position}%` }}
               />
             ))}
@@ -133,14 +133,14 @@ export function EditableWorkloadRatingSlider({
 
         {/* Current selection label */}
         {showLabel && displayValue > 0 && (
-          <div className="text-sm text-gray-700 min-w-[90px]">
+          <div className="text-sm text-foreground min-w-[90px]">
             {getWorkloadLabel(displayValue)}
           </div>
         )}
       </div>
 
       {/* End labels */}
-      <div className="flex justify-between text-xs text-gray-500 px-0.5">
+      <div className="flex justify-between text-xs text-muted-foreground px-0.5">
         <span>Very light</span>
         <span>Very heavy</span>
       </div>

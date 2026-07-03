@@ -23,7 +23,7 @@ export function EditableWorkloadRatingSegmented({
   return (
     <div
       className={cn(
-        'inline-flex items-center rounded-full border-2 border-gray-300 overflow-hidden',
+        'inline-flex items-center rounded-full border-2 border-border overflow-hidden',
         disabled && 'opacity-50 cursor-not-allowed'
       )}
     >
@@ -42,10 +42,10 @@ export function EditableWorkloadRatingSegmented({
               'font-medium transition-all whitespace-nowrap',
               sizeClasses[size],
               disabled ? 'cursor-not-allowed' : 'cursor-pointer',
-              index > 0 && 'border-l-2 border-gray-300',
+              index > 0 && 'border-l-2 border-border',
               isSelected
                 ? colorClass
-                : 'bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-700'
+                : 'bg-muted text-muted-foreground hover:bg-muted hover:text-foreground'
             )}
           >
             {label}

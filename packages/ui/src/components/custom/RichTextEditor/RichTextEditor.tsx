@@ -34,7 +34,7 @@ export function RichTextEditor({
       Placeholder.configure({
         placeholder,
         emptyEditorClass:
-          'before:content-[attr(data-placeholder)] before:text-gray-400 before:float-left before:h-0 before:pointer-events-none'
+          'before:content-[attr(data-placeholder)] before:text-muted-foreground before:float-left before:h-0 before:pointer-events-none'
       }),
       Markdown.configure({
         html: false,
@@ -52,12 +52,12 @@ export function RichTextEditor({
       attributes: {
         class: cn(
           'prose prose-sm max-w-none focus:outline-none',
-          'text-base text-gray-600',
-          '[&_h2]:text-base [&_h2]:font-bold [&_h2]:text-gray-900 [&_h2]:mt-2 [&_h2]:mb-1',
-          '[&_h3]:text-sm [&_h3]:font-bold [&_h3]:text-gray-900 [&_h3]:mt-2 [&_h3]:mb-1',
+          'text-base text-muted-foreground',
+          '[&_h2]:text-base [&_h2]:font-bold [&_h2]:text-foreground [&_h2]:mt-2 [&_h2]:mb-1',
+          '[&_h3]:text-sm [&_h3]:font-bold [&_h3]:text-foreground [&_h3]:mt-2 [&_h3]:mb-1',
           '[&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-0.5 [&_ul]:my-1',
           '[&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:space-y-0.5 [&_ol]:my-1',
-          '[&_li]:text-gray-600',
+          '[&_li]:text-muted-foreground',
           '[&_p]:mb-1'
         )
       }
@@ -96,7 +96,10 @@ export function RichTextEditor({
           <EditorContent editor={editor} className="p-3" />
         </div>
       ) : (
-        <div className="p-3 text-sm text-gray-400" style={{ minHeight }}>
+        <div
+          className="p-3 text-sm text-muted-foreground"
+          style={{ minHeight }}
+        >
           {placeholder}
         </div>
       )}

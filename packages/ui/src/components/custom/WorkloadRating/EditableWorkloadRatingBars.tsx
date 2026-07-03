@@ -48,7 +48,7 @@ export function EditableWorkloadRatingBars({
               className={cn(
                 'rounded-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primaryBlue focus:ring-offset-1',
                 disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
-                isFilled ? 'bg-primaryBlue' : 'bg-gray-200'
+                isFilled ? 'bg-primaryBlue' : 'bg-muted'
               )}
               style={{
                 width: barWidth,
@@ -60,7 +60,7 @@ export function EditableWorkloadRatingBars({
         })}
       </div>
       {showLabel && displayValue > 0 && (
-        <div className="text-sm text-gray-700">
+        <div className="text-sm text-foreground">
           {getWorkloadLabel(displayValue)}
         </div>
       )}

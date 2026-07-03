@@ -32,7 +32,7 @@ export function StarRatingWithLabel({
       <div className="flex flex-col items-start gap-1">
         <StarRating {...starRatingProps} />
         <span
-          className="text-sm text-gray-500 min-h-[20px] min-w-[70px] block pl-2"
+          className="text-sm text-muted-foreground min-h-[20px] min-w-[70px] block pl-2"
           style={{ height: '20px' }}
         >
           {label}
@@ -45,7 +45,7 @@ export function StarRatingWithLabel({
     <div className={cn('flex gap-3', 'flex-row items-center gap-3')}>
       <StarRating {...starRatingProps} />
       <span
-        className="text-sm text-gray-500 min-w-[70px]"
+        className="text-sm text-muted-foreground min-w-[70px]"
         style={{ height: '20px', display: 'inline-block' }}
       >
         {label}

@@ -13,7 +13,7 @@ export function WorkloadRating({ rating, onChange }: WorkloadRatingProps) {
       {labels.map((label, index) => (
         <label
           key={index}
-          className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer"
+          className="flex items-center space-x-3 p-2 rounded-lg hover:bg-muted cursor-pointer"
         >
           <input
             type="radio"
@@ -21,9 +21,9 @@ export function WorkloadRating({ rating, onChange }: WorkloadRatingProps) {
             value={index + 1}
             checked={rating === index + 1}
             onChange={() => onChange(index + 1)}
-            className="h-4 w-4 text-primaryBlue focus:ring-primaryBlue border-gray-300"
+            className="h-4 w-4 text-primaryBlue focus:ring-primaryBlue border-border"
           />
-          <span className="text-gray-700">{label}</span>
+          <span className="text-foreground">{label}</span>
         </label>
       ))}
     </div>

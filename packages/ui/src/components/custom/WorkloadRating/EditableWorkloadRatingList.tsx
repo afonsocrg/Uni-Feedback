@@ -29,7 +29,7 @@ export function EditableWorkloadRatingList({
               disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
               isSelected
                 ? 'bg-primaryBlue/10 border-2 border-primaryBlue'
-                : 'border-2 border-transparent hover:bg-gray-100'
+                : 'border-2 border-transparent hover:bg-muted'
             )}
           >
             <WorkloadRatingDisplay rating={rating} muted={!isSelected} />

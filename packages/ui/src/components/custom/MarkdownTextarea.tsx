@@ -27,13 +27,13 @@ export function MarkdownTextarea({
           <TabsList className="flex space-x-1 rounded-none bg-transparent">
             <TabsTrigger
               value="markdown"
-              className="px-4 py-2 font-medium rounded-full data-[state=active]:bg-gray-100 cursor-pointer  hover:border-gray-200"
+              className="px-4 py-2 font-medium rounded-full data-[state=active]:bg-muted cursor-pointer  hover:border-border"
             >
               Write
             </TabsTrigger>
             <TabsTrigger
               value="preview"
-              className="px-4 py-2 font-medium rounded-full data-[state=active]:bg-gray-100 cursor-pointer  hover:border-gray-200"
+              className="px-4 py-2 font-medium rounded-full data-[state=active]:bg-muted cursor-pointer  hover:border-border"
             >
               Preview
             </TabsTrigger>
@@ -45,37 +45,37 @@ export function MarkdownTextarea({
                 onClick={(e) => e.stopPropagation()}
                 className="ml-1 cursor-pointer"
               >
-                <CircleHelp className="size-4 text-gray-500" />
+                <CircleHelp className="size-4 text-muted-foreground" />
               </button>
             </PopoverTrigger>
             <PopoverContent className="w-72 text-sm">
               <p className="font-semibold mb-2">What's this?</p>
-              <p className="text-gray-600 mb-3">
+              <p className="text-muted-foreground mb-3">
                 You can format your text to make it easier to read.
               </p>
-              <p className="text-gray-600 mb-3">
+              <p className="text-muted-foreground mb-3">
                 You write normally. A few simple symbols turn into formatting
                 when you hit Preview.
               </p>
               <p className="font-medium mb-2">Examples:</p>
               <div className="space-y-1 font-mono text-xs mb-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-gray-600">**Bold text**</span>
-                  <span className="text-gray-400">→</span>
+                  <span className="text-muted-foreground">**Bold text**</span>
+                  <span className="text-muted-foreground">→</span>
                   <span className="font-bold">Bold text</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-gray-600">*Italic text*</span>
-                  <span className="text-gray-400">→</span>
+                  <span className="text-muted-foreground">*Italic text*</span>
+                  <span className="text-muted-foreground">→</span>
                   <span className="italic">Italic text</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-gray-600">- Item</span>
-                  <span className="text-gray-400">→</span>
+                  <span className="text-muted-foreground">- Item</span>
+                  <span className="text-muted-foreground">→</span>
                   <span>• Item</span>
                 </div>
               </div>
-              <p className="text-gray-600 mb-3">
+              <p className="text-muted-foreground mb-3">
                 This formatting is called Markdown.
               </p>
               <a

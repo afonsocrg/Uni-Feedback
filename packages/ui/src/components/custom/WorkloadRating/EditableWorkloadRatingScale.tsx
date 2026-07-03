@@ -56,7 +56,7 @@ export function EditableWorkloadRatingScale({
                   disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
                   isFilled
                     ? 'fill-primaryBlue text-primaryBlue'
-                    : 'fill-gray-300 text-gray-300'
+                    : 'fill-muted-foreground text-muted-foreground'
                 )}
               />
             </button>
