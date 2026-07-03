@@ -1,6 +1,7 @@
 import { Separator } from '@uni-feedback/ui'
 import { GraduationCap, Instagram } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { SiTiktok } from 'react-icons/si'
 import { useLang } from '~/hooks'
 import { useLastVisitedPath } from '~/hooks/useLastVisitedPath'
 import { analytics, getPageName } from '~/utils/analytics'
@@ -113,15 +114,26 @@ export function LandingFooter() {
             <p className="text-sm text-muted-foreground">
               {t('footer.tagline')}
             </p>
-            <a
-              href="https://www.instagram.com/unifeedback"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Instagram"
-              className="inline-flex text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <Instagram className="size-5" />
-            </a>
+            <div className="flex items-center gap-4">
+              <a
+                href="https://www.instagram.com/unifeedback"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram"
+                className="inline-flex text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <Instagram className="size-5" />
+              </a>
+              <a
+                href="https://www.tiktok.com/@unifeedback"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="TikTok"
+                className="inline-flex text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <SiTiktok className="size-4" />
+              </a>
+            </div>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-x-8 gap-y-6 flex-1">
             {FOOTER_LINK_GROUPS.map((group) => (
