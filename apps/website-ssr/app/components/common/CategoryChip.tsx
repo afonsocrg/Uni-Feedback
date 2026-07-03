@@ -10,24 +10,11 @@ interface CategoryChipProps extends React.AriaAttributes {
   icon?: React.ComponentType<{ className?: string }>
 }
 
-// Muted state for inactive categories
-const MUTED_COLORS = {
-  bg: '#FFFFFF', // White background
-  text: '#64748B' // slate-500 muted text
-}
-
-// Active state - success green with checkmark
-const ACTIVE_COLORS = {
-  bg: '#FFFFFF', // White background
-  text: '#10b981' // emerald-500 success green
-}
-
 export function CategoryChip({
   label,
   isActive,
   className
 }: CategoryChipProps) {
-  const colors = isActive ? ACTIVE_COLORS : MUTED_COLORS
   const prevActiveRef = useRef(isActive)
   const [animation, setAnimation] = useState<string | undefined>()
 
@@ -54,15 +41,13 @@ export function CategoryChip({
     <Badge
       variant="outline"
       className={cn(
-        'text-xs px-1.5 py-0.5 rounded-sm border-0 transition-colors duration-200',
-        isActive && 'font-semibold',
+        'text-xs px-1.5 py-0.5 rounded-sm border transition-colors duration-200',
+        isActive
+          ? 'border-success/40 bg-success/10 text-success font-semibold'
+          : 'border-border bg-background text-muted-foreground',
         className
       )}
-      style={{
-        backgroundColor: colors.bg,
-        color: colors.text,
-        ...(animation && { animation })
-      }}
+      style={animation ? { animation } : undefined}
     >
       <span className="flex items-center gap-0.5">
         <Check

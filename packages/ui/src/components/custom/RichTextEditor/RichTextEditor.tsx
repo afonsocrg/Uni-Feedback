@@ -81,7 +81,7 @@ export function RichTextEditor({
   return (
     <div
       className={cn(
-        'w-full border rounded-md bg-white overflow-hidden',
+        'w-full border rounded-md bg-background overflow-hidden',
         disabled && 'opacity-50 cursor-not-allowed',
         className
       )}
