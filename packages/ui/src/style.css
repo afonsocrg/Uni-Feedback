@@ -149,23 +149,23 @@
 
 .dark {
   /* Surfaces & text — soft dark (not near-black), to lower overall contrast */
-  --background: oklch(0.208 0 0);
-  --foreground: oklch(0.945 0 0);
-  --card: oklch(0.248 0 0);
-  --card-foreground: oklch(0.945 0 0);
-  --popover: oklch(0.248 0 0);
-  --popover-foreground: oklch(0.945 0 0);
+  --background: oklch(0.24 0 0);
+  --foreground: oklch(0.93 0 0);
+  --card: oklch(0.278 0 0);
+  --card-foreground: oklch(0.93 0 0);
+  --popover: oklch(0.278 0 0);
+  --popover-foreground: oklch(0.93 0 0);
   --primary: oklch(0.627 0.128 235.5);
   --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.29 0 0);
-  --secondary-foreground: oklch(0.945 0 0);
-  --muted: oklch(0.29 0 0);
-  --muted-foreground: oklch(0.72 0 0);
-  --accent: oklch(0.29 0 0);
-  --accent-foreground: oklch(0.945 0 0);
+  --secondary: oklch(0.32 0 0);
+  --secondary-foreground: oklch(0.93 0 0);
+  --muted: oklch(0.32 0 0);
+  --muted-foreground: oklch(0.74 0 0);
+  --accent: oklch(0.32 0 0);
+  --accent-foreground: oklch(0.93 0 0);
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 12%);
-  --input: oklch(1 0 0 / 15%);
+  --border: oklch(1 0 0 / 14%);
+  --input: oklch(1 0 0 / 17%);
   --ring: oklch(0.556 0 0);
 
   /* Brand — lighter so it stays legible on dark surfaces */
@@ -179,7 +179,7 @@
 
   /* Rating */
   --rating: var(--gold-400);
-  --rating-track: oklch(0.32 0 0);
+  --rating-track: oklch(0.36 0 0);
 
   /* FNAC */
   --fnac: var(--fnac-400);
