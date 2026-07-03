@@ -43,7 +43,7 @@ export const LANG_PREFIXES: Record<Lang, string | null> = {
   en: '/en'
 }
 
-export type RouteDef = { key: string; file: string } & (
+export type RouteDef = { key: string; file: string; devOnly?: boolean } & (
   | { index: true }
   | { slugs: Slugs }
 )
@@ -79,6 +79,14 @@ export const routeConfig = [
     key: 'unsubscribe',
     file: 'routes/unsubscribe.tsx',
     slugs: { pt: 'cancelar-subscricao', en: 'unsubscribe' }
+  },
+  // Dev-only design-system reference. Top-level (not under landing-layout) so it
+  // can render the layout itself inside the light/dark comparison slider.
+  {
+    key: 'design',
+    file: 'routes/design.tsx',
+    slugs: { pt: 'design', en: 'design' },
+    devOnly: true
   },
 
   {
@@ -170,11 +178,6 @@ export const routeConfig = [
         key: 'contact',
         file: 'routes/contact.tsx',
         slugs: { pt: 'contacto', en: 'contact' }
-      },
-      {
-        key: 'design',
-        file: 'routes/design.tsx',
-        slugs: { pt: 'design', en: 'design' }
       },
       {
         layout: true,

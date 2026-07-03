@@ -12,6 +12,11 @@ export function buildRoutes(
   lang: Lang
 ): RouteConfigEntry[] {
   return nodes.flatMap((node): RouteConfigEntry[] => {
+    // Dev-only routes (e.g. the /design reference) are skipped in production
+    // builds, so they never make it into the route manifest.
+    if (!import.meta.env.DEV && 'devOnly' in node && node.devOnly) {
+      return []
+    }
     if ('layout' in node) {
       const id = `${lang}/${node.file.replace(/^routes\//, '').replace(/\.tsx?$/, '')}`
       return [layout(node.file, { id }, buildRoutes(node.children, lang))]

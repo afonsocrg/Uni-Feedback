@@ -5,6 +5,9 @@ import {
   StarRating,
   WorkloadRatingDisplay
 } from '@uni-feedback/ui'
+import { MoveHorizontal } from 'lucide-react'
+import { useCallback, useRef, useState } from 'react'
+import { LandingLayout } from '~/components/landing'
 
 export function meta() {
   return [
@@ -102,7 +105,69 @@ const TINTS = [
   { hue: 'gray', bg: 'bg-tint-gray', fg: 'text-tint-gray-fg', bd: 'border-tint-gray-border', role: 'chip gray · muted' } // prettier-ignore
 ]
 
-export default function DesignSystemPage() {
+/* ── Light vs dark comparison slider ── */
+
+function ThemeCompare({ children }: { children: React.ReactNode }) {
+  const [pos, setPos] = useState(50)
+  const ref = useRef<HTMLDivElement>(null)
+  const dragging = useRef(false)
+
+  const setFromClientX = useCallback((clientX: number) => {
+    const el = ref.current
+    if (!el) return
+    const rect = el.getBoundingClientRect()
+    const pct = ((clientX - rect.left) / rect.width) * 100
+    setPos(Math.min(100, Math.max(0, pct)))
+  }, [])
+
+  return (
+    <div ref={ref} className="relative">
+      {/* Light side — in normal flow, so it sets the height */}
+      <div className="light">{children}</div>
+      {/* Dark side — overlaid and clipped to the right of the handle */}
+      <div
+        className="dark absolute inset-0"
+        style={{ clipPath: `inset(0 0 0 ${pos}%)` }}
+        aria-hidden
+      >
+        {children}
+      </div>
+      {/* Full-height divider; only the grip is draggable, so the page below
+          (header links, toggles) stays clickable. Grip sticks to the viewport
+          middle and sits above the sticky header (z-60). */}
+      <div
+        className="pointer-events-none absolute inset-y-0 z-[60] w-px -translate-x-1/2 bg-white/80 shadow-[0_0_2px_rgba(0,0,0,0.6)]"
+        style={{ left: `${pos}%` }}
+      >
+        <div className="sticky top-[calc(50vh-1.125rem)] flex justify-center">
+          <div
+            role="slider"
+            aria-label="Compare light and dark"
+            aria-valuenow={Math.round(pos)}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            onPointerDown={(e) => {
+              dragging.current = true
+              e.currentTarget.setPointerCapture(e.pointerId)
+            }}
+            onPointerMove={(e) => {
+              if (dragging.current) setFromClientX(e.clientX)
+            }}
+            onPointerUp={(e) => {
+              dragging.current = false
+              e.currentTarget.releasePointerCapture(e.pointerId)
+            }}
+            className="pointer-events-auto flex size-9 cursor-ew-resize touch-none items-center justify-center rounded-full bg-white text-black shadow-lg ring-1 ring-black/10"
+          >
+            <MoveHorizontal className="size-4" />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function DesignContent() {
   return (
     <div className="container mx-auto px-4 py-12">
       <header className="pb-4">
@@ -113,7 +178,7 @@ export default function DesignSystemPage() {
           The living reference for Uni Feedback's tokens. Everything here is
           drawn from the semantic tokens in{' '}
           <code className="text-foreground">packages/ui/src/style.css</code> —
-          toggle the theme (top-right) and every swatch below re-themes itself.
+          drag the handle to slide between light (left) and dark (right).
           Components should only ever use these tokens, never raw hex or{' '}
           <code className="text-foreground">gray-*</code> scales.
         </p>
@@ -270,5 +335,15 @@ export default function DesignSystemPage() {
         </div>
       </Section>
     </div>
+  )
+}
+
+export default function DesignSystemPage() {
+  return (
+    <ThemeCompare>
+      <LandingLayout>
+        <DesignContent />
+      </LandingLayout>
+    </ThemeCompare>
   )
 }

@@ -42,8 +42,11 @@
 /* ────────────────────────────────────────────────────────────────────────
    TIER 2 — SEMANTIC TOKENS
    Light values in :root, dark overrides in .dark. Components use these.
+   `.light` re-applies the light values so a subtree can be forced light even
+   inside a dark page (used by the /design light-vs-dark comparison slider).
    ──────────────────────────────────────────────────────────────────────── */
-:root {
+:root,
+.light {
   --radius: 0.625rem;
 
   /* Surfaces & text (shadcn base) */
