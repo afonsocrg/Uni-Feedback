@@ -22,7 +22,7 @@ export function CourseReviewContentEmpty({
         <h3 className="text-xl font-semibold mb-2">
           {t('reviews.empty_heading')}
         </h3>
-        <p className="text-gray-600 max-w-md mx-auto">
+        <p className="text-muted-foreground max-w-md mx-auto">
           {t('reviews.empty_desc')}
         </p>
       </div>

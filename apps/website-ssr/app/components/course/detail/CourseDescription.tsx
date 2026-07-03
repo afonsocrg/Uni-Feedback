@@ -12,14 +12,16 @@ export function CourseDescription({ course }: CourseDescriptionProps) {
   return (
     <div className="mb-8">
       <div className="flex items-center gap-2 mb-4">
-        <h2 className="text-2xl font-semibold text-gray-800">
+        <h2 className="text-2xl font-semibold text-foreground">
           {t('tabs.description')}
         </h2>
       </div>
       {course.description ? (
         <Markdown>{course.description}</Markdown>
       ) : (
-        <p className="text-gray-600 italic">{t('description.no_content')}</p>
+        <p className="text-muted-foreground italic">
+          {t('description.no_content')}
+        </p>
       )}
     </div>
   )

@@ -69,7 +69,7 @@ export function CourseCard({
         ) : (
           <div className="flex items-start justify-between gap-3">
             <div className="space-y-1 min-w-0 flex-1">
-              <span className="text-xs text-gray-500">
+              <span className="text-xs text-muted-foreground">
                 (
                 {totalFeedbackCount === 1
                   ? '1 review'
@@ -83,7 +83,7 @@ export function CourseCard({
                   showHalfStars
                 />
                 {showAverageScores && (
-                  <span className="text-xs text-gray-400">
+                  <span className="text-xs text-muted-foreground">
                     ({Number(averageRating || 0).toFixed(1)}/5)
                   </span>
                 )}
@@ -93,7 +93,7 @@ export function CourseCard({
                       rating={Number(averageWorkload || 0)}
                     />
                     {showAverageScores && (
-                      <span className="text-xs text-gray-400">
+                      <span className="text-xs text-muted-foreground">
                         ({Number(averageWorkload || 0).toFixed(1)}/5)
                       </span>
                     )}
@@ -102,7 +102,7 @@ export function CourseCard({
               </div>
             </div>
             {hasMandatoryExam && (
-              <div className="self-end flex-shrink-0 text-xs text-gray-500 text-right leading-[1.5]">
+              <div className="self-end flex-shrink-0 text-xs text-muted-foreground text-right leading-[1.5]">
                 📝 Exam
                 <br />
                 mandatory

@@ -47,7 +47,7 @@ export function CourseHeader({ course }: CourseHeaderProps) {
       </h1>
 
       <div className="flex items-center gap-4 mb-6 flex-wrap">
-        <p className="text-gray-600">{course.acronym}</p>
+        <p className="text-muted-foreground">{course.acronym}</p>
         {course.degree && (
           <Tooltip content={course.degree.name}>
             <Chip label={course.degree.acronym} />
@@ -65,10 +65,10 @@ export function CourseHeader({ course }: CourseHeaderProps) {
         {course.totalFeedbackCount > 0 && (
           <div className="flex items-center">
             <span className="text-yellow-500 mr-1">★</span>
-            <span className="text-gray-700">
+            <span className="text-foreground">
               {(course.averageRating ?? 0).toFixed(1)}
             </span>
-            <span className="text-gray-500 ml-2">
+            <span className="text-muted-foreground ml-2">
               ({course.totalFeedbackCount} reviews)
             </span>
           </div>
@@ -86,7 +86,7 @@ export function CourseHeader({ course }: CourseHeaderProps) {
         <div>
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="ghost" className="gap-2 text-gray-500">
+              <Button variant="ghost" className="gap-2 text-muted-foreground">
                 <Share2 className="size-4" />
               </Button>
             </PopoverTrigger>

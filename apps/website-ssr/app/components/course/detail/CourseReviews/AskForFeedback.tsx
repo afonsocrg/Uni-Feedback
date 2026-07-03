@@ -50,10 +50,7 @@ export function AskForFeedback({ reviewFormUrl, course }: AskForFeedbackProps) {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          className="gap-2 active:bg-gray-100 dark:active:bg-gray-800"
-        >
+        <Button variant="outline" className="gap-2 active:bg-muted">
           <Share2 className="size-4" />
           {t('reviews.ask_for_feedback')}
         </Button>

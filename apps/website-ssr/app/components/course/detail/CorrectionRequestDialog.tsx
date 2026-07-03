@@ -120,10 +120,10 @@ export function CorrectionRequestDialog({
               </svg>
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-lg font-semibold text-foreground">
                 Thank you!
               </h3>
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="text-sm text-muted-foreground mt-1">
                 Your correction request has been submitted. We&apos;ll review it
                 and update the information if needed.
               </p>
@@ -136,7 +136,7 @@ export function CorrectionRequestDialog({
           <div className="space-y-4 py-2">
             <p className="text-sm text-muted-foreground">
               Found incorrect information in{' '}
-              <span className="font-medium text-gray-700">{courseName}</span>?
+              <span className="font-medium text-foreground">{courseName}</span>?
               Let us know and we&apos;ll review it.
             </p>
 

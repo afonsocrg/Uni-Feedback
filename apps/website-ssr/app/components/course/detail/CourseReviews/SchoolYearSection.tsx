@@ -18,7 +18,7 @@ export function SchoolYearSection({
   const { t } = useTranslation('course')
   return (
     <div className="mb-8">
-      <div className="text-lg font-semibold text-gray-700 mb-6 flex items-center gap-2">
+      <div className="text-lg font-semibold text-foreground mb-6 flex items-center gap-2">
         {formatSchoolYearString(schoolYear, { yearFormat: 'long' })}
         {schoolYear < firstMEPPYear && (
           <Chip label={t('reviews.pre_mepp')} color="amber" />

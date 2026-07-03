@@ -85,18 +85,18 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
 
         {/* Badges, link, and report button */}
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-sm text-gray-500 font-medium">
+          <span className="text-sm text-muted-foreground font-medium">
             {course.acronym}
           </span>
           {course.ects && (
             <>
-              <span className="text-gray-300">•</span>
+              <span className="text-muted-foreground">•</span>
               <Chip label={`${course.ects} ECTS`} size="sm" color="gray" />
             </>
           )}
           {termNames.length > 0 && (
             <>
-              <span className="text-gray-300">•</span>
+              <span className="text-muted-foreground">•</span>
               {termNames.map((name) => (
                 <Chip key={name} label={name} color="gray" size="sm" />
               ))}
@@ -104,7 +104,7 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
           )}
           {course.url && (
             <>
-              <span className="text-gray-300">•</span>
+              <span className="text-muted-foreground">•</span>
               <a
                 href={course.url}
                 target="_blank"
@@ -116,10 +116,10 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
               </a>
             </>
           )}
-          <span className="text-gray-300">•</span>
+          <span className="text-muted-foreground">•</span>
           <button
             onClick={() => setCorrectionDialogOpen(true)}
-            className="text-sm text-gray-400 hover:text-gray-600 hover:underline cursor-pointer"
+            className="text-sm text-muted-foreground hover:text-muted-foreground hover:underline cursor-pointer"
           >
             {t('info.report_incorrect')}
           </button>
@@ -129,21 +129,21 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mt-6">
           {/* Feedback Stat */}
           <div className="flex items-center gap-2">
-            <Star className="size-5 text-gray-400 flex-shrink-0" />
+            <Star className="size-5 text-muted-foreground flex-shrink-0" />
             <div className="flex-1 min-w-0">
               <div className="flex items-baseline gap-1.5">
-                <span className="text-sm font-medium text-gray-700">
+                <span className="text-sm font-medium text-foreground">
                   {t('info.feedback_label')}
                 </span>
                 {course.totalFeedbackCount > 0 && (
-                  <span className="text-xs text-gray-400">
+                  <span className="text-xs text-muted-foreground">
                     ({course.totalFeedbackCount})
                   </span>
                 )}
               </div>
               <div className="flex items-center gap-1.5 mt-0.5">
                 {course.totalFeedbackCount === 0 ? (
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-muted-foreground">
                     {t('info.no_reviews')}
                   </span>
                 ) : (
@@ -153,7 +153,7 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
                       showHalfStars
                       size="sm"
                     />
-                    <span className="text-xs text-gray-400">
+                    <span className="text-xs text-muted-foreground">
                       {(Number(course.averageRating) || 0).toFixed(1)}
                     </span>
                   </>
@@ -164,10 +164,10 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
 
           {/* Workload Stat */}
           <div className="flex items-center gap-2">
-            <Clock className="size-5 text-gray-400 flex-shrink-0" />
+            <Clock className="size-5 text-muted-foreground flex-shrink-0" />
             <div className="flex-1 min-w-0">
               <div className="flex items-baseline gap-1.5">
-                <span className="text-sm font-medium text-gray-700">
+                <span className="text-sm font-medium text-foreground">
                   {t('info.workload_label')}
                 </span>
               </div>
@@ -186,7 +186,7 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
                     />
                   </>
                 ) : (
-                  <span className="text-xs text-gray-500">--</span>
+                  <span className="text-xs text-muted-foreground">--</span>
                 )}
               </div>
             </div>
@@ -194,10 +194,10 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
 
           {/* Exam Stat */}
           <div className="flex items-center gap-2">
-            <FileCheck className="size-5 text-gray-400 flex-shrink-0" />
+            <FileCheck className="size-5 text-muted-foreground flex-shrink-0" />
             <div className="flex-1 min-w-0">
               <div className="flex items-baseline gap-1.5 mb-0.5">
-                <span className="text-sm font-medium text-gray-700">
+                <span className="text-sm font-medium text-foreground">
                   {t('info.exam_label')}
                 </span>
               </div>

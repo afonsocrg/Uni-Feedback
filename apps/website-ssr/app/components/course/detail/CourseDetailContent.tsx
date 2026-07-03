@@ -66,7 +66,7 @@ export function CourseDetailContent({
 
   const tabClasses = cn(
     'px-4 py-3 cursor-pointer relative',
-    'font-medium text-gray-500 transition-all duration-200',
+    'font-medium text-muted-foreground transition-all duration-200',
     'border-0 border-b-2 border-transparent rounded-none bg-transparent shadow-none',
     'hover:text-primaryBlue hover:bg-transparent',
     'data-[state=active]:text-bold data-[state=active]:text-primaryBlue data-[state=active]:border-b-primaryBlue data-[state=active]:bg-transparent data-[state=active]:shadow-none',
@@ -74,7 +74,7 @@ export function CourseDetailContent({
   )
 
   return (
-    <main className="bg-gray-50/30 min-h-screen">
+    <main className="bg-muted/30 min-h-screen">
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <Breadcrumb
           faculty={course.faculty ?? undefined}
@@ -90,12 +90,12 @@ export function CourseDetailContent({
             <div className="relative">
               {/* Left gradient fade (opacity transitions) */}
               <div
-                className="pointer-events-none absolute left-0 top-0 h-full w-8 bg-gradient-to-r from-gray-50/30 via-gray-50/20 to-transparent z-10 md:hidden transition-opacity duration-300"
+                className="pointer-events-none absolute left-0 top-0 h-full w-8 bg-gradient-to-r from-background/30 via-background/20 to-transparent z-10 md:hidden transition-opacity duration-300"
                 style={{ opacity: showLeftFade ? 1 : 0 }}
               />
               {/* Right gradient fade (opacity transitions) */}
               <div
-                className="pointer-events-none absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-gray-50/30 via-gray-50/20 to-transparent z-10 md:hidden transition-opacity duration-300"
+                className="pointer-events-none absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-background/30 via-background/20 to-transparent z-10 md:hidden transition-opacity duration-300"
                 style={{ opacity: showRightFade ? 1 : 0 }}
               />
             </div>
@@ -104,7 +104,7 @@ export function CourseDetailContent({
               onScroll={handleScroll}
               className="overflow-x-auto scrollbar-none mb-8"
             >
-              <TabsList className="inline-flex justify-start bg-transparent border-b-2 border-gray-200 rounded-none min-w-full gap-6 px-0">
+              <TabsList className="inline-flex justify-start bg-transparent border-b-2 border-border rounded-none min-w-full gap-6 px-0">
                 <TabsTrigger value="feedback" className={tabClasses}>
                   {t('tabs.feedback')}
                 </TabsTrigger>

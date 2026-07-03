@@ -28,7 +28,7 @@ export function CourseReviews({ course, feedback }: CourseReviewsProps) {
   return (
     <>
       <div className="flex flex-wrap gap-2 justify-between items-center mb-6">
-        <h2 className="text-2xl font-semibold text-gray-800">
+        <h2 className="text-2xl font-semibold text-foreground">
           {t('reviews.heading')}
         </h2>
         {feedback && feedback.length > 0 && (
