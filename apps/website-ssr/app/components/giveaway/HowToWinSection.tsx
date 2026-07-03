@@ -28,7 +28,10 @@ export function HowToWinSection() {
   ]
 
   return (
-    <section id="how-to-win" className="bg-white py-16 md:py-24 scroll-mt-16">
+    <section
+      id="how-to-win"
+      className="bg-background py-16 md:py-24 scroll-mt-16"
+    >
       <div className="container mx-auto px-4">
         <div className="max-w-5xl mx-auto">
           <h2 className="font-heading text-3xl md:text-4xl font-semibold tracking-tight text-center mb-8">

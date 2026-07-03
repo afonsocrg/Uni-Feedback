@@ -9,7 +9,7 @@ export function GiveawayPointsSection() {
   const { t } = useTranslation('legal')
 
   return (
-    <section className="bg-white py-16 md:py-24">
+    <section className="bg-background py-16 md:py-24">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
           <h2 className="font-heading text-3xl md:text-4xl font-semibold tracking-tight text-center mb-4">
@@ -20,7 +20,7 @@ export function GiveawayPointsSection() {
           </p>
 
           <div className="grid md:grid-cols-2 gap-6">
-            <div className="bg-white rounded-2xl border p-6 md:p-8 shadow-sm">
+            <div className="bg-card rounded-2xl border p-6 md:p-8 shadow-sm">
               <h3 className="text-lg font-semibold mb-4">
                 {t('giveaway_page.points_normal_title')}
               </h3>
@@ -59,7 +59,7 @@ export function GiveawayPointsSection() {
               </ul>
             </div>
 
-            <div className="bg-white rounded-2xl border p-6 md:p-8 shadow-sm">
+            <div className="bg-card rounded-2xl border p-6 md:p-8 shadow-sm">
               <h3 className="text-lg font-semibold mb-4">
                 {t('giveaway_page.points_bonus_title')}
               </h3>

@@ -37,7 +37,7 @@ export function GiveawayPrizesSection() {
             {prizes.map((prize, index) => (
               <div
                 key={index}
-                className="flex flex-col items-center text-center bg-white rounded-2xl border p-8 shadow-sm"
+                className="flex flex-col items-center text-center bg-card rounded-2xl border p-8 shadow-sm"
               >
                 <div className="shrink-0 size-16 rounded-full bg-primary/10 flex items-center justify-center mb-5">
                   <prize.icon className="size-8 text-primary" />

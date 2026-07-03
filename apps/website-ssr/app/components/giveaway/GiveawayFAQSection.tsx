@@ -14,7 +14,7 @@ export function GiveawayFAQSection() {
   }) as FAQItem[]
 
   return (
-    <section className="bg-white py-16 md:py-24">
+    <section className="bg-background py-16 md:py-24">
       <div className="container mx-auto px-4">
         <div className="max-w-3xl mx-auto">
           <h2 className="font-heading text-3xl md:text-4xl font-semibold tracking-tight text-center mb-4">
