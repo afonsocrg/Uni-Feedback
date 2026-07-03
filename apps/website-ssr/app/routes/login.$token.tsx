@@ -88,7 +88,7 @@ export default function LoginToken() {
         ]}
       >
         <div className="flex justify-center">
-          <CheckCircle className="size-16 text-green-500" />
+          <CheckCircle className="size-16 text-success" />
         </div>
         <p>
           You have successfully logged in.
@@ -116,7 +116,7 @@ export default function LoginToken() {
 
         {status === 'error' && (
           <div className="flex flex-col items-center space-y-4">
-            <XCircle className="size-16 text-red-500" />
+            <XCircle className="size-16 text-destructive" />
             <h1 className="text-2xl font-bold text-center">
               Verification failed
             </h1>

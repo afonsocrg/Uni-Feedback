@@ -32,9 +32,9 @@ const topDegrees = [
 ]
 
 const facultyColors: Record<string, string> = {
-  'Nova SBE': 'bg-orange-500/10 text-orange-700 border-orange-200',
-  IST: 'bg-blue-500/10 text-blue-700 border-blue-200',
-  'Nova FCT': 'bg-purple-500/10 text-purple-700 border-purple-200'
+  'Nova SBE': 'bg-tint-orange text-tint-orange-fg border-tint-orange-border',
+  IST: 'bg-tint-blue text-tint-blue-fg border-tint-blue-border',
+  'Nova FCT': 'bg-tint-purple text-tint-purple-fg border-tint-purple-border'
 }
 
 export function GiveawayRecapTopDegrees() {
@@ -67,7 +67,7 @@ export function GiveawayRecapTopDegrees() {
                           : index === 1
                             ? 'bg-muted text-foreground'
                             : index === 2
-                              ? 'bg-orange-300 text-orange-900'
+                              ? 'bg-tint-orange text-tint-orange-fg'
                               : 'bg-muted text-muted-foreground'
                       }`}
                     >

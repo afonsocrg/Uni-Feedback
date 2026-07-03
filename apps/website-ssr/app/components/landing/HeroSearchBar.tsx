@@ -124,7 +124,7 @@ export function HeroSearchBar() {
                   </div>
                   {course.reviewCount > 0 && (
                     <div className="flex items-center gap-1 text-xs text-muted-foreground flex-shrink-0">
-                      <span className="text-yellow-400">★</span>
+                      <span className="text-rating">★</span>
                       <span>
                         {course.avgRating ? course.avgRating.toFixed(1) : '–'}
                       </span>

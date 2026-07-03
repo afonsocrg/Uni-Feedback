@@ -149,7 +149,7 @@ export function CoursePageFeedbackCard({
                   degreeName: feedback.degree.name
                 })}
               >
-                <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border border-blue-200 bg-blue-50 text-blue-700">
+                <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border border-tint-blue-border bg-tint-blue text-tint-blue-fg">
                   <GraduationCap className="w-3 h-3 mr-1.5" />
                   {feedback.degree.acronym}
                 </div>

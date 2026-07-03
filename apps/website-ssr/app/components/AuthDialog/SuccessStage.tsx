@@ -16,8 +16,8 @@ export function SuccessStage({ title, description }: SuccessStageProps) {
       </DialogHeader>
 
       <div className="flex flex-col items-center justify-center py-6">
-        <div className="size-16 bg-green-100 rounded-full flex items-center justify-center">
-          <Check className="size-8 text-green-600" />
+        <div className="size-16 bg-success/15 rounded-full flex items-center justify-center">
+          <Check className="size-8 text-success" />
         </div>
       </div>
     </>

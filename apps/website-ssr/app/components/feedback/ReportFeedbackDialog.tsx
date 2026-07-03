@@ -125,16 +125,16 @@ export function ReportFeedbackDialog({
       <DialogContent className="max-w-[500px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <AlertTriangle className="size-5 text-red-500" />
+            <AlertTriangle className="size-5 text-destructive" />
             Report Feedback
           </DialogTitle>
         </DialogHeader>
 
         {isSuccess ? (
           <div className="py-6 text-center space-y-4">
-            <div className="mx-auto w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+            <div className="mx-auto w-12 h-12 rounded-full bg-success/15 flex items-center justify-center">
               <svg
-                className="w-6 h-6 text-green-600"
+                className="w-6 h-6 text-success"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -267,7 +267,7 @@ export function ReportFeedbackDialog({
                     type="submit"
                     variant="outline"
                     disabled={isSubmitting}
-                    className="flex-1 border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700"
+                    className="flex-1 border-destructive text-destructive hover:bg-destructive/10 hover:text-destructive"
                   >
                     {isSubmitting ? (
                       <>

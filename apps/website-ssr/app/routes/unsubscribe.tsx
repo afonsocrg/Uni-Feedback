@@ -59,7 +59,7 @@ export default function Unsubscribe() {
         ]}
       >
         <div className="flex justify-center">
-          <XCircle className="size-16 text-red-500" />
+          <XCircle className="size-16 text-destructive" />
         </div>
         <p>{t('unsubscribe.invalid_desc')}</p>
       </MessagePage>
@@ -97,7 +97,7 @@ export default function Unsubscribe() {
         ]}
       >
         <div className="flex justify-center">
-          <XCircle className="size-16 text-red-500" />
+          <XCircle className="size-16 text-destructive" />
         </div>
         <p>{message}</p>
       </MessagePage>
@@ -116,7 +116,7 @@ export default function Unsubscribe() {
       ]}
     >
       <div className="flex justify-center">
-        <CheckCircle className="size-16 text-green-500" />
+        <CheckCircle className="size-16 text-success" />
       </div>
       <p>{message}</p>
       {/* <p className="text-sm">

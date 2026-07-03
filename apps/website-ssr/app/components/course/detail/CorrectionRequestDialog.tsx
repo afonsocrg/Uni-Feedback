@@ -104,9 +104,9 @@ export function CorrectionRequestDialog({
 
         {isSuccess ? (
           <div className="py-6 text-center space-y-4">
-            <div className="mx-auto w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+            <div className="mx-auto w-12 h-12 rounded-full bg-success/15 flex items-center justify-center">
               <svg
-                className="w-6 h-6 text-green-600"
+                className="w-6 h-6 text-success"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"

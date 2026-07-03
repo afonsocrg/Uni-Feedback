@@ -64,7 +64,7 @@ export function CourseHeader({ course }: CourseHeaderProps) {
         )}
         {course.totalFeedbackCount > 0 && (
           <div className="flex items-center">
-            <span className="text-yellow-500 mr-1">★</span>
+            <span className="text-rating mr-1">★</span>
             <span className="text-foreground">
               {(course.averageRating ?? 0).toFixed(1)}
             </span>

@@ -17,7 +17,7 @@ export function CopyButton({ onClick, ...props }: ButtonProps) {
   return (
     <Button {...props} onClick={handleCopy}>
       {copied ? (
-        <Check className="size-4 text-green-500" />
+        <Check className="size-4 text-success" />
       ) : (
         <Copy className="size-4" />
       )}

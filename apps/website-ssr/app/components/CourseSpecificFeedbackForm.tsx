@@ -308,7 +308,7 @@ export function CourseSpecificFeedbackForm({
                     <FormItem>
                       <FormLabel className="text-base font-medium text-foreground">
                         {t('form.rating_label')}
-                        <span className="text-red-500">*</span>
+                        <span className="text-destructive">*</span>
                       </FormLabel>
                       <FormControl>
                         <div className="pt-2">
@@ -339,7 +339,7 @@ export function CourseSpecificFeedbackForm({
                     <FormItem>
                       <FormLabel className="text-base font-medium text-foreground">
                         {t('form.workload_label')}
-                        <span className="text-red-500">*</span>
+                        <span className="text-destructive">*</span>
                       </FormLabel>
                       <FormControl>
                         <div className="pt-2">

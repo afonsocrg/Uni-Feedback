@@ -98,7 +98,7 @@ export function InputStage({
                   />
                 </FormControl>
                 {showDomainError && formattedSuffixes && (
-                  <p className="text-sm text-amber-600">
+                  <p className="text-sm text-warning">
                     Please use an email ending with {formattedSuffixes}
                   </p>
                 )}
