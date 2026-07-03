@@ -154,20 +154,20 @@
 .dark {
   /* Surfaces & text — soft dark (not near-black), to lower overall contrast */
   --background: oklch(0.24 0 0);
-  --foreground: oklch(0.93 0 0);
+  --foreground: oklch(0.9 0 0);
   --card: oklch(0.278 0 0);
-  --card-foreground: oklch(0.93 0 0);
+  --card-foreground: oklch(0.9 0 0);
   --popover: oklch(0.278 0 0);
-  --popover-foreground: oklch(0.93 0 0);
-  --primary: oklch(0.627 0.128 235.5);
-  --primary-foreground: oklch(0.985 0 0);
+  --popover-foreground: oklch(0.9 0 0);
+  --primary: oklch(0.62 0.108 240);
+  --primary-foreground: oklch(0.98 0 0);
   --secondary: oklch(0.32 0 0);
-  --secondary-foreground: oklch(0.93 0 0);
+  --secondary-foreground: oklch(0.9 0 0);
   --muted: oklch(0.32 0 0);
-  --muted-foreground: oklch(0.74 0 0);
+  --muted-foreground: oklch(0.72 0 0);
   --accent: oklch(0.32 0 0);
-  --accent-foreground: oklch(0.93 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
+  --accent-foreground: oklch(0.9 0 0);
+  --destructive: oklch(0.65 0.155 25);
   --border: oklch(1 0 0 / 14%);
   --input: oklch(1 0 0 / 17%);
   --ring: oklch(0.556 0 0);
@@ -184,58 +184,58 @@
   /* Interactive highlight — neutral bright border in dark, not brand blue. */
   --interactive: oklch(0.65 0 0);
 
-  /* Rating */
-  --rating: var(--gold-400);
+  /* Rating — softer gold, not neon yellow */
+  --rating: oklch(0.8 0.1 90);
   --rating-track: oklch(0.36 0 0);
 
-  /* FNAC */
-  --fnac: var(--fnac-400);
+  /* FNAC — softened gold */
+  --fnac: oklch(0.81 0.1 88);
 
-  /* Status — lighter fills, dark text */
-  --success: #4ade80;
-  --success-foreground: #052e16;
-  --warning: #fbbf24;
-  --warning-foreground: #422006;
-  --info: #60a5fa;
-  --info-foreground: #172554;
+  /* Status — muted fills, dark text */
+  --success: oklch(0.74 0.115 152);
+  --success-foreground: oklch(0.24 0.04 152);
+  --warning: oklch(0.8 0.1 80);
+  --warning-foreground: oklch(0.28 0.05 80);
+  --info: oklch(0.72 0.1 245);
+  --info-foreground: oklch(0.24 0.05 245);
 
-  /* Tint scale — dark = 950 bg / 300 fg / 800 border */
-  --tint-red-bg: #450a0a;
-  --tint-red-fg: #fca5a5;
-  --tint-red-border: #7f1d1d;
-  --tint-orange-bg: #431407;
-  --tint-orange-fg: #fdba74;
-  --tint-orange-border: #9a3412;
-  --tint-amber-bg: #451a03;
-  --tint-amber-fg: #fcd34d;
-  --tint-amber-border: #92400e;
-  --tint-yellow-bg: #422006;
-  --tint-yellow-fg: #fde047;
-  --tint-yellow-border: #854d0e;
-  --tint-lime-bg: #1a2e05;
-  --tint-lime-fg: #bef264;
-  --tint-lime-border: #3f6212;
-  --tint-green-bg: #052e16;
-  --tint-green-fg: #86efac;
-  --tint-green-border: #166534;
-  --tint-cyan-bg: #083344;
-  --tint-cyan-fg: #67e8f9;
-  --tint-cyan-border: #155e75;
-  --tint-blue-bg: #172554;
-  --tint-blue-fg: #93c5fd;
-  --tint-blue-border: #1e40af;
-  --tint-indigo-bg: #1e1b4b;
-  --tint-indigo-fg: #a5b4fc;
-  --tint-indigo-border: #3730a3;
-  --tint-violet-bg: #2e1065;
-  --tint-violet-fg: #c4b5fd;
-  --tint-violet-border: #5b21b6;
-  --tint-purple-bg: #3b0764;
-  --tint-purple-fg: #d8b4fe;
-  --tint-purple-border: #6b21a8;
-  --tint-gray-bg: #1f2937;
-  --tint-gray-fg: #d1d5db;
-  --tint-gray-border: #374151;
+  /* Tint scale — dim bg / soft low-chroma fg, for comfortable (non-neon) chips */
+  --tint-red-bg: oklch(0.3 0.045 27);
+  --tint-red-fg: oklch(0.82 0.08 27);
+  --tint-red-border: oklch(0.42 0.05 27);
+  --tint-orange-bg: oklch(0.3 0.045 55);
+  --tint-orange-fg: oklch(0.82 0.08 55);
+  --tint-orange-border: oklch(0.42 0.05 55);
+  --tint-amber-bg: oklch(0.3 0.04 75);
+  --tint-amber-fg: oklch(0.83 0.08 75);
+  --tint-amber-border: oklch(0.42 0.05 75);
+  --tint-yellow-bg: oklch(0.3 0.04 100);
+  --tint-yellow-fg: oklch(0.84 0.08 100);
+  --tint-yellow-border: oklch(0.42 0.05 100);
+  --tint-lime-bg: oklch(0.3 0.045 130);
+  --tint-lime-fg: oklch(0.83 0.08 130);
+  --tint-lime-border: oklch(0.42 0.05 130);
+  --tint-green-bg: oklch(0.3 0.045 152);
+  --tint-green-fg: oklch(0.81 0.08 152);
+  --tint-green-border: oklch(0.42 0.05 152);
+  --tint-cyan-bg: oklch(0.3 0.04 200);
+  --tint-cyan-fg: oklch(0.83 0.07 200);
+  --tint-cyan-border: oklch(0.42 0.05 200);
+  --tint-blue-bg: oklch(0.31 0.05 250);
+  --tint-blue-fg: oklch(0.81 0.08 250);
+  --tint-blue-border: oklch(0.43 0.06 250);
+  --tint-indigo-bg: oklch(0.31 0.05 272);
+  --tint-indigo-fg: oklch(0.81 0.08 272);
+  --tint-indigo-border: oklch(0.43 0.06 272);
+  --tint-violet-bg: oklch(0.31 0.05 292);
+  --tint-violet-fg: oklch(0.82 0.08 292);
+  --tint-violet-border: oklch(0.43 0.06 292);
+  --tint-purple-bg: oklch(0.31 0.05 320);
+  --tint-purple-fg: oklch(0.82 0.08 320);
+  --tint-purple-border: oklch(0.43 0.06 320);
+  --tint-gray-bg: oklch(0.32 0 0);
+  --tint-gray-fg: oklch(0.8 0 0);
+  --tint-gray-border: oklch(0.43 0 0);
 
   /* Charts */
   --chart-1: oklch(0.488 0.243 264.376);
