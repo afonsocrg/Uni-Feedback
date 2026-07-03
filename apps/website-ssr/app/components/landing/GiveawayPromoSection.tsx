@@ -37,7 +37,7 @@ export function GiveawayPromoSection() {
                 <Trans
                   i18nKey="giveaway_promo.title"
                   ns="landing"
-                  components={{ fnac: <span className="text-[#ecb300]" /> }}
+                  components={{ fnac: <span className="text-fnac" /> }}
                 />
               </h2>
               <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-white/90">

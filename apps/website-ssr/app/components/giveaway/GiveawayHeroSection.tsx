@@ -32,7 +32,7 @@ export function GiveawayHeroSection() {
             <Trans
               i18nKey="giveaway_page.hero_title"
               ns="legal"
-              components={{ fnac: <span className="text-[#ecb300]" /> }}
+              components={{ fnac: <span className="text-fnac" /> }}
             />
           </h1>
           <p className="text-xl md:text-2xl text-white/90 drop-shadow-md">

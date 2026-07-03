@@ -18,8 +18,7 @@ export function StarRating({
     ? Math.round(value * 2) / 2
     : Math.round(value)
 
-  const yellowTone =
-    variant === 'default' ? 'text-yellow-500' : 'text-yellow-500/70'
+  const starTone = variant === 'default' ? 'text-rating' : 'text-rating/70'
 
   const renderStar = (index: number) => {
     const fillAmount = Math.min(Math.max(displayValue - index, 0), 1)
@@ -30,7 +29,7 @@ export function StarRating({
         <span
           key={index}
           className={`${sizeClasses[size]} ${
-            fillAmount >= 1 ? yellowTone : 'text-gray-200'
+            fillAmount >= 1 ? starTone : 'text-rating-track'
           }`}
         >
           ★
@@ -44,9 +43,9 @@ export function StarRating({
         key={index}
         className={`relative inline-block ${sizeClasses[size]}`}
       >
-        <span className="text-gray-200">★</span>
+        <span className="text-rating-track">★</span>
         <span
-          className={`absolute top-0 left-0 overflow-hidden ${yellowTone}`}
+          className={`absolute top-0 left-0 overflow-hidden ${starTone}`}
           style={{ width: `${fillAmount * 100}%` }}
         >
           ★

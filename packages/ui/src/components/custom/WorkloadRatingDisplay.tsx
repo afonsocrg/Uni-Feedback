@@ -3,13 +3,16 @@ import { Badge } from '../shadcn/badge'
 
 function getWorkloadColor(rating: number): string {
   const colors = [
-    'bg-red-100 text-red-800 border-red-200', // 1 - Very heavy workload
-    'bg-orange-100 text-orange-800 border-orange-200', // 2 - Heavy workload
-    'bg-yellow-100 text-yellow-800 border-yellow-200', // 3 - Moderate workload
-    'bg-lime-100 text-lime-800 border-lime-200', // 4 - Light workload
-    'bg-green-100 text-green-800 border-green-200' // 5 - Very light workload
+    'bg-tint-red text-tint-red-fg border-tint-red-border', // 1 - Very heavy workload
+    'bg-tint-orange text-tint-orange-fg border-tint-orange-border', // 2 - Heavy workload
+    'bg-tint-yellow text-tint-yellow-fg border-tint-yellow-border', // 3 - Moderate workload
+    'bg-tint-lime text-tint-lime-fg border-tint-lime-border', // 4 - Light workload
+    'bg-tint-green text-tint-green-fg border-tint-green-border' // 5 - Very light workload
   ]
-  return colors[rating - 1] || 'bg-gray-100 text-gray-800 border-gray-200'
+  return (
+    colors[rating - 1] ||
+    'bg-tint-gray text-tint-gray-fg border-tint-gray-border'
+  )
 }
 
 interface WorkloadRatingDisplayProps {
@@ -28,7 +31,7 @@ export function WorkloadRatingDisplay({
 }: WorkloadRatingDisplayProps) {
   const roundedRating = Math.round(rating)
   const colorClass = muted
-    ? 'bg-gray-100 text-gray-500 border-gray-300'
+    ? 'bg-muted text-muted-foreground border-border'
     : getWorkloadColor(roundedRating)
 
   return (

@@ -242,7 +242,7 @@ export default function DesignSystemPage() {
 
       <Section
         title="Components"
-        description="A live sampling. Note: workload badges & chips below still use raw color scales — they're the migration targets that will move onto the tint tokens above."
+        description="A live sampling — buttons, workload badges, chips and star ratings, all themed through the tokens above."
       >
         <div className="flex flex-col gap-8">
           <div className="flex flex-wrap items-center gap-3">

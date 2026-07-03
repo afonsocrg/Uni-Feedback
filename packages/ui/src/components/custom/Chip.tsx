@@ -1,23 +1,24 @@
 import { Badge } from '../shadcn/badge'
 
-// A set of nice, accessible colors that work well together
+// Each chip color maps to a hue in the shared tint scale (see style.css).
+// bg + text + border together, so chips theme correctly in light and dark.
 const CHIP_COLORS = {
-  blue: { bg: '#E3F2FD', text: '#1976D2' },
-  green: { bg: '#E8F5E9', text: '#2E7D32' },
-  orange: { bg: '#FFF3E0', text: '#E65100' },
-  purple: { bg: '#F3E5F5', text: '#7B1FA2' },
-  red: { bg: '#FFEBEE', text: '#C62828' },
-  cyan: { bg: '#E0F7FA', text: '#00838F' },
-  'light-green': { bg: '#F1F8E9', text: '#558B2F' },
-  amber: { bg: '#FFF8E1', text: '#F57F17' },
-  'deep-purple': { bg: '#EDE7F6', text: '#4527A0' },
-  indigo: { bg: '#E8EAF6', text: '#283593' },
-  gray: { bg: '#F3F4F6', text: '#6B7280' }
-}
+  blue: 'bg-tint-blue text-tint-blue-fg border-tint-blue-border',
+  green: 'bg-tint-green text-tint-green-fg border-tint-green-border',
+  orange: 'bg-tint-orange text-tint-orange-fg border-tint-orange-border',
+  purple: 'bg-tint-purple text-tint-purple-fg border-tint-purple-border',
+  red: 'bg-tint-red text-tint-red-fg border-tint-red-border',
+  cyan: 'bg-tint-cyan text-tint-cyan-fg border-tint-cyan-border',
+  'light-green': 'bg-tint-lime text-tint-lime-fg border-tint-lime-border',
+  amber: 'bg-tint-amber text-tint-amber-fg border-tint-amber-border',
+  'deep-purple': 'bg-tint-violet text-tint-violet-fg border-tint-violet-border',
+  indigo: 'bg-tint-indigo text-tint-indigo-fg border-tint-indigo-border',
+  gray: 'bg-tint-gray text-tint-gray-fg border-tint-gray-border'
+} as const
 
 export type ChipColor = keyof typeof CHIP_COLORS
 
-export const getColorForLabel = (label: string) => {
+export const getColorForLabel = (label: string): string => {
   // Create a simple hash of the label to get a consistent index
   const hash = label.split('').reduce((acc, char) => {
     return char.charCodeAt(0) + ((acc << 5) - acc)
@@ -55,19 +56,13 @@ export function Chip({
   size = 'sm',
   onClick
 }: ChipProps) {
-  const { bg, text } = color ? CHIP_COLORS[color] : getColorForLabel(label)
+  const colorClass = color ? CHIP_COLORS[color] : getColorForLabel(label)
   const sizeClasses = CHIP_SIZE_CLASSES[size]
 
   return (
     <Badge
       variant="outline"
-      className={`${sizeClasses} ${className}`}
-      style={{
-        backgroundColor: bg,
-        color: text,
-        // borderColor: text
-        borderColor: bg
-      }}
+      className={`${sizeClasses} ${colorClass} ${className}`}
       onClick={onClick}
     >
       {label}

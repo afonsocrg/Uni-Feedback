@@ -1,8 +1,8 @@
 import { Badge } from '../shadcn/badge'
 
 const APPROVAL_COLORS = {
-  approved: { bg: '#E8F5E9', text: '#2E7D32' }, // Light green background, dark green text
-  unapproved: { bg: '#FFEBEE', text: '#C62828' } // Light red background, dark red text
+  approved: 'bg-tint-green text-tint-green-fg border-tint-green-border',
+  unapproved: 'bg-tint-red text-tint-red-fg border-tint-red-border'
 }
 
 interface ApprovalStatusBadgeProps {
@@ -14,18 +14,10 @@ export function ApprovalStatusBadge({
   approved,
   className = ''
 }: ApprovalStatusBadgeProps) {
-  const colors = APPROVAL_COLORS[approved ? 'approved' : 'unapproved']
+  const colorClass = APPROVAL_COLORS[approved ? 'approved' : 'unapproved']
 
   return (
-    <Badge
-      variant="outline"
-      className={`text-xs ${className}`}
-      style={{
-        backgroundColor: colors.bg,
-        color: colors.text,
-        borderColor: colors.bg
-      }}
-    >
+    <Badge variant="outline" className={`text-xs ${colorClass} ${className}`}>
       {approved ? 'Approved' : 'Unapproved'}
     </Badge>
   )
