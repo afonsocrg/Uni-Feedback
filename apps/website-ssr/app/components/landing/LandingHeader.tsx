@@ -66,7 +66,8 @@ export function LandingHeader() {
             logout={logout}
           />
           <Logo variant="mobile" />
-          <ThemeToggle />
+          {/* Spacer to keep the logo centered (toggles now live in the drawer) */}
+          <div className="size-9" />
         </div>
       </div>
     </header>

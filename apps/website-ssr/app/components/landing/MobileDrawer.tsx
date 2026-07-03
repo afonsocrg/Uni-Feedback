@@ -8,6 +8,7 @@ import {
 import { LogOut, Menu, User } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { LanguageSwitcher } from '~/components/layout/LanguageSwitcher'
+import { ThemeToggle } from '~/components/layout/ThemeToggle'
 import { useLang } from '~/hooks'
 import { analytics, getPageName } from '~/utils/analytics'
 import { getLocalePath, getReviewPath } from '~/utils/i18n-routes'
@@ -41,9 +42,8 @@ export function MobileDrawer({
       <SheetContent side="left" className="w-[300px] sm:w-[350px] p-0">
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="p-6 pb-4 flex items-center justify-between">
+          <div className="p-6 pb-4">
             <h2 className="text-lg font-semibold">{t('nav.menu')}</h2>
-            <LanguageSwitcher />
           </div>
           <Separator />
 
@@ -76,6 +76,28 @@ export function MobileDrawer({
               </Button>
             </div>
           </nav>
+
+          {/* Settings: theme + language, side by side */}
+          <div className="px-4 pb-2">
+            <div className="grid grid-cols-2 gap-2">
+              <div className="flex flex-col items-center gap-1">
+                <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                  {t('nav.theme')}
+                </span>
+                <div className="flex h-9 items-center">
+                  <ThemeToggle />
+                </div>
+              </div>
+              <div className="flex flex-col items-center gap-1">
+                <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                  {t('nav.language')}
+                </span>
+                <div className="flex h-9 items-center">
+                  <LanguageSwitcher />
+                </div>
+              </div>
+            </div>
+          </div>
 
           {/* Profile Section at Bottom */}
           <div className="p-4 pt-0 mt-auto">

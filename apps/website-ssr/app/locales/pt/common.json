@@ -9,7 +9,9 @@
     "sign_in": "Entrar",
     "sign_in_prompt": "Inicia sessão para aceder ao teu perfil",
     "sign_in_to_platform": "Entrar no Uni Feedback",
-    "loading": "A carregar..."
+    "loading": "A carregar...",
+    "theme": "Tema",
+    "language": "Idioma"
   },
   "footer": {
     "tagline": "De alunos, para alunos. O teu companheiro para uma vida universitária melhor e mais bem-sucedida.",
