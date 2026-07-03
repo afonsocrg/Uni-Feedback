@@ -28,12 +28,16 @@ export function UniversitiesStrip({ faculties }: UniversitiesStripProps) {
           {withLogos.map((faculty) => {
             const logoPath = faculty.logoHorizontal || faculty.logo
             return (
-              <img
+              <span
                 key={faculty.id}
-                alt={`${faculty.name} logo`}
-                src={getAssetUrl(logoPath!)}
-                className="h-5 flex-shrink-0 opacity-40 grayscale"
-              />
+                className="inline-flex flex-shrink-0 items-center rounded-md border border-border bg-white px-2.5 py-1.5"
+              >
+                <img
+                  alt={`${faculty.name} logo`}
+                  src={getAssetUrl(logoPath!)}
+                  className="h-5 object-contain"
+                />
+              </span>
             )
           })}
         </div>

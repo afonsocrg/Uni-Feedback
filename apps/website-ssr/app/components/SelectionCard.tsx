@@ -38,11 +38,11 @@ export function SelectionCard({
       <CardHeader>
         <div className="flex gap-4">
           {logo && (
-            <div className="flex-shrink-0">
+            <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-lg border border-border bg-white p-2">
               <img
                 src={getAssetUrl(logo) || ''}
                 alt={`${title} logo`}
-                className="h-16 w-16 object-contain"
+                className="max-h-full max-w-full object-contain"
               />
             </div>
           )}

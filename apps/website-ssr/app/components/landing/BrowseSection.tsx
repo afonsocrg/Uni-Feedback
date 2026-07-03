@@ -70,11 +70,13 @@ export function BrowseSection({ faculties, degrees }: BrowseSectionProps) {
                 }`}
               >
                 {faculty.logo && (
-                  <img
-                    src={getAssetUrl(faculty.logo)}
-                    alt=""
-                    className="size-4 object-contain flex-shrink-0"
-                  />
+                  <span className="inline-flex flex-shrink-0 items-center justify-center rounded-[3px] bg-white p-0.5">
+                    <img
+                      src={getAssetUrl(faculty.logo)}
+                      alt=""
+                      className="size-4 object-contain"
+                    />
+                  </span>
                 )}
                 {faculty.shortName}
               </button>
@@ -96,11 +98,13 @@ export function BrowseSection({ faculties, degrees }: BrowseSectionProps) {
                   }`}
                 >
                   {faculty.logo && (
-                    <img
-                      src={getAssetUrl(faculty.logo)}
-                      alt=""
-                      className="size-5 object-contain flex-shrink-0"
-                    />
+                    <span className="inline-flex flex-shrink-0 items-center justify-center rounded-[3px] bg-white p-0.5">
+                      <img
+                        src={getAssetUrl(faculty.logo)}
+                        alt=""
+                        className="size-5 object-contain"
+                      />
+                    </span>
                   )}
                   {faculty.shortName}
                 </button>

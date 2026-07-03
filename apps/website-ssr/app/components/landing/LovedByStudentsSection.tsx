@@ -31,11 +31,13 @@ export function LovedByStudentsSection({
                   rel="noopener noreferrer"
                   className="transition-opacity hover:opacity-80"
                 >
-                  <img
-                    alt={`${faculty.name} logo`}
-                    src={logoUrl}
-                    className="h-12"
-                  />
+                  <span className="inline-flex items-center rounded-lg border border-border bg-white px-4 py-3">
+                    <img
+                      alt={`${faculty.name} logo`}
+                      src={logoUrl}
+                      className="h-12 object-contain"
+                    />
+                  </span>
                 </a>
               )
             })}

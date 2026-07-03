@@ -151,11 +151,13 @@ export function GiveawayRecapCommunity() {
                   className="bg-background border rounded-lg p-6 text-center"
                 >
                   <div className="flex justify-center mb-3">
-                    <img
-                      src={getAssetUrl(faculty.logo)}
-                      alt={faculty.name}
-                      className="h-12 w-auto object-contain"
-                    />
+                    <span className="inline-flex items-center rounded-lg border border-border bg-white px-4 py-3">
+                      <img
+                        src={getAssetUrl(faculty.logo)}
+                        alt={faculty.name}
+                        className="h-12 w-auto object-contain"
+                      />
+                    </span>
                   </div>
                   <h4 className="font-semibold text-lg mb-3">{faculty.name}</h4>
                   <div className="space-y-1">
