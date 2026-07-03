@@ -153,19 +153,19 @@
 
 .dark {
   /* Surfaces & text — soft dark (not near-black), to lower overall contrast */
-  --background: oklch(0.24 0 0);
+  --background: oklch(0.255 0 0);
   --foreground: oklch(0.9 0 0);
-  --card: oklch(0.278 0 0);
+  --card: oklch(0.295 0 0);
   --card-foreground: oklch(0.9 0 0);
-  --popover: oklch(0.278 0 0);
+  --popover: oklch(0.295 0 0);
   --popover-foreground: oklch(0.9 0 0);
   --primary: oklch(0.62 0.108 240);
   --primary-foreground: oklch(0.98 0 0);
-  --secondary: oklch(0.32 0 0);
+  --secondary: oklch(0.335 0 0);
   --secondary-foreground: oklch(0.9 0 0);
-  --muted: oklch(0.32 0 0);
-  --muted-foreground: oklch(0.72 0 0);
-  --accent: oklch(0.32 0 0);
+  --muted: oklch(0.335 0 0);
+  --muted-foreground: oklch(0.73 0 0);
+  --accent: oklch(0.335 0 0);
   --accent-foreground: oklch(0.9 0 0);
   --destructive: oklch(0.65 0.155 25);
   --border: oklch(1 0 0 / 14%);
@@ -186,13 +186,13 @@
 
   /* Rating — softer gold, not neon yellow */
   --rating: oklch(0.8 0.1 90);
-  --rating-track: oklch(0.36 0 0);
+  --rating-track: oklch(0.38 0 0);
 
   /* FNAC — softened gold */
   --fnac: oklch(0.81 0.1 88);
 
   /* Status — muted fills, dark text */
-  --success: oklch(0.74 0.115 152);
+  --success: oklch(0.7 0.11 152);
   --success-foreground: oklch(0.24 0.04 152);
   --warning: oklch(0.8 0.1 80);
   --warning-foreground: oklch(0.28 0.05 80);
@@ -213,10 +213,10 @@
   --tint-yellow-fg: oklch(0.84 0.08 100);
   --tint-yellow-border: oklch(0.42 0.05 100);
   --tint-lime-bg: oklch(0.3 0.045 130);
-  --tint-lime-fg: oklch(0.83 0.08 130);
+  --tint-lime-fg: oklch(0.79 0.072 130);
   --tint-lime-border: oklch(0.42 0.05 130);
   --tint-green-bg: oklch(0.3 0.045 152);
-  --tint-green-fg: oklch(0.81 0.08 152);
+  --tint-green-fg: oklch(0.75 0.07 152);
   --tint-green-border: oklch(0.42 0.05 152);
   --tint-cyan-bg: oklch(0.3 0.04 200);
   --tint-cyan-fg: oklch(0.83 0.07 200);
