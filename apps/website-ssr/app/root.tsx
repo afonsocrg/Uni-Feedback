@@ -16,7 +16,8 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
-  useLocation
+  useLocation,
+  useRouteLoaderData
 } from 'react-router'
 import { Toaster } from 'sonner'
 import { NotFound } from '~/components'
@@ -24,7 +25,13 @@ import type { Lang } from '~/i18n/config'
 import { defaultLang, i18n } from '~/i18n/config'
 import { AuthProvider } from '~/providers/AuthProvider'
 import { AuthRefreshProvider } from '~/providers/AuthRefreshProvider'
+import { ThemeProvider } from '~/providers/ThemeProvider'
 import { userPreferences } from '~/utils'
+import {
+  getThemeFromCookie,
+  type ResolvedTheme,
+  THEME_INIT_SCRIPT
+} from '~/utils/theme'
 
 import { detectLang, getEquivalentPath } from '~/utils/i18n-routes'
 import { getRequestOrigin } from '~/utils/request'
@@ -34,6 +41,9 @@ import { LandingLayout } from './components/landing'
 // Module-level lang used for SSR: set by loader before renderToString runs.
 // Safe for Node.js single-threaded synchronous rendering.
 let _ssrLang: Lang = defaultLang
+// Same pattern for the theme — used as a fallback when loader data is
+// unavailable (e.g. during error rendering).
+let _ssrTheme: ResolvedTheme = 'light'
 
 export const links: Route.LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -53,7 +63,9 @@ export async function loader({ request }: Route.LoaderArgs) {
   const lang = detectLang(url.pathname)
   _ssrLang = lang
   i18n.changeLanguage(lang)
-  return { lang, origin: getRequestOrigin(request) }
+  const theme = getThemeFromCookie(request.headers.get('cookie'))
+  _ssrTheme = theme
+  return { lang, theme, origin: getRequestOrigin(request) }
 }
 
 const queryClient = new QueryClient({
@@ -91,6 +103,14 @@ function HreflangLinks() {
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  // Root loader data is available on both server and client navigations, so the
+  // <html> class stays consistent across renders (no strip-on-navigate). Falls
+  // back to the module var when loader data is absent (error rendering).
+  const rootData = useRouteLoaderData('root') as
+    | { theme?: ResolvedTheme }
+    | undefined
+  const theme = rootData?.theme ?? _ssrTheme
+
   const envScript =
     typeof process !== 'undefined'
       ? `window.ENV = ${JSON.stringify({
@@ -103,8 +123,18 @@ export function Layout({ children }: { children: React.ReactNode }) {
       : ''
 
   return (
-    <html lang={_ssrLang} className="scroll-smooth">
+    <html
+      lang={_ssrLang}
+      className={theme === 'dark' ? 'scroll-smooth dark' : 'scroll-smooth'}
+      style={{ colorScheme: theme }}
+      suppressHydrationWarning
+    >
       <head>
+        {/* Applies the saved theme before first paint — must stay first. */}
+        <script
+          dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }}
+          suppressHydrationWarning
+        />
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
@@ -127,7 +157,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  const { lang } = useLoaderData<typeof loader>()
+  const { lang, theme } = useLoaderData<typeof loader>()
 
   useEffect(() => {
     userPreferences.initialize()
@@ -214,24 +244,26 @@ export default function App() {
   }, [])
 
   return (
-    <I18nextProvider i18n={i18n}>
-      <AuthProvider>
-        <AuthRefreshProvider>
-          <PersistQueryClientProvider
-            client={queryClient}
-            persistOptions={{ persister: persister! }}
-          >
-            <Toaster position="top-right" richColors />
-            <Outlet />
-            {import.meta.env.DEV && (
-              <React.Suspense fallback={null}>
-                <ReactQueryDevtools initialIsOpen={false} />
-              </React.Suspense>
-            )}
-          </PersistQueryClientProvider>
-        </AuthRefreshProvider>
-      </AuthProvider>
-    </I18nextProvider>
+    <ThemeProvider initialResolved={theme}>
+      <I18nextProvider i18n={i18n}>
+        <AuthProvider>
+          <AuthRefreshProvider>
+            <PersistQueryClientProvider
+              client={queryClient}
+              persistOptions={{ persister: persister! }}
+            >
+              <Toaster position="top-right" richColors />
+              <Outlet />
+              {import.meta.env.DEV && (
+                <React.Suspense fallback={null}>
+                  <ReactQueryDevtools initialIsOpen={false} />
+                </React.Suspense>
+              )}
+            </PersistQueryClientProvider>
+          </AuthRefreshProvider>
+        </AuthProvider>
+      </I18nextProvider>
+    </ThemeProvider>
   )
 }
 

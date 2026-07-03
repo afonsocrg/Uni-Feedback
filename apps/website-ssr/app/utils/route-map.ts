@@ -172,6 +172,11 @@ export const routeConfig = [
         slugs: { pt: 'contacto', en: 'contact' }
       },
       {
+        key: 'design',
+        file: 'routes/design.tsx',
+        slugs: { pt: 'design', en: 'design' }
+      },
+      {
         layout: true,
         file: 'routes/auth-layout.tsx',
         children: [

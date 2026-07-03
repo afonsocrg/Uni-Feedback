@@ -1,6 +1,7 @@
 import { Button } from '@uni-feedback/ui'
 import { useTranslation } from 'react-i18next'
 import { LanguageSwitcher } from '~/components/layout/LanguageSwitcher'
+import { ThemeToggle } from '~/components/layout/ThemeToggle'
 import { useAuth, useLang } from '~/hooks'
 import { useLastVisitedPath } from '~/hooks/useLastVisitedPath'
 import { analytics, getPageName } from '~/utils/analytics'
@@ -25,6 +26,7 @@ export function LandingHeader() {
           <Logo variant="desktop" />
 
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             <LanguageSwitcher />
             <Button size="sm" variant="ghost" asChild>
               <a
@@ -64,7 +66,7 @@ export function LandingHeader() {
             logout={logout}
           />
           <Logo variant="mobile" />
-          <div className="size-9" />
+          <ThemeToggle />
         </div>
       </div>
     </header>

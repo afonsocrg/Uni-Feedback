@@ -3,11 +3,253 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ════════════════════════════════════════════════════════════════════════
+   UNI FEEDBACK DESIGN TOKENS
+   ────────────────────────────────────────────────────────────────────────
+   Three tiers. Read top to bottom:
+
+     TIER 1  Primitives   — raw color values. The ONLY place hex/oklch live.
+     TIER 2  Semantic     — roles (what a color MEANS). Defined per theme in
+                            :root (light) and .dark. Components use THESE.
+     TIER 3  @theme        — registers the semantic tokens as Tailwind utilities
+                            (bg-primary, text-rating, bg-tint-blue, …).
+
+   RULE: components reference TIER 2 names only (via the utilities in TIER 3).
+   Never hard-code a hex or a raw palette scale (gray-600, #23729f) in a
+   component — if you need a new color, add a semantic token here first.
+   Dark mode then "just works": we redefine the semantic tokens once under
+   .dark and every component flips automatically.
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* ────────────────────────────────────────────────────────────────────────
+   TIER 1 — PRIMITIVES (theme-independent raw palette)
+   ──────────────────────────────────────────────────────────────────────── */
+:root {
+  /* Brand blue scale */
+  --brand-700: #12405f;
+  --brand-600: #1a5a7a; /* announcement gradient edge */
+  --brand-500: #23729f; /* the brand blue */
+  --brand-400: #3f92c0;
+  --brand-300: #7fb8d9;
+
+  /* Gold — star ratings & FNAC */
+  --gold-500: #eab308; /* filled star (was text-yellow-500) */
+  --gold-400: #facc15;
+  --fnac-500: #ecb300; /* FNAC brand gold */
+  --fnac-400: #f5c518;
+}
+
+/* ────────────────────────────────────────────────────────────────────────
+   TIER 2 — SEMANTIC TOKENS
+   Light values in :root, dark overrides in .dark. Components use these.
+   ──────────────────────────────────────────────────────────────────────── */
+:root {
+  --radius: 0.625rem;
+
+  /* Surfaces & text (shadcn base) */
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.527 0.098 234.873);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+
+  /* Brand — themeable (was a fixed literal #23729f) */
+  --brand: var(--brand-500);
+  --brand-foreground: #ffffff;
+
+  /* Rating */
+  --rating: var(--gold-500); /* filled star */
+  --rating-track: #e5e7eb; /* empty star (was gray-200) */
+
+  /* FNAC accent */
+  --fnac: var(--fnac-500);
+
+  /* Status (solid) */
+  --success: #16a34a;
+  --success-foreground: #ffffff;
+  --warning: #d97706;
+  --warning-foreground: #ffffff;
+  --info: #2563eb;
+  --info-foreground: #ffffff;
+  /* (danger == --destructive, already defined above) */
+
+  /* ── Tint scale — soft tinted badges. One system shared by workload
+     ratings, status badges, and category chips. Light = 100/800/200. ── */
+  --tint-red-bg: #fee2e2;
+  --tint-red-fg: #991b1b;
+  --tint-red-border: #fecaca;
+  --tint-orange-bg: #ffedd5;
+  --tint-orange-fg: #9a3412;
+  --tint-orange-border: #fed7aa;
+  --tint-amber-bg: #fef3c7;
+  --tint-amber-fg: #92400e;
+  --tint-amber-border: #fde68a;
+  --tint-yellow-bg: #fef9c3;
+  --tint-yellow-fg: #854d0e;
+  --tint-yellow-border: #fef08a;
+  --tint-lime-bg: #ecfccb;
+  --tint-lime-fg: #3f6212;
+  --tint-lime-border: #d9f99d;
+  --tint-green-bg: #dcfce7;
+  --tint-green-fg: #166534;
+  --tint-green-border: #bbf7d0;
+  --tint-cyan-bg: #cffafe;
+  --tint-cyan-fg: #155e75;
+  --tint-cyan-border: #a5f3fc;
+  --tint-blue-bg: #dbeafe;
+  --tint-blue-fg: #1e40af;
+  --tint-blue-border: #bfdbfe;
+  --tint-indigo-bg: #e0e7ff;
+  --tint-indigo-fg: #3730a3;
+  --tint-indigo-border: #c7d2fe;
+  --tint-violet-bg: #ede9fe;
+  --tint-violet-fg: #5b21b6;
+  --tint-violet-border: #ddd6fe;
+  --tint-purple-bg: #f3e8ff;
+  --tint-purple-fg: #6b21a8;
+  --tint-purple-border: #e9d5ff;
+  --tint-gray-bg: #f3f4f6;
+  --tint-gray-fg: #1f2937;
+  --tint-gray-border: #e5e7eb;
+
+  /* Charts */
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+
+  /* Sidebar */
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  /* Surfaces & text */
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.627 0.128 235.5);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+
+  /* Brand — lighter so it stays legible on dark surfaces */
+  --brand: var(--brand-400);
+  --brand-foreground: #ffffff;
+
+  /* Rating */
+  --rating: var(--gold-400);
+  --rating-track: oklch(0.32 0 0);
+
+  /* FNAC */
+  --fnac: var(--fnac-400);
+
+  /* Status — lighter fills, dark text */
+  --success: #4ade80;
+  --success-foreground: #052e16;
+  --warning: #fbbf24;
+  --warning-foreground: #422006;
+  --info: #60a5fa;
+  --info-foreground: #172554;
+
+  /* Tint scale — dark = 950 bg / 300 fg / 800 border */
+  --tint-red-bg: #450a0a;
+  --tint-red-fg: #fca5a5;
+  --tint-red-border: #7f1d1d;
+  --tint-orange-bg: #431407;
+  --tint-orange-fg: #fdba74;
+  --tint-orange-border: #9a3412;
+  --tint-amber-bg: #451a03;
+  --tint-amber-fg: #fcd34d;
+  --tint-amber-border: #92400e;
+  --tint-yellow-bg: #422006;
+  --tint-yellow-fg: #fde047;
+  --tint-yellow-border: #854d0e;
+  --tint-lime-bg: #1a2e05;
+  --tint-lime-fg: #bef264;
+  --tint-lime-border: #3f6212;
+  --tint-green-bg: #052e16;
+  --tint-green-fg: #86efac;
+  --tint-green-border: #166534;
+  --tint-cyan-bg: #083344;
+  --tint-cyan-fg: #67e8f9;
+  --tint-cyan-border: #155e75;
+  --tint-blue-bg: #172554;
+  --tint-blue-fg: #93c5fd;
+  --tint-blue-border: #1e40af;
+  --tint-indigo-bg: #1e1b4b;
+  --tint-indigo-fg: #a5b4fc;
+  --tint-indigo-border: #3730a3;
+  --tint-violet-bg: #2e1065;
+  --tint-violet-fg: #c4b5fd;
+  --tint-violet-border: #5b21b6;
+  --tint-purple-bg: #3b0764;
+  --tint-purple-fg: #d8b4fe;
+  --tint-purple-border: #6b21a8;
+  --tint-gray-bg: #1f2937;
+  --tint-gray-fg: #d1d5db;
+  --tint-gray-border: #374151;
+
+  /* Charts */
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+
+  /* Sidebar */
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+/* ────────────────────────────────────────────────────────────────────────
+   TIER 3 — @theme: register semantic tokens as Tailwind utilities.
+   `inline` means utilities emit var(--token) directly, so .dark overrides
+   above flip every utility automatically.
+   ──────────────────────────────────────────────────────────────────────── */
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -39,80 +281,69 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  /* --color-primaryBlue: #123755; */
-  /* --color-primaryBlue: #104669; */
-  --color-primaryBlue: #23729f;
+
+  /* Brand — bg-primaryBlue / text-primaryBlue keep working, now themeable */
+  --color-primaryBlue: var(--brand);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+
+  /* Rating: text-rating, bg-rating-track */
+  --color-rating: var(--rating);
+  --color-rating-track: var(--rating-track);
+
+  /* FNAC: text-fnac / bg-fnac */
+  --color-fnac: var(--fnac);
+
+  /* Status: bg-success / text-success-foreground, etc. */
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+
+  /* Tint scale: bg-tint-blue / text-tint-blue-fg / border-tint-blue-border */
+  --color-tint-red: var(--tint-red-bg);
+  --color-tint-red-fg: var(--tint-red-fg);
+  --color-tint-red-border: var(--tint-red-border);
+  --color-tint-orange: var(--tint-orange-bg);
+  --color-tint-orange-fg: var(--tint-orange-fg);
+  --color-tint-orange-border: var(--tint-orange-border);
+  --color-tint-amber: var(--tint-amber-bg);
+  --color-tint-amber-fg: var(--tint-amber-fg);
+  --color-tint-amber-border: var(--tint-amber-border);
+  --color-tint-yellow: var(--tint-yellow-bg);
+  --color-tint-yellow-fg: var(--tint-yellow-fg);
+  --color-tint-yellow-border: var(--tint-yellow-border);
+  --color-tint-lime: var(--tint-lime-bg);
+  --color-tint-lime-fg: var(--tint-lime-fg);
+  --color-tint-lime-border: var(--tint-lime-border);
+  --color-tint-green: var(--tint-green-bg);
+  --color-tint-green-fg: var(--tint-green-fg);
+  --color-tint-green-border: var(--tint-green-border);
+  --color-tint-cyan: var(--tint-cyan-bg);
+  --color-tint-cyan-fg: var(--tint-cyan-fg);
+  --color-tint-cyan-border: var(--tint-cyan-border);
+  --color-tint-blue: var(--tint-blue-bg);
+  --color-tint-blue-fg: var(--tint-blue-fg);
+  --color-tint-blue-border: var(--tint-blue-border);
+  --color-tint-indigo: var(--tint-indigo-bg);
+  --color-tint-indigo-fg: var(--tint-indigo-fg);
+  --color-tint-indigo-border: var(--tint-indigo-border);
+  --color-tint-violet: var(--tint-violet-bg);
+  --color-tint-violet-fg: var(--tint-violet-fg);
+  --color-tint-violet-border: var(--tint-violet-border);
+  --color-tint-purple: var(--tint-purple-bg);
+  --color-tint-purple-fg: var(--tint-purple-fg);
+  --color-tint-purple-border: var(--tint-purple-border);
+  --color-tint-gray: var(--tint-gray-bg);
+  --color-tint-gray-fg: var(--tint-gray-fg);
+  --color-tint-gray-border: var(--tint-gray-border);
 }
 
-:root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.527 0.098 234.873);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-}
-
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.627 0.128 235.5);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
-}
-
+/* ────────────────────────────────────────────────────────────────────────
+   Base layer & utilities (unchanged)
+   ──────────────────────────────────────────────────────────────────────── */
 @layer base {
   * {
     @apply border-border outline-ring/50;
