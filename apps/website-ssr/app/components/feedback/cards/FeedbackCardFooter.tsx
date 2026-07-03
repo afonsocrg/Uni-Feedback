@@ -14,13 +14,15 @@ export function FeedbackCardFooter({
 }: FeedbackCardFooterProps) {
   const lang = useLang()
   return (
-    <div className="pt-3 border-t border-gray-100">
-      <p className="text-xs text-gray-600 truncate mb-0.5">{courseName}</p>
+    <div className="pt-3 border-t border-border">
+      <p className="text-xs text-muted-foreground truncate mb-0.5">
+        {courseName}
+      </p>
       <div className="flex items-center justify-between gap-2">
-        <p className="text-xs text-gray-400">
+        <p className="text-xs text-muted-foreground">
           {facultyShortName ?? 'University'}
         </p>
-        <p className="text-xs text-gray-400 shrink-0">
+        <p className="text-xs text-muted-foreground shrink-0">
           {getRelativeTime(createdAt, lang)}
         </p>
       </div>

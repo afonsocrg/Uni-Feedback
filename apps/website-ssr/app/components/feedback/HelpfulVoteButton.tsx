@@ -70,7 +70,7 @@ export function HelpfulVoteButton({
       onClick={handleToggleVote}
       disabled={isLoading}
       className={cn(
-        'h-8 px-2 text-gray-500 hover:text-gray-700',
+        'h-8 px-2 text-muted-foreground hover:text-foreground',
         hasVoted && 'text-primaryBlue hover:text-primaryBlue/80',
         className
       )}

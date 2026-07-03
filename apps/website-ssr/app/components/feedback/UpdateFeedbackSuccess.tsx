@@ -60,14 +60,14 @@ export function UpdateFeedbackSuccess({
 
       {hasPoints && (
         <div className="flex flex-col items-center gap-1 mt-6">
-          <span className="text-sm text-gray-600 font-medium">
+          <span className="text-sm text-muted-foreground font-medium">
             Your feedback is now worth
           </span>
           <span className="text-5xl md:text-6xl font-bold text-primaryBlue">
             {points}
           </span>
           <div className="flex items-center gap-1.5">
-            <span className="text-base font-medium text-gray-600">
+            <span className="text-base font-medium text-muted-foreground">
               point{points !== 1 ? 's' : ''}
             </span>
             <TooltipProvider>
@@ -75,15 +75,12 @@ export function UpdateFeedbackSuccess({
                 <TooltipTrigger asChild>
                   <Link
                     to={getLocalePath('points', lang)}
-                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                    className="text-muted-foreground hover:text-muted-foreground transition-colors"
                   >
                     <HelpCircle className="w-4 h-4" />
                   </Link>
                 </TooltipTrigger>
-                <TooltipContent
-                  side="bottom"
-                  className="text-white border-gray-900"
-                >
+                <TooltipContent side="bottom">
                   <p>How do points work?</p>
                 </TooltipContent>
               </Tooltip>

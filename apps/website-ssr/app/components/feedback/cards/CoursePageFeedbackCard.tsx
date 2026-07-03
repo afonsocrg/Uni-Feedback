@@ -117,7 +117,7 @@ export function CoursePageFeedbackCard({
     <div
       id={feedbackAnchorId}
       ref={cardRef}
-      className={`bg-white rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] p-6 mb-6 hover:shadow-[0px_6px_24px_rgba(0,0,0,0.08)] transition-all duration-500 ${
+      className={`bg-card rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] p-6 mb-6 hover:shadow-[0px_6px_24px_rgba(0,0,0,0.08)] transition-all duration-500 ${
         isHighlighted
           ? 'ring-2 ring-primaryBlue ring-offset-2 shadow-[0px_8px_32px_rgba(35,114,159,0.15)]'
           : ''
@@ -129,7 +129,7 @@ export function CoursePageFeedbackCard({
           <div className="flex flex-wrap items-center gap-3">
             <StarRating value={feedback.rating} />
             {feedback.workloadRating && (
-              <div className="inline-flex items-center px-3 py-1 text-xs text-gray-500 font-medium">
+              <div className="inline-flex items-center px-3 py-1 text-xs text-muted-foreground font-medium">
                 <span className="mr-1">{t('card.workload_prefix')}</span>
                 <WorkloadRatingDisplay
                   rating={feedback.workloadRating}
@@ -156,13 +156,13 @@ export function CoursePageFeedbackCard({
               </Tooltip>
             )}
           </div>
-          <p className="text-xs text-gray-400">{relativeTime}</p>
+          <p className="text-xs text-muted-foreground">{relativeTime}</p>
         </div>
       </div>
 
       {/* Comment section */}
       {feedback.comment ? (
-        <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed">
+        <div className="prose prose-sm max-w-none text-foreground leading-relaxed">
           <div className="transition-all duration-300 ease-in-out">
             <FeedbackMarkdown>
               {isLongComment && !isExpanded
@@ -182,11 +182,13 @@ export function CoursePageFeedbackCard({
           )}
         </div>
       ) : (
-        <p className="text-gray-500 italic text-sm">{t('card.no_comment')}</p>
+        <p className="text-muted-foreground italic text-sm">
+          {t('card.no_comment')}
+        </p>
       )}
 
       {/* Footer with actions */}
-      <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between">
+      <div className="mt-3 pt-3 border-t border-border flex items-center justify-between">
         <HelpfulVoteButton
           feedbackId={feedback.id}
           initialVoteCount={feedback.helpfulVoteCount}
@@ -197,7 +199,7 @@ export function CoursePageFeedbackCard({
             variant="ghost"
             size="sm"
             onClick={handleCopyPermalink}
-            className="h-8 px-2 text-gray-400 hover:text-gray-600"
+            className="h-8 px-2 text-muted-foreground hover:text-muted-foreground"
           >
             {isCopied && (
               <span className="text-xs font-medium mr-1">
@@ -210,7 +212,7 @@ export function CoursePageFeedbackCard({
             variant="ghost"
             size="sm"
             onClick={() => setIsReportDialogOpen(true)}
-            className="h-8 px-2 text-gray-400 hover:text-gray-600"
+            className="h-8 px-2 text-muted-foreground hover:text-muted-foreground"
           >
             <Flag className="size-4" />
           </Button>

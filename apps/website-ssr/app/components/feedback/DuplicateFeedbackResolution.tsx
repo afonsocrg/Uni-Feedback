@@ -31,17 +31,17 @@ export function DuplicateFeedbackResolution({
   return (
     <main className="container mx-auto px-4 py-8 max-w-2xl min-h-screen">
       <div>
-        <h1 className="text-xl font-bold text-gray-900 mb-4">
+        <h1 className="text-xl font-bold text-foreground mb-4">
           You've already reviewed {existingFeedback.course.name}
         </h1>
 
-        <p className="text-gray-600 mb-6">
+        <p className="text-muted-foreground mb-6">
           You can update your existing feedback with these changes or cancel.
         </p>
 
         {/* Show existing feedback card */}
         <div className="mb-8">
-          <h2 className="text-sm font-semibold text-gray-700 mb-3">
+          <h2 className="text-sm font-semibold text-foreground mb-3">
             Your Current Feedback
           </h2>
           <SimpleFeedbackCard feedback={existingFeedback} />

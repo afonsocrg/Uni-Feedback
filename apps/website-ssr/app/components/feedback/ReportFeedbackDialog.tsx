@@ -148,10 +148,10 @@ export function ReportFeedbackDialog({
               </svg>
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-lg font-semibold text-foreground">
                 Report Submitted
               </h3>
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="text-sm text-muted-foreground mt-1">
                 Thank you for helping keep our community safe. Our moderators
                 will review your report.
               </p>

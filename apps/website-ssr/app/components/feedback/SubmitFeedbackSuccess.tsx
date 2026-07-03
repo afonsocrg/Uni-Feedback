@@ -53,18 +53,20 @@ export function SubmitFeedbackSuccess({
   const hasReviewedAll = !hasRecommendations
 
   return (
-    <main className="min-h-[90vh] flex items-center justify-center bg-[#FBFBFC]">
+    <main className="min-h-[90vh] flex items-center justify-center bg-background">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto space-y-8">
           {/* Success Header - Clean, no background */}
           <div className="text-center space-y-6 py-4">
             <div className="space-y-2">
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-700">
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground">
                 {t('success.title')}
               </h2>
             </div>
 
-            <p className="text-base text-gray-500">{t('success.subtitle')}</p>
+            <p className="text-base text-muted-foreground">
+              {t('success.subtitle')}
+            </p>
 
             {/* The Reward - Points Display */}
             {hasPoints && (
@@ -73,7 +75,7 @@ export function SubmitFeedbackSuccess({
                   +{pointsEarned}
                 </span>
                 <div className="flex items-center gap-1.5">
-                  <span className="text-base font-medium text-gray-600">
+                  <span className="text-base font-medium text-muted-foreground">
                     {t('success.points', { count: pointsEarned })}
                   </span>
                   <TooltipProvider>
@@ -81,15 +83,12 @@ export function SubmitFeedbackSuccess({
                       <TooltipTrigger asChild>
                         <Link
                           to={getLocalePath('points', lang)}
-                          className="text-gray-400 hover:text-gray-600 transition-colors"
+                          className="text-muted-foreground hover:text-muted-foreground transition-colors"
                         >
                           <HelpCircle className="w-4 h-4" />
                         </Link>
                       </TooltipTrigger>
-                      <TooltipContent
-                        side="bottom"
-                        className="text-white border-gray-900"
-                      >
+                      <TooltipContent side="bottom">
                         <p>{t('success.how_points_work')}</p>
                       </TooltipContent>
                     </Tooltip>
@@ -108,28 +107,28 @@ export function SubmitFeedbackSuccess({
           ) : hasRecommendations ? (
             <div className="space-y-4 mt-12">
               {/* The Bridge - CTA Header */}
-              <p className="text-sm text-gray-500 text-center">
+              <p className="text-sm text-muted-foreground text-center">
                 {t('success.recommendations_header')}
               </p>
 
               {/* The Course List - Single white container */}
-              <div className="bg-white rounded-xl border border-gray-100 shadow-md overflow-hidden">
+              <div className="bg-card rounded-xl border border-border shadow-md overflow-hidden">
                 {recommendations.map((course, index) => (
                   <div key={course.id}>
                     <a
                       href={`${getCourseFeedbackPath(lang, course.id)}?from=recommendations`}
-                      className="block w-full px-4 py-3 hover:bg-gray-50 transition-colors group cursor-pointer"
+                      className="block w-full px-4 py-3 hover:bg-muted transition-colors group cursor-pointer"
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex-1 min-w-0">
-                          <div className="font-semibold text-gray-900 truncate">
+                          <div className="font-semibold text-foreground truncate">
                             {course.acronym}
                           </div>
-                          <div className="text-sm text-gray-400 truncate">
+                          <div className="text-sm text-muted-foreground truncate">
                             {course.name}
                           </div>
                         </div>
-                        <ChevronRight className="size-5 text-gray-400 group-hover:text-primaryBlue flex-shrink-0 ml-2" />
+                        <ChevronRight className="size-5 text-muted-foreground group-hover:text-primaryBlue flex-shrink-0 ml-2" />
                       </div>
                     </a>
                     {index < recommendations.length - 1 && <Separator />}
@@ -141,19 +140,19 @@ export function SubmitFeedbackSuccess({
               <div className="text-center pt-1">
                 <a
                   href={getReviewPath(lang)}
-                  className="text-sm text-gray-500 hover:text-gray-700"
+                  className="text-sm text-muted-foreground hover:text-foreground"
                 >
                   {t('success.give_another')}
                 </a>
               </div>
             </div>
           ) : hasReviewedAll ? (
-            <Card className="p-6 text-center space-y-3 bg-white border-gray-200">
+            <Card className="p-6 text-center space-y-3 bg-card border-border">
               <div className="text-2xl">🏆</div>
-              <h3 className="text-lg font-semibold text-gray-700">
+              <h3 className="text-lg font-semibold text-foreground">
                 {t('success.all_reviewed_title')}
               </h3>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-muted-foreground">
                 {t('success.all_reviewed_desc')}
               </p>
               <Button asChild variant="outline" className="w-full">
@@ -179,7 +178,7 @@ export function SubmitFeedbackSuccess({
             <div className="text-center pt-8">
               <a
                 href={feedbackUrl}
-                className="text-xs text-gray-400 hover:text-gray-600"
+                className="text-xs text-muted-foreground hover:text-muted-foreground"
               >
                 {t('success.view_feedback')}
               </a>

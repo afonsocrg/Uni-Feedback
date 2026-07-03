@@ -35,7 +35,7 @@ export function ReportFeedbackFeedbackCard({
           <div className="flex flex-wrap items-center gap-2">
             <StarRating value={feedback.rating} size="sm" />
             {feedback.workloadRating && (
-              <div className="inline-flex items-center text-xs text-gray-500 font-medium">
+              <div className="inline-flex items-center text-xs text-muted-foreground font-medium">
                 <span className="mr-1">Workload:</span>
                 <WorkloadRatingDisplay rating={feedback.workloadRating} />
               </div>
@@ -51,7 +51,7 @@ export function ReportFeedbackFeedbackCard({
               </Tooltip>
             )}
           </div>
-          <p className="text-xs text-gray-400">{relativeTime}</p>
+          <p className="text-xs text-muted-foreground">{relativeTime}</p>
         </div>
       </div>
 
@@ -59,7 +59,7 @@ export function ReportFeedbackFeedbackCard({
       {feedback.comment ? (
         <FeedbackMarkdown>{feedback.comment}</FeedbackMarkdown>
       ) : (
-        <p className="text-gray-500 italic text-sm">
+        <p className="text-muted-foreground italic text-sm">
           This user did not leave any comment
         </p>
       )}

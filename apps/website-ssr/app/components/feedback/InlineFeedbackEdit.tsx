@@ -35,7 +35,7 @@ export function InlineFeedbackEdit({
 }: InlineFeedbackEditProps) {
   return (
     <div className="p-6 ">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">
+      <h2 className="text-lg font-semibold text-foreground mb-4">
         Update Your Feedback
       </h2>
 
@@ -47,7 +47,7 @@ export function InlineFeedbackEdit({
               name="rating"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-base font-semibold text-gray-900">
+                  <FormLabel className="text-base font-semibold text-foreground">
                     How was the course?
                   </FormLabel>
                   <FormControl>
@@ -67,7 +67,7 @@ export function InlineFeedbackEdit({
               name="workloadRating"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-base font-semibold text-gray-900">
+                  <FormLabel className="text-base font-semibold text-foreground">
                     How heavy was the workload?
                   </FormLabel>
                   <FormControl>

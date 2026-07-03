@@ -30,14 +30,14 @@ export function SimpleFeedbackCard({ feedback }: SimpleFeedbackCardProps) {
   const relativeTime = getRelativeTime(new Date(feedback.createdAt), lang)
 
   return (
-    <div className="bg-white rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] p-6 mb-6 hover:shadow-[0px_6px_24px_rgba(0,0,0,0.08)] transition-shadow">
+    <div className="bg-card rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] p-6 mb-6 hover:shadow-[0px_6px_24px_rgba(0,0,0,0.08)] transition-shadow">
       {/* Header with rating and date */}
       <div className="mb-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-3">
             <StarRating value={feedback.rating} />
             {feedback.workloadRating && (
-              <div className="inline-flex items-center px-3 py-1 text-xs text-gray-500 font-medium">
+              <div className="inline-flex items-center px-3 py-1 text-xs text-muted-foreground font-medium">
                 <span className="mr-1">Workload:</span>
                 <WorkloadRatingDisplay rating={feedback.workloadRating} />
               </div>
@@ -53,13 +53,13 @@ export function SimpleFeedbackCard({ feedback }: SimpleFeedbackCardProps) {
               </Tooltip>
             )}
           </div>
-          <p className="text-xs text-gray-400">{relativeTime}</p>
+          <p className="text-xs text-muted-foreground">{relativeTime}</p>
         </div>
       </div>
 
       {/* Comment section */}
       {feedback.comment ? (
-        <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed">
+        <div className="prose prose-sm max-w-none text-foreground leading-relaxed">
           <div className="transition-all duration-300 ease-in-out">
             <FeedbackMarkdown>
               {isLongComment && !isExpanded
@@ -79,7 +79,7 @@ export function SimpleFeedbackCard({ feedback }: SimpleFeedbackCardProps) {
           )}
         </div>
       ) : (
-        <p className="text-gray-500 italic text-sm">
+        <p className="text-muted-foreground italic text-sm">
           This user did not leave any comment
         </p>
       )}

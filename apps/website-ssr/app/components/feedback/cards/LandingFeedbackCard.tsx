@@ -28,7 +28,7 @@ export function LandingFeedbackCard({ feedback }: LandingFeedbackCardProps) {
   return (
     <a
       href={href}
-      className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md hover:border-gray-200 transition-all flex flex-col"
+      className="bg-card rounded-xl shadow-sm border border-border p-6 hover:shadow-md hover:border-border transition-all flex flex-col"
     >
       {/* Header: stars + workload badge */}
       <div className="flex items-center justify-between mb-3">
@@ -50,11 +50,13 @@ export function LandingFeedbackCard({ feedback }: LandingFeedbackCardProps) {
         }}
       >
         {plainComment ? (
-          <p className="text-sm text-gray-500 leading-snug whitespace-pre-line">
+          <p className="text-sm text-muted-foreground leading-snug whitespace-pre-line">
             {plainComment}
           </p>
         ) : (
-          <p className="text-sm text-gray-400 italic">No comment left</p>
+          <p className="text-sm text-muted-foreground italic">
+            No comment left
+          </p>
         )}
       </div>
 

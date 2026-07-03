@@ -75,7 +75,7 @@ export function FeedbackCategoryChips({
       {/* Show loading spinner when categorizing */}
       {isLoading && (
         <Loader2
-          className="size-4 animate-spin text-gray-400"
+          className="size-4 animate-spin text-muted-foreground"
           aria-label="Categorizing feedback"
         />
       )}
@@ -85,7 +85,7 @@ export function FeedbackCategoryChips({
         <button
           type="button"
           onClick={onHelpClick}
-          className="text-gray-400 hover:text-gray-500 cursor-pointer transition-colors ml-0.5"
+          className="text-muted-foreground hover:text-muted-foreground cursor-pointer transition-colors ml-0.5"
           aria-label="Feedback tips"
         >
           <HelpCircle className="size-3.5" />

@@ -59,11 +59,13 @@ export function CommentSection<T extends WithComment>({
         control={baseControl}
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-base font-medium text-gray-900">
+            <FormLabel className="text-base font-medium text-foreground">
               {t('form.comment_label')}
             </FormLabel>
             <div className="space-y-1.5">
-              <p className="text-xs text-gray-400">{t('form.comment_hint')}</p>
+              <p className="text-xs text-muted-foreground">
+                {t('form.comment_hint')}
+              </p>
               <FeedbackCategoryChips
                 categories={categories}
                 isLoading={isCategorizing}

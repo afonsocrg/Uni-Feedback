@@ -82,11 +82,11 @@ export function EditFeedbackContent({
       <Form {...form}>
         <div>
           {/* Header - Course Context */}
-          <div className="mb-6 pb-4 border-b border-gray-200">
-            <div className="text-xs text-gray-400 mt-0.5">
+          <div className="mb-6 pb-4 border-b border-border">
+            <div className="text-xs text-muted-foreground mt-0.5">
               {feedback.facultyShortName} · {feedback.degreeName}
             </div>
-            <div className="font-medium text-gray-900 text-[13px]">
+            <div className="font-medium text-foreground text-[13px]">
               {feedback.courseName}
             </div>
             <div className="flex items-center gap-0.5 mt-1">
@@ -126,7 +126,7 @@ export function EditFeedbackContent({
               <button
                 type="button"
                 onClick={() => setShowYearSelector(true)}
-                className="flex items-center gap-0.5 text-xs text-gray-400 hover:text-primaryBlue cursor-pointer"
+                className="flex items-center gap-0.5 text-xs text-muted-foreground hover:text-primaryBlue cursor-pointer"
                 aria-label="Change school year"
               >
                 <span>
@@ -146,7 +146,7 @@ export function EditFeedbackContent({
                 name="rating"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-base font-semibold text-gray-900">
+                    <FormLabel className="text-base font-semibold text-foreground">
                       How was the course?
                     </FormLabel>
                     <FormControl>
@@ -166,7 +166,7 @@ export function EditFeedbackContent({
                 name="workloadRating"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-base font-semibold text-gray-900">
+                    <FormLabel className="text-base font-semibold text-foreground">
                       How heavy was the workload?
                     </FormLabel>
                     <FormControl>

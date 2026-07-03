@@ -91,7 +91,7 @@ export function ProfileFeedbackCard({ feedback }: ProfileFeedbackCardProps) {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] p-6 mb-6 hover:shadow-[0px_6px_24px_rgba(0,0,0,0.08)] transition-shadow">
+    <div className="bg-card rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] p-6 mb-6 hover:shadow-[0px_6px_24px_rgba(0,0,0,0.08)] transition-shadow">
       {/* Header */}
       <div className="mb-4 space-y-2">
         <div className="flex items-start justify-between gap-2">
@@ -162,7 +162,7 @@ export function ProfileFeedbackCard({ feedback }: ProfileFeedbackCardProps) {
           <div className="flex flex-wrap items-center gap-4 flex-1 min-w-0">
             <StarRating value={feedback.rating} size="sm" />
             {feedback.workloadRating && (
-              <div className="inline-flex items-center text-xs text-gray-500 font-medium">
+              <div className="inline-flex items-center text-xs text-muted-foreground font-medium">
                 <span className="mr-1">{t('feedback_card.workload')}</span>
                 <WorkloadRatingDisplay rating={feedback.workloadRating} />
               </div>
@@ -190,7 +190,7 @@ export function ProfileFeedbackCard({ feedback }: ProfileFeedbackCardProps) {
                     </p>
                     {feedback.analysis && (
                       <div>
-                        <p className="text-xs text-gray-500 mb-2">
+                        <p className="text-xs text-muted-foreground mb-2">
                           {t('feedback_card.categories_covered')}
                         </p>
                         <FeedbackCategoryChips
@@ -220,7 +220,7 @@ export function ProfileFeedbackCard({ feedback }: ProfileFeedbackCardProps) {
       </div>
 
       {/* Comment */}
-      <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed">
+      <div className="prose prose-sm max-w-none text-foreground leading-relaxed">
         {feedback.comment ? (
           <>
             <div className="transition-all duration-300 ease-in-out">
@@ -244,15 +244,15 @@ export function ProfileFeedbackCard({ feedback }: ProfileFeedbackCardProps) {
             )}
           </>
         ) : (
-          <p className="text-gray-500 italic text-sm pl-4">
+          <p className="text-muted-foreground italic text-sm pl-4">
             {t('feedback_card.no_comment')}
           </p>
         )}
       </div>
 
       {/* Footer */}
-      <div className="mt-3 pt-3 border-t border-gray-100">
-        <p className="text-xs text-gray-400">{relativeTime}</p>
+      <div className="mt-3 pt-3 border-t border-border">
+        <p className="text-xs text-muted-foreground">{relativeTime}</p>
       </div>
 
       {/* Delete Confirmation Dialog */}
