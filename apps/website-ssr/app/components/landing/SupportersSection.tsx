@@ -41,12 +41,16 @@ export function SupportersSection({ studentClubs }: SupportersSectionProps) {
                 const logoUrl = getAssetUrl(club.logoHorizontal)
                 if (!club.logoHorizontal || !logoUrl) return null
                 return (
-                  <img
+                  <span
                     key={club.id}
-                    alt={`${club.name} logo`}
-                    src={logoUrl}
-                    className="h-6 md:h-8 flex-shrink-0 opacity-50 hover:opacity-100 grayscale hover:grayscale-0 transition-all"
-                  />
+                    className="inline-flex flex-shrink-0 items-center rounded-lg border border-border bg-white px-4 py-2.5 transition-transform hover:scale-105"
+                  >
+                    <img
+                      alt={`${club.name} logo`}
+                      src={logoUrl}
+                      className="h-6 object-contain md:h-8"
+                    />
+                  </span>
                 )
               })}
               {studentClubs.map((club) => {
@@ -54,12 +58,16 @@ export function SupportersSection({ studentClubs }: SupportersSectionProps) {
                 const logoUrl = getAssetUrl(club.logoHorizontal)
                 if (!club.logoHorizontal || !logoUrl) return null
                 return (
-                  <img
+                  <span
                     key={`dup-${club.id}`}
-                    alt={`${club.name} logo`}
-                    src={logoUrl}
-                    className="h-6 md:h-8 flex-shrink-0 opacity-50 hover:opacity-100 grayscale hover:grayscale-0 transition-all"
-                  />
+                    className="inline-flex flex-shrink-0 items-center rounded-lg border border-border bg-white px-4 py-2.5 transition-transform hover:scale-105"
+                  >
+                    <img
+                      alt={`${club.name} logo`}
+                      src={logoUrl}
+                      className="h-6 object-contain md:h-8"
+                    />
+                  </span>
                 )
               })}
             </div>

@@ -58,11 +58,13 @@ export default function SupportersPage({ loaderData }: Route.ComponentProps) {
               className="flex flex-col items-center gap-2 group"
             >
               {supporter.logo ? (
-                <img
-                  src={getAssetUrl(supporter.logo)}
-                  alt={`${supporter.name} logo`}
-                  className="h-20 w-20 object-contain rounded-lg border border-border transition-all group-hover:scale-105"
-                />
+                <div className="flex h-20 w-20 items-center justify-center rounded-lg border border-border bg-white p-3 transition-all group-hover:scale-105 group-hover:shadow-md">
+                  <img
+                    src={getAssetUrl(supporter.logo)}
+                    alt={`${supporter.name} logo`}
+                    className="max-h-full max-w-full object-contain"
+                  />
+                </div>
               ) : (
                 <div
                   className={`h-20 w-20 rounded-lg flex items-center justify-center text-muted-foreground transition-all group-hover:scale-105 bg-muted`}
