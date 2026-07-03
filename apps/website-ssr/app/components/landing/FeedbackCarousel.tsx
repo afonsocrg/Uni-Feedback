@@ -68,7 +68,7 @@ export function FeedbackCarousel({
             className="flex-shrink-0 cursor-pointer hover:opacity-70 transition-opacity"
             aria-label={t('feedback_carousel.prev_aria')}
           >
-            <ChevronLeft className="size-8 text-gray-700" />
+            <ChevronLeft className="size-8 text-foreground" />
           </button>
 
           {/* Carousel Track */}
@@ -89,12 +89,12 @@ export function FeedbackCarousel({
               ))}
               {/* Placeholder card with CTA */}
               <div className="w-full flex-shrink-0">
-                <div className="bg-white rounded-xl border-2 border-dashed border-gray-200 p-6 h-full flex flex-col items-center justify-center text-center gap-4">
+                <div className="bg-card rounded-xl border-2 border-dashed border-border p-6 h-full flex flex-col items-center justify-center text-center gap-4">
                   <div>
-                    <h3 className="font-semibold text-gray-900 text-lg mb-2">
+                    <h3 className="font-semibold text-foreground text-lg mb-2">
                       {t('feedback_carousel.want_more')}
                     </h3>
-                    <p className="text-sm text-gray-600 mb-4">
+                    <p className="text-sm text-muted-foreground mb-4">
                       {t('feedback_carousel.subtitle')}
                     </p>
                   </div>
@@ -116,7 +116,7 @@ export function FeedbackCarousel({
             className="flex-shrink-0 cursor-pointer hover:opacity-70 transition-opacity"
             aria-label={t('feedback_carousel.next_aria')}
           >
-            <ChevronRight className="size-8 text-gray-700" />
+            <ChevronRight className="size-8 text-foreground" />
           </button>
         </div>
 
@@ -129,7 +129,7 @@ export function FeedbackCarousel({
               className={`h-2 rounded-full transition-all duration-500 cursor-pointer ${
                 index === currentIndex
                   ? 'w-8 bg-primary'
-                  : 'w-2 bg-gray-300 hover:bg-gray-400'
+                  : 'w-2 bg-muted hover:bg-muted-foreground'
               }`}
               aria-label={t('feedback_carousel.go_to_aria', {
                 index: index + 1

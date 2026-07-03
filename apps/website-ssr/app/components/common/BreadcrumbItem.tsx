@@ -15,7 +15,7 @@ export function BreadcrumbItem({
 }: BreadcrumbItemProps) {
   if (isActive) {
     return (
-      <span className="flex items-center text-gray-600 font-medium">
+      <span className="flex items-center text-muted-foreground font-medium">
         {children}
       </span>
     )
@@ -26,7 +26,7 @@ export function BreadcrumbItem({
       <Link
         to={href}
         onClick={onClick}
-        className="flex items-center hover:text-gray-700 hover:underline transition-colors"
+        className="flex items-center hover:text-foreground hover:underline transition-colors"
       >
         {children}
       </Link>

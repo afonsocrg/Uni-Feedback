@@ -31,13 +31,15 @@ export function MessagePage({
           {/* Header Section */}
           <div className="text-center space-y-6 py-4">
             <div className="space-y-2">
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-700">
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground">
                 {heading}
               </h2>
             </div>
 
             {/* Message content area with default text styling */}
-            <div className="text-base text-gray-500 space-y-4">{children}</div>
+            <div className="text-base text-muted-foreground space-y-4">
+              {children}
+            </div>
           </div>
 
           {/* Action Buttons */}

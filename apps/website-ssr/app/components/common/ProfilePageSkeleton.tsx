@@ -2,7 +2,7 @@ import { Skeleton } from '@uni-feedback/ui'
 
 export function ProfilePageSkeleton() {
   return (
-    <div className="min-h-full bg-gray-50/30">
+    <div className="min-h-full bg-muted/30">
       <div className="container mx-auto px-4 pt-6">
         {/* Breadcrumb skeleton */}
         <Skeleton className="h-5 w-24" />
@@ -52,7 +52,7 @@ export function ProfilePageSkeleton() {
           <div className="space-y-4">
             {/* Feedback card skeletons */}
             {[1, 2, 3].map((i) => (
-              <div key={i} className="border rounded-lg p-4 bg-white space-y-3">
+              <div key={i} className="border rounded-lg p-4 bg-card space-y-3">
                 <div className="flex items-start justify-between">
                   <div className="space-y-2 flex-1">
                     <Skeleton className="h-5 w-3/4" />

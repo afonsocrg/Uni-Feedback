@@ -29,7 +29,7 @@ export function DegreeCard({ degree, href, onClick }: DegreeCardProps) {
       href={href}
       onClick={onClick}
     >
-      <div className="flex flex-wrap items-center gap-2 text-sm text-gray-600 mt-auto">
+      <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground mt-auto">
         <div className="flex items-center gap-1">
           <BookOpen className="w-4 h-4" />
           <span>

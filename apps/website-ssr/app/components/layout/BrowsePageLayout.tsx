@@ -35,7 +35,7 @@ export function BrowsePageLayout({
           <div className="max-w-5xl mx-auto">
             {/* Title */}
             <div className="text-center mb-3">
-              <h1 className="text-base md:text-lg font-normal text-gray-500">
+              <h1 className="text-base md:text-lg font-normal text-muted-foreground">
                 {title}
               </h1>
             </div>

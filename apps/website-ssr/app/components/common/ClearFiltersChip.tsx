@@ -11,7 +11,7 @@ export function ClearFiltersChip({ onClick, visible }: ClearFiltersChipProps) {
   return (
     <button
       onClick={onClick}
-      className="inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-md border cursor-pointer transition-colors hover:bg-gray-200"
+      className="inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-md border cursor-pointer transition-colors hover:bg-muted"
       style={{
         backgroundColor: '#F3F4F6',
         color: '#6B7280',
