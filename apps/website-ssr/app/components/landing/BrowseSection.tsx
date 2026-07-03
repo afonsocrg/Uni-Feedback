@@ -178,12 +178,10 @@ function DegreeGrid({
           <a
             key={degree.id}
             href={href}
-            className={`group flex flex-col bg-background rounded-xl border p-4 hover:border-primary hover:shadow-sm transition-all ${hiddenOnMobile}`}
+            className={`group flex flex-col bg-background rounded-xl border p-4 hover:border-interactive hover:shadow-sm transition-all ${hiddenOnMobile}`}
           >
             <div className="flex-1">
-              <p className="font-medium text-sm group-hover:text-primary transition-colors">
-                {degree.name}
-              </p>
+              <p className="font-medium text-sm">{degree.name}</p>
               <p className="text-xs text-muted-foreground mt-0.5">
                 {degree.acronym}
               </p>

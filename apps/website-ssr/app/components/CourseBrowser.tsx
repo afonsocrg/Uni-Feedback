@@ -194,14 +194,14 @@ export function CourseBrowser({
                 <button
                   key={course.id}
                   onClick={() => handleCourseClick(course)}
-                  className="w-full p-5 bg-card border border-border rounded-2xl hover:shadow-xl hover:border-primaryBlue hover:-translate-y-0.5 transition-all text-left group cursor-pointer overflow-hidden"
+                  className="w-full p-5 bg-card border border-border rounded-2xl hover:shadow-xl hover:border-interactive hover:-translate-y-0.5 transition-all text-left group cursor-pointer overflow-hidden"
                 >
                   <div className="flex justify-between items-center gap-4">
                     <div className="flex-1 min-w-0 space-y-1 break-words">
                       <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
                         {course.faculty.shortName} › {course.degree.name}
                       </p>
-                      <h3 className="text-lg font-bold text-foreground leading-tight group-hover:text-primaryBlue transition-colors">
+                      <h3 className="text-lg font-bold text-foreground leading-tight">
                         {course.name}
                       </h3>
                       <p className="text-sm text-muted-foreground">

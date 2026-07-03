@@ -74,6 +74,10 @@
   --brand-emphasis: oklch(0.527 0.098 234.873);
   --brand-emphasis-foreground: #ffffff;
 
+  /* Interactive highlight — hover/emphasis borders on cards & tiles. Brand
+     accent in light; goes neutral in dark (see .dark) to avoid a glowing blue. */
+  --interactive: var(--primary);
+
   /* Rating */
   --rating: var(--gold-500); /* filled star */
   --rating-track: #e5e7eb; /* empty star (was gray-200) */
@@ -176,6 +180,9 @@
      dark so they don't glare against the page. */
   --brand-emphasis: oklch(0.33 0.058 240);
   --brand-emphasis-foreground: oklch(0.95 0 0);
+
+  /* Interactive highlight — neutral bright border in dark, not brand blue. */
+  --interactive: oklch(0.65 0 0);
 
   /* Rating */
   --rating: var(--gold-400);
@@ -297,6 +304,7 @@
   --color-brand-foreground: var(--brand-foreground);
   --color-brand-emphasis: var(--brand-emphasis);
   --color-brand-emphasis-foreground: var(--brand-emphasis-foreground);
+  --color-interactive: var(--interactive);
 
   /* Rating: text-rating, bg-rating-track */
   --color-rating: var(--rating);
