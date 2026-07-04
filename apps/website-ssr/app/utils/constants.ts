@@ -9,6 +9,10 @@ import {
 export const ADD_COURSE_FORM_URL =
   'https://docs.google.com/forms/d/e/1FAIpQLSd2FBk_hbv6v0iW-y8wtY6DL-fDIE_GlyA8rSkamSJJfCjCFQ/viewform?usp=header'
 
+// Social profiles — used across the footer, FAQ, and giveaway/Instagram surfaces
+export const INSTAGRAM_URL = 'https://www.instagram.com/unifeedback/'
+export const TIKTOK_URL = 'https://www.tiktok.com/@unifeedback'
+
 // Summer 2026 giveaway deadline — July 31, 2026 23:59:59 Lisbon time
 // (WEST / UTC+1 in summer). Powers the countdowns shown across the giveaway
 // surfaces (hero, CTA, landing promo band, announcement banner).
@@ -48,7 +52,10 @@ export const STORAGE_KEYS = {
   OTP_COOLDOWN_END: 'uni-feedback-otp-cooldown-end',
 
   // Feedback form draft (global, not course-specific)
-  FEEDBACK_DRAFT: 'uni-feedback-draft'
+  FEEDBACK_DRAFT: 'uni-feedback-draft',
+
+  // Profile page: last-opened tab (feedback | giveaway)
+  PROFILE_ACTIVE_TAB: 'uni-feedback-profile-tab'
 } as const
 
 // OTP configuration (frontend constants)

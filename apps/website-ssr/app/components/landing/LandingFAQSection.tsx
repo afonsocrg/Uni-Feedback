@@ -1,5 +1,6 @@
 import { Trans, useTranslation } from 'react-i18next'
 import { useLang } from '~/hooks'
+import { INSTAGRAM_URL } from '~/utils/constants'
 import { getLocalePath } from '~/utils/i18n-routes'
 import { FAQ, type FAQItem } from './FAQ'
 
@@ -29,7 +30,7 @@ export function LandingFAQSection() {
               ns="landing"
               components={[
                 <a
-                  href="https://instagram.com/unifeedback"
+                  href={INSTAGRAM_URL}
                   className="text-primary hover:underline font-medium"
                 />,
                 <a

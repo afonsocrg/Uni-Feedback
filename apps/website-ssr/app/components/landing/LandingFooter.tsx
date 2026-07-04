@@ -5,6 +5,7 @@ import { SiTiktok } from 'react-icons/si'
 import { useLang } from '~/hooks'
 import { useLastVisitedPath } from '~/hooks/useLastVisitedPath'
 import { analytics, getPageName } from '~/utils/analytics'
+import { INSTAGRAM_URL, TIKTOK_URL } from '~/utils/constants'
 import { getLocalePath, getReviewPath } from '~/utils/i18n-routes'
 import { FooterLink } from './FooterLink'
 
@@ -116,7 +117,7 @@ export function LandingFooter() {
             </p>
             <div className="flex items-center gap-4">
               <a
-                href="https://www.instagram.com/unifeedback"
+                href={INSTAGRAM_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram"
@@ -125,7 +126,7 @@ export function LandingFooter() {
                 <Instagram className="size-5" />
               </a>
               <a
-                href="https://www.tiktok.com/@unifeedback"
+                href={TIKTOK_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="TikTok"

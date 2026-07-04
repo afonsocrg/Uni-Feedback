@@ -2,6 +2,7 @@ import { Trans, useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { useLang } from '~/hooks'
 import { i18n } from '~/i18n/config'
+import { INSTAGRAM_URL } from '~/utils/constants'
 import { detectLang, getLocalePath } from '~/utils/i18n-routes'
 import { buildMeta } from '~/utils/meta'
 import { getRequestOrigin } from '~/utils/request'
@@ -166,7 +167,7 @@ function StructuredVersion() {
             </ul>
           </div>
 
-          <div>
+          <div id="referrals" className="scroll-mt-24">
             <h3 className="mb-2 text-lg font-semibold">
               {t('giveaway_rules.points_referral_title')}
             </h3>
@@ -185,7 +186,7 @@ function StructuredVersion() {
                 ns="legal"
                 components={[
                   <a
-                    href="https://www.instagram.com/unifeedback/"
+                    href={INSTAGRAM_URL}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="font-medium text-primary hover:underline"

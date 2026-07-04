@@ -2,6 +2,7 @@ import { Trans, useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { InfoPopover } from '~/components/common'
 import { useLang } from '~/hooks'
+import { INSTAGRAM_URL } from '~/utils/constants'
 import { getLocalePath } from '~/utils/i18n-routes'
 
 export function GiveawayPointsSection() {
@@ -85,7 +86,7 @@ export function GiveawayPointsSection() {
                       ns="legal"
                       components={[
                         <a
-                          href="https://www.instagram.com/unifeedback/"
+                          href={INSTAGRAM_URL}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="font-medium text-foreground underline hover:text-primary"

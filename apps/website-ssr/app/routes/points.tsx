@@ -6,7 +6,8 @@ import { useLang } from '~/hooks'
 import { analytics, getPageName } from '~/utils/analytics'
 import {
   FEEDBACK_CATEGORIES,
-  type FeedbackCategoryKey
+  type FeedbackCategoryKey,
+  INSTAGRAM_URL
 } from '~/utils/constants'
 import { getLocalePath, getReviewPath } from '~/utils/i18n-routes'
 import { buildMeta, metaT } from '~/utils/meta'
@@ -209,7 +210,7 @@ export default function PointsPage() {
                     ns="legal"
                     components={[
                       <a
-                        href="https://www.instagram.com/unifeedback/"
+                        href={INSTAGRAM_URL}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="font-medium text-foreground underline hover:text-primary"
