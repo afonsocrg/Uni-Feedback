@@ -18,6 +18,9 @@ export interface AnalysisResult {
   wordCount: number
 }
 
+/** Flat points awarded to each side of a successful referral. */
+export const REFERRAL_POINTS = 15
+
 /** Points awarded for linking an Instagram handle to a profile. */
 export const INSTAGRAM_BONUS_POINTS = 20
 
@@ -339,7 +342,7 @@ export class PointService {
    * @returns Number of points to award for this referral
    */
   calculateReferralPoints(_referralCount: number): number {
-    return 15
+    return REFERRAL_POINTS
   }
 
   /**

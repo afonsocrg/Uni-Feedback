@@ -104,6 +104,51 @@ export interface UserStatsResponse {
   }
 }
 
+export type RaffleBand = 'top1' | 'top5' | 'top10' | 'top25' | 'top50'
+
+export interface GiveawayDashboardResponse {
+  giveaway: {
+    /** Giveaway-scoped points = raffle entries. */
+    entries: number
+    breakdown: {
+      feedbackPoints: number
+      referralPoints: number
+      bonusPoints: number
+    }
+    /** Successful referrals within the giveaway window. */
+    referralCount: number
+    raffle: {
+      /** Set only when the user sits in a top band — meant to be celebrated. */
+      topBand: RaffleBand | null
+      /** Nearest reachable rung above the user, or null. */
+      nextGoal: { band: RaffleBand; entriesNeeded: number } | null
+    }
+    ambassador: {
+      state: 'leading' | 'tied' | 'contender' | 'far'
+      /**
+       * Referrals needed to move into sole first place and take the prize (set
+       * on 'tied' and 'contender'). Always >= 1: matching the leader loses the
+       * timing tie-break, so the user must go strictly ahead.
+       */
+      referralsToWin?: number
+      /** How far ahead of the runner-up the user is (leading only). */
+      leadOverNext?: number
+      /** Invited friends who signed up but haven't submitted feedback yet. */
+      pendingReferrals: number
+      /** Points the user would unlock by activating all pending referrals. */
+      potentialPoints: number
+    }
+    boosts: {
+      perfectFeedback: {
+        current: number
+        threshold: number
+        bonus: number
+      }
+      instagramBonusAvailable: boolean
+    }
+  }
+}
+
 export interface UserFeedback {
   id: number
   courseId: number
@@ -298,6 +343,14 @@ export async function deleteAccount(): Promise<{ message: string }> {
  */
 export async function getUserStats(): Promise<UserStatsResponse> {
   return apiGet<UserStatsResponse>('/profile/stats')
+}
+
+/**
+ * Get the current user's giveaway dashboard (entries, raffle standing,
+ * ambassador race, boost CTAs). All comparisons are gated server-side.
+ */
+export async function getGiveawayDashboard(): Promise<GiveawayDashboardResponse> {
+  return apiGet<GiveawayDashboardResponse>('/profile/giveaway')
 }
 
 /**

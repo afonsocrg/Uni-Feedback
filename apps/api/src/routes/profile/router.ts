@@ -4,6 +4,7 @@ import { Hono } from 'hono'
 import { DeleteAccount } from './deleteAccount'
 import { GetUserFeedback } from './feedback'
 import { GetFeedbackRecommendations } from './feedbackRecommendations'
+import { GetGiveawayDashboard } from './giveaway'
 import { DeleteInstagramHandle, SetInstagramHandle } from './instagram'
 import { GetProfile } from './profile'
 import { GetUserStats } from './stats'
@@ -20,6 +21,7 @@ const router = fromHono(app, { passthroughErrors: true })
 router.get('/', GetProfile)
 router.delete('/', DeleteAccount)
 router.get('/stats', GetUserStats)
+router.get('/giveaway', GetGiveawayDashboard)
 router.get('/feedback', GetUserFeedback)
 router.get('/feedback-recommendations', GetFeedbackRecommendations)
 router.put('/instagram', SetInstagramHandle)
