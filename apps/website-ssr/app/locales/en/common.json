@@ -11,6 +11,9 @@
     "sign_in_to_platform": "Sign in to Uni Feedback",
     "loading": "Loading...",
     "theme": "Theme",
+    "theme_light": "Light",
+    "theme_dark": "Dark",
+    "theme_system": "System",
     "language": "Language"
   },
   "footer": {
