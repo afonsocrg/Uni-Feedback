@@ -1,7 +1,6 @@
 import { type FeedbackRecommendation } from '@uni-feedback/api-client'
 import {
   Button,
-  Card,
   Separator,
   Skeleton,
   Tooltip,
@@ -10,16 +9,18 @@ import {
   TooltipTrigger
 } from '@uni-feedback/ui'
 import { ChevronRight, HelpCircle } from 'lucide-react'
+import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { useLang } from '~/hooks'
+import { analytics } from '~/utils/analytics'
 import {
   getCourseFeedbackPath,
   getCoursePath,
   getFeedbackAnchor,
-  getLocalePath,
-  getReviewPath
+  getLocalePath
 } from '~/utils/i18n-routes'
+import { InviteFriendCard } from './InviteFriendCard'
 
 interface FeedbackSubmitSuccessProps {
   pointsEarned?: number
@@ -28,6 +29,11 @@ interface FeedbackSubmitSuccessProps {
   recommendations: FeedbackRecommendation[]
   isLoadingRecommendations?: boolean
   onSubmitAnother: () => void
+  /** The current user's referral code, used to render the invite CTA. */
+  referralCode?: string | null
+  /** Points the user just earned for accepting an invite (their first
+   * feedback). When greater than 0, the reward shows a feedback/bonus breakdown. */
+  referralBonusEarned?: number
 }
 
 export function SubmitFeedbackSuccess({
@@ -36,12 +42,19 @@ export function SubmitFeedbackSuccess({
   feedbackId,
   recommendations,
   isLoadingRecommendations = false,
-  onSubmitAnother
+  onSubmitAnother,
+  referralCode = null,
+  referralBonusEarned = 0
 }: FeedbackSubmitSuccessProps) {
   const lang = useLang()
   const { t } = useTranslation('feedback')
 
-  const hasPoints = pointsEarned !== undefined && pointsEarned > 0
+  // Reward is one moment: total earned now = feedback points + any invite bonus.
+  const feedbackPoints = pointsEarned ?? 0
+  const totalPoints = feedbackPoints + referralBonusEarned
+  const hasPoints = totalPoints > 0
+  const hasReferralBonus = referralBonusEarned > 0
+
   const feedbackUrl =
     courseId && feedbackId
       ? getFeedbackAnchor(lang, courseId, feedbackId)
@@ -50,33 +63,39 @@ export function SubmitFeedbackSuccess({
         : undefined
 
   const hasRecommendations = recommendations.length > 0
-  const hasReviewedAll = !hasRecommendations
+
+  // Anchor the post-submission funnel: the success screen was shown. Branches
+  // out from here are the share buttons and the "give another" / browse links.
+  useEffect(() => {
+    analytics.feedback.successViewed({
+      courseId,
+      hasRecommendations,
+      hasReferralCode: !!referralCode,
+      referralBonusEarned
+    })
+    // Fire once per success screen (component is keyed by course, so it
+    // remounts for a new submission).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <main className="min-h-[90vh] flex items-center justify-center bg-background">
       <div className="container mx-auto px-4 py-8">
-        <div className="max-w-2xl mx-auto space-y-8">
-          {/* Success Header - Clean, no background */}
-          <div className="text-center space-y-6 py-4">
-            <div className="space-y-2">
-              <h2 className="text-2xl md:text-3xl font-bold text-foreground">
-                {t('success.title')}
-              </h2>
-            </div>
+        <div className="max-w-md mx-auto space-y-8">
+          {/* 1. Reward moment — one celebratory line + one consolidated number */}
+          <div className="text-center space-y-4 pt-4">
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground">
+              {t('success.title')}
+            </h2>
 
-            <p className="text-base text-muted-foreground">
-              {t('success.subtitle')}
-            </p>
-
-            {/* The Reward - Points Display */}
             {hasPoints && (
               <div className="flex flex-col items-center gap-1">
                 <span className="text-5xl md:text-6xl font-bold text-primaryBlue">
-                  +{pointsEarned}
+                  +{totalPoints}
                 </span>
                 <div className="flex items-center gap-1.5">
                   <span className="text-base font-medium text-muted-foreground">
-                    {t('success.points', { count: pointsEarned })}
+                    {t('success.points', { count: totalPoints })}
                   </span>
                   <TooltipProvider>
                     <Tooltip>
@@ -94,91 +113,97 @@ export function SubmitFeedbackSuccess({
                     </Tooltip>
                   </TooltipProvider>
                 </div>
+
+                {/* Breakdown only when an invite bonus was folded into the total */}
+                {hasReferralBonus && (
+                  <p className="text-sm text-muted-foreground">
+                    {t('success.points_breakdown', {
+                      feedback: feedbackPoints,
+                      bonus: referralBonusEarned
+                    })}
+                  </p>
+                )}
               </div>
             )}
           </div>
 
-          {/* Recommendations Section */}
+          {/* 2. Hero — invite a friend (referral is the growth lever) */}
+          <InviteFriendCard referralCode={referralCode} />
+
+          {/* 3. Demoted (but still rich) — suggested courses to review next.
+              A tap-to-review list removes the "which course next?" friction. */}
           {isLoadingRecommendations ? (
-            <div className="space-y-3">
-              <Skeleton className="h-4 w-3/4" />
-              <Skeleton className="h-48 w-full rounded-xl" />
+            <div className="space-y-2">
+              <Skeleton className="mx-auto h-4 w-3/4" />
+              <Skeleton className="h-40 w-full rounded-xl" />
             </div>
           ) : hasRecommendations ? (
-            <div className="space-y-4 mt-12">
-              {/* The Bridge - CTA Header */}
-              <p className="text-sm text-muted-foreground text-center">
+            <div className="space-y-3">
+              <p className="text-center text-sm text-muted-foreground">
                 {t('success.recommendations_header')}
               </p>
-
-              {/* The Course List - Single white container */}
-              <div className="bg-card rounded-xl border border-border shadow-md overflow-hidden">
+              <div className="overflow-hidden rounded-xl border border-border bg-card">
                 {recommendations.map((course, index) => (
                   <div key={course.id}>
                     <a
                       href={`${getCourseFeedbackPath(lang, course.id)}?from=recommendations`}
-                      className="block w-full px-4 py-3 hover:bg-muted transition-colors group cursor-pointer"
+                      onClick={() =>
+                        analytics.navigation.feedbackFormLinkClicked({
+                          source: 'success_recommendation',
+                          referrerPage: 'feedback_success',
+                          courseId: course.id
+                        })
+                      }
+                      className="group flex items-center justify-between gap-2 px-4 py-3 transition-colors hover:bg-muted"
                     >
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1 min-w-0">
-                          <div className="font-semibold text-foreground truncate">
-                            {course.acronym}
-                          </div>
-                          <div className="text-sm text-muted-foreground truncate">
-                            {course.name}
-                          </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate font-semibold text-foreground">
+                          {course.acronym}
                         </div>
-                        <ChevronRight className="size-5 text-muted-foreground group-hover:text-primaryBlue flex-shrink-0 ml-2" />
+                        <div className="truncate text-sm text-muted-foreground">
+                          {course.name}
+                        </div>
                       </div>
+                      <ChevronRight className="size-5 flex-shrink-0 text-muted-foreground group-hover:text-primaryBlue" />
                     </a>
                     {index < recommendations.length - 1 && <Separator />}
                   </div>
                 ))}
               </div>
-
-              {/* Subtle secondary action below */}
-              <div className="text-center pt-1">
-                <a
-                  href={getReviewPath(lang)}
-                  className="text-sm text-muted-foreground hover:text-foreground"
+              <div className="text-center">
+                <Button
+                  variant="link"
+                  onClick={onSubmitAnother}
+                  className="h-auto p-0 text-sm text-muted-foreground hover:text-foreground"
                 >
                   {t('success.give_another')}
-                </a>
+                </Button>
               </div>
             </div>
-          ) : hasReviewedAll ? (
-            <Card className="p-6 text-center space-y-3 bg-card border-border">
-              <div className="text-2xl">🏆</div>
-              <h3 className="text-lg font-semibold text-foreground">
-                {t('success.all_reviewed_title')}
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                {t('success.all_reviewed_desc')}
-              </p>
-              <Button asChild variant="outline" className="w-full">
-                <a href={getLocalePath('browse', lang)}>
-                  {t('success.browse_all')}
-                </a>
-              </Button>
-            </Card>
           ) : (
-            <div className="text-center">
-              <Button
-                onClick={onSubmitAnother}
-                variant="outline"
-                className="w-full"
+            <div className="text-center text-sm text-muted-foreground">
+              🏆 {t('success.all_reviewed_title')}{' '}
+              <a
+                href={getLocalePath('browse', lang)}
+                onClick={() =>
+                  analytics.navigation.feedbackFormLinkClicked({
+                    source: 'success_browse_all',
+                    referrerPage: 'feedback_success'
+                  })
+                }
+                className="text-primaryBlue hover:underline"
               >
-                {t('success.submit_another')}
-              </Button>
+                {t('success.browse_all')}
+              </a>
             </div>
           )}
 
-          {/* View your feedback link at the very bottom */}
+          {/* 4. Utility — view your feedback */}
           {feedbackUrl && (
-            <div className="text-center pt-8">
+            <div className="text-center pt-4">
               <a
                 href={feedbackUrl}
-                className="text-xs text-muted-foreground hover:text-muted-foreground"
+                className="text-xs text-muted-foreground hover:text-foreground"
               >
                 {t('success.view_feedback')}
               </a>

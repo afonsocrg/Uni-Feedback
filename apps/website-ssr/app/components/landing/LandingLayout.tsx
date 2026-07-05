@@ -1,3 +1,4 @@
+import { isGiveawayActive } from '@uni-feedback/utils'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router'
 import { AnnouncementBanner, LandingFooter, LandingHeader } from '~/components'
@@ -14,11 +15,13 @@ export function LandingLayout({ children }: LandingLayoutProps) {
   const { t } = useTranslation('landing')
   const { pathname } = useLocation()
 
-  // The giveaway pages already lead with the giveaway, and the landing page
-  // has the promo band — so only show the banner elsewhere.
+  // Only show the giveaway banner while the campaign is actually live (it hides
+  // itself once the window closes). The giveaway pages already lead with the
+  // giveaway, and the landing page has the promo band, so skip it there too.
   const isGiveawayPage = pathname.startsWith(getLocalePath('giveaway', lang))
   const isLandingPage = pathname === getLocalePath('home', lang)
-  const showAnnouncementBanner = !isGiveawayPage && !isLandingPage
+  const showAnnouncementBanner =
+    isGiveawayActive() && !isGiveawayPage && !isLandingPage
 
   return (
     <div className="min-h-screen bg-background flex flex-col">

@@ -148,6 +148,16 @@ The hook runs:
 
 If any check fails, the commit is blocked. Run `pnpm run format` to fix formatting issues, then commit again.
 
+## Observability
+
+**Every user-facing feature on `website-ssr` must ship with product analytics.**
+Building a flow and instrumenting it is one task, not two — a feature with no
+events is not done. Emit events through the typed `analytics` abstraction in
+`apps/website-ssr/app/utils/analytics.ts` (never call `posthog.*` directly), and
+think in funnels: cover entry, key steps, success, and failure/abandonment so
+drop-off is visible. See the `observability` skill for event naming, the funnels
+we track, property conventions, and the shipping checklist.
+
 ## Documentation Rules
 
 - **When defining new practices or architectural decisions**, document them as a skill in `.claude/skills/`

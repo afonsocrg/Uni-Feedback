@@ -67,7 +67,7 @@
     }
   },
   "success": {
-    "title": "Legend move 😎!",
+    "title": "Thanks for contributing!",
     "subtitle": "Your feedback will help hundreds of students finding the right courses!!",
     "points_one": "point",
     "points_other": "points",
@@ -78,7 +78,21 @@
     "all_reviewed_desc": "You've reviewed all available courses in your curriculum",
     "browse_all": "Browse all courses",
     "submit_another": "Submit for another course",
-    "view_feedback": "View your feedback →"
+    "view_feedback": "View your feedback →",
+    "invite_title": "Invite a friend",
+    "invite_desc": "You both earn 15 points when they leave their first feedback.",
+    "invite_whatsapp": "Invite on WhatsApp",
+    "invite_copy": "Copy link",
+    "invite_copied": "Copied!",
+    "invite_share": "Share",
+    "points_breakdown": "{{feedback}} for your feedback + {{bonus}} invite bonus"
+  },
+  "share": {
+    "whatsapp_message": "Have you used Uni Feedback? It's where we can see anonymous reviews of our courses, really handy for knowing what we're getting into. Join with my link: {{link}}",
+    "whatsapp_message_giveaway": "Have you used Uni Feedback? It's where we can see anonymous reviews of our courses, handy for choosing. They're raffling €50 at FNAC, join with my link and add your review to enter: {{link}}",
+    "native_title": "Uni Feedback",
+    "native_text": "Anonymous reviews of our courses on Uni Feedback, they have anonymous student opinions about the courses they took!",
+    "native_text_giveaway": "Anonymous reviews of our courses on Uni Feedback, and they're raffling €50 at FNAC!"
   },
   "feedback_card": {
     "removed_by_moderators": "Removed by moderators",

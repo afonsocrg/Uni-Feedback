@@ -65,7 +65,17 @@ export type FeedbackEntryPoint =
   | 'profile'
   | 'points'
   | 'giveaway'
+  | 'recommendations'
   | 'direct'
+
+/**
+ * Where a referral/invite share action was triggered from. Threaded through the
+ * shared <ReferralShareButtons> so we can compare conversion by surface.
+ */
+export type ReferralSurface = 'feedback_success' | 'profile' | 'giveaway'
+
+/** The channel a user used to share their referral link. */
+export type ShareChannel = 'whatsapp' | 'copy' | 'native'
 
 export const analytics = {
   feedback: {
@@ -146,6 +156,18 @@ export const analytics = {
     }) => trackEvent('feedback_submission_failed', props),
 
     /**
+     * Track when the post-submission success screen is shown. Anchors the
+     * "what did the user do after submitting?" funnel (share / give another /
+     * browse), which branches from here.
+     */
+    successViewed: (props: {
+      courseId?: number
+      hasRecommendations: boolean
+      hasReferralCode: boolean
+      referralBonusEarned: number
+    }) => trackEvent('feedback_success_viewed', props),
+
+    /**
      * Phase 3: Track feedback item views (intersection observer)
      */
     itemViewed: (props: { feedbackId: number; courseId: number }) =>
@@ -182,6 +204,28 @@ export const analytics = {
       degreeId?: number
       resultsCount: number
     }) => trackEvent('course_search_performed', props)
+  },
+
+  referral: {
+    /**
+     * Track when a user clicks any referral share button (intent). `channel`
+     * is which button; `surface` is where it lives. This is the top of the
+     * referral funnel — the invited-friend signup is the conversion.
+     */
+    shareClicked: (props: {
+      channel: ShareChannel
+      surface: ReferralSurface
+      giveawayActive: boolean
+    }) => trackEvent('referral_share_clicked', props),
+
+    /**
+     * Track a *successful* referral-link copy (the clipboard write resolved).
+     * Distinct from `shareClicked` because copy can silently fail.
+     */
+    linkCopied: (props: {
+      surface: ReferralSurface
+      giveawayActive: boolean
+    }) => trackEvent('referral_link_copied', props)
   },
 
   auth: {

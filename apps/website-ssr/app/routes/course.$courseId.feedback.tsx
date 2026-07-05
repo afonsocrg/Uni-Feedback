@@ -114,10 +114,14 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   }
 
   // TypeScript doesn't narrow the variable type after property null-checks,
-  // so we assert the narrowed shape for the component props.
+  // so we assert the narrowed shape for the component props. `emailSuffixes` is
+  // a jsonb column Drizzle types as `unknown`; the whole codebase treats it as
+  // `string[]` (see the API's `as string[]` casts), so we assert that here too.
   const narrowedCourse = course as typeof course & {
     degree: NonNullable<(typeof course)['degree']> & {
-      faculty: NonNullable<NonNullable<(typeof course)['degree']>['faculty']>
+      faculty: NonNullable<
+        NonNullable<(typeof course)['degree']>['faculty']
+      > & { emailSuffixes: string[] }
     }
   }
 
@@ -131,12 +135,13 @@ export default function CourseSpecificFeedbackPage({
   const { course } = loaderData
   const [searchParams] = useSearchParams()
   const submitFeedbackMutation = useSubmitFeedback()
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, user } = useAuth()
   const [isSubmitSuccess, setIsSubmitSuccess] = useState(false)
   const [isEditSuccess, setIsEditSuccess] = useState(false)
   const [pointsEarned, setPointsEarned] = useState<number | undefined>(
     undefined
   )
+  const [referralBonusEarned, setReferralBonusEarned] = useState<number>(0)
   const [submittedCourseId, setSubmittedCourseId] = useState<
     number | undefined
   >(undefined)
@@ -211,6 +216,7 @@ export default function CourseSpecificFeedbackPage({
       })
 
       setPointsEarned(response.pointsEarned)
+      setReferralBonusEarned(response.referralBonusEarned ?? 0)
       setSubmittedCourseId(values.courseId)
       setSubmittedFeedbackId(response.feedbackId)
       toast.success('Feedback submitted successfully!')
@@ -346,6 +352,7 @@ export default function CourseSpecificFeedbackPage({
     setIsSubmitSuccess(false)
     setIsEditSuccess(false)
     setPointsEarned(undefined)
+    setReferralBonusEarned(0)
     setSubmittedCourseId(undefined)
     setSubmittedFeedbackId(undefined)
     setDuplicateFeedback(null)
@@ -354,12 +361,45 @@ export default function CourseSpecificFeedbackPage({
     window.location.href = getReviewPath(lang)
   }
 
+  // Dev-only: preview the success screen without submitting feedback (which is
+  // otherwise the only way to reach it, making the design painful to iterate on).
+  // Stripped from production builds via `import.meta.env.DEV`. Toggle branches
+  // with query params, e.g.
+  //   ?preview=success              -> default (20 pts, 2 recommendations)
+  //   ?preview=success&bonus=15     -> show the invite-bonus banner
+  //   ?preview=success&recs=0       -> "all reviewed" branch
+  if (import.meta.env.DEV && searchParams.get('preview') === 'success') {
+    const recCount = Number(searchParams.get('recs') ?? '2')
+    const mockRecommendations: FeedbackRecommendation[] = Array.from(
+      { length: Math.max(0, recCount) },
+      (_, i) => ({
+        id: i + 1,
+        acronym: `SAMPLE${i + 1}`,
+        name: `Sample Course ${i + 1}`
+      })
+    )
+    return (
+      <SubmitFeedbackSuccess
+        pointsEarned={Number(searchParams.get('points') ?? '20')}
+        referralBonusEarned={Number(searchParams.get('bonus') ?? '0')}
+        referralCode={user?.referralCode ?? 'PREVIEW1'}
+        courseId={course.id}
+        feedbackId={1}
+        recommendations={mockRecommendations}
+        isLoadingRecommendations={false}
+        onSubmitAnother={() => {}}
+      />
+    )
+  }
+
   // Show submit success screen
   if (isSubmitSuccess) {
     return (
       <SubmitFeedbackSuccess
         key={`success-${course.id}`}
         pointsEarned={pointsEarned}
+        referralBonusEarned={referralBonusEarned}
+        referralCode={user?.referralCode ?? null}
         courseId={submittedCourseId}
         feedbackId={submittedFeedbackId}
         recommendations={recommendations}

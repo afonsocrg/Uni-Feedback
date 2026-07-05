@@ -8,6 +8,7 @@ import {
 } from '@services/pointService'
 import { database } from '@uni-feedback/db'
 import { feedback, pointRegistry, users } from '@uni-feedback/db/schema'
+import { GIVEAWAY_END, GIVEAWAY_START } from '@uni-feedback/utils'
 import { OpenAPIRoute } from 'chanfana'
 import { and, count, eq, gte, inArray, lt, notExists, sum } from 'drizzle-orm'
 import type { Context } from 'hono'
@@ -21,11 +22,11 @@ const GIVEAWAY_SCHOOL_YEAR = 2025
 
 /**
  * Referral counting window for the giveaway (Ambassador prize + referral
- * entries). Authoritative window: June 29 → end of July 2026, Lisbon time.
- * END is exclusive.
+ * entries). This equals the giveaway campaign window, so it reuses the shared
+ * dates from @uni-feedback/utils rather than redefining them. END is exclusive.
  */
-const REFERRAL_WINDOW_START = new Date('2026-06-29T00:00:00+01:00')
-const REFERRAL_WINDOW_END = new Date('2026-08-01T00:00:00+01:00')
+const REFERRAL_WINDOW_START = GIVEAWAY_START
+const REFERRAL_WINDOW_END = GIVEAWAY_END
 
 /**
  * Percentile bands for the raffle standing, best-first. `fraction` is the

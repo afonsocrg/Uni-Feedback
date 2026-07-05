@@ -67,7 +67,7 @@
     }
   },
   "success": {
-    "title": "Feito!! Obrigado 😎!",
+    "title": "Obrigado por contribuíres!",
     "subtitle": "O teu feedback vai ajudar imensos alunos a escolher as melhores cadeiras!!",
     "points_one": "ponto",
     "points_other": "pontos",
@@ -78,7 +78,21 @@
     "all_reviewed_desc": "Já avaliaste todas as cadeiras disponíveis no teu curso",
     "browse_all": "Explorar todas as cadeiras",
     "submit_another": "Submeter para outra cadeira",
-    "view_feedback": "Ver o teu feedback →"
+    "view_feedback": "Ver o teu feedback →",
+    "invite_title": "Convida um amigo",
+    "invite_desc": "Ganham +15 pontos cada quando ele deixar o primeiro feedback.",
+    "invite_whatsapp": "Convidar no WhatsApp",
+    "invite_copy": "Copiar link",
+    "invite_copied": "Copiado!",
+    "invite_share": "Partilhar",
+    "points_breakdown": "{{feedback}} pelo teu feedback + {{bonus}} de bónus de convite"
+  },
+  "share": {
+    "whatsapp_message": "Já usaste o Uni Feedback? É onde vemos reviews anónimas das nossas cadeiras, dá imenso jeito para saber no que nos estamos a meter. Entra pelo meu link: {{link}}",
+    "whatsapp_message_giveaway": "Já usaste o Uni Feedback? É onde vemos reviews anónimas das nossas cadeiras, dá jeito para escolher. E estão a sortear 50€ na FNAC, entra pelo meu link e deixa também a tua review para participar: {{link}}",
+    "native_title": "Uni Feedback",
+    "native_text": "Reviews anónimas das nossas cadeiras no Uni Feedback, ajudam-nos a escolher as certas!",
+    "native_text_giveaway": "Reviews anónimas das nossas cadeiras no Uni Feedback, e estão a sortear 50€ na FNAC!"
   },
   "feedback_card": {
     "removed_by_moderators": "Removido pelos moderadores",

@@ -37,6 +37,14 @@
   --gold-400: #facc15;
   --fnac-500: #ecb300; /* FNAC brand gold */
   --fnac-400: #f5c518;
+
+  /* WhatsApp brand green — invite/share CTA.
+     Deepened a touch from the neon logo green (#25d366) so it reads less bright
+     on white; dark-mode variants are dimmer/less saturated to avoid glare. */
+  --whatsapp-500: #1fbe5c; /* light fill (was #25d366 logo green) */
+  --whatsapp-600: #1aa851; /* light hover / pressed */
+  --whatsapp-dark-500: #1a9e4e; /* dark fill — dimmer, lower chroma, no glow */
+  --whatsapp-dark-600: #178a45; /* dark hover / pressed */
 }
 
 /* ────────────────────────────────────────────────────────────────────────
@@ -87,6 +95,11 @@
 
   /* FNAC accent */
   --fnac: var(--fnac-500);
+
+  /* WhatsApp CTA — same green hue in both themes for brand recognition, but the
+     .dark block dims it (see below) to cut glare on dark surfaces. */
+  --whatsapp: var(--whatsapp-500);
+  --whatsapp-hover: var(--whatsapp-600);
 
   /* Status (solid) */
   --success: #16a34a;
@@ -193,6 +206,11 @@
 
   /* FNAC — softened gold */
   --fnac: oklch(0.81 0.1 88);
+
+  /* WhatsApp — dimmer, less saturated green in dark so the CTA doesn't glow.
+     Same hue as light, still clearly the WhatsApp green, just toned down. */
+  --whatsapp: var(--whatsapp-dark-500);
+  --whatsapp-hover: var(--whatsapp-dark-600);
 
   /* Status — muted fills, dark text */
   --success: oklch(0.7 0.11 152);
@@ -315,6 +333,10 @@
 
   /* FNAC: text-fnac / bg-fnac */
   --color-fnac: var(--fnac);
+
+  /* WhatsApp CTA: bg-whatsapp / hover:bg-whatsapp-hover */
+  --color-whatsapp: var(--whatsapp);
+  --color-whatsapp-hover: var(--whatsapp-hover);
 
   /* Status: bg-success / text-success-foreground, etc. */
   --color-success: var(--success);

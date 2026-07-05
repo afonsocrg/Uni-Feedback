@@ -28,6 +28,9 @@ export type CreateFeedbackResponse = {
   message: string
   pointsEarned: number
   feedbackId?: number
+  /** Points the referee just earned for accepting an invite (their first
+   * feedback). 0 when not applicable. */
+  referralBonusEarned?: number
 }
 
 export type FeedbackCategories = {

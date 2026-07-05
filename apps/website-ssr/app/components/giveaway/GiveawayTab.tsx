@@ -6,21 +6,19 @@ import {
 } from '@uni-feedback/ui'
 import {
   CalendarClock,
-  Check,
   CheckCircle2,
   HelpCircle,
   Loader2,
   Pencil,
-  Sparkles,
-  UserPlus
+  Sparkles
 } from 'lucide-react'
 import { type ReactNode, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
-import { toast } from 'sonner'
 import { useLang } from '~/hooks'
 import { useGiveawayDashboard, useProfileFeedback } from '~/hooks/queries'
 import { getLocalePath } from '~/utils/i18n-routes'
+import { ReferralShareButtons } from '../referral/ReferralShareButtons'
 import { InstagramBonusCard } from './InstagramBonusCard'
 
 /** School year (as stored in the DB) whose feedback counts toward the giveaway. */
@@ -59,15 +57,10 @@ function HelpPopover({
 export function GiveawayTab({ referralCode }: { referralCode: string | null }) {
   const { t } = useTranslation('feedback')
   const lang = useLang()
-  const [copied, setCopied] = useState(false)
   const [showAllUpgrades, setShowAllUpgrades] = useState(false)
 
   const { data, isLoading, isError } = useGiveawayDashboard()
   const { data: feedbackData } = useProfileFeedback()
-
-  const referralUrl = referralCode
-    ? `${window.location.origin}/login?ref=${referralCode}`
-    : null
 
   const pointsLink = (
     <Link
@@ -95,18 +88,6 @@ export function GiveawayTab({ referralCode }: { referralCode: string | null }) {
       {t('profile.learn_more')}
     </Link>
   )
-
-  const handleShare = async () => {
-    if (!referralUrl) return
-    try {
-      await navigator.clipboard.writeText(referralUrl)
-      setCopied(true)
-      toast.success(t('profile.toast_referral_copied'))
-      setTimeout(() => setCopied(false), 2000)
-    } catch {
-      toast.error(t('profile.toast_referral_failed'))
-    }
-  }
 
   if (isLoading) {
     return (
@@ -330,16 +311,12 @@ export function GiveawayTab({ referralCode }: { referralCode: string | null }) {
             </div>
           )}
 
-          {referralUrl && (
+          {referralCode && (
             <div className="mt-auto pt-6">
-              <Button onClick={handleShare} className="w-full">
-                {copied ? (
-                  <Check className="mr-2 size-4" />
-                ) : (
-                  <UserPlus className="mr-2 size-4" />
-                )}
-                {t('profile.giveaway.invite_cta')}
-              </Button>
+              <ReferralShareButtons
+                referralCode={referralCode}
+                surface="giveaway"
+              />
             </div>
           )}
         </div>
