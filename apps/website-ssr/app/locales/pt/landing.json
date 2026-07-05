@@ -7,13 +7,15 @@
     "stats": "{{feedbackCount}}+ feedbacks de {{contributors}}+ alunos · 100% gratuito"
   },
   "search": {
-    "placeholder": "Procura cadeiras, cursos, faculdades...",
-    "aria_label": "Procura cadeiras, cursos, faculdades...",
+    "placeholder": "Procura cadeiras, cursos, faculdades, professores...",
+    "aria_label": "Procura cadeiras, cursos, faculdades e professores",
     "tab_courses": "Cadeiras",
     "tab_degrees": "Cursos",
     "tab_faculties": "Faculdades",
+    "tab_teachers": "Professores",
     "browse_all": "Mais resultados →",
-    "reviews_count": "{{count}} feedbacks"
+    "reviews_count": "{{count}} feedbacks",
+    "courses_count": "{{count}} cadeiras"
   },
   "cta": {
     "join_text": "Junta-te a {{count}}+ alunos que já contribuíram.",

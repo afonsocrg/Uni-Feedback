@@ -8,7 +8,8 @@ import {
   CourseAssessment,
   CourseBibliography,
   CourseDescription,
-  CourseInfoCard
+  CourseInfoCard,
+  CourseTeachers
 } from '~/components'
 import type { CourseFeedback } from '~/components/feedback/cards/CoursePageFeedbackCard'
 import { cn } from '~/utils'
@@ -19,6 +20,12 @@ export interface CourseDetail extends Course {
   averageRating: number
   averageWorkload: number
   totalFeedbackCount: number
+  teachers: {
+    id: number
+    name: string
+    email: string | null
+    taughtSchoolYears: number[]
+  }[]
   degree?: {
     id: number
     name: string
@@ -117,6 +124,9 @@ export function CourseDetailContent({
                 <TabsTrigger value="bibliography" className={tabClasses}>
                   {t('tabs.bibliography')}
                 </TabsTrigger>
+                <TabsTrigger value="teachers" className={tabClasses}>
+                  {t('tabs.teachers')}
+                </TabsTrigger>
               </TabsList>
             </div>
             <TabsContent value="description">
@@ -124,6 +134,9 @@ export function CourseDetailContent({
             </TabsContent>
             <TabsContent value="assessment">
               <CourseAssessment {...{ course }} />
+            </TabsContent>
+            <TabsContent value="teachers">
+              <CourseTeachers {...{ course }} />
             </TabsContent>
             <TabsContent value="bibliography">
               <CourseBibliography {...{ course }} />

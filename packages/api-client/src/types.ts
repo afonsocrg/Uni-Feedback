@@ -155,12 +155,35 @@ export interface FacultySearchResponse {
   total: number
 }
 
+export interface TeacherSearchResult {
+  id: number
+  name: string
+  email: string | null
+  faculty: {
+    id: number
+    name: string
+    shortName: string
+    slug: string | null
+  } | null
+  courseCount: number
+}
+
+export interface TeacherSearchResponse {
+  teachers: TeacherSearchResult[]
+  total: number
+}
+
 export interface SearchFacultiesParams {
   q?: string
   limit?: number
 }
 
 export interface SearchDegreesParams {
+  q?: string
+  limit?: number
+}
+
+export interface SearchTeachersParams {
   q?: string
   limit?: number
 }
