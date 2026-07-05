@@ -29,7 +29,7 @@ export function meta({ location, matches }: Route.MetaArgs) {
 export default function ProfilePage() {
   const { t } = useTranslation('feedback')
   const { user, logout } = useRequiredAuth()
-  const [activeTab, setActiveTab] = useState('feedback')
+  const [activeTab, setActiveTab] = useState('giveaway')
 
   // Restore the last-opened tab. Read in an effect (not during render) so it
   // stays hydration-safe; the page shows a skeleton while data loads, so the
@@ -88,25 +88,25 @@ export default function ProfilePage() {
           className="mb-12"
         >
           <TabsList className="mb-4">
-            <TabsTrigger value="feedback">
-              <MessageSquare className="size-4" />
-              <span>{t('profile.tab_feedback')}</span>
-            </TabsTrigger>
             <TabsTrigger value="giveaway">
               <Gift className="size-4" />
               <span>{t('profile.tab_giveaway')}</span>
             </TabsTrigger>
+            <TabsTrigger value="feedback">
+              <MessageSquare className="size-4" />
+              <span>{t('profile.tab_feedback')}</span>
+            </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="giveaway">
+            <GiveawayTab referralCode={user.referralCode} />
+          </TabsContent>
 
           <TabsContent value="feedback">
             <ProfileFeedbackTab
               feedbackData={feedbackData}
               isFeedbackLoading={isFeedbackLoading}
             />
-          </TabsContent>
-
-          <TabsContent value="giveaway">
-            <GiveawayTab referralCode={user.referralCode} />
           </TabsContent>
         </Tabs>
 
