@@ -225,13 +225,21 @@ ${statusEmoji} EMAIL ${statusText} ${statusEmoji}
   return sendToTelegram(env, message)
 }
 
-export async function sendNewSignupNotification(env: Env, email: string) {
+export async function sendNewSignupNotification(
+  env: Env,
+  email: string,
+  referredByEmail?: string | null
+) {
+  const referralLine = referredByEmail
+    ? `\n🤝 Referred by: ${referredByEmail}`
+    : ''
+
   const message = `
 🎉 NEW SIGNUP! 🎉}
 
 A new user has signed up on Uni Feedback!
 
-📧 Email: ${email}
+📧 Email: ${email}${referralLine}
 🕒 Timestamp: ${new Date().toISOString()}
 
 Welcome aboard! 🚀

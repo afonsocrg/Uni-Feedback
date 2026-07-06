@@ -780,7 +780,10 @@ export class AuthService {
         },
         { referralCode: tokenData.referralCode || undefined }
       )
-      sendNewSignupNotification(this.env, user.email)
+      const referrer = user.referredByUserId
+        ? await this.findUserById(user.referredByUserId)
+        : null
+      sendNewSignupNotification(this.env, user.email, referrer?.email)
     }
 
     // Create session and mark token as used in transaction
@@ -1148,7 +1151,10 @@ export class AuthService {
         },
         { referralCode: otpToken.referralCode || undefined }
       )
-      sendNewSignupNotification(this.env, user.email)
+      const referrer = user.referredByUserId
+        ? await this.findUserById(user.referredByUserId)
+        : null
+      sendNewSignupNotification(this.env, user.email, referrer?.email)
     }
 
     // Create session and mark OTP as used in transaction
