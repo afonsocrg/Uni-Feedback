@@ -1,5 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import type { FeedbackCategories } from '@uni-feedback/api-client'
 import {
+  Badge,
   Button,
   EditableStarRating,
   EditableWorkloadRatingPills,
@@ -8,26 +10,25 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
+  FormMessage
 } from '@uni-feedback/ui'
 import {
   formatSchoolYearString,
   getCurrentSchoolYear
 } from '@uni-feedback/utils'
-import { Loader2, Pencil, Save, X } from 'lucide-react'
+import { Loader2, Save, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
+import { cn } from '~/utils'
 import { CommentSection } from './CommentSection'
+import { FeedbackPointsProgress } from './FeedbackPointsProgress'
 
 interface EditFeedbackContentProps {
   feedback: {
     id: number
+    courseId: number
     rating: number
     workloadRating: number
     comment: string | null
@@ -58,6 +59,7 @@ export function EditFeedbackContent({
   onCancel,
   isSubmitting
 }: EditFeedbackContentProps) {
+  const { t } = useTranslation('feedback')
   const form = useForm({
     resolver: zodResolver(editFeedbackSchema),
     mode: 'onChange',
@@ -74,8 +76,7 @@ export function EditFeedbackContent({
     []
   )
 
-  const [showYearSelector, setShowYearSelector] = useState(false)
-  const schoolYear = form.watch('schoolYear')
+  const [categories, setCategories] = useState<FeedbackCategories | null>(null)
 
   return (
     <main className="container mx-auto px-4 py-4 md:py-8 max-w-2xl min-h-screen pb-24">
@@ -89,65 +90,60 @@ export function EditFeedbackContent({
             <div className="font-medium text-foreground text-[13px]">
               {feedback.courseName}
             </div>
-            <div className="flex items-center gap-0.5 mt-1">
-              <FormField
-                name="schoolYear"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem className="space-y-0">
-                    <FormControl>
-                      <Select
-                        onValueChange={(val) => {
-                          field.onChange(Number(val))
-                          setShowYearSelector(false)
-                        }}
-                        value={field.value.toString()}
-                        open={showYearSelector}
-                        onOpenChange={setShowYearSelector}
-                      >
-                        <SelectTrigger className="h-0 w-0 p-0 border-0 opacity-0 absolute">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {schoolYears.map((year) => (
-                            <SelectItem key={year} value={year.toString()}>
-                              {formatSchoolYearString(year, {
-                                yearFormat: 'long'
-                              })}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <button
-                type="button"
-                onClick={() => setShowYearSelector(true)}
-                className="flex items-center gap-0.5 text-xs text-muted-foreground hover:text-primaryBlue cursor-pointer"
-                aria-label="Change school year"
-              >
-                <span>
-                  {formatSchoolYearString(schoolYear, {
-                    yearFormat: 'long'
-                  })}
-                </span>
-                <Pencil className="size-3" />
-              </button>
-            </div>
           </div>
 
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="space-y-6">
               <FormField
                 control={form.control}
+                name="schoolYear"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-base font-semibold text-foreground">
+                      {t('form.school_year_label')}
+                    </FormLabel>
+                    <FormControl>
+                      <div className="flex flex-wrap gap-2 pt-2">
+                        {schoolYears.map((year) => {
+                          const isSelected = field.value === year
+                          return (
+                            <button
+                              key={year}
+                              type="button"
+                              aria-pressed={isSelected}
+                              onClick={() => field.onChange(year)}
+                              className="cursor-pointer"
+                            >
+                              <Badge
+                                variant={isSelected ? 'default' : 'secondary'}
+                                className={cn(
+                                  'px-2.5 py-0.5 text-xs transition-colors',
+                                  isSelected
+                                    ? 'border-transparent bg-primaryBlue text-white hover:bg-primaryBlue/90'
+                                    : 'border-border bg-muted text-muted-foreground hover:bg-muted/80'
+                                )}
+                              >
+                                {formatSchoolYearString(year, {
+                                  yearFormat: 'long'
+                                })}
+                              </Badge>
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
                 name="rating"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-base font-semibold text-foreground">
-                      How was the course?
+                      {t('form.rating_label')}
                     </FormLabel>
                     <FormControl>
                       <EditableStarRating
@@ -167,7 +163,7 @@ export function EditFeedbackContent({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-base font-semibold text-foreground">
-                      How heavy was the workload?
+                      {t('form.workload_label')}
                     </FormLabel>
                     <FormControl>
                       <EditableWorkloadRatingPills
@@ -181,7 +177,15 @@ export function EditFeedbackContent({
               />
             </div>
 
-            <CommentSection control={form.control} />
+            <CommentSection
+              control={form.control}
+              onCategoriesChange={setCategories}
+            />
+
+            <FeedbackPointsProgress
+              categories={categories}
+              courseId={feedback.courseId}
+            />
 
             <div className="flex gap-3">
               <Button
@@ -191,18 +195,18 @@ export function EditFeedbackContent({
                 disabled={isSubmitting}
               >
                 <X className="size-4" />
-                <span>Cancel</span>
+                <span>{t('edit.cancel')}</span>
               </Button>
               <Button type="submit" className="flex-1" disabled={isSubmitting}>
                 {isSubmitting ? (
                   <>
                     <Loader2 className="size-4 animate-spin" />
-                    <span>Saving...</span>
+                    <span>{t('edit.saving')}</span>
                   </>
                 ) : (
                   <>
                     <Save className="size-4" />
-                    <span>Save Changes</span>
+                    <span>{t('edit.save_changes')}</span>
                   </>
                 )}
               </Button>

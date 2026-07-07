@@ -1,3 +1,4 @@
+import type { FeedbackCategories } from '@uni-feedback/api-client'
 import {
   Button,
   EditableStarRating,
@@ -10,9 +11,12 @@ import {
   FormMessage
 } from '@uni-feedback/ui'
 import { Loader2, Save, X } from 'lucide-react'
+import { useState } from 'react'
 import { type UseFormReturn } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import type { FeedbackFormData } from '~/routes/feedback.new'
 import { CommentSection } from './CommentSection'
+import { FeedbackPointsProgress } from './FeedbackPointsProgress'
 
 export type EditFeedbackFormData = {
   rating: number
@@ -33,10 +37,14 @@ export function InlineFeedbackEdit({
   onCancel,
   isSubmitting
 }: InlineFeedbackEditProps) {
+  const { t } = useTranslation('feedback')
+  const [categories, setCategories] = useState<FeedbackCategories | null>(null)
+  const courseId = form.watch('courseId')
+
   return (
     <div className="p-6 ">
       <h2 className="text-lg font-semibold text-foreground mb-4">
-        Update Your Feedback
+        {t('edit.update_title')}
       </h2>
 
       <Form {...form}>
@@ -48,7 +56,7 @@ export function InlineFeedbackEdit({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-base font-semibold text-foreground">
-                    How was the course?
+                    {t('form.rating_label')}
                   </FormLabel>
                   <FormControl>
                     <EditableStarRating
@@ -68,7 +76,7 @@ export function InlineFeedbackEdit({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-base font-semibold text-foreground">
-                    How heavy was the workload?
+                    {t('form.workload_label')}
                   </FormLabel>
                   <FormControl>
                     <EditableWorkloadRatingPills
@@ -82,7 +90,12 @@ export function InlineFeedbackEdit({
             />
           </div>
 
-          <CommentSection control={form.control} />
+          <CommentSection
+            control={form.control}
+            onCategoriesChange={setCategories}
+          />
+
+          <FeedbackPointsProgress categories={categories} courseId={courseId} />
 
           <div className="flex gap-3">
             <Button
@@ -92,18 +105,18 @@ export function InlineFeedbackEdit({
               disabled={isSubmitting}
             >
               <X className="size-4" />
-              <span>Cancel</span>
+              <span>{t('edit.cancel')}</span>
             </Button>
             <Button type="submit" className="flex-1" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
                   <Loader2 className="size-4 animate-spin" />
-                  <span>Saving...</span>
+                  <span>{t('edit.saving')}</span>
                 </>
               ) : (
                 <>
                   <Save className="size-4" />
-                  <span>Save</span>
+                  <span>{t('edit.save')}</span>
                 </>
               )}
             </Button>

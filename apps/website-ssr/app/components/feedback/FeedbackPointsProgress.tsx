@@ -14,8 +14,8 @@ import { getLocalePath } from '~/utils/i18n-routes'
 interface FeedbackPointsProgressProps {
   /** Live category detection from the comment (null until enough text). */
   categories: FeedbackCategories | null
-  /** Current course, used for analytics. */
-  courseId: number
+  /** Current course, used for analytics. Omit where it isn't available. */
+  courseId?: number
 }
 
 /**
@@ -62,6 +62,7 @@ export function FeedbackPointsProgress({
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() =>
+                    courseId !== undefined &&
                     analytics.feedback.pointsInfoClicked({ courseId, points })
                   }
                   className="inline-block font-medium text-primaryBlue underline hover:text-primaryBlue/80"
