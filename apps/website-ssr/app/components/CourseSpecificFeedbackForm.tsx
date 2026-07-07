@@ -1,5 +1,9 @@
-import { type CourseSearchResult } from '@uni-feedback/api-client'
 import {
+  type CourseSearchResult,
+  type FeedbackCategories
+} from '@uni-feedback/api-client'
+import {
+  Badge,
   EditableStarRating,
   EditableWorkloadRatingPills,
   Form,
@@ -7,18 +11,13 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
+  FormMessage
 } from '@uni-feedback/ui'
 import {
   formatSchoolYearString,
   getCurrentSchoolYear
 } from '@uni-feedback/utils'
-import { Loader2, Pencil, Send } from 'lucide-react'
+import { Loader2, Send } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { type UseFormReturn } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -26,8 +25,10 @@ import { Link } from 'react-router'
 import { ChangeCourseDialog, FeedbackDraftDialog } from '~/components'
 import { AuthenticatedButton } from '~/components/common'
 import { CommentSection } from '~/components/feedback/CommentSection'
+import { FeedbackPointsProgress } from '~/components/feedback/FeedbackPointsProgress'
 import { useFeedbackDraft, useLang } from '~/hooks'
 import type { FeedbackFormData } from '~/routes/feedback.new'
+import { cn } from '~/utils'
 import { analytics } from '~/utils/analytics'
 import { getCourseFeedbackPath, getLocalePath } from '~/utils/i18n-routes'
 
@@ -75,8 +76,8 @@ export function CourseSpecificFeedbackForm({
   const [hasDismissedDraft, setHasDismissedDraft] = useState(false)
   const [enableAutoSave, setEnableAutoSave] = useState(false)
 
-  // State for school year selector visibility
-  const [showYearSelector, setShowYearSelector] = useState(false)
+  // Live category detection from the comment, drives the points preview
+  const [categories, setCategories] = useState<FeedbackCategories | null>(null)
 
   // Local course state for changing course without navigation
   const [currentCourse, setCurrentCourse] = useState<CourseWithDetails>(course)
@@ -128,7 +129,6 @@ export function CourseSpecificFeedbackForm({
   // Watch form values for draft saving (comment is handled separately to avoid re-renders)
   const rating = form.watch('rating')
   const workloadRating = form.watch('workloadRating')
-  const schoolYear = form.watch('schoolYear')
 
   // Check if all required fields are filled
   const isFormValid = useMemo(() => {
@@ -233,55 +233,7 @@ export function CourseSpecificFeedbackForm({
             <div className="font-medium text-foreground text-[13px]">
               {currentCourse.name}
             </div>
-            <div className="flex items-center justify-between gap-4 mt-1">
-              <div className="flex items-center gap-0.5">
-                <FormField
-                  name="schoolYear"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem className="space-y-0">
-                      <FormControl>
-                        <Select
-                          onValueChange={(val) => {
-                            field.onChange(Number(val))
-                            setShowYearSelector(false)
-                          }}
-                          value={field.value.toString()}
-                          open={showYearSelector}
-                          onOpenChange={setShowYearSelector}
-                        >
-                          <SelectTrigger className="h-0 w-0 p-0 border-0 opacity-0 absolute">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {schoolYears.map((year) => (
-                              <SelectItem key={year} value={year.toString()}>
-                                {formatSchoolYearString(year, {
-                                  yearFormat: 'long'
-                                })}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowYearSelector(true)}
-                  className="flex items-center gap-0.5 text-xs text-muted-foreground hover:text-primaryBlue cursor-pointer"
-                  aria-label={t('form.change_year_aria')}
-                >
-                  <span>
-                    {formatSchoolYearString(schoolYear, {
-                      yearFormat: 'long'
-                    })}
-                  </span>
-                  <Pencil className="size-3" />
-                </button>
-              </div>
+            <div className="flex items-center justify-end gap-4 mt-1">
               <button
                 type="button"
                 onClick={() => setShowChangeCourseDialog(true)}
@@ -300,6 +252,56 @@ export function CourseSpecificFeedbackForm({
             <div className="space-y-6">
               {/* Ratings Section */}
               <div className="flex flex-col gap-6">
+                {/* School Year */}
+                <FormField
+                  control={form.control}
+                  name="schoolYear"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-base font-medium text-foreground">
+                        {t('form.school_year_label')}
+                      </FormLabel>
+                      <FormControl>
+                        <div className="flex flex-wrap gap-2 pt-2">
+                          {schoolYears.map((year) => {
+                            const isSelected = field.value === year
+                            return (
+                              <button
+                                key={year}
+                                type="button"
+                                aria-pressed={isSelected}
+                                onClick={() => {
+                                  field.onChange(year)
+                                  analytics.feedback.schoolYearSelected({
+                                    courseId: currentCourse.id,
+                                    schoolYear: year
+                                  })
+                                }}
+                                className="cursor-pointer"
+                              >
+                                <Badge
+                                  variant={isSelected ? 'default' : 'secondary'}
+                                  className={cn(
+                                    'px-2.5 py-0.5 text-xs transition-colors',
+                                    isSelected
+                                      ? 'border-transparent bg-primaryBlue text-white hover:bg-primaryBlue/90'
+                                      : 'border-border bg-muted text-muted-foreground hover:bg-muted/80'
+                                  )}
+                                >
+                                  {formatSchoolYearString(year, {
+                                    yearFormat: 'long'
+                                  })}
+                                </Badge>
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
                 {/* Overall Rating */}
                 <FormField
                   control={form.control}
@@ -373,8 +375,15 @@ export function CourseSpecificFeedbackForm({
                 <CommentSection
                   control={form.control}
                   onDebouncedChange={handleCommentChange}
+                  onCategoriesChange={setCategories}
                 />
               </div>
+
+              {/* Points preview - grows as the comment covers more categories */}
+              <FeedbackPointsProgress
+                categories={categories}
+                courseId={currentCourse.id}
+              />
             </div>
 
             {/* Submit Button */}

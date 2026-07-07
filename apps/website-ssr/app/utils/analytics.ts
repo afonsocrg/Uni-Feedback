@@ -124,6 +124,19 @@ export const analytics = {
     ratingsEntered: (props: { rating: number; workloadRating: number }) =>
       trackEvent('feedback_form_ratings_entered', props),
 
+    /**
+     * Track when the user picks a school year from the chip selector.
+     */
+    schoolYearSelected: (props: { courseId: number; schoolYear: number }) =>
+      trackEvent('feedback_form_school_year_selected', props),
+
+    /**
+     * Track when the user clicks through to the points page from the
+     * "points you'll earn" helper on the feedback form.
+     */
+    pointsInfoClicked: (props: { courseId: number; points: number }) =>
+      trackEvent('feedback_form_points_info_clicked', props),
+
     commentEntered: (props: { commentLength: number }) =>
       trackEvent('feedback_form_comment_entered', props),
 

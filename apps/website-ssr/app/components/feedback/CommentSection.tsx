@@ -1,3 +1,4 @@
+import type { FeedbackCategories } from '@uni-feedback/api-client'
 import {
   FormControl,
   FormField,
@@ -20,11 +21,14 @@ type WithComment = FieldValues & { comment?: string }
 interface CommentSectionProps<T extends WithComment> {
   control: Control<T>
   onDebouncedChange?: (comment: string) => void
+  /** Notified when the live category detection changes (for a points preview). */
+  onCategoriesChange?: (categories: FeedbackCategories | null) => void
 }
 
 export function CommentSection<T extends WithComment>({
   control,
-  onDebouncedChange
+  onDebouncedChange,
+  onCategoriesChange
 }: CommentSectionProps<T>) {
   const { t } = useTranslation('feedback')
   const [showReviewTips, setShowReviewTips] = useState(false)
@@ -51,6 +55,11 @@ export function CommentSection<T extends WithComment>({
     comment,
     { debounceMs: 1000, minCharacters: 5 }
   )
+
+  // Surface the detected categories to the parent (drives the points preview)
+  useEffect(() => {
+    onCategoriesChange?.(categories)
+  }, [categories, onCategoriesChange])
 
   return (
     <>

@@ -6,7 +6,11 @@ import {
   users,
   type PointSourceType
 } from '@uni-feedback/db/schema'
-import { countWords, formatSchoolYearString } from '@uni-feedback/utils'
+import {
+  calculateFeedbackPoints,
+  countWords,
+  formatSchoolYearString
+} from '@uni-feedback/utils'
 import { and, count, eq, isNotNull, ne, sum } from 'drizzle-orm'
 import { AIService } from './aiService'
 
@@ -73,27 +77,15 @@ export class PointService {
   /**
    * Calculate points to award for a feedback submission based on analysis.
    *
-   * Rules:
-   * - Base: 1 point for submitting feedback
-   * - +4 points per category detected (teaching, assessment, materials, tips)
-   * - +3 bonus points if ALL 4 categories are mentioned
-   * - Maximum: 1 + (4×4) + 3 = 20 points
+   * Delegates to the shared {@link calculateFeedbackPoints} in
+   * `@uni-feedback/utils` so the website's live points preview always matches
+   * what we actually award here. See that function for the scoring rules.
    *
    * @param analysis - The analysis result from analyzeComment
    * @returns Number of points to award (1-20)
    */
   calculateFeedbackPoints(analysis: AnalysisResult): number {
-    const categoryCount =
-      (analysis.hasTeaching ? 1 : 0) +
-      (analysis.hasAssessment ? 1 : 0) +
-      (analysis.hasMaterials ? 1 : 0) +
-      (analysis.hasTips ? 1 : 0)
-
-    let points = 1 + categoryCount * 4
-    if (categoryCount === 4) {
-      points += 3
-    }
-    return points
+    return calculateFeedbackPoints(analysis)
   }
 
   /**

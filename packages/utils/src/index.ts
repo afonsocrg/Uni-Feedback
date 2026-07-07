@@ -1,6 +1,7 @@
 export * from './cookies'
 export * from './dateTime'
 export * from './email'
+export * from './feedbackPoints'
 export * from './giveaway'
 export * from './groupBy'
 export * from './instagram'
