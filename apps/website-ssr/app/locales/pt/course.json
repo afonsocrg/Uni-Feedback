@@ -11,6 +11,7 @@
     "feedback": "Feedback",
     "description": "Descrição",
     "assessment": "Avaliação",
+    "teachers": "Professores",
     "bibliography": "Bibliografia"
   },
   "info": {
@@ -41,6 +42,24 @@
   },
   "bibliography": {
     "no_content": "Ainda não temos a bibliografia para esta cadeira."
+  },
+  "teachers": {
+    "no_content": "Ainda não temos informação sobre os professores desta cadeira.",
+    "recorded_years": "Anos registados: {{years}}",
+    "profile_label": "Professor",
+    "no_email": "Ainda não temos email para este professor.",
+    "current_teachers": "Professores atuais",
+    "past_teachers": "Professores anteriores",
+    "no_current_teachers": "Não temos professores atuais registados para esta cadeira.",
+    "no_past_teachers": "Não temos professores anteriores registados para esta cadeira.",
+    "current_courses": "Cadeiras atuais",
+    "past_courses": "Cadeiras anteriores",
+    "no_current_courses": "Não temos cadeiras atuais registadas para este professor.",
+    "no_past_courses": "Não temos cadeiras anteriores registadas para este professor.",
+    "relevant_feedback": "Feedback relevante",
+    "no_relevant_feedback": "Ainda não temos feedback das cadeiras deste professor nos anos em que está registado.",
+    "load_more_feedback": "Carregar mais feedback",
+    "loading_more_feedback": "A carregar feedback..."
   },
   "card": {
     "workload_prefix": "Carga:",

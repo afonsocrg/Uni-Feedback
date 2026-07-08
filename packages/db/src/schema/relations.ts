@@ -4,6 +4,7 @@ import { audioRecordings } from './audioRecording'
 import { correctionRequests } from './correctionRequest'
 import { courses } from './course'
 import { courseOfferings } from './courseOffering'
+import { courseTeacherAssignments } from './courseTeacherAssignment'
 import { degrees } from './degree'
 import { emailPreferences } from './emailPreferences'
 import { faculties } from './faculty'
@@ -13,6 +14,7 @@ import { feedbackFlags } from './feedbackFlag'
 import { helpfulVotes } from './helpfulVote'
 import { pointRegistry } from './pointRegistry'
 import { reports } from './report'
+import { teachers } from './teacher'
 import { users } from './user'
 
 // FeedbackFull relations (table - includes all feedback)
@@ -44,7 +46,8 @@ export const courseRelations = relations(courses, ({ one, many }) => ({
     references: [degrees.id]
   }),
   feedbacks: many(feedbackFull),
-  offerings: many(courseOfferings)
+  offerings: many(courseOfferings),
+  teacherAssignments: many(courseTeacherAssignments)
 }))
 
 // Course Offering relations
@@ -74,6 +77,30 @@ export const academicTermRelations = relations(
   })
 )
 
+// Teacher relations
+export const teacherRelations = relations(teachers, ({ one, many }) => ({
+  faculty: one(faculties, {
+    fields: [teachers.facultyId],
+    references: [faculties.id]
+  }),
+  courseAssignments: many(courseTeacherAssignments)
+}))
+
+// Course-Teacher relations
+export const courseTeacherAssignmentRelations = relations(
+  courseTeacherAssignments,
+  ({ one }) => ({
+    course: one(courses, {
+      fields: [courseTeacherAssignments.courseId],
+      references: [courses.id]
+    }),
+    teacher: one(teachers, {
+      fields: [courseTeacherAssignments.teacherId],
+      references: [teachers.id]
+    })
+  })
+)
+
 // Degree relations
 export const degreeRelations = relations(degrees, ({ one, many }) => ({
   faculty: one(faculties, {
@@ -86,7 +113,8 @@ export const degreeRelations = relations(degrees, ({ one, many }) => ({
 // Faculty relations
 export const facultyRelations = relations(faculties, ({ many }) => ({
   degrees: many(degrees),
-  academicTerms: many(academicTerms)
+  academicTerms: many(academicTerms),
+  teachers: many(teachers)
 }))
 
 // User relations
