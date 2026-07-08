@@ -55,7 +55,10 @@ export const STORAGE_KEYS = {
   FEEDBACK_DRAFT: 'uni-feedback-draft',
 
   // Profile page: last-opened tab (feedback | giveaway)
-  PROFILE_ACTIVE_TAB: 'uni-feedback-profile-tab'
+  PROFILE_ACTIVE_TAB: 'uni-feedback-profile-tab',
+
+  // Giveaway tab: whether the "how it works" intro is collapsed (read-once)
+  GIVEAWAY_HOWTO_COLLAPSED: 'uni-feedback-giveaway-howto-collapsed'
 } as const
 
 // OTP configuration (frontend constants)

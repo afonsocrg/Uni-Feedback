@@ -7,10 +7,10 @@ import {
   GenericBreadcrumb,
   ProfileFeedbackTab,
   ProfilePageSkeleton,
-  ProfileUserInfo,
-  ReferralCard
+  ProfileUserInfo
 } from '~/components'
 import { GiveawayTab } from '~/components/giveaway/GiveawayTab'
+import { ReferralShareButtons } from '~/components/referral/ReferralShareButtons'
 import { useRequiredAuth } from '~/hooks'
 import { useProfileFeedback, useProfileStats } from '~/hooks/queries'
 import { STORAGE_KEYS } from '~/utils/constants'
@@ -67,18 +67,15 @@ export default function ProfilePage() {
         />
       </div>
       <div className="mx-auto px-4 py-8 max-w-4xl">
-        {/* Top Section: User Info + Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+        {/* Top: the same compact identity on every tab. The point breakdown
+            lives in the points popover and the invite CTA lives inside each
+            tab's content, so switching tabs never shifts this row. */}
+        <div className="mb-8">
           <ProfileUserInfo
             email={user.email}
             stats={stats}
             isStatsLoading={isStatsLoading}
           />
-
-          {/* Right: Referral Section */}
-          <div className="space-y-5">
-            <ReferralCard referralCode={user.referralCode} />
-          </div>
         </div>
 
         {/* Feedback + Giveaway Tabs */}
@@ -107,6 +104,26 @@ export default function ProfilePage() {
               feedbackData={feedbackData}
               isFeedbackLoading={isFeedbackLoading}
             />
+            {/* Light invite nudge (the giveaway tab has its own in the
+                referrals tile, so this only shows here). */}
+            {user.referralCode && (
+              <div className="mt-8 flex flex-col gap-3 rounded-xl border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm font-semibold">
+                    {t('profile.referral_title')}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {t('profile.referral_desc')}
+                  </p>
+                </div>
+                <div className="sm:w-72 sm:flex-none">
+                  <ReferralShareButtons
+                    referralCode={user.referralCode}
+                    surface="profile"
+                  />
+                </div>
+              </div>
+            )}
           </TabsContent>
         </Tabs>
 

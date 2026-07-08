@@ -167,6 +167,15 @@ we track, property conventions, and the shipping checklist.
 - **When changing existing decisions**, update the respective skill file to keep documentation current
 - Keep CLAUDE.md high-level - detailed conventions belong in skills
 
+## Copywriting Rules
+
+- **Never use em dashes (—) in any copy or user-facing text. No exceptions, ever.**
+  This covers emails, WhatsApp/Discord/Instagram/social posts, i18n JSON strings,
+  UI copy, and any student-facing communication, in both Portuguese and English.
+  Replace an em dash with a separate sentence (period), a comma, a colon, or
+  parentheses, whichever reads most naturally. En dashes (–) in numeric or date
+  ranges (e.g. "1–2 de agosto") are fine.
+
 ## Commit Rules
 
 - **ALWAYS** ask for user approval before creating commits

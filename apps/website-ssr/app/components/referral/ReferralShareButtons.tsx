@@ -79,10 +79,10 @@ export function ReferralShareButtons({
     <div className="flex gap-2">
       <Button
         onClick={handleWhatsApp}
-        className="flex-1 gap-2 bg-whatsapp text-white hover:bg-whatsapp-hover"
+        className="min-w-0 flex-1 gap-2 bg-whatsapp text-white hover:bg-whatsapp-hover"
       >
-        <FaWhatsapp className="size-4" />
-        {t('success.invite_whatsapp')}
+        <FaWhatsapp className="size-4 flex-none" />
+        <span className="truncate">{t('success.invite_whatsapp')}</span>
       </Button>
 
       {/* Copy is the reliable, always-available direct action. The OS share
