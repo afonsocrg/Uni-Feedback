@@ -58,7 +58,7 @@ export function ReferralShareButtons({
 
   const handleCopy = async () => {
     analytics.referral.shareClicked({
-      channel: 'copy',
+      channel: 'copy_url',
       surface,
       giveawayActive
     })

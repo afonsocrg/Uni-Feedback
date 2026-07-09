@@ -75,15 +75,15 @@ export type FeedbackEntryPoint =
  */
 export type ReferralSurface = 'feedback_success' | 'profile' | 'giveaway'
 
-/** The channel a user used to share their referral link. */
-export type ShareChannel = 'whatsapp' | 'copy' | 'native'
-
 /**
- * The channel used on the course-page share and ask-for-feedback popovers.
- * Distinct from `ShareChannel` only because these two events predate it and
- * ship `copy_url` on the wire; renaming would orphan the existing insights.
+ * The channel a share action went out through, for every share surface we have:
+ * referral links, course pages, and review permalinks. The value doubles as the
+ * `utm_medium` on the shared URL, so a landing can be joined back to its click.
+ *
+ * `referral_share_clicked` shipped `copy` here before this union was unified, so
+ * that event's history splits on 2026-07-09: read it as `copy` OR `copy_url`.
  */
-export type CourseShareMedium = 'whatsapp' | 'copy_url'
+export type ShareChannel = 'whatsapp' | 'copy_url' | 'native'
 
 export const analytics = {
   feedback: {
@@ -410,7 +410,7 @@ export const analytics = {
      * abstraction and its properties are already queried in PostHog.
      */
     shareClicked: (props: {
-      medium: CourseShareMedium
+      medium: ShareChannel
       course_id: number
       course_acronym: string
     }) => trackEvent('share_course', props),
@@ -420,7 +420,7 @@ export const analytics = {
      * reviewed. Same snake_case caveat as `shareClicked` above.
      */
     feedbackRequested: (props: {
-      medium: CourseShareMedium
+      medium: ShareChannel
       course_id: number
       course_acronym: string
     }) => trackEvent('request_feedback', props)

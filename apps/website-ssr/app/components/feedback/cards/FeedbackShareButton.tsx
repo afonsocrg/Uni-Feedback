@@ -44,14 +44,15 @@ export function FeedbackShareButton({
   // `/courses/{id}`: this card only ever renders on the course page, and the
   // unlocalized path 301s to `/en/courses/{id}`, which both drops the query
   // string (losing the UTM tags) and lands a Portuguese reader on the English
-  // page. Any query already on the URL is dropped so an inbound `?utm_*` from
-  // the visit that brought this student here can't leak into what they share.
-  const permalink = (medium: string) =>
+  // page. Only origin + pathname are read, never `location.search`, so an
+  // inbound `?utm_*` from the visit that brought this student here can't leak
+  // into what they share (addUtmParams merges into a query, it doesn't clear it).
+  const permalink = (channel: ShareChannel) =>
     typeof window === 'undefined'
       ? null
       : addUtmParams(
           `${window.location.origin}${window.location.pathname}#feedback-${feedbackId}`,
-          medium,
+          channel,
           'feedback_permalink'
         )
 
@@ -72,7 +73,7 @@ export function FeedbackShareButton({
   }
 
   const handleCopy = async () => {
-    track('copy')
+    track('copy_url')
     const ok = await copyLink(permalink('copy_url'))
     if (ok) analytics.feedback.linkCopied({ feedbackId, courseId })
     setOpen(false)
