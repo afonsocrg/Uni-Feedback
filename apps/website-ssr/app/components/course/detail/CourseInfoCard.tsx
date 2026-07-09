@@ -56,8 +56,12 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
   const averageRating = Number(course.averageRating) || 0
   const [correctionDialogOpen, setCorrectionDialogOpen] = useState(false)
 
+  // `course_reviews` names the funnel step, not this component: the primary CTA
+  // moved up here from <CourseReviews>, and it is still the same step. Renaming
+  // it would strand the history on `feedback_form_viewed.entry_point`, and any
+  // value outside FeedbackEntryPoint silently degrades to `direct`.
   const reviewFormUrl = useMemo(
-    () => `${getCourseFeedbackPath(lang, course.id)}?from=course_info_card`,
+    () => `${getCourseFeedbackPath(lang, course.id)}?from=course_reviews`,
     [lang, course.id]
   )
 
@@ -244,8 +248,9 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
             <Link
               to={reviewFormUrl}
               onClick={() => {
+                // Same historical name as `?from=course_reviews` above.
                 analytics.navigation.feedbackFormLinkClicked({
-                  source: 'course_info_card',
+                  source: 'course_page_cta',
                   referrerPage: getPageName(window.location.pathname),
                   courseId: course.id
                 })
