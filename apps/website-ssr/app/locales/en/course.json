@@ -53,5 +53,33 @@
     "show_more": "Show more",
     "show_less": "Show less",
     "copied": "Copied!"
+  },
+  "correction": {
+    "title": "Suggest correction",
+    "description": "Found incorrect information in <name>{{courseName}}</name>? Let us know and we'll review it.",
+    "field_label": "What's incorrect?",
+    "field_placeholder": "Select a field",
+    "notes_label": "What should it be?",
+    "notes_placeholder": "Describe what's wrong and what the correct value should be...",
+    "notes_required": "Please describe what is incorrect",
+    "cancel": "Cancel",
+    "submit": "Submit",
+    "submitting": "Submitting...",
+    "error": "Failed to submit correction request",
+    "success_title": "Thank you!",
+    "success_description": "Your correction request has been submitted. We'll review it and update the information if needed.",
+    "close": "Close",
+    "fields": {
+      "name": "Course name",
+      "acronym": "Acronym",
+      "ects": "ECTS credits",
+      "terms": "Terms / semesters",
+      "url": "Course page URL",
+      "has_mandatory_exam": "Mandatory exam",
+      "description": "Description",
+      "assessment": "Assessment",
+      "bibliography": "Bibliography",
+      "other": "Other"
+    }
   }
 }

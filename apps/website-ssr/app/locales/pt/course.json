@@ -53,5 +53,33 @@
     "show_more": "Ver mais",
     "show_less": "Ver menos",
     "copied": "Copiado!"
+  },
+  "correction": {
+    "title": "Sugerir correção",
+    "description": "Encontraste informação errada em <name>{{courseName}}</name>? Diz-nos e nós verificamos.",
+    "field_label": "O que está errado?",
+    "field_placeholder": "Escolhe um campo",
+    "notes_label": "O que devia estar?",
+    "notes_placeholder": "Descreve o que está errado e qual devia ser o valor correto...",
+    "notes_required": "Descreve o que está errado",
+    "cancel": "Cancelar",
+    "submit": "Enviar",
+    "submitting": "A enviar...",
+    "error": "Não foi possível enviar a sugestão de correção",
+    "success_title": "Obrigado!",
+    "success_description": "A tua sugestão foi enviada. Vamos rever e atualizar a informação se for necessário.",
+    "close": "Fechar",
+    "fields": {
+      "name": "Nome da cadeira",
+      "acronym": "Sigla",
+      "ects": "Créditos ECTS",
+      "terms": "Períodos / semestres",
+      "url": "URL da página da cadeira",
+      "has_mandatory_exam": "Exame obrigatório",
+      "description": "Descrição",
+      "assessment": "Avaliação",
+      "bibliography": "Bibliografia",
+      "other": "Outro"
+    }
   }
 }

@@ -1,6 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
-  CORRECTION_REQUEST_FIELD_LABELS,
   CORRECTION_REQUEST_FIELDS,
   submitCorrectionRequest,
   type CorrectionRequestField
@@ -25,8 +24,9 @@ import {
   Textarea
 } from '@uni-feedback/ui'
 import { Loader2, PenLine } from 'lucide-react'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { Trans, useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { AuthenticatedButton } from '~/components'
@@ -34,7 +34,7 @@ import { analytics } from '~/utils/analytics'
 
 const correctionFormSchema = z.object({
   field: z.enum(CORRECTION_REQUEST_FIELDS),
-  notes: z.string().min(1, 'Please describe what is incorrect')
+  notes: z.string().min(1)
 })
 
 type CorrectionFormData = z.infer<typeof correctionFormSchema>
@@ -54,11 +54,22 @@ export function CorrectionRequestDialog({
   open,
   onOpenChange
 }: CorrectionRequestDialogProps) {
+  const { t } = useTranslation('course')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
 
+  // Built here rather than at module scope so the validation message is
+  // translated, and re-translated when the user switches language.
+  const localizedSchema = useMemo(
+    () =>
+      correctionFormSchema.extend({
+        notes: z.string().min(1, t('correction.notes_required'))
+      }),
+    [t]
+  )
+
   const form = useForm<CorrectionFormData>({
-    resolver: zodResolver(correctionFormSchema),
+    resolver: zodResolver(localizedSchema),
     defaultValues: {
       field: undefined,
       notes: ''
@@ -75,17 +86,13 @@ export function CorrectionRequestDialog({
       })
       analytics.correction.submitted({ courseId, field: data.field })
       setIsSuccess(true)
-    } catch (error) {
+    } catch {
       analytics.correction.submissionFailed({
         courseId,
         field: data.field,
         errorType: 'api_error'
       })
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : 'Failed to submit correction request'
-      )
+      toast.error(t('correction.error'))
     } finally {
       setIsSubmitting(false)
     }
@@ -114,7 +121,7 @@ export function CorrectionRequestDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <PenLine className="size-5 text-primaryBlue" />
-            Report Incorrect Info
+            {t('correction.title')}
           </DialogTitle>
         </DialogHeader>
 
@@ -137,23 +144,27 @@ export function CorrectionRequestDialog({
             </div>
             <div>
               <h3 className="text-lg font-semibold text-foreground">
-                Thank you!
+                {t('correction.success_title')}
               </h3>
               <p className="text-sm text-muted-foreground mt-1">
-                Your correction request has been submitted. We&apos;ll review it
-                and update the information if needed.
+                {t('correction.success_description')}
               </p>
             </div>
             <Button onClick={handleClose} className="mt-4">
-              Close
+              {t('correction.close')}
             </Button>
           </div>
         ) : (
           <div className="space-y-4 py-2">
             <p className="text-sm text-muted-foreground">
-              Found incorrect information in{' '}
-              <span className="font-medium text-foreground">{courseName}</span>?
-              Let us know and we&apos;ll review it.
+              <Trans
+                i18nKey="correction.description"
+                ns="course"
+                values={{ courseName }}
+                components={{
+                  name: <span className="font-medium text-foreground" />
+                }}
+              />
             </p>
 
             <Form {...form}>
@@ -166,25 +177,22 @@ export function CorrectionRequestDialog({
                   name="field"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>What&apos;s incorrect?</FormLabel>
+                      <FormLabel>{t('correction.field_label')}</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
                       >
                         <FormControl>
                           <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select a field" />
+                            <SelectValue
+                              placeholder={t('correction.field_placeholder')}
+                            />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {(
-                            Object.entries(CORRECTION_REQUEST_FIELD_LABELS) as [
-                              CorrectionRequestField,
-                              string
-                            ][]
-                          ).map(([value, label]) => (
+                          {CORRECTION_REQUEST_FIELDS.map((value) => (
                             <SelectItem key={value} value={value}>
-                              {label}
+                              {t(`correction.fields.${value}`)}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -199,10 +207,10 @@ export function CorrectionRequestDialog({
                   name="notes"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>What should it be?</FormLabel>
+                      <FormLabel>{t('correction.notes_label')}</FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="Describe what's wrong and what the correct value should be..."
+                          placeholder={t('correction.notes_placeholder')}
                           className="min-h-[100px] resize-none"
                           {...field}
                         />
@@ -220,7 +228,7 @@ export function CorrectionRequestDialog({
                     disabled={isSubmitting}
                     className="flex-1"
                   >
-                    Cancel
+                    {t('correction.cancel')}
                   </Button>
                   <AuthenticatedButton
                     type="submit"
@@ -230,10 +238,10 @@ export function CorrectionRequestDialog({
                     {isSubmitting ? (
                       <>
                         <Loader2 className="size-4 animate-spin" />
-                        <span>Submitting...</span>
+                        <span>{t('correction.submitting')}</span>
                       </>
                     ) : (
-                      'Submit'
+                      t('correction.submit')
                     )}
                   </AuthenticatedButton>
                 </div>
