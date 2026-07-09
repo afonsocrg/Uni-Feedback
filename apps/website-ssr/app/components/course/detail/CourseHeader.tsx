@@ -6,11 +6,11 @@ import {
   PopoverTrigger
 } from '@uni-feedback/ui'
 import { Share2 } from 'lucide-react'
-import posthog from 'posthog-js'
 import { useCallback } from 'react'
 import { FaWhatsapp } from 'react-icons/fa'
 import { CopyButton, Tooltip } from '~/components'
 import { addUtmParams, openWhatsapp } from '~/utils'
+import { analytics } from '~/utils/analytics'
 import type { CourseDetail } from './CourseDetailContent'
 
 export interface CourseHeaderProps {
@@ -18,7 +18,7 @@ export interface CourseHeaderProps {
 }
 export function CourseHeader({ course }: CourseHeaderProps) {
   const handleWhatsapp = useCallback(() => {
-    posthog.capture('share_course', {
+    analytics.course.shareClicked({
       medium: 'whatsapp',
       course_id: course.id,
       course_acronym: course.acronym
@@ -31,7 +31,7 @@ export function CourseHeader({ course }: CourseHeaderProps) {
   }, [course])
 
   const handleCopyUrl = useCallback(() => {
-    posthog.capture('share_course', {
+    analytics.course.shareClicked({
       medium: 'copy_url',
       course_id: course.id,
       course_acronym: course.acronym

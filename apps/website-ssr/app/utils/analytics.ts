@@ -78,6 +78,13 @@ export type ReferralSurface = 'feedback_success' | 'profile' | 'giveaway'
 /** The channel a user used to share their referral link. */
 export type ShareChannel = 'whatsapp' | 'copy' | 'native'
 
+/**
+ * The channel used on the course-page share and ask-for-feedback popovers.
+ * Distinct from `ShareChannel` only because these two events predate it and
+ * ship `copy_url` on the wire; renaming would orphan the existing insights.
+ */
+export type CourseShareMedium = 'whatsapp' | 'copy_url'
+
 export const analytics = {
   feedback: {
     /**
@@ -392,6 +399,31 @@ export const analytics = {
 
     filterApplied: (props: { filterType: string; filterValue: string }) =>
       trackEvent('course_filter_applied', props)
+  },
+
+  course: {
+    /**
+     * Track when a student shares a course page from the course header.
+     *
+     * The `course_id` / `course_acronym` property names are snake_case, unlike
+     * the camelCase used elsewhere, because this event predates the typed
+     * abstraction and its properties are already queried in PostHog.
+     */
+    shareClicked: (props: {
+      medium: CourseShareMedium
+      course_id: number
+      course_acronym: string
+    }) => trackEvent('share_course', props),
+
+    /**
+     * Track when a student asks a friend to review a course they haven't
+     * reviewed. Same snake_case caveat as `shareClicked` above.
+     */
+    feedbackRequested: (props: {
+      medium: CourseShareMedium
+      course_id: number
+      course_acronym: string
+    }) => trackEvent('request_feedback', props)
   },
 
   navigation: {

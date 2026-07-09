@@ -6,12 +6,12 @@ import {
   PopoverTrigger
 } from '@uni-feedback/ui'
 import { Share2 } from 'lucide-react'
-import posthog from 'posthog-js'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaWhatsapp } from 'react-icons/fa'
 import { CopyButton } from '~/components'
 import { addUtmParams, getAskForFeedbackMessage, openWhatsapp } from '~/utils'
+import { analytics } from '~/utils/analytics'
 
 interface AskForFeedbackProps {
   reviewFormUrl: string
@@ -21,7 +21,7 @@ export function AskForFeedback({ reviewFormUrl, course }: AskForFeedbackProps) {
   const { t } = useTranslation('course')
   const handleWhatsapp = useCallback(() => {
     if (!course) return
-    posthog.capture('request_feedback', {
+    analytics.course.feedbackRequested({
       medium: 'whatsapp',
       course_id: course.id,
       course_acronym: course.acronym
@@ -34,7 +34,7 @@ export function AskForFeedback({ reviewFormUrl, course }: AskForFeedbackProps) {
 
   const handleCopyUrl = useCallback(() => {
     if (!course) return
-    posthog.capture('request_feedback', {
+    analytics.course.feedbackRequested({
       medium: 'copy_url',
       course_id: course.id,
       course_acronym: course.acronym
