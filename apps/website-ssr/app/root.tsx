@@ -88,8 +88,16 @@ const persister =
     : undefined
 
 function HreflangLinks() {
-  const { origin } = useLoaderData<typeof loader>()
+  // Addressed by route id, like the theme below: <Layout> also wraps the error
+  // path, and there a bare useLoaderData() resolves to the *errored* leaf route
+  // rather than to root, so it returns undefined. A 404 thrown by a child
+  // loader used to crash on that undefined here and surface as a 500.
+  // Root's own loader still ran, so the links survive on error pages too; the
+  // guard only trips if root itself failed, and then there's no origin to use.
+  const rootData = useRouteLoaderData('root') as { origin?: string } | undefined
   const { pathname } = useLocation()
+  const origin = rootData?.origin
+  if (!origin) return null
   const lang = detectLang(pathname)
   const ptPath = lang === 'pt' ? pathname : getEquivalentPath(pathname, 'en')
   const enPath = lang === 'en' ? pathname : getEquivalentPath(pathname, 'pt')
