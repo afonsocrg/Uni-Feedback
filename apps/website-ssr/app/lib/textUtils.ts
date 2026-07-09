@@ -18,6 +18,11 @@ export function stripMarkdown(text: string): string {
     .trim()
 }
 
+/** Treats null, empty, and whitespace-only strings alike. */
+export function hasText(value: string | null | undefined): value is string {
+  return Boolean(value?.trim())
+}
+
 export function getTruncatedText(text: string, limit: number): string {
   if (text.length <= limit) return text
 

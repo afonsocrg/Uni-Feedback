@@ -19,6 +19,9 @@ export interface CourseDetail extends Course {
   averageRating: number
   averageWorkload: number
   totalFeedbackCount: number
+  /** Feedback counts per value, index 0 = value 1 … index 4 = value 5. */
+  ratingDistribution: number[]
+  workloadDistribution: number[]
   degree?: {
     id: number
     name: string

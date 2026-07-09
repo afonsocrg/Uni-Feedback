@@ -15,14 +15,16 @@
   },
   "info": {
     "course_page": "Página da Cadeira",
-    "report_incorrect": "Reportar informação incorreta",
-    "feedback_label": "Feedback",
     "no_reviews": "Sem avaliações ainda",
     "workload_label": "Carga de trabalho",
     "exam_label": "Exame",
     "exam_mandatory": "Obrigatório",
     "exam_optional": "Opcional",
-    "exam_not_specified": "Não especificado"
+    "exam_not_specified": "Não especificado",
+    "suggest_correction": "Sugerir correção",
+    "overall_label": "Geral",
+    "ratings_count_one": "{{count}} avaliação",
+    "ratings_count_other": "{{count}} avaliações"
   },
   "reviews": {
     "heading": "Feedback dos Alunos",
@@ -31,7 +33,10 @@
     "empty_desc": "Sê o primeiro a partilhar a tua experiência, ou pede aos teus amigos que deixem feedback! A tua contribuição ajuda os futuros alunos a tomar melhores decisões.",
     "ask_for_feedback": "Pedir feedback",
     "outdated_warning": "As avaliações abaixo deste ponto podem estar desatualizadas. O conteúdo, os métodos de ensino e os requisitos da cadeira podem ter mudado desde então.",
-    "pre_mepp": "Pré-MEPP"
+    "pre_mepp": "Pré-MEPP",
+    "ratings_only_show_one": "Ver mais {{count}} avaliação sem comentário",
+    "ratings_only_show_other": "Ver mais {{count}} avaliações sem comentário",
+    "ratings_only_hide": "Esconder avaliações sem comentário"
   },
   "description": {
     "no_content": "Ainda não temos uma descrição para esta cadeira."
@@ -47,7 +52,6 @@
     "from_different_course": "Feedback submetido por um aluno de {{degreeName}}",
     "show_more": "Ver mais",
     "show_less": "Ver menos",
-    "no_comment": "Este aluno não deixou comentário",
     "copied": "Copiado!"
   }
 }

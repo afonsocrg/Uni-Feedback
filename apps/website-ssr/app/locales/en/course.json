@@ -15,14 +15,16 @@
   },
   "info": {
     "course_page": "Course Page",
-    "report_incorrect": "Report incorrect info",
-    "feedback_label": "Feedback",
     "no_reviews": "No reviews yet",
     "workload_label": "Workload",
     "exam_label": "Exam",
     "exam_mandatory": "Mandatory",
     "exam_optional": "Optional",
-    "exam_not_specified": "Not specified"
+    "exam_not_specified": "Not specified",
+    "suggest_correction": "Suggest correction",
+    "overall_label": "Overall",
+    "ratings_count_one": "{{count}} rating",
+    "ratings_count_other": "{{count}} ratings"
   },
   "reviews": {
     "heading": "Student Feedback",
@@ -31,7 +33,10 @@
     "empty_desc": "Be the first to share your experience, or ask your friends to leave feedback! Your input helps future students make better choices.",
     "ask_for_feedback": "Ask for feedback",
     "outdated_warning": "The reviews below this point may be outdated. Course content, teaching methods, and requirements may have changed since then.",
-    "pre_mepp": "Pre-MEPP"
+    "pre_mepp": "Pre-MEPP",
+    "ratings_only_show_one": "Show {{count}} more rating without a comment",
+    "ratings_only_show_other": "Show {{count}} more ratings without a comment",
+    "ratings_only_hide": "Hide ratings without a comment"
   },
   "description": {
     "no_content": "We don't have a description for this course yet."
@@ -47,7 +52,6 @@
     "from_different_course": "Feedback submitted by a student from {{degreeName}}",
     "show_more": "Show more",
     "show_less": "Show less",
-    "no_comment": "This user did not leave any comment",
     "copied": "Copied!"
   }
 }

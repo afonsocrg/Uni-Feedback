@@ -1,5 +1,5 @@
 import { database, queries, schema } from '@uni-feedback/db'
-import { desc, eq, sql } from 'drizzle-orm'
+import { type AnyColumn, desc, eq, sql } from 'drizzle-orm'
 import { CourseDetailContent } from '~/components'
 import { getCurrentUserId } from '~/lib/auth.server'
 import { getCoursePath } from '~/utils/i18n-routes'
@@ -139,6 +139,11 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     throw new Response('Course not found', { status: 404 })
   }
 
+  // Counts of feedback per rating value (1..5), as a single `filter`ed aggregate
+  // so the distributions come from the same scan as the averages.
+  const bucketCount = (column: AnyColumn, value: number) =>
+    sql<number>`coalesce(count(*) filter (where ${column} = ${value})::integer, 0)`
+
   // Get feedback aggregation separately (includes feedback from identical courses)
   const feedbackAggregation = await db
     .select({
@@ -153,15 +158,42 @@ export async function loader({ params, request }: Route.LoaderArgs) {
       totalFeedbackCount:
         sql<number>`coalesce(count(distinct ${schema.feedback.id})::integer, 0)`.as(
           'total_feedback_count'
-        )
+        ),
+      rating1: bucketCount(schema.feedback.rating, 1),
+      rating2: bucketCount(schema.feedback.rating, 2),
+      rating3: bucketCount(schema.feedback.rating, 3),
+      rating4: bucketCount(schema.feedback.rating, 4),
+      rating5: bucketCount(schema.feedback.rating, 5),
+      workload1: bucketCount(schema.feedback.workloadRating, 1),
+      workload2: bucketCount(schema.feedback.workloadRating, 2),
+      workload3: bucketCount(schema.feedback.workloadRating, 3),
+      workload4: bucketCount(schema.feedback.workloadRating, 4),
+      workload5: bucketCount(schema.feedback.workloadRating, 5)
     })
     .from(schema.feedback)
     .where(queries.getFeedbackWhereCondition(courseIdNum))
 
-  const aggregation = feedbackAggregation[0] || {
-    averageRating: 0,
-    averageWorkload: 0,
-    totalFeedbackCount: 0
+  const row = feedbackAggregation[0]
+
+  // Index 0 holds the count for value 1, index 4 the count for value 5.
+  const aggregation = {
+    averageRating: row?.averageRating ?? 0,
+    averageWorkload: row?.averageWorkload ?? 0,
+    totalFeedbackCount: row?.totalFeedbackCount ?? 0,
+    ratingDistribution: [
+      row?.rating1 ?? 0,
+      row?.rating2 ?? 0,
+      row?.rating3 ?? 0,
+      row?.rating4 ?? 0,
+      row?.rating5 ?? 0
+    ],
+    workloadDistribution: [
+      row?.workload1 ?? 0,
+      row?.workload2 ?? 0,
+      row?.workload3 ?? 0,
+      row?.workload4 ?? 0,
+      row?.workload5 ?? 0
+    ]
   }
 
   // Get degree information

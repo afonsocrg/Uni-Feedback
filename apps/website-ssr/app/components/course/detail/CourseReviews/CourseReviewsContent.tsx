@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next'
 import type { CourseDetail } from '~/components'
 import type { CourseFeedback } from '~/components/feedback/cards/CoursePageFeedbackCard'
 import { useLang } from '~/hooks'
+import { hasText } from '~/lib/textUtils'
 import { getCourseFeedbackPath } from '~/utils/i18n-routes'
 
 interface CourseReviewsContentProps {
@@ -32,6 +33,13 @@ export function CourseReviewsContent({
     )
   }, [feedback])
 
+  // Decided across the whole course, not per school year: collapsing every year
+  // independently would leave the page empty for courses where nobody commented.
+  const collapseRatingsOnly = useMemo(
+    () => feedback.some((f) => hasText(f.comment)),
+    [feedback]
+  )
+
   if (feedback.length === 0) {
     return (
       <CourseReviewContentEmpty
@@ -56,8 +64,10 @@ export function CourseReviewsContent({
               <WarningAlert message={t('reviews.outdated_warning')} />
             )}
             <SchoolYearSection
+              courseId={courseId}
               schoolYear={schoolYear}
               feedback={yearFeedback}
+              collapseRatingsOnly={collapseRatingsOnly}
             />
           </div>
         )

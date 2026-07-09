@@ -1,3 +1,4 @@
+import type { CorrectionRequestField } from '@uni-feedback/api-client'
 import posthog from 'posthog-js'
 import { detectLang, getLocalePath } from '~/utils/i18n-routes'
 
@@ -187,6 +188,18 @@ export const analytics = {
       trackEvent('feedback_item_viewed', props),
 
     /**
+     * Track when a student expands/collapses the rating-only feedback of a
+     * school year on the course page. Tells us whether students care about
+     * feedback with no comment, now that it is hidden by default.
+     */
+    ratingsOnlyToggled: (props: {
+      courseId: number
+      schoolYear: number
+      count: number
+      expanded: boolean
+    }) => trackEvent('feedback_ratings_only_toggled', props),
+
+    /**
      * Phase 4: Track duplicate feedback updates
      */
     existingUpdated: (props: {
@@ -301,6 +314,42 @@ export const analytics = {
      */
     reportSubmitted: (props: { feedbackId: number; reason: string }) =>
       trackEvent('feedback_report_submitted', props)
+  },
+
+  correction: {
+    /**
+     * Track when a student opens the "suggest a correction" dialog from a
+     * course page. Entry point of the course-data-quality funnel.
+     */
+    dialogOpened: (props: { courseId: number }) =>
+      trackEvent('correction_dialog_opened', props),
+
+    /**
+     * Track a correction request the API accepted. `field` is which piece of
+     * course data was reported as wrong; the free-text notes are never sent.
+     */
+    submitted: (props: { courseId: number; field: CorrectionRequestField }) =>
+      trackEvent('correction_submitted', props),
+
+    /**
+     * Track a correction request the API rejected. Distinct from `submitted`
+     * so a broken endpoint doesn't just look like a drop in submissions.
+     */
+    submissionFailed: (props: {
+      courseId: number
+      field: CorrectionRequestField
+      errorType: string
+    }) => trackEvent('correction_submission_failed', props),
+
+    /**
+     * Track abandonment: the dialog closed without a successful submission.
+     * `fieldSelected` / `hasNotes` show how far the user got before leaving.
+     */
+    dialogDismissed: (props: {
+      courseId: number
+      fieldSelected: boolean
+      hasNotes: boolean
+    }) => trackEvent('correction_dialog_dismissed', props)
   },
 
   discovery: {

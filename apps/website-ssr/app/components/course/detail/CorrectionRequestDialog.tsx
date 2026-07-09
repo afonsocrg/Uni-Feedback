@@ -30,6 +30,7 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { AuthenticatedButton } from '~/components'
+import { analytics } from '~/utils/analytics'
 
 const correctionFormSchema = z.object({
   field: z.enum(CORRECTION_REQUEST_FIELDS),
@@ -72,8 +73,14 @@ export function CorrectionRequestDialog({
         notes: data.notes,
         currentValue: getCurrentValue(data.field)
       })
+      analytics.correction.submitted({ courseId, field: data.field })
       setIsSuccess(true)
     } catch (error) {
+      analytics.correction.submissionFailed({
+        courseId,
+        field: data.field,
+        errorType: 'api_error'
+      })
       toast.error(
         error instanceof Error
           ? error.message
@@ -85,6 +92,15 @@ export function CorrectionRequestDialog({
   }
 
   const handleClose = () => {
+    // Closing the success screen is a completed flow, not an abandonment.
+    if (!isSuccess) {
+      const { field, notes } = form.getValues()
+      analytics.correction.dialogDismissed({
+        courseId,
+        fieldSelected: Boolean(field),
+        hasNotes: Boolean(notes?.trim())
+      })
+    }
     onOpenChange(false)
     setTimeout(() => {
       setIsSuccess(false)

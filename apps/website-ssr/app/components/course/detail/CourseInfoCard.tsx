@@ -2,11 +2,20 @@ import type {
   CorrectionRequestField,
   CourseOffering
 } from '@uni-feedback/api-client'
-import { Chip, StarRating, WorkloadRatingDisplay } from '@uni-feedback/ui'
-import { Clock, ExternalLink, FileCheck, Star } from 'lucide-react'
-import { useState } from 'react'
+import {
+  Button,
+  Chip,
+  StarRating,
+  WorkloadRatingDisplay
+} from '@uni-feedback/ui'
+import { Clock, ExternalLink, Flag, Star } from 'lucide-react'
+import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { CorrectionRequestDialog } from '.'
+import { Link } from 'react-router'
+import { useLang } from '~/hooks'
+import { analytics, getPageName } from '~/utils/analytics'
+import { getCourseFeedbackPath } from '~/utils/i18n-routes'
+import { CorrectionRequestDialog, FeedbackHistogram } from '.'
 
 export interface CourseInfoCardProps {
   course: {
@@ -23,6 +32,9 @@ export interface CourseInfoCardProps {
     averageRating: number
     averageWorkload: number
     totalFeedbackCount: number
+    /** Feedback counts per value, index 0 = value 1 … index 4 = value 5. */
+    ratingDistribution: number[]
+    workloadDistribution: number[]
     degree?: {
       id: number
       name: string
@@ -39,13 +51,46 @@ export interface CourseInfoCardProps {
 export function CourseInfoCard({ course }: CourseInfoCardProps) {
   const { t } = useTranslation('course')
   const { t: tCommon } = useTranslation('common')
+  const lang = useLang()
   const averageWorkload = Number(course.averageWorkload) || 0
+  const averageRating = Number(course.averageRating) || 0
   const [correctionDialogOpen, setCorrectionDialogOpen] = useState(false)
+
+  const reviewFormUrl = useMemo(
+    () => `${getCourseFeedbackPath(lang, course.id)}?from=course_info_card`,
+    [lang, course.id]
+  )
+
+  const workloadLabels = tCommon('workload_ratings', {
+    returnObjects: true
+  }) as string[]
+
+  // Distributions are indexed by value - 1; both histograms read best-to-worst,
+  // so 5 stars and "very light" end up on top.
+  const ratingRows = [5, 4, 3, 2, 1].map((value) => ({
+    label: String(value),
+    count: course.ratingDistribution[value - 1] ?? 0
+  }))
+  const workloadRows = [5, 4, 3, 2, 1].map((value) => ({
+    label: workloadLabels[value - 1],
+    count: course.workloadDistribution[value - 1] ?? 0
+  }))
+
+  // Workload is optional on a feedback, so it can trail the review count.
+  const workloadCount = course.workloadDistribution.reduce((a, b) => a + b, 0)
+  const hasFeedback = course.totalFeedbackCount > 0
 
   // Distinct academic term names this course is offered in.
   const termNames = Array.from(
     new Set(course.offerings.map((o) => o.academicTerm.name))
   )
+
+  const examChip =
+    course.hasMandatoryExam === null || course.hasMandatoryExam === undefined
+      ? { label: t('info.exam_not_specified'), color: 'gray' as const }
+      : course.hasMandatoryExam
+        ? { label: t('info.exam_mandatory'), color: 'red' as const }
+        : { label: t('info.exam_optional'), color: 'green' as const }
 
   const getCurrentValue = (
     field: CorrectionRequestField
@@ -83,149 +128,132 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
           {course.name}
         </h1>
 
-        {/* Badges, link, and report button */}
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-sm text-muted-foreground font-medium">
+        {/* Identity and actions */}
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+          <span className="text-muted-foreground font-medium">
             {course.acronym}
           </span>
-          {course.ects && (
-            <>
-              <span className="text-muted-foreground">•</span>
-              <Chip label={`${course.ects} ECTS`} size="sm" color="gray" />
-            </>
-          )}
-          {termNames.length > 0 && (
-            <>
-              <span className="text-muted-foreground">•</span>
-              {termNames.map((name) => (
-                <Chip key={name} label={name} color="gray" size="sm" />
-              ))}
-            </>
-          )}
           {course.url && (
-            <>
-              <span className="text-muted-foreground">•</span>
-              <a
-                href={course.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm text-primaryBlue hover:underline inline-flex items-center gap-1"
-              >
-                {t('info.course_page')}
-                <ExternalLink className="size-3" />
-              </a>
-            </>
+            <a
+              href={course.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primaryBlue hover:underline inline-flex items-center gap-1.5"
+            >
+              {t('info.course_page')}
+              <ExternalLink className="size-3.5" />
+            </a>
           )}
-          <span className="text-muted-foreground">•</span>
           <button
-            onClick={() => setCorrectionDialogOpen(true)}
-            className="text-sm text-muted-foreground hover:text-muted-foreground hover:underline cursor-pointer"
+            onClick={() => {
+              analytics.correction.dialogOpened({ courseId: course.id })
+              setCorrectionDialogOpen(true)
+            }}
+            className="text-muted-foreground hover:text-foreground hover:underline cursor-pointer inline-flex items-center gap-1.5"
           >
-            {t('info.report_incorrect')}
+            <Flag className="size-3.5" />
+            {t('info.suggest_correction')}
           </button>
         </div>
 
-        {/* Stats Grid - 3 columns on desktop */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mt-6">
+        {/* Course facts */}
+        <div className="flex flex-wrap items-center gap-2">
+          {course.ects && (
+            <Chip label={`${course.ects} ECTS`} size="sm" color="gray" />
+          )}
+          {termNames.map((name) => (
+            <Chip key={name} label={name} color="gray" size="sm" />
+          ))}
+          <Chip
+            label={`${t('info.exam_label')}: ${examChip.label}`}
+            color={examChip.color}
+            size="sm"
+          />
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 mt-6">
           {/* Feedback Stat */}
-          <div className="flex items-center gap-2">
-            <Star className="size-5 text-muted-foreground flex-shrink-0" />
+          <div className="flex items-start gap-2">
+            <Star className="size-5 mt-0.5 text-muted-foreground flex-shrink-0" />
             <div className="flex-1 min-w-0">
-              <div className="flex items-baseline gap-1.5">
-                <span className="text-sm font-medium text-foreground">
-                  {t('info.feedback_label')}
-                </span>
-                {course.totalFeedbackCount > 0 && (
-                  <span className="text-xs text-muted-foreground">
-                    ({course.totalFeedbackCount})
-                  </span>
-                )}
+              <div className="text-sm font-medium text-foreground">
+                {t('info.overall_label')}
               </div>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                {course.totalFeedbackCount === 0 ? (
-                  <span className="text-xs text-muted-foreground">
-                    {t('info.no_reviews')}
-                  </span>
-                ) : (
-                  <>
-                    <StarRating
-                      value={Number(course.averageRating) || 0}
-                      showHalfStars
-                      size="sm"
-                    />
-                    <span className="text-xs text-muted-foreground">
-                      {(Number(course.averageRating) || 0).toFixed(1)}
+              {hasFeedback ? (
+                <div className="flex items-center gap-4 mt-2">
+                  <FeedbackHistogram
+                    rows={ratingRows}
+                    labelClassName="w-2 text-right"
+                    className="flex-1 min-w-0"
+                  />
+                  <div className="flex flex-col items-center gap-0.5 flex-shrink-0 w-24">
+                    <span className="text-3xl font-semibold leading-none tabular-nums">
+                      {averageRating.toFixed(1)}
                     </span>
-                  </>
-                )}
-              </div>
+                    <StarRating value={averageRating} showHalfStars size="sm" />
+                    <span className="text-[11px] text-muted-foreground">
+                      {t('info.ratings_count', {
+                        count: course.totalFeedbackCount
+                      })}
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <span className="text-xs text-muted-foreground">
+                  {t('info.no_reviews')}
+                </span>
+              )}
             </div>
           </div>
 
           {/* Workload Stat */}
-          <div className="flex items-center gap-2">
-            <Clock className="size-5 text-muted-foreground flex-shrink-0" />
+          <div className="flex items-start gap-2">
+            <Clock className="size-5 mt-0.5 text-muted-foreground flex-shrink-0" />
             <div className="flex-1 min-w-0">
-              <div className="flex items-baseline gap-1.5">
-                <span className="text-sm font-medium text-foreground">
-                  {t('info.workload_label')}
-                </span>
+              <div className="text-sm font-medium text-foreground">
+                {t('info.workload_label')}
               </div>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                {averageWorkload ? (
-                  <>
+              {averageWorkload ? (
+                <div className="flex items-center gap-4 mt-2">
+                  <FeedbackHistogram
+                    rows={workloadRows}
+                    labelClassName="w-[4.5rem]"
+                    className="flex-1 min-w-0"
+                  />
+                  <div className="flex flex-col items-center gap-1 flex-shrink-0 w-24">
                     <WorkloadRatingDisplay
                       rating={averageWorkload}
-                      label={
-                        (
-                          tCommon('workload_ratings', {
-                            returnObjects: true
-                          }) as string[]
-                        )[Math.round(averageWorkload) - 1]
-                      }
+                      label={workloadLabels[Math.round(averageWorkload) - 1]}
                     />
-                  </>
-                ) : (
-                  <span className="text-xs text-muted-foreground">--</span>
-                )}
-              </div>
+                    <span className="text-[11px] text-muted-foreground">
+                      {t('info.ratings_count', { count: workloadCount })}
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <span className="text-xs text-muted-foreground">--</span>
+              )}
             </div>
           </div>
+        </div>
 
-          {/* Exam Stat */}
-          <div className="flex items-center gap-2">
-            <FileCheck className="size-5 text-muted-foreground flex-shrink-0" />
-            <div className="flex-1 min-w-0">
-              <div className="flex items-baseline gap-1.5 mb-0.5">
-                <span className="text-sm font-medium text-foreground">
-                  {t('info.exam_label')}
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                {course.hasMandatoryExam !== null ? (
-                  course.hasMandatoryExam ? (
-                    <Chip
-                      label={t('info.exam_mandatory')}
-                      color="red"
-                      size="xs"
-                    />
-                  ) : (
-                    <Chip
-                      label={t('info.exam_optional')}
-                      color="green"
-                      size="xs"
-                    />
-                  )
-                ) : (
-                  <Chip
-                    label={t('info.exam_not_specified')}
-                    size="xs"
-                    color="gray"
-                  />
-                )}
-              </div>
-            </div>
-          </div>
+        {/* Primary CTA */}
+        <div className="mt-6">
+          <Button asChild className="text-white max-sm:w-full">
+            <Link
+              to={reviewFormUrl}
+              onClick={() => {
+                analytics.navigation.feedbackFormLinkClicked({
+                  source: 'course_info_card',
+                  referrerPage: getPageName(window.location.pathname),
+                  courseId: course.id
+                })
+              }}
+            >
+              {t('reviews.give_feedback')}
+            </Link>
+          </Button>
         </div>
       </div>
 
