@@ -22,7 +22,8 @@ export function FeedbackHistogram({
   labelClassName,
   className
 }: FeedbackHistogramProps) {
-  const maxCount = Math.max(...rows.map((r) => r.count))
+  // `Math.max()` of nothing is -Infinity, which would divide every bar to -0%.
+  const maxCount = rows.length ? Math.max(...rows.map((r) => r.count)) : 0
   if (maxCount === 0) return null
 
   return (
