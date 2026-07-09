@@ -52,7 +52,16 @@
     "from_different_course": "Feedback submetido por um aluno de {{degreeName}}",
     "show_more": "Ver mais",
     "show_less": "Ver menos",
-    "copied": "Copiado!"
+    "share": {
+      "label": "Partilhar este feedback",
+      "copy": "Copiar link",
+      "native": "Partilhar",
+      "toast_copied": "Link copiado!",
+      "toast_failed": "Não foi possível copiar o link",
+      "whatsapp_message": "Olha este feedback no Uni Feedback:\n\n{{link}}",
+      "native_title": "Feedback no Uni Feedback",
+      "native_text": "Olha este feedback no Uni Feedback"
+    }
   },
   "correction": {
     "title": "Sugerir correção",

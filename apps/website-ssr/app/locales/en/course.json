@@ -52,7 +52,16 @@
     "from_different_course": "Feedback submitted by a student from {{degreeName}}",
     "show_more": "Show more",
     "show_less": "Show less",
-    "copied": "Copied!"
+    "share": {
+      "label": "Share this review",
+      "copy": "Copy link",
+      "native": "Share",
+      "toast_copied": "Link copied!",
+      "toast_failed": "Could not copy the link",
+      "whatsapp_message": "Look at this review on Uni Feedback:\n\n{{link}}",
+      "native_title": "Review on Uni Feedback",
+      "native_text": "Look at this review on Uni Feedback"
+    }
   },
   "correction": {
     "title": "Suggest correction",

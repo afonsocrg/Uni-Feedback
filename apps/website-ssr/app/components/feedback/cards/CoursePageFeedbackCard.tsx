@@ -1,10 +1,11 @@
 import { Button, StarRating, WorkloadRatingDisplay } from '@uni-feedback/ui'
 import { getRelativeTime } from '@uni-feedback/utils'
-import { Flag, GraduationCap, Link } from 'lucide-react'
+import { Flag, GraduationCap } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   FeedbackMarkdown,
+  FeedbackShareButton,
   HelpfulVoteButton,
   ReportFeedbackDialog,
   Tooltip
@@ -45,7 +46,6 @@ export function CoursePageFeedbackCard({
   const [isExpanded, setIsExpanded] = useState(false)
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false)
   const [isHighlighted, setIsHighlighted] = useState(false)
-  const [isCopied, setIsCopied] = useState(false)
   const cardRef = useRef<HTMLDivElement>(null)
   const hasBeenViewedRef = useRef(false)
 
@@ -57,17 +57,6 @@ export function CoursePageFeedbackCard({
     : ''
 
   const feedbackAnchorId = `feedback-${feedback.id}`
-
-  const handleCopyPermalink = async () => {
-    try {
-      const permalink = `${window.location.origin}/courses/${feedback.courseId}#${feedbackAnchorId}`
-      await navigator.clipboard.writeText(permalink)
-      setIsCopied(true)
-      setTimeout(() => setIsCopied(false), 2000)
-    } catch (error) {
-      console.error('Failed to copy permalink:', error)
-    }
-  }
 
   // Scroll to and highlight feedback if it matches the URL anchor
   useEffect(() => {
@@ -234,7 +223,7 @@ export function CoursePageFeedbackCard({
         </div>
       )}
 
-      {/* Footer with actions. There is nothing to vote on, link to, or report
+      {/* Footer with actions. There is nothing to vote on, share, or report
           on a review with no comment, so rating-only cards omit it. */}
       {comment && (
         <>
@@ -245,19 +234,10 @@ export function CoursePageFeedbackCard({
               initialHasVoted={feedback.hasVoted}
             />
             <div className="flex items-center gap-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleCopyPermalink}
-                className="h-8 px-2 text-muted-foreground hover:text-muted-foreground"
-              >
-                {isCopied && (
-                  <span className="text-xs font-medium mr-1">
-                    {t('card.copied')}
-                  </span>
-                )}
-                <Link className="size-4" />
-              </Button>
+              <FeedbackShareButton
+                feedbackId={feedback.id}
+                courseId={feedback.courseId}
+              />
               <Button
                 variant="ghost"
                 size="sm"

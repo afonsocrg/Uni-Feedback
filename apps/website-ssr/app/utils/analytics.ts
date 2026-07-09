@@ -188,6 +188,31 @@ export const analytics = {
       trackEvent('feedback_item_viewed', props),
 
     /**
+     * Track when a student opens the share popover on a review (intent). This
+     * is the top of the review-share funnel: opened -> shareClicked -> the
+     * shared link's landing, which arrives tagged `utm_source=feedback_permalink`.
+     * A popover opened but never acted on is the abandonment case.
+     */
+    sharePopoverOpened: (props: { feedbackId: number; courseId: number }) =>
+      trackEvent('feedback_share_popover_opened', props),
+
+    /**
+     * Track which share channel a student picked for a review permalink.
+     */
+    shareClicked: (props: {
+      feedbackId: number
+      courseId: number
+      channel: ShareChannel
+    }) => trackEvent('feedback_share_clicked', props),
+
+    /**
+     * Track a *successful* permalink copy (the clipboard write resolved).
+     * Distinct from `shareClicked` because copy can silently fail.
+     */
+    linkCopied: (props: { feedbackId: number; courseId: number }) =>
+      trackEvent('feedback_link_copied', props),
+
+    /**
      * Track when a student expands/collapses the rating-only feedback of a
      * school year on the course page. Tells us whether students care about
      * feedback with no comment, now that it is hidden by default.

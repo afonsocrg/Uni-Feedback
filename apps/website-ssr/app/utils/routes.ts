@@ -25,8 +25,19 @@ export function getFullUrl(suffix: string) {
   return url.toString()
 }
 
-export function addUtmParams(url: string, medium: string): string {
+/**
+ * Tags a URL for PostHog attribution. `medium` is the channel it was shared
+ * through (whatsapp / copy_url / native); `source` is the surface it was shared
+ * from, and is optional because most call sites only care about the channel.
+ * Any `#fragment` on the URL survives, so permalinks stay permalinks.
+ */
+export function addUtmParams(
+  url: string,
+  medium: string,
+  source?: string
+): string {
   const urlObj = new URL(url)
   urlObj.searchParams.set('utm_medium', medium)
+  if (source) urlObj.searchParams.set('utm_source', source)
   return urlObj.toString()
 }
