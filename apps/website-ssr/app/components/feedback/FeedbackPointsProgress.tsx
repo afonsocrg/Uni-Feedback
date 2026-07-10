@@ -1,9 +1,11 @@
 import type { FeedbackCategories } from '@uni-feedback/api-client'
 import {
   calculateFeedbackPoints,
+  getGiveawaySchoolYear,
+  isGiveawayActive,
   MAX_FEEDBACK_POINTS
 } from '@uni-feedback/utils'
-import { Sparkles } from 'lucide-react'
+import { Info, Sparkles } from 'lucide-react'
 import { Trans, useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { InfoPopover } from '~/components/common'
@@ -16,19 +18,34 @@ interface FeedbackPointsProgressProps {
   categories: FeedbackCategories | null
   /** Current course, used for analytics. Omit where it isn't available. */
   courseId?: number
+  /**
+   * School year the feedback is being written for. Drives whether we say these
+   * points count toward the giveaway: only the giveaway year's feedback does.
+   * Omit where the year isn't selectable (the giveaway note is then hidden).
+   */
+  schoolYear?: number
 }
 
 /**
  * Shows how many points the current feedback will earn and a progress bar
  * toward the maximum, updating live as the comment covers more categories.
  * Points are computed with the same formula the API uses to award them.
+ *
+ * When the giveaway is live, it also states whether the selected school year
+ * earns giveaway entries. Students can review courses up to 5 years back, and
+ * only the current year counts, so saying nothing reads as a promise we break.
  */
 export function FeedbackPointsProgress({
   categories,
-  courseId
+  courseId,
+  schoolYear
 }: FeedbackPointsProgressProps) {
   const { t } = useTranslation('feedback')
   const lang = useLang()
+
+  const giveawayActive = isGiveawayActive()
+  const countsForGiveaway = schoolYear === getGiveawaySchoolYear()
+  const showGiveawayNote = giveawayActive && schoolYear !== undefined
 
   const points = calculateFeedbackPoints({
     hasTeaching: categories?.hasTeaching ?? false,
@@ -91,6 +108,25 @@ export function FeedbackPointsProgress({
       <p className="mt-2 text-xs text-muted-foreground">
         {t('form.points_hint', { max: MAX_FEEDBACK_POINTS })}
       </p>
+
+      {showGiveawayNote &&
+        (countsForGiveaway ? (
+          <p className="mt-2 text-xs text-muted-foreground">
+            {t('form.points_giveaway_counts')}
+          </p>
+        ) : (
+          <div className="mt-3 flex items-start gap-2 rounded-lg border border-tint-amber-border bg-tint-amber p-2.5">
+            <Info className="mt-px size-3.5 shrink-0 text-tint-amber-fg" />
+            <div className="space-y-1 text-xs text-tint-amber-fg">
+              <p>{t('form.points_giveaway_excluded')}</p>
+              {/* The year has a purpose beyond the giveaway. Saying so keeps
+                  the notice from reading as "switch the year to qualify". */}
+              <p className="opacity-90">
+                {t('form.points_giveaway_excluded_why')}
+              </p>
+            </div>
+          </div>
+        ))}
     </div>
   )
 }

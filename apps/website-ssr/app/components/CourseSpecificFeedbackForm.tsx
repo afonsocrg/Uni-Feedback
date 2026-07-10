@@ -129,11 +129,12 @@ export function CourseSpecificFeedbackForm({
   // Watch form values for draft saving (comment is handled separately to avoid re-renders)
   const rating = form.watch('rating')
   const workloadRating = form.watch('workloadRating')
+  const selectedSchoolYear = form.watch('schoolYear')
 
   // Check if all required fields are filled
   const isFormValid = useMemo(() => {
-    return rating > 0 && workloadRating > 0
-  }, [rating, workloadRating])
+    return rating > 0 && workloadRating > 0 && selectedSchoolYear !== undefined
+  }, [rating, workloadRating, selectedSchoolYear])
 
   // Generate school years
   const schoolYears = useMemo(
@@ -261,6 +262,9 @@ export function CourseSpecificFeedbackForm({
                       <FormLabel className="text-base font-medium text-foreground">
                         {t('form.school_year_label')}
                       </FormLabel>
+                      {/* <p className="text-sm text-muted-foreground">
+                        {t('form.school_year_help')}
+                      </p> */}
                       <FormControl>
                         <div className="flex flex-wrap gap-2 pt-2">
                           {schoolYears.map((year) => {
@@ -289,7 +293,7 @@ export function CourseSpecificFeedbackForm({
                                   )}
                                 >
                                   {formatSchoolYearString(year, {
-                                    yearFormat: 'long'
+                                    yearFormat: 'short'
                                   })}
                                 </Badge>
                               </button>
@@ -383,6 +387,7 @@ export function CourseSpecificFeedbackForm({
               <FeedbackPointsProgress
                 categories={categories}
                 courseId={currentCourse.id}
+                schoolYear={selectedSchoolYear}
               />
             </div>
 

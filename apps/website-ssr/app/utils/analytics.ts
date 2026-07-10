@@ -162,6 +162,10 @@ export const analytics = {
      */
     submitted: (props: {
       courseId: number
+      /** Year the student says they took the course. Only the current school
+       *  year earns giveaway entries, so this is what the mislabelling
+       *  monitoring reads. */
+      schoolYear: number
       hasComment: boolean
       commentLength?: number
       commentCategoriesCount?: number

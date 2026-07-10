@@ -1,3 +1,6 @@
+/** The month (1-12) a school year starts in. September. */
+export const SCHOOL_YEAR_START_MONTH = 9
+
 /**
  * Represents the configuration options for determining the school year.
  */
@@ -47,7 +50,7 @@ export function getSchoolYear(date: Date, startMonth: number): number {
  * getCurrentSchoolYear({ startMonth: 9 })
  */
 export function getCurrentSchoolYear({
-  startMonth = 9
+  startMonth = SCHOOL_YEAR_START_MONTH
 }: SchoolYearConfig = {}): number {
   return getSchoolYear(new Date(), startMonth)
 }

@@ -320,6 +320,15 @@ function StructuredVersion() {
 
           <div>
             <h3 className="mb-2 text-lg font-semibold">
+              {t('giveaway_rules.fraud_school_year_title')}
+            </h3>
+            <p className="text-muted-foreground">
+              {t('giveaway_rules.fraud_school_year_desc')}
+            </p>
+          </div>
+
+          <div>
+            <h3 className="mb-2 text-lg font-semibold">
               {t('giveaway_rules.fraud_referral_title')}
             </h3>
             <p className="text-muted-foreground">

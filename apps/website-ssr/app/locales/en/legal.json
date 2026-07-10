@@ -87,13 +87,14 @@
     "giveaway_bonus_badge": "Limited time",
     "giveaway_bonus_title": "Giveaway bonus points",
     "giveaway_bonus_desc": "Just for the current <0>giveaway</0>, you can earn extra points two more ways. These add to your entries in the draw, on top of the points above.",
+    "giveaway_school_year_note": "All feedback earns you profile points, whatever year the course is from. For the giveaway, only points from feedback on courses you took in {{schoolYear}} count.",
     "giveaway_bonus_instagram_label": "Instagram bonus",
     "giveaway_bonus_instagram_value": "+20",
     "giveaway_bonus_instagram_desc": "Follow <0>@unifeedback</0> on Instagram and link your Instagram on your <1>profile page</1> so we can confirm it.",
     "giveaway_bonus_instagram_privacy": "Your Instagram is never shown to anyone. It's only used to verify that you follow Uni Feedback. We cross-check follows at the time of the draws.",
     "giveaway_bonus_quality_label": "Quality bonus",
     "giveaway_bonus_quality_value": "+100",
-    "giveaway_bonus_quality_desc": "Submit at least 5 feedbacks worth 20 points.",
+    "giveaway_bonus_quality_desc": "Submit at least 5 feedbacks worth 20 points on {{schoolYear}} courses.",
     "categories_title": "Feedback categories",
     "categories_desc": "We look for these four things because they're what students actually care about. Mention them naturally in your feedback to unlock bonus points. Cover all four to get an extra 3-point bonus!",
     "questions": "Got questions or something not clear? Email us at <0>afonso@uni-feedback.com</0>, and we'll get back to you!"
@@ -104,7 +105,7 @@
   },
   "giveaway_page": {
     "hero_title": "Win a €50 <fnac>FNAC</fnac> gift card",
-    "hero_subtitle": "Tell us what you thought of the courses you took this year. We've got 3 × €50 cards to give away!",
+    "hero_subtitle": "Tell us what you thought of the courses you took in {{schoolYear}}. We've got 3 × €50 cards to give away!",
     "hero_cta_how": "How to Participate",
     "hero_cta_rules": "View Official Rules",
     "edition_name": "Summer 2026 Giveaway",
@@ -132,16 +133,17 @@
     "howto_step1_title": "Log in",
     "howto_step1_desc": "Use your university email. We'll send a code to that email to confirm it's you.",
     "howto_step2_title": "Give feedback",
-    "howto_step2_desc": "Share your thoughts on the courses you took. Good, bad, or \"meh\". The more detail, the better.",
+    "howto_step2_desc": "Share your thoughts on the courses you took in {{schoolYear}}. Good, bad, or \"meh\". The more detail, the better.",
     "howto_step3_title": "Earn points",
-    "howto_step3_desc": "Every feedback earns you points. The more points you collect, the better your chances of winning.",
+    "howto_step3_desc": "Every {{schoolYear}} feedback earns you giveaway points. The more points you collect, the better your chances of winning.",
     "howto_cta": "Give Feedback",
     "points_title": "How points work",
     "points_subtitle": "Every point you collect is an entry in the draw: the more you have, the better your chances of winning.",
+    "points_school_year_note": "All feedback earns you profile points. For the giveaway, only points from feedback on courses you took in {{schoolYear}} count.",
     "points_normal_title": "How you earn points",
     "points_normal_feedback_label": "Give Feedback",
     "points_normal_feedback_value": "(1–20 points)",
-    "points_normal_feedback_desc": "For each feedback you give. The more complete it is, the more points you earn.",
+    "points_normal_feedback_desc": "For each feedback you give on a {{schoolYear}} course. The more complete it is, the more points you earn.",
     "points_normal_referral_label": "Invite friends",
     "points_normal_referral_value": "(+15 each)",
     "points_normal_referral_desc": "Share the invite link from your <0>profile page</0> with friends. When a friend gives their first feedback, you both earn 15 points.",
@@ -153,7 +155,7 @@
     "points_bonus_instagram_privacy": "Your Instagram is never shown to anyone. It's only used to verify that you follow Uni Feedback. We cross-check follows at the time of the draw.",
     "points_bonus_quality_label": "Quality bonus",
     "points_bonus_quality_value": "(+100 points)",
-    "points_bonus_quality_desc": "Submit 5 feedbacks worth 20 points and you earn 100 extra points.",
+    "points_bonus_quality_desc": "Submit 5 feedbacks worth 20 points on {{schoolYear}} courses and you earn 100 extra points.",
     "faq_title": "Everything You Need to Know",
     "faq_intro_prefix": "Here are the most common questions about the giveaway. For all the details, check the ",
     "faq_rules_link": "official rules",
@@ -168,7 +170,7 @@
       },
       {
         "question": "How do I enter and earn more points?",
-        "answer": "Each feedback is worth up to 20 points (more detail = more points) and every friend you invite earns +15 points for each of you — you and them — when they post their first feedback. There are also two bonuses: +20 for linking your Instagram and +100 if you submit at least 5 feedbacks worth 20 points. See it all on the [points page](/en/points)."
+        "answer": "Each feedback is worth up to 20 points (more detail = more points) and every friend you invite earns +15 points for each of you (you and them) when they post their first feedback. There are also two bonuses: +20 for linking your Instagram and +100 if you submit at least 5 feedbacks worth 20 points. See it all on the [points page](/en/points)."
       },
       {
         "question": "Where can I see my points?",
@@ -176,11 +178,11 @@
       },
       {
         "question": "Which points count for the draw?",
-        "answer": "Feedback points for **2025/2026** courses and referral points earned between **June 29 and July 31** count, plus the Instagram and quality bonuses. Points you earned in the February giveaway also count. Feedback for older courses still earns permanent points on your profile, but those don't count toward this draw."
+        "answer": "Feedback points for **{{schoolYear}}** courses and referral points earned between **June 29 and July 31** count, plus the Instagram and quality bonuses. Points you earned in the February giveaway also count. Feedback for older courses still earns permanent points on your profile, but those don't count toward this draw."
       },
       {
         "question": "I submitted feedback before. Does it count?",
-        "answer": "It does! As soon as you log in, every feedback you've already submitted with that email is credited automatically. You don't need to do anything else."
+        "answer": "As soon as you log in, every feedback you've already submitted with that email is credited automatically and earns you profile points. You don't need to do anything else. For the draw, only feedback on courses you took in **{{schoolYear}}** counts."
       },
       {
         "question": "Can Erasmus or international students participate?",
@@ -264,7 +266,7 @@
     "period_winner": "Winners are selected and contacted between August 1 and 2, 2026.",
     "section_enter": "3. How to enter",
     "enter_feedback_title": "Submit feedback",
-    "enter_feedback_desc": "To enter, you must submit at least one feedback for a course you took during the 2025/2026 academic year.",
+    "enter_feedback_desc": "To enter, you must submit at least one feedback for a course you took during the {{schoolYear}} academic year.",
     "enter_guidelines_prefix": "Your feedback just needs to follow our ",
     "enter_guidelines_link": "Feedback Guidelines",
     "enter_guidelines_suffix": " to count toward the giveaway.",
@@ -281,10 +283,10 @@
     "points_instagram_title": "Instagram bonus (+20, once)",
     "points_instagram_desc": "Follow us on Instagram (<0>@unifeedback</0>) and link your Instagram on your profile to earn +20 points. Your profile is private: your Instagram is never shown publicly. We verify follows before the draw.",
     "points_quality_title": "Quality bonus (+100)",
-    "points_quality_desc": "Submit at least 5 feedbacks worth 20 points each for 2025/2026 courses to earn +100 extra points.",
+    "points_quality_desc": "Submit at least 5 feedbacks worth 20 points each for {{schoolYear}} courses to earn +100 extra points.",
     "points_referral_title": "Referrals (+15 for each of you)",
-    "points_referral_desc": "When a friend you invited submits their first approved feedback, you both earn +15 points — you and them. No cap. You can invite friends from your profile page.",
-    "points_which_count": "Which points count: feedback for 2025/2026 courses and referrals made between June 29 and July 31, plus the Instagram and quality bonuses. The points you earned in the February giveaway are also valid in this giveaway.",
+    "points_referral_desc": "When a friend you invited submits their first approved feedback, you both earn +15 points (you and them). No cap. You can invite friends from your profile page.",
+    "points_which_count": "Which points count: feedback for {{schoolYear}} courses and referrals made between June 29 and July 31, plus the Instagram and quality bonuses. The points you earned in the February giveaway are also valid in this giveaway.",
     "points_more_prefix": "Learn more about the points system ",
     "points_more_link": "here",
     "section_prizes": "5. Prizes and winner selection",
@@ -309,6 +311,8 @@
     "section_fraud": "7. Anti-fraud and disqualification",
     "fraud_content_title": "Content integrity",
     "fraud_content_desc": "Plagiarized, AI-generated, low-effort, or spam feedback is not allowed and receives 0 points.",
+    "fraud_school_year_title": "Correct school year",
+    "fraud_school_year_desc": "Always pick the school year you actually took the course in. The year is shown on your review and helps other students judge how current it is. Claiming a false year to gain draw entries is grounds for disqualification.",
     "fraud_referral_title": "Referral abuse",
     "fraud_referral_desc": "Self-referrals or any attempt to manipulate the referral system will result in immediate disqualification.",
     "fraud_review_title": "Right to review",

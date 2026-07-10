@@ -181,7 +181,7 @@
   "giveaway_promo": {
     "eyebrow": "Summer 2026 giveaway",
     "title": "Win €50 at <fnac>FNAC</fnac>",
-    "subtitle": "Share feedback on this year's courses for a chance at 3 × €50 prizes.",
+    "subtitle": "Share feedback on the courses you took in {{schoolYear}} for a chance at 3 × €50 prizes.",
     "cta": "Enter now",
     "banner": "🎁 Giveaway live! Win a €50 FNAC gift card."
   }

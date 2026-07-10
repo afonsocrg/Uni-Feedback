@@ -1,4 +1,5 @@
 import { Button } from '@uni-feedback/ui'
+import { getGiveawaySchoolYear } from '@uni-feedback/utils'
 import {
   CalendarClock,
   CheckCircle2,
@@ -19,8 +20,6 @@ import { getLocalePath } from '~/utils/i18n-routes'
 import { ReferralShareButtons } from '../referral/ReferralShareButtons'
 import { InstagramBonusRow } from './InstagramBonusRow'
 
-/** School year (as stored in the DB) whose feedback counts toward the giveaway. */
-const GIVEAWAY_SCHOOL_YEAR = 2025
 /** Max points a single feedback can earn (base + all categories + bonus). */
 const MAX_FEEDBACK_POINTS = 20
 /** Points awarded per confirmed referral (mirrors REFERRAL_POINTS on the API). */
@@ -123,7 +122,7 @@ export function GiveawayTab({ referralCode }: { referralCode: string | null }) {
   // Approved feedback for giveaway-year courses — the pool the boost list works
   // from. `upgradeable` are the ones not yet at full points.
   const giveawayFeedback = (feedbackData?.feedback ?? []).filter(
-    (f) => f.schoolYear === GIVEAWAY_SCHOOL_YEAR && f.approvedAt !== null
+    (f) => f.schoolYear === getGiveawaySchoolYear() && f.approvedAt !== null
   )
   const hasGiveawayFeedback = giveawayFeedback.length > 0
   const upgradeable = giveawayFeedback

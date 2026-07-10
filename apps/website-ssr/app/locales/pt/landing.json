@@ -181,7 +181,7 @@
   "giveaway_promo": {
     "eyebrow": "Giveaway de Verão 2026",
     "title": "Ganha 50€ na <fnac>FNAC</fnac>",
-    "subtitle": "Diz-nos o que achaste das tuas cadeiras e habilita-te a 3 prémios de 50€.",
+    "subtitle": "Diz-nos o que achaste das cadeiras que tiveste em {{schoolYear}} e habilita-te a 3 prémios de 50€.",
     "cta": "Participar",
     "banner": "🎁 Giveaway a decorrer: ganha 50€ na FNAC"
   }

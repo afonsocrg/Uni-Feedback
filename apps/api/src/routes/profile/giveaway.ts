@@ -1,24 +1,22 @@
 import { requireAuth } from '@middleware'
 import {
+  getPerfectFeedbackBonusSchoolYear,
   PERFECT_FEEDBACK_BONUS_POINTS,
-  PERFECT_FEEDBACK_BONUS_SCHOOL_YEAR,
   PERFECT_FEEDBACK_THRESHOLD,
   PointService,
   REFERRAL_POINTS
 } from '@services/pointService'
 import { database } from '@uni-feedback/db'
 import { feedback, pointRegistry, users } from '@uni-feedback/db/schema'
-import { GIVEAWAY_END, GIVEAWAY_START } from '@uni-feedback/utils'
+import {
+  getGiveawaySchoolYear,
+  GIVEAWAY_END,
+  GIVEAWAY_START
+} from '@uni-feedback/utils'
 import { OpenAPIRoute } from 'chanfana'
 import { and, count, eq, gte, inArray, lt, notExists, sum } from 'drizzle-orm'
 import type { Context } from 'hono'
 import { z } from 'zod'
-
-/**
- * School year (as stored in the DB) whose feedback counts toward the giveaway.
- * 2025 == 2025/2026.
- */
-const GIVEAWAY_SCHOOL_YEAR = 2025
 
 /**
  * Referral counting window for the giveaway (Ambassador prize + referral
@@ -165,7 +163,7 @@ export class GetGiveawayDashboard extends OpenAPIRoute {
           eq(pointRegistry.sourceType, 'submit_feedback')
         )
       )
-      .where(eq(feedback.schoolYear, GIVEAWAY_SCHOOL_YEAR))
+      .where(eq(feedback.schoolYear, getGiveawaySchoolYear()))
       .groupBy(pointRegistry.userId)
 
     // Referral activity (both sides), scoped to the referral window.
@@ -268,7 +266,7 @@ export class GetGiveawayDashboard extends OpenAPIRoute {
     // progress bar rather than hiding the card.
     const perfectCount = await pointService.countPerfectFeedbacks(
       userId,
-      PERFECT_FEEDBACK_BONUS_SCHOOL_YEAR
+      getPerfectFeedbackBonusSchoolYear()
     )
     const perfectFeedback = {
       current: perfectCount,

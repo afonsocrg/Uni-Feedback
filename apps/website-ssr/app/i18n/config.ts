@@ -1,3 +1,7 @@
+import {
+  formatSchoolYearString,
+  getGiveawaySchoolYear
+} from '@uni-feedback/utils'
 import i18next from 'i18next'
 import { initReactI18next } from 'react-i18next'
 
@@ -48,7 +52,19 @@ i18n.use(initReactI18next).init({
   ns: ['common', 'landing', 'browse', 'course', 'feedback', 'legal'],
   defaultNS: 'common',
   resources,
-  interpolation: { escapeValue: false }
+  interpolation: {
+    escapeValue: false,
+    // `{{schoolYear}}` resolves in every string without the call site passing
+    // it, so the giveaway's "only 25/26 courses count" rule can be stated
+    // wherever we mention points. A getter, not a value: i18next spreads
+    // defaultVariables on each interpolation, so this stays correct across a
+    // September rollover on a long-running server.
+    defaultVariables: {
+      get schoolYear() {
+        return formatSchoolYearString(getGiveawaySchoolYear())
+      }
+    }
+  }
 })
 
 export { i18n }

@@ -8,7 +8,6 @@ import {
 } from '@uni-feedback/api-client'
 import { database } from '@uni-feedback/db'
 import { courses, feedback } from '@uni-feedback/db/schema'
-import { getCurrentSchoolYear } from '@uni-feedback/utils'
 import { and, eq } from 'drizzle-orm'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -37,7 +36,12 @@ import type { Route } from './+types/course.$courseId.feedback'
 
 // Form schema for feedback submission (reuse from feedback.new.tsx)
 const feedbackSchema = z.object({
-  schoolYear: z.number().min(2000, 'Invalid school year'),
+  // No default in the form: the student must actively assert the year. The
+  // giveaway only counts the current year, so a preselected current year would
+  // make passivity pay and honesty cost.
+  schoolYear: z
+    .number({ error: 'Please pick the year you took this course' })
+    .min(2000, 'Invalid school year'),
   courseId: z.number().min(1, 'Course is required'),
   facultyId: z.number().min(1, 'Faculty is required'),
   degreeId: z.number().min(1, 'Degree is required'),
@@ -162,7 +166,7 @@ export default function CourseSpecificFeedbackPage({
     resolver: zodResolver(feedbackSchema),
     mode: 'onChange',
     defaultValues: {
-      schoolYear: getCurrentSchoolYear(),
+      // schoolYear is intentionally unset — see feedbackSchema.
       courseId: course.id,
       facultyId: course.degree.faculty.id,
       degreeId: course.degree.id,
@@ -211,6 +215,7 @@ export default function CourseSpecificFeedbackPage({
 
       analytics.feedback.submitted({
         courseId: values.courseId,
+        schoolYear: values.schoolYear,
         hasComment: !!values.comment,
         commentLength: values.comment?.length
       })

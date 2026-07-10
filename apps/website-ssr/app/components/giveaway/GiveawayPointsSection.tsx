@@ -1,3 +1,4 @@
+import { Info } from 'lucide-react'
 import { Trans, useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { InfoPopover } from '~/components/common'
@@ -16,9 +17,18 @@ export function GiveawayPointsSection() {
           <h2 className="font-heading text-3xl md:text-4xl font-semibold tracking-tight text-center mb-4">
             {t('giveaway_page.points_title')}
           </h2>
-          <p className="text-center text-lg text-muted-foreground mb-12 max-w-2xl mx-auto">
+          <p className="text-center text-lg text-muted-foreground mb-6 max-w-2xl mx-auto">
             {t('giveaway_page.points_subtitle')}
           </p>
+
+          {/* The eligibility rule sits with the scoring rules, not just in the
+              FAQ: students read this block and stop. */}
+          <div className="mb-12 max-w-2xl mx-auto flex items-start gap-3 rounded-xl border border-tint-amber-border bg-tint-amber p-4">
+            <Info className="mt-0.5 size-5 shrink-0 text-tint-amber-fg" />
+            <p className="text-sm text-tint-amber-fg">
+              {t('giveaway_page.points_school_year_note')}
+            </p>
+          </div>
 
           <div className="grid md:grid-cols-2 gap-6">
             <div className="bg-card rounded-2xl border p-6 md:p-8 shadow-sm">

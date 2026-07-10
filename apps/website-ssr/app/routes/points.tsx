@@ -1,4 +1,4 @@
-import { PenSquare, Users } from 'lucide-react'
+import { Info, PenSquare, Users } from 'lucide-react'
 import { Trans, useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { InfoPopover } from '~/components/common'
@@ -189,6 +189,15 @@ export default function PointsPage() {
                 ]}
               />
             </p>
+
+            {/* Profile points and giveaway entries are not the same thing.
+                Say so here, next to the bonuses, not only on the rules page. */}
+            <div className="mb-6 flex items-start gap-3 rounded-xl border border-tint-amber-border bg-tint-amber p-4">
+              <Info className="mt-0.5 size-5 shrink-0 text-tint-amber-fg" />
+              <p className="text-sm text-tint-amber-fg">
+                {t('points.giveaway_school_year_note')}
+              </p>
+            </div>
 
             <div className="grid gap-6 sm:grid-cols-2">
               <div>

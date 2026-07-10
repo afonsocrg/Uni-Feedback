@@ -9,7 +9,8 @@ import {
 import {
   calculateFeedbackPoints,
   countWords,
-  formatSchoolYearString
+  formatSchoolYearString,
+  getGiveawaySchoolYear
 } from '@uni-feedback/utils'
 import { and, count, eq, isNotNull, ne, sum } from 'drizzle-orm'
 import { AIService } from './aiService'
@@ -45,12 +46,12 @@ export const PERFECT_FEEDBACK_BONUS_POINTS = 100
 export const PERFECT_FEEDBACK_THRESHOLD = 5
 
 /**
- * School year (as stored in the DB) the perfect-feedback bonus applies to.
- * 2025 == school year 2025/2026. Also doubles as the point_registry
+ * School year the perfect-feedback bonus applies to: the same year whose
+ * feedback counts toward the giveaway. Also doubles as the point_registry
  * referenceId for the bonus row, so each school year gets its own idempotent
  * 'bonus' entry (distinct from the Instagram bonus' referenceId of 1).
  */
-export const PERFECT_FEEDBACK_BONUS_SCHOOL_YEAR = 2025
+export const getPerfectFeedbackBonusSchoolYear = getGiveawaySchoolYear
 
 export class PointService {
   private env: Env
@@ -718,9 +719,9 @@ export class PointService {
    * Idempotently reconcile the perfect-feedback giveaway bonus for a user.
    *
    * Awards a one-time {@link PERFECT_FEEDBACK_BONUS_POINTS}-point bonus once the
-   * user reaches {@link PERFECT_FEEDBACK_THRESHOLD} perfect feedbacks for
-   * {@link PERFECT_FEEDBACK_BONUS_SCHOOL_YEAR}, and removes it again if they
-   * later drop below the threshold (e.g. after editing or deleting a feedback).
+   * user reaches {@link PERFECT_FEEDBACK_THRESHOLD} perfect feedbacks for the
+   * current giveaway school year, and removes it again if they later drop below
+   * the threshold (e.g. after editing or deleting a feedback).
    *
    * Eligibility is recomputed from scratch on every call, so this is safe to
    * invoke after any feedback submit / edit / delete / approve / unapprove
@@ -729,17 +730,12 @@ export class PointService {
    * @param userId - The user to reconcile the bonus for
    */
   async reconcilePerfectFeedbackBonus(userId: number): Promise<void> {
-    const perfectCount = await this.countPerfectFeedbacks(
-      userId,
-      PERFECT_FEEDBACK_BONUS_SCHOOL_YEAR
-    )
+    const schoolYear = getPerfectFeedbackBonusSchoolYear()
+
+    const perfectCount = await this.countPerfectFeedbacks(userId, schoolYear)
     const isEligible = perfectCount >= PERFECT_FEEDBACK_THRESHOLD
 
-    const existing = await this.getPointsForEntry(
-      userId,
-      'bonus',
-      PERFECT_FEEDBACK_BONUS_SCHOOL_YEAR
-    )
+    const existing = await this.getPointsForEntry(userId, 'bonus', schoolYear)
     const alreadyAwarded = existing !== null
 
     if (isEligible && !alreadyAwarded) {
@@ -749,8 +745,8 @@ export class PointService {
           userId,
           amount: PERFECT_FEEDBACK_BONUS_POINTS,
           sourceType: 'bonus',
-          referenceId: PERFECT_FEEDBACK_BONUS_SCHOOL_YEAR,
-          comment: `Bonus for ${PERFECT_FEEDBACK_THRESHOLD} perfect feedbacks in ${formatSchoolYearString(PERFECT_FEEDBACK_BONUS_SCHOOL_YEAR)}`
+          referenceId: schoolYear,
+          comment: `Bonus for ${PERFECT_FEEDBACK_THRESHOLD} perfect feedbacks in ${formatSchoolYearString(schoolYear)}`
         })
     } else if (!isEligible && alreadyAwarded) {
       await database()
@@ -759,7 +755,7 @@ export class PointService {
           and(
             eq(pointRegistry.userId, userId),
             eq(pointRegistry.sourceType, 'bonus'),
-            eq(pointRegistry.referenceId, PERFECT_FEEDBACK_BONUS_SCHOOL_YEAR)
+            eq(pointRegistry.referenceId, schoolYear)
           )
         )
     }

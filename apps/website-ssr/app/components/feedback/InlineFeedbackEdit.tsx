@@ -95,7 +95,11 @@ export function InlineFeedbackEdit({
             onCategoriesChange={setCategories}
           />
 
-          <FeedbackPointsProgress categories={categories} courseId={courseId} />
+          <FeedbackPointsProgress
+            categories={categories}
+            courseId={courseId}
+            schoolYear={form.watch('schoolYear')}
+          />
 
           <div className="flex gap-3">
             <Button
