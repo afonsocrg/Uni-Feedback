@@ -271,7 +271,7 @@
       "race_leading_keep": "Mantém a liderança e os 50€ são teus!",
       "race_tied": "Empatado em 1º lugar",
       "race_far": "Convida amigos para subir na corrida.",
-      "perfect_desc_short": "Submete {{threshold}} feedbacks de {{max}} pontos"
+      "perfect_desc_short": "Submete {{threshold}} feedbacks de {{max}} pontos a cadeiras de {{schoolYear}}"
     },
     "delete_account_btn": "Eliminar Conta",
     "delete_account_desc": "Elimina permanentemente a tua conta e anonimiza os teus dados. O teu feedback será preservado anonimamente para ajudar outros alunos.",

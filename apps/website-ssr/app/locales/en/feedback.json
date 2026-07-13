@@ -271,7 +271,7 @@
       "race_leading_keep": "Keep your lead and the €50 are yours!",
       "race_tied": "Tied for 1st place",
       "race_far": "Invite friends to climb the race.",
-      "perfect_desc_short": "Submit {{threshold}} full-points feedbacks"
+      "perfect_desc_short": "Submit {{threshold}} full-points feedbacks on {{schoolYear}} courses"
     },
     "delete_account_btn": "Delete Account",
     "delete_account_desc": "Permanently delete your account and anonymize your data. Your feedback will be preserved anonymously to help other students.",
