@@ -54,7 +54,7 @@ const MIN_PARTICIPANTS_FOR_BANDS = 10
  * never shown a demoralizing target. This directly caps the number rendered in
  * the UI — raise it to reveal the race to students who are further back.
  */
-const AMBASSADOR_MAX_REFERRALS_TO_WIN = 3
+const AMBASSADOR_MAX_REFERRALS_TO_WIN = 5
 
 /**
  * Smallest entry count needed to sit within the top `fraction` of
