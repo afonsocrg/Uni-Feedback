@@ -67,7 +67,7 @@
     "privacy_link": "Política de Privacidade",
     "comment_label": "Partilha a tua experiência",
     "comment_hint": "O teu feedback é o que mais ajuda os outros! Aqui estão alguns aspetos a considerar:",
-    "comment_placeholder": "O que devem os outros alunos saber? (ex: dicas para o exame, como lidar com os laboratórios...)",
+    "comment_placeholder": "O que devem os outros alunos saber? (ex: dicas para o exame, como lidar com as práticas...)",
     "star_ratings": ["Terrível", "Má", "Razoável", "Boa", "Excelente"],
     "categories": {
       "teaching": "Ensino",
