@@ -37,12 +37,8 @@
     "no_courses": "No courses found for this degree.",
     "no_results": "No courses match your search criteria.",
     "other_courses": "Other courses",
-    "column_course": "Course",
-    "column_rating": "Rating",
-    "column_workload": "Workload",
     "tag_optional": "Optional",
-    "legend_mandatory_exam": "Mandatory exam",
-    "legend_optional": "Not required for the degree"
+    "legend_mandatory_exam": "Mandatory exam"
   },
   "listing": {
     "view_label": "View",

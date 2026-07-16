@@ -37,12 +37,8 @@
     "no_courses": "Não há cadeiras disponíveis para este curso.",
     "no_results": "Nenhuma cadeira corresponde à tua pesquisa.",
     "other_courses": "Outras cadeiras",
-    "column_course": "Cadeira",
-    "column_rating": "Avaliação",
-    "column_workload": "Carga",
     "tag_optional": "Optativa",
-    "legend_mandatory_exam": "Exame obrigatório",
-    "legend_optional": "Não é obrigatória no curso"
+    "legend_mandatory_exam": "Exame obrigatório"
   },
   "listing": {
     "view_label": "Vista",

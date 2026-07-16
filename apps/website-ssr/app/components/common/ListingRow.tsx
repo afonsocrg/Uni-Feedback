@@ -7,7 +7,8 @@ import type { ReactNode } from 'react'
  * Rows are flex, not a real `<table>`: on mobile each row stacks (title over
  * columns) instead of scrolling sideways, which a table's columns would force.
  * From `md` up the columns line up because each caller gives its own cells a
- * fixed width, shared with `ListingHeader`.
+ * fixed width; a caller that also renders a `ListingHeader` shares those widths
+ * with it.
  *
  * The title line holds only the title, so a long one truncates against the row
  * edge rather than against a badge; `meta` is the secondary line (acronym,
