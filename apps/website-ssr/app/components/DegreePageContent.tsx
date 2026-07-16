@@ -450,13 +450,18 @@ export function DegreePageContent({
     return `${yearLabel} · ${bucket.name}`
   }
 
-  // The sections every listing component renders. Term-only degrees (no
-  // curriculum-year data) would group into bare "Fall"/"Spring" headings with no
-  // year hierarchy while duplicating courses offered in several terms, so
-  // grouping earns its keep only when real curriculum years exist. Otherwise
-  // fall back to a single unheaded section holding the flat sorted list.
+  // The sections every listing component renders. Degrees with no
+  // curriculum-year data group by term alone, under bare "S1"/"Fall" headings:
+  // the term is the only structure their offerings carry, and dropping it left
+  // every IST master's and all of Nova SBE as one undifferentiated list (MEIC:
+  // 60 courses, MIEI: 174). The split costs some duplication, since a course
+  // offered in both terms is listed under each (Nova SBE BE: 50 courses over 90
+  // rows), but that is what year-based degrees already do across years.
+  //
+  // Only when nothing buckets at all, every filtered course lacking an offering,
+  // do we fall back to a single unheaded section holding the flat sorted list.
   const sections: CourseSection[] =
-    availableCurriculumYears.length === 0 || courseBuckets.buckets.length === 0
+    courseBuckets.buckets.length === 0
       ? [
           {
             key: 'all',
