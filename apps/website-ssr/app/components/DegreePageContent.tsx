@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLang } from '~/hooks'
 import { insensitiveMatch } from '~/utils'
+import { analytics } from '~/utils/analytics'
 import { loadCourseFilters, saveCourseFilters } from '~/utils/filterStorage'
 import { getCoursePath } from '~/utils/i18n-routes'
 import { BrowsePageLayout, CourseCard } from '.'
@@ -70,6 +71,7 @@ export function DegreePageContent({
   const [mandatoryExamFilter, setMandatoryExamFilter] = useState<
     boolean | null
   >(null)
+  const [courseTypeFilter, setCourseTypeFilter] = useState<boolean | null>(null)
   const [sortBy, setSortBy] = useState<SortOption>('reviews')
 
   // Load filters from localStorage on mount (only if faculty and degree match)
@@ -82,6 +84,8 @@ export function DegreePageContent({
       setSelectedTerm(savedFilters.term)
       setSelectedCourseGroupId(savedFilters.courseGroupId)
       setMandatoryExamFilter(savedFilters.hasMandatoryExam)
+      // Filters saved before this option existed have no `isMandatory` key.
+      setCourseTypeFilter(savedFilters.isMandatory ?? null)
       setSortBy(savedFilters.sortBy as SortOption)
     }
   }, [faculty.slug, degree.slug])
@@ -95,6 +99,7 @@ export function DegreePageContent({
       term: selectedTerm,
       courseGroupId: selectedCourseGroupId,
       hasMandatoryExam: mandatoryExamFilter,
+      isMandatory: courseTypeFilter,
       sortBy
     })
   }, [
@@ -104,6 +109,7 @@ export function DegreePageContent({
     selectedTerm,
     selectedCourseGroupId,
     mandatoryExamFilter,
+    courseTypeFilter,
     sortBy
   ])
 
@@ -136,6 +142,11 @@ export function DegreePageContent({
     return courses.some((course) => course.hasMandatoryExam !== null)
   }, [courses])
 
+  // Check if any course says whether it is mandatory or optional
+  const hasCourseTypeFilterOptions = useMemo(() => {
+    return courses.some((course) => course.isMandatory !== null)
+  }, [courses])
+
   // Filter options
   const curriculumYearOptions = availableCurriculumYears.map((year) => ({
     value: year.toString(),
@@ -157,6 +168,11 @@ export function DegreePageContent({
   const examTypeOptions = [
     { value: 'true', label: t('degree_page.exam_mandatory') },
     { value: 'false', label: t('degree_page.exam_optional') }
+  ]
+
+  const courseTypeOptions = [
+    { value: 'true', label: t('degree_page.mandatory_only') },
+    { value: 'false', label: t('degree_page.optional_only') }
   ]
 
   const sortOptions: { value: SortOption; label: string }[] = [
@@ -195,12 +211,16 @@ export function DegreePageContent({
           mandatoryExamFilter === null ||
           course.hasMandatoryExam === mandatoryExamFilter
 
+        const matchesCourseType =
+          courseTypeFilter === null || course.isMandatory === courseTypeFilter
+
         return (
           matchesSearch &&
           matchesCurriculumYear &&
           matchesTerm &&
           matchesCourseGroup &&
-          matchesMandatoryExam
+          matchesMandatoryExam &&
+          matchesCourseType
         )
       })
       .sort((a, b) => {
@@ -230,7 +250,8 @@ export function DegreePageContent({
     selectedCourseGroupId,
     sortBy,
     courseGroups,
-    mandatoryExamFilter
+    mandatoryExamFilter,
+    courseTypeFilter
   ])
 
   // Group the filtered courses into (curriculum year, academic term) buckets.
@@ -384,6 +405,23 @@ export function DegreePageContent({
                 setSelectedCourseGroupId(value ? Number(value) : null)
               }
               placeholder={t('degree_page.all_groups')}
+            />
+          )}
+          {hasCourseTypeFilterOptions && (
+            <FilterChip
+              label={t('degree_page.mandatory_label')}
+              options={courseTypeOptions}
+              selectedValue={courseTypeFilter?.toString() ?? null}
+              onValueChange={(value) => {
+                setCourseTypeFilter(value === null ? null : value === 'true')
+                if (value !== null) {
+                  analytics.discovery.filterApplied({
+                    filterType: 'is_mandatory',
+                    filterValue: value === 'true' ? 'mandatory' : 'optional'
+                  })
+                }
+              }}
+              placeholder={t('degree_page.mandatory_any')}
             />
           )}
           {hasExamFilterOptions && (

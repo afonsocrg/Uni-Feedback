@@ -20,6 +20,7 @@ export interface CourseFilters {
     term: string | null
     courseGroupId: number | null
     hasMandatoryExam: boolean | null
+    isMandatory: boolean | null
     sortBy: string
   }
 }
