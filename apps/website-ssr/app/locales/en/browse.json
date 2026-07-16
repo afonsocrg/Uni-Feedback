@@ -36,7 +36,18 @@
     "request_link": "Request it here",
     "no_courses": "No courses found for this degree.",
     "no_results": "No courses match your search criteria.",
-    "other_courses": "Other courses"
+    "other_courses": "Other courses",
+    "column_course": "Course",
+    "column_rating": "Rating",
+    "column_workload": "Workload",
+    "tag_optional": "Optional",
+    "legend_mandatory_exam": "Mandatory exam",
+    "legend_optional": "Not required for the degree"
+  },
+  "listing": {
+    "view_label": "View",
+    "view_cards": "Cards",
+    "view_list": "List"
   },
   "faculty_page": {
     "title": "Select Your Degree",
@@ -46,7 +57,10 @@
     "missing_degree": "Missing a degree?",
     "request_link": "Request it here",
     "no_degrees": "No degrees found for this university.",
-    "no_results": "No degrees found matching your search."
+    "no_results": "No degrees found matching your search.",
+    "column_degree": "Degree",
+    "column_courses": "Courses",
+    "column_feedback": "Feedback"
   },
   "course_browser": {
     "title": "Find a course to give feedback",

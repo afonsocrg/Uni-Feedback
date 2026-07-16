@@ -18,18 +18,25 @@ const CHIP_COLORS = {
 
 export type ChipColor = keyof typeof CHIP_COLORS
 
+/**
+ * The assignable hues, in an order where neighbouring entries are also distant
+ * hues. Callers colouring a *sequence* (terms along a timeline, say) can walk
+ * this and trust that adjacent items stay told apart; `getColorForLabel` cannot
+ * promise that, since a hash has no idea what sits next to what. Excludes gray,
+ * which is reserved for callers that ask for it by name.
+ */
+export const CHIP_COLOR_KEYS = Object.keys(CHIP_COLORS).filter(
+  (key) => key !== 'gray'
+) as ChipColor[]
+
 export const getColorForLabel = (label: string): string => {
   // Create a simple hash of the label to get a consistent index
   const hash = label.split('').reduce((acc, char) => {
     return char.charCodeAt(0) + ((acc << 5) - acc)
   }, 0)
 
-  // Get array of color keys and use hash to select one
-  const colorKeys = Object.keys(CHIP_COLORS).filter(
-    (key) => key !== 'gray'
-  ) as ChipColor[]
-  const index = Math.abs(hash) % colorKeys.length
-  return CHIP_COLORS[colorKeys[index]]
+  const index = Math.abs(hash) % CHIP_COLOR_KEYS.length
+  return CHIP_COLORS[CHIP_COLOR_KEYS[index]]
 }
 
 export type ChipSize = 'xs' | 'sm' | 'md' | 'lg'

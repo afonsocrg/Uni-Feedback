@@ -1,7 +1,11 @@
 -- Seed academic_terms per faculty (Phase 2 of 4).
--- Ticks are abstract integers: an academic year spans 8 ticks
--- (semester = 4, half/period = 2). Sub-terms nest inside their container.
--- Faculty resolved by short_name so this is environment-independent.
+-- Ticks are abstract integers, relative within a faculty. Sub-terms nest inside
+-- their container. Faculty resolved by short_name so this is environment-independent.
+--
+-- SUPERSEDED IN PART BY 0036: the "8 ticks per academic year" scale these values
+-- were chosen under is gone, Nova FCT's ticks below were renumbered, and nesting
+-- is now declared via parent_id rather than inferred from containment. Kept
+-- as-is so replaying migrations in order still reproduces the current state.
 -- Idempotent: re-running is a no-op thanks to the (faculty_id, name) unique key.
 
 INSERT INTO "academic_terms" ("faculty_id", "name", "start_tick", "end_tick")

@@ -1,14 +1,26 @@
-import { Button, StarRating, WorkloadRatingDisplay } from '@uni-feedback/ui'
+import {
+  Button,
+  Chip,
+  StarRating,
+  WorkloadRatingDisplay
+} from '@uni-feedback/ui'
 import { useNavigate } from 'react-router'
 import { SelectionCard } from '~/components'
 import { useLang } from '~/hooks'
 import { analytics, getPageName } from '~/utils/analytics'
 import { getCourseFeedbackPath } from '~/utils/i18n-routes'
+import { RowTag } from '../common/RowTag'
+import type { CourseTermTag } from './types'
 
 interface CourseCardProps {
   courseId: number
   acronym: string
   name: string
+  /**
+   * Terms the course runs in, when narrower than its section's own. Empty for a
+   * course running the section's whole term, or outside a grouped listing.
+   */
+  terms?: CourseTermTag[]
   averageRating: number
   averageWorkload: number
   totalFeedbackCount: number
@@ -23,6 +35,7 @@ export function CourseCard({
   courseId,
   acronym,
   name,
+  terms = [],
   averageRating,
   averageWorkload,
   totalFeedbackCount,
@@ -37,16 +50,25 @@ export function CourseCard({
   const title = useAcronymAsTitle ? acronym : name
   const subtitle = useAcronymAsTitle ? name : acronym
 
-  // `isMandatory` is nullable: only false (a known elective) earns a badge.
-  // Mandatory is the default expectation in a degree plan, and most courses
-  // have no data, so flagging only the exception keeps the cards clean.
+  // Both tags flag only the exception, so the common case stays clean: a term
+  // narrower than the section's (no tag means the course runs all of it), and
+  // `isMandatory === false`, a known elective. `isMandatory` is nullable and
+  // mandatory is the default expectation in a degree plan, so only false earns a
+  // tag. The term sits right after the acronym and carries a hashed colour, as
+  // it does on a `CourseTable` row.
   const subtitleNode =
-    isMandatory === false ? (
+    terms.length > 0 || isMandatory === false ? (
       <span className="inline-flex items-center gap-2">
         {subtitle}
-        <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-          Optional
-        </span>
+        {terms.map((term) => (
+          <Chip
+            key={term.label}
+            label={term.label}
+            color={term.color}
+            size="xs"
+          />
+        ))}
+        {isMandatory === false && <RowTag label="Optional" />}
       </span>
     ) : (
       subtitle

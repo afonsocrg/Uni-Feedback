@@ -1,29 +1,20 @@
-import type { CourseOffering } from '@uni-feedback/api-client'
 import type { Degree, Faculty } from '@uni-feedback/db/schema'
-import { Button, WarningAlert } from '@uni-feedback/ui'
+import { CHIP_COLOR_KEYS } from '@uni-feedback/ui'
 import { toOrdinal } from '@uni-feedback/utils'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLang } from '~/hooks'
 import { insensitiveMatch } from '~/utils'
+import type { ViewMode } from '~/utils/analytics'
 import { analytics } from '~/utils/analytics'
 import { loadCourseFilters, saveCourseFilters } from '~/utils/filterStorage'
-import { getCoursePath } from '~/utils/i18n-routes'
-import { BrowsePageLayout, CourseCard } from '.'
+import { BrowsePageLayout, CourseCardGrid, CourseTable } from '.'
 import { FilterChip } from './common/FilterChip'
+import { FilterRow } from './common/FilterRow'
+import { MissingItemNote } from './common/MissingItemNote'
 import { SearchInput } from './common/SearchInput'
-
-interface CourseWithFeedback {
-  id: number
-  name: string
-  acronym: string
-  offerings: CourseOffering[]
-  hasMandatoryExam: boolean | null
-  isMandatory: boolean | null
-  averageRating: number
-  averageWorkload: number
-  totalFeedbackCount: number
-}
+import { DEFAULT_VIEW_MODE, ViewModeToggle } from './common/ViewModeToggle'
+import type { CourseSection, CourseWithFeedback } from './course/types'
 
 interface CourseGroupWithIds {
   id: number
@@ -31,14 +22,68 @@ interface CourseGroupWithIds {
   courseIds: number[]
 }
 
-interface CourseBucket {
-  key: string
-  curriculumYear: number | null
-  termName: string
+/** Just enough of a term to order and label a run or a bucket. */
+interface TermLabel {
+  name: string
   startTick: number
   endTick: number
-  courses: CourseWithFeedback[]
 }
+
+interface AcademicTermInfo extends TermLabel {
+  id: number
+  parentId: number | null
+}
+
+/** One course in a bucket, with the terms it runs in there. */
+interface BucketEntry {
+  course: CourseWithFeedback
+  terms: TermLabel[]
+}
+
+/** All the courses of one curriculum year and one term. */
+interface CourseBucket extends TermLabel {
+  key: string
+  curriculumYear: number | null
+  entries: BucketEntry[]
+}
+
+/** A `CourseBucket` mid-build, its entries still keyed by course for lookup. */
+type BucketAccumulator = Omit<CourseBucket, 'entries'> & {
+  entries: Map<number, BucketEntry>
+}
+
+/**
+ * The term a course is bucketed under: its offering's own term, or that term's
+ * parent when it has one (P1 buckets under S1, a half-semester under its
+ * semester).
+ *
+ * The parent is read, never inferred from the ticks. Containment can't tell a
+ * parent from a mere container: Nova FCT's "Full Year" spans both semesters
+ * without being their heading, and its interim term sits between them, inside
+ * neither. Both are top-level, so both keep a bucket of their own.
+ *
+ * Offerings carry a term's name but not its id, and `(faculty_id, name)` is
+ * unique, so the name is what resolves an offering to the faculty's term. A term
+ * we can't resolve buckets under itself.
+ */
+function bucketTermOf(
+  term: TermLabel,
+  academicTerms: AcademicTermInfo[]
+): TermLabel {
+  const self = academicTerms.find((t) => t.name === term.name)
+  if (!self?.parentId) return term
+  return academicTerms.find((t) => t.id === self.parentId) ?? term
+}
+
+/**
+ * Earlier terms first; on a tie, longer terms first. This is the ordering
+ * convention the terms are stored under, and it puts a container (S1, 1-4) ahead
+ * of the periods nested in it (P1, 1-2).
+ */
+const byTerm = (a: TermLabel, b: TermLabel) =>
+  a.startTick !== b.startTick
+    ? a.startTick - b.startTick
+    : b.endTick - a.endTick
 
 type SortOption = 'rating' | 'alphabetical' | 'reviews' | 'workload'
 
@@ -49,6 +94,7 @@ interface DegreePageContentProps {
   faculty: Faculty
   degree: Degree
   courses: CourseWithFeedback[]
+  academicTerms: AcademicTermInfo[]
   courseGroups: CourseGroupWithIds[]
 }
 
@@ -56,6 +102,7 @@ export function DegreePageContent({
   faculty,
   degree,
   courses,
+  academicTerms,
   courseGroups
 }: DegreePageContentProps) {
   const { t } = useTranslation('browse')
@@ -73,6 +120,23 @@ export function DegreePageContent({
   >(null)
   const [courseTypeFilter, setCourseTypeFilter] = useState<boolean | null>(null)
   const [sortBy, setSortBy] = useState<SortOption>('reviews')
+  const [viewMode, setViewMode] = useState<ViewMode>(DEFAULT_VIEW_MODE)
+
+  // Entry event of the discovery funnel. Keyed on the degree so a client-side
+  // navigation to another degree page counts as a new view, and deliberately
+  // not on `viewMode`: this records the page as *served*, so re-firing it on a
+  // toggle would double-count the view and make the switch rate meaningless.
+  useEffect(() => {
+    if (!faculty.slug || !degree.slug) return
+
+    analytics.discovery.degreePageViewed({
+      facultySlug: faculty.slug,
+      degreeSlug: degree.slug,
+      courseCount: courses.length,
+      defaultViewMode: DEFAULT_VIEW_MODE
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [faculty.slug, degree.slug])
 
   // Load filters from localStorage on mount (only if faculty and degree match)
   useEffect(() => {
@@ -254,14 +318,25 @@ export function DegreePageContent({
     courseTypeFilter
   ])
 
-  // Group the filtered courses into (curriculum year, academic term) buckets.
-  // A course offered in several terms appears in each matching bucket (all
-  // linking to the same page); a course with no offerings, or none matching the
-  // active year/term filters, falls into a trailing "Other" bucket so nothing
-  // is silently dropped. `filteredCourses` is already sorted by `sortBy`, and we
-  // preserve that order while bucketing, so each bucket stays sorted.
+  // Group the filtered courses into (curriculum year, parent term) buckets, each
+  // split into runs of courses sharing a term.
+  //
+  // Bucketing a sub-term under its parent rather than by raw term is what keeps
+  // the listing readable: faculties that cut a semester into periods would
+  // otherwise strand 1-2 courses under every heading (LEIC: 17 headings for 30
+  // courses, against 6 here), and a listing that breaks every other row is hard
+  // to read. Each course keeps a tag naming its own term, which is what tells P1
+  // and P2 courses apart inside the merged bucket.
+  //
+  // A course offered in several of a bucket's terms is one entry carrying both,
+  // not two near-identical rows; offered in several *buckets*, it appears in
+  // each (all linking to the same page). A course with no offerings, or none
+  // matching the active year/term filters, falls into a trailing "Other" bucket
+  // so nothing is silently dropped. `filteredCourses` is already sorted by
+  // `sortBy`, and we preserve that order while bucketing, so each bucket stays
+  // sorted within a term.
   const courseBuckets = useMemo(() => {
-    const buckets = new Map<string, CourseBucket>()
+    const buckets = new Map<string, BucketAccumulator>()
     const other: CourseWithFeedback[] = []
 
     for (const course of filteredCourses) {
@@ -279,80 +354,145 @@ export function DegreePageContent({
         continue
       }
 
-      // A course may list the same year/term twice; only place it once per bucket.
-      const seen = new Set<string>()
       for (const o of offerings) {
-        const { name, startTick, endTick } = o.academicTerm
-        const key = `${o.curriculumYear ?? 'x'}|${name}|${startTick}|${endTick}`
-        if (seen.has(key)) continue
-        seen.add(key)
+        const term = o.academicTerm
+        const bucketTerm = bucketTermOf(term, academicTerms)
+        const year = o.curriculumYear ?? 'x'
+        const bucketKey = `${year}|${bucketTerm.name}`
 
-        let bucket = buckets.get(key)
+        let bucket = buckets.get(bucketKey)
         if (!bucket) {
           bucket = {
-            key,
+            key: bucketKey,
             curriculumYear: o.curriculumYear,
-            termName: name,
-            startTick,
-            endTick,
-            courses: []
+            name: bucketTerm.name,
+            startTick: bucketTerm.startTick,
+            endTick: bucketTerm.endTick,
+            entries: new Map()
           }
-          buckets.set(key, bucket)
+          buckets.set(bucketKey, bucket)
         }
-        bucket.courses.push(course)
+
+        let entry = bucket.entries.get(course.id)
+        if (!entry) {
+          entry = { course, terms: [] }
+          bucket.entries.set(course.id, entry)
+        }
+        // A course may list the same year/term twice; tag it once.
+        if (!entry.terms.some((t) => t.name === term.name)) {
+          entry.terms.push(term)
+        }
       }
     }
 
-    // Within a bucket, push known electives (isMandatory === false) to the end,
-    // keeping core and unknown courses up front. The sort is stable, so each
-    // tier keeps the `sortBy` order it inherited from `filteredCourses`.
-    const electivesLast = (courses: CourseWithFeedback[]) =>
-      courses.sort(
-        (a, b) =>
-          Number(a.isMandatory === false) - Number(b.isMandatory === false)
-      )
+    // A course sits at its earliest term, so one offered in both P1 and P2 sorts
+    // with the P1 courses rather than drifting to the end of the bucket.
+    const earliestTerm = (entry: BucketEntry) =>
+      entry.terms.reduce((a, b) => (byTerm(a, b) <= 0 ? a : b))
 
     const ordered = Array.from(buckets.values()).sort((a, b) => {
       // Curriculum year ascending, unknown year last.
       const ay = a.curriculumYear ?? Infinity
       const by = b.curriculumYear ?? Infinity
       if (ay !== by) return ay - by
-      // Then earlier terms first; on a tie, longer terms (later end) first.
-      if (a.startTick !== b.startTick) return a.startTick - b.startTick
-      return b.endTick - a.endTick
+      return byTerm(a, b)
     })
-    ordered.forEach((bucket) => electivesLast(bucket.courses))
 
-    return { buckets: ordered, other: electivesLast(other) }
-  }, [filteredCourses, selectedCurriculumYear, selectedTerm])
+    const withEntries = ordered.map((bucket) => ({
+      ...bucket,
+      // Term first, then known electives (isMandatory === false) last within a
+      // term, keeping core and unknown courses up front. The sort is stable and
+      // entries were inserted in `filteredCourses` order, so each tier keeps the
+      // `sortBy` order it inherited.
+      entries: Array.from(bucket.entries.values()).sort((a, b) => {
+        const byT = byTerm(earliestTerm(a), earliestTerm(b))
+        if (byT !== 0) return byT
+        return (
+          Number(a.course.isMandatory === false) -
+          Number(b.course.isMandatory === false)
+        )
+      })
+    }))
 
-  const getCourseUrl = (course: CourseWithFeedback) => {
-    return getCoursePath(lang, course.id)
-  }
+    const electivesLast = (courses: CourseWithFeedback[]) =>
+      courses.sort(
+        (a, b) =>
+          Number(a.isMandatory === false) - Number(b.isMandatory === false)
+      )
+
+    return { buckets: withEntries, other: electivesLast(other) }
+  }, [filteredCourses, selectedCurriculumYear, selectedTerm, academicTerms])
+
+  // One hue per term, fixed for the whole faculty.
+  //
+  // Colour walks the palette in timeline order rather than hashing the term
+  // name, because the terms that need telling apart are exactly the ones next to
+  // each other: hashing put IST's P1 and P2 on indigo and blue, ΔE 3.5 apart
+  // (indistinguishable), and those two share every S1 section. Walking in order
+  // means neighbouring terms take neighbouring hues, which the palette orders to
+  // be distant. Still deterministic, so a term keeps its colour across pages.
+  const termColors = useMemo(() => {
+    const ordered = [...academicTerms].sort(byTerm)
+    return new Map(
+      ordered.map((term, i) => [
+        term.name,
+        CHIP_COLOR_KEYS[i % CHIP_COLOR_KEYS.length]
+      ])
+    )
+  }, [academicTerms])
 
   const bucketHeading = (bucket: CourseBucket) => {
-    if (bucket.curriculumYear === null) return bucket.termName
+    if (bucket.curriculumYear === null) return bucket.name
     const yearLabel = t('degree_page.year_option', {
       year:
         lang === 'en' ? toOrdinal(bucket.curriculumYear) : bucket.curriculumYear
     })
-    return `${yearLabel} · ${bucket.termName}`
+    return `${yearLabel} · ${bucket.name}`
   }
 
-  const renderCourseCard = (course: CourseWithFeedback, key: string) => (
-    <CourseCard
-      key={key}
-      courseId={course.id}
-      acronym={course.acronym}
-      name={course.name}
-      averageRating={course.averageRating}
-      averageWorkload={course.averageWorkload}
-      totalFeedbackCount={course.totalFeedbackCount}
-      hasMandatoryExam={course.hasMandatoryExam}
-      isMandatory={course.isMandatory}
-      href={getCourseUrl(course)}
-    />
-  )
+  // The sections every listing component renders. Term-only degrees (no
+  // curriculum-year data) would group into bare "Fall"/"Spring" headings with no
+  // year hierarchy while duplicating courses offered in several terms, so
+  // grouping earns its keep only when real curriculum years exist. Otherwise
+  // fall back to a single unheaded section holding the flat sorted list.
+  const sections: CourseSection[] =
+    availableCurriculumYears.length === 0 || courseBuckets.buckets.length === 0
+      ? [
+          {
+            key: 'all',
+            heading: null,
+            entries: filteredCourses.map((course) => ({ course, terms: [] }))
+          }
+        ]
+      : [
+          ...courseBuckets.buckets.map((bucket) => ({
+            key: bucket.key,
+            heading: bucketHeading(bucket),
+            entries: bucket.entries.map((entry) => ({
+              course: entry.course,
+              // A course running the bucket's whole term earns no tag: the
+              // section heading already names that term.
+              terms: entry.terms
+                .filter((term) => term.name !== bucket.name)
+                .map((term) => ({
+                  label: term.name,
+                  color: termColors.get(term.name) ?? 'gray'
+                }))
+            }))
+          })),
+          ...(courseBuckets.other.length > 0
+            ? [
+                {
+                  key: 'other',
+                  heading: t('degree_page.other_courses'),
+                  entries: courseBuckets.other.map((course) => ({
+                    course,
+                    terms: []
+                  }))
+                }
+              ]
+            : [])
+        ]
 
   return (
     <BrowsePageLayout
@@ -367,97 +507,96 @@ export function DegreePageContent({
         />
       }
       filterChips={
-        <div className="flex flex-wrap gap-2 items-center">
-          <FilterChip
-            label={t('degree_page.sort_label')}
-            options={sortOptions}
-            selectedValue={sortBy}
-            onValueChange={(value) => setSortBy(value as SortOption)}
-            placeholder={t('degree_page.sort_default')}
-            variant="sort"
-          />
-          {curriculumYearOptions.length > 0 && (
-            <FilterChip
-              label={t('degree_page.year_label')}
-              options={curriculumYearOptions}
-              selectedValue={selectedCurriculumYear?.toString() ?? null}
-              onValueChange={(value) =>
-                setSelectedCurriculumYear(value ? Number(value) : null)
-              }
-              placeholder={t('degree_page.all_years')}
+        <FilterRow
+          trailing={
+            <ViewModeToggle
+              value={viewMode}
+              onChange={setViewMode}
+              surface="degree_page"
             />
-          )}
-          {termOptions.length > 0 && (
-            <FilterChip
-              label={t('degree_page.term_label')}
-              options={termOptions}
-              selectedValue={selectedTerm}
-              onValueChange={setSelectedTerm}
-              placeholder={t('degree_page.all_terms')}
-            />
-          )}
-          {courseGroupOptions.length > 0 && (
-            <FilterChip
-              label={t('degree_page.group_label')}
-              options={courseGroupOptions}
-              selectedValue={selectedCourseGroupId?.toString() ?? null}
-              onValueChange={(value) =>
-                setSelectedCourseGroupId(value ? Number(value) : null)
-              }
-              placeholder={t('degree_page.all_groups')}
-            />
-          )}
-          {hasCourseTypeFilterOptions && (
-            <FilterChip
-              label={t('degree_page.mandatory_label')}
-              options={courseTypeOptions}
-              selectedValue={courseTypeFilter?.toString() ?? null}
-              onValueChange={(value) => {
-                setCourseTypeFilter(value === null ? null : value === 'true')
-                if (value !== null) {
-                  analytics.discovery.filterApplied({
-                    filterType: 'is_mandatory',
-                    filterValue: value === 'true' ? 'mandatory' : 'optional'
-                  })
-                }
-              }}
-              placeholder={t('degree_page.mandatory_any')}
-            />
-          )}
-          {hasExamFilterOptions && (
-            <FilterChip
-              label={t('degree_page.exam_label')}
-              options={examTypeOptions}
-              selectedValue={mandatoryExamFilter?.toString() ?? null}
-              onValueChange={(value) =>
-                setMandatoryExamFilter(value === null ? null : value === 'true')
-              }
-              placeholder={t('degree_page.exam_any')}
-            />
-          )}
-        </div>
-      }
-      actions={
-        <WarningAlert
-          message={
+          }
+          filters={
             <>
-              {t('degree_page.missing_course')}{' '}
-              <Button
-                variant="link"
-                size="xs"
-                asChild
-                className="p-0 h-auto text-sm underline"
-              >
-                <a
-                  href={ADD_COURSE_FORM_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {t('degree_page.request_link')}
-                </a>
-              </Button>
+              <FilterChip
+                label={t('degree_page.sort_label')}
+                options={sortOptions}
+                selectedValue={sortBy}
+                onValueChange={(value) => setSortBy(value as SortOption)}
+                placeholder={t('degree_page.sort_default')}
+                variant="sort"
+              />
+              {curriculumYearOptions.length > 0 && (
+                <FilterChip
+                  label={t('degree_page.year_label')}
+                  options={curriculumYearOptions}
+                  selectedValue={selectedCurriculumYear?.toString() ?? null}
+                  onValueChange={(value) =>
+                    setSelectedCurriculumYear(value ? Number(value) : null)
+                  }
+                  placeholder={t('degree_page.all_years')}
+                />
+              )}
+              {termOptions.length > 0 && (
+                <FilterChip
+                  label={t('degree_page.term_label')}
+                  options={termOptions}
+                  selectedValue={selectedTerm}
+                  onValueChange={setSelectedTerm}
+                  placeholder={t('degree_page.all_terms')}
+                />
+              )}
+              {courseGroupOptions.length > 0 && (
+                <FilterChip
+                  label={t('degree_page.group_label')}
+                  options={courseGroupOptions}
+                  selectedValue={selectedCourseGroupId?.toString() ?? null}
+                  onValueChange={(value) =>
+                    setSelectedCourseGroupId(value ? Number(value) : null)
+                  }
+                  placeholder={t('degree_page.all_groups')}
+                />
+              )}
+              {hasCourseTypeFilterOptions && (
+                <FilterChip
+                  label={t('degree_page.mandatory_label')}
+                  options={courseTypeOptions}
+                  selectedValue={courseTypeFilter?.toString() ?? null}
+                  onValueChange={(value) => {
+                    setCourseTypeFilter(
+                      value === null ? null : value === 'true'
+                    )
+                    if (value !== null) {
+                      analytics.discovery.filterApplied({
+                        filterType: 'is_mandatory',
+                        filterValue: value === 'true' ? 'mandatory' : 'optional'
+                      })
+                    }
+                  }}
+                  placeholder={t('degree_page.mandatory_any')}
+                />
+              )}
+              {hasExamFilterOptions && (
+                <FilterChip
+                  label={t('degree_page.exam_label')}
+                  options={examTypeOptions}
+                  selectedValue={mandatoryExamFilter?.toString() ?? null}
+                  onValueChange={(value) =>
+                    setMandatoryExamFilter(
+                      value === null ? null : value === 'true'
+                    )
+                  }
+                  placeholder={t('degree_page.exam_any')}
+                />
+              )}
             </>
           }
+        />
+      }
+      actions={
+        <MissingItemNote
+          text={t('degree_page.missing_course')}
+          linkLabel={t('degree_page.request_link')}
+          href={ADD_COURSE_FORM_URL}
         />
       }
     >
@@ -469,44 +608,10 @@ export function DegreePageContent({
         <div className="text-center text-muted-foreground py-8">
           {t('degree_page.no_results')}
         </div>
-      ) : availableCurriculumYears.length === 0 ||
-        courseBuckets.buckets.length === 0 ? (
-        // Term-only degrees (no curriculum-year data) group into bare
-        // "Fall"/"Spring" headings with no year hierarchy while duplicating
-        // courses offered in multiple terms, so grouping earns its keep only
-        // when real curriculum years exist. Otherwise keep the flat sorted grid.
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredCourses.map((course) =>
-            renderCourseCard(course, course.id.toString())
-          )}
-        </div>
+      ) : viewMode === 'cards' ? (
+        <CourseCardGrid sections={sections} />
       ) : (
-        <div className="space-y-8">
-          {courseBuckets.buckets.map((bucket) => (
-            <section key={bucket.key}>
-              <h2 className="text-lg font-semibold text-foreground mb-4">
-                {bucketHeading(bucket)}
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {bucket.courses.map((course) =>
-                  renderCourseCard(course, `${bucket.key}-${course.id}`)
-                )}
-              </div>
-            </section>
-          ))}
-          {courseBuckets.other.length > 0 && (
-            <section>
-              <h2 className="text-lg font-semibold text-foreground mb-4">
-                {t('degree_page.other_courses')}
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {courseBuckets.other.map((course) =>
-                  renderCourseCard(course, `other-${course.id}`)
-                )}
-              </div>
-            </section>
-          )}
-        </div>
+        <CourseTable sections={sections} />
       )}
     </BrowsePageLayout>
   )

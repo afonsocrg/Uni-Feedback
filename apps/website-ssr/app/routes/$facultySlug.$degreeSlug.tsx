@@ -173,6 +173,21 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     )
     .where(eq(schema.courses.degreeId, degree.id))
 
+  // Every term the faculty defines, not just the ones this degree's offerings
+  // happen to use. Grouping resolves a period to its parent semester even when
+  // no course is offered in that semester directly (LEIC's 3rd year has P1/P2
+  // offerings but no S1 one), and the parent's name and ticks exist only here.
+  const academicTerms = await db
+    .select({
+      id: schema.academicTerms.id,
+      name: schema.academicTerms.name,
+      startTick: schema.academicTerms.startTick,
+      endTick: schema.academicTerms.endTick,
+      parentId: schema.academicTerms.parentId
+    })
+    .from(schema.academicTerms)
+    .where(eq(schema.academicTerms.facultyId, faculty.id))
+
   // Get course groups
   const courseGroups = await db
     .select({
@@ -197,6 +212,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     faculty,
     degree,
     courses: coursesWithFeedback,
+    academicTerms,
     courseGroups: formattedCourseGroups,
     origin: getRequestOrigin(request)
   }
@@ -220,6 +236,7 @@ export default function DegreePage({ loaderData }: Route.ComponentProps) {
       faculty={loaderData.faculty}
       degree={loaderData.degree}
       courses={loaderData.courses}
+      academicTerms={loaderData.academicTerms}
       courseGroups={loaderData.courseGroups}
     />
   )

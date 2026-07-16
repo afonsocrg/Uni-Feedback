@@ -1,9 +1,12 @@
 import { database } from '@uni-feedback/db'
-import { Button, WarningAlert } from '@uni-feedback/ui'
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router'
-import { BrowsePageLayout, FacultySelector } from '~/components'
+import {
+  BrowsePageLayout,
+  FacultySelector,
+  MissingItemNote
+} from '~/components'
 import { userPreferences } from '~/utils'
 import { buildMeta, metaT } from '~/utils/meta'
 import { getRequestOrigin } from '~/utils/request'
@@ -91,25 +94,10 @@ export default function BrowsePage({ loaderData }: Route.ComponentProps) {
     <BrowsePageLayout
       title={t('page.title')}
       actions={
-        <WarningAlert
-          message={
-            <>
-              <Button
-                variant="link"
-                size="xs"
-                asChild
-                className="p-0 h-auto text-sm underline"
-              >
-                <a
-                  href={ADD_COURSE_FORM_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {t('page.request_link')}
-                </a>
-              </Button>
-            </>
-          }
+        // No `text`: this page's link copy is a whole sentence on its own.
+        <MissingItemNote
+          linkLabel={t('page.request_link')}
+          href={ADD_COURSE_FORM_URL}
         />
       }
     >

@@ -85,6 +85,18 @@ export type ReferralSurface = 'feedback_success' | 'profile' | 'giveaway'
  */
 export type ShareChannel = 'whatsapp' | 'copy_url' | 'native'
 
+/**
+ * A browse page that lists things behind a cards/list view toggle: the faculty
+ * page lists degrees, the degree page lists courses. Threaded through the
+ * shared <ViewModeToggle> so one event covers both, and each surface's switch
+ * rate is `listing_view_mode_changed` over that page's own `*_page_viewed`.
+ */
+export type ListingSurface = 'faculty_page' | 'degree_page'
+
+/** How a browse page lays its items out. Lives here, with `ListingSurface`, so
+ *  the event vocabulary doesn't depend on a component. */
+export type ViewMode = 'cards' | 'list'
+
 export const analytics = {
   feedback: {
     /**
@@ -390,6 +402,37 @@ export const analytics = {
 
   discovery: {
     /**
+     * Track a faculty page load. Entry point of the browse funnel and the
+     * denominator for that page's view mode switch rate.
+     *
+     * `degreeCount` is the cards-vs-list signal here, and it swings hard: IST
+     * lists 80 degrees while FDUL lists 1, so the list's density only means
+     * anything at the top of that range.
+     */
+    facultyPageViewed: (props: {
+      facultySlug: string
+      degreeCount: number
+      defaultViewMode: ViewMode
+    }) => trackEvent('faculty_page_viewed', props),
+
+    /**
+     * Track a degree page load. Entry point of the course-discovery funnel and
+     * the denominator for everything else on the page: `viewModeChanged`,
+     * `filterApplied` and `searchPerformed` all fire only on interaction, so a
+     * rate is meaningless without this.
+     *
+     * `courseCount` is what makes the cards-vs-list question answerable: the
+     * list only earns its density on long degrees, so switch rate cut by how
+     * many courses a student is actually facing is the interesting signal.
+     */
+    degreePageViewed: (props: {
+      facultySlug: string
+      degreeSlug: string
+      courseCount: number
+      defaultViewMode: ViewMode
+    }) => trackEvent('degree_page_viewed', props),
+
+    /**
      * Phase 4: Track course discovery patterns
      */
     courseCardClicked: (props: {
@@ -402,7 +445,23 @@ export const analytics = {
       trackEvent('course_search_performed', props),
 
     filterApplied: (props: { filterType: string; filterValue: string }) =>
-      trackEvent('course_filter_applied', props)
+      trackEvent('course_filter_applied', props),
+
+    /**
+     * Track when a student switches a browse page between the card grid and the
+     * compact list. `surface` says which page; both listings render the same
+     * items from the same filters, so this is purely about layout.
+     *
+     * Only fires on an actual switch, never on load: a student who keeps the
+     * default emits nothing, so any rate needs that surface's `*_page_viewed`
+     * as the denominator. `defaultViewMode` records what they were switching
+     * *away from*, so the event stays readable if we ever flip the default.
+     */
+    viewModeChanged: (props: {
+      viewMode: ViewMode
+      surface: ListingSurface
+      defaultViewMode: ViewMode
+    }) => trackEvent('listing_view_mode_changed', props)
   },
 
   course: {

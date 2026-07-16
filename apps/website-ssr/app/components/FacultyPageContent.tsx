@@ -1,24 +1,19 @@
 import type { Faculty } from '@uni-feedback/db/schema'
-import { Button, WarningAlert } from '@uni-feedback/ui'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLang } from '~/hooks'
+import type { ViewMode } from '~/utils/analytics'
+import { analytics } from '~/utils/analytics'
 import { loadDegreeFilters, saveDegreeFilters } from '~/utils/filterStorage'
 import { getDegreePath } from '~/utils/i18n-routes'
 import { userPreferences } from '~/utils/userPreferences'
-import { BrowsePageLayout, DegreeCard } from '.'
+import { BrowsePageLayout, DegreeCardGrid, DegreeTable } from '.'
 import { FilterChip } from './common/FilterChip'
+import { FilterRow } from './common/FilterRow'
+import { MissingItemNote } from './common/MissingItemNote'
 import { SearchInput } from './common/SearchInput'
-
-interface DegreeWithCounts {
-  id: number
-  type: string
-  name: string
-  acronym: string
-  slug: string | null
-  courseCount: number
-  feedbackCount: number
-}
+import { DEFAULT_VIEW_MODE, ViewModeToggle } from './common/ViewModeToggle'
+import type { DegreeWithCounts } from './degree/types'
 
 function insensitiveMatch(text: string, query: string): boolean {
   return text.toLowerCase().includes(query.toLowerCase())
@@ -40,6 +35,22 @@ export function FacultyPageContent({
   const lang = useLang()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedType, setSelectedType] = useState<string | null>(null)
+  const [viewMode, setViewMode] = useState<ViewMode>(DEFAULT_VIEW_MODE)
+
+  // Entry event of the browse funnel, and the denominator for this page's view
+  // mode switch rate. Keyed on the faculty so navigating to another one counts
+  // as a new view, and deliberately not on `viewMode`: this records the page as
+  // *served*, so re-firing it on a toggle would double-count the view.
+  useEffect(() => {
+    if (!faculty.slug) return
+
+    analytics.discovery.facultyPageViewed({
+      facultySlug: faculty.slug,
+      degreeCount: degrees.length,
+      defaultViewMode: DEFAULT_VIEW_MODE
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [faculty.slug])
 
   // Read from localStorage after hydration (only if same faculty)
   useEffect(() => {
@@ -110,42 +121,37 @@ export function FacultyPageContent({
         />
       }
       filterChips={
-        availableTypes.length > 0 ? (
-          <div className="flex flex-wrap gap-2 items-center">
-            <FilterChip
-              label={t('faculty_page.filter_label')}
-              options={availableTypes.map((type) => ({
-                value: type,
-                label: type
-              }))}
-              selectedValue={selectedType}
-              onValueChange={handleTypeChange}
-              placeholder={t('faculty_page.filter_placeholder')}
+        // The row renders even with no degree types to filter by, because the
+        // view toggle lives here and is always available.
+        <FilterRow
+          trailing={
+            <ViewModeToggle
+              value={viewMode}
+              onChange={setViewMode}
+              surface="faculty_page"
             />
-          </div>
-        ) : undefined
+          }
+          filters={
+            availableTypes.length > 0 && (
+              <FilterChip
+                label={t('faculty_page.filter_label')}
+                options={availableTypes.map((type) => ({
+                  value: type,
+                  label: type
+                }))}
+                selectedValue={selectedType}
+                onValueChange={handleTypeChange}
+                placeholder={t('faculty_page.filter_placeholder')}
+              />
+            )
+          }
+        />
       }
       actions={
-        <WarningAlert
-          message={
-            <>
-              {t('faculty_page.missing_degree')}{' '}
-              <Button
-                variant="link"
-                size="xs"
-                asChild
-                className="p-0 h-auto text-sm underline"
-              >
-                <a
-                  href={ADD_COURSE_FORM_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {t('faculty_page.request_link')}
-                </a>
-              </Button>
-            </>
-          }
+        <MissingItemNote
+          text={t('faculty_page.missing_degree')}
+          linkLabel={t('faculty_page.request_link')}
+          href={ADD_COURSE_FORM_URL}
         />
       }
     >
@@ -157,17 +163,18 @@ export function FacultyPageContent({
         <div className="text-center text-muted-foreground py-8">
           {t('faculty_page.no_results')}
         </div>
+      ) : viewMode === 'cards' ? (
+        <DegreeCardGrid
+          degrees={filteredDegrees}
+          getHref={getDegreeUrl}
+          onSelect={handleDegreeClick}
+        />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {filteredDegrees.map((degree) => (
-            <DegreeCard
-              key={degree.id}
-              degree={degree}
-              href={getDegreeUrl(degree)}
-              onClick={() => handleDegreeClick(degree)}
-            />
-          ))}
-        </div>
+        <DegreeTable
+          degrees={filteredDegrees}
+          getHref={getDegreeUrl}
+          onSelect={handleDegreeClick}
+        />
       )}
     </BrowsePageLayout>
   )

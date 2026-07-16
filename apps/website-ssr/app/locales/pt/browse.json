@@ -36,7 +36,18 @@
     "request_link": "Pede aqui",
     "no_courses": "Não há cadeiras disponíveis para este curso.",
     "no_results": "Nenhuma cadeira corresponde à tua pesquisa.",
-    "other_courses": "Outras cadeiras"
+    "other_courses": "Outras cadeiras",
+    "column_course": "Cadeira",
+    "column_rating": "Avaliação",
+    "column_workload": "Carga",
+    "tag_optional": "Optativa",
+    "legend_mandatory_exam": "Exame obrigatório",
+    "legend_optional": "Não é obrigatória no curso"
+  },
+  "listing": {
+    "view_label": "Vista",
+    "view_cards": "Cartões",
+    "view_list": "Lista"
   },
   "faculty_page": {
     "title": "Escolhe o teu curso",
@@ -46,7 +57,10 @@
     "missing_degree": "Falta um curso?",
     "request_link": "Pede aqui",
     "no_degrees": "Não há cursos disponíveis para esta faculdade.",
-    "no_results": "Nenhum curso corresponde aos filtros."
+    "no_results": "Nenhum curso corresponde aos filtros.",
+    "column_degree": "Curso",
+    "column_courses": "Cadeiras",
+    "column_feedback": "Feedback"
   },
   "course_browser": {
     "title": "A que cadeira queres dar feedback?",
