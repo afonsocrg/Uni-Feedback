@@ -14,6 +14,7 @@ interface CourseCardProps {
   totalFeedbackCount: number
   useAcronymAsTitle?: boolean
   hasMandatoryExam?: boolean | null
+  isMandatory?: boolean | null
   href?: string
   showAverageScores?: boolean
 }
@@ -27,6 +28,7 @@ export function CourseCard({
   totalFeedbackCount,
   useAcronymAsTitle = false,
   hasMandatoryExam,
+  isMandatory,
   href,
   showAverageScores = false
 }: CourseCardProps) {
@@ -35,10 +37,25 @@ export function CourseCard({
   const title = useAcronymAsTitle ? acronym : name
   const subtitle = useAcronymAsTitle ? name : acronym
 
+  // `isMandatory` is nullable: only false (a known elective) earns a badge.
+  // Mandatory is the default expectation in a degree plan, and most courses
+  // have no data, so flagging only the exception keeps the cards clean.
+  const subtitleNode =
+    isMandatory === false ? (
+      <span className="inline-flex items-center gap-2">
+        {subtitle}
+        <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+          Optional
+        </span>
+      </span>
+    ) : (
+      subtitle
+    )
+
   return (
     <SelectionCard
       title={title}
-      subtitle={subtitle}
+      subtitle={subtitleNode}
       href={href}
       className="flex flex-col"
     >

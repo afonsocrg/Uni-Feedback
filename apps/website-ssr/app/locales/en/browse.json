@@ -31,7 +31,8 @@
     "missing_course": "Missing a course?",
     "request_link": "Request it here",
     "no_courses": "No courses found for this degree.",
-    "no_results": "No courses match your search criteria."
+    "no_results": "No courses match your search criteria.",
+    "other_courses": "Other courses"
   },
   "faculty_page": {
     "title": "Select Your Degree",

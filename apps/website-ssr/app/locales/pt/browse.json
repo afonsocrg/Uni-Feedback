@@ -31,7 +31,8 @@
     "missing_course": "Falta alguma cadeira?",
     "request_link": "Pede aqui",
     "no_courses": "Não há cadeiras disponíveis para este curso.",
-    "no_results": "Nenhuma cadeira corresponde à tua pesquisa."
+    "no_results": "Nenhuma cadeira corresponde à tua pesquisa.",
+    "other_courses": "Outras cadeiras"
   },
   "faculty_page": {
     "title": "Escolhe o teu curso",

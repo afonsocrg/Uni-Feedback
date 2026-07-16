@@ -18,6 +18,7 @@ interface CourseWithFeedback {
   acronym: string
   offerings: CourseOffering[]
   hasMandatoryExam: boolean | null
+  isMandatory: boolean | null
   averageRating: number
   averageWorkload: number
   totalFeedbackCount: number
@@ -27,6 +28,15 @@ interface CourseGroupWithIds {
   id: number
   name: string
   courseIds: number[]
+}
+
+interface CourseBucket {
+  key: string
+  curriculumYear: number | null
+  termName: string
+  startTick: number
+  endTick: number
+  courses: CourseWithFeedback[]
 }
 
 type SortOption = 'rating' | 'alphabetical' | 'reviews' | 'workload'
@@ -223,9 +233,105 @@ export function DegreePageContent({
     mandatoryExamFilter
   ])
 
+  // Group the filtered courses into (curriculum year, academic term) buckets.
+  // A course offered in several terms appears in each matching bucket (all
+  // linking to the same page); a course with no offerings, or none matching the
+  // active year/term filters, falls into a trailing "Other" bucket so nothing
+  // is silently dropped. `filteredCourses` is already sorted by `sortBy`, and we
+  // preserve that order while bucketing, so each bucket stays sorted.
+  const courseBuckets = useMemo(() => {
+    const buckets = new Map<string, CourseBucket>()
+    const other: CourseWithFeedback[] = []
+
+    for (const course of filteredCourses) {
+      const offerings = course.offerings.filter((o) => {
+        const matchesYear =
+          selectedCurriculumYear === null ||
+          o.curriculumYear === selectedCurriculumYear
+        const matchesTerm =
+          !selectedTerm || o.academicTerm.name === selectedTerm
+        return matchesYear && matchesTerm
+      })
+
+      if (offerings.length === 0) {
+        other.push(course)
+        continue
+      }
+
+      // A course may list the same year/term twice; only place it once per bucket.
+      const seen = new Set<string>()
+      for (const o of offerings) {
+        const { name, startTick, endTick } = o.academicTerm
+        const key = `${o.curriculumYear ?? 'x'}|${name}|${startTick}|${endTick}`
+        if (seen.has(key)) continue
+        seen.add(key)
+
+        let bucket = buckets.get(key)
+        if (!bucket) {
+          bucket = {
+            key,
+            curriculumYear: o.curriculumYear,
+            termName: name,
+            startTick,
+            endTick,
+            courses: []
+          }
+          buckets.set(key, bucket)
+        }
+        bucket.courses.push(course)
+      }
+    }
+
+    // Within a bucket, push known electives (isMandatory === false) to the end,
+    // keeping core and unknown courses up front. The sort is stable, so each
+    // tier keeps the `sortBy` order it inherited from `filteredCourses`.
+    const electivesLast = (courses: CourseWithFeedback[]) =>
+      courses.sort(
+        (a, b) =>
+          Number(a.isMandatory === false) - Number(b.isMandatory === false)
+      )
+
+    const ordered = Array.from(buckets.values()).sort((a, b) => {
+      // Curriculum year ascending, unknown year last.
+      const ay = a.curriculumYear ?? Infinity
+      const by = b.curriculumYear ?? Infinity
+      if (ay !== by) return ay - by
+      // Then earlier terms first; on a tie, longer terms (later end) first.
+      if (a.startTick !== b.startTick) return a.startTick - b.startTick
+      return b.endTick - a.endTick
+    })
+    ordered.forEach((bucket) => electivesLast(bucket.courses))
+
+    return { buckets: ordered, other: electivesLast(other) }
+  }, [filteredCourses, selectedCurriculumYear, selectedTerm])
+
   const getCourseUrl = (course: CourseWithFeedback) => {
     return getCoursePath(lang, course.id)
   }
+
+  const bucketHeading = (bucket: CourseBucket) => {
+    if (bucket.curriculumYear === null) return bucket.termName
+    const yearLabel = t('degree_page.year_option', {
+      year:
+        lang === 'en' ? toOrdinal(bucket.curriculumYear) : bucket.curriculumYear
+    })
+    return `${yearLabel} · ${bucket.termName}`
+  }
+
+  const renderCourseCard = (course: CourseWithFeedback, key: string) => (
+    <CourseCard
+      key={key}
+      courseId={course.id}
+      acronym={course.acronym}
+      name={course.name}
+      averageRating={course.averageRating}
+      averageWorkload={course.averageWorkload}
+      totalFeedbackCount={course.totalFeedbackCount}
+      hasMandatoryExam={course.hasMandatoryExam}
+      isMandatory={course.isMandatory}
+      href={getCourseUrl(course)}
+    />
+  )
 
   return (
     <BrowsePageLayout
@@ -325,21 +431,43 @@ export function DegreePageContent({
         <div className="text-center text-muted-foreground py-8">
           {t('degree_page.no_results')}
         </div>
-      ) : (
+      ) : availableCurriculumYears.length === 0 ||
+        courseBuckets.buckets.length === 0 ? (
+        // Term-only degrees (no curriculum-year data) group into bare
+        // "Fall"/"Spring" headings with no year hierarchy while duplicating
+        // courses offered in multiple terms, so grouping earns its keep only
+        // when real curriculum years exist. Otherwise keep the flat sorted grid.
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredCourses.map((course) => (
-            <CourseCard
-              key={course.id}
-              courseId={course.id}
-              acronym={course.acronym}
-              name={course.name}
-              averageRating={course.averageRating}
-              averageWorkload={course.averageWorkload}
-              totalFeedbackCount={course.totalFeedbackCount}
-              hasMandatoryExam={course.hasMandatoryExam}
-              href={getCourseUrl(course)}
-            />
+          {filteredCourses.map((course) =>
+            renderCourseCard(course, course.id.toString())
+          )}
+        </div>
+      ) : (
+        <div className="space-y-8">
+          {courseBuckets.buckets.map((bucket) => (
+            <section key={bucket.key}>
+              <h2 className="text-lg font-semibold text-foreground mb-4">
+                {bucketHeading(bucket)}
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {bucket.courses.map((course) =>
+                  renderCourseCard(course, `${bucket.key}-${course.id}`)
+                )}
+              </div>
+            </section>
           ))}
+          {courseBuckets.other.length > 0 && (
+            <section>
+              <h2 className="text-lg font-semibold text-foreground mb-4">
+                {t('degree_page.other_courses')}
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {courseBuckets.other.map((course) =>
+                  renderCourseCard(course, `other-${course.id}`)
+                )}
+              </div>
+            </section>
+          )}
         </div>
       )}
     </BrowsePageLayout>
