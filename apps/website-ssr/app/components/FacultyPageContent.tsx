@@ -71,6 +71,16 @@ export function FacultyPageContent({
     return [...new Set(degrees?.map((degree) => degree.type))].sort()
   }, [degrees])
 
+  // A faculty whose degrees are all one type gets no type chip: it could only
+  // be a no-op. Counted over every degree, not `filteredDegrees`, so the chip
+  // doesn't vanish as the search narrows the list.
+  const showTypeFilter = availableTypes.length > 1
+
+  // The chip is gone but its selection lives on in localStorage, and filtering
+  // on a stale one (saved before this faculty's degrees narrowed to a single
+  // type) would empty the page with no chip left to undo it.
+  const activeType = showTypeFilter ? selectedType : null
+
   const filteredDegrees = useMemo(() => {
     return (
       degrees
@@ -81,12 +91,12 @@ export function FacultyPageContent({
           )
         })
         .filter((degree) => {
-          if (selectedType === null) return true
-          return degree.type === selectedType
+          if (activeType === null) return true
+          return degree.type === activeType
         })
         .sort((a, b) => (b.feedbackCount ?? 0) - (a.feedbackCount ?? 0)) ?? []
     )
-  }, [degrees, searchQuery, selectedType])
+  }, [degrees, searchQuery, activeType])
 
   const getDegreeUrl = (degree: DegreeWithCounts) => {
     if (!faculty.slug) {
@@ -132,7 +142,7 @@ export function FacultyPageContent({
             />
           }
           filters={
-            availableTypes.length > 0 && (
+            showTypeFilter && (
               <FilterChip
                 label={t('faculty_page.filter_label')}
                 options={availableTypes.map((type) => ({

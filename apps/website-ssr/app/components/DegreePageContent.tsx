@@ -201,15 +201,35 @@ export function DegreePageContent({
     return Array.from(terms).sort()
   }, [courses])
 
-  // Check if any course has exam information
-  const hasExamFilterOptions = useMemo(() => {
-    return courses.some((course) => course.hasMandatoryExam !== null)
-  }, [courses])
+  // A property every course answers the same way makes for a chip that can only
+  // be a no-op or a way to empty the list, so it stays hidden. "Unknown" counts
+  // as an answer of its own: a degree split between mandatory and unset courses
+  // can still be narrowed, one where every course is mandatory cannot.
+  //
+  // Read off the whole course set, never `filteredCourses`, so chips don't
+  // disappear as the list narrows and take their own selection with them.
+  const showExamFilter = useMemo(
+    () => new Set(courses.map((course) => course.hasMandatoryExam)).size > 1,
+    [courses]
+  )
 
-  // Check if any course says whether it is mandatory or optional
-  const hasCourseTypeFilterOptions = useMemo(() => {
-    return courses.some((course) => course.isMandatory !== null)
-  }, [courses])
+  const showCourseTypeFilter = useMemo(
+    () => new Set(courses.map((course) => course.isMandatory)).size > 1,
+    [courses]
+  )
+
+  const showCurriculumYearFilter = availableCurriculumYears.length > 1
+  const showTermFilter = availableTerms.length > 1
+
+  // A hidden chip keeps whatever selection localStorage saved for this degree,
+  // but must not filter on it: a value saved before the degree's data narrowed
+  // to one answer would otherwise cut courses with no chip left to undo it.
+  const activeCurriculumYear = showCurriculumYearFilter
+    ? selectedCurriculumYear
+    : null
+  const activeTerm = showTermFilter ? selectedTerm : null
+  const activeCourseType = showCourseTypeFilter ? courseTypeFilter : null
+  const activeExamFilter = showExamFilter ? mandatoryExamFilter : null
 
   // Filter options
   const curriculumYearOptions = availableCurriculumYears.map((year) => ({
@@ -256,14 +276,14 @@ export function DegreePageContent({
         )
 
         const matchesCurriculumYear =
-          selectedCurriculumYear === null ||
+          activeCurriculumYear === null ||
           course.offerings.some(
-            (o) => o.curriculumYear === selectedCurriculumYear
+            (o) => o.curriculumYear === activeCurriculumYear
           )
 
         const matchesTerm =
-          !selectedTerm ||
-          course.offerings.some((o) => o.academicTerm.name === selectedTerm)
+          !activeTerm ||
+          course.offerings.some((o) => o.academicTerm.name === activeTerm)
 
         const matchesCourseGroup =
           !selectedCourseGroupId ||
@@ -272,11 +292,11 @@ export function DegreePageContent({
             ?.courseIds.includes(course.id)
 
         const matchesMandatoryExam =
-          mandatoryExamFilter === null ||
-          course.hasMandatoryExam === mandatoryExamFilter
+          activeExamFilter === null ||
+          course.hasMandatoryExam === activeExamFilter
 
         const matchesCourseType =
-          courseTypeFilter === null || course.isMandatory === courseTypeFilter
+          activeCourseType === null || course.isMandatory === activeCourseType
 
         return (
           matchesSearch &&
@@ -309,13 +329,13 @@ export function DegreePageContent({
   }, [
     courses,
     searchQuery,
-    selectedCurriculumYear,
-    selectedTerm,
+    activeCurriculumYear,
+    activeTerm,
     selectedCourseGroupId,
     sortBy,
     courseGroups,
-    mandatoryExamFilter,
-    courseTypeFilter
+    activeExamFilter,
+    activeCourseType
   ])
 
   // Group the filtered courses into (curriculum year, parent term) buckets, each
@@ -342,10 +362,9 @@ export function DegreePageContent({
     for (const course of filteredCourses) {
       const offerings = course.offerings.filter((o) => {
         const matchesYear =
-          selectedCurriculumYear === null ||
-          o.curriculumYear === selectedCurriculumYear
-        const matchesTerm =
-          !selectedTerm || o.academicTerm.name === selectedTerm
+          activeCurriculumYear === null ||
+          o.curriculumYear === activeCurriculumYear
+        const matchesTerm = !activeTerm || o.academicTerm.name === activeTerm
         return matchesYear && matchesTerm
       })
 
@@ -421,7 +440,7 @@ export function DegreePageContent({
       )
 
     return { buckets: withEntries, other: electivesLast(other) }
-  }, [filteredCourses, selectedCurriculumYear, selectedTerm, academicTerms])
+  }, [filteredCourses, activeCurriculumYear, activeTerm, academicTerms])
 
   // One hue per term, fixed for the whole faculty.
   //
@@ -530,7 +549,7 @@ export function DegreePageContent({
                 placeholder={t('degree_page.sort_default')}
                 variant="sort"
               />
-              {curriculumYearOptions.length > 0 && (
+              {showCurriculumYearFilter && (
                 <FilterChip
                   label={t('degree_page.year_label')}
                   options={curriculumYearOptions}
@@ -541,7 +560,7 @@ export function DegreePageContent({
                   placeholder={t('degree_page.all_years')}
                 />
               )}
-              {termOptions.length > 0 && (
+              {showTermFilter && (
                 <FilterChip
                   label={t('degree_page.term_label')}
                   options={termOptions}
@@ -561,7 +580,7 @@ export function DegreePageContent({
                   placeholder={t('degree_page.all_groups')}
                 />
               )}
-              {hasCourseTypeFilterOptions && (
+              {showCourseTypeFilter && (
                 <FilterChip
                   label={t('degree_page.mandatory_label')}
                   options={courseTypeOptions}
@@ -580,7 +599,7 @@ export function DegreePageContent({
                   placeholder={t('degree_page.mandatory_any')}
                 />
               )}
-              {hasExamFilterOptions && (
+              {showExamFilter && (
                 <FilterChip
                   label={t('degree_page.exam_label')}
                   options={examTypeOptions}
