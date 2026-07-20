@@ -235,7 +235,7 @@ export async function sendNewSignupNotification(
     : ''
 
   const message = `
-🎉 NEW SIGNUP! 🎉}
+🎉 NEW SIGNUP! 🎉
 
 A new user has signed up on Uni Feedback!
 
