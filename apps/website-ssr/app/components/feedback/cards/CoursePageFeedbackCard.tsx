@@ -10,7 +10,7 @@ import {
   ReportFeedbackDialog,
   Tooltip
 } from '~/components'
-import { useLang } from '~/hooks'
+import { useLang, useWorkloadLabel } from '~/hooks'
 import { getTruncatedText, hasText } from '~/lib/textUtils'
 import { cn } from '~/utils'
 import { analytics } from '~/utils/analytics'
@@ -42,7 +42,7 @@ export function CoursePageFeedbackCard({
 }: CoursePageFeedbackCardProps) {
   const { t } = useTranslation('course')
   const lang = useLang()
-  const { t: tCommon } = useTranslation('common')
+  const workloadLabel = useWorkloadLabel()
   const [isExpanded, setIsExpanded] = useState(false)
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false)
   const [isHighlighted, setIsHighlighted] = useState(false)
@@ -114,11 +114,7 @@ export function CoursePageFeedbackCard({
       <span className="mr-1">{t('card.workload_prefix')}</span>
       <WorkloadRatingDisplay
         rating={feedback.workloadRating}
-        label={
-          (tCommon('workload_ratings', { returnObjects: true }) as string[])[
-            Math.round(feedback.workloadRating) - 1
-          ]
-        }
+        label={workloadLabel(feedback.workloadRating)}
       />
     </div>
   ) : null

@@ -6,7 +6,7 @@ import {
 } from '@uni-feedback/ui'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
-import { useLang } from '~/hooks'
+import { useLang, useWorkloadLabel } from '~/hooks'
 import { analytics, getPageName } from '~/utils/analytics'
 import { getCourseFeedbackPath, getCoursePath } from '~/utils/i18n-routes'
 import { ListingRow } from '../common/ListingRow'
@@ -24,6 +24,7 @@ const COLUMN = {
 
 function CourseRow({ course, terms }: CourseListingEntry) {
   const { t } = useTranslation('browse')
+  const workloadLabel = useWorkloadLabel()
   const lang = useLang()
   const navigate = useNavigate()
 
@@ -112,7 +113,12 @@ function CourseRow({ course, terms }: CourseListingEntry) {
             </span>
           </div>
           <div className={`flex-shrink-0 ${COLUMN.workload}`}>
-            {workload > 0 && <WorkloadRatingDisplay rating={workload} />}
+            {workload > 0 && (
+              <WorkloadRatingDisplay
+                rating={workload}
+                label={workloadLabel(workload)}
+              />
+            )}
           </div>
         </div>
       ) : (

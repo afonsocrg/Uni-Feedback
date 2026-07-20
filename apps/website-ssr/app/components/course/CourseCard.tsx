@@ -6,7 +6,7 @@ import {
 } from '@uni-feedback/ui'
 import { useNavigate } from 'react-router'
 import { SelectionCard } from '~/components'
-import { useLang } from '~/hooks'
+import { useLang, useWorkloadLabel } from '~/hooks'
 import { analytics, getPageName } from '~/utils/analytics'
 import { getCourseFeedbackPath } from '~/utils/i18n-routes'
 import { RowTag } from '../common/RowTag'
@@ -47,6 +47,7 @@ export function CourseCard({
 }: CourseCardProps) {
   const navigate = useNavigate()
   const lang = useLang()
+  const workloadLabel = useWorkloadLabel()
   const title = useAcronymAsTitle ? acronym : name
   const subtitle = useAcronymAsTitle ? name : acronym
 
@@ -130,6 +131,7 @@ export function CourseCard({
                   <>
                     <WorkloadRatingDisplay
                       rating={Number(averageWorkload || 0)}
+                      label={workloadLabel(Number(averageWorkload || 0))}
                     />
                     {showAverageScores && (
                       <span className="text-xs text-muted-foreground">

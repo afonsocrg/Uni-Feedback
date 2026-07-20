@@ -3,7 +3,7 @@ import { getRelativeTime } from '@uni-feedback/utils'
 import { GraduationCap } from 'lucide-react'
 import { useState } from 'react'
 import { FeedbackMarkdown, Tooltip } from '~/components'
-import { useLang } from '~/hooks'
+import { useLang, useWorkloadLabel } from '~/hooks'
 import { getTruncatedText } from '~/lib/textUtils'
 
 interface SimpleFeedbackCardProps {
@@ -23,6 +23,7 @@ interface SimpleFeedbackCardProps {
 
 export function SimpleFeedbackCard({ feedback }: SimpleFeedbackCardProps) {
   const lang = useLang()
+  const workloadLabel = useWorkloadLabel()
   const [isExpanded, setIsExpanded] = useState(false)
   const characterLimit = 600
   const isLongComment =
@@ -39,7 +40,10 @@ export function SimpleFeedbackCard({ feedback }: SimpleFeedbackCardProps) {
             {feedback.workloadRating && (
               <div className="inline-flex items-center px-3 py-1 text-xs text-muted-foreground font-medium">
                 <span className="mr-1">Workload:</span>
-                <WorkloadRatingDisplay rating={feedback.workloadRating} />
+                <WorkloadRatingDisplay
+                  rating={feedback.workloadRating}
+                  label={workloadLabel(feedback.workloadRating)}
+                />
               </div>
             )}
             {feedback.isFromDifferentCourse && feedback.degree && (

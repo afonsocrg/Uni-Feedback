@@ -29,7 +29,7 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { toast } from 'sonner'
 import { FeedbackCategoryChips, FeedbackMarkdown } from '~/components'
-import { useLang } from '~/hooks'
+import { useLang, useWorkloadLabel } from '~/hooks'
 import { getTruncatedText } from '~/lib/textUtils'
 import { getCoursePath, getLocalePath } from '~/utils/i18n-routes'
 
@@ -58,6 +58,7 @@ interface ProfileFeedbackCardProps {
 
 export function ProfileFeedbackCard({ feedback }: ProfileFeedbackCardProps) {
   const lang = useLang()
+  const workloadLabel = useWorkloadLabel()
   const { t } = useTranslation('feedback')
 
   const [isExpanded, setIsExpanded] = useState(false)
@@ -164,7 +165,10 @@ export function ProfileFeedbackCard({ feedback }: ProfileFeedbackCardProps) {
             {feedback.workloadRating && (
               <div className="inline-flex items-center text-xs text-muted-foreground font-medium">
                 <span className="mr-1">{t('feedback_card.workload')}</span>
-                <WorkloadRatingDisplay rating={feedback.workloadRating} />
+                <WorkloadRatingDisplay
+                  rating={feedback.workloadRating}
+                  label={workloadLabel(feedback.workloadRating)}
+                />
               </div>
             )}
           </div>

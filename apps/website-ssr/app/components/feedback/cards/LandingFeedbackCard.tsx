@@ -1,5 +1,5 @@
 import { StarRating, WorkloadRatingDisplay } from '@uni-feedback/ui'
-import { useLang } from '~/hooks'
+import { useLang, useWorkloadLabel } from '~/hooks'
 import { stripMarkdown } from '~/lib/textUtils'
 import { getFeedbackAnchor } from '~/utils/i18n-routes'
 import { FeedbackCardFooter } from './FeedbackCardFooter'
@@ -21,6 +21,7 @@ interface LandingFeedbackCardProps {
 
 export function LandingFeedbackCard({ feedback }: LandingFeedbackCardProps) {
   const lang = useLang()
+  const workloadLabel = useWorkloadLabel()
   const href = getFeedbackAnchor(lang, feedback.courseId, feedback.id)
   const plainComment = feedback.comment ? stripMarkdown(feedback.comment) : null
   const faculty = feedback.course.degree?.faculty.shortName ?? null
@@ -34,7 +35,10 @@ export function LandingFeedbackCard({ feedback }: LandingFeedbackCardProps) {
       <div className="flex items-center justify-between mb-3">
         <StarRating value={feedback.rating} size="sm" />
         {feedback.workloadRating && (
-          <WorkloadRatingDisplay rating={feedback.workloadRating} />
+          <WorkloadRatingDisplay
+            rating={feedback.workloadRating}
+            label={workloadLabel(feedback.workloadRating)}
+          />
         )}
       </div>
 

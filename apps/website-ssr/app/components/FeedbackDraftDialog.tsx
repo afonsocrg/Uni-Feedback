@@ -11,7 +11,7 @@ import {
 } from '@uni-feedback/ui'
 import { getRelativeTime } from '@uni-feedback/utils'
 import { Clock } from 'lucide-react'
-import { useLang } from '~/hooks'
+import { useLang, useWorkloadLabel } from '~/hooks'
 import { FeedbackMarkdown } from './feedback'
 
 interface FeedbackDraftDialogProps {
@@ -38,6 +38,7 @@ export function FeedbackDraftDialog({
   onDiscard
 }: FeedbackDraftDialogProps) {
   const lang = useLang()
+  const workloadLabel = useWorkloadLabel()
   const timeAgo = getRelativeTime(draftTimestamp, lang)
   const hasComment = comment.trim().length > 0
 
@@ -77,7 +78,10 @@ export function FeedbackDraftDialog({
                   <div className="text-sm font-medium text-foreground mb-2">
                     Workload
                   </div>
-                  <WorkloadRatingDisplay rating={workloadRating} />
+                  <WorkloadRatingDisplay
+                    rating={workloadRating}
+                    label={workloadLabel(workloadRating)}
+                  />
                 </div>
               )}
             </div>

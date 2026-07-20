@@ -2,7 +2,7 @@ import { StarRating, WorkloadRatingDisplay } from '@uni-feedback/ui'
 import { getRelativeTime } from '@uni-feedback/utils'
 import { GraduationCap } from 'lucide-react'
 import { FeedbackMarkdown, Tooltip } from '~/components'
-import { useLang } from '~/hooks'
+import { useLang, useWorkloadLabel } from '~/hooks'
 
 interface ReportFeedbackFeedbackCardProps {
   feedback: {
@@ -23,6 +23,7 @@ export function ReportFeedbackFeedbackCard({
   feedback
 }: ReportFeedbackFeedbackCardProps) {
   const lang = useLang()
+  const workloadLabel = useWorkloadLabel()
   const relativeTime = feedback.createdAt
     ? getRelativeTime(new Date(feedback.createdAt), lang)
     : ''
@@ -37,7 +38,10 @@ export function ReportFeedbackFeedbackCard({
             {feedback.workloadRating && (
               <div className="inline-flex items-center text-xs text-muted-foreground font-medium">
                 <span className="mr-1">Workload:</span>
-                <WorkloadRatingDisplay rating={feedback.workloadRating} />
+                <WorkloadRatingDisplay
+                  rating={feedback.workloadRating}
+                  label={workloadLabel(feedback.workloadRating)}
+                />
               </div>
             )}
             {feedback.isFromDifferentCourse && (
