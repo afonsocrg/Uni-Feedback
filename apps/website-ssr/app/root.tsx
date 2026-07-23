@@ -207,7 +207,12 @@ export default function App() {
         posthog.init(posthogKey, {
           api_host: posthogHost,
           person_profiles: 'identified_only',
-          capture_pageview: true,
+          // Must be the string 'history_change', not `true`. `true` is the
+          // legacy "once per document load" behaviour, and since every
+          // in-app link is a React Router <Link>, that made client-side
+          // navigations invisible: ~98% of windows emitted exactly one
+          // pageview, so sessions looked like they all bounced.
+          capture_pageview: 'history_change',
           capture_pageleave: true,
           defaults: '2025-05-24'
         })
