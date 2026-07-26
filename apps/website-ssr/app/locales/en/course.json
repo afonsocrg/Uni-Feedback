@@ -39,13 +39,22 @@
     "ratings_only_hide": "Hide ratings without a comment"
   },
   "description": {
-    "no_content": "We don't have a description for this course yet."
+    "no_content": "We don't have a description for this course yet.",
+    "empty_help": "If you have taken this course, write what it covers. It helps students who are deciding whether to take it.",
+    "empty_cta": "Write a description",
+    "outdated_help": "Something missing or out of date?"
   },
   "assessment": {
-    "no_content": "We don't have assessment information for this course yet."
+    "no_content": "We don't have assessment information for this course yet.",
+    "empty_help": "Do you know how the final grade is calculated? Write it here and save the next student the search.",
+    "empty_cta": "Add assessment info",
+    "outdated_help": "Has the assessment changed, or is something missing?"
   },
   "bibliography": {
-    "no_content": "We don't have a bibliography for this course yet."
+    "no_content": "We don't have a bibliography for this course yet.",
+    "empty_help": "Do you know which books or materials this course uses? Leave the list here.",
+    "empty_cta": "Add bibliography",
+    "outdated_help": "Missing a book or some materials?"
   },
   "card": {
     "workload_prefix": "Workload:",
@@ -66,11 +75,24 @@
   "correction": {
     "title": "Suggest correction",
     "description": "Found incorrect information in <name>{{courseName}}</name>? Let us know and we'll review it.",
+    "contribute_title": "Add missing info",
+    "contribute_description": "We don't have this information for <name>{{courseName}}</name> yet. If you know it, write it here. We review everything before publishing.",
+    "suggest_edit": "Suggest an edit",
     "field_label": "What's incorrect?",
+    "field_label_contribute": "Information to add",
     "field_placeholder": "Select a field",
+    "current_value_label": "Current value",
     "notes_label": "What should it be?",
     "notes_placeholder": "Describe what's wrong and what the correct value should be...",
     "notes_required": "Please describe what is incorrect",
+    "content_label": "Proposed content",
+    "content_placeholder": "Write what this section should say...",
+    "content_required": "Please write the content that should appear",
+    "prompts": {
+      "description": "What does this course cover? Which topics does it include and what do you learn?",
+      "assessment": "How is the final grade calculated? Are there exams, tests or projects, and how much does each weigh? Any minimum grades?",
+      "bibliography": "Which books, slides or other materials does the course use?"
+    },
     "cancel": "Cancel",
     "submit": "Submit",
     "submitting": "Submitting...",

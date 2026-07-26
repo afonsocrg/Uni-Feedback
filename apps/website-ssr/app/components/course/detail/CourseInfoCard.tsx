@@ -150,7 +150,10 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
           )}
           <button
             onClick={() => {
-              analytics.correction.dialogOpened({ courseId: course.id })
+              analytics.correction.dialogOpened({
+                courseId: course.id,
+                entryPoint: 'course_info_card'
+              })
               setCorrectionDialogOpen(true)
             }}
             className="text-muted-foreground hover:text-foreground hover:underline cursor-pointer inline-flex items-center gap-1.5"
@@ -268,6 +271,7 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
         getCurrentValue={getCurrentValue}
         open={correctionDialogOpen}
         onOpenChange={setCorrectionDialogOpen}
+        entryPoint="course_info_card"
       />
     </div>
   )

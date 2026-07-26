@@ -86,6 +86,14 @@ export type ReferralSurface = 'feedback_success' | 'profile' | 'giveaway'
 export type ShareChannel = 'whatsapp' | 'copy_url' | 'native'
 
 /**
+ * Where the correction/contribution dialog was opened from. `course_info_card`
+ * is the generic "suggest a correction" action in the course header, which opens
+ * with no field chosen; `content_section` is one of the description / assessment
+ * / bibliography tabs, which opens with that field pre-filled.
+ */
+export type CorrectionEntryPoint = 'course_info_card' | 'content_section'
+
+/**
  * A browse page that lists things behind a cards/list view toggle: the faculty
  * page lists degrees, the degree page lists courses. Threaded through the
  * shared <ViewModeToggle> so one event covers both, and each surface's switch
@@ -366,18 +374,45 @@ export const analytics = {
 
   correction: {
     /**
+     * Track a student landing on a content tab (description / assessment /
+     * bibliography) that invites them to contribute. This is the denominator of
+     * the contribution funnel: the CTA only renders inside the active tab, so a
+     * view here means the student actually looked at that section.
+     *
+     * `hasExistingContent` splits the two intents the same dialog serves:
+     * `false` is a gap we're asking students to fill, `true` is an edit of
+     * information we already show.
+     */
+    contributePromptViewed: (props: {
+      courseId: number
+      field: CorrectionRequestField
+      hasExistingContent: boolean
+    }) => trackEvent('correction_contribute_prompt_viewed', props),
+
+    /**
      * Track when a student opens the "suggest a correction" dialog from a
      * course page. Entry point of the course-data-quality funnel.
+     *
+     * `prefilledField` is set when the dialog was opened from a specific
+     * section, so the student never had to pick a field.
      */
-    dialogOpened: (props: { courseId: number }) =>
-      trackEvent('correction_dialog_opened', props),
+    dialogOpened: (props: {
+      courseId: number
+      entryPoint: CorrectionEntryPoint
+      prefilledField?: CorrectionRequestField
+      hasExistingContent?: boolean
+    }) => trackEvent('correction_dialog_opened', props),
 
     /**
      * Track a correction request the API accepted. `field` is which piece of
      * course data was reported as wrong; the free-text notes are never sent.
      */
-    submitted: (props: { courseId: number; field: CorrectionRequestField }) =>
-      trackEvent('correction_submitted', props),
+    submitted: (props: {
+      courseId: number
+      field: CorrectionRequestField
+      entryPoint: CorrectionEntryPoint
+      hasExistingContent: boolean
+    }) => trackEvent('correction_submitted', props),
 
     /**
      * Track a correction request the API rejected. Distinct from `submitted`
@@ -386,6 +421,7 @@ export const analytics = {
     submissionFailed: (props: {
       courseId: number
       field: CorrectionRequestField
+      entryPoint: CorrectionEntryPoint
       errorType: string
     }) => trackEvent('correction_submission_failed', props),
 
@@ -395,6 +431,7 @@ export const analytics = {
      */
     dialogDismissed: (props: {
       courseId: number
+      entryPoint: CorrectionEntryPoint
       fieldSelected: boolean
       hasNotes: boolean
     }) => trackEvent('correction_dialog_dismissed', props)

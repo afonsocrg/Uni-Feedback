@@ -39,13 +39,22 @@
     "ratings_only_hide": "Esconder avaliações sem comentário"
   },
   "description": {
-    "no_content": "Ainda não temos uma descrição para esta cadeira."
+    "no_content": "Ainda não temos uma descrição para esta cadeira.",
+    "empty_help": "Se já fizeste esta cadeira, escreve o que se dá nela. Ajuda quem está a decidir se a vai fazer.",
+    "empty_cta": "Escrever descrição",
+    "outdated_help": "Falta algo ou está desatualizado?"
   },
   "assessment": {
-    "no_content": "Ainda não temos informação sobre a avaliação desta cadeira."
+    "no_content": "Ainda não temos informação sobre a avaliação desta cadeira.",
+    "empty_help": "Sabes como é que a nota é calculada? Escreve aqui e poupa a pesquisa a quem vem a seguir.",
+    "empty_cta": "Adicionar avaliação",
+    "outdated_help": "A avaliação mudou ou falta alguma coisa?"
   },
   "bibliography": {
-    "no_content": "Ainda não temos a bibliografia para esta cadeira."
+    "no_content": "Ainda não temos a bibliografia para esta cadeira.",
+    "empty_help": "Sabes que livros ou materiais a cadeira usa? Deixa a lista aqui.",
+    "empty_cta": "Adicionar bibliografia",
+    "outdated_help": "Falta algum livro ou material?"
   },
   "card": {
     "workload_prefix": "Carga:",
@@ -66,11 +75,24 @@
   "correction": {
     "title": "Sugerir correção",
     "description": "Encontraste informação errada em <name>{{courseName}}</name>? Diz-nos e nós verificamos.",
+    "contribute_title": "Contribuir com informação",
+    "contribute_description": "Ainda não temos esta informação sobre <name>{{courseName}}</name>. Se souberes, escreve aqui. Nós revemos antes de publicar.",
+    "suggest_edit": "Sugerir alteração",
     "field_label": "O que está errado?",
+    "field_label_contribute": "Informação a adicionar",
     "field_placeholder": "Escolhe um campo",
+    "current_value_label": "Valor atual",
     "notes_label": "O que devia estar?",
     "notes_placeholder": "Descreve o que está errado e qual devia ser o valor correto...",
     "notes_required": "Descreve o que está errado",
+    "content_label": "Conteúdo proposto",
+    "content_placeholder": "Escreve aqui o que devia aparecer nesta secção...",
+    "content_required": "Escreve o conteúdo que devia aparecer",
+    "prompts": {
+      "description": "O que é que se dá nesta cadeira? Que temas cobre e o que é que aprendes?",
+      "assessment": "Como é que a nota final é calculada? Há exame, testes ou projetos, e que peso tem cada um? Há nota mínima?",
+      "bibliography": "Que livros, slides ou outros materiais é que a cadeira usa?"
+    },
     "cancel": "Cancelar",
     "submit": "Enviar",
     "submitting": "A enviar...",
