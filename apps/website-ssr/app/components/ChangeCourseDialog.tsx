@@ -54,6 +54,7 @@ export function ChangeCourseDialog({
               faculties={faculties}
               onCourseSelectWithDetails={handleCourseSelect}
               compact
+              searchSurface="change_course_dialog"
             />
           )}
         </div>

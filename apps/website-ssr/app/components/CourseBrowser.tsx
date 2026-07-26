@@ -5,6 +5,8 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useFacultyDegrees, useSearchCourses } from '~/hooks/queries'
 import { useDebounce } from '~/hooks/useDebounce'
+import type { SearchSurface } from '~/utils/analytics'
+import { analytics } from '~/utils/analytics'
 import { storage } from '~/utils/storage'
 import { FilterChip } from './common/FilterChip'
 import { SearchableFilterChip } from './common/SearchableFilterChip'
@@ -15,13 +17,20 @@ interface CourseBrowserProps {
   onCourseSelect?: (courseId: number) => void
   onCourseSelectWithDetails?: (course: CourseSearchResult) => void
   compact?: boolean
+  /**
+   * Where this browser is mounted, for the search event. Required because the
+   * component is shared between the feedback flow and the change-course dialog,
+   * and a search event with no origin can't be told apart between them.
+   */
+  searchSurface: SearchSurface
 }
 
 export function CourseBrowser({
   faculties,
   onCourseSelect,
   onCourseSelectWithDetails,
-  compact = false
+  compact = false,
+  searchSurface
 }: CourseBrowserProps) {
   const { t } = useTranslation('browse')
   const [searchQuery, setSearchQuery] = useState('')
@@ -74,6 +83,22 @@ export function CourseBrowser({
   useEffect(() => {
     setOffset(0)
   }, [debouncedSearch, selectedFacultyId, selectedDegreeId])
+
+  // Fire the search event once per settled query, after its results land so we
+  // can record how many there were. Keyed off the last-tracked query so paging
+  // through the same search (offset changes, query doesn't) doesn't re-fire.
+  const lastTrackedQueryRef = useRef<string | null>(null)
+  useEffect(() => {
+    if (!hasValidSearch || isLoading || !results) return
+    if (lastTrackedQueryRef.current === debouncedSearch) return
+
+    lastTrackedQueryRef.current = debouncedSearch
+    analytics.discovery.searchPerformed({
+      searchQuery: debouncedSearch,
+      resultsCount: results.total,
+      surface: searchSurface
+    })
+  }, [debouncedSearch, hasValidSearch, isLoading, results, searchSurface])
 
   // Save faculty selection using storage wrapper (skip on initial mount)
   useEffect(() => {

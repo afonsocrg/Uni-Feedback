@@ -22,7 +22,11 @@ const COLUMN = {
   workload: 'md:w-28'
 }
 
-function CourseRow({ course, terms }: CourseListingEntry) {
+function CourseRow({
+  course,
+  terms,
+  positionInList
+}: CourseListingEntry & { positionInList: number }) {
   const { t } = useTranslation('browse')
   const workloadLabel = useWorkloadLabel()
   const lang = useLang()
@@ -35,6 +39,16 @@ function CourseRow({ course, terms }: CourseListingEntry) {
   return (
     <ListingRow
       href={getCoursePath(lang, course.id)}
+      onClick={() => {
+        // Same "consumer browses a course" signal as the card grid, so the two
+        // view modes are comparable. The "give the first feedback" button below
+        // stops propagation, so a review-intent click is not counted as a browse.
+        analytics.discovery.courseCardClicked({
+          courseId: course.id,
+          sourcePage: getPageName(window.location.pathname),
+          positionInList
+        })
+      }}
       title={course.name}
       /* Tags flag only the exception (a term narrower than the section's, a
          known elective, a required exam); the nullable defaults earn no tag.
@@ -170,6 +184,10 @@ function CourseTableLegend({ sections }: CourseListingProps) {
 }
 
 export function CourseTable({ sections }: CourseListingProps) {
+  // Flat rank across sections, matching CourseCardGrid so the two view modes
+  // produce comparable `positionInList` values.
+  let position = 0
+
   return (
     <div>
       <CourseTableLegend sections={sections} />
@@ -186,6 +204,7 @@ export function CourseTable({ sections }: CourseListingProps) {
                 key={`${section.key}-${entry.course.id}`}
                 course={entry.course}
                 terms={entry.terms}
+                positionInList={position++}
               />
             ))}
           </section>

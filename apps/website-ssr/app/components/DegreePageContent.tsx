@@ -1,9 +1,9 @@
 import type { Degree, Faculty } from '@uni-feedback/db/schema'
 import { CHIP_COLOR_KEYS } from '@uni-feedback/ui'
 import { toOrdinal } from '@uni-feedback/utils'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useLang } from '~/hooks'
+import { useDebounce, useLang } from '~/hooks'
 import { insensitiveMatch } from '~/utils'
 import type { ViewMode } from '~/utils/analytics'
 import { analytics } from '~/utils/analytics'
@@ -337,6 +337,28 @@ export function DegreePageContent({
     activeExamFilter,
     activeCourseType
   ])
+
+  // Fire the browse-side search event once the query settles. Unlike the
+  // feedback course browser (which hits the API), this filters an in-memory
+  // list, so `resultsCount` is what the student ends up seeing on the page.
+  // Resetting the ref on an empty query lets the same term re-fire if searched
+  // again later.
+  const debouncedSearch = useDebounce(searchQuery, 400)
+  const lastTrackedSearchRef = useRef<string | null>(null)
+  useEffect(() => {
+    if (debouncedSearch.trim().length === 0) {
+      lastTrackedSearchRef.current = null
+      return
+    }
+    if (lastTrackedSearchRef.current === debouncedSearch) return
+
+    lastTrackedSearchRef.current = debouncedSearch
+    analytics.discovery.searchPerformed({
+      searchQuery: debouncedSearch,
+      resultsCount: filteredCourses.length,
+      surface: 'degree_page'
+    })
+  }, [debouncedSearch, filteredCourses.length])
 
   // Group the filtered courses into (curriculum year, parent term) buckets, each
   // split into runs of courses sharing a term.

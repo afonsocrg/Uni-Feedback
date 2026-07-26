@@ -18,7 +18,7 @@ import {
   getCurrentSchoolYear
 } from '@uni-feedback/utils'
 import { Loader2, Send } from 'lucide-react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { type UseFormReturn } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
@@ -131,6 +131,14 @@ export function CourseSpecificFeedbackForm({
   const workloadRating = form.watch('workloadRating')
   const selectedSchoolYear = form.watch('schoolYear')
 
+  // Funnel instrumentation: the form view and submit-click events already fire
+  // (route level), but the two steps in between were dark. These fill in
+  // `feedback_form_ratings_entered` and `feedback_form_comment_entered` so the
+  // drop-off between viewing the form and clicking submit is visible. Each is a
+  // funnel milestone, so it fires once per form instance, not on every edit.
+  const ratingsTrackedRef = useRef(false)
+  const commentTrackedRef = useRef(false)
+
   // Check if all required fields are filled
   const isFormValid = useMemo(() => {
     return rating > 0 && workloadRating > 0 && selectedSchoolYear !== undefined
@@ -165,6 +173,17 @@ export function CourseSpecificFeedbackForm({
     }
   }, [existingDraft, hasDismissedDraft, rating, workloadRating, form])
 
+  // Fire the ratings step once the student has set both ratings (the section is
+  // complete). Firing on "both set" rather than either means a student who sets
+  // a star but abandons at workload shows up as a drop between school year and
+  // ratings, which is the region we'd want to look at next.
+  useEffect(() => {
+    if (!ratingsTrackedRef.current && rating > 0 && workloadRating > 0) {
+      ratingsTrackedRef.current = true
+      analytics.feedback.ratingsEntered({ rating, workloadRating })
+    }
+  }, [rating, workloadRating])
+
   // Auto-save draft when rating/workload changes
   // Comment changes are handled separately by CommentSection to avoid re-renders
   useEffect(() => {
@@ -182,6 +201,17 @@ export function CourseSpecificFeedbackForm({
   // Callback for when comment changes (debounced in CommentSection)
   const handleCommentChange = useCallback(
     (comment: string) => {
+      // Comment step of the funnel: fire the first time the field holds real
+      // text. `comment` is debounced HTML from the editor, so an empty editor is
+      // "<p></p>"; strip tags before deciding it's non-empty.
+      if (
+        !commentTrackedRef.current &&
+        comment.replace(/<[^>]*>/g, '').trim().length > 0
+      ) {
+        commentTrackedRef.current = true
+        analytics.feedback.commentEntered({ commentLength: comment.length })
+      }
+
       if (enableAutoSave) {
         saveDraft({
           rating: form.getValues('rating'),

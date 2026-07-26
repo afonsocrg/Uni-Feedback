@@ -84,6 +84,7 @@ export default function FeedbackBrowserPage({
       <CourseBrowser
         faculties={loaderData.faculties}
         onCourseSelect={handleCourseSelect}
+        searchSurface="feedback_course_browser"
       />
     </main>
   )

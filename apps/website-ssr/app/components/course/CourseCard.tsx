@@ -29,6 +29,12 @@ interface CourseCardProps {
   isMandatory?: boolean | null
   href?: string
   showAverageScores?: boolean
+  /**
+   * Rank of this card in the rendered listing (0-based, flat across sections),
+   * for the `course_card_clicked` event. Optional so cards used outside a
+   * ranked listing (e.g. recommendations) can omit it.
+   */
+  positionInList?: number
 }
 
 export function CourseCard({
@@ -43,7 +49,8 @@ export function CourseCard({
   hasMandatoryExam,
   isMandatory,
   href,
-  showAverageScores = false
+  showAverageScores = false,
+  positionInList
 }: CourseCardProps) {
   const navigate = useNavigate()
   const lang = useLang()
@@ -81,6 +88,18 @@ export function CourseCard({
       subtitle={subtitleNode}
       href={href}
       className="flex flex-col"
+      onClick={() => {
+        // Core "consumer browses a course" signal, and the entry point of any
+        // consumer-to-contributor funnel. Fires on the card body; the "give the
+        // first feedback" button below stops propagation, so a review-intent
+        // click is not counted here as a browse. Runs before the anchor's
+        // navigation because the click bubbles up to this handler first.
+        analytics.discovery.courseCardClicked({
+          courseId,
+          sourcePage: getPageName(window.location.pathname),
+          positionInList: positionInList ?? -1
+        })
+      }}
     >
       <div className="flex flex-col mt-auto">
         {totalFeedbackCount === 0 ? (

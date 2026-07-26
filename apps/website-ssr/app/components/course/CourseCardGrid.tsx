@@ -6,6 +6,10 @@ import type { CourseListingProps } from './types'
 export function CourseCardGrid({ sections }: CourseListingProps) {
   const lang = useLang()
 
+  // Flat rank across sections, so `positionInList` reads as position down the
+  // whole listing the student sees, not a per-section index.
+  let position = 0
+
   return (
     <div className="space-y-8">
       {sections.map((section) => (
@@ -29,6 +33,7 @@ export function CourseCardGrid({ sections }: CourseListingProps) {
                 hasMandatoryExam={course.hasMandatoryExam}
                 isMandatory={course.isMandatory}
                 href={getCoursePath(lang, course.id)}
+                positionInList={position++}
               />
             ))}
           </div>

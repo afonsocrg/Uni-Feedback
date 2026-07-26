@@ -105,6 +105,24 @@ export type ListingSurface = 'faculty_page' | 'degree_page'
  *  the event vocabulary doesn't depend on a component. */
 export type ViewMode = 'cards' | 'list'
 
+/**
+ * Which feedback form a field-level event came from. `<CommentSection>` is
+ * shared between writing a new review and editing an existing one, and the two
+ * are different funnels: the new-review comment is the step we're trying to
+ * lift, the edit is maintenance.
+ */
+export type FeedbackFormSurface = 'new' | 'edit'
+
+/**
+ * Where a course search was typed. All three surfaces search the same catalogue
+ * but sit at opposite ends of the product: `degree_page` is a student browsing
+ * courses to take, the other two are someone picking a course to review.
+ */
+export type SearchSurface =
+  | 'degree_page'
+  | 'feedback_course_browser'
+  | 'change_course_dialog'
+
 export const analytics = {
   feedback: {
     /**
@@ -478,8 +496,19 @@ export const analytics = {
       positionInList: number
     }) => trackEvent('course_card_clicked', props),
 
-    searchPerformed: (props: { searchQuery: string; resultsCount: number }) =>
-      trackEvent('course_search_performed', props),
+    /**
+     * Track a course search once the query settles (debounced). `surface`
+     * separates a student browsing courses to take (`degree_page`) from someone
+     * searching for a course to review (`feedback_course_browser`); the two are
+     * different intents on the same catalogue. `resultsCount` is what surfaces
+     * dead-end searches (a query that returns nothing), a concrete friction
+     * point on the path from consuming to contributing.
+     */
+    searchPerformed: (props: {
+      searchQuery: string
+      resultsCount: number
+      surface: SearchSurface
+    }) => trackEvent('course_search_performed', props),
 
     filterApplied: (props: { filterType: string; filterValue: string }) =>
       trackEvent('course_filter_applied', props),
