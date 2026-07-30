@@ -125,6 +125,15 @@ export class AuthService {
     // Link any existing feedback submitted with this email to the new user account
     // This handles cases where a user submitted feedback before creating an account
     try {
+      // submitFeedback blocks a second review for the same course, but it can only
+      // compare against feedback that ALREADY has a userId. Anonymous feedback has
+      // none, so two submissions for the same course (or an anonymous one plus a
+      // logged-in one) sail past that guard and only collide here, at link time.
+      // That is how the duplicates cleaned up on 2026-07-27 were created.
+      //
+      // So keep only the newest anonymous feedback per course, and leave the older
+      // ones unlinked rather than deleting them: they stay visible and unattributed,
+      // exactly as they are today, and no one gets points twice for one course.
       const linkedFeedback = await database()
         .update(feedbackFull)
         // Keep email set, so that we can know which feedbacks were submitted before login
@@ -135,7 +144,23 @@ export class AuthService {
               sql<string>`lower(${feedbackFull.email})`,
               userData.email.toLowerCase()
             ),
-            isNull(feedbackFull.userId)
+            isNull(feedbackFull.userId),
+            // Newest per course among this email's unlinked feedback...
+            sql`${feedbackFull.id} IN (
+              SELECT DISTINCT ON (course_id) id
+              FROM feedback_full
+              WHERE lower(email) = ${userData.email.toLowerCase()}
+                AND user_id IS NULL
+                AND deleted_at IS NULL
+              ORDER BY course_id, created_at DESC, id DESC
+            )`,
+            // ...and only if the account does not already hold one for that course.
+            sql`NOT EXISTS (
+              SELECT 1 FROM feedback_full existing
+              WHERE existing.user_id = ${user.id}
+                AND existing.course_id = ${feedbackFull.courseId}
+                AND existing.deleted_at IS NULL
+            )`
           )
         )
         .returning({ id: feedbackFull.id })
