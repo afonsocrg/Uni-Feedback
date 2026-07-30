@@ -78,10 +78,20 @@ export class RecalculatePoints extends OpenAPIRoute {
     let createdCount = 0
     let updatedCount = 0
     let unchangedCount = 0
+    // Every user we touch gets their perfect-feedback bonus re-evaluated below.
+    // Recalculating feedback points changes how many of a user's reviews are
+    // "perfect", so the bonus can become owed (or stop being owed) here. This is
+    // also the backfill path for users who crossed the threshold BEFORE the bonus
+    // feature shipped on 2026-06-29: the bonus is only ever awarded reactively on
+    // a feedback event, so a user who has not touched their reviews since would
+    // otherwise never receive it.
+    const touchedUserIds = new Set<number>()
 
     for (const entry of feedbackWithAnalysis) {
       try {
         if (!entry.userId) continue
+
+        touchedUserIds.add(entry.userId)
 
         // Check existing points
         const existingPoints = await pointService.getPointsForEntry(
@@ -126,10 +136,31 @@ export class RecalculatePoints extends OpenAPIRoute {
       }
     }
 
+    // Idempotent per user: awards the bonus if they now qualify, removes it if
+    // they no longer do. Safe to re-run.
+    let bonusReconciled = 0
+    for (const userId of touchedUserIds) {
+      try {
+        await pointService.reconcilePerfectFeedbackBonus(userId)
+        bonusReconciled++
+      } catch (bonusError) {
+        console.error(
+          'Failed to reconcile perfect-feedback bonus for user:',
+          userId,
+          bonusError
+        )
+        // Continue with the other users
+      }
+    }
+
     const parts = []
     if (createdCount > 0) parts.push(`${createdCount} created`)
     if (updatedCount > 0) parts.push(`${updatedCount} updated`)
     if (unchangedCount > 0) parts.push(`${unchangedCount} unchanged`)
+    if (bonusReconciled > 0)
+      parts.push(
+        `${bonusReconciled} bonus${bonusReconciled === 1 ? '' : 'es'} reconciled`
+      )
 
     const message =
       parts.length > 0

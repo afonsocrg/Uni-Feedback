@@ -410,10 +410,16 @@ export class PointService {
   /**
    * Get the points amount for a specific point registry entry.
    *
+   * Returns 0 (not null) for an entry that exists but is worth zero points. The
+   * distinction matters: callers such as RecalculatePoints treat null as "no row
+   * exists" and INSERT one, so collapsing 0 to null makes them insert a duplicate
+   * every run. A zero-amount row is normal, it is what zeroOutFeedbackPoints
+   * leaves behind when feedback is unapproved or points are removed by hand.
+   *
    * @param userId - The user's ID (if null, returns null)
    * @param sourceType - The type of the point source (e.g., 'submit_feedback', 'referral')
    * @param referenceId - The reference ID (e.g., feedbackId for submit_feedback)
-   * @returns The points amount, or null if the entry doesn't exist
+   * @returns The points amount (possibly 0), or null if the entry doesn't exist
    */
   async getPointsForEntry(
     userId: number | null,
@@ -437,7 +443,9 @@ export class PointService {
         )
         .limit(1)
 
-      return result[0]?.amount || null
+      // `??`, never `||`: a stored amount of 0 is a real value, and `0 || null`
+      // would report it as a missing row.
+      return result[0]?.amount ?? null
     } catch {
       return null
     }

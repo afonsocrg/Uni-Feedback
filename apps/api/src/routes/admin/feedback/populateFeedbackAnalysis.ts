@@ -1,4 +1,4 @@
-import { AIService } from '@services'
+import { AIService, PointService } from '@services'
 import { database } from '@uni-feedback/db'
 import { feedback, feedbackAnalysis } from '@uni-feedback/db/schema'
 import { countWords } from '@uni-feedback/utils'
@@ -46,6 +46,7 @@ export class PopulateFeedbackAnalysis extends OpenAPIRoute {
     const feedbacksWithoutAnalysis = await database()
       .select({
         id: feedback.id,
+        userId: feedback.userId,
         comment: feedback.comment
       })
       .from(feedback)
@@ -68,9 +69,16 @@ export class PopulateFeedbackAnalysis extends OpenAPIRoute {
 
     // Initialize AI service
     const aiService = new AIService(env)
+    const pointService = new PointService(env)
     const now = new Date()
     let successCount = 0
     let errorCount = 0
+    // Backfilling an analysis can turn a feedback into a "perfect" one, which can
+    // push a user over the perfect-feedback bonus threshold. The bonus is only
+    // ever awarded reactively, so without reconciling here those users would
+    // silently never receive it. Collected and reconciled once per user at the
+    // end, since the threshold depends on the user's whole set, not one row.
+    const touchedUserIds = new Set<number>()
 
     // Process each feedback one by one with AI categorization
     for (const fb of feedbacksWithoutAnalysis) {
@@ -118,6 +126,10 @@ export class PopulateFeedbackAnalysis extends OpenAPIRoute {
             reviewedAt: null // Not yet reviewed by a moderator
           })
 
+        if (fb.userId !== null) {
+          touchedUserIds.add(fb.userId)
+        }
+
         successCount++
         console.log(
           `✓ Processed feedback ${fb.id} (${successCount}/${feedbacksWithoutAnalysis.length})`
@@ -129,10 +141,27 @@ export class PopulateFeedbackAnalysis extends OpenAPIRoute {
       }
     }
 
+    // Reconcile the perfect-feedback bonus for every user whose analysis changed.
+    // Idempotent per user, so a failure here never double-awards on a re-run.
+    let bonusReconciled = 0
+    for (const userId of touchedUserIds) {
+      try {
+        await pointService.reconcilePerfectFeedbackBonus(userId)
+        bonusReconciled++
+      } catch (bonusError) {
+        console.error(
+          'Failed to reconcile perfect-feedback bonus for user:',
+          userId,
+          bonusError
+        )
+        // Continue with the other users
+      }
+    }
+
     const message =
       errorCount > 0
-        ? `Created ${successCount} analysis record${successCount === 1 ? '' : 's'} (${errorCount} failed)`
-        : `Successfully created ${successCount} feedback analysis record${successCount === 1 ? '' : 's'} using AI categorization`
+        ? `Created ${successCount} analysis record${successCount === 1 ? '' : 's'} (${errorCount} failed), reconciled bonuses for ${bonusReconciled} user${bonusReconciled === 1 ? '' : 's'}`
+        : `Successfully created ${successCount} feedback analysis record${successCount === 1 ? '' : 's'} using AI categorization, reconciled bonuses for ${bonusReconciled} user${bonusReconciled === 1 ? '' : 's'}`
 
     return Response.json({
       created: successCount,
