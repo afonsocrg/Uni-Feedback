@@ -1,8 +1,9 @@
 import { Button } from '@uni-feedback/ui'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, BarChart3 } from 'lucide-react'
 import { Trans, useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { useLang } from '~/hooks'
+import { analytics, getPageName } from '~/utils/analytics'
 import { getLocalePath } from '~/utils/i18n-routes'
 import { GiveawayCountdown } from './GiveawayCountdown'
 
@@ -50,10 +51,26 @@ export function GiveawayHeroSection() {
                 <ArrowRight className="size-5" />
               </a>
             </Button>
-            <div>
+            {/* Results first and with an icon, rules second and plain: the
+                results page is what most people who land here want to see, and
+                it is the only proof on the page that anyone is taking part. */}
+            <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm">
+              <Link
+                to={getLocalePath('giveaway-results', lang)}
+                onClick={() =>
+                  analytics.giveaway.resultsLinkClicked({
+                    source: 'giveaway_hero',
+                    referrerPage: getPageName(window.location.pathname)
+                  })
+                }
+                className="inline-flex items-center gap-1.5 font-medium text-white hover:text-white underline underline-offset-4"
+              >
+                <BarChart3 className="size-4 shrink-0" />
+                {t('giveaway_page.hero_cta_results')}
+              </Link>
               <Link
                 to={getLocalePath('giveaway-rules', lang)}
-                className="text-sm text-white/90 hover:text-white underline"
+                className="text-white/90 hover:text-white underline"
               >
                 {t('giveaway_page.hero_cta_rules')}
               </Link>

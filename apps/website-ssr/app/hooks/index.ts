@@ -1,6 +1,7 @@
 export * from './queries'
 export * from './useAuth'
 export * from './useCountdown'
+export * from './useCountUp'
 export * from './useDebounce'
 export * from './useFeedbackDraft'
 export * from './useGiveawayDisplayMode'

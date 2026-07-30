@@ -28,6 +28,8 @@ export const getPageName = (path: string): string => {
   if (isProfilePath(path, lang)) return 'profile'
   if (path === getLocalePath('giveaway', lang)) return 'giveaway'
   if (path === getLocalePath('giveaway-rules', lang)) return 'giveaway_rules'
+  if (path === getLocalePath('giveaway-results', lang))
+    return 'giveaway_results'
   if (path === getLocalePath('points', lang)) return 'points'
   if (path === getLocalePath('supporters', lang)) return 'supporters'
   if (path === getLocalePath('terms', lang)) return 'terms'
@@ -564,6 +566,56 @@ export const analytics = {
       course_id: number
       course_acronym: string
     }) => trackEvent('request_feedback', props)
+  },
+
+  giveaway: {
+    /**
+     * Track a load of the public giveaway results page. Entry event of the
+     * "see what we built -> write a review" funnel and the denominator for the
+     * clicks below, which only fire on interaction.
+     *
+     * The counts ride along because the page is live: a spike in views is only
+     * readable next to what the page actually said at the time.
+     * `giveawayActive` separates the two lives of this page, campaign snapshot
+     * and permanent recap, which convert very differently.
+     */
+    resultsViewed: (props: {
+      giveawayActive: boolean
+      reviews: number
+      contributors: number
+      degreesListed: number
+    }) => trackEvent('giveaway_results_viewed', props),
+
+    /**
+     * Track a click through from a degree row to that degree's page.
+     * `position` is the row's place in the list, which is what says whether
+     * students come for the biggest degrees or to find their own further down.
+     */
+    resultsDegreeClicked: (props: { degreeId: number; position: number }) =>
+      trackEvent('giveaway_results_degree_clicked', props),
+
+    /**
+     * Track expanding the degree list past the first five rows. Fires on expand
+     * only, never on collapse, so the rate against `giveaway_results_viewed`
+     * reads directly as "how many people wanted to see further down".
+     */
+    resultsDegreesExpanded: (props: { totalDegrees: number }) =>
+      trackEvent('giveaway_results_degrees_expanded', props),
+
+    /**
+     * Track the breadcrumb back to the campaign page. The results link is
+     * shared on its own, so this measures how many visitors arrive with no idea
+     * what the giveaway is and go looking for it.
+     */
+    resultsBreadcrumbClicked: (props: { referrerPage?: string }) =>
+      trackEvent('giveaway_results_breadcrumb_clicked', props),
+
+    /**
+     * Track the entry into the results page from the campaign landing page.
+     * `source` says which of the landing page's entry points did the work.
+     */
+    resultsLinkClicked: (props: { source: string; referrerPage?: string }) =>
+      trackEvent('giveaway_results_link_clicked', props)
   },
 
   navigation: {

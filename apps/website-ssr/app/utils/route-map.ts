@@ -114,6 +114,11 @@ export const routeConfig = [
         slugs: { pt: 'giveaway/regras', en: 'giveaway/rules' }
       },
       {
+        key: 'giveaway-results',
+        file: 'routes/giveaway.results.tsx',
+        slugs: { pt: 'giveaway/resultados', en: 'giveaway/results' }
+      },
+      {
         key: 'giveaway-feb-2026',
         file: 'routes/giveaway.feb-2026.tsx',
         slugs: { pt: 'giveaway/feb-2026', en: 'giveaway/feb-2026' }
