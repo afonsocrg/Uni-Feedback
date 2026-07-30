@@ -13,6 +13,7 @@ export * from './GiveawayResultsCTA'
 export * from './GiveawayResultsDegrees'
 export * from './GiveawayResultsFaculties'
 export * from './GiveawayResultsHero'
+export * from './GiveawayResultsReach'
 export * from './GiveawayResultsStats'
 export * from './GiveawayResultsWinner'
 

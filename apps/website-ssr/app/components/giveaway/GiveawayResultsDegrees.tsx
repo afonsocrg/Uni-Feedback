@@ -57,7 +57,7 @@ export function GiveawayResultsDegrees({
   const visible = expanded ? degrees : degrees.slice(0, COLLAPSED_ROWS)
 
   return (
-    <section className="bg-background py-10">
+    <section className="bg-background pt-8 pb-10">
       <div className="container mx-auto px-4">
         <div className="mx-auto max-w-4xl">
           <h2 className="font-heading text-xl font-semibold tracking-tight md:text-2xl">

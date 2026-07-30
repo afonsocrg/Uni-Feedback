@@ -30,7 +30,7 @@ export function GiveawayResultsWinner({
   const { t } = useTranslation('legal')
 
   return (
-    <section className="bg-background py-10">
+    <section className="bg-background py-6">
       <div className="container mx-auto px-4">
         <div className="mx-auto flex max-w-4xl items-start gap-4 rounded-xl border border-border bg-muted/40 p-5 md:p-6">
           <div className="shrink-0 rounded-full bg-brand/10 p-2.5">
