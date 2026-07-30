@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { useLang } from '~/hooks'
 import type { ResultsDegree } from '~/lib/giveawayResults.server'
-import { formatCount } from '~/utils'
+import { formatCount, getAssetUrl } from '~/utils'
 import { analytics } from '~/utils/analytics'
 import { getDegreePath } from '~/utils/i18n-routes'
 
@@ -74,8 +74,31 @@ export function GiveawayResultsDegrees({
                   ? getDegreePath(lang, degree.facultySlug, degree.slug)
                   : null
 
+              const logoUrl = degree.facultyLogo
+                ? getAssetUrl(degree.facultyLogo)
+                : null
+
               const row = (
-                <div className="-mx-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 rounded-lg px-3 py-3.5 transition-colors group-hover:bg-muted">
+                <div className="-mx-3 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-3 rounded-lg px-3 py-3.5 transition-colors group-hover:bg-muted sm:gap-x-4">
+                  {/* White plate: several of these logos are dark marks on a
+                      transparent background and vanish in dark mode. The column
+                      keeps its width when a faculty has no logo so the degree
+                      names stay aligned down the list. */}
+                  <span
+                    className={`row-span-2 inline-flex size-12 flex-shrink-0 items-center justify-center self-center overflow-hidden rounded-lg p-1.5 sm:size-14 ${
+                      logoUrl ? 'bg-white' : 'bg-muted'
+                    }`}
+                  >
+                    {logoUrl && (
+                      <img
+                        src={logoUrl}
+                        alt=""
+                        loading="lazy"
+                        className="size-full object-contain"
+                      />
+                    )}
+                  </span>
+
                   <div className="min-w-0">
                     <div className="font-semibold break-words">
                       {degree.name}
@@ -94,9 +117,10 @@ export function GiveawayResultsDegrees({
                     </div>
                   </div>
 
-                  {/* Spans both columns so every bar shares one baseline and the
-                      list reads as a single picture, not per-row progress. */}
-                  <div className="col-span-2 mt-2.5 h-1 overflow-hidden rounded-full bg-muted">
+                  {/* Starts after the logo column and spans the text and count
+                      columns, so every bar shares one baseline and the list
+                      reads as a single picture, not per-row progress. */}
+                  <div className="col-span-2 col-start-2 mt-2.5 h-1 overflow-hidden rounded-full bg-muted">
                     <div
                       className="h-full rounded-full bg-primaryBlue/70"
                       style={{

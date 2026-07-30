@@ -51,6 +51,8 @@ export interface ResultsDegree {
   slug: string | null
   facultyShortName: string
   facultySlug: string | null
+  /** Square logo path on the CDN, or null for faculties without one. */
+  facultyLogo: string | null
   reviews: number
 }
 
@@ -127,6 +129,7 @@ export async function getGiveawayResults(): Promise<GiveawayResults> {
         slug: schema.degrees.slug,
         facultyShortName: schema.faculties.shortName,
         facultySlug: schema.faculties.slug,
+        facultyLogo: schema.faculties.logo,
         reviews: reviewCount
       })
       .from(schema.feedback)
@@ -146,7 +149,8 @@ export async function getGiveawayResults(): Promise<GiveawayResults> {
         schema.degrees.acronym,
         schema.degrees.slug,
         schema.faculties.shortName,
-        schema.faculties.slug
+        schema.faculties.slug,
+        schema.faculties.logo
       )
       .having(sql`${contributorCount} >= ${MIN_CONTRIBUTORS}`)
       .orderBy(desc(reviewCount), schema.degrees.acronym)
