@@ -17,12 +17,13 @@ import {
 } from '~/components/feedback/EditFeedbackContent'
 import { useLang } from '~/hooks'
 import { useFeedbackForEdit } from '~/hooks/queries'
-import { getLocalePath } from '~/utils/i18n-routes'
+import { getProfilePath } from '~/utils/i18n-routes'
 
 export default function EditFeedbackPage() {
   const { t } = useTranslation('feedback')
   const lang = useLang()
-  const profilePath = getLocalePath('profile', lang)
+  // Back out of an edit into the tab the feedback lives in, not the last-used one.
+  const profilePath = getProfilePath(lang, 'feedback')
   const navigate = useNavigate()
   const params = useParams()
   const [searchParams] = useSearchParams()

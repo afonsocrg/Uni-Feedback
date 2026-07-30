@@ -188,6 +188,14 @@ export const routeConfig = [
             file: 'routes/profile.tsx',
             slugs: { pt: 'perfil', en: 'profile' }
           },
+          // Same component as `profile`, reached with an explicit tab segment so
+          // every profile tab has a permalink (/perfil/giveaway, /perfil/feedback).
+          // The tab names are not localized: both words read the same in PT.
+          {
+            key: 'profile-tab',
+            file: 'routes/profile.tsx',
+            slugs: { pt: 'perfil/:tab', en: 'profile/:tab' }
+          },
           {
             key: 'feedback-edit',
             file: 'routes/feedback.$id.edit.tsx',

@@ -2,6 +2,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@uni-feedback/ui'
 import { Gift, MessageSquare } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useNavigate, useParams } from 'react-router'
 import {
   DeleteAccountSection,
   GenericBreadcrumb,
@@ -11,9 +12,14 @@ import {
 } from '~/components'
 import { GiveawayTab } from '~/components/giveaway/GiveawayTab'
 import { ReferralShareButtons } from '~/components/referral/ReferralShareButtons'
-import { useRequiredAuth } from '~/hooks'
+import { useLang, useRequiredAuth } from '~/hooks'
 import { useProfileFeedback, useProfileStats } from '~/hooks/queries'
 import { STORAGE_KEYS } from '~/utils/constants'
+import {
+  DEFAULT_PROFILE_TAB,
+  getProfilePath,
+  isProfileTab
+} from '~/utils/i18n-routes'
 import { buildMeta, metaT } from '~/utils/meta'
 import type { Route } from './+types/profile'
 
@@ -22,28 +28,47 @@ export function meta({ location, matches }: Route.MetaArgs) {
   return buildMeta({
     matches,
     title: t('profile.meta_title'),
-    description: t('profile.meta_desc')
+    description: t('profile.meta_desc'),
+    // Private, auth-only page. Now that each tab has its own URL, make sure
+    // none of them get indexed.
+    robots: 'noindex, nofollow'
   })
 }
 
 export default function ProfilePage() {
   const { t } = useTranslation('feedback')
+  const lang = useLang()
+  const navigate = useNavigate()
   const { user, logout } = useRequiredAuth()
-  const [activeTab, setActiveTab] = useState('giveaway')
 
-  // Restore the last-opened tab. Read in an effect (not during render) so it
-  // stays hydration-safe; the page shows a skeleton while data loads, so the
-  // tab is set before real content paints.
+  // The URL is the source of truth for the open tab, so every tab is a
+  // shareable permalink. Bare /perfil (and any unknown tab) falls back to the
+  // last-opened tab and canonicalises itself to /perfil/<tab> below.
+  const { tab } = useParams()
+  const urlTab = isProfileTab(tab) ? tab : null
+  const [fallbackTab, setFallbackTab] = useState(DEFAULT_PROFILE_TAB)
+  const activeTab = urlTab ?? fallbackTab
+
+  // Read localStorage in an effect (not during render) so it stays
+  // hydration-safe; the page shows a skeleton while data loads, so the tab is
+  // resolved before real content paints.
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.PROFILE_ACTIVE_TAB)
-    if (saved === 'feedback' || saved === 'giveaway') {
-      setActiveTab(saved)
+    if (urlTab) {
+      localStorage.setItem(STORAGE_KEYS.PROFILE_ACTIVE_TAB, urlTab)
+      return
     }
-  }, [])
+    const saved = localStorage.getItem(STORAGE_KEYS.PROFILE_ACTIVE_TAB)
+    const next = isProfileTab(saved) ? saved : DEFAULT_PROFILE_TAB
+    setFallbackTab(next)
+    navigate(getProfilePath(lang, next), { replace: true })
+  }, [urlTab, lang, navigate])
 
+  // `replace` keeps tab switching out of the history stack, so Back still
+  // leaves the profile instead of cycling through tabs.
   const handleTabChange = (value: string) => {
-    setActiveTab(value)
+    if (!isProfileTab(value)) return
     localStorage.setItem(STORAGE_KEYS.PROFILE_ACTIVE_TAB, value)
+    navigate(getProfilePath(lang, value), { replace: true })
   }
 
   const { data: statsData, isLoading: isStatsLoading } = useProfileStats()

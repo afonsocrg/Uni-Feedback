@@ -389,10 +389,11 @@ export default function CourseSpecificFeedbackPage({
         referralBonusEarned={Number(searchParams.get('bonus') ?? '0')}
         referralCode={user?.referralCode ?? 'PREVIEW1'}
         courseId={course.id}
-        feedbackId={1}
         recommendations={mockRecommendations}
         isLoadingRecommendations={false}
-        onSubmitAnother={() => {}}
+        // Real handler, so the "choose another course" row is actually
+        // clickable in the preview instead of silently doing nothing.
+        onSubmitAnother={handleSubmitAnother}
       />
     )
   }
@@ -406,7 +407,6 @@ export default function CourseSpecificFeedbackPage({
         referralBonusEarned={referralBonusEarned}
         referralCode={user?.referralCode ?? null}
         courseId={submittedCourseId}
-        feedbackId={submittedFeedbackId}
         recommendations={recommendations}
         isLoadingRecommendations={isLoadingRecommendations}
         onSubmitAnother={handleSubmitAnother}

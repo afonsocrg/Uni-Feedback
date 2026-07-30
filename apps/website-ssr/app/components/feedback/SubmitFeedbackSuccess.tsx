@@ -1,6 +1,5 @@
 import { type FeedbackRecommendation } from '@uni-feedback/api-client'
 import {
-  Button,
   Separator,
   Skeleton,
   Tooltip,
@@ -10,22 +9,20 @@ import {
 } from '@uni-feedback/ui'
 import { ChevronRight, HelpCircle } from 'lucide-react'
 import { useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
+import { Trans, useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { useLang } from '~/hooks'
 import { analytics } from '~/utils/analytics'
 import {
   getCourseFeedbackPath,
-  getCoursePath,
-  getFeedbackAnchor,
-  getLocalePath
+  getLocalePath,
+  getProfilePath
 } from '~/utils/i18n-routes'
 import { InviteFriendCard } from './InviteFriendCard'
 
 interface FeedbackSubmitSuccessProps {
   pointsEarned?: number
   courseId?: number
-  feedbackId?: number
   recommendations: FeedbackRecommendation[]
   isLoadingRecommendations?: boolean
   onSubmitAnother: () => void
@@ -39,7 +36,6 @@ interface FeedbackSubmitSuccessProps {
 export function SubmitFeedbackSuccess({
   pointsEarned,
   courseId,
-  feedbackId,
   recommendations,
   isLoadingRecommendations = false,
   onSubmitAnother,
@@ -54,13 +50,6 @@ export function SubmitFeedbackSuccess({
   const totalPoints = feedbackPoints + referralBonusEarned
   const hasPoints = totalPoints > 0
   const hasReferralBonus = referralBonusEarned > 0
-
-  const feedbackUrl =
-    courseId && feedbackId
-      ? getFeedbackAnchor(lang, courseId, feedbackId)
-      : courseId
-        ? getCoursePath(lang, courseId)
-        : undefined
 
   const hasRecommendations = recommendations.length > 0
 
@@ -125,25 +114,49 @@ export function SubmitFeedbackSuccess({
                 )}
               </div>
             )}
+
+            {/* Students were treating submission as final and writing in to ask
+                how to change a review. This sits with the reward because it is
+                context for what just happened, not another destination. */}
+            <p className="text-xs text-muted-foreground">
+              <Trans
+                t={t}
+                i18nKey="success.editable_hint"
+                components={{
+                  profileLink: (
+                    <Link
+                      to={getProfilePath(lang, 'feedback')}
+                      onClick={() =>
+                        analytics.feedback.successEditHintClicked({ courseId })
+                      }
+                      className="font-medium text-primaryBlue hover:underline"
+                    />
+                  )
+                }}
+              />
+            </p>
           </div>
 
           {/* 2. Hero — invite a friend (referral is the growth lever) */}
           <InviteFriendCard referralCode={referralCode} />
 
           {/* 3. Demoted (but still rich) — suggested courses to review next.
-              A tap-to-review list removes the "which course next?" friction. */}
+              A tap-to-review list removes the "which course next?" friction.
+              The last row is the escape hatch for anyone whose next course is
+              not in the suggestions; it lives inside the list so the screen
+              does not grow another trailing link. */}
           {isLoadingRecommendations ? (
             <div className="space-y-2">
               <Skeleton className="mx-auto h-4 w-3/4" />
               <Skeleton className="h-40 w-full rounded-xl" />
             </div>
           ) : hasRecommendations ? (
-            <div className="space-y-3">
-              <p className="text-center text-sm text-muted-foreground">
+            <div className="space-y-2">
+              <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
                 {t('success.recommendations_header')}
               </p>
               <div className="overflow-hidden rounded-xl border border-border bg-card">
-                {recommendations.map((course, index) => (
+                {recommendations.map((course) => (
                   <div key={course.id}>
                     <a
                       href={`${getCourseFeedbackPath(lang, course.id)}?from=recommendations`}
@@ -166,18 +179,19 @@ export function SubmitFeedbackSuccess({
                       </div>
                       <ChevronRight className="size-5 flex-shrink-0 text-muted-foreground group-hover:text-primaryBlue" />
                     </a>
-                    {index < recommendations.length - 1 && <Separator />}
+                    <Separator />
                   </div>
                 ))}
-              </div>
-              <div className="text-center">
-                <Button
-                  variant="link"
+                <button
+                  type="button"
                   onClick={onSubmitAnother}
-                  className="h-auto p-0 text-sm text-muted-foreground hover:text-foreground"
+                  className="group flex w-full items-center justify-between gap-2 px-4 py-3 text-left transition-colors hover:bg-muted"
                 >
-                  {t('success.give_another')}
-                </Button>
+                  <span className="min-w-0 flex-1 truncate font-medium text-foreground">
+                    {t('success.give_another')}
+                  </span>
+                  <ChevronRight className="size-5 flex-shrink-0 text-muted-foreground group-hover:text-primaryBlue" />
+                </button>
               </div>
             </div>
           ) : (
@@ -194,18 +208,6 @@ export function SubmitFeedbackSuccess({
                 className="text-primaryBlue hover:underline"
               >
                 {t('success.browse_all')}
-              </a>
-            </div>
-          )}
-
-          {/* 4. Utility — view your feedback */}
-          {feedbackUrl && (
-            <div className="text-center pt-4">
-              <a
-                href={feedbackUrl}
-                className="text-xs text-muted-foreground hover:text-foreground"
-              >
-                {t('success.view_feedback')}
               </a>
             </div>
           )}

@@ -2,7 +2,7 @@ import { Crown, Dices } from 'lucide-react'
 import { Trans, useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { useLang } from '~/hooks'
-import { getLocalePath } from '~/utils/i18n-routes'
+import { getProfilePath } from '~/utils/i18n-routes'
 
 export function GiveawayPrizesSection() {
   const lang = useLang()
@@ -53,7 +53,7 @@ export function GiveawayPrizesSection() {
                     components={{
                       profileLink: (
                         <Link
-                          to={getLocalePath('profile', lang)}
+                          to={getProfilePath(lang, 'giveaway')}
                           className="font-medium text-primary underline hover:text-primary/80"
                         />
                       )

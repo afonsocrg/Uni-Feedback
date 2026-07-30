@@ -9,7 +9,7 @@ import { useLocation, useNavigate } from 'react-router'
 import { useLocalStorage } from '~/hooks'
 import { identifyUser, resetUser } from '~/utils/analytics'
 import { STORAGE_KEYS } from '~/utils/constants'
-import { detectLang, getLocalePath } from '~/utils/i18n-routes'
+import { detectLang, getLocalePath, isProfilePath } from '~/utils/i18n-routes'
 import {
   AuthContext,
   type AuthContextType,
@@ -91,13 +91,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setIsLoggingOut(true)
 
     const lang = detectLang(location.pathname)
-    const profilePath = getLocalePath('profile', lang)
     const feedbackEditPattern =
       lang === 'en'
         ? /^\/en\/feedback\/[^/]+\/edit(\/.*)?$/
         : /^\/feedback\/[^/]+\/editar(\/.*)?$/
     const isOnProtectedRoute =
-      location.pathname === profilePath ||
+      isProfilePath(location.pathname, lang) ||
       feedbackEditPattern.test(location.pathname)
 
     try {

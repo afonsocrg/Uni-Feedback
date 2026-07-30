@@ -13,6 +13,27 @@ export function getLocalePath(key: RouteKey, lang: Lang): string {
   return prefix != null ? `${prefix}/${slug}` : `/${slug}`
 }
 
+/** Profile tabs, each addressable at /perfil/<tab> (same segment in PT and EN). */
+export const PROFILE_TABS = ['giveaway', 'feedback'] as const
+export type ProfileTab = (typeof PROFILE_TABS)[number]
+export const DEFAULT_PROFILE_TAB: ProfileTab = 'giveaway'
+
+export function isProfileTab(value: unknown): value is ProfileTab {
+  return PROFILE_TABS.includes(value as ProfileTab)
+}
+
+/** /perfil when no tab is given, /perfil/<tab> otherwise. */
+export function getProfilePath(lang: Lang, tab?: ProfileTab): string {
+  const base = getLocalePath('profile', lang)
+  return tab ? `${base}/${tab}` : base
+}
+
+/** True for /perfil and any of its tab permalinks. */
+export function isProfilePath(pathname: string, lang: Lang): boolean {
+  const base = getLocalePath('profile', lang)
+  return pathname === base || pathname.startsWith(`${base}/`)
+}
+
 export function detectLang(pathname: string): Lang {
   return pathname === '/en' || pathname.startsWith('/en/') ? 'en' : 'pt'
 }
@@ -34,6 +55,14 @@ for (const key of Object.keys(routeMap) as RouteKey[]) {
 }
 
 function swapDynamicPath(path: string, from: Lang): string {
+  // Profile tabs share one component behind /perfil/:tab, so the generic table
+  // above only holds the literal ":tab" entry. Swap the base and keep the tab.
+  const profileBase = getLocalePath('profile', from)
+  if (path.startsWith(`${profileBase}/`)) {
+    const tab = path.slice(profileBase.length + 1)
+    return `${getLocalePath('profile', from === 'pt' ? 'en' : 'pt')}/${tab}`
+  }
+
   if (from === 'pt') {
     if (path.startsWith(`/${COURSE_SEGMENT.pt}/`)) {
       const rest = path.slice(`/${COURSE_SEGMENT.pt}/`.length)

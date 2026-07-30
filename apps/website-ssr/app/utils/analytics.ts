@@ -1,6 +1,6 @@
 import type { CorrectionRequestField } from '@uni-feedback/api-client'
 import posthog from 'posthog-js'
-import { detectLang, getLocalePath } from '~/utils/i18n-routes'
+import { detectLang, getLocalePath, isProfilePath } from '~/utils/i18n-routes'
 
 /**
  * Core event tracking function
@@ -22,7 +22,10 @@ export const getPageName = (path: string): string => {
   // Static routes
   if (path === getLocalePath('home', lang)) return 'home'
   if (path === getLocalePath('browse', lang)) return 'browse'
-  if (path === getLocalePath('profile', lang)) return 'profile'
+  // Covers /perfil and its tab permalinks (/perfil/giveaway, /perfil/feedback).
+  // Kept as one page name so existing referrerPage funnels stay comparable; the
+  // tab itself is visible in $pathname on the pageview.
+  if (isProfilePath(path, lang)) return 'profile'
   if (path === getLocalePath('giveaway', lang)) return 'giveaway'
   if (path === getLocalePath('giveaway-rules', lang)) return 'giveaway_rules'
   if (path === getLocalePath('points', lang)) return 'points'
@@ -229,6 +232,14 @@ export const analytics = {
       hasReferralCode: boolean
       referralBonusEarned: number
     }) => trackEvent('feedback_success_viewed', props),
+
+    /**
+     * Track clicks on the "you can edit this later in your profile" hint on the
+     * success screen. Students were submitting and then assuming feedback was
+     * final, so this measures whether the hint actually lands.
+     */
+    successEditHintClicked: (props: { courseId?: number }) =>
+      trackEvent('feedback_success_edit_hint_clicked', props),
 
     /**
      * Phase 3: Track feedback item views (intersection observer)

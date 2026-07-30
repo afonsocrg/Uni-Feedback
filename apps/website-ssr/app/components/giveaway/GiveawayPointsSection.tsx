@@ -4,7 +4,7 @@ import { Link } from 'react-router'
 import { InfoPopover } from '~/components/common'
 import { useLang } from '~/hooks'
 import { INSTAGRAM_URL } from '~/utils/constants'
-import { getLocalePath } from '~/utils/i18n-routes'
+import { getLocalePath, getProfilePath } from '~/utils/i18n-routes'
 
 export function GiveawayPointsSection() {
   const lang = useLang()
@@ -60,7 +60,7 @@ export function GiveawayPointsSection() {
                       ns="legal"
                       components={[
                         <Link
-                          to={getLocalePath('profile', lang)}
+                          to={getProfilePath(lang, 'giveaway')}
                           className="font-medium text-foreground underline hover:text-primary"
                         />
                       ]}
@@ -102,7 +102,7 @@ export function GiveawayPointsSection() {
                           className="font-medium text-foreground underline hover:text-primary"
                         />,
                         <Link
-                          to={getLocalePath('profile', lang)}
+                          to={getProfilePath(lang, 'giveaway')}
                           className="font-medium text-foreground underline hover:text-primary"
                         />
                       ]}
