@@ -1,4 +1,4 @@
-import type { Components } from 'react-markdown'
+import type { Components, Options } from 'react-markdown'
 import ReactMarkdown from 'react-markdown'
 import rehypeRaw from 'rehype-raw'
 import remarkGfm from 'remark-gfm'
@@ -8,6 +8,25 @@ interface MarkdownProps {
   className?: string
   components?: Partial<Components>
 }
+
+/**
+ * Disables indented code blocks (4+ leading spaces).
+ *
+ * Nobody here writes code in markdown, but students routinely indent lines to
+ * visually offset a list or a paragraph. Parsed as code, that text renders
+ * monospaced and never wraps, so it overflows its container. Fenced blocks
+ * (```) still work.
+ */
+const remarkNoIndentedCode: NonNullable<Options['remarkPlugins']>[number] =
+  function () {
+    const data = (
+      this as unknown as {
+        data: () => { micromarkExtensions?: unknown[] }
+      }
+    ).data()
+    const extensions = (data.micromarkExtensions ??= [])
+    extensions.push({ disable: { null: ['codeIndented'] } })
+  }
 
 const defaultComponents: Components = {
   a: ({ ...props }) => {
@@ -43,7 +62,14 @@ const defaultComponents: Components = {
   ),
   li: ({ ...props }) => <li {...props} className="text-muted-foreground" />,
   p: ({ ...props }) => <p {...props} className="mb-2" />,
-  hr: () => <hr className="my-6 border-t-2 border-border rounded-full" />
+  hr: () => <hr className="my-6 border-t-2 border-border rounded-full" />,
+  pre: ({ ...props }) => (
+    <pre
+      {...props}
+      className="my-2 overflow-x-auto whitespace-pre-wrap break-words"
+    />
+  ),
+  code: ({ ...props }) => <code {...props} className="break-words" />
 }
 
 export function Markdown({
@@ -58,10 +84,10 @@ export function Markdown({
 
   return (
     <div
-      className={`prose prose-sm text-muted-foreground max-w-none ${className}`}
+      className={`prose prose-sm text-muted-foreground max-w-none break-words ${className}`}
     >
       <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
+        remarkPlugins={[remarkGfm, remarkNoIndentedCode]}
         rehypePlugins={[rehypeRaw]}
         components={mergedComponents}
       >
