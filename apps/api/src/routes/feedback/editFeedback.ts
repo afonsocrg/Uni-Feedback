@@ -1,7 +1,11 @@
 import { requireAuth } from '@middleware'
 import { AIService, PointService, StatsService } from '@services'
+import { sendFeedbackEdited } from '@services/telegram'
 import { database } from '@uni-feedback/db'
 import {
+  courses,
+  degrees,
+  faculties,
   feedback,
   feedbackAnalysis,
   feedbackFull
@@ -98,11 +102,16 @@ export class EditFeedback extends OpenAPIRoute {
 
     // Handle comment changes
     const commentChanged = existingFeedback.comment !== newComment
+    const pointService = new PointService(env)
+    const oldPoints =
+      (await pointService.getPointsForEntry(
+        userId,
+        'submit_feedback',
+        feedbackId
+      )) || 0
     let newPoints = 0
 
     if (commentChanged) {
-      const pointService = new PointService(env)
-
       // Analyze new comment
       let newAnalysis
       if (newComment) {
@@ -146,14 +155,8 @@ export class EditFeedback extends OpenAPIRoute {
         newAnalysis
       )
     } else {
-      // Get existing points
-      const pointService = new PointService(env)
-      newPoints =
-        (await pointService.getPointsForEntry(
-          userId,
-          'submit_feedback',
-          feedbackId
-        )) || 0
+      // Keep existing points
+      newPoints = oldPoints
     }
 
     // Update feedback (preserve approvedAt)
@@ -205,6 +208,52 @@ export class EditFeedback extends OpenAPIRoute {
       } catch (statsError) {
         console.error('Failed to update stats after feedback edit:', statsError)
       }
+    }
+
+    // Notify on Telegram (best-effort)
+    try {
+      const [context] = await database()
+        .select({
+          courseId: courses.id,
+          courseName: courses.name,
+          degreeName: degrees.name,
+          facultyShortName: faculties.shortName
+        })
+        .from(courses)
+        .innerJoin(degrees, eq(courses.degreeId, degrees.id))
+        .innerJoin(faculties, eq(degrees.facultyId, faculties.id))
+        .where(eq(courses.id, updatedFeedback.courseId))
+        .limit(1)
+
+      await sendFeedbackEdited(env, {
+        id: feedbackId,
+        email: authContext.user.email,
+        course: {
+          id: updatedFeedback.courseId,
+          name: context?.courseName ?? `Course #${updatedFeedback.courseId}`
+        },
+        degree: { name: context?.degreeName ?? 'unknown degree' },
+        faculty: { shortName: context?.facultyShortName ?? 'unknown faculty' },
+        before: {
+          schoolYear: existingFeedback.schoolYear,
+          rating: existingFeedback.rating,
+          workloadRating: existingFeedback.workloadRating,
+          comment: existingFeedback.comment,
+          points: oldPoints
+        },
+        after: {
+          schoolYear: updatedFeedback.schoolYear,
+          rating: updatedFeedback.rating,
+          workloadRating: updatedFeedback.workloadRating,
+          comment: updatedFeedback.comment,
+          points: newPoints
+        }
+      })
+    } catch (notificationError) {
+      console.error(
+        'Failed to send Telegram notification after feedback edit:',
+        notificationError
+      )
     }
 
     return Response.json({

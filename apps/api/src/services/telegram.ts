@@ -110,6 +110,106 @@ Keep up the amazing work! Your platform is helping students make better course d
   return sendToTelegram(env, message)
 }
 
+interface SendFeedbackEditedArgs {
+  id: number
+  email: string
+  course: Pick<Course, 'id' | 'name'>
+  degree: Pick<Degree, 'name'>
+  faculty: Pick<Faculty, 'shortName'>
+  before: {
+    schoolYear: number | null
+    rating: number
+    workloadRating: number | null
+    comment: string | null
+    points: number
+  }
+  after: {
+    schoolYear: number | null
+    rating: number
+    workloadRating: number | null
+    comment: string | null
+    points: number
+  }
+}
+
+export async function sendFeedbackEdited(
+  env: Env,
+  args: SendFeedbackEditedArgs
+) {
+  const { id, email, course, degree, faculty, before, after } = args
+
+  const formatYear = (year: number | null) =>
+    year === null
+      ? 'none'
+      : formatSchoolYearString(year, { yearFormat: 'long' })
+  const formatWorkload = (rating: number | null) =>
+    rating === null ? 'none' : getWorkloadLabel(rating)
+
+  // The school year is part of the course breadcrumb, so show the move there
+  // instead of a stale-looking single year.
+  const schoolYearChanged = before.schoolYear !== after.schoolYear
+  const headerSchoolYear = schoolYearChanged
+    ? `${formatYear(before.schoolYear)} → ${formatYear(after.schoolYear)}`
+    : formatYear(after.schoolYear)
+
+  const changes: string[] = []
+
+  if (before.rating !== after.rating) {
+    changes.push(
+      `⭐️ Rating: ${getStarsString(before.rating)} → ${getStarsString(after.rating)}`
+    )
+  }
+  if (before.workloadRating !== after.workloadRating) {
+    changes.push(
+      `🏋️ Workload: ${formatWorkload(before.workloadRating)} → ${formatWorkload(after.workloadRating)}`
+    )
+  }
+  if (schoolYearChanged) {
+    changes.push(
+      `📅 School year: ${formatYear(before.schoolYear)} → ${formatYear(after.schoolYear)}`
+    )
+  }
+  if (before.points !== after.points) {
+    const delta = after.points - before.points
+    changes.push(
+      `💰 Points: ${before.points} → ${after.points} (${delta > 0 ? '+' : ''}${delta})`
+    )
+  }
+  if (before.comment !== after.comment) {
+    changes.push(
+      `💬 Comment:\nBefore: ${before.comment ?? 'none'}\nAfter: ${after.comment ?? 'none'}`
+    )
+  }
+
+  const manageFeedbackUrl = `${env.DASHBOARD_URL}/feedback/${id}`
+  const viewFeedbackUrl = getFeedbackPermalinkUrl(
+    env.WEBSITE_URL,
+    course.id,
+    id
+  )
+
+  const message = `
+✏️ Feedback Edited!
+
+🎓: ${faculty.shortName} > ${degree.name} > ${course.name} > ${headerSchoolYear}
+
+📝 What changed:
+${changes.length > 0 ? changes.join('\n') : 'Nothing (no tracked fields changed)'}
+
+---
+📄 Full feedback now:
+${getStarsString(after.rating)} - ${formatWorkload(after.workloadRating)} - ${formatYear(after.schoolYear)}${after.comment ? '\n' + after.comment : '\n(no comment)'}
+
+---
+👤: ${email}
+💰: ${after.points} pts
+[👀 View Feedback](${viewFeedbackUrl})
+[📝 Manage Feedback](${manageFeedbackUrl})
+`.trim()
+
+  return sendToTelegram(env, message)
+}
+
 interface AdminChangeNotificationArgs {
   adminEmail: string
   adminUsername: string
