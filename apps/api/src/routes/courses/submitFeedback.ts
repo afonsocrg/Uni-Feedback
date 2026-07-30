@@ -124,7 +124,7 @@ export class SubmitFeedback extends OpenAPIRoute {
         (suffix: string) => emailDomain === suffix.toLowerCase()
       )
 
-      if (!isValidDomain) {
+      if (env.NODE_ENV !== 'development' && !isValidDomain) {
         const suffixesWithAt = emailSuffixes.map((suffix) => `@${suffix}`)
         const errorMessage =
           suffixesWithAt.length === 1
