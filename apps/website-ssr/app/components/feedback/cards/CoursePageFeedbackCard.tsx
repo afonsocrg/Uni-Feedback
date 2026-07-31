@@ -1,8 +1,9 @@
 import { Button, StarRating, WorkloadRatingDisplay } from '@uni-feedback/ui'
 import { getRelativeTime } from '@uni-feedback/utils'
-import { Flag, GraduationCap } from 'lucide-react'
+import { Flag, GraduationCap, Pencil } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router'
 import {
   FeedbackMarkdown,
   FeedbackShareButton,
@@ -14,6 +15,7 @@ import { useLang, useWorkloadLabel } from '~/hooks'
 import { getTruncatedText, hasText } from '~/lib/textUtils'
 import { cn } from '~/utils'
 import { analytics } from '~/utils/analytics'
+import { getFeedbackEditPath } from '~/utils/i18n-routes'
 
 export interface CourseFeedback {
   id: number
@@ -26,6 +28,9 @@ export interface CourseFeedback {
   isFromDifferentCourse: number
   helpfulVoteCount: number
   hasVoted: boolean
+  /** Whether the logged-in student wrote this review. Resolved server-side in
+   *  the course loader, so no user id ever reaches the browser. */
+  isOwn: boolean
   degree: {
     id: number
     name: string
@@ -132,8 +137,41 @@ export function CoursePageFeedbackCard({
     </Tooltip>
   ) : null
 
+  // Only the author sees this, and only because the server said so. Sits with
+  // the other footer actions; a rating-only card has no footer, so there it
+  // falls back to the header, next to the date.
+  //
+  // Not wrapped in <Tooltip>: that trigger is a <button>, and an <a> inside a
+  // button is invalid markup, so the label rides on title/aria-label instead.
+  const editLink = feedback.isOwn ? (
+    <Button
+      asChild
+      variant="ghost"
+      size="sm"
+      className="h-8 px-2 text-muted-foreground hover:text-muted-foreground"
+    >
+      <Link
+        to={getFeedbackEditPath(lang, feedback.id)}
+        title={t('card.edit')}
+        aria-label={t('card.edit')}
+        onClick={() =>
+          analytics.feedback.editClicked({
+            feedbackId: feedback.id,
+            courseId: feedback.courseId,
+            surface: 'course_page'
+          })
+        }
+      >
+        <Pencil className="size-4" />
+      </Link>
+    </Button>
+  ) : null
+
   const timestamp = (
-    <p className="text-xs text-muted-foreground">{relativeTime}</p>
+    <div className="flex items-center gap-2">
+      {!comment && editLink}
+      <p className="text-xs text-muted-foreground">{relativeTime}</p>
+    </div>
   )
 
   return (
@@ -230,6 +268,7 @@ export function CoursePageFeedbackCard({
               initialHasVoted={feedback.hasVoted}
             />
             <div className="flex items-center gap-1">
+              {editLink}
               <FeedbackShareButton
                 feedbackId={feedback.id}
                 courseId={feedback.courseId}

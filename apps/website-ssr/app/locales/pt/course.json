@@ -61,6 +61,7 @@
     "from_different_course": "Feedback submetido por um aluno de {{degreeName}}",
     "show_more": "Ver mais",
     "show_less": "Ver menos",
+    "edit": "Editar o teu feedback",
     "share": {
       "label": "Partilhar este feedback",
       "copy": "Copiar link",

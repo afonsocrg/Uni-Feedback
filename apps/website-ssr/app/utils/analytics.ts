@@ -119,6 +119,14 @@ export type ViewMode = 'cards' | 'list'
 export type FeedbackFormSurface = 'new' | 'edit'
 
 /**
+ * Which card an action on an existing review was taken from. The same actions
+ * (edit, open on the course page) live on both, and they mean different things:
+ * the profile card is a student maintaining their reviews, the course page card
+ * is one they stumbled back into while reading.
+ */
+export type FeedbackCardSurface = 'course_page' | 'profile'
+
+/**
  * Where a course search was typed. All three surfaces search the same catalogue
  * but sit at opposite ends of the product: `degree_page` is a student browsing
  * courses to take, the other two are someone picking a course to review.
@@ -248,6 +256,28 @@ export const analytics = {
      */
     itemViewed: (props: { feedbackId: number; courseId: number }) =>
       trackEvent('feedback_item_viewed', props),
+
+    /**
+     * Track when the author of a review clicks the edit pencil. `surface` says
+     * which card it was: the profile is the maintenance path, the course page
+     * is a student running into their own review in the wild. Together they
+     * account for every entry into `feedback_edit`.
+     */
+    editClicked: (props: {
+      feedbackId: number
+      courseId: number
+      surface: FeedbackCardSurface
+    }) => trackEvent('feedback_edit_clicked', props),
+
+    /**
+     * Track when a student opens their own review on the course page from the
+     * profile card. The link is a permalink to the comment, so this is the
+     * "go look at it in context" intent, distinct from editing it.
+     */
+    viewOnCoursePageClicked: (props: {
+      feedbackId: number
+      courseId: number
+    }) => trackEvent('feedback_view_on_course_page_clicked', props),
 
     /**
      * Track when a student opens the share popover on a review (intent). This

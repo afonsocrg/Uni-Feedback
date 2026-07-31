@@ -61,6 +61,7 @@
     "from_different_course": "Feedback submitted by a student from {{degreeName}}",
     "show_more": "Show more",
     "show_less": "Show less",
+    "edit": "Edit your review",
     "share": {
       "label": "Share this review",
       "copy": "Copy link",

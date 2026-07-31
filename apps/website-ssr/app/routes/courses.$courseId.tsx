@@ -219,7 +219,6 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     .select({
       id: schema.feedback.id,
       courseId: schema.feedback.courseId,
-      email: schema.feedback.email,
       schoolYear: schema.feedback.schoolYear,
       rating: schema.feedback.rating,
       workloadRating: schema.feedback.workloadRating,
@@ -248,7 +247,16 @@ export async function loader({ params, request }: Route.LoaderArgs) {
         ? sql<boolean>`EXISTS (SELECT 1 FROM helpful_votes WHERE feedback_id = ${schema.feedback.id} AND user_id = ${currentUserId})`.as(
             'has_voted'
           )
-        : sql<boolean>`false`.as('has_voted')
+        : sql<boolean>`false`.as('has_voted'),
+      // Ownership is resolved here, server-side: the card only ever learns
+      // "this one is yours", never who wrote any of the others.
+      isOwn: currentUserId
+        ? // coalesce, because legacy anonymous feedback has a null user_id and
+          // `null = <id>` is NULL, not false.
+          sql<boolean>`coalesce(${schema.feedback.userId} = ${currentUserId}, false)`.as(
+            'is_own'
+          )
+        : sql<boolean>`false`.as('is_own')
     })
     .from(schema.feedback)
     .innerJoin(schema.courses, eq(schema.feedback.courseId, schema.courses.id))
