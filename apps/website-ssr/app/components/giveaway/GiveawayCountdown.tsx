@@ -79,10 +79,21 @@ export function GiveawayCountdown({
 
   // ── Countdown mode: live DD HH MM SS ───────────────────────────────────
   if (variant === 'compact') {
+    // Show the largest unit that is still non-zero, so the final hour reads
+    // "12 minutes left" and the final minute "40 seconds left" instead of the
+    // useless "0 hours left".
     const label =
       remaining.days >= 1
         ? t('giveaway_page.countdown_days_left', { count: remaining.days })
-        : t('giveaway_page.countdown_hours_left', { count: remaining.hours })
+        : remaining.hours >= 1
+          ? t('giveaway_page.countdown_hours_left', { count: remaining.hours })
+          : remaining.minutes >= 1
+            ? t('giveaway_page.countdown_minutes_left', {
+                count: remaining.minutes
+              })
+            : t('giveaway_page.countdown_seconds_left', {
+                count: remaining.seconds
+              })
 
     return (
       <span
