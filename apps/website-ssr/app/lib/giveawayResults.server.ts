@@ -100,6 +100,42 @@ const wordCount = sql<number>`coalesce(sum(
 const contributorCount = sql<number>`count(distinct ${schema.feedback.userId})`
 const reviewCount = sql<number>`count(*)`
 
+/**
+ * How long the closed-campaign totals are held. Once the window shuts, the only
+ * thing that can still move these numbers is a review from inside the window
+ * getting approved late, so minutes of staleness cost nothing.
+ */
+const CLOSED_TOTALS_TTL_MS = 10 * 60_000
+
+let closedTotals: { totals: GiveawayResults['totals']; at: number } | null =
+  null
+
+/**
+ * The three headline totals, cached, for pages that show the numbers but are not
+ * the results page: right now the campaign landing page after the window closes.
+ *
+ * Only for use once the giveaway is CLOSED. While it runs, a student can submit
+ * a review and watch the count move, and a TTL would make that lie (see the note
+ * on `getGiveawayResults`). Closed, nothing the student does changes the number,
+ * so the landing page does not need to pay a fresh read per view.
+ *
+ * It still runs the full `getGiveawayResults()`, degrees and faculties included,
+ * and drops everything but the totals. Once per TTL per process, so the wasted
+ * aggregates are not worth a second query path that could drift from this one.
+ */
+export async function getClosedGiveawayTotals(): Promise<
+  GiveawayResults['totals']
+> {
+  const now = Date.now()
+  if (closedTotals && now - closedTotals.at < CLOSED_TOTALS_TTL_MS) {
+    return closedTotals.totals
+  }
+
+  const { totals } = await getGiveawayResults()
+  closedTotals = { totals, at: now }
+  return totals
+}
+
 export async function getGiveawayResults(): Promise<GiveawayResults> {
   const db = database()
 

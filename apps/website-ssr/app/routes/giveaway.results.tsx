@@ -1,4 +1,8 @@
-import { isGiveawayActive } from '@uni-feedback/utils'
+import {
+  getGiveawayPhase,
+  GIVEAWAY_PHASES,
+  isGiveawayActive
+} from '@uni-feedback/utils'
 import { useEffect } from 'react'
 import { useRevalidator } from 'react-router'
 import {
@@ -57,19 +61,31 @@ export function meta({ loaderData, location, matches }: Route.MetaArgs) {
 export async function loader({ request }: Route.LoaderArgs) {
   const results = await getGiveawayResults()
 
+  // `?phase=drawing` previews the closed page before the window actually shuts,
+  // dev only. Same override as the campaign page, and it moves `giveawayActive`
+  // with it so the preview is the whole page and not half of it.
+  const requested = import.meta.env.DEV
+    ? new URL(request.url).searchParams.get('phase')
+    : null
+  const override = GIVEAWAY_PHASES.find((candidate) => candidate === requested)
+
   return {
     results,
     origin: getRequestOrigin(request),
     // Resolved here rather than in the components so the two copy states never
     // differ between the server render and hydration.
-    giveawayActive: isGiveawayActive()
+    giveawayActive: override ? override === 'active' : isGiveawayActive(),
+    // The winner block is the one part of this page with three states rather
+    // than two: waiting, being drawn, announced. Everything else only cares
+    // whether the campaign is still running.
+    phase: override ?? getGiveawayPhase()
   }
 }
 
 export default function GiveawayResultsPage({
   loaderData
 }: Route.ComponentProps) {
-  const { results, giveawayActive } = loaderData
+  const { results, giveawayActive, phase } = loaderData
   // Destructured because `revalidate` is stable while the revalidator object is
   // not: depending on the object would tear down and restart the timer on every
   // poll, since its `state` changes each time one runs.
@@ -116,7 +132,7 @@ export default function GiveawayResultsPage({
           after 1 August this is what returning visitors came for, and anywhere
           lower it reads as buried. It is an inset notice rather than a section,
           so the totals below still attach to the hero's sentence. */}
-      <GiveawayResultsWinner giveawayActive={giveawayActive} />
+      <GiveawayResultsWinner phase={phase} />
       <GiveawayResultsStats totals={results.totals} />
 
       {/* The spread, then the leaderboard, in that order and adjacent: the

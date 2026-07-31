@@ -101,14 +101,23 @@
   },
   "giveaway": {
     "meta_title": "Giveaway Uni Feedback: Ganha 50€ na FNAC",
-    "meta_desc": "Partilha feedback sobre as tuas cadeiras e habilita-te a 3 prémios de 50€ na FNAC. Termina a 31 de julho de 2026."
+    "meta_desc": "Partilha feedback sobre as tuas cadeiras e habilita-te a 3 prémios de 50€ na FNAC. Termina a 31 de julho de 2026.",
+    "meta_title_drawing": "Giveaway Uni Feedback: vencedores a caminho",
+    "meta_desc_drawing": "O giveaway de verão acabou a 31 de julho. Anunciamos os 3 vencedores dos cartões FNAC de 50€ até 2 de agosto."
   },
   "giveaway_page": {
     "hero_title": "Ganha 50€ em cartão <fnac>FNAC</fnac>",
     "hero_subtitle": "Diz-nos o que achaste das cadeiras que tiveste em {{schoolYear}}. Temos 3 cartões de 50€ para dar!",
     "hero_cta_how": "Como Participar",
     "hero_cta_results": "Ver os resultados até agora",
+    "hero_cta_results_ended": "Ver os resultados",
     "hero_cta_rules": "Ver Regulamento",
+    "hero_title_drawing": "Estamos a sortear os vencedores",
+    "hero_subtitle_drawing": "Anunciamos os 3 vencedores aqui e no Instagram até 2 de agosto. Se participaste, recebes um email com o teu resultado.",
+    "drawing_badge": "Acabou a 31 de julho",
+    "drawing_stats_title": "Isto foi o que conseguimos juntos",
+    "drawing_stats_desc": "Os números finais deste giveaway, tal como ficaram quando acabou.",
+    "drawing_stats_link": "Ver os resultados completos",
     "edition_name": "Giveaway de Verão 2026",
     "ends_on": "Acaba a {{date}}",
     "countdown_title": "O giveaway acaba em",
@@ -163,7 +172,7 @@
     "faq_items": [
       {
         "question": "Até quando posso participar?",
-        "answer": "Podes ganhar pontos até **31 de julho**. Depois disso, o giveaway fecha e escolhemos os vencedores."
+        "answer": "Podes ganhar pontos até **31 de julho**. Depois disso, o giveaway acaba e anunciamos os vencedores até 2 de agosto."
       },
       {
         "question": "Como são escolhidos os vencedores?",
@@ -199,11 +208,13 @@
       },
       {
         "question": "Quando são anunciados os vencedores?",
-        "answer": "O giveaway termina a **31 de julho às 23:59**. Contactamos os vencedores pelo email universitário e anunciamos no nosso [Instagram](https://www.instagram.com/unifeedback/) entre **1 e 2 de agosto**. Se não encontrares o e-mail, confirma se não foi parar ao spam."
+        "answer": "O giveaway termina a **31 de julho às 23:59**. Até **2 de agosto**, enviamos um email a toda a gente que participou com o seu resultado, ganhes ou não, e anunciamos os vencedores no nosso [Instagram](https://www.instagram.com/unifeedback/). Se não encontrares o email, confirma se não foi parar ao spam."
       }
     ],
     "cta_title": "Pronto para participar?",
     "cta_subtitle": "Submete o teu primeiro feedback e começa a ganhar pontos!",
+    "cta_title_drawing": "Obrigado a todos os que participaram",
+    "cta_subtitle_drawing": "As opiniões que escrevemos ficam online, de graça, para quem estiver a escolher cadeiras. E a tua continua a fazer falta.",
     "cta_button": "Dá Feedback"
   },
   "giveaway_results": {
@@ -230,10 +241,10 @@
     "degrees_count_label": "opiniões",
     "degrees_show_all": "Ver o top {{count}}",
     "degrees_show_fewer": "Ver menos",
-    "winner_title_pending": "Vencedores anunciados a 1–2 de agosto",
-    "winner_desc_pending": "Os 3 cartões FNAC de 50€ vão para 2 pessoas sorteadas ao acaso e para quem trouxer mais pessoas ao Uni Feedback. Publicamos os três aqui, e enviamos email aos vencedores, entre 1 e 2 de agosto.",
-    "winner_title_drawing": "Estamos a apurar os vencedores",
-    "winner_desc_drawing": "O giveaway fechou e estamos a escolher os 3 vencedores. Ficam aqui, e recebem email, até 2 de agosto.",
+    "winner_title_pending": "Vencedores anunciados até 2 de agosto",
+    "winner_desc_pending": "Os 3 cartões FNAC de 50€ vão para 2 pessoas sorteadas ao acaso e para quem trouxer mais pessoas ao Uni Feedback. Publicamos os três aqui até 2 de agosto, e toda a gente que participou recebe um email com o seu resultado, tenha ganho ou não.",
+    "winner_title_drawing": "Estamos a sortear os vencedores",
+    "winner_desc_drawing": "O giveaway acabou a 31 de julho. Publicamos os 3 vencedores aqui até 2 de agosto, e toda a gente que participou recebe um email com o seu resultado, tenha ganho ou não.",
     "faculties_title": "Por faculdade",
     "faculties_desc": "Tudo o que escrevemos neste giveaway, somado por faculdade.",
     "cta_title": "Ao teu curso ainda faltam opiniões",
@@ -341,7 +352,7 @@
     ],
     "section_winner": "6. Anúncio dos vencedores e privacidade",
     "winner_notification_title": "Notificação",
-    "winner_notification_desc": "Os vencedores são notificados através do seu email universitário.",
+    "winner_notification_desc": "Toda a gente que participou é notificada do seu resultado através do email universitário, tenha ganho ou não.",
     "winner_announcement_title": "Anúncio público",
     "winner_announcement_desc": "Para transparência, e com o consentimento do vencedor, anunciamos como [Nome Próprio] [Inicial do Apelido] de [Faculdade] (ex: João M. do IST). Todo o feedback de cadeiras permanece 100% anónimo, ganhes ou não.",
     "winner_claim_title": "Prazo de reclamação",

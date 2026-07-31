@@ -2,6 +2,7 @@
 export * from './GiveawayCountdown'
 export * from './GiveawayCTASection'
 export * from './GiveawayDevPanel'
+export * from './GiveawayDrawingStats'
 export * from './GiveawayFAQSection'
 export * from './GiveawayHeroSection'
 export * from './GiveawayPointsSection'

@@ -4,6 +4,15 @@ import { Link } from 'react-router'
 import { useLang } from '~/hooks'
 import { getProfilePath } from '~/utils/i18n-routes'
 
+/**
+ * The two routes to a prize, for someone deciding whether to enter.
+ *
+ * Only rendered while the giveaway is running. "Há 2 formas de ganhar" is a
+ * pitch, and after the window closes there is nothing to pitch: the hero already
+ * says the winners are being drawn, and the FAQ already answers how they are
+ * picked. Retitling it to something descriptive would just be a third copy of
+ * the same paragraph.
+ */
 export function GiveawayPrizesSection() {
   const lang = useLang()
   const { t } = useTranslation('legal')

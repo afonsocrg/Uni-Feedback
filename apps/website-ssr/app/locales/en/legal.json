@@ -101,14 +101,23 @@
   },
   "giveaway": {
     "meta_title": "Uni Feedback Giveaway: Win €50 at FNAC",
-    "meta_desc": "Share feedback on your courses for a chance to win one of 3 × €50 FNAC gift cards. Ends July 31, 2026."
+    "meta_desc": "Share feedback on your courses for a chance to win one of 3 × €50 FNAC gift cards. Ends July 31, 2026.",
+    "meta_title_drawing": "Uni Feedback Giveaway: winners coming up",
+    "meta_desc_drawing": "The summer giveaway ended on 31 July. We announce the 3 winners of the €50 FNAC cards before 2 August."
   },
   "giveaway_page": {
     "hero_title": "Win a €50 <fnac>FNAC</fnac> gift card",
     "hero_subtitle": "Tell us what you thought of the courses you took in {{schoolYear}}. We've got 3 × €50 cards to give away!",
     "hero_cta_how": "How to Participate",
     "hero_cta_results": "See the results so far",
+    "hero_cta_results_ended": "See the results",
     "hero_cta_rules": "View Official Rules",
+    "hero_title_drawing": "We are drawing the winners",
+    "hero_subtitle_drawing": "We announce the 3 winners here and on Instagram before 2 August. If you took part, you get an email with your result.",
+    "drawing_badge": "Ended 31 July",
+    "drawing_stats_title": "This is what we did together",
+    "drawing_stats_desc": "The final numbers of this giveaway, as they stood when it ended.",
+    "drawing_stats_link": "See the full results",
     "edition_name": "Summer 2026 Giveaway",
     "ends_on": "Ends {{date}}",
     "countdown_title": "The giveaway ends in",
@@ -163,7 +172,7 @@
     "faq_items": [
       {
         "question": "Until when can I enter?",
-        "answer": "You can earn points until **July 31**. After that, the giveaway closes and we pick the winners."
+        "answer": "You can earn points until **July 31**. After that, the giveaway ends and we announce the winners before 2 August."
       },
       {
         "question": "How are the winners chosen?",
@@ -199,11 +208,13 @@
       },
       {
         "question": "When will the winners be announced?",
-        "answer": "The giveaway ends on **July 31 at 23:59**. We'll contact the winners via university email and announce them on our [Instagram](https://www.instagram.com/unifeedback/) between **August 1 and 2**. Check your spam folder!"
+        "answer": "The giveaway ends on **July 31 at 23:59**. By **August 2** we email everyone who took part with their result, win or not, and announce the winners on our [Instagram](https://www.instagram.com/unifeedback/). Check your spam folder!"
       }
     ],
     "cta_title": "Ready to enter?",
     "cta_subtitle": "Submit your first feedback and start earning points!",
+    "cta_title_drawing": "Thank you to everyone who took part",
+    "cta_subtitle_drawing": "The reviews we wrote stay online, for free, for anyone picking courses. And yours is still missing.",
     "cta_button": "Give Feedback"
   },
   "giveaway_results": {
@@ -230,10 +241,10 @@
     "degrees_count_label": "reviews",
     "degrees_show_all": "Show the top {{count}}",
     "degrees_show_fewer": "Show fewer",
-    "winner_title_pending": "Winners announced 1–2 August",
-    "winner_desc_pending": "The 3 €50 FNAC gift cards go to 2 people drawn at random and to whoever brings the most people to Uni Feedback. We post all three here, and email the winners, between 1 and 2 August.",
+    "winner_title_pending": "Winners announced before 2 August",
+    "winner_desc_pending": "The 3 €50 FNAC gift cards go to 2 people drawn at random and to whoever brings the most people to Uni Feedback. We post all three here before 2 August, and everyone who took part gets an email with their result, win or not.",
     "winner_title_drawing": "We are drawing the winners",
-    "winner_desc_drawing": "The giveaway is closed and we are picking the 3 winners. They go up here, and get an email, by 2 August.",
+    "winner_desc_drawing": "The giveaway ended on 31 July. We publish the 3 winners here before 2 August, and everyone who took part gets an email with their result, win or not.",
     "faculties_title": "By faculty",
     "faculties_desc": "Everything we wrote in this giveaway, added up by faculty.",
     "cta_title": "Your degree is still missing reviews",
@@ -341,7 +352,7 @@
     ],
     "section_winner": "6. Winner announcement and privacy",
     "winner_notification_title": "Notification",
-    "winner_notification_desc": "Winners are notified via their university email address.",
+    "winner_notification_desc": "Everyone who took part is notified of their result via their university email address, whether they win or not.",
     "winner_announcement_title": "Public announcement",
     "winner_announcement_desc": "For transparency, and with the winner's consent, we announce them as [First Name] [Last Initial] from [Faculty] (e.g. João M. from IST). All course feedback remains 100% anonymous, whether you win or not.",
     "winner_claim_title": "Claim deadline",
