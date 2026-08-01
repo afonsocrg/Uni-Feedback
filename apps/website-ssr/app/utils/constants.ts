@@ -44,6 +44,11 @@ export const STORAGE_KEYS = {
   DEGREE_FILTERS: 'degreeFilters',
   COURSE_FILTERS: 'courseFilters',
 
+  // Faculty picker: last-selected university chip. A bare slug rather than a
+  // JSON object like the two above, because this page has no context to
+  // validate against: there is only one faculty picker.
+  BROWSE_UNIVERSITY_SLUG: 'uni-feedback-browse-university',
+
   // Authentication
   LAST_LOGIN_EMAIL: 'uni-feedback-last-email',
   AUTH_USER: 'uni-feedback-student-user',

@@ -508,10 +508,19 @@ export const analytics = {
      * `facultyCount` is what makes the filtering question answerable at all.
      * The search and the chips were added because the list got long; if they
      * stay unused while the count climbs, the list isn't the friction.
+     *
+     * `restoredUniversitySlug` is the university the page came up already
+     * filtered to, from a previous visit's choice, and null when the student
+     * sees the full list. It lives here rather than firing a
+     * `browse_university_filter_applied` on load, so that event keeps meaning
+     * "a student touched a chip". Watch it against
+     * `browse_university_filter_applied{universitySlug: null}`: a restore that
+     * is routinely cleared on arrival is a filter we should not have persisted.
      */
     browsePageViewed: (props: {
       facultyCount: number
       universityCount: number
+      restoredUniversitySlug: string | null
     }) => trackEvent('browse_page_viewed', props),
 
     /**

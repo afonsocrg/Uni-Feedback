@@ -3,6 +3,10 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDebounce } from '~/hooks'
 import { analytics } from '~/utils/analytics'
+import {
+  loadBrowseUniversityFilter,
+  saveBrowseUniversityFilter
+} from '~/utils/filterStorage'
 import { BrowsePageLayout, FacultySelector } from '.'
 import { FilterRow } from './common/FilterRow'
 import { MissingItemNote } from './common/MissingItemNote'
@@ -77,18 +81,28 @@ export function BrowsePageContent({ faculties }: BrowsePageContentProps) {
       })
   }, [faculties, searchQuery, activeUniversitySlug])
 
-  // Entry event of the browse funnel and the denominator for the search and
-  // filter events below, which only fire on interaction. Fires once per mount.
-  const hasTrackedViewRef = useRef(false)
+  // Restore the last-picked university and fire the view event, in that order
+  // and in one effect: the event carries what was restored, so the two cannot
+  // be split without racing. localStorage is read here rather than in the
+  // initial state so the first client render still matches the server's.
+  //
+  // Runs once per mount. `faculties` is loader data and stable for the life of
+  // the page, so there is nothing to re-run for.
+  const hasMountedRef = useRef(false)
   useEffect(() => {
-    if (hasTrackedViewRef.current) return
-    hasTrackedViewRef.current = true
+    if (hasMountedRef.current) return
+    hasMountedRef.current = true
+
+    const restored = loadBrowseUniversityFilter(universities.map((u) => u.slug))
+    if (restored) setSelectedUniversitySlug(restored)
 
     analytics.discovery.browsePageViewed({
       facultyCount: faculties.length,
-      universityCount: universities.length
+      universityCount: universities.length,
+      restoredUniversitySlug: restored
     })
-  }, [faculties.length, universities.length])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // Fire the search event once the query settles. Resetting the ref on an empty
   // query lets the same term re-fire if it is searched again later.
@@ -111,6 +125,7 @@ export function BrowsePageContent({ faculties }: BrowsePageContentProps) {
   const handleUniversityToggle = (slug: string) => {
     const next = selectedUniversitySlug === slug ? null : slug
     setSelectedUniversitySlug(next)
+    saveBrowseUniversityFilter(next)
 
     // Counted here rather than off `filteredFaculties`, which still holds the
     // pre-toggle list on this render.
