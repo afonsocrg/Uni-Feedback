@@ -188,7 +188,6 @@ export function EditFeedbackContent({
             <FeedbackPointsProgress
               categories={categories}
               courseId={feedback.courseId}
-              schoolYear={form.watch('schoolYear')}
             />
 
             <div className="flex gap-3">

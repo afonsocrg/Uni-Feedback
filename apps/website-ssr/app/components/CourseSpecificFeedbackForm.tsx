@@ -417,7 +417,6 @@ export function CourseSpecificFeedbackForm({
               <FeedbackPointsProgress
                 categories={categories}
                 courseId={currentCourse.id}
-                schoolYear={selectedSchoolYear}
               />
             </div>
 
