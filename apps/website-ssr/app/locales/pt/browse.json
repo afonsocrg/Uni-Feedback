@@ -7,6 +7,8 @@
   },
   "page": {
     "title": "Escolhe a tua faculdade",
+    "search_placeholder": "Procurar faculdade ou universidade...",
+    "no_results": "Nenhuma faculdade corresponde à tua pesquisa.",
     "request_link": "Não vês a tua faculdade? Pede aqui"
   },
   "degree_page": {

@@ -1,20 +1,12 @@
 import { database } from '@uni-feedback/db'
 import { useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router'
-import {
-  BrowsePageLayout,
-  FacultySelector,
-  MissingItemNote
-} from '~/components'
+import { BrowsePageContent } from '~/components'
 import { userPreferences } from '~/utils'
 import { buildMeta, metaT } from '~/utils/meta'
 import { getRequestOrigin } from '~/utils/request'
 
 import type { Route } from './+types/browse'
-
-const ADD_COURSE_FORM_URL =
-  'https://docs.google.com/forms/d/e/1FAIpQLSd2FBk_hbv6v0iW-y8wtY6DL-fDIE_GlyA8rSkamSJJfCjCFQ/viewform'
 
 export function meta({ loaderData, location, matches }: Route.MetaArgs) {
   const t = metaT(location, 'browse')
@@ -49,7 +41,17 @@ export function meta({ loaderData, location, matches }: Route.MetaArgs) {
           item: {
             '@type': 'CollegeOrUniversity',
             name: faculty.name,
-            url: `${origin}/${faculty.slug}`
+            url: `${origin}/${faculty.slug}`,
+            // Tells search engines that IST and FDUL are both ULisboa, which
+            // the faculty names alone never say.
+            ...(faculty.university && {
+              parentOrganization: {
+                '@type': 'CollegeOrUniversity',
+                name: faculty.university.name,
+                alternateName: faculty.university.shortName,
+                ...(faculty.university.url && { url: faculty.university.url })
+              }
+            })
           }
         }))
       }
@@ -75,14 +77,16 @@ export async function loader({ request }: { request: Request }) {
   const db = database()
 
   const faculties = await db.query.faculties.findMany({
-    orderBy: (faculties) => [faculties.id]
+    orderBy: (faculties) => [faculties.id],
+    // Drives the university filter chips. Nullable: a faculty with no
+    // university still shows in the grid, it just answers to no chip.
+    with: { university: true }
   })
 
   return { faculties, origin: getRequestOrigin(request) }
 }
 
 export default function BrowsePage({ loaderData }: Route.ComponentProps) {
-  const { t } = useTranslation('browse')
   const location = useLocation()
 
   // Persist the actual visited path (lang-aware)
@@ -90,18 +94,5 @@ export default function BrowsePage({ loaderData }: Route.ComponentProps) {
     userPreferences.set({ lastVisitedPath: location.pathname })
   }, [location.pathname])
 
-  return (
-    <BrowsePageLayout
-      title={t('page.title')}
-      actions={
-        // No `text`: this page's link copy is a whole sentence on its own.
-        <MissingItemNote
-          linkLabel={t('page.request_link')}
-          href={ADD_COURSE_FORM_URL}
-        />
-      }
-    >
-      <FacultySelector faculties={loaderData.faculties} />
-    </BrowsePageLayout>
-  )
+  return <BrowsePageContent faculties={loaderData.faculties} />
 }

@@ -13,6 +13,7 @@ import { feedbackFlags } from './feedbackFlag'
 import { helpfulVotes } from './helpfulVote'
 import { pointRegistry } from './pointRegistry'
 import { reports } from './report'
+import { universities } from './university'
 import { users } from './user'
 
 // FeedbackFull relations (table - includes all feedback)
@@ -84,9 +85,18 @@ export const degreeRelations = relations(degrees, ({ one, many }) => ({
 }))
 
 // Faculty relations
-export const facultyRelations = relations(faculties, ({ many }) => ({
+export const facultyRelations = relations(faculties, ({ one, many }) => ({
+  university: one(universities, {
+    fields: [faculties.universityId],
+    references: [universities.id]
+  }),
   degrees: many(degrees),
   academicTerms: many(academicTerms)
+}))
+
+// University relations
+export const universityRelations = relations(universities, ({ many }) => ({
+  faculties: many(faculties)
 }))
 
 // User relations

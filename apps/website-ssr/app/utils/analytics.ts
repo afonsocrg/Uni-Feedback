@@ -500,6 +500,57 @@ export const analytics = {
 
   discovery: {
     /**
+     * Track a load of the faculty picker (`/explorar`). The true top of the
+     * browse funnel, one step above `faculty_page_viewed`, and the denominator
+     * for everything else on that page: the search and the university chips
+     * only fire on interaction, so no rate means anything without this.
+     *
+     * `facultyCount` is what makes the filtering question answerable at all.
+     * The search and the chips were added because the list got long; if they
+     * stay unused while the count climbs, the list isn't the friction.
+     */
+    browsePageViewed: (props: {
+      facultyCount: number
+      universityCount: number
+    }) => trackEvent('browse_page_viewed', props),
+
+    /**
+     * Track a university chip on the faculty picker being selected or cleared.
+     * `universitySlug` is null on clear, which is the signal that the filter
+     * hid what the student was looking for.
+     */
+    browseUniversityFilterApplied: (props: {
+      universitySlug: string | null
+      resultsCount: number
+    }) => trackEvent('browse_university_filter_applied', props),
+
+    /**
+     * Track a search on the faculty picker once the query settles (debounced).
+     * Separate from `course_search_performed`: this searches faculties, not the
+     * course catalogue, and a `resultsCount` of 0 here means a student looking
+     * for a school we don't cover yet, which is a coverage signal rather than a
+     * search-quality one.
+     */
+    browseSearchPerformed: (props: {
+      searchQuery: string
+      resultsCount: number
+    }) => trackEvent('browse_faculty_search_performed', props),
+
+    /**
+     * Track a faculty card opened from the picker. The conversion step of the
+     * browse page, and what says whether search and chips actually shorten the
+     * path: `positionInList` next to `hasSearchQuery` / `hasUniversityFilter`
+     * shows whether a student narrowed the list before picking or just scanned.
+     */
+    browseFacultySelected: (props: {
+      facultySlug: string
+      universitySlug: string | null
+      positionInList: number
+      hasSearchQuery: boolean
+      hasUniversityFilter: boolean
+    }) => trackEvent('browse_faculty_selected', props),
+
+    /**
      * Track a faculty page load. Entry point of the browse funnel and the
      * denominator for that page's view mode switch rate.
      *
