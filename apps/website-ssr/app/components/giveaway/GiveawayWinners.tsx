@@ -5,14 +5,16 @@ import { getAssetUrl } from '~/utils'
  * The three winners of the summer 2026 edition, announced by degree and faculty
  * and nothing else.
  *
- * WHY NO NAMES. The rules allow "[First name] [Last initial], [Faculty]" with the
- * winner's consent, but consent has to be chased and a name on a public page is
- * permanent. "A student from <degree> at <faculty>" says the same useful thing
- * (the prizes went to real students, spread across three faculties) while
- * identifying nobody: the smallest of the three degrees had 7 contributors in the
- * window, comfortably above the MIN_CONTRIBUTORS floor
- * `giveawayResults.server.ts` uses to decide when a group is small enough to be
- * traceable to individuals.
+ * NAMES ARE OPT-IN, ONE AT A TIME. The rules allow "[First name] [Last initial],
+ * [Faculty]" with the winner's consent, and the Ambassador gave it in writing for
+ * his full name and photo, so he is shown as himself. The two drawn winners have
+ * not, and the default without consent stays what it was: "A student from <degree>
+ * at <faculty>" says the useful thing (the prizes went to real students, spread
+ * across three faculties) while identifying nobody, since the smallest of the
+ * three degrees had 7 contributors in the window, comfortably above the
+ * MIN_CONTRIBUTORS floor `giveawayResults.server.ts` uses to decide when a group
+ * is small enough to be traceable to individuals. Nobody gets promoted from the
+ * anonymous form to a name without asking them first.
  *
  * The degree shown is whichever one the winner wrote the most reviews for, since
  * a student can review courses listed under several degrees.
@@ -34,10 +36,16 @@ import { getAssetUrl } from '~/utils'
 
 // `as const` is load-bearing: t() takes literal key types, so without it these
 // widen to `string` and every lookup below fails to type-check.
+//
+// `name` is the one string here that is not a translation key: a person's name is
+// the same in both languages. Its presence is also what switches this entry to the
+// named layout, so a winner is named only by adding the two things consent covers,
+// the name and the photo, together.
 const AMBASSADOR = {
+  name: 'João Marques Pinto',
+  photo: 'students/joao_marques_pinto.png',
   degree: 'giveaway_winners.ambassador_degree',
-  faculty: 'giveaway_winners.ambassador_faculty',
-  logo: 'faculties/nova_fct/logo.png'
+  faculty: 'giveaway_winners.ambassador_faculty'
 } as const
 
 /** Both won the same prize, so this is draw order and not a ranking. */
@@ -57,34 +65,74 @@ const DRAWN = [
 type Winner = typeof AMBASSADOR | (typeof DRAWN)[number]
 
 /**
- * One winner: the faculty mark, then who they are.
+ * One winner: a portrait, then who they are.
  *
- * The logo is a placeholder for a photo. If a winner ever consents to one, it
- * drops in here at the same size and nothing else moves.
+ * A winner who consented shows their photo and name; everyone else shows their
+ * faculty's mark and no name. Both forms are the same circle at the same size, so
+ * the three entries still read as one row rather than as one winner and two
+ * runners-up, and the difference between them is only how much each person agreed
+ * to show.
  */
 function WinnerEntry({ winner }: { winner: Winner }) {
   const { t } = useTranslation('legal')
+  const degree = t(winner.degree)
+  const faculty = t(winner.faculty)
 
   return (
     <div className="flex flex-col items-center text-center">
-      {/* White plate: several of these marks are dark on a transparent
-          background and vanish in dark mode. Same treatment as the degree
-          leaderboard's rows. */}
-      <span className="inline-flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white p-2.5 ring-1 ring-border">
-        <img
-          src={getAssetUrl(winner.logo)}
-          alt=""
-          loading="lazy"
-          className="size-full object-contain"
-        />
-      </span>
+      {'name' in winner ? (
+        // No white plate and no padding: this fills its circle. The alt text is
+        // the name because the photo is of a named person, and the name is
+        // already in the text below, so a screen reader would otherwise hear it
+        // twice or hear nothing.
+        //
+        // The zoom is a crop, not an effect. The photo he sent is a square street
+        // shot where he takes up maybe a third of the frame, and at 64px the
+        // whole frame means a face too small to recognise, which defeats the
+        // point of asking for a photo at all. Scaling from a transform origin
+        // over his face keeps him centred while the sky and the pavement fall
+        // outside the circle. The numbers are specific to this image: a
+        // different photo needs them re-measured, or dropped if it is already
+        // framed tight.
+        <span className="size-16 shrink-0 overflow-hidden rounded-full ring-1 ring-border">
+          <img
+            src={getAssetUrl(winner.photo)}
+            alt={winner.name}
+            loading="lazy"
+            width={1028}
+            height={1028}
+            className="size-full origin-[34%_37%] scale-[1.7] object-cover"
+          />
+        </span>
+      ) : (
+        // White plate: several of these marks are dark on a transparent
+        // background and vanish in dark mode. Same treatment as the degree
+        // leaderboard's rows.
+        <span className="inline-flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white p-2.5 ring-1 ring-border">
+          <img
+            src={getAssetUrl(winner.logo)}
+            alt=""
+            loading="lazy"
+            className="size-full object-contain"
+          />
+        </span>
+      )}
 
-      <p className="mt-3 max-w-xs text-balance text-foreground">
-        {t('giveaway_winners.student_at', {
-          degree: t(winner.degree),
-          faculty: t(winner.faculty)
-        })}
-      </p>
+      {'name' in winner ? (
+        // The name carries the line and the course drops to a caption under it.
+        // Folding both into one sentence ("João Marques Pinto, a student from
+        // ...") buries the only thing on this page that is a person.
+        <>
+          <p className="mt-3 font-medium text-foreground">{winner.name}</p>
+          <p className="mt-1 max-w-xs text-balance text-sm text-muted-foreground">
+            {t('giveaway_winners.degree_at', { degree, faculty })}
+          </p>
+        </>
+      ) : (
+        <p className="mt-3 max-w-xs text-balance text-foreground">
+          {t('giveaway_winners.student_at', { degree, faculty })}
+        </p>
+      )}
     </div>
   )
 }

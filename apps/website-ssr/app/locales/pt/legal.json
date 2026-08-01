@@ -414,6 +414,7 @@
     "drawn_2_degree": "Licenciatura em Engenharia Física Tecnológica",
     "drawn_2_faculty": "no IST",
     "student_at": "Estudante da {{degree}} {{faculty}}",
+    "degree_at": "{{degree}} {{faculty}}",
     "email_note": "Enviámos os resultados a toda a gente por email. Não encontras o teu? Vê no spam ou envia-me um e-mail para <0>afonso@uni-feedback.com</0>."
   }
 }

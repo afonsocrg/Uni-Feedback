@@ -414,6 +414,7 @@
     "drawn_2_degree": "Bachelor's in Engineering Physics",
     "drawn_2_faculty": "at IST",
     "student_at": "A student from {{degree}} {{faculty}}",
+    "degree_at": "{{degree}} {{faculty}}",
     "email_note": "We emailed everyone their result. Cannot find yours? Check your spam, or write to <0>afonso@uni-feedback.com</0>."
   }
 }
