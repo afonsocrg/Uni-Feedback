@@ -1,10 +1,5 @@
-import { ArrowRight } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router'
-import { useLang } from '~/hooks'
 import type { GiveawayResults } from '~/lib/giveawayResults.server'
-import { analytics, getPageName } from '~/utils/analytics'
-import { getLocalePath } from '~/utils/i18n-routes'
 import { GiveawayResultsNumbers } from './GiveawayResultsNumbers'
 
 interface GiveawayDrawingStatsProps {
@@ -18,13 +13,12 @@ interface GiveawayDrawingStatsProps {
  * the ask was live. Those are instructions for something nobody can do any more;
  * a closed campaign page needs proof instead, and the numbers are the proof.
  *
- * Three numbers and a link, deliberately not the leaderboard. Duplicating the
- * degree table here would make the results page pointless and double what has to
- * be maintained; the whole job of this block is to be worth clicking through.
+ * Two strips: the effort (people, reviews, words) and the spread (faculties,
+ * degrees, courses). The spread is what earns the "we all won" claim above it,
+ * since the first three numbers could describe a single degree.
  */
 export function GiveawayDrawingStats({ totals }: GiveawayDrawingStatsProps) {
   const { t } = useTranslation('legal')
-  const lang = useLang()
 
   return (
     <section className="bg-background py-16 md:py-24">
@@ -58,21 +52,33 @@ export function GiveawayDrawingStats({ totals }: GiveawayDrawingStatsProps) {
             ]}
           />
 
-          <div className="mt-8 flex justify-center">
-            <Link
-              to={getLocalePath('giveaway-results', lang)}
-              onClick={() =>
-                analytics.giveaway.resultsLinkClicked({
-                  source: 'giveaway_drawing_stats',
-                  referrerPage: getPageName(window.location.pathname)
-                })
-              }
-              className="inline-flex items-center gap-1.5 font-medium text-primary underline underline-offset-4 hover:text-primary/80"
-            >
-              {t('giveaway_page.drawing_stats_link')}
-              <ArrowRight className="size-4 shrink-0" />
-            </Link>
+          {/* The spread, under the effort. "We all won" is a claim about how far
+              this reached, and people/reviews/words alone do not say that: they
+              could all be one degree. The faculty, degree and course counts are
+              what make the claim checkable. Not emphasised, so the headline
+              strip above still carries the section. */}
+          <div className="mt-6">
+            <GiveawayResultsNumbers
+              items={[
+                {
+                  value: totals.faculties,
+                  label: t('giveaway_results.stats_faculties')
+                },
+                {
+                  value: totals.degrees,
+                  label: t('giveaway_results.stats_degrees')
+                },
+                {
+                  value: totals.courses,
+                  label: t('giveaway_results.stats_courses')
+                }
+              ]}
+            />
           </div>
+
+          {/* No "see the full results" link any more: the leaderboard renders
+              directly below this block, and the page it used to point at is now
+              a redirect back here. */}
         </div>
       </div>
     </section>

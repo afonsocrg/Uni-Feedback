@@ -103,7 +103,9 @@
     "meta_title": "Giveaway Uni Feedback: Ganha 50€ na FNAC",
     "meta_desc": "Partilha feedback sobre as tuas cadeiras e habilita-te a 3 prémios de 50€ na FNAC. Termina a 31 de julho de 2026.",
     "meta_title_drawing": "Giveaway Uni Feedback: vencedores a caminho",
-    "meta_desc_drawing": "O giveaway de verão acabou a 31 de julho. Anunciamos os 3 vencedores dos cartões FNAC de 50€ até 2 de agosto."
+    "meta_desc_drawing": "O giveaway de verão acabou a 31 de julho. Anunciamos os 3 vencedores dos cartões FNAC de 50€ até 2 de agosto.",
+    "meta_title_announced": "Giveaway Uni Feedback: já temos vencedores",
+    "meta_desc_announced": "O Giveaway de Verão acabou a 31 de julho. Vê quem ganhou os 3 cartões FNAC de 50€ e o que os alunos escreveram este mês."
   },
   "giveaway_page": {
     "hero_title": "Ganha 50€ em cartão <fnac>FNAC</fnac>",
@@ -114,9 +116,11 @@
     "hero_cta_rules": "Ver Regulamento",
     "hero_title_drawing": "Estamos a sortear os vencedores",
     "hero_subtitle_drawing": "Anunciamos os 3 vencedores aqui e no Instagram até 2 de agosto. Se participaste, recebes um email com o teu resultado.",
+    "hero_title_announced": "Já temos vencedores",
+    "hero_subtitle_announced": "O sorteio foi feito a 1 de agosto. Os 3 cartões FNAC de 50€ já têm dono.",
     "drawing_badge": "Acabou a 31 de julho",
-    "drawing_stats_title": "Isto foi o que conseguimos juntos",
-    "drawing_stats_desc": "Os números finais deste giveaway, tal como ficaram quando acabou.",
+    "drawing_stats_title": "No fundo, ganhámos todos",
+    "drawing_stats_desc": "Sim, eu sei, mais cliché era impossível. Mas graças a este mês, milhares de alunos vão encontrar dicas sobre as suas cadeiras que no ano passado não existiam.",
     "drawing_stats_link": "Ver os resultados completos",
     "edition_name": "Giveaway de Verão 2026",
     "ends_on": "Acaba a {{date}}",
@@ -249,6 +253,8 @@
     "winner_desc_pending": "Os 3 cartões FNAC de 50€ vão para 2 pessoas sorteadas ao acaso e para quem trouxer mais pessoas ao Uni Feedback. Publicamos os três aqui até 2 de agosto, e toda a gente que participou recebe um email com o seu resultado, tenha ganho ou não.",
     "winner_title_drawing": "Estamos a sortear os vencedores",
     "winner_desc_drawing": "O giveaway acabou a 31 de julho. Publicamos os 3 vencedores aqui até 2 de agosto, e toda a gente que participou recebe um email com o seu resultado, tenha ganho ou não.",
+    "winner_title_announced": "Já temos vencedores",
+    "winner_desc_announced": "O sorteio foi feito a 1 de agosto. Cada um dos três recebe um cartão FNAC de 50€.",
     "faculties_title": "Por faculdade",
     "faculties_desc": "Tudo o que escrevemos neste giveaway, somado por faculdade.",
     "cta_title": "Ao teu curso ainda faltam opiniões",
@@ -394,5 +400,20 @@
   "guidelines_full": {
     "meta_title": "Guidelines de Feedback | Uni Feedback",
     "meta_desc": "Guidelines oficiais de publicação do Uni Feedback."
+  },
+  "giveaway_winners": {
+    "title": "E os vencedores são...",
+    "ambassador_title": "Melhor Embaixador",
+    "ambassador_desc": "O aluno que convidou mais amigos para o Uni Feedback",
+    "ambassador_degree": "Licenciatura em Engenharia Informática",
+    "ambassador_faculty": "na Nova FCT",
+    "drawn_title": "Vencedores do sorteio",
+    "drawn_desc": "Sorteados ao acaso, com base no número de pontos de cada aluno",
+    "drawn_1_degree": "Licenciatura em Gestão",
+    "drawn_1_faculty": "na Nova SBE",
+    "drawn_2_degree": "Licenciatura em Engenharia Física Tecnológica",
+    "drawn_2_faculty": "no IST",
+    "student_at": "Estudante da {{degree}} {{faculty}}",
+    "email_note": "Enviámos os resultados a toda a gente por email. Não encontras o teu? Vê no spam ou envia-me um e-mail para <0>afonso@uni-feedback.com</0>."
   }
 }

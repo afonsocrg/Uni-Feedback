@@ -183,6 +183,12 @@
     "title": "Win €50 at <fnac>FNAC</fnac>",
     "subtitle": "Share feedback on the courses you took in {{schoolYear}} for a chance at 3 × €50 prizes.",
     "cta": "Enter now",
+    "title_ended": "The giveaway has ended",
+    "subtitle_ended": "We are drawing the 3 winners. See the final numbers students put together.",
+    "cta_ended": "See the results",
+    "title_announced": "We have winners",
+    "subtitle_announced": "See who won the 3 FNAC cards and everything students wrote this month.",
+    "cta_announced": "See the winners",
     "banner": "🎁 Giveaway live! Win a €50 FNAC gift card."
   }
 }

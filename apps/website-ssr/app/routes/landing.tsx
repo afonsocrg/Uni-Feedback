@@ -1,5 +1,6 @@
 import { database } from '@uni-feedback/db'
 import * as schema from '@uni-feedback/db/schema'
+import { getGiveawayPhase, GIVEAWAY_PHASES } from '@uni-feedback/utils'
 import { and, desc, eq, isNotNull, isNull, sql } from 'drizzle-orm'
 import {
   BrowseSection,
@@ -29,8 +30,17 @@ export function meta({ location, matches }: Route.MetaArgs) {
   })
 }
 
-export async function loader() {
+export async function loader({ request }: Route.LoaderArgs) {
   const db = database()
+
+  // Resolved here, like the campaign page's, so the promo band cannot differ
+  // between the server render and hydration and flips at midnight on its own.
+  // `?phase=drawing` previews the closed band in dev only.
+  const requested = import.meta.env.DEV
+    ? new URL(request.url).searchParams.get('phase')
+    : null
+  const override = GIVEAWAY_PHASES.find((candidate) => candidate === requested)
+  const giveawayPhase = override ?? getGiveawayPhase()
 
   const [
     studentClubs,
@@ -151,6 +161,7 @@ export async function loader() {
         }
       })),
     testimonials,
+    giveawayPhase,
     stats: {
       totalFeedback: roundDownToNice(Number(totalFeedbackResult[0].count)),
       contributors: roundDownToNice(Number(contributorResult[0].count))
@@ -171,6 +182,7 @@ export default function LandingPage({ loaderData }: Route.ComponentProps) {
     degrees,
     recentFeedbacks,
     testimonials,
+    giveawayPhase,
     stats
   } = loaderData
 
@@ -179,7 +191,7 @@ export default function LandingPage({ loaderData }: Route.ComponentProps) {
       <HeroSection stats={stats} />
       {/* <UniversitiesStrip faculties={faculties} /> */}
       <SupportersSection studentClubs={studentClubs} />
-      <GiveawayPromoSection />
+      <GiveawayPromoSection phase={giveawayPhase} />
       <LiveFeedSection feedbacks={recentFeedbacks} />
       <ContributeStrip />
       <TrustSection />

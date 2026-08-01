@@ -17,6 +17,7 @@ export * from './GiveawayResultsHero'
 export * from './GiveawayResultsReach'
 export * from './GiveawayResultsStats'
 export * from './GiveawayResultsWinner'
+export * from './GiveawayWinners'
 
 // Recap components
 export * from './GiveawayRecapCommunity'

@@ -23,11 +23,12 @@ export function isGiveawayActive(now: Date = new Date()): boolean {
  * window closes, and the names ship in the same deploy that flips this. A date
  * here would promise an announcement the site cannot make on its own.
  *
- * TO ANNOUNCE THE WINNERS: set this to `true` and fill in the winner block (see
- * `GiveawayResultsWinner`). Until then every page says the winners are being
- * drawn and points at the 1–2 August promise.
+ * Flipped on 2026-08-01, once the draw was run and `GiveawayResultsWinner` had
+ * the three winners in it. The names are not published: each winner is shown as
+ * degree plus faculty, which needs no consent and identifies nobody. See that
+ * component for the reasoning.
  */
-export const GIVEAWAY_WINNERS_ANNOUNCED = false
+export const GIVEAWAY_WINNERS_ANNOUNCED = true
 
 /**
  * Where the edition is in its lifecycle. This exists so the copy that has to

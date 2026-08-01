@@ -183,6 +183,12 @@
     "title": "Ganha 50€ na <fnac>FNAC</fnac>",
     "subtitle": "Diz-nos o que achaste das cadeiras que tiveste em {{schoolYear}} e habilita-te a 3 prémios de 50€.",
     "cta": "Participar",
+    "title_ended": "O giveaway já terminou",
+    "subtitle_ended": "Estamos a sortear os 3 vencedores. Vê os números finais que os estudantes juntaram.",
+    "cta_ended": "Ver resultados",
+    "title_announced": "Já temos vencedores",
+    "subtitle_announced": "Vê quem ganhou os 3 cartões FNAC e tudo o que os alunos escreveram este mês.",
+    "cta_announced": "Ver vencedores",
     "banner": "🎁 Giveaway a decorrer: ganha 50€ na FNAC"
   }
 }

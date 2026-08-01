@@ -103,7 +103,9 @@
     "meta_title": "Uni Feedback Giveaway: Win €50 at FNAC",
     "meta_desc": "Share feedback on your courses for a chance to win one of 3 × €50 FNAC gift cards. Ends July 31, 2026.",
     "meta_title_drawing": "Uni Feedback Giveaway: winners coming up",
-    "meta_desc_drawing": "The summer giveaway ended on 31 July. We announce the 3 winners of the €50 FNAC cards before 2 August."
+    "meta_desc_drawing": "The summer giveaway ended on 31 July. We announce the 3 winners of the €50 FNAC cards before 2 August.",
+    "meta_title_announced": "Uni Feedback Giveaway: we have winners",
+    "meta_desc_announced": "The Summer Giveaway ended on 31 July. See who won the 3 FNAC cards of €50 and what students wrote this month."
   },
   "giveaway_page": {
     "hero_title": "Win a €50 <fnac>FNAC</fnac> gift card",
@@ -114,9 +116,11 @@
     "hero_cta_rules": "View Official Rules",
     "hero_title_drawing": "We are drawing the winners",
     "hero_subtitle_drawing": "We announce the 3 winners here and on Instagram before 2 August. If you took part, you get an email with your result.",
+    "hero_title_announced": "We have winners",
+    "hero_subtitle_announced": "The draw took place on 1 August. The three 50€ FNAC cards have found their students.",
     "drawing_badge": "Ended 31 July",
-    "drawing_stats_title": "This is what we did together",
-    "drawing_stats_desc": "The final numbers of this giveaway, as they stood when it ended.",
+    "drawing_stats_title": "Deep down, we all won",
+    "drawing_stats_desc": "Yes, I know, it does not get more cliché than this. But because of this month, thousands of students will find tips about their courses that simply did not exist last year.",
     "drawing_stats_link": "See the full results",
     "edition_name": "Summer 2026 Giveaway",
     "ends_on": "Ends {{date}}",
@@ -249,6 +253,8 @@
     "winner_desc_pending": "The 3 €50 FNAC gift cards go to 2 people drawn at random and to whoever brings the most people to Uni Feedback. We post all three here before 2 August, and everyone who took part gets an email with their result, win or not.",
     "winner_title_drawing": "We are drawing the winners",
     "winner_desc_drawing": "The giveaway ended on 31 July. We publish the 3 winners here before 2 August, and everyone who took part gets an email with their result, win or not.",
+    "winner_title_announced": "We have winners",
+    "winner_desc_announced": "The draw took place on 1 August. Each of the three gets a 50€ FNAC card.",
     "faculties_title": "By faculty",
     "faculties_desc": "Everything we wrote in this giveaway, added up by faculty.",
     "cta_title": "Your degree is still missing reviews",
@@ -394,5 +400,20 @@
   "guidelines_full": {
     "meta_title": "Feedback Guidelines | Uni Feedback",
     "meta_desc": "Official posting guidelines for Uni Feedback."
+  },
+  "giveaway_winners": {
+    "title": "And the winners are...",
+    "ambassador_title": "Best Ambassador",
+    "ambassador_desc": "The student who invited the most friends to Uni Feedback",
+    "ambassador_degree": "Bachelor's in Computer Science and Engineering",
+    "ambassador_faculty": "at Nova FCT",
+    "drawn_title": "Giveaway winners",
+    "drawn_desc": "Drawn randomly, based on the number of points of each student",
+    "drawn_1_degree": "Bachelor's in Management",
+    "drawn_1_faculty": "at Nova SBE",
+    "drawn_2_degree": "Bachelor's in Engineering Physics",
+    "drawn_2_faculty": "at IST",
+    "student_at": "A student from {{degree}} {{faculty}}",
+    "email_note": "We emailed everyone their result. Cannot find yours? Check your spam, or write to <0>afonso@uni-feedback.com</0>."
   }
 }

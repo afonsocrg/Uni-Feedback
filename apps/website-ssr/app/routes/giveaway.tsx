@@ -1,15 +1,18 @@
 import { getGiveawayPhase, GIVEAWAY_PHASES } from '@uni-feedback/utils'
 import {
+  GIVEAWAY_RESULTS_ANCHOR,
   GiveawayCTASection,
   GiveawayDrawingStats,
   GiveawayFAQSection,
   GiveawayHeroSection,
   GiveawayPointsSection,
   GiveawayPrizesSection,
+  GiveawayResultsDegrees,
+  GiveawayWinners,
   HowToWinSection
 } from '~/components/giveaway'
 import { i18n } from '~/i18n/config'
-import { getClosedGiveawayTotals } from '~/lib/giveawayResults.server'
+import { getClosedGiveawayResults } from '~/lib/giveawayResults.server'
 import { detectLang } from '~/utils/i18n-routes'
 import { buildMeta } from '~/utils/meta'
 import { getRequestOrigin } from '~/utils/request'
@@ -21,9 +24,10 @@ import type { Route } from './+types/giveaway'
  * cannot differ between the server render and hydration, and so the page flips at
  * midnight on its own. See `getGiveawayPhase`.
  *
- * The totals are only read once the window has closed, because that is the only
+ * The results are only read once the window has closed, because that is the only
  * state that shows them, and they come from the cached accessor: this page gets
  * far more traffic than the results page and the numbers can no longer move.
+ * Totals AND degrees, since the leaderboard now lives here too.
  */
 export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url)
@@ -36,9 +40,9 @@ export async function loader({ request }: Route.LoaderArgs) {
   const requested = import.meta.env.DEV ? url.searchParams.get('phase') : null
   const override = GIVEAWAY_PHASES.find((candidate) => candidate === requested)
   const phase = override ?? getGiveawayPhase()
-  const totals = phase === 'active' ? null : await getClosedGiveawayTotals()
+  const results = phase === 'active' ? null : await getClosedGiveawayResults()
 
-  return { origin, lang, phase, totals }
+  return { origin, lang, phase, results }
 }
 
 /**
@@ -51,13 +55,24 @@ export async function loader({ request }: Route.LoaderArgs) {
 export function meta({ loaderData }: Route.MetaArgs) {
   const { origin, lang, phase } = loaderData
   const t = i18n.getFixedT(lang, 'legal')
-  const drawing = phase !== 'active'
+
+  // Three variants, because the preview is the whole message for most people who
+  // see this link. "Winners coming up" left standing after the draw is the same
+  // mistake as the hero: it promises something that already happened.
+  const title = {
+    active: 'giveaway.meta_title',
+    drawing: 'giveaway.meta_title_drawing',
+    announced: 'giveaway.meta_title_announced'
+  } as const
+  const description = {
+    active: 'giveaway.meta_desc',
+    drawing: 'giveaway.meta_desc_drawing',
+    announced: 'giveaway.meta_desc_announced'
+  } as const
 
   return buildMeta({
-    title: t(drawing ? 'giveaway.meta_title_drawing' : 'giveaway.meta_title'),
-    description: t(
-      drawing ? 'giveaway.meta_desc_drawing' : 'giveaway.meta_desc'
-    ),
+    title: t(title[phase]),
+    description: t(description[phase]),
     url: `${origin}/giveaway`,
     image: {
       url: `${origin}/giveaway/og-${lang}.png`,
@@ -68,27 +83,54 @@ export function meta({ loaderData }: Route.MetaArgs) {
 }
 
 export default function GiveawayPage({ loaderData }: Route.ComponentProps) {
-  const { phase, totals } = loaderData
+  const { phase, results } = loaderData
 
   return (
     <>
       <GiveawayHeroSection phase={phase} />
 
-      {/* Once the window closes the entire entry pitch goes, not just its
+      {/* The winners come before the totals, and on this page rather than only
+          on /giveaway/results. This is the URL in the Instagram bio and on every
+          banner, so it is where people arrive to find out who won; making them
+          click through to learn the one thing they came for is how a wrap-up
+          reads as a hedge. The results page keeps the full breakdown. */}
+      {/* The anchor sits on the wrapper, not on the winners, so the hero's
+          "see the results" lands on the first thing after it in either closed
+          phase: the winners once they are out, the totals before that. */}
+      <div id={GIVEAWAY_RESULTS_ANCHOR} className="scroll-mt-20">
+        {phase === 'announced' && (
+          <section className="bg-background pt-12 md:pt-16">
+            <div className="container mx-auto px-4">
+              <GiveawayWinners />
+            </div>
+          </section>
+        )}
+
+        {/* Once the window closes the entire entry pitch goes, not just its
           wording: the how-to and the points table are instructions for earning
           entries, and the prizes block is a pitch for entering. Nothing makes
           those honest after the deadline. What is left is what happened, and the
           rules page still documents how the scoring worked for anyone checking
           the draw. */}
-      {phase === 'active' ? (
-        <>
-          <HowToWinSection />
-          <GiveawayPrizesSection />
-          <GiveawayPointsSection />
-        </>
-      ) : (
-        totals && <GiveawayDrawingStats totals={totals} />
-      )}
+        {phase === 'active' ? (
+          <>
+            <HowToWinSection />
+            <GiveawayPrizesSection />
+            <GiveawayPointsSection />
+          </>
+        ) : (
+          results && (
+            <>
+              <GiveawayDrawingStats totals={results.totals} />
+              {/* The leaderboard moved here from the results page. After the
+                winners, "what we built together" is the answer to the question
+                the winners raise: three people got cards, so what did the other
+                few hundred get out of it. The degrees are that answer. */}
+              <GiveawayResultsDegrees degrees={results.degrees} />
+            </>
+          )
+        )}
+      </div>
 
       <GiveawayFAQSection />
       <GiveawayCTASection phase={phase} />

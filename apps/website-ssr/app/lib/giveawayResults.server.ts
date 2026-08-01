@@ -107,32 +107,38 @@ const reviewCount = sql<number>`count(*)`
  */
 const CLOSED_TOTALS_TTL_MS = 10 * 60_000
 
-let closedTotals: { totals: GiveawayResults['totals']; at: number } | null =
-  null
+let closedResults: { results: GiveawayResults; at: number } | null = null
 
 /**
- * The three headline totals, cached, for pages that show the numbers but are not
- * the results page: right now the campaign landing page after the window closes.
+ * The whole results payload, cached, for pages that show the numbers but are not
+ * the results page: right now the campaign page once the window closes, which
+ * carries the winners, the totals and the degree leaderboard.
  *
  * Only for use once the giveaway is CLOSED. While it runs, a student can submit
  * a review and watch the count move, and a TTL would make that lie (see the note
- * on `getGiveawayResults`). Closed, nothing the student does changes the number,
- * so the landing page does not need to pay a fresh read per view.
- *
- * It still runs the full `getGiveawayResults()`, degrees and faculties included,
- * and drops everything but the totals. Once per TTL per process, so the wasted
- * aggregates are not worth a second query path that could drift from this one.
+ * on `getGiveawayResults`). Closed, nothing the student does changes the numbers,
+ * so the campaign page does not need to pay a fresh read per view.
+ */
+export async function getClosedGiveawayResults(): Promise<GiveawayResults> {
+  const now = Date.now()
+  if (closedResults && now - closedResults.at < CLOSED_TOTALS_TTL_MS) {
+    return closedResults.results
+  }
+
+  const results = await getGiveawayResults()
+  closedResults = { results, at: now }
+  return results
+}
+
+/**
+ * Just the headline totals, for callers that want nothing else. Shares the cache
+ * above rather than keeping its own, so two blocks on one page can never render
+ * numbers from two different reads.
  */
 export async function getClosedGiveawayTotals(): Promise<
   GiveawayResults['totals']
 > {
-  const now = Date.now()
-  if (closedTotals && now - closedTotals.at < CLOSED_TOTALS_TTL_MS) {
-    return closedTotals.totals
-  }
-
-  const { totals } = await getGiveawayResults()
-  closedTotals = { totals, at: now }
+  const { totals } = await getClosedGiveawayResults()
   return totals
 }
 

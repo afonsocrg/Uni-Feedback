@@ -14,18 +14,35 @@ interface GiveawayHeroSectionProps {
 }
 
 /**
+ * Where the hero's "see the results" scrolls to once everything lives on this
+ * page. Exported so the route sets the id from the same constant and the two
+ * cannot drift into a link that scrolls nowhere.
+ */
+export const GIVEAWAY_RESULTS_ANCHOR = 'resultados'
+
+/**
  * Opening block of the campaign page.
  *
- * Two states. While the ask is live this sells entering: prize headline, live
+ * Three states. While the ask is live this sells entering: prize headline, live
  * countdown, "how to participate". Once the window closes it becomes the status
  * board, because this is the URL in the Instagram bio and on every banner, and a
- * closed campaign still selling entries is the one thing it must never do. The
- * flip is on the clock, not on a deploy.
+ * closed campaign still selling entries is the one thing it must never do. Once
+ * the winners are out it becomes the wrap-up, and this page is the wrap-up: the
+ * winners are announced directly below rather than one click away.
+ *
+ * The active/closed flip is on the clock; the closed/announced flip is on
+ * `GIVEAWAY_WINNERS_ANNOUNCED`, since only a human knows the draw has been run.
+ *
+ * `drawing` still means "the window has shut", which is what the shared closed
+ * styling keys off. `announced` narrows that to "and the winners are published",
+ * so the two must not be collapsed back into one boolean: doing that is what
+ * left this hero promising an announcement that had already happened.
  */
 export function GiveawayHeroSection({ phase }: GiveawayHeroSectionProps) {
   const lang = useLang()
   const { t } = useTranslation('legal')
   const drawing = phase !== 'active'
+  const announced = phase === 'announced'
 
   return (
     <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-900 to-zinc-800">
@@ -46,7 +63,9 @@ export function GiveawayHeroSection({ phase }: GiveawayHeroSectionProps) {
             {t('giveaway_page.edition_name')}
           </p>
           <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight drop-shadow-lg">
-            {drawing ? (
+            {announced ? (
+              t('giveaway_page.hero_title_announced')
+            ) : drawing ? (
               t('giveaway_page.hero_title_drawing')
             ) : (
               <Trans
@@ -58,24 +77,30 @@ export function GiveawayHeroSection({ phase }: GiveawayHeroSectionProps) {
           </h1>
           <p className="text-xl md:text-2xl text-white/90 drop-shadow-md">
             {t(
-              drawing
-                ? 'giveaway_page.hero_subtitle_drawing'
-                : 'giveaway_page.hero_subtitle'
+              announced
+                ? 'giveaway_page.hero_subtitle_announced'
+                : drawing
+                  ? 'giveaway_page.hero_subtitle_drawing'
+                  : 'giveaway_page.hero_subtitle'
             )}
           </p>
 
           {/* The countdown renders nothing once expired, so without this the
               closed hero would just lose the line and leave a gap where the
-              deadline was. */}
-          {drawing ? (
+              deadline was.
+
+              Nothing here once the winners are out. "Acabou a 31 de julho" was
+              answering "can I still enter?", and the winners sitting directly
+              below already answer it; kept, it is the loudest thing in the hero
+              and it is about the least interesting fact on the page. */}
+          {!drawing && <GiveawayCountdown className="pt-2" />}
+          {drawing && !announced && (
             <div className="flex justify-center pt-2">
               <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-5 py-2.5 text-base font-semibold text-white backdrop-blur-sm sm:text-lg">
                 <CalendarClock className="size-5 shrink-0" />
                 {t('giveaway_page.drawing_badge')}
               </span>
             </div>
-          ) : (
-            <GiveawayCountdown className="pt-2" />
           )}
 
           <div className="pt-4 space-y-3">
@@ -87,18 +112,23 @@ export function GiveawayHeroSection({ phase }: GiveawayHeroSectionProps) {
               asChild
             >
               {drawing ? (
-                <Link
-                  to={getLocalePath('giveaway-results', lang)}
+                // Scrolls rather than navigates: everything it promises is on
+                // this page now. There is no separate results page to send
+                // anyone to, and jumping away would skip the winners.
+                <a
+                  href={`#${GIVEAWAY_RESULTS_ANCHOR}`}
                   onClick={() =>
                     analytics.giveaway.resultsLinkClicked({
-                      source: 'giveaway_hero_drawing',
+                      source: announced
+                        ? 'giveaway_hero_announced'
+                        : 'giveaway_hero_drawing',
                       referrerPage: getPageName(window.location.pathname)
                     })
                   }
                 >
                   <BarChart3 className="size-5" />
                   {t('giveaway_page.hero_cta_results_ended')}
-                </Link>
+                </a>
               ) : (
                 <a href="#how-to-win">
                   {t('giveaway_page.hero_cta_how')}
