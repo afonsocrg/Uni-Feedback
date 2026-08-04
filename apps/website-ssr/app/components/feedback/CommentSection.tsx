@@ -14,6 +14,7 @@ import { useTranslation } from 'react-i18next'
 import { ReviewTipsDialog } from '~/components'
 import { useDebounce } from '~/hooks'
 import { useFeedbackCategorization } from '~/hooks/useFeedbackCategorization'
+import { analytics, type FeedbackFormSurface } from '~/utils/analytics'
 import { FeedbackCategoryChips } from './FeedbackCategoryChips'
 
 type WithComment = FieldValues & { comment?: string }
@@ -23,12 +24,15 @@ interface CommentSectionProps<T extends WithComment> {
   onDebouncedChange?: (comment: string) => void
   /** Notified when the live category detection changes (for a points preview). */
   onCategoriesChange?: (categories: FeedbackCategories | null) => void
+  /** Which funnel this comment belongs to (analytics only). */
+  surface?: FeedbackFormSurface
 }
 
 export function CommentSection<T extends WithComment>({
   control,
   onDebouncedChange,
-  onCategoriesChange
+  onCategoriesChange,
+  surface = 'new'
 }: CommentSectionProps<T>) {
   const { t } = useTranslation('feedback')
   const [showReviewTips, setShowReviewTips] = useState(false)
@@ -86,6 +90,14 @@ export function CommentSection<T extends WithComment>({
                 placeholder={t('form.comment_placeholder')}
                 value={field.value}
                 onChange={field.onChange}
+                showToolbar
+                onFormat={(format, source) =>
+                  analytics.feedback.commentFormatted({
+                    format,
+                    source,
+                    surface
+                  })
+                }
               />
             </FormControl>
             <FormMessage />

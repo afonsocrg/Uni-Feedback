@@ -72,6 +72,7 @@ export function StepReviewForm({
           value={comment}
           onChange={setComment}
           minHeight="160px"
+          showBubbleMenu
         />
       </div>
 

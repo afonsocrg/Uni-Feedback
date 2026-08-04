@@ -183,6 +183,7 @@ export function EditFeedbackContent({
             <CommentSection
               control={form.control}
               onCategoriesChange={setCategories}
+              surface="edit"
             />
 
             <FeedbackPointsProgress

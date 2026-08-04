@@ -1,19 +1,28 @@
-import { BubbleMenu, type Editor } from '@tiptap/react'
+import type { Editor } from '@tiptap/react'
 import * as React from 'react'
+import { cn } from '../../../utils'
 import { getToolbarItems, type ToolbarFormat } from './toolbarItems'
 
-interface BubbleMenuBarProps {
+interface MenuBarProps {
   editor: Editor
   onFormat?: (format: ToolbarFormat) => void
+  className?: string
 }
 
-export function BubbleMenuBar({ editor, onFormat }: BubbleMenuBarProps) {
+/**
+ * Inline toolbar pinned above the editor. The bubble menu only appears once
+ * text is selected, so students never found out the comment could be
+ * formatted. This makes the affordance visible before they start typing.
+ */
+export function MenuBar({ editor, onFormat, className }: MenuBarProps) {
   return (
-    <BubbleMenu
-      editor={editor}
-      tippyOptions={{ duration: 100 }}
-      shouldShow={({ editor }) => !editor.state.selection.empty}
-      className="bg-gray-900 rounded-lg shadow-lg flex items-center gap-0.5 p-1"
+    <div
+      className={cn(
+        'flex items-center gap-0.5 px-2 py-1 border-b border-border bg-muted/50',
+        className
+      )}
+      // The wrapper focuses the editor on click; the toolbar is not the text area.
+      onClick={(e) => e.stopPropagation()}
     >
       {getToolbarItems(editor).map((item) => (
         <React.Fragment key={item.format}>
@@ -30,7 +39,7 @@ export function BubbleMenuBar({ editor, onFormat }: BubbleMenuBarProps) {
           </ToolbarButton>
         </React.Fragment>
       ))}
-    </BubbleMenu>
+    </div>
   )
 }
 
@@ -50,17 +59,20 @@ function ToolbarButton({
   return (
     <button
       type="button"
+      // Keep the caret where it is: mousedown would blur the editor first.
+      onMouseDown={(e) => e.preventDefault()}
       onClick={(e) => {
         e.preventDefault()
         e.stopPropagation()
         onClick()
       }}
       title={title}
-      className={`p-1.5 rounded transition-colors ${
+      className={cn(
+        'p-1.5 rounded transition-colors',
         isActive
-          ? 'bg-white/20 text-white'
-          : 'text-gray-300 hover:bg-white/10 hover:text-white'
-      }`}
+          ? 'bg-primary/15 text-primary'
+          : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+      )}
     >
       {children}
     </button>
@@ -68,5 +80,5 @@ function ToolbarButton({
 }
 
 function ToolbarDivider() {
-  return <div className="w-px h-5 bg-gray-600 mx-1" />
+  return <div className="w-px h-4 bg-border mx-1" />
 }

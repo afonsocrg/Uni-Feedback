@@ -5,6 +5,8 @@ import * as React from 'react'
 import { Markdown } from 'tiptap-markdown'
 import { cn } from '../../../utils'
 import { BubbleMenuBar } from './BubbleMenuBar'
+import { MenuBar } from './MenuBar'
+import type { ToolbarFormat } from './toolbarItems'
 
 export interface RichTextEditorProps {
   value?: string
@@ -13,6 +15,12 @@ export interface RichTextEditorProps {
   className?: string
   minHeight?: string
   disabled?: boolean
+  /** Inline toolbar pinned above the text, always visible. */
+  showToolbar?: boolean
+  /** Floating menu that pops up over a text selection. */
+  showBubbleMenu?: boolean
+  /** Fired when a formatting control is used, from either menu. */
+  onFormat?: (format: ToolbarFormat, source: 'toolbar' | 'bubble') => void
 }
 
 export function RichTextEditor({
@@ -21,7 +29,10 @@ export function RichTextEditor({
   placeholder = 'What should others know about this course?',
   className,
   minHeight = '150px',
-  disabled = false
+  disabled = false,
+  showToolbar = false,
+  showBubbleMenu = false,
+  onFormat
 }: RichTextEditorProps) {
   const editor = useEditor({
     immediatelyRender: false,
@@ -33,8 +44,10 @@ export function RichTextEditor({
       }),
       Placeholder.configure({
         placeholder,
+        // `before:text-sm` keeps the hint quieter than what the student types,
+        // and matches the pre-hydration placeholder below.
         emptyEditorClass:
-          'before:content-[attr(data-placeholder)] before:text-muted-foreground before:float-left before:h-0 before:pointer-events-none'
+          'before:content-[attr(data-placeholder)] before:text-sm before:text-muted-foreground before:float-left before:h-0 before:pointer-events-none'
       }),
       Markdown.configure({
         html: false,
@@ -92,7 +105,18 @@ export function RichTextEditor({
           style={{ minHeight }}
           onClick={() => editor.chain().focus().run()}
         >
-          <BubbleMenuBar editor={editor} />
+          {showToolbar && !disabled && (
+            <MenuBar
+              editor={editor}
+              onFormat={(format) => onFormat?.(format, 'toolbar')}
+            />
+          )}
+          {showBubbleMenu && !disabled && (
+            <BubbleMenuBar
+              editor={editor}
+              onFormat={(format) => onFormat?.(format, 'bubble')}
+            />
+          )}
           <EditorContent editor={editor} className="p-3" />
         </div>
       ) : (

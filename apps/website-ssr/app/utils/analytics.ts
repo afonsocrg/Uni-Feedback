@@ -200,6 +200,18 @@ export const analytics = {
       trackEvent('feedback_form_comment_entered', props),
 
     /**
+     * Track when a formatting control is used in the comment editor. `source`
+     * separates the always-visible toolbar from the selection bubble menu, so
+     * we can tell whether making the toolbar visible actually got students
+     * formatting (the reason it was added) or just added chrome.
+     */
+    commentFormatted: (props: {
+      format: string
+      source: 'toolbar' | 'bubble'
+      surface: FeedbackFormSurface
+    }) => trackEvent('feedback_form_comment_formatted', props),
+
+    /**
      * Track when user clicks submit button (before auth check)
      */
     submitClicked: (props: {

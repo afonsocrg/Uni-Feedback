@@ -93,6 +93,7 @@ export function InlineFeedbackEdit({
           <CommentSection
             control={form.control}
             onCategoriesChange={setCategories}
+            surface="edit"
           />
 
           <FeedbackPointsProgress categories={categories} courseId={courseId} />

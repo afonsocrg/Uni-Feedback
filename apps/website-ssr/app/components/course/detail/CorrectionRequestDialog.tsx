@@ -318,6 +318,7 @@ export function CorrectionRequestDialog({
                             onChange={field.onChange}
                             minHeight="180px"
                             className="max-h-[45vh] overflow-y-auto"
+                            showBubbleMenu
                           />
                         ) : (
                           <Textarea
