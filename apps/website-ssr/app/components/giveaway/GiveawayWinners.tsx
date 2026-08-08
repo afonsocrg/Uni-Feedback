@@ -5,16 +5,17 @@ import { getAssetUrl } from '~/utils'
  * The three winners of the summer 2026 edition, announced by degree and faculty
  * and nothing else.
  *
- * NAMES ARE OPT-IN, ONE AT A TIME. The rules allow "[First name] [Last initial],
- * [Faculty]" with the winner's consent, and the Ambassador gave it in writing for
- * his full name and photo, so he is shown as himself. The two drawn winners have
- * not, and the default without consent stays what it was: "A student from <degree>
- * at <faculty>" says the useful thing (the prizes went to real students, spread
- * across three faculties) while identifying nobody, since the smallest of the
- * three degrees had 7 contributors in the window, comfortably above the
- * MIN_CONTRIBUTORS floor `giveawayResults.server.ts` uses to decide when a group
- * is small enough to be traceable to individuals. Nobody gets promoted from the
- * anonymous form to a name without asking them first.
+ * NAMES ARE OPT-IN, ONE AT A TIME, AND SO ARE PHOTOS. The rules allow "[First name]
+ * [Last initial], [Faculty]" with the winner's consent. The Ambassador gave it in
+ * writing for his full name and photo; the Nova SBE winner gave it for his name
+ * only, so he is named over his faculty's mark rather than a face. The remaining
+ * winner has consented to neither, and the default without consent stays what it
+ * was: "A student from <degree> at <faculty>" says the useful thing (the prizes
+ * went to real students, spread across three faculties) while identifying nobody,
+ * since the smallest of the three degrees had 7 contributors in the window,
+ * comfortably above the MIN_CONTRIBUTORS floor `giveawayResults.server.ts` uses to
+ * decide when a group is small enough to be traceable to individuals. Nobody gets
+ * promoted from the anonymous form to a name without asking them first.
  *
  * The degree shown is whichever one the winner wrote the most reviews for, since
  * a student can review courses listed under several degrees.
@@ -38,9 +39,10 @@ import { getAssetUrl } from '~/utils'
 // widen to `string` and every lookup below fails to type-check.
 //
 // `name` is the one string here that is not a translation key: a person's name is
-// the same in both languages. Its presence is also what switches this entry to the
-// named layout, so a winner is named only by adding the two things consent covers,
-// the name and the photo, together.
+// the same in both languages. Name and photo are separate opt-ins and each one
+// alone switches on its own half of the layout, so a winner shows exactly what he
+// agreed to and nothing more: adding `name` names him, adding `photo` shows his
+// face, and a winner who consented to only one gets only that.
 const AMBASSADOR = {
   name: 'João Marques Pinto',
   photo: 'students/joao_marques_pinto.png',
@@ -51,6 +53,7 @@ const AMBASSADOR = {
 /** Both won the same prize, so this is draw order and not a ranking. */
 const DRAWN = [
   {
+    name: 'Kirill Vilovsky',
     degree: 'giveaway_winners.drawn_1_degree',
     faculty: 'giveaway_winners.drawn_1_faculty',
     logo: 'faculties/nova_sbe/logo.png'
@@ -67,11 +70,12 @@ type Winner = typeof AMBASSADOR | (typeof DRAWN)[number]
 /**
  * One winner: a portrait, then who they are.
  *
- * A winner who consented shows their photo and name; everyone else shows their
- * faculty's mark and no name. Both forms are the same circle at the same size, so
- * the three entries still read as one row rather than as one winner and two
- * runners-up, and the difference between them is only how much each person agreed
- * to show.
+ * The two halves are chosen independently: a winner who consented to a photo shows
+ * it, everyone else shows their faculty's mark, and a name appears above the course
+ * line for anyone who consented to it, with or without a face. Every form is the
+ * same circle at the same size, so the three entries still read as one row rather
+ * than as one winner and two runners-up, and the difference between them is only
+ * how much each person agreed to show.
  */
 function WinnerEntry({ winner }: { winner: Winner }) {
   const { t } = useTranslation('legal')
@@ -80,7 +84,7 @@ function WinnerEntry({ winner }: { winner: Winner }) {
 
   return (
     <div className="flex flex-col items-center text-center">
-      {'name' in winner ? (
+      {'photo' in winner ? (
         // No white plate and no padding: this fills its circle. The alt text is
         // the name because the photo is of a named person, and the name is
         // already in the text below, so a screen reader would otherwise hear it
@@ -121,7 +125,9 @@ function WinnerEntry({ winner }: { winner: Winner }) {
       {'name' in winner ? (
         // The name carries the line and the course drops to a caption under it.
         // Folding both into one sentence ("João Marques Pinto, a student from
-        // ...") buries the only thing on this page that is a person.
+        // ...") buries the only thing on this page that is a person. This is the
+        // same treatment whether the circle above holds a face or a faculty mark:
+        // a named winner is a named winner.
         <>
           <p className="mt-3 font-medium text-foreground">{winner.name}</p>
           <p className="mt-1 max-w-xs text-balance text-sm text-muted-foreground">
