@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLang } from '~/hooks'
 import { getAssetUrl } from '~/utils'
@@ -36,11 +36,21 @@ interface BrowseSectionProps {
 export function BrowseSection({ faculties, degrees }: BrowseSectionProps) {
   const { t } = useTranslation('landing')
   const lang = useLang()
-  const [selectedFacultyId, setSelectedFacultyId] = useState<number>(
-    faculties[0]?.id ?? 0
+
+  // Most active faculties first: total feedbacks, then how many degrees we
+  // cover, so an empty faculty never opens the section.
+  const sortedFaculties = useMemo(
+    () => sortFacultiesByActivity(faculties, degrees),
+    [faculties, degrees]
   )
 
-  const selectedFaculty = faculties.find((f) => f.id === selectedFacultyId)
+  const [selectedFacultyId, setSelectedFacultyId] = useState<number>(
+    sortedFaculties[0]?.id ?? 0
+  )
+
+  const selectedFaculty = sortedFaculties.find(
+    (f) => f.id === selectedFacultyId
+  )
 
   const allFilteredDegrees = degrees.filter(
     (d) => d.facultyId === selectedFacultyId
@@ -59,7 +69,7 @@ export function BrowseSection({ faculties, degrees }: BrowseSectionProps) {
 
           {/* Mobile: tabs */}
           <div className="md:hidden mb-4 flex gap-2 overflow-x-auto pb-2">
-            {faculties.map((faculty) => (
+            {sortedFaculties.map((faculty) => (
               <button
                 key={faculty.id}
                 onClick={() => setSelectedFacultyId(faculty.id)}
@@ -85,9 +95,10 @@ export function BrowseSection({ faculties, degrees }: BrowseSectionProps) {
 
           {/* Desktop: two-column */}
           <div className="hidden md:grid md:grid-cols-[200px_1fr] gap-6">
-            {/* Left: faculty list */}
-            <div className="space-y-1">
-              {faculties.map((faculty) => (
+            {/* Left: faculty list. Capped just short of a whole row so the
+                next faculty peeks out and the list reads as scrollable. */}
+            <div className="space-y-1 max-h-[25rem] overflow-y-auto pr-1">
+              {sortedFaculties.map((faculty) => (
                 <button
                   key={faculty.id}
                   onClick={() => setSelectedFacultyId(faculty.id)}
@@ -145,6 +156,30 @@ export function BrowseSection({ faculties, degrees }: BrowseSectionProps) {
       </div>
     </section>
   )
+}
+
+function sortFacultiesByActivity(
+  faculties: FacultyInfo[],
+  degrees: DegreeWithStats[]
+): FacultyInfo[] {
+  const stats = new Map<number, { feedbacks: number; degrees: number }>()
+  for (const degree of degrees) {
+    if (degree.facultyId === null) continue
+    const current = stats.get(degree.facultyId) ?? { feedbacks: 0, degrees: 0 }
+    current.feedbacks += degree.feedbackCount
+    current.degrees += 1
+    stats.set(degree.facultyId, current)
+  }
+
+  return [...faculties].sort((a, b) => {
+    const statsA = stats.get(a.id) ?? { feedbacks: 0, degrees: 0 }
+    const statsB = stats.get(b.id) ?? { feedbacks: 0, degrees: 0 }
+    return (
+      statsB.feedbacks - statsA.feedbacks ||
+      statsB.degrees - statsA.degrees ||
+      a.shortName.localeCompare(b.shortName)
+    )
+  })
 }
 
 function DegreeGrid({
