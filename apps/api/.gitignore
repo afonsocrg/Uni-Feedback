@@ -228,3 +228,6 @@ dist/**
 .e2e-test-report/
 
 .dev.vars
+
+# Phase 0 chat spike output (throwaway run reports)
+chat-spike-results/
