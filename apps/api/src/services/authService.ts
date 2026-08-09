@@ -8,6 +8,9 @@ import { InternalServerError } from '@routes/utils/errorHandling'
 import { PointService } from '@services/pointService'
 import { database } from '@uni-feedback/db'
 import {
+  chatAccessRequests,
+  chatMessageFeedback,
+  chats,
   emailPreferences,
   feedbackFull,
   magicLinkRateLimits,
@@ -647,6 +650,27 @@ export class AuthService {
         .update(users)
         .set({ referredByUserId: anonymizedUser.id })
         .where(eq(users.referredByUserId, userId))
+
+      // Transfer chats and their per-answer feedback. These FKs are deliberately
+      // NOT ON DELETE CASCADE: if this transfer is ever forgotten, the delete
+      // below fails loudly instead of silently destroying chat history.
+      // `authService.deleteAccount.test.ts` is the tripwire for exactly that.
+      await tx
+        .update(chats)
+        .set({ userId: anonymizedUser.id })
+        .where(eq(chats.userId, userId))
+
+      await tx
+        .update(chatMessageFeedback)
+        .set({ userId: anonymizedUser.id })
+        .where(eq(chatMessageFeedback.userId, userId))
+
+      // Chat access requests carry an email, which is personal data the
+      // anonymised account must not keep. Drop them rather than transferring:
+      // they are a waitlist, and a deleted account does not want to be on it.
+      await tx
+        .delete(chatAccessRequests)
+        .where(eq(chatAccessRequests.userId, userId))
 
       // Step 3: Delete original user (cascades to sessions, passwordResetTokens)
       await tx.delete(users).where(eq(users.id, userId))

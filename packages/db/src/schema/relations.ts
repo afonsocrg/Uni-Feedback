@@ -1,6 +1,11 @@
 import { relations } from 'drizzle-orm'
 import { academicTerms } from './academicTerm'
 import { audioRecordings } from './audioRecording'
+import { chats } from './chat'
+import { chatAccessRequests } from './chatAccessRequest'
+import { chatMessages } from './chatMessage'
+import { chatMessageEntities } from './chatMessageEntity'
+import { chatMessageFeedback } from './chatMessageFeedback'
 import { correctionRequests } from './correctionRequest'
 import { courses } from './course'
 import { courseOfferings } from './courseOffering'
@@ -205,6 +210,84 @@ export const audioRecordingRelations = relations(
     course: one(courses, {
       fields: [audioRecordings.courseId],
       references: [courses.id]
+    })
+  })
+)
+
+// Chat relations
+export const chatRelations = relations(chats, ({ one, many }) => ({
+  user: one(users, {
+    fields: [chats.userId],
+    references: [users.id]
+  }),
+  contextFaculty: one(faculties, {
+    fields: [chats.contextFacultyId],
+    references: [faculties.id]
+  }),
+  contextDegree: one(degrees, {
+    fields: [chats.contextDegreeId],
+    references: [degrees.id]
+  }),
+  contextCourse: one(courses, {
+    fields: [chats.contextCourseId],
+    references: [courses.id]
+  }),
+  messages: many(chatMessages)
+}))
+
+export const chatMessageRelations = relations(
+  chatMessages,
+  ({ one, many }) => ({
+    chat: one(chats, {
+      fields: [chatMessages.chatId],
+      references: [chats.id]
+    }),
+    entities: many(chatMessageEntities),
+    feedback: many(chatMessageFeedback)
+  })
+)
+
+// Deliberately polymorphic: `entityId` has no foreign key, so there is no
+// relation to declare back to courses/degrees/faculties. See the table's doc
+// comment for why that trade is worth it.
+export const chatMessageEntityRelations = relations(
+  chatMessageEntities,
+  ({ one }) => ({
+    message: one(chatMessages, {
+      fields: [chatMessageEntities.messageId],
+      references: [chatMessages.id]
+    })
+  })
+)
+
+export const chatMessageFeedbackRelations = relations(
+  chatMessageFeedback,
+  ({ one }) => ({
+    message: one(chatMessages, {
+      fields: [chatMessageFeedback.messageId],
+      references: [chatMessages.id]
+    }),
+    user: one(users, {
+      fields: [chatMessageFeedback.userId],
+      references: [users.id]
+    })
+  })
+)
+
+export const chatAccessRequestRelations = relations(
+  chatAccessRequests,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [chatAccessRequests.userId],
+      references: [users.id]
+    }),
+    faculty: one(faculties, {
+      fields: [chatAccessRequests.facultyId],
+      references: [faculties.id]
+    }),
+    degree: one(degrees, {
+      fields: [chatAccessRequests.degreeId],
+      references: [degrees.id]
     })
   })
 )
