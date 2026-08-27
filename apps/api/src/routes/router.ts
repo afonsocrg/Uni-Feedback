@@ -6,12 +6,12 @@ import { router as adminRouter } from './admin/router'
 import { router as authRouter } from './auth/router'
 import {
   ClearChatMessageRating,
-  CreateChat,
   DeleteChat,
   GetChat,
   ListChats,
   RateChatMessage,
-  SendChatMessage
+  SendChatMessage,
+  StartChat
 } from './chat'
 import {
   SearchCourses,
@@ -96,7 +96,10 @@ router.post('/feedback/:id/report', ReportFeedback)
 // Chat. Resource routes rather than /auth/*: these are operations on chats,
 // which happen to require authentication (see the api-routing-conventions skill).
 router.get('/chat', ListChats)
-router.post('/chat', CreateChat)
+// One call creates the chat and sends its first message. There is deliberately
+// no bare "create a chat" endpoint: an empty conversation is not worth storing,
+// and every gate has to run before anything is written.
+router.post('/chat/messages', StartChat)
 router.get('/chat/:id', GetChat)
 router.delete('/chat/:id', DeleteChat)
 router.post('/chat/:id/messages', SendChatMessage)

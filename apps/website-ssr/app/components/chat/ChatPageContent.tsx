@@ -1,6 +1,4 @@
 import {
-  MeicFeedbackAPIError,
-  createChat,
   deleteChat,
   getChat,
   listChats,
@@ -25,7 +23,7 @@ import { ChatCoverageWall, ChatQuotaWall } from './ChatWalls'
 
 interface ChatPageContentProps {
   /** From the URL when opening an existing conversation. */
-  chatId: number | null
+  chatId: string | null
   /** From query params when arriving from a course, degree or faculty page. */
   scope: ChatScope | null
   /** Display name for the scope, so it can be shown before a chat exists. */
@@ -57,8 +55,7 @@ export function ChatPageContent({
     false
   )
   const [chats, setChats] = useState<ChatSummary[]>([])
-  const [activeChatId, setActiveChatId] = useState<number | null>(initialChatId)
-  const [coverageBlocked, setCoverageBlocked] = useState(false)
+  const [activeChatId, setActiveChatId] = useState<string | null>(initialChatId)
   const [loaded, setLoaded] = useState(false)
   // null means "never chosen", which lets the first client render pick a
   // default from the viewport instead of guessing during SSR: a sidebar that
@@ -69,8 +66,22 @@ export function ChatPageContent({
   )
 
   const hasContext = scope !== null
-  const stream = useChatStream(activeChatId, hasContext)
-  const { reset, abort, title } = stream
+  const stream = useChatStream(activeChatId, hasContext, {
+    scope,
+    language: lang
+  })
+  const { reset, abort, title, createdChatId } = stream
+
+  // A 403 from the send is the coverage wall: this student's university is not
+  // switched on. It arrives before anything is written now, which is the point
+  // of running the gates ahead of creating the chat.
+  const coverageBlocked = stream.errorStatus === 403
+
+  useEffect(() => {
+    if (coverageBlocked) {
+      analytics.chat.coverageWallShown({ facultyId: scope?.facultyId ?? null })
+    }
+  }, [coverageBlocked, scope?.facultyId])
 
   /**
    * Whether localStorage has been read yet.
@@ -156,47 +167,32 @@ export function ChatPageContent({
   // A turn takes seconds, so leaving mid-answer is a real case, not an edge one.
   useEffect(() => abort, [abort])
 
+  // The URL moves only when the chat exists, which is the moment the first
+  // answer comes back. Until then the student stays on /chat and nothing has
+  // been written, so a refused or failed first message leaves no trace.
+  useEffect(() => {
+    if (!createdChatId || createdChatId === activeChatId) return
+    setActiveChatId(createdChatId)
+    setChats((prev) => [
+      {
+        id: createdChatId,
+        title: title ?? null,
+        createdAt: new Date().toISOString(),
+        lastMessageAt: new Date().toISOString()
+      },
+      ...prev
+    ])
+    // replace, so a new chat does not leave an empty /chat in the back stack.
+    navigate(`${getLocalePath('chat', lang)}/${createdChatId}`, {
+      replace: true,
+      preventScrollReset: true
+    })
+  }, [createdChatId, activeChatId, title, lang, navigate])
+
   const send = useCallback(
-    async (content: string, usedSuggestion = false) => {
-      let targetId = activeChatId
-
-      if (targetId === null) {
-        try {
-          const created = await createChat({
-            language: lang,
-            scope: scope ?? undefined
-          })
-          targetId = created.id
-          setActiveChatId(created.id)
-          setChats((prev) => [
-            {
-              id: created.id,
-              title: created.title,
-              createdAt: created.createdAt,
-              lastMessageAt: null
-            },
-            ...prev
-          ])
-          // Replace rather than push: a new chat should not leave an empty
-          // /chat behind in the back stack.
-          navigate(`${getLocalePath('chat', lang)}/${created.id}`, {
-            replace: true
-          })
-        } catch (error) {
-          // 403 here is the coverage wall: this student's university is not on.
-          if (error instanceof MeicFeedbackAPIError && error.status === 403) {
-            setCoverageBlocked(true)
-            analytics.chat.coverageWallShown({
-              facultyId: scope?.facultyId ?? null
-            })
-          }
-          return
-        }
-      }
-
-      await stream.send(content, { usedSuggestion })
-    },
-    [activeChatId, lang, navigate, scope, stream]
+    (content: string, usedSuggestion = false) =>
+      stream.send(content, { usedSuggestion }),
+    [stream]
   )
 
   const startNewChat = () => {

@@ -14,14 +14,10 @@ export function meta({ location, matches }: Route.MetaArgs) {
 }
 
 export default function ChatDetailPage() {
+  // A uuid, not a number: the URL addresses the chat's public id.
   const { chatId } = useParams()
-  const parsed = Number(chatId)
 
   return (
-    <ChatPageContent
-      chatId={Number.isFinite(parsed) ? parsed : null}
-      scope={null}
-      source="direct"
-    />
+    <ChatPageContent chatId={chatId ?? null} scope={null} source="direct" />
   )
 }

@@ -1,5 +1,9 @@
 import { database } from '@uni-feedback/db'
-import { chatMessageEntities, chatMessages } from '@uni-feedback/db/schema'
+import {
+  chatMessageEntities,
+  chatMessages,
+  chats
+} from '@uni-feedback/db/schema'
 import { eq } from 'drizzle-orm'
 import { beforeEach, describe, expect, it } from 'vitest'
 import {
@@ -113,7 +117,7 @@ describe('ChatService', () => {
 
         const created = await chat.createChat({ userId: user.id })
         const result = await chat.sendMessage({
-          chatId: created.id,
+          chat: created,
           userId: user.id,
           content: 'O que dizem sobre AMS?'
         })
@@ -136,7 +140,7 @@ describe('ChatService', () => {
 
         const created = await chat.createChat({ userId: user.id })
         const result = await chat.sendMessage({
-          chatId: created.id,
+          chat: created,
           userId: user.id,
           content: 'loop'
         })
@@ -162,7 +166,7 @@ describe('ChatService', () => {
 
         const created = await chat.createChat({ userId: user.id })
         const result = await chat.sendMessage({
-          chatId: created.id,
+          chat: created,
           userId: user.id,
           content: 'Fala-me de AMS'
         })
@@ -183,7 +187,7 @@ describe('ChatService', () => {
 
         const created = await chat.createChat({ userId: user.id })
         const result = await chat.sendMessage({
-          chatId: created.id,
+          chat: created,
           userId: user.id,
           content: 'Qual foi a nota do último colocado?'
         })
@@ -209,7 +213,7 @@ describe('ChatService', () => {
 
         const created = await chat.createChat({ userId: user.id })
         const result = await chat.sendMessage({
-          chatId: created.id,
+          chat: created,
           userId: user.id,
           content: 'Como é o LEIC?'
         })
@@ -229,12 +233,55 @@ describe('ChatService', () => {
 
         const created = await chat.createChat({ userId: user.id })
         const result = await chat.sendMessage({
-          chatId: created.id,
+          chat: created,
           userId: user.id,
           content: 'O que dizem sobre AMS?'
         })
 
         expect(result.guardsFired).toHaveLength(0)
+      })
+    })
+  })
+
+  describe('startChat', () => {
+    it('creates the chat and its first message in one go', async () => {
+      await withTestDb(async () => {
+        const { user, course } = await seed()
+        const { service: chat } = service([
+          callTool('get_course_reviews', { courseId: course.id }),
+          say('Os alunos dizem que o projeto é trabalhoso.')
+        ])
+
+        const { chat: created, turn } = await chat.startChat({
+          userId: user.id,
+          content: 'O que dizem sobre AMS?'
+        })
+
+        expect(created.publicId).toMatch(
+          /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
+        )
+        expect(turn.answer).toContain('projeto')
+
+        const messages = await chat.getMessages(created.id)
+        expect(messages.map((m) => m.role)).toEqual(['user', 'assistant'])
+      })
+    })
+
+    it('leaves nothing behind when the first turn fails', async () => {
+      await withTestDb(async () => {
+        const { user } = await seed()
+        // The model dies before producing an answer.
+        const { service: chat } = service([])
+
+        await expect(
+          chat.startChat({ userId: user.id, content: 'olá' })
+        ).rejects.toThrow()
+
+        // This is the whole reason creating and sending became one call: a
+        // conversation that never happened must not be stored.
+        expect(await chat.listChats(user.id)).toHaveLength(0)
+        const rows = await database().select().from(chats)
+        expect(rows).toHaveLength(0)
       })
     })
   })
@@ -250,7 +297,7 @@ describe('ChatService', () => {
 
         const created = await chat.createChat({ userId: user.id })
         await chat.sendMessage({
-          chatId: created.id,
+          chat: created,
           userId: user.id,
           content: 'Quantos ECTS tem AMS?'
         })
@@ -280,7 +327,7 @@ describe('ChatService', () => {
 
         const created = await chat.createChat({ userId: user.id })
         const result = await chat.sendMessage({
-          chatId: created.id,
+          chat: created,
           userId: user.id,
           content: 'AMS?'
         })
@@ -311,12 +358,12 @@ describe('ChatService', () => {
 
         const created = await chat.createChat({ userId: user.id })
         await chat.sendMessage({
-          chatId: created.id,
+          chat: created,
           userId: user.id,
           content: 'Primeira pergunta'
         })
         await chat.sendMessage({
-          chatId: created.id,
+          chat: created,
           userId: user.id,
           content: 'Segunda pergunta'
         })
@@ -342,14 +389,14 @@ describe('ChatService', () => {
 
         const mine = await chat.createChat({ userId: user.id })
         await chat.sendMessage({
-          chatId: mine.id,
+          chat: mine,
           userId: user.id,
           content: 'uma'
         })
 
         const theirs = await chat.createChat({ userId: other.id })
         await chat.sendMessage({
-          chatId: theirs.id,
+          chat: theirs,
           userId: other.id,
           content: 'outra'
         })
@@ -366,12 +413,12 @@ describe('ChatService', () => {
 
         const created = await chat.createChat({ userId: user.id })
         await chat.sendMessage({
-          chatId: created.id,
+          chat: created,
           userId: user.id,
           content: 'uma'
         })
         await chat.sendMessage({
-          chatId: created.id,
+          chat: created,
           userId: user.id,
           content: 'duas'
         })
@@ -390,12 +437,12 @@ describe('ChatService', () => {
         const { service: chat } = service([])
         const created = await chat.createChat({ userId: user.id })
 
-        expect(await chat.deleteChat(created.id, user.id)).toBe(true)
-        expect(await chat.findChat(created.id, user.id)).toBeNull()
+        expect(await chat.deleteChat(created.publicId, user.id)).toBe(true)
+        expect(await chat.findChat(created.publicId, user.id)).toBeNull()
         expect(await chat.listChats(user.id)).toHaveLength(0)
         // Deleting twice is not an error the caller should have to handle, but
         // it must not report success either.
-        expect(await chat.deleteChat(created.id, user.id)).toBe(false)
+        expect(await chat.deleteChat(created.publicId, user.id)).toBe(false)
       })
     })
 
@@ -406,8 +453,8 @@ describe('ChatService', () => {
         const { service: chat } = service([])
         const created = await chat.createChat({ userId: user.id })
 
-        expect(await chat.deleteChat(created.id, other.id)).toBe(false)
-        expect(await chat.findChat(created.id, user.id)).not.toBeNull()
+        expect(await chat.deleteChat(created.publicId, other.id)).toBe(false)
+        expect(await chat.findChat(created.publicId, user.id)).not.toBeNull()
       })
     })
   })

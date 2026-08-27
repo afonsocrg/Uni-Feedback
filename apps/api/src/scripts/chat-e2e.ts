@@ -55,7 +55,7 @@ await DatabaseContext.run(drizzle(sql, { schema }), async () => {
   console.log(`\nQ: ${question}${scoped ? '  [scoped to course 5537]' : ''}\n`)
   const started = Date.now()
   const result = await service.sendMessage({
-    chatId: chat.id,
+    chat,
     userId: user.id,
     content: question,
     onProgress: ({ tool }) => console.log(`   🔧 ${tool}`)

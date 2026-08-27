@@ -25,7 +25,7 @@ export class SendChatMessage extends OpenAPIRoute {
     tags: ['Chat'],
     summary: 'Send a message and stream the answer',
     request: {
-      params: z.object({ id: z.coerce.number() }),
+      params: z.object({ id: z.string().uuid() }),
       body: {
         content: {
           'application/json': {
@@ -75,10 +75,10 @@ export class SendChatMessage extends OpenAPIRoute {
         }
 
         try {
-          send('start', { chatId: chat.id })
+          send('start', { chatId: chat.publicId })
 
           const result = await service.sendMessage({
-            chatId: chat.id,
+            chat,
             userId: authContext.user.id,
             content: body.content,
             onProgress: ({ tool }) => send('working', { tool })

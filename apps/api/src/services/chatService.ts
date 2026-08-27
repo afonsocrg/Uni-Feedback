@@ -1,5 +1,6 @@
 import { CHAT_CONFIG } from '@config/chat'
 import { database } from '@uni-feedback/db'
+import type { Chat } from '@uni-feedback/db/schema'
 import {
   chatMessageEntities,
   chatMessageFeedback,
@@ -164,13 +165,14 @@ export class ChatService {
     return chat
   }
 
-  async findChat(chatId: number, userId: number) {
+  /** Resolves the URL's public id to the row, scoped to its owner. */
+  async findChat(publicId: string, userId: number) {
     const [chat] = await database()
       .select()
       .from(chats)
       .where(
         and(
-          eq(chats.id, chatId),
+          eq(chats.publicId, publicId),
           eq(chats.userId, userId),
           isNull(chats.deletedAt)
         )
@@ -182,7 +184,8 @@ export class ChatService {
   async listChats(userId: number, limit = 30) {
     return database()
       .select({
-        id: chats.id,
+        // The internal id never leaves the server.
+        id: chats.publicId,
         title: chats.title,
         createdAt: chats.createdAt,
         lastMessageAt: chats.lastMessageAt
@@ -230,13 +233,13 @@ export class ChatService {
   }
 
   /** Soft delete: hides the chat, never destroys the record. */
-  async deleteChat(chatId: number, userId: number): Promise<boolean> {
+  async deleteChat(publicId: string, userId: number): Promise<boolean> {
     const result = await database()
       .update(chats)
       .set({ deletedAt: new Date(), updatedAt: new Date() })
       .where(
         and(
-          eq(chats.id, chatId),
+          eq(chats.publicId, publicId),
           eq(chats.userId, userId),
           isNull(chats.deletedAt)
         )
@@ -249,20 +252,61 @@ export class ChatService {
   // The turn
   // -------------------------------------------------------------------------
 
+  /**
+   * Starts a conversation with its first message.
+   *
+   * One call, deliberately. Creating the chat and sending the first message
+   * used to be two, and every gate (coverage, quota, kill switch) ran inside the
+   * second one, so a refused send left an empty chat behind. The caller is
+   * expected to have run the gates before this, and if the turn itself fails
+   * before producing an answer the row is removed rather than stranded.
+   *
+   * It also means the chat is named the moment it exists: the title is
+   * generated from the first exchange in the same request, so it never appears
+   * in the sidebar as "Nova conversa".
+   */
+  async startChat(input: {
+    userId: number
+    content: string
+    language?: string | null
+    scope?: ChatScope
+    onProgress?: (info: { tool: string }) => void
+  }): Promise<{ chat: Chat; turn: TurnResult }> {
+    const chat = await this.createChat({
+      userId: input.userId,
+      language: input.language,
+      scope: input.scope
+    })
+
+    try {
+      const turn = await this.sendMessage({
+        chat,
+        userId: input.userId,
+        content: input.content,
+        onProgress: input.onProgress
+      })
+      return { chat, turn }
+    } catch (error) {
+      // Nothing was said, so there is no conversation to keep. Hard delete: a
+      // chat that never had a message is not a record of anything.
+      await database().delete(chats).where(eq(chats.id, chat.id))
+      throw error
+    }
+  }
+
   async sendMessage(input: {
-    chatId: number
+    chat: Chat
     userId: number
     content: string
     /** Fired as each tool starts, so the UI can show what is happening. */
     onProgress?: (info: { tool: string }) => void
   }): Promise<TurnResult> {
     const started = Date.now()
-    const chat = await this.findChat(input.chatId, input.userId)
-    if (!chat) throw new Error(`Chat ${input.chatId} not found`)
+    const chat = input.chat
 
-    const nextSeq = await this.nextSeq(input.chatId)
+    const nextSeq = await this.nextSeq(chat.id)
     await this.persistMessage({
-      chatId: input.chatId,
+      chatId: chat.id,
       seq: nextSeq,
       role: 'user',
       content: input.content,
@@ -286,7 +330,7 @@ export class ChatService {
       context.entities.map((e) => [e.pageUrl, { type: e.type, id: e.id }])
     )
 
-    const history = await this.buildHistory(input.chatId)
+    const history = await this.buildHistory(chat.id)
     const messages: LlmMessage[] = [
       {
         role: 'system',
@@ -301,7 +345,7 @@ export class ChatService {
 
     const assistantSeq = nextSeq + 1
     const assistantMessageId = await this.persistMessage({
-      chatId: input.chatId,
+      chatId: chat.id,
       seq: assistantSeq,
       role: 'assistant',
       content: turn.answer,
@@ -322,7 +366,7 @@ export class ChatService {
     await database()
       .update(chats)
       .set({ lastMessageAt: new Date(), updatedAt: new Date() })
-      .where(eq(chats.id, input.chatId))
+      .where(eq(chats.id, chat.id))
 
     return {
       answer: turn.answer,

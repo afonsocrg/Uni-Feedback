@@ -9,7 +9,7 @@ export class GetChat extends OpenAPIRoute {
   schema = {
     tags: ['Chat'],
     summary: 'Get one chat and its messages',
-    request: { params: z.object({ id: z.coerce.number() }) },
+    request: { params: z.object({ id: z.string().uuid() }) },
     responses: {
       '200': { description: 'Chat with messages' },
       '401': { description: 'Not authenticated' },
@@ -33,7 +33,7 @@ export class GetChat extends OpenAPIRoute {
     const messages = await service.getMessages(chat.id, authContext.user.id)
 
     return Response.json({
-      id: chat.id,
+      id: chat.publicId,
       title: chat.title,
       createdAt: chat.createdAt,
       lastMessageAt: chat.lastMessageAt,

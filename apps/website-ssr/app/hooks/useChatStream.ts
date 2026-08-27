@@ -11,12 +11,20 @@ import { analytics } from '~/utils/analytics'
  * restart it. So this hook tracks "which tool is running" instead of appending
  * characters.
  */
-export function useChatStream(chatId: number | null, hasContext: boolean) {
+export function useChatStream(
+  chatId: string | null,
+  hasContext: boolean,
+  options: { scope?: ChatScope | null; language?: 'pt' | 'en' } = {}
+) {
   const [messages, setMessages] = useState<DisplayMessage[]>([])
   const [workingTool, setWorkingTool] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  /** HTTP status behind the error, so callers can tell a refusal from a fault. */
+  const [errorStatus, setErrorStatus] = useState<number | null>(null)
   const [quotaReached, setQuotaReached] = useState(false)
   const [title, setTitle] = useState<string | null>(null)
+  /** Set when this turn created the chat, so the caller can move the URL. */
+  const [createdChatId, setCreatedChatId] = useState<string | null>(null)
 
   // Negative ids for optimistic messages, so they never collide with real ones.
   const optimisticId = useRef(-1)
@@ -26,15 +34,19 @@ export function useChatStream(chatId: number | null, hasContext: boolean) {
     setMessages(initial)
     setWorkingTool(null)
     setError(null)
+    setErrorStatus(null)
     setQuotaReached(false)
+    setCreatedChatId(null)
   }, [])
 
   const send = useCallback(
-    async (content: string, options: { usedSuggestion?: boolean } = {}) => {
-      if (chatId === null || workingTool !== null) return
+    async (content: string, sendOptions: { usedSuggestion?: boolean } = {}) => {
+      // chatId null is valid now: the first message creates the conversation.
+      if (workingTool !== null) return
 
       const isFirstMessage = messages.length === 0
       setError(null)
+      setErrorStatus(null)
       setMessages((prev) => [
         ...prev,
         { id: optimisticId.current--, role: 'user', content }
@@ -42,11 +54,11 @@ export function useChatStream(chatId: number | null, hasContext: boolean) {
       setWorkingTool('search_courses')
 
       analytics.chat.messageSent({
-        chatId,
+        chatId: chatId ?? 'new',
         isFirstMessage,
         hasContext,
         messageLength: content.length,
-        usedSuggestion: options.usedSuggestion ?? false
+        usedSuggestion: sendOptions.usedSuggestion ?? false
       })
 
       const controller = new AbortController()
@@ -55,11 +67,11 @@ export function useChatStream(chatId: number | null, hasContext: boolean) {
       let answered = false
 
       try {
-        for await (const event of sendChatMessage(
-          chatId,
-          content,
-          controller.signal
-        )) {
+        for await (const event of sendChatMessage(chatId, content, {
+          scope: options.scope ?? undefined,
+          language: options.language,
+          signal: controller.signal
+        })) {
           switch (event.type) {
             case 'working':
               setWorkingTool(event.tool)
@@ -80,7 +92,7 @@ export function useChatStream(chatId: number | null, hasContext: boolean) {
 
             case 'done':
               analytics.chat.answerReceived({
-                chatId,
+                chatId: chatId ?? 'new',
                 latencyMs: event.latencyMs,
                 toolsUsed: event.toolsUsed,
                 guardsFired: event.guardsFired,
@@ -88,8 +100,15 @@ export function useChatStream(chatId: number | null, hasContext: boolean) {
               })
               if (event.remainingMessages <= 0) {
                 setQuotaReached(true)
-                analytics.chat.quotaReached({ chatId })
+                analytics.chat.quotaReached({ chatId: chatId ?? 'new' })
               }
+              break
+
+            case 'created':
+              // The chat exists now. Only at this point is there a URL to move
+              // to, which is why nothing navigates before the first answer.
+              setCreatedChatId(event.chatId)
+              if (event.title) setTitle(event.title)
               break
 
             case 'title':
@@ -98,7 +117,10 @@ export function useChatStream(chatId: number | null, hasContext: boolean) {
 
             case 'error':
               setError(event.message)
-              analytics.chat.errorShown({ chatId, message: event.message })
+              analytics.chat.errorShown({
+                chatId: chatId ?? 'new',
+                message: event.message
+              })
               break
           }
         }
@@ -107,7 +129,7 @@ export function useChatStream(chatId: number | null, hasContext: boolean) {
           // They navigated away or closed mid-answer. Worth recording: a turn
           // takes seconds, and abandonment is the drop-off we most want to see.
           analytics.chat.abandoned({
-            chatId,
+            chatId: chatId ?? 'new',
             waitedMs: Date.now() - startedAt
           })
         } else {
@@ -115,8 +137,11 @@ export function useChatStream(chatId: number | null, hasContext: boolean) {
             caught instanceof MeicFeedbackAPIError
               ? caught.message
               : 'error_generic'
+          if (caught instanceof MeicFeedbackAPIError) {
+            setErrorStatus(caught.status ?? null)
+          }
           setError(message)
-          analytics.chat.errorShown({ chatId, message })
+          analytics.chat.errorShown({ chatId: chatId ?? 'new', message })
         }
       } finally {
         abortRef.current = null
@@ -130,7 +155,14 @@ export function useChatStream(chatId: number | null, hasContext: boolean) {
         }
       }
     },
-    [chatId, hasContext, messages.length, workingTool]
+    [
+      chatId,
+      hasContext,
+      messages.length,
+      options.language,
+      options.scope,
+      workingTool
+    ]
   )
 
   const abort = useCallback(() => abortRef.current?.abort(), [])
@@ -139,8 +171,10 @@ export function useChatStream(chatId: number | null, hasContext: boolean) {
     messages,
     workingTool,
     error,
+    errorStatus,
     quotaReached,
     title,
+    createdChatId,
     isStreaming: workingTool !== null,
     reset,
     send,

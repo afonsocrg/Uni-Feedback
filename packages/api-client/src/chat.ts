@@ -3,7 +3,8 @@ import { MeicFeedbackAPIError } from './errors'
 import { apiDelete, apiGet, apiPost } from './utils'
 
 export interface ChatSummary {
-  id: number
+  /** The opaque public id, which is what URLs address. */
+  id: string
   title: string | null
   createdAt: string
   lastMessageAt: string | null
@@ -29,7 +30,7 @@ export interface ChatScope {
 }
 
 export interface ChatDetail {
-  id: number
+  id: string
   title: string | null
   createdAt: string
   lastMessageAt: string | null
@@ -49,24 +50,11 @@ export async function listChats(): Promise<{
   return apiGet('/chat')
 }
 
-export async function getChat(chatId: number): Promise<ChatDetail> {
+export async function getChat(chatId: string): Promise<ChatDetail> {
   return apiGet(`/chat/${chatId}`)
 }
 
-export async function createChat(input: {
-  language?: 'pt' | 'en'
-  scope?: ChatScope
-}): Promise<{ id: number; title: string | null; createdAt: string }> {
-  return apiPost('/chat', {
-    language: input.language,
-    contextFacultyId: input.scope?.facultyId,
-    contextDegreeId: input.scope?.degreeId,
-    contextCourseId: input.scope?.courseId,
-    contextSource: input.scope?.source
-  })
-}
-
-export async function deleteChat(chatId: number): Promise<void> {
+export async function deleteChat(chatId: string): Promise<void> {
   await apiDelete(`/chat/${chatId}`)
 }
 
@@ -92,7 +80,9 @@ export async function clearChatMessageRating(messageId: number): Promise<void> {
  * faking a token feed.
  */
 export type ChatStreamEvent =
-  | { type: 'start'; chatId: number }
+  | { type: 'start'; chatId: string }
+  /** First message only: the chat now exists, and this is the id to navigate to. */
+  | { type: 'created'; chatId: string; title: string | null }
   | { type: 'working'; tool: string }
   | { type: 'answer'; messageId: number; content: string }
   | {
@@ -112,16 +102,36 @@ export type ChatStreamEvent =
  * cannot send credentials plus a JSON body.
  */
 export async function* sendChatMessage(
-  chatId: number,
+  /** null starts a new conversation: the chat is created by this same call. */
+  chatId: string | null,
   content: string,
-  signal?: AbortSignal
+  options: {
+    scope?: ChatScope
+    language?: 'pt' | 'en'
+    signal?: AbortSignal
+  } = {}
 ): AsyncGenerator<ChatStreamEvent> {
-  const response = await fetch(`${API_BASE_URL}/chat/${chatId}/messages`, {
+  const url = chatId
+    ? `${API_BASE_URL}/chat/${chatId}/messages`
+    : `${API_BASE_URL}/chat/messages`
+
+  const body = chatId
+    ? { content }
+    : {
+        content,
+        language: options.language,
+        contextFacultyId: options.scope?.facultyId,
+        contextDegreeId: options.scope?.degreeId,
+        contextCourseId: options.scope?.courseId,
+        contextSource: options.scope?.source
+      }
+
+  const response = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
-    body: JSON.stringify({ content }),
-    signal
+    body: JSON.stringify(body),
+    signal: options.signal
   })
 
   // Every gate runs before the stream opens, so refusals arrive as real status

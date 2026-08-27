@@ -1,4 +1,12 @@
-import { integer, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core'
+import { sql } from 'drizzle-orm'
+import {
+  integer,
+  pgTable,
+  serial,
+  text,
+  timestamp,
+  uuid
+} from 'drizzle-orm/pg-core'
 import { courses } from './course'
 import { degrees } from './degree'
 import { faculties } from './faculty'
@@ -19,6 +27,20 @@ import { users } from './user'
  */
 export const chats = pgTable('chats', {
   id: serial('id').primaryKey(),
+
+  /**
+   * What the URL addresses.
+   *
+   * The integer `id` stays the identity every foreign key points at; this is an
+   * addressing concern. A sequential id in a URL tells anyone how many chats the
+   * platform has ever had, and a uuid beats a slug here because a slug would
+   * have to come from the title, which does not exist when the URL is first
+   * written.
+   */
+  publicId: uuid('public_id')
+    .notNull()
+    .default(sql`gen_random_uuid()`),
+
   userId: integer('user_id')
     .notNull()
     .references(() => users.id),

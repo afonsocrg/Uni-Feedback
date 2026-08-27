@@ -1,7 +1,7 @@
 export { ClearChatMessageRating } from './clearMessageRating'
-export { CreateChat } from './createChat'
 export { DeleteChat } from './deleteChat'
 export { GetChat } from './getChat'
 export { ListChats } from './listChats'
 export { RateChatMessage } from './rateMessage'
 export { SendChatMessage } from './sendMessage'
+export { StartChat } from './startChat'

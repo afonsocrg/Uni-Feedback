@@ -11,7 +11,7 @@ export class DeleteChat extends OpenAPIRoute {
     summary: 'Delete a chat',
     description:
       'Soft delete. The chat disappears from the user and stops being used, and the record survives, which is what the terms describe.',
-    request: { params: z.object({ id: z.coerce.number() }) },
+    request: { params: z.object({ id: z.string().uuid() }) },
     responses: {
       '200': { description: 'Chat deleted' },
       '401': { description: 'Not authenticated' },
