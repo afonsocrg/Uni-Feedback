@@ -36,6 +36,39 @@ export async function isUniversityEmail(email: string): Promise<boolean> {
 }
 
 /**
+ * Resolve the faculty an email belongs to, by suffix.
+ *
+ * Today the login email IS the proof of affiliation, so this is how we know
+ * which university a student is at. That coupling is what the identity rework
+ * exists to break (afonsocrg/prds/2026-08-09_identity_and_affiliation.md); when
+ * it lands, this should read from the affiliation table instead.
+ */
+export async function findFacultyByEmail(email: string) {
+  const emailDomain = email.toLowerCase().split('@')[1]
+  if (!emailDomain) return null
+
+  const allFaculties = await database()
+    .select()
+    .from(faculties)
+    .where(isNotNull(faculties.emailSuffixes))
+
+  for (const faculty of allFaculties) {
+    const suffixes = faculty.emailSuffixes
+    if (Array.isArray(suffixes)) {
+      if (
+        (suffixes as string[]).some(
+          (suffix) => emailDomain === suffix.toLowerCase()
+        )
+      ) {
+        return faculty
+      }
+    }
+  }
+
+  return null
+}
+
+/**
  * Get list of all valid university email domains
  */
 export async function getValidEmailDomains(): Promise<string[]> {

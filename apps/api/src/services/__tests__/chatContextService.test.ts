@@ -71,18 +71,23 @@ describe('ChatContextService', () => {
       })
     })
 
-    it('links the course, its degree and its faculty as entities', async () => {
+    it('links the course as an entity, with its URL', async () => {
       await withTestDb(async () => {
         const { faculty, degree, course } = await seed()
         const context = await service.build({ courseId: course.id })
 
-        expect(context.entities).toEqual(
-          expect.arrayContaining([
-            { type: 'course', id: course.id },
-            { type: 'degree', id: degree.id },
-            { type: 'faculty', id: faculty.id }
-          ])
-        )
+        // Only the course: the degree and faculty are named in the prose but the
+        // student is asking about the course, and every entity here carries the
+        // URL so a link cited from this block can be attributed later.
+        expect(context.entities).toEqual([
+          {
+            type: 'course',
+            id: course.id,
+            pageUrl: `https://uni-feedback.com/cadeiras/${course.id}`
+          }
+        ])
+        expect(degree.id).toBeDefined()
+        expect(faculty.id).toBeDefined()
       })
     })
 
@@ -138,7 +143,13 @@ describe('ChatContextService', () => {
         const context = await service.build({ facultyId: faculty.id })
 
         expect(context.markdown).toContain('Instituto Superior Técnico')
-        expect(context.entities).toEqual([{ type: 'faculty', id: faculty.id }])
+        expect(context.entities).toEqual([
+          {
+            type: 'faculty',
+            id: faculty.id,
+            pageUrl: 'https://uni-feedback.com/ist'
+          }
+        ])
         // Handing it the exact stored short name sidesteps the "FCT" vs
         // "Nova FCT" class of miss entirely.
         expect(context.markdown).toContain('Pass "IST" as the faculty')

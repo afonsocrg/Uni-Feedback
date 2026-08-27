@@ -40,6 +40,15 @@ export interface ChatScope {
 export interface ChatContextEntity {
   type: 'course' | 'degree' | 'faculty'
   id: number
+  /**
+   * The entity's page URL.
+   *
+   * Carried because the model can cite a link it got from THIS block rather than
+   * from a tool result. Without it, a scoped chat, which is the common case from
+   * a course-page entry point, never records a `cited` entity: the answer links
+   * the course, but nothing downstream can tell where the URL came from.
+   */
+  pageUrl: string
 }
 
 export interface ChatContext {
@@ -146,9 +155,7 @@ export class ChatContextService {
     lines.push(`- course_id for the tools: ${course.courseId}`)
 
     const entities: ChatContextEntity[] = [
-      { type: 'course', id: course.courseId },
-      { type: 'degree', id: course.degreeId },
-      { type: 'faculty', id: course.facultyId }
+      { type: 'course', id: course.courseId, pageUrl: course.pageUrl }
     ]
 
     return this.finish(lines, course.description, entities, [
@@ -180,7 +187,7 @@ export class ChatContextService {
     return this.finish(
       lines,
       degree.description,
-      [{ type: 'degree', id: degree.degreeId }],
+      [{ type: 'degree', id: degree.degreeId, pageUrl: degree.pageUrl }],
       [
         'Assume questions are about this degree and its courses unless the student clearly asks about something else.',
         'Use get_degree with this id for the curriculum, and pass curriculum_year when the question is about one year.'
@@ -206,7 +213,7 @@ export class ChatContextService {
     return this.finish(
       lines,
       null,
-      [{ type: 'faculty', id: faculty.id }],
+      [{ type: 'faculty', id: faculty.id, pageUrl: faculty.pageUrl }],
       [
         'Restrict searches to this university unless the student asks to compare with another one.',
         `Pass "${faculty.shortName}" as the faculty when searching.`

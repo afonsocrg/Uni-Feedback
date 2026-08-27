@@ -5,6 +5,13 @@ import { cors } from 'hono/cors'
 import { router as adminRouter } from './admin/router'
 import { router as authRouter } from './auth/router'
 import {
+  CreateChat,
+  DeleteChat,
+  GetChat,
+  ListChats,
+  SendChatMessage
+} from './chat'
+import {
   SearchCourses,
   SubmitCorrectionRequest,
   SubmitFeedback
@@ -83,6 +90,14 @@ router.delete('/feedback/:id', DeleteFeedback)
 router.post('/feedback/:id/helpful', AddHelpfulVote)
 router.delete('/feedback/:id/helpful', RemoveHelpfulVote)
 router.post('/feedback/:id/report', ReportFeedback)
+
+// Chat. Resource routes rather than /auth/*: these are operations on chats,
+// which happen to require authentication (see the api-routing-conventions skill).
+router.get('/chat', ListChats)
+router.post('/chat', CreateChat)
+router.get('/chat/:id', GetChat)
+router.delete('/chat/:id', DeleteChat)
+router.post('/chat/:id/messages', SendChatMessage)
 
 // ---------------------------------------------------------
 // Nested routers
