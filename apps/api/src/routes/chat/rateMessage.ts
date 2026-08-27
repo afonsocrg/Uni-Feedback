@@ -71,20 +71,27 @@ export class RateChatMessage extends OpenAPIRoute {
 
     if (!message) throw new NotFoundError('Message not found')
 
-    // Changing your mind updates the row rather than failing, which is what the
-    // toggle in the UI does.
-    await database()
-      .insert(chatMessageFeedback)
-      .values({
+    // Replace, never update. A rating is not editable: switching from a thumbs
+    // up to a thumbs down deletes the first and records a new one, so
+    // `created_at` says when the opinion the student currently holds was
+    // formed, rather than when they first had any opinion at all.
+    await database().transaction(async (tx) => {
+      await tx
+        .delete(chatMessageFeedback)
+        .where(
+          and(
+            eq(chatMessageFeedback.messageId, message.id),
+            eq(chatMessageFeedback.userId, userId)
+          )
+        )
+
+      await tx.insert(chatMessageFeedback).values({
         messageId: message.id,
         userId,
         rating: body.rating,
         comment: body.comment ?? null
       })
-      .onConflictDoUpdate({
-        target: [chatMessageFeedback.messageId, chatMessageFeedback.userId],
-        set: { rating: body.rating, comment: body.comment ?? null }
-      })
+    })
 
     return Response.json({ message: 'Rating saved' })
   }

@@ -35,6 +35,10 @@ export const STORAGE_KEYS = {
   // acknowledgement, not consent we need to prove, and the terms carry the
   // durable version.
   CHAT_NOTICE_ACCEPTED: 'uni-feedback-chat-notice-accepted',
+  // Sidebar open/collapsed, remembered across visits. Null means "never
+  // chosen", which is what lets the first render pick a sensible default from
+  // the viewport instead of guessing during SSR.
+  CHAT_SIDEBAR_OPEN: 'uni-feedback-chat-sidebar-open',
 
   // Course browser preferences (used in feedback flow)
   SELECTED_FACULTY_ID: 'uni-feedback-selected-faculty-id',

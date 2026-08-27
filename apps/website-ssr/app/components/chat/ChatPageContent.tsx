@@ -53,11 +53,25 @@ export function ChatPageContent({
   const [activeChatId, setActiveChatId] = useState<number | null>(initialChatId)
   const [coverageBlocked, setCoverageBlocked] = useState(false)
   const [loaded, setLoaded] = useState(false)
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  // null means "never chosen", which lets the first client render pick a
+  // default from the viewport instead of guessing during SSR: a sidebar that
+  // defaults open would cover the whole conversation on a phone.
+  const [sidebarOpen, setSidebarOpen] = useLocalStorage<boolean | null>(
+    STORAGE_KEYS.CHAT_SIDEBAR_OPEN,
+    null
+  )
 
   const hasContext = scope !== null
   const stream = useChatStream(activeChatId, hasContext)
   const { reset, abort, title } = stream
+
+  useEffect(() => {
+    if (sidebarOpen === null) {
+      setSidebarOpen(window.matchMedia('(min-width: 768px)').matches)
+    }
+  }, [sidebarOpen, setSidebarOpen])
+
+  const isSidebarOpen = sidebarOpen === true
 
   const trackedOpen = useRef(false)
 
@@ -98,7 +112,8 @@ export function ChatPageContent({
           chat.messages.map((m) => ({
             id: m.id,
             role: m.role,
-            content: m.content
+            content: m.content,
+            rating: m.rating
           }))
         )
       })
@@ -184,8 +199,9 @@ export function ChatPageContent({
   if (coverageBlocked) {
     return (
       <ChatShell
-        sidebar={<ChatSidebarShellOnly />}
-        onOpenSidebar={() => undefined}
+        sidebar={null}
+        sidebarOpen={false}
+        onToggleSidebar={() => undefined}
       >
         <ChatCoverageWall />
       </ChatShell>
@@ -195,8 +211,9 @@ export function ChatPageContent({
   if (!noticeAccepted) {
     return (
       <ChatShell
-        sidebar={<ChatSidebarShellOnly />}
-        onOpenSidebar={() => undefined}
+        sidebar={null}
+        sidebarOpen={false}
+        onToggleSidebar={() => undefined}
       >
         <ChatFirstUseNotice onAccept={() => setNoticeAccepted(true)} />
       </ChatShell>
@@ -207,18 +224,20 @@ export function ChatPageContent({
 
   return (
     <ChatShell
-      onOpenSidebar={() => setSidebarOpen(true)}
+      sidebarOpen={isSidebarOpen}
+      onToggleSidebar={() => setSidebarOpen(!isSidebarOpen)}
       sidebar={
         <ChatSidebar
           chats={chats}
           activeChatId={activeChatId}
-          open={sidebarOpen}
-          onNewChat={() => {
-            setSidebarOpen(false)
-            startNewChat()
-          }}
+          open={isSidebarOpen}
+          onNewChat={startNewChat}
           onSelect={(id) => {
-            setSidebarOpen(false)
+            // Only close on small screens: on desktop the sidebar is part of
+            // the layout, and collapsing it on every click would be hostile.
+            if (!window.matchMedia('(min-width: 768px)').matches) {
+              setSidebarOpen(false)
+            }
             navigate(`${getLocalePath('chat', lang)}/${id}`)
           }}
           onDelete={removeChat}
@@ -252,23 +271,5 @@ export function ChatPageContent({
         )}
       </>
     </ChatShell>
-  )
-}
-
-/**
- * The sidebar with no conversations, for the states shown before a chat can
- * start. Keeps the shell whole so the way back to the site is always there.
- */
-function ChatSidebarShellOnly() {
-  return (
-    <ChatSidebar
-      chats={[]}
-      activeChatId={null}
-      open={false}
-      onNewChat={() => undefined}
-      onSelect={() => undefined}
-      onDelete={() => undefined}
-      onClose={() => undefined}
-    />
   )
 }

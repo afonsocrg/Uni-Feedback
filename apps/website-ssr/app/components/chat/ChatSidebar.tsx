@@ -1,6 +1,6 @@
 import type { ChatSummary } from '@uni-feedback/api-client'
 import { Button, cn } from '@uni-feedback/ui'
-import { Plus, Trash2, X } from 'lucide-react'
+import { Plus, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { BackToSite } from './ChatShell'
 
@@ -40,23 +40,14 @@ export function ChatSidebar({
       <aside
         className={cn(
           'z-50 flex w-64 shrink-0 flex-col gap-4 border-r border-border bg-muted p-3',
-          // Off-canvas below md, always present above it.
-          'fixed inset-y-0 left-0 transition-transform md:static md:translate-x-0',
-          open ? 'translate-x-0' : '-translate-x-full'
+          // Overlay on small screens, in the flow on large ones. Collapsing is
+          // available at every width, so when it is closed it leaves the layout
+          // entirely rather than sitting there at zero width.
+          'fixed inset-y-0 left-0 transition-transform md:static',
+          open ? 'translate-x-0' : '-translate-x-full md:hidden'
         )}
       >
-        <div className="flex items-start justify-between gap-2">
-          <BackToSite />
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onClose}
-            aria-label={t('close_chats')}
-            className="size-8 md:hidden"
-          >
-            <X className="size-4" />
-          </Button>
-        </div>
+        <BackToSite />
 
         <Button onClick={onNewChat} className="w-full gap-1.5">
           <Plus className="size-4" />

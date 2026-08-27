@@ -9,12 +9,16 @@ export interface ChatSummary {
   lastMessageAt: string | null
 }
 
+export type ChatMessageRating = 'helpful' | 'not_helpful'
+
 export interface ChatMessage {
   id: number
   seq: number
   role: 'user' | 'assistant'
   content: string
   createdAt: string
+  /** The caller's own rating, so a reloaded chat shows what they already judged. */
+  rating: ChatMessageRating | null
 }
 
 export interface ChatScope {
@@ -68,7 +72,7 @@ export async function deleteChat(chatId: number): Promise<void> {
 
 export async function rateChatMessage(
   messageId: number,
-  rating: 'helpful' | 'not_helpful',
+  rating: ChatMessageRating,
   comment?: string
 ): Promise<void> {
   await apiPost(`/chat/messages/${messageId}/rating`, { rating, comment })

@@ -2,6 +2,7 @@ import { CHAT_CONFIG } from '@config/chat'
 import { database } from '@uni-feedback/db'
 import {
   chatMessageEntities,
+  chatMessageFeedback,
   chatMessages,
   chats
 } from '@uni-feedback/db/schema'
@@ -192,16 +193,32 @@ export class ChatService {
       .limit(limit)
   }
 
-  async getMessages(chatId: number) {
+  /**
+   * The conversation, optionally with the caller's own rating on each answer.
+   *
+   * `userId` is what scopes the rating join: one student must never see how
+   * another rated an answer, and only their own is theirs to change.
+   */
+  async getMessages(chatId: number, userId?: number) {
     return database()
       .select({
         id: chatMessages.id,
         seq: chatMessages.seq,
         role: chatMessages.role,
         content: chatMessages.content,
-        createdAt: chatMessages.createdAt
+        createdAt: chatMessages.createdAt,
+        rating: chatMessageFeedback.rating
       })
       .from(chatMessages)
+      .leftJoin(
+        chatMessageFeedback,
+        userId === undefined
+          ? sql`false`
+          : and(
+              eq(chatMessageFeedback.messageId, chatMessages.id),
+              eq(chatMessageFeedback.userId, userId)
+            )
+      )
       .where(
         and(
           eq(chatMessages.chatId, chatId),

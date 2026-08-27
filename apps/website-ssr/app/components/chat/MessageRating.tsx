@@ -21,15 +21,22 @@ type Rating = 'helpful' | 'not_helpful'
  * is a confident, well-formatted, wrong answer. Those are invisible to every
  * other dashboard.
  */
-export function MessageRating({ messageId }: { messageId: number }) {
+export function MessageRating({
+  messageId,
+  initialRating = null
+}: {
+  messageId: number
+  initialRating?: Rating | null
+}) {
   const { t } = useTranslation('chat')
-  const [rating, setRating] = useState<Rating | null>(null)
+  const [rating, setRating] = useState<Rating | null>(initialRating)
   const [comment, setComment] = useState('')
   const [commentSent, setCommentSent] = useState(false)
 
   const rate = async (next: Rating) => {
-    // Clicking the same thumb again clears it: a rating is an opinion, and
-    // changing your mind should not need a support request.
+    // Clicking the same thumb clears it. Clicking the other one replaces it:
+    // ratings are not edited, so the server deletes the old row and writes a
+    // new one, and the timestamp reflects the opinion they actually hold.
     const value = rating === next ? null : next
     setRating(value)
 
@@ -86,9 +93,12 @@ export function MessageRating({ messageId }: { messageId: number }) {
         </RatingButton>
       </div>
 
-      {/* Only after a thumbs down, and always optional. Asking everyone to write
-          gets no data; asking the annoyed minority gets the useful data. */}
-      {rating === 'not_helpful' && !commentSent && (
+      {/* Only after a thumbs down given in this session, and always optional.
+          Asking everyone to write gets no data; asking the annoyed minority
+          gets the useful data. A rating loaded from the server does not reopen
+          the box: they already had their chance to explain, and a comment is
+          not editable either. */}
+      {rating === 'not_helpful' && rating !== initialRating && !commentSent && (
         <div className="flex flex-col gap-2 rounded-md border border-border bg-muted p-3">
           <label
             htmlFor={`rating-comment-${messageId}`}
@@ -147,11 +157,11 @@ function RatingButton({
       className={cn(
         'inline-flex cursor-pointer rounded-md p-1.5 text-muted-foreground transition-colors',
         'hover:bg-muted hover:text-foreground',
-        'focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primaryBlue',
-        // Selection is carried by the icon filling in, not by a coloured
-        // background. A rating is the student's own mark on the answer, not a
-        // verdict the UI should score green or red back at them.
-        selected && 'text-foreground'
+        'focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primaryBlue'
+        // Selection is carried ONLY by the icon filling in: same muted grey
+        // either way, no colour shift. A rating is the student's own quiet mark
+        // on the answer, not a verdict the UI should darken or score back at
+        // them.
       )}
     >
       {children}

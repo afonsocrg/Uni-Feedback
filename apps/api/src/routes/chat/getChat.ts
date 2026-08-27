@@ -27,7 +27,10 @@ export class GetChat extends OpenAPIRoute {
     const chat = await service.findChat(params.id, authContext.user.id)
     if (!chat) throw new NotFoundError('Chat not found')
 
-    const messages = await service.getMessages(chat.id)
+    // Ratings are returned with the messages so a refreshed conversation shows
+    // the student what they already judged. Without it, their own thumbs come
+    // back blank and re-clicking the same one reads as a fresh rating.
+    const messages = await service.getMessages(chat.id, authContext.user.id)
 
     return Response.json({
       id: chat.id,

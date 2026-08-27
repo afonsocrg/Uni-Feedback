@@ -1,4 +1,5 @@
 import { Markdown } from '@uni-feedback/ui'
+import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { analytics } from '~/utils/analytics'
 import { MessageRating } from './MessageRating'
@@ -7,6 +8,8 @@ export interface DisplayMessage {
   id: number
   role: 'user' | 'assistant'
   content: string
+  /** Set when the message came back from the server already rated. */
+  rating?: 'helpful' | 'not_helpful' | null
 }
 
 interface ChatMessagesProps {
@@ -22,11 +25,55 @@ export function ChatMessages({
   workingTool
 }: ChatMessagesProps) {
   const { t } = useTranslation('chat')
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const hasScrolled = useRef(false)
+
+  /**
+   * Keep the latest message in view.
+   *
+   * Opening a conversation lands at the bottom, where the conversation actually
+   * is: a chat is read from the end, and starting at the top of a long one
+   * means scrolling past everything to find where you left off. That first jump
+   * is instant, because animating a scroll the student did not ask for just
+   * makes the page look like it is still loading.
+   *
+   * After that it only follows along if they are already near the bottom.
+   * Yanking someone back down while they are reading earlier messages is worse
+   * than letting a new answer arrive off-screen.
+   */
+  useEffect(() => {
+    const container = scrollRef.current
+    if (!container) return
+
+    // The list mounts empty while the conversation is still loading. Counting
+    // that as the first scroll would burn it on nothing, and the real messages
+    // would then arrive looking like the student had scrolled away from the
+    // bottom, so nothing would follow them down.
+    if (messages.length === 0) return
+
+    if (!hasScrolled.current) {
+      hasScrolled.current = true
+      container.scrollTop = container.scrollHeight
+      return
+    }
+
+    const distanceFromBottom =
+      container.scrollHeight - container.scrollTop - container.clientHeight
+    if (distanceFromBottom < 160) {
+      container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' })
+    }
+  }, [messages, workingTool])
+
+  // A different conversation starts at its own bottom, not wherever this one
+  // happened to be.
+  useEffect(() => {
+    hasScrolled.current = false
+  }, [chatId])
 
   return (
     // min-h-0 is what makes flex-1 actually scroll instead of growing the
     // shell past the viewport.
-    <div className="min-h-0 flex-1 overflow-y-auto px-5 py-6">
+    <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto px-5 py-6">
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
         {messages.map((message) =>
           message.role === 'user' ? (
@@ -62,7 +109,12 @@ export function ChatMessages({
                 {message.content}
               </Markdown>
               {/* Optimistic messages have no server id yet, so nothing to rate. */}
-              {message.id > 0 && <MessageRating messageId={message.id} />}
+              {message.id > 0 && (
+                <MessageRating
+                  messageId={message.id}
+                  initialRating={message.rating ?? null}
+                />
+              )}
             </div>
           )
         )}
