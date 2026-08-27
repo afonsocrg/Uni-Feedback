@@ -66,6 +66,21 @@ export function ChatPageContent({
   const stream = useChatStream(activeChatId, hasContext)
   const { reset, abort, title } = stream
 
+  /**
+   * Whether localStorage has been read yet.
+   *
+   * `useLocalStorage` is SSR-safe by returning its default on the first render
+   * and hydrating in an effect, which means `noticeAccepted` is briefly false
+   * for everyone, including students who accepted months ago. Rendering the
+   * notice on that first frame is what made it flash.
+   *
+   * The fix is not to move the notice somewhere else: it is to not decide
+   * before we know. Effects run in declaration order, and the hooks above are
+   * declared first, so by the time this one runs their values are settled.
+   */
+  const [hydrated, setHydrated] = useState(false)
+  useEffect(() => setHydrated(true), [])
+
   useEffect(() => {
     if (sidebarOpen === null) {
       setSidebarOpen(window.matchMedia('(min-width: 768px)').matches)
@@ -205,6 +220,20 @@ export function ChatPageContent({
         onToggleSidebar={() => undefined}
       >
         <ChatCoverageWall />
+      </ChatShell>
+    )
+  }
+
+  // Show nothing rather than the wrong thing. One empty frame is invisible; a
+  // notice that appears and vanishes is not.
+  if (!hydrated) {
+    return (
+      <ChatShell
+        sidebar={null}
+        sidebarOpen={false}
+        onToggleSidebar={() => undefined}
+      >
+        <div className="min-h-0 flex-1" />
       </ChatShell>
     )
   }
