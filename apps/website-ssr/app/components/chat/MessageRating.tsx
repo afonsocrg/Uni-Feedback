@@ -1,4 +1,7 @@
-import { rateChatMessage } from '@uni-feedback/api-client'
+import {
+  clearChatMessageRating,
+  rateChatMessage
+} from '@uni-feedback/api-client'
 import { Button, Textarea, cn } from '@uni-feedback/ui'
 import { ThumbsDown, ThumbsUp } from 'lucide-react'
 import { useState } from 'react'
@@ -29,11 +32,19 @@ export function MessageRating({ messageId }: { messageId: number }) {
     // changing your mind should not need a support request.
     const value = rating === next ? null : next
     setRating(value)
-    if (!value) return
 
-    analytics.chat.rated({ messageId, rating: value, hasComment: false })
     try {
-      await rateChatMessage(messageId, value)
+      if (value) {
+        analytics.chat.rated({ messageId, rating: value, hasComment: false })
+        await rateChatMessage(messageId, value)
+      } else {
+        // Clearing has to reach the server too, or the student sees an unrated
+        // answer while we still hold their old verdict.
+        setComment('')
+        setCommentSent(false)
+        analytics.chat.ratingCleared({ messageId })
+        await clearChatMessageRating(messageId)
+      }
     } catch {
       // Losing a thumb is not worth interrupting the conversation over.
     }
@@ -57,17 +68,21 @@ export function MessageRating({ messageId }: { messageId: number }) {
           label={t('rating_helpful')}
           selected={rating === 'helpful'}
           onClick={() => rate('helpful')}
-          selectedClassName="bg-tint-green text-tint-green-fg border-tint-green-border"
         >
-          <ThumbsUp className="size-4" />
+          <ThumbsUp
+            className="size-4"
+            fill={rating === 'helpful' ? 'currentColor' : 'none'}
+          />
         </RatingButton>
         <RatingButton
           label={t('rating_not_helpful')}
           selected={rating === 'not_helpful'}
           onClick={() => rate('not_helpful')}
-          selectedClassName="bg-tint-red text-tint-red-fg border-tint-red-border"
         >
-          <ThumbsDown className="size-4" />
+          <ThumbsDown
+            className="size-4"
+            fill={rating === 'not_helpful' ? 'currentColor' : 'none'}
+          />
         </RatingButton>
       </div>
 
@@ -113,13 +128,11 @@ function RatingButton({
   label,
   selected,
   onClick,
-  selectedClassName,
   children
 }: {
   label: string
   selected: boolean
   onClick: () => void
-  selectedClassName: string
   children: React.ReactNode
 }) {
   return (
@@ -132,10 +145,13 @@ function RatingButton({
       aria-pressed={selected}
       onClick={onClick}
       className={cn(
-        'inline-flex cursor-pointer rounded-md border border-transparent p-1.5 text-muted-foreground transition-colors',
+        'inline-flex cursor-pointer rounded-md p-1.5 text-muted-foreground transition-colors',
         'hover:bg-muted hover:text-foreground',
         'focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primaryBlue',
-        selected && selectedClassName
+        // Selection is carried by the icon filling in, not by a coloured
+        // background. A rating is the student's own mark on the answer, not a
+        // verdict the UI should score green or red back at them.
+        selected && 'text-foreground'
       )}
     >
       {children}

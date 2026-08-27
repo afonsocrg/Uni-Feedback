@@ -5,6 +5,7 @@ import { cors } from 'hono/cors'
 import { router as adminRouter } from './admin/router'
 import { router as authRouter } from './auth/router'
 import {
+  ClearChatMessageRating,
   CreateChat,
   DeleteChat,
   GetChat,
@@ -100,6 +101,7 @@ router.get('/chat/:id', GetChat)
 router.delete('/chat/:id', DeleteChat)
 router.post('/chat/:id/messages', SendChatMessage)
 router.post('/chat/messages/:id/rating', RateChatMessage)
+router.delete('/chat/messages/:id/rating', ClearChatMessageRating)
 
 // ---------------------------------------------------------
 // Nested routers

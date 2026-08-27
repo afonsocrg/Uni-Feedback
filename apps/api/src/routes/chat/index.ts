@@ -1,3 +1,4 @@
+export { ClearChatMessageRating } from './clearMessageRating'
 export { CreateChat } from './createChat'
 export { DeleteChat } from './deleteChat'
 export { GetChat } from './getChat'

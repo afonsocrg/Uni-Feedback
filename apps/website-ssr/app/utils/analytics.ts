@@ -783,6 +783,10 @@ export const analytics = {
       hasComment: boolean
     }) => trackEvent('chat_message_rated', props),
 
+    /** Took a rating back. Kept separate so "changed their mind" is visible. */
+    ratingCleared: (props: { messageId: number }) =>
+      trackEvent('chat_message_rating_cleared', props),
+
     /** Abandonment: they closed or navigated away while an answer was in flight. */
     abandoned: (props: { chatId: number; waitedMs: number }) =>
       trackEvent('chat_answer_abandoned', props),

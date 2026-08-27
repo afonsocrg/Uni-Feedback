@@ -74,6 +74,11 @@ export async function rateChatMessage(
   await apiPost(`/chat/messages/${messageId}/rating`, { rating, comment })
 }
 
+/** Take back a rating. Clicking a selected thumb clears it. */
+export async function clearChatMessageRating(messageId: number): Promise<void> {
+  await apiDelete(`/chat/messages/${messageId}/rating`)
+}
+
 /**
  * Events the answer stream emits, in order.
  *
