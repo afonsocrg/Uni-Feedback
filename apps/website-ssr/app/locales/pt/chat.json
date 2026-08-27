@@ -27,9 +27,9 @@
     "no_exam": "Que cadeiras não têm exame?"
   },
   "notice_title": "Antes de começares",
-  "notice_private": "Só tu vês esta conversa. Nenhum outro aluno lhe consegue aceder.",
+  "notice_private": "Só tu vês esta conversa. Nenhum outro utilizador tem acesso.",
   "notice_linked": "A conversa fica ligada à tua conta, tal como as avaliações que escreves.",
-  "notice_read": "A equipa do Uni Feedback lê as conversas, para perceber que informação falta no site e como é que os alunos usam esta ferramenta.",
+  "notice_read": "A equipa do Uni Feedback tem acesso aos chats, para perceber como pode melhorar o projeto.",
   "notice_personal_data": "Por isso, não escrevas dados pessoais ou sensíveis, teus ou de outras pessoas.",
   "notice_accept": "Percebi, vamos lá",
   "rating_helpful": "Resposta útil",

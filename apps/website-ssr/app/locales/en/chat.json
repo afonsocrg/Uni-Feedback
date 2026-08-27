@@ -27,9 +27,9 @@
     "no_exam": "Which courses have no exam?"
   },
   "notice_title": "Before you start",
-  "notice_private": "Only you can see this conversation. No other student can reach it.",
+  "notice_private": "Only you can see this conversation. No other user can reach it.",
   "notice_linked": "The conversation is linked to your account, just like the reviews you write.",
-  "notice_read": "The Uni Feedback team reads chats, to understand what information is missing from the site and how students use this tool.",
+  "notice_read": "The Uni Feedback team has access to all chats, to understand how to improve this project.",
   "notice_personal_data": "So please do not write personal or sensitive data, yours or anyone else's.",
   "notice_accept": "Got it, let's go",
   "rating_helpful": "Helpful answer",
