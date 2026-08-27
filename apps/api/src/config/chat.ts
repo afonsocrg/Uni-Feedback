@@ -87,7 +87,7 @@ export const CHAT_CONFIG = {
    * tried without a deploy.
    */
   get model(): string {
-    return process.env.CHAT_MODEL || 'openai/gpt-4o'
+    return process.env.CHAT_MODEL || 'openai/gpt-5.6-luna'
   },
 
   /** Cheap tier, for titles and anything else that is not the answer itself. */

@@ -26,8 +26,8 @@ pnpm exec tsx src/scripts/chat-spike/run.ts --only 1,2,7
 pnpm exec tsx src/scripts/chat-spike/run.ts --model anthropic/claude-sonnet-4.5
 ```
 
-Defaults to `openai/gpt-4o` because that is what `aiService.ts` already uses on this
-OpenRouter account. Override with `--model` or `CHAT_SPIKE_MODEL`.
+Defaults to `openai/gpt-5.6-luna`, the model the chat itself runs on. Override
+with `--model` or `CHAT_SPIKE_MODEL`.
 
 Add `--no-search-retry` to disable the forced-search guard (see "The two harness guards").
 

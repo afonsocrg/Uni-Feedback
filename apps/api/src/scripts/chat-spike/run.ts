@@ -19,7 +19,7 @@ import postgres from 'postgres'
 import { QUESTIONS, type SpikeQuestion } from './questions'
 import { TOOL_DEFINITIONS, executeTool } from './tools'
 
-const DEFAULT_MODEL = process.env.CHAT_SPIKE_MODEL || 'openai/gpt-4o'
+const DEFAULT_MODEL = process.env.CHAT_SPIKE_MODEL || 'openai/gpt-5.6-luna'
 const MAX_TOOL_ITERATIONS = 8
 
 const SYSTEM_PROMPT = `You are the Uni Feedback assistant. You help students in Portugal understand university courses and degrees, using ONLY the data available through your tools.
