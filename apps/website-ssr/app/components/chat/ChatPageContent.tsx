@@ -193,12 +193,23 @@ export function ChatPageContent({
       },
       ...prev
     ])
-    // replace, so a new chat does not leave an empty /chat in the back stack.
-    navigate(`${getLocalePath('chat', lang)}/${createdChatId}`, {
-      replace: true,
-      preventScrollReset: true
-    })
-  }, [createdChatId, activeChatId, title, lang, navigate])
+    // Rewrite the URL without routing to it.
+    //
+    // `/chat` and `/chat/:chatId` are different routes, so navigating between
+    // them unmounts this component and mounts a fresh one, which then refetches
+    // the conversation it is already holding. That round trip is the flicker.
+    //
+    // The answer is already on screen and the state is already correct: the
+    // only thing left to do is make the address bar agree, so that a refresh or
+    // a shared link lands in the right place. replaceState rather than
+    // pushState, so a new chat leaves no empty /chat behind in the back stack,
+    // which is what `replace: true` was doing.
+    window.history.replaceState(
+      window.history.state,
+      '',
+      `${getLocalePath('chat', lang)}/${createdChatId}`
+    )
+  }, [createdChatId, activeChatId, title, lang])
 
   const send = useCallback(
     (content: string, usedSuggestion = false) =>
