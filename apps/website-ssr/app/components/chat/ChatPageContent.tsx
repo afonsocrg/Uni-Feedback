@@ -70,7 +70,7 @@ export function ChatPageContent({
     scope,
     language: lang
   })
-  const { reset, abort, title, createdChatId } = stream
+  const { reset, abort, title, createdChatId, answeredAt } = stream
 
   // A 403 from the send is the coverage wall: this student's university is not
   // switched on. It arrives before anything is written now, which is the point
@@ -164,6 +164,19 @@ export function ChatPageContent({
 
   // A turn takes seconds, so leaving mid-answer is a real case, not an edge one.
   useEffect(() => abort, [abort])
+
+  // The list is ordered by most recent activity, and answering in an old chat
+  // makes it the most recent. Without this it would keep its old position until
+  // the next reload, which reads as the ordering being broken.
+  useEffect(() => {
+    if (!answeredAt || !activeChatId) return
+    setChats((prev) => {
+      const answered = prev.find((c) => c.id === activeChatId)
+      if (!answered) return prev
+      const stamped = { ...answered, lastMessageAt: new Date().toISOString() }
+      return [stamped, ...prev.filter((c) => c.id !== activeChatId)]
+    })
+  }, [answeredAt, activeChatId])
 
   // The URL moves only when the chat exists, which is the moment the first
   // answer comes back. Until then the student stays on /chat and nothing has

@@ -79,14 +79,14 @@ export function ChatMessages({
         {messages.map((message) =>
           message.role === 'user' ? (
             <div key={message.id} className="flex justify-end">
-              <div className="max-w-[85%] rounded-lg rounded-br-sm bg-primaryBlue px-3.5 py-2 text-sm text-white">
+              <div className="max-w-[85%] rounded-lg rounded-br-sm bg-primaryBlue px-3.5 py-2 text-base text-white">
                 {message.content}
               </div>
             </div>
           ) : (
             <div key={message.id} className="flex max-w-[68ch] flex-col gap-1">
               <Markdown
-                className="text-sm text-foreground [&_blockquote]:my-2 [&_blockquote]:rounded-r-md [&_blockquote]:border-l-2 [&_blockquote]:border-border [&_blockquote]:bg-muted [&_blockquote]:px-3 [&_blockquote]:py-2"
+                className="prose-base text-base text-foreground [&_blockquote]:my-2 [&_blockquote]:rounded-r-md [&_blockquote]:border-l-2 [&_blockquote]:border-border [&_blockquote]:bg-muted [&_blockquote]:px-3 [&_blockquote]:py-2"
                 components={{
                   // Every link in an answer points into the site, which is the
                   // whole point of grounding. Tracking the click is how we find

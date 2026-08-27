@@ -29,6 +29,8 @@ export function useChatStream(
   const [title, setTitle] = useState<string | null>(null)
   /** Set when this turn created the chat, so the caller can move the URL. */
   const [createdChatId, setCreatedChatId] = useState<string | null>(null)
+  /** Bumped when an answer lands, so the caller can re-sort the chat list. */
+  const [answeredAt, setAnsweredAt] = useState<number | null>(null)
 
   // Negative ids for optimistic messages, so they never collide with real ones.
   const optimisticId = useRef(-1)
@@ -83,6 +85,7 @@ export function useChatStream(
 
             case 'answer':
               answered = true
+              setAnsweredAt(Date.now())
               setWorkingTool(null)
               setMessages((prev) => [
                 ...prev,
@@ -179,6 +182,7 @@ export function useChatStream(
     quotaReached,
     title,
     createdChatId,
+    answeredAt,
     isStreaming: workingTool !== null,
     reset,
     send,

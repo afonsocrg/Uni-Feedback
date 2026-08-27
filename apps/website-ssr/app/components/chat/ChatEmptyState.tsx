@@ -31,7 +31,7 @@ export function ChatEmptyState({ onPick, scopeLabel }: ChatEmptyStateProps) {
             key={key}
             type="button"
             onClick={() => onPick(t(`suggestions.${key}`))}
-            className="cursor-pointer rounded-md border border-border bg-card px-3 py-2.5 text-left text-sm text-foreground transition-colors hover:border-primaryBlue focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primaryBlue"
+            className="cursor-pointer rounded-md border border-border bg-card px-3 py-2.5 text-left text-base text-foreground transition-colors hover:border-primaryBlue focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primaryBlue"
           >
             {t(`suggestions.${key}`)}
           </button>

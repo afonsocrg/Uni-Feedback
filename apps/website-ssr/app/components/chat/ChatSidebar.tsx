@@ -48,64 +48,75 @@ export function ChatSidebar({
       )}
 
       <aside
+        // Collapsed is not focusable, so keyboard users cannot tab into a
+        // sidebar they cannot see.
+        inert={open === false || undefined}
         className={cn(
-          'z-50 w-64 shrink-0 flex-col gap-4 border-r border-border bg-background p-3',
-          // Below md it is a drawer: off-canvas, over the conversation.
-          // From md up it is part of the layout and stays put.
-          'fixed inset-y-0 left-0 transition-transform md:static md:translate-x-0',
-          open === null && 'hidden md:flex',
-          open === true && 'flex translate-x-0',
-          open === false && 'hidden'
+          'z-50 shrink-0 overflow-hidden border-r border-border bg-background',
+          // Two different animations, because the sidebar is two different
+          // things. Below md it is a drawer that slides over the conversation,
+          // so it moves. From md up it is a column in the layout, and a column
+          // cannot slide away without leaving a hole, so its width closes
+          // instead. `display: none` was neither, which is why collapsing
+          // clipped rather than animated.
+          'fixed inset-y-0 left-0 w-64 md:static md:translate-x-0',
+          'transition-[width,transform] duration-200 ease-out motion-reduce:transition-none',
+          open === true ? 'translate-x-0' : '-translate-x-full',
+          open === false ? 'md:w-0 md:border-r-0' : 'md:w-64'
         )}
       >
-        <BackToSite />
+        {/* Fixed width inside the animating box: without it the content reflows
+            on every frame of the collapse. */}
+        <div className="flex h-full w-64 flex-col gap-4 p-3">
+          <BackToSite />
 
-        <Button onClick={onNewChat} className="w-full gap-1.5">
-          <Plus className="size-4" />
-          {t('new_chat')}
-        </Button>
+          <Button onClick={onNewChat} className="w-full gap-1.5">
+            <Plus className="size-4" />
+            {t('new_chat')}
+          </Button>
 
-        <div className="flex flex-col gap-px overflow-y-auto">
-          {chats.length > 0 && (
-            <span className="px-2 pb-1.5 pt-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-              {t('recent')}
-            </span>
-          )}
-          {chats.map((chat) => (
-            <div
-              key={chat.id}
-              className={cn(
-                'group flex items-center gap-1 rounded-md px-2 py-1.5',
-                chat.id === activeChatId && 'bg-muted'
-              )}
-            >
-              <button
-                type="button"
-                onClick={() => onSelect(chat.id)}
+          <div className="flex flex-col gap-px overflow-y-auto">
+            {chats.length > 0 && (
+              <span className="px-2 pb-1.5 pt-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                {t('recent')}
+              </span>
+            )}
+            {chats.map((chat) => (
+              <div
+                key={chat.id}
                 className={cn(
-                  'flex-1 truncate text-left text-sm text-foreground',
-                  chat.id === activeChatId && 'font-medium'
+                  'group flex items-center gap-1 rounded-md px-2 py-1.5',
+                  chat.id === activeChatId && 'bg-muted'
                 )}
               >
-                {chat.title ?? t('untitled')}
-              </button>
-              <button
-                type="button"
-                aria-label={t('delete_chat')}
-                title={t('delete_chat')}
-                onClick={() => onDelete(chat.id)}
-                className="shrink-0 rounded p-1 text-muted-foreground opacity-0 transition-opacity hover:text-foreground focus-visible:opacity-100 group-hover:opacity-100"
-              >
-                <Trash2 className="size-3.5" />
-              </button>
-            </div>
-          ))}
-        </div>
+                <button
+                  type="button"
+                  onClick={() => onSelect(chat.id)}
+                  className={cn(
+                    'flex-1 cursor-pointer truncate text-left text-sm text-foreground',
+                    chat.id === activeChatId && 'font-medium'
+                  )}
+                >
+                  {chat.title ?? t('untitled')}
+                </button>
+                <button
+                  type="button"
+                  aria-label={t('delete_chat')}
+                  title={t('delete_chat')}
+                  onClick={() => onDelete(chat.id)}
+                  className="shrink-0 cursor-pointer rounded p-1 text-muted-foreground opacity-0 transition-opacity hover:text-foreground focus-visible:opacity-100 group-hover:opacity-100"
+                >
+                  <Trash2 className="size-3.5" />
+                </button>
+              </div>
+            ))}
+          </div>
 
-        <div className="mt-auto border-t border-border pt-2">
-          {/* The chat has no site header, so this is the only route to account,
+          <div className="mt-auto border-t border-border pt-2">
+            {/* The chat has no site header, so this is the only route to account,
               theme and language. */}
-          <ChatAccountRow />
+            <ChatAccountRow />
+          </div>
         </div>
       </aside>
     </>

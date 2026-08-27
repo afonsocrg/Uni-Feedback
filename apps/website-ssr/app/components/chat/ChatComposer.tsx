@@ -48,7 +48,7 @@ export function ChatComposer({ onSend, disabled }: ChatComposerProps) {
             rows={1}
             maxLength={2000}
             className={cn(
-              'max-h-40 min-h-9 resize-none border-0 p-0 text-sm shadow-none focus-visible:ring-0',
+              'max-h-40 min-h-9 resize-none border-0 p-0 text-base shadow-none focus-visible:ring-0',
               // The row is the input surface, so the textarea itself must be
               // invisible. `dark:bg-transparent` is required: the base component
               // sets `dark:bg-input/30`, and a plain `bg-transparent` loses to it
