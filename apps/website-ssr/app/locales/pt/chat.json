@@ -1,20 +1,16 @@
 {
   "meta_title": "Chat | Uni Feedback",
   "meta_desc": "Pergunta o que quiseres sobre as cadeiras e os cursos das universidades portuguesas, com base no que outros alunos escreveram.",
-
   "nav_label": "Chat",
   "beta": "Beta",
-
   "new_chat": "Nova conversa",
   "recent": "Recentes",
   "delete_chat": "Apagar conversa",
   "untitled": "Nova conversa",
   "beta_warning": "O chat pode enganar-se. Confirma o que for importante.",
-
   "placeholder": "Pergunta o que quiseres sobre as tuas cadeiras...",
   "send": "Enviar",
   "composer_hint": "Só tu vês esta conversa. A equipa do Uni Feedback lê as conversas para perceber o que falta no site.",
-
   "working": "A pensar...",
   "working_tool": {
     "search_courses": "A procurar cadeiras...",
@@ -24,7 +20,6 @@
     "get_degree": "A ler o plano curricular...",
     "list_faculties": "A ver que universidades temos..."
   },
-
   "empty_title": "Pergunta-me sobre as tuas cadeiras",
   "empty_subtitle": "Sei o que outros alunos escreveram sobre as cadeiras que temos. Não sei nada sobre médias de entrada nem candidaturas.",
   "suggestions": {
@@ -32,14 +27,12 @@
     "assessment": "O que dizem os alunos sobre a avaliação de Física I?",
     "no_exam": "Que cadeiras não têm exame?"
   },
-
   "notice_title": "Antes de começares",
   "notice_private": "Só tu vês esta conversa. Nenhum outro aluno lhe consegue aceder.",
   "notice_linked": "A conversa fica ligada à tua conta, tal como as avaliações que escreves.",
   "notice_read": "A equipa do Uni Feedback lê as conversas, para perceber que informação falta no site e como é que os alunos usam esta ferramenta.",
   "notice_personal_data": "Por isso, não escrevas dados pessoais ou sensíveis, teus ou de outras pessoas.",
   "notice_accept": "Percebi, vamos lá",
-
   "rating_helpful": "Resposta útil",
   "rating_not_helpful": "Resposta pouco útil",
   "rating_comment_label": "O que correu mal?",
@@ -47,20 +40,20 @@
   "rating_comment_submit": "Enviar",
   "rating_comment_optional": "Opcional",
   "rating_thanks": "Obrigado pelo feedback.",
-
   "quota_title": "Chegaste ao limite de hoje",
   "quota_body": "Durante a beta há um limite diário para o chat não ficar caro de manter. Volta amanhã, ou continua a explorar as cadeiras pelo site.",
   "quota_browse": "Ver cadeiras",
-
   "coverage_title": "Ainda não temos dados suficientes sobre a tua universidade",
   "coverage_body": "O chat está em beta. Só o ligamos quando temos informação que chegue para dar respostas úteis.",
   "coverage_review": "Avaliar uma cadeira que fiz",
   "coverage_notify": "Avisem-me quando abrir",
   "coverage_notified": "Combinado. Avisamos-te assim que abrirmos.",
-
   "error_generic": "Algo correu mal. Tenta outra vez.",
   "ask_about_course": "Perguntar sobre {{name}}",
   "ask_about_course_hint": "Tens uma dúvida sobre esta cadeira? Pergunta ao chat, que já sabe do que falas.",
   "ask_about_degree": "Perguntar sobre {{name}}",
-  "context_remove": "Remover contexto"
+  "context_remove": "Remover contexto",
+  "back_to_site": "Voltar ao site",
+  "open_chats": "Ver conversas",
+  "close_chats": "Fechar conversas"
 }

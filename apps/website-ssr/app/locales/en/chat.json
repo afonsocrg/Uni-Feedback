@@ -52,5 +52,8 @@
   "ask_about_course": "Ask about {{name}}",
   "ask_about_course_hint": "Got a question about this course? Ask the chat, it already knows what you mean.",
   "ask_about_degree": "Ask about {{name}}",
-  "context_remove": "Remove context"
+  "context_remove": "Remove context",
+  "back_to_site": "Back to the site",
+  "open_chats": "Show chats",
+  "close_chats": "Close chats"
 }

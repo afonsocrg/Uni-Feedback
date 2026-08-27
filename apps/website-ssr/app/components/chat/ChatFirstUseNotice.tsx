@@ -24,7 +24,7 @@ export function ChatFirstUseNotice({ onAccept }: { onAccept: () => void }) {
   ]
 
   return (
-    <div className="flex flex-1 items-center justify-center px-5 py-10">
+    <div className="flex min-h-0 flex-1 items-center justify-center overflow-y-auto px-5 py-10">
       <div className="flex max-w-lg flex-col gap-4 rounded-lg border border-border bg-card p-6">
         <h2 className="text-lg font-semibold text-foreground">
           {t('notice_title')}

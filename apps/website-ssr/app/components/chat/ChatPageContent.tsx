@@ -18,6 +18,7 @@ import { ChatComposer } from './ChatComposer'
 import { ChatEmptyState } from './ChatEmptyState'
 import { ChatFirstUseNotice } from './ChatFirstUseNotice'
 import { ChatMessages } from './ChatMessages'
+import { ChatShell } from './ChatShell'
 import { ChatSidebar } from './ChatSidebar'
 import { ChatCoverageWall, ChatQuotaWall } from './ChatWalls'
 
@@ -52,6 +53,7 @@ export function ChatPageContent({
   const [activeChatId, setActiveChatId] = useState<number | null>(initialChatId)
   const [coverageBlocked, setCoverageBlocked] = useState(false)
   const [loaded, setLoaded] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const hasContext = scope !== null
   const stream = useChatStream(activeChatId, hasContext)
@@ -177,25 +179,54 @@ export function ChatPageContent({
     }
   }
 
-  if (coverageBlocked) return <ChatCoverageWall />
+  // Even the blocking states own the viewport: the chat is a surface, so a
+  // student who cannot use it should not land on a half-page with no chrome.
+  if (coverageBlocked) {
+    return (
+      <ChatShell
+        sidebar={<ChatSidebarShellOnly />}
+        onOpenSidebar={() => undefined}
+      >
+        <ChatCoverageWall />
+      </ChatShell>
+    )
+  }
 
   if (!noticeAccepted) {
-    return <ChatFirstUseNotice onAccept={() => setNoticeAccepted(true)} />
+    return (
+      <ChatShell
+        sidebar={<ChatSidebarShellOnly />}
+        onOpenSidebar={() => undefined}
+      >
+        <ChatFirstUseNotice onAccept={() => setNoticeAccepted(true)} />
+      </ChatShell>
+    )
   }
 
   const showEmptyState = loaded && stream.messages.length === 0
 
   return (
-    <div className="flex min-h-[70vh] overflow-hidden rounded-lg border border-border bg-background">
-      <ChatSidebar
-        chats={chats}
-        activeChatId={activeChatId}
-        onNewChat={startNewChat}
-        onSelect={(id) => navigate(`${getLocalePath('chat', lang)}/${id}`)}
-        onDelete={removeChat}
-      />
-
-      <div className="flex min-w-0 flex-1 flex-col">
+    <ChatShell
+      onOpenSidebar={() => setSidebarOpen(true)}
+      sidebar={
+        <ChatSidebar
+          chats={chats}
+          activeChatId={activeChatId}
+          open={sidebarOpen}
+          onNewChat={() => {
+            setSidebarOpen(false)
+            startNewChat()
+          }}
+          onSelect={(id) => {
+            setSidebarOpen(false)
+            navigate(`${getLocalePath('chat', lang)}/${id}`)
+          }}
+          onDelete={removeChat}
+          onClose={() => setSidebarOpen(false)}
+        />
+      }
+    >
+      <>
         {showEmptyState ? (
           <ChatEmptyState onPick={(question) => send(question, true)} />
         ) : (
@@ -219,7 +250,25 @@ export function ChatPageContent({
         ) : (
           <ChatComposer onSend={send} disabled={stream.isStreaming} />
         )}
-      </div>
-    </div>
+      </>
+    </ChatShell>
+  )
+}
+
+/**
+ * The sidebar with no conversations, for the states shown before a chat can
+ * start. Keeps the shell whole so the way back to the site is always there.
+ */
+function ChatSidebarShellOnly() {
+  return (
+    <ChatSidebar
+      chats={[]}
+      activeChatId={null}
+      open={false}
+      onNewChat={() => undefined}
+      onSelect={() => undefined}
+      onDelete={() => undefined}
+      onClose={() => undefined}
+    />
   )
 }

@@ -70,6 +70,21 @@ export const routeConfig = [
     file: 'routes/login.tsx',
     slugs: { pt: 'login', en: 'login' }
   },
+  // Chat lives OUTSIDE the site layout on purpose. It is an application
+  // surface, not a page: full viewport, its own sidebar, composer pinned to
+  // the bottom. A site header and footer wrapped around it would fight the
+  // scroll container and make it read as a page that happens to contain a
+  // chat. The way back to the site is inside the chat's own chrome.
+  {
+    key: 'chat',
+    file: 'routes/chat.tsx',
+    slugs: { pt: 'chat', en: 'chat' }
+  },
+  {
+    key: 'chat-detail',
+    file: 'routes/chat.$chatId.tsx',
+    slugs: { pt: 'chat/:chatId', en: 'chat/:chatId' }
+  },
   {
     key: 'login-token',
     file: 'routes/login.$token.tsx',
@@ -102,16 +117,6 @@ export const routeConfig = [
         key: 'browse',
         file: 'routes/browse.tsx',
         slugs: { pt: 'procurar', en: 'browse' }
-      },
-      {
-        key: 'chat',
-        file: 'routes/chat.tsx',
-        slugs: { pt: 'chat', en: 'chat' }
-      },
-      {
-        key: 'chat-detail',
-        file: 'routes/chat.$chatId.tsx',
-        slugs: { pt: 'chat/:chatId', en: 'chat/:chatId' }
       },
       {
         key: 'giveaway',

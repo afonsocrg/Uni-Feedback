@@ -10,7 +10,7 @@ export function ChatEmptyState({ onPick }: ChatEmptyStateProps) {
   const { t } = useTranslation('chat')
 
   return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-5 px-5 py-10">
+    <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-5 overflow-y-auto px-5 py-10">
       <div className="flex max-w-md flex-col gap-2 text-center">
         <h2 className="text-lg font-semibold text-foreground">
           {t('empty_title')}

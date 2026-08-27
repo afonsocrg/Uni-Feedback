@@ -24,7 +24,9 @@ export function ChatMessages({
   const { t } = useTranslation('chat')
 
   return (
-    <div className="flex flex-1 flex-col gap-6 overflow-y-auto px-5 py-6">
+    // min-h-0 is what makes flex-1 actually scroll instead of growing the
+    // shell past the viewport.
+    <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto px-5 py-6">
       {messages.map((message) =>
         message.role === 'user' ? (
           <div key={message.id} className="flex justify-end">

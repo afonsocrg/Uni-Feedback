@@ -18,12 +18,10 @@ export default function ChatDetailPage() {
   const parsed = Number(chatId)
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 py-6">
-      <ChatPageContent
-        chatId={Number.isFinite(parsed) ? parsed : null}
-        scope={null}
-        source="direct"
-      />
-    </div>
+    <ChatPageContent
+      chatId={Number.isFinite(parsed) ? parsed : null}
+      scope={null}
+      source="direct"
+    />
   )
 }

@@ -42,22 +42,20 @@ export default function ChatPage() {
     : 'direct'
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 py-6">
-      <ChatPageContent
-        chatId={null}
-        scope={
-          hasScope
-            ? {
-                courseId,
-                degreeId,
-                facultyId,
-                source: sourceToContext(resolvedSource)
-              }
-            : null
-        }
-        source={resolvedSource}
-      />
-    </div>
+    <ChatPageContent
+      chatId={null}
+      scope={
+        hasScope
+          ? {
+              courseId,
+              degreeId,
+              facultyId,
+              source: sourceToContext(resolvedSource)
+            }
+          : null
+      }
+      source={resolvedSource}
+    />
   )
 }
 
