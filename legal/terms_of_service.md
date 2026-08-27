@@ -1,6 +1,6 @@
 # Terms of Service
 
-* **Last Updated:** August 7, 2025
+* **Last Updated:** August 27, 2026
 
 ## 1. Introduction and Acceptance
 
@@ -14,6 +14,7 @@ Our Platform provides a service for university students in Portugal to submit, r
 
 - Course review submission system for Portuguese universities
 - Review browsing and search functionality
+- An AI assistant ("the Chat") that answers questions about courses and degrees
 - Administrative dashboard for platform management
 - User verification and moderation systems
 
@@ -67,6 +68,52 @@ You understand that by submitting content, you are contributing to a public educ
 - If review authenticity is disputed, we may contact you for additional verification
 - Reviews may remain unpublished until authenticity is confirmed
 - Submitting fake reviews may result in permanent account suspension
+
+## 4A. The AI Assistant (Chat)
+
+### 4A.1 What the Chat Is
+
+The Chat answers questions about courses and degrees using information held on the Platform: course details we have gathered, and reviews written by other students. It is a way to read our data, not a separate source of knowledge.
+
+The Chat is in beta. It is available only to signed-in students, only for universities we have enabled, and it is subject to daily usage limits. We may change those limits, restrict access, or switch the Chat off entirely at any time and without notice.
+
+### 4A.2 The Chat Can Be Wrong
+
+The Chat produces answers automatically and **may be inaccurate, incomplete, or out of date**. In particular:
+
+- Course details such as ECTS, assessment methods, and timetables change between academic years, and our records may lag behind the university's
+- Answers summarise student opinions, which are subjective by nature
+- The Chat may misunderstand a question, or answer about a different course than you intended
+
+**Do not rely on the Chat for academic, financial, or enrolment decisions without checking the source.** Always confirm anything that matters against your university's official information. Nothing the Chat says is advice of any kind, and the disclaimers and limitations in Sections 11 and 12 apply to it in full.
+
+### 4A.3 Your Conversations
+
+Conversations you have with the Chat are **private from other users**: no other student can read them.
+
+They are **linked to your account**, in the same way the reviews you write are, and they are **stored on our servers**.
+
+**The Uni Feedback team can read them.** We do this to understand what students are looking for, to find gaps in the information we hold, and to improve the Platform and the Chat itself. Our Privacy Policy explains this in more detail.
+
+Because of this, **do not enter personal or sensitive information** into the Chat, whether about yourself or anyone else. That includes contact details, identification numbers, health or financial information, and information that identifies other people.
+
+To answer your questions, your messages are sent to a third-party AI provider acting on our behalf. See the Privacy Policy for who that is and what it means.
+
+### 4A.4 Acceptable Use of the Chat
+
+You agree not to:
+
+- Use the Chat for anything unrelated to Portuguese universities, their degrees, and their courses
+- Attempt to extract information about other users, or the personal data of any individual
+- Attempt to bypass usage limits, access controls, or safety instructions, including by automated means
+- Use the Chat to generate content that is unlawful, defamatory, harassing, or that infringes the rights of others
+- Resell, redistribute, or systematically extract Platform data through the Chat
+
+We may suspend or remove access to the Chat, or to the Platform, for any breach of this section.
+
+### 4A.5 Feedback on Answers
+
+Where you rate an answer or leave a comment about it, you agree that we may use that feedback to evaluate and improve the Chat.
 
 ## 5. Prohibited Uses
 
@@ -131,8 +178,10 @@ Key points:
 
 - Student emails are only visible to administrators for verification
 - We use email only for verification, follow-up questions, and appreciation
-- We do not share personal information with third parties except as legally required
 - Author identities remain confidential in all published content
+- **Chat conversations are private from other users, but are stored, linked to your account, and can be read by the Uni Feedback team** (see Section 4A.3)
+- To answer your questions, Chat messages are sent to a third-party AI provider acting on our behalf
+- We do not sell your personal information, and we do not share it with third parties except as described in the Privacy Policy or as legally required
 
 ## 10. Platform Modifications
 
