@@ -8,6 +8,7 @@ import { loadDegreeFilters, saveDegreeFilters } from '~/utils/filterStorage'
 import { getDegreePath } from '~/utils/i18n-routes'
 import { userPreferences } from '~/utils/userPreferences'
 import { BrowsePageLayout, DegreeCardGrid, DegreeTable } from '.'
+import { AskChatButton } from './chat/AskChatButton'
 import { FilterChip } from './common/FilterChip'
 import { FilterRow } from './common/FilterRow'
 import { MissingItemNote } from './common/MissingItemNote'
@@ -123,6 +124,14 @@ export function FacultyPageContent({
     <BrowsePageLayout
       title={t('faculty_page.title')}
       faculty={faculty}
+      headerAction={
+        <AskChatButton
+          name={faculty.shortName}
+          facultyId={faculty.id}
+          source="faculty_page"
+          variant="outline"
+        />
+      }
       searchBar={
         <SearchInput
           value={searchQuery}

@@ -49,11 +49,9 @@
   "coverage_notify": "Let me know when it opens",
   "coverage_notified": "Done. We will let you know as soon as we open it.",
   "error_generic": "Something went wrong. Try again.",
-  "ask_about_course": "Ask about {{name}}",
-  "ask_about_course_hint": "Got a question about this course? Ask the chat, it already knows what you mean.",
-  "ask_about_degree": "Ask about {{name}}",
   "context_remove": "Remove context",
   "back_to_site": "Back to the site",
   "open_chats": "Show chats",
-  "close_chats": "Close chats"
+  "close_chats": "Close chats",
+  "ask_about": "Ask about {{name}}"
 }

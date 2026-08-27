@@ -49,11 +49,9 @@
   "coverage_notify": "Avisem-me quando abrir",
   "coverage_notified": "Combinado. Avisamos-te assim que abrirmos.",
   "error_generic": "Algo correu mal. Tenta outra vez.",
-  "ask_about_course": "Perguntar sobre {{name}}",
-  "ask_about_course_hint": "Tens uma dúvida sobre esta cadeira? Pergunta ao chat, que já sabe do que falas.",
-  "ask_about_degree": "Perguntar sobre {{name}}",
   "context_remove": "Remover contexto",
   "back_to_site": "Voltar ao site",
   "open_chats": "Ver conversas",
-  "close_chats": "Fechar conversas"
+  "close_chats": "Fechar conversas",
+  "ask_about": "Perguntar sobre {{name}}"
 }

@@ -9,6 +9,7 @@ import type { ViewMode } from '~/utils/analytics'
 import { analytics } from '~/utils/analytics'
 import { loadCourseFilters, saveCourseFilters } from '~/utils/filterStorage'
 import { BrowsePageLayout, CourseCardGrid, CourseTable } from '.'
+import { AskChatButton } from './chat/AskChatButton'
 import { FilterChip } from './common/FilterChip'
 import { FilterRow } from './common/FilterRow'
 import { MissingItemNote } from './common/MissingItemNote'
@@ -545,6 +546,14 @@ export function DegreePageContent({
       title={degree.name}
       faculty={faculty}
       degree={degree}
+      headerAction={
+        <AskChatButton
+          name={degree.acronym}
+          degreeId={degree.id}
+          source="degree_page"
+          variant="outline"
+        />
+      }
       searchBar={
         <SearchInput
           value={searchQuery}

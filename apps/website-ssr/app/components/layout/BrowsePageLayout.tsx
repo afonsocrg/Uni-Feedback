@@ -9,6 +9,14 @@ interface BrowsePageLayoutProps {
   degree?: Degree
   searchBar?: ReactNode
   filterChips?: ReactNode
+  /**
+   * Sits under the title, above the search.
+   *
+   * Distinct from `actions`, which is the footnote at the bottom of the page
+   * ("missing a degree?"). This slot is for something a student might want
+   * *instead of* browsing, so it has to be visible before they start scrolling.
+   */
+  headerAction?: ReactNode
   actions?: ReactNode
   children: ReactNode
 }
@@ -19,6 +27,7 @@ export function BrowsePageLayout({
   degree,
   searchBar,
   filterChips,
+  headerAction,
   actions,
   children
 }: BrowsePageLayoutProps) {
@@ -39,6 +48,10 @@ export function BrowsePageLayout({
                 {title}
               </h1>
             </div>
+
+            {headerAction && (
+              <div className="mb-3 flex justify-center">{headerAction}</div>
+            )}
 
             {/* Search Bar */}
             {searchBar && <div className="mb-2">{searchBar}</div>}

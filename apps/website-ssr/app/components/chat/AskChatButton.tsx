@@ -15,7 +15,7 @@ interface AskChatButtonProps {
 }
 
 /**
- * "Ask about this course", from a course, degree or faculty page.
+ * "Ask about this", from a course, degree or faculty page.
  *
  * This is the highest-leverage control in the chat, and not because of traffic.
  * Arriving here scopes the conversation, so "is this hard?" resolves with no
@@ -44,7 +44,7 @@ export function AskChatButton({
     <Button variant={variant} className={className} asChild>
       <a href={`${getLocalePath('chat', lang)}?${params.toString()}`}>
         <MessageCircleQuestion className="size-4" />
-        {t('ask_about_course', { name })}
+        {t('ask_about', { name })}
       </a>
     </Button>
   )
