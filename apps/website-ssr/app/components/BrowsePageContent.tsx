@@ -8,6 +8,7 @@ import {
   saveBrowseUniversityFilter
 } from '~/utils/filterStorage'
 import { BrowsePageLayout, FacultySelector } from '.'
+import { AskChatButton } from './chat/AskChatButton'
 import { FilterRow } from './common/FilterRow'
 import { MissingItemNote } from './common/MissingItemNote'
 import { SearchInput } from './common/SearchInput'
@@ -162,6 +163,16 @@ export function BrowsePageContent({ faculties }: BrowsePageContentProps) {
       title={t('page.title')}
       searchBar={
         <SearchInput
+          trailing={
+            <AskChatButton
+              name=""
+              source="browse_page"
+              variant="ghost"
+              size="sm"
+              compact
+              label={t('chat_prompt', { ns: 'chat' })}
+            />
+          }
           value={searchQuery}
           onChange={setSearchQuery}
           placeholder={t('page.search_placeholder')}

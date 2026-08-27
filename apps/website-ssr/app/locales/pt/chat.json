@@ -53,5 +53,7 @@
   "back_to_site": "Voltar ao site",
   "open_chats": "Ver conversas",
   "close_chats": "Fechar conversas",
-  "ask_about": "Perguntar sobre {{name}}"
+  "ask_about": "Perguntar sobre {{name}}",
+  "chat_prompt": "ou pergunta ao chat",
+  "chat_no_results": "Pergunta ao chat"
 }

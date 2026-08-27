@@ -546,16 +546,19 @@ export function DegreePageContent({
       title={degree.name}
       faculty={faculty}
       degree={degree}
-      headerAction={
-        <AskChatButton
-          name={degree.acronym}
-          degreeId={degree.id}
-          source="degree_page"
-          variant="outline"
-        />
-      }
       searchBar={
         <SearchInput
+          trailing={
+            <AskChatButton
+              name={degree.acronym}
+              degreeId={degree.id}
+              source="degree_page"
+              variant="ghost"
+              size="sm"
+              compact
+              label={t('chat_prompt', { ns: 'chat' })}
+            />
+          }
           value={searchQuery}
           onChange={setSearchQuery}
           placeholder={t('degree_page.search_placeholder')}
@@ -660,8 +663,16 @@ export function DegreePageContent({
           {t('degree_page.no_courses')}
         </div>
       ) : filteredCourses.length === 0 ? (
-        <div className="text-center text-muted-foreground py-8">
+        <div className="flex flex-col items-center gap-3 py-8 text-center text-muted-foreground">
           {t('degree_page.no_results')}
+          <AskChatButton
+            name={degree.acronym}
+            degreeId={degree.id}
+            source="degree_page"
+            variant="outline"
+            size="sm"
+            label={t('chat_no_results', { ns: 'chat' })}
+          />
         </div>
       ) : viewMode === 'cards' ? (
         <CourseCardGrid sections={sections} />

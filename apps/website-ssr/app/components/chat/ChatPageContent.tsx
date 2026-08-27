@@ -31,6 +31,7 @@ interface ChatPageContentProps {
     | 'navbar'
     | 'footer'
     | 'landing'
+    | 'browse_page'
     | 'course_page'
     | 'degree_page'
     | 'faculty_page'

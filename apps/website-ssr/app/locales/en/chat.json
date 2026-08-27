@@ -53,5 +53,7 @@
   "back_to_site": "Back to the site",
   "open_chats": "Show chats",
   "close_chats": "Close chats",
-  "ask_about": "Ask about {{name}}"
+  "ask_about": "Ask about {{name}}",
+  "chat_prompt": "or ask the chat",
+  "chat_no_results": "Ask the chat"
 }

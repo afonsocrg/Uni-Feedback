@@ -9,8 +9,18 @@ interface AskChatButtonProps {
   courseId?: number
   degreeId?: number
   facultyId?: number
-  source: 'course_page' | 'degree_page' | 'faculty_page'
-  variant?: 'default' | 'outline'
+  source: 'course_page' | 'degree_page' | 'faculty_page' | 'browse_page'
+  variant?: 'default' | 'outline' | 'ghost' | 'link'
+  size?: 'default' | 'sm'
+  /** Overrides the "Perguntar sobre X" label, e.g. in a no-results state. */
+  label?: string
+  /**
+   * Drops the label below `sm`, leaving the icon.
+   *
+   * For the copy that sits inside the search field: on a phone the field is
+   * barely wider than the label, and the student is there to type.
+   */
+  compact?: boolean
   className?: string
 }
 
@@ -30,6 +40,9 @@ export function AskChatButton({
   facultyId,
   source,
   variant = 'default',
+  size = 'default',
+  label,
+  compact = false,
   className
 }: AskChatButtonProps) {
   const { t } = useTranslation('chat')
@@ -41,10 +54,12 @@ export function AskChatButton({
   if (facultyId) params.set('facultyId', String(facultyId))
 
   return (
-    <Button variant={variant} className={className} asChild>
+    <Button variant={variant} size={size} className={className} asChild>
       <a href={`${getLocalePath('chat', lang)}?${params.toString()}`}>
         <MessageCircleQuestion className="size-4" />
-        {t('ask_about', { name })}
+        <span className={compact ? 'hidden sm:inline' : undefined}>
+          {label ?? t('ask_about', { name })}
+        </span>
       </a>
     </Button>
   )
