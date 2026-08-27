@@ -104,6 +104,16 @@ export const routeConfig = [
         slugs: { pt: 'procurar', en: 'browse' }
       },
       {
+        key: 'chat',
+        file: 'routes/chat.tsx',
+        slugs: { pt: 'chat', en: 'chat' }
+      },
+      {
+        key: 'chat-detail',
+        file: 'routes/chat.$chatId.tsx',
+        slugs: { pt: 'chat/:chatId', en: 'chat/:chatId' }
+      },
+      {
         key: 'giveaway',
         file: 'routes/giveaway.tsx',
         slugs: { pt: 'giveaway', en: 'giveaway' }

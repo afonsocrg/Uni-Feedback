@@ -9,6 +9,7 @@ import {
   DeleteChat,
   GetChat,
   ListChats,
+  RateChatMessage,
   SendChatMessage
 } from './chat'
 import {
@@ -98,6 +99,7 @@ router.post('/chat', CreateChat)
 router.get('/chat/:id', GetChat)
 router.delete('/chat/:id', DeleteChat)
 router.post('/chat/:id/messages', SendChatMessage)
+router.post('/chat/messages/:id/rating', RateChatMessage)
 
 // ---------------------------------------------------------
 // Nested routers

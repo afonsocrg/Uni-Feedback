@@ -730,6 +730,74 @@ export const analytics = {
       referrerPage?: string
       courseId?: number
     }) => trackEvent('feedback_form_link_clicked', props)
+  },
+
+  /**
+   * AI chat.
+   *
+   * The funnel is: entry -> first message -> answer -> citation click, with the
+   * refusals (coverage wall, quota) as their own steps so drop-off is visible
+   * rather than inferred. `source` on every entry event is what lets us ask the
+   * question the context columns were added for: do students who arrive from a
+   * course page get better answers than those starting cold?
+   */
+  chat: {
+    opened: (props: {
+      source:
+        | 'navbar'
+        | 'landing'
+        | 'course_page'
+        | 'degree_page'
+        | 'faculty_page'
+        | 'direct'
+      hasContext: boolean
+      chatCount: number
+    }) => trackEvent('chat_opened', props),
+
+    messageSent: (props: {
+      chatId: number
+      isFirstMessage: boolean
+      hasContext: boolean
+      messageLength: number
+      usedSuggestion: boolean
+    }) => trackEvent('chat_message_sent', props),
+
+    answerReceived: (props: {
+      chatId: number
+      latencyMs: number
+      toolsUsed: string[]
+      guardsFired: string[]
+      answerLength: number
+    }) => trackEvent('chat_answer_received', props),
+
+    /** The whole point of grounding: did the answer send them into the site? */
+    citationClicked: (props: {
+      chatId: number
+      entityType: 'course' | 'degree' | 'faculty'
+      href: string
+    }) => trackEvent('chat_citation_clicked', props),
+
+    rated: (props: {
+      messageId: number
+      rating: 'helpful' | 'not_helpful'
+      hasComment: boolean
+    }) => trackEvent('chat_message_rated', props),
+
+    /** Abandonment: they closed or navigated away while an answer was in flight. */
+    abandoned: (props: { chatId: number; waitedMs: number }) =>
+      trackEvent('chat_answer_abandoned', props),
+
+    /** Refusals, each its own step so the funnel shows where students are lost. */
+    coverageWallShown: (props: { facultyId: number | null }) =>
+      trackEvent('chat_coverage_wall_shown', props),
+
+    quotaReached: (props: { chatId: number }) =>
+      trackEvent('chat_quota_reached', props),
+
+    errorShown: (props: { chatId: number; message: string }) =>
+      trackEvent('chat_error_shown', props),
+
+    noticeAccepted: () => trackEvent('chat_first_use_notice_accepted', {})
   }
 }
 

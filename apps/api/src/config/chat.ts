@@ -40,11 +40,16 @@ export const CHAT_CONFIG = {
    * at the cost of the honesty that makes them worth having.
    *
    * Sized against comparison questions, which the spike measured at ~$0.085 and
-   * up to 14s, not against the ~$0.008 average of a refusal. Revisit once the
-   * real distribution is visible: the right cap is somewhere above p95.
+   * up to 14s, not against the ~$0.008 average of a refusal.
+   *
+   * 30 rather than 10: a cap that bites hurts the alpha, whose whole job is to
+   * learn how students use this. The GLOBAL daily ceiling below is the real
+   * protection, because it bounds total spend however the messages distribute;
+   * this per-user cap only stops one person eating the whole budget. Revisit
+   * once the real distribution is visible: the right number is above p95.
    */
   get dailyMessageLimit(): number {
-    return envInt('CHAT_DAILY_MESSAGE_LIMIT', 10)
+    return envInt('CHAT_DAILY_MESSAGE_LIMIT', 30)
   },
 
   /** Messages per IP per hour, for the shared-account case. */

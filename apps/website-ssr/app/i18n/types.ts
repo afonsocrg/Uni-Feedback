@@ -1,4 +1,5 @@
 import type ptBrowse from '../locales/pt/browse.json'
+import type ptChat from '../locales/pt/chat.json'
 import type ptCommon from '../locales/pt/common.json'
 import type ptCourse from '../locales/pt/course.json'
 import type ptFeedback from '../locales/pt/feedback.json'
@@ -14,6 +15,7 @@ declare module 'i18next' {
       common: typeof ptCommon
       landing: typeof ptLanding
       browse: typeof ptBrowse
+      chat: typeof ptChat
       course: typeof ptCourse
       feedback: typeof ptFeedback
       legal: typeof ptLegal

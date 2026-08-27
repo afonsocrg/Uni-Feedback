@@ -1,5 +1,6 @@
 export * from './admin'
 export * from './auth'
+export * from './chat'
 export * from './config'
 export * from './courseGroups'
 export * from './courses'

@@ -14,7 +14,8 @@
     "theme_light": "Light",
     "theme_dark": "Dark",
     "theme_system": "System",
-    "language": "Language"
+    "language": "Language",
+    "chat": "Chat"
   },
   "footer": {
     "tagline": "From students, for students. Your companion for building a better and successful university experience.",

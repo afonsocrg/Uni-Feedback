@@ -14,7 +14,8 @@
     "theme_light": "Claro",
     "theme_dark": "Escuro",
     "theme_system": "Sistema",
-    "language": "Idioma"
+    "language": "Idioma",
+    "chat": "Chat"
   },
   "footer": {
     "tagline": "De alunos, para alunos. O teu companheiro para uma vida universitária melhor e mais bem-sucedida.",

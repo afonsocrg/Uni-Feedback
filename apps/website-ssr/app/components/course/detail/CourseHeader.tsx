@@ -9,6 +9,7 @@ import { Share2 } from 'lucide-react'
 import { useCallback } from 'react'
 import { FaWhatsapp } from 'react-icons/fa'
 import { CopyButton, Tooltip } from '~/components'
+import { AskChatButton } from '~/components/chat/AskChatButton'
 import { addUtmParams, openWhatsapp } from '~/utils'
 import { analytics } from '~/utils/analytics'
 import type { CourseDetail } from './CourseDetailContent'
@@ -84,6 +85,14 @@ export function CourseHeader({ course }: CourseHeaderProps) {
           </a>
         )}
         <div>
+          {/* Scoped entry point. Arriving from here means "is this hard?"
+              resolves without the student naming the course at all. */}
+          <AskChatButton
+            name={course.acronym}
+            courseId={course.id}
+            source="course_page"
+            variant="outline"
+          />
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="ghost" className="gap-2 text-muted-foreground">

@@ -1,4 +1,4 @@
-import { Button } from '@uni-feedback/ui'
+import { Badge, Button } from '@uni-feedback/ui'
 import { useTranslation } from 'react-i18next'
 import { LanguageSwitcher } from '~/components/layout/LanguageSwitcher'
 import { ThemeToggle } from '~/components/layout/ThemeToggle'
@@ -28,6 +28,16 @@ export function LandingHeader() {
           <div className="flex items-center gap-3">
             <ThemeToggle />
             <LanguageSwitcher />
+            {/* Chat is reachable from everywhere on purpose: the goal is that
+                students slide into it rather than having to find it. */}
+            <Button size="sm" variant="ghost" asChild>
+              <a href={`${getLocalePath('chat', lang)}?source=navbar`}>
+                {t('nav.chat', 'Chat')}
+                <Badge variant="secondary" className="ml-1.5 text-[10px]">
+                  Beta
+                </Badge>
+              </a>
+            </Button>
             <Button size="sm" variant="ghost" asChild>
               <a
                 href={`${getReviewPath(lang)}?from=navbar`}

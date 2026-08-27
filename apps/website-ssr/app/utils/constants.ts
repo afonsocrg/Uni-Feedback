@@ -31,6 +31,11 @@ export const SITE_URL =
 // LocalStorage keys
 // Convention: All keys should be prefixed with 'uni-feedback-' for namespace isolation
 export const STORAGE_KEYS = {
+  // Chat first-use notice. Client-only on purpose: it is a "have you read this"
+  // acknowledgement, not consent we need to prove, and the terms carry the
+  // durable version.
+  CHAT_NOTICE_ACCEPTED: 'uni-feedback-chat-notice-accepted',
+
   // Course browser preferences (used in feedback flow)
   SELECTED_FACULTY_ID: 'uni-feedback-selected-faculty-id',
   SELECTED_DEGREE_ID: 'uni-feedback-selected-degree-id',
