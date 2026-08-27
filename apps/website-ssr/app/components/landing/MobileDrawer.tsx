@@ -7,8 +7,10 @@ import {
 } from '@uni-feedback/ui'
 import { LogOut, Menu, User } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { LanguageSwitcher } from '~/components/layout/LanguageSwitcher'
-import { ThemeToggle } from '~/components/layout/ThemeToggle'
+import {
+  LanguagePreferenceControl,
+  ThemePreferenceControl
+} from '~/components/layout/PreferenceControls'
 import { useLang } from '~/hooks'
 import { analytics, getPageName } from '~/utils/analytics'
 import { getLocalePath, getReviewPath } from '~/utils/i18n-routes'
@@ -32,14 +34,33 @@ export function MobileDrawer({
   const { t } = useTranslation()
   const lang = useLang()
 
+  const trackNavClick = (destination: 'browse' | 'chat') => () =>
+    analytics.navigation.navLinkClicked({
+      destination,
+      surface: 'mobile_menu',
+      referrerPage: getPageName(window.location.pathname)
+    })
+
   return (
-    <Sheet>
+    <Sheet
+      onOpenChange={(open) => {
+        if (!open) return
+        analytics.navigation.accountMenuOpened({
+          surface: 'mobile_menu',
+          isAuthenticated
+        })
+      }}
+    >
       <SheetTrigger asChild>
         <Button size="sm" variant="ghost" className="size-9 p-0">
           <Menu className="size-5" />
+          <span className="sr-only">{t('nav.menu')}</span>
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-[300px] sm:w-[350px] p-0">
+      {/* Opens from the right because that is where its trigger now sits. A
+          drawer flying in from the opposite edge to the button it came from
+          reads as a different control answering. */}
+      <SheetContent side="right" className="w-[300px] sm:w-[350px] p-0">
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="p-6 pb-4">
@@ -55,8 +76,32 @@ export function MobileDrawer({
                 className="w-full justify-start h-12 text-base px-4"
                 asChild
               >
-                <a href={browseLink}>{t('nav.browse_courses')}</a>
+                <a href={browseLink} onClick={trackNavClick('browse')}>
+                  {t('nav.browse_courses')}
+                </a>
               </Button>
+
+              {/* The navbar chat entry is desktop-only, so without this the
+                  chat is unreachable from the nav on a phone, which is where
+                  most students are. */}
+              <Button
+                variant="ghost"
+                className="w-full justify-start h-12 text-base px-4"
+                asChild
+              >
+                <a
+                  href={`${getLocalePath('chat', lang)}?source=mobile_menu`}
+                  onClick={trackNavClick('chat')}
+                >
+                  {t('nav.chat')}
+                  <span
+                    aria-hidden="true"
+                    className="ml-1.5 inline-block size-1.5 rounded-full bg-primary align-middle"
+                  />
+                  <span className="sr-only"> (Beta)</span>
+                </a>
+              </Button>
+
               <Button
                 variant="ghost"
                 className="w-full justify-start h-12 text-base px-4"
@@ -77,26 +122,17 @@ export function MobileDrawer({
             </div>
           </nav>
 
-          {/* Settings: theme + language, side by side */}
-          <div className="px-4 pb-2">
-            <div className="grid grid-cols-2 gap-2">
-              <div className="flex flex-col items-center gap-1">
-                <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                  {t('nav.theme')}
-                </span>
-                <div className="flex h-9 items-center">
-                  <ThemeToggle />
-                </div>
-              </div>
-              <div className="flex flex-col items-center gap-1">
-                <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                  {t('nav.language')}
-                </span>
-                <div className="flex h-9 items-center">
-                  <LanguageSwitcher />
-                </div>
-              </div>
-            </div>
+          {/* The same two preference controls as the account popover and the
+              footer, so all three surfaces show one thing. */}
+          <div className="px-5 pb-2">
+            <ThemePreferenceControl
+              surface="mobile_menu"
+              isAuthenticated={isAuthenticated}
+            />
+            <LanguagePreferenceControl
+              surface="mobile_menu"
+              isAuthenticated={isAuthenticated}
+            />
           </div>
 
           {/* Profile Section at Bottom */}

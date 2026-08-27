@@ -136,6 +136,14 @@ export type SearchSurface =
   | 'feedback_course_browser'
   | 'change_course_dialog'
 
+/**
+ * Which piece of site chrome a navigation or preference action came from. The
+ * same links and controls now appear in all three, so without this the navbar
+ * redesign is unmeasurable: we cannot tell whether moving an item into the
+ * drawer or the footer cost it its clicks.
+ */
+export type NavSurface = 'navbar' | 'mobile_menu' | 'footer'
+
 export const analytics = {
   feedback: {
     /**
@@ -729,7 +737,41 @@ export const analytics = {
       source: string
       referrerPage?: string
       courseId?: number
-    }) => trackEvent('feedback_form_link_clicked', props)
+    }) => trackEvent('feedback_form_link_clicked', props),
+
+    /**
+     * A destination link in the site chrome (browse, chat). Feedback keeps its
+     * own event above because it is the head of a funnel; these are plain
+     * navigation, tracked so we can see how the redesign redistributed clicks
+     * between the bar, the drawer and the footer.
+     */
+    navLinkClicked: (props: {
+      destination: 'browse' | 'chat'
+      surface: NavSurface
+      referrerPage?: string
+    }) => trackEvent('nav_link_clicked', props),
+
+    /**
+     * The account popover or mobile drawer was opened. Pairs with
+     * `nav_preference_changed` to show how many people who open it are actually
+     * after a preference rather than their profile.
+     */
+    accountMenuOpened: (props: {
+      surface: NavSurface
+      isAuthenticated: boolean
+    }) => trackEvent('nav_account_menu_opened', props),
+
+    /**
+     * Theme or language was changed. Neither was ever tracked, which is why the
+     * decision to demote them off the navbar had to be inferred from locale
+     * pageviews. This measures it directly from now on.
+     */
+    preferenceChanged: (props: {
+      preference: 'theme' | 'language'
+      value: string
+      surface: NavSurface
+      isAuthenticated: boolean
+    }) => trackEvent('nav_preference_changed', props)
   },
 
   /**
@@ -745,6 +787,7 @@ export const analytics = {
     opened: (props: {
       source:
         | 'navbar'
+        | 'mobile_menu'
         | 'footer'
         | 'landing'
         | 'browse_page'

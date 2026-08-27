@@ -2,7 +2,11 @@ import { Separator } from '@uni-feedback/ui'
 import { GraduationCap, Instagram } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { SiTiktok } from 'react-icons/si'
-import { useLang } from '~/hooks'
+import {
+  LanguagePreferenceControl,
+  ThemePreferenceControl
+} from '~/components/layout/PreferenceControls'
+import { useAuth, useLang } from '~/hooks'
 import { useLastVisitedPath } from '~/hooks/useLastVisitedPath'
 import { analytics, getPageName } from '~/utils/analytics'
 import { INSTAGRAM_URL, TIKTOK_URL } from '~/utils/constants'
@@ -23,6 +27,7 @@ interface FooterLinkGroup {
 export function LandingFooter() {
   const { t } = useTranslation()
   const lang = useLang()
+  const { isAuthenticated } = useAuth()
   const lastVisitedPath = useLastVisitedPath()
   const browsePath = getLocalePath('browse', lang)
   const browseLink = lastVisitedPath !== '/' ? lastVisitedPath : browsePath
@@ -158,6 +163,19 @@ export function LandingFooter() {
           </div>
         </div>
         <Separator className="my-8" />
+        {/* Theme and language also live here, not only in the account popover.
+            The popover is always reachable but reads as "account"; the footer is
+            where people have learned to look for a language switch. */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-end gap-1 md:gap-6 mb-6">
+          <ThemePreferenceControl
+            surface="footer"
+            isAuthenticated={isAuthenticated}
+          />
+          <LanguagePreferenceControl
+            surface="footer"
+            isAuthenticated={isAuthenticated}
+          />
+        </div>
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
           <p>{t('footer.built_by')}</p>
           <p>{t('footer.copyright', { year: new Date().getFullYear() })}</p>

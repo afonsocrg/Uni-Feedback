@@ -8,14 +8,14 @@
     "logout": "Logout",
     "sign_in": "Sign in",
     "sign_in_prompt": "Sign in to access your profile",
-    "sign_in_to_platform": "Sign in to Uni Feedback",
     "loading": "Loading...",
     "theme": "Theme",
     "theme_light": "Light",
     "theme_dark": "Dark",
     "theme_system": "System",
     "language": "Language",
-    "chat": "Chat"
+    "chat": "Chat",
+    "account": "Account"
   },
   "footer": {
     "tagline": "From students, for students. Your companion for building a better and successful university experience.",
