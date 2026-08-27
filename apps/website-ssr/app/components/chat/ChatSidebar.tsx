@@ -2,15 +2,23 @@ import type { ChatSummary } from '@uni-feedback/api-client'
 import { Button, cn } from '@uni-feedback/ui'
 import { Plus, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { ChatAccountRow } from './ChatAccountRow'
 import { BackToSite } from './ChatShell'
 
 interface ChatSidebarProps {
   chats: ChatSummary[]
-  activeChatId: number | null
-  open: boolean
+  activeChatId: string | null
+  /**
+   * null means the student has never chosen.
+   *
+   * Kept as a tri-state so the default can come from CSS rather than JS. Read
+   * from localStorage, "unknown" is what the first render always sees, and
+   * resolving it in an effect made the sidebar blink shut on every navigation.
+   */
+  open: boolean | null
   onNewChat: () => void
-  onSelect: (chatId: number) => void
-  onDelete: (chatId: number) => void
+  onSelect: (chatId: string) => void
+  onDelete: (chatId: string) => void
   onClose: () => void
 }
 
@@ -27,8 +35,10 @@ export function ChatSidebar({
 
   return (
     <>
-      {/* Scrim, mobile only. */}
-      {open && (
+      {/* Scrim, and only when the drawer was explicitly opened on a small
+          screen. On desktop the sidebar is part of the layout, so there is
+          nothing to dismiss. */}
+      {open === true && (
         <button
           type="button"
           aria-label={t('close_chats')}
@@ -39,12 +49,13 @@ export function ChatSidebar({
 
       <aside
         className={cn(
-          'z-50 flex w-64 shrink-0 flex-col gap-4 border-r border-border bg-muted p-3',
-          // Overlay on small screens, in the flow on large ones. Collapsing is
-          // available at every width, so when it is closed it leaves the layout
-          // entirely rather than sitting there at zero width.
-          'fixed inset-y-0 left-0 transition-transform md:static',
-          open ? 'translate-x-0' : '-translate-x-full md:hidden'
+          'z-50 w-64 shrink-0 flex-col gap-4 border-r border-border bg-background p-3',
+          // Below md it is a drawer: off-canvas, over the conversation.
+          // From md up it is part of the layout and stays put.
+          'fixed inset-y-0 left-0 transition-transform md:static md:translate-x-0',
+          open === null && 'hidden md:flex',
+          open === true && 'flex translate-x-0',
+          open === false && 'hidden'
         )}
       >
         <BackToSite />
@@ -65,7 +76,7 @@ export function ChatSidebar({
               key={chat.id}
               className={cn(
                 'group flex items-center gap-1 rounded-md px-2 py-1.5',
-                chat.id === activeChatId && 'bg-background'
+                chat.id === activeChatId && 'bg-muted'
               )}
             >
               <button
@@ -91,11 +102,11 @@ export function ChatSidebar({
           ))}
         </div>
 
-        {/* No quota meter. Nothing should count down at a student until they
-            actually hit the wall. */}
-        <p className="mt-auto border-t border-border pt-2.5 text-xs text-muted-foreground">
-          {t('beta_warning')}
-        </p>
+        <div className="mt-auto border-t border-border pt-2">
+          {/* The chat has no site header, so this is the only route to account,
+              theme and language. */}
+          <ChatAccountRow />
+        </div>
       </aside>
     </>
   )

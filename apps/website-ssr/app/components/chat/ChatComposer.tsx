@@ -26,7 +26,7 @@ export function ChatComposer({ onSend, disabled }: ChatComposerProps) {
     // across a wide screen puts the send button an inch from the frame and
     // makes typed text scan badly. Same max-width as the messages, so the
     // column reads as one thing.
-    <div className="border-t border-border px-5 py-3">
+    <div className="px-5 pb-3 pt-1">
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-2">
         {/* The row is the input: it carries the border, the surface and the focus
           ring, because the textarea inside it is stripped bare. Without

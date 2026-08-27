@@ -98,13 +98,11 @@ export function ChatPageContent({
   const [hydrated, setHydrated] = useState(false)
   useEffect(() => setHydrated(true), [])
 
-  useEffect(() => {
-    if (sidebarOpen === null) {
-      setSidebarOpen(window.matchMedia('(min-width: 768px)').matches)
-    }
-  }, [sidebarOpen, setSidebarOpen])
-
-  const isSidebarOpen = sidebarOpen === true
+  // `null` (never chosen) is handed straight to the sidebar, which resolves it
+  // in CSS: visible from md up, hidden below. Resolving it here in an effect
+  // meant every navigation rendered once with "closed" before correcting
+  // itself, so the sidebar blinked shut each time a chat was opened.
+  const isSidebarOpen = sidebarOpen !== false
 
   const trackedOpen = useRef(false)
 
@@ -201,7 +199,7 @@ export function ChatPageContent({
     navigate(getLocalePath('chat', lang))
   }
 
-  const removeChat = async (id: number) => {
+  const removeChat = async (id: string) => {
     setChats((prev) => prev.filter((c) => c.id !== id))
     if (id === activeChatId) startNewChat()
     try {
@@ -257,16 +255,17 @@ export function ChatPageContent({
   return (
     <ChatShell
       sidebarOpen={isSidebarOpen}
-      onToggleSidebar={() => setSidebarOpen(!isSidebarOpen)}
+      onToggleSidebar={() => setSidebarOpen(sidebarOpen === false)}
       sidebar={
         <ChatSidebar
           chats={chats}
           activeChatId={activeChatId}
-          open={isSidebarOpen}
+          open={sidebarOpen}
           onNewChat={startNewChat}
           onSelect={(id) => {
-            // Only close on small screens: on desktop the sidebar is part of
-            // the layout, and collapsing it on every click would be hostile.
+            // Only dismiss the drawer on small screens. On desktop the sidebar
+            // is part of the layout: closing it every time a chat is opened
+            // would be actively hostile.
             if (!window.matchMedia('(min-width: 768px)').matches) {
               setSidebarOpen(false)
             }
@@ -291,7 +290,7 @@ export function ChatPageContent({
           />
         ) : (
           <ChatMessages
-            chatId={activeChatId ?? 0}
+            chatId={activeChatId ?? 'new'}
             messages={stream.messages}
             workingTool={stream.workingTool}
           />

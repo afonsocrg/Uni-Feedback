@@ -13,7 +13,8 @@ export interface DisplayMessage {
 }
 
 interface ChatMessagesProps {
-  chatId: number
+  /** Public id, or 'new' before the first answer creates the chat. */
+  chatId: string
   messages: DisplayMessage[]
   /** Name of the tool currently running, or null when nothing is in flight. */
   workingTool: string | null

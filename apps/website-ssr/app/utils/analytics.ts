@@ -142,7 +142,7 @@ export type SearchSurface =
  * redesign is unmeasurable: we cannot tell whether moving an item into the
  * drawer or the footer cost it its clicks.
  */
-export type NavSurface = 'navbar' | 'mobile_menu' | 'footer'
+export type NavSurface = 'navbar' | 'mobile_menu' | 'footer' | 'chat_sidebar'
 
 export const analytics = {
   feedback: {
@@ -800,7 +800,8 @@ export const analytics = {
     }) => trackEvent('chat_opened', props),
 
     messageSent: (props: {
-      chatId: number
+      /** The chat's public id, or 'new' for a first message. */
+      chatId: string
       isFirstMessage: boolean
       hasContext: boolean
       messageLength: number
@@ -808,7 +809,7 @@ export const analytics = {
     }) => trackEvent('chat_message_sent', props),
 
     answerReceived: (props: {
-      chatId: number
+      chatId: string
       latencyMs: number
       toolsUsed: string[]
       guardsFired: string[]
@@ -817,7 +818,7 @@ export const analytics = {
 
     /** The whole point of grounding: did the answer send them into the site? */
     citationClicked: (props: {
-      chatId: number
+      chatId: string
       entityType: 'course' | 'degree' | 'faculty'
       href: string
     }) => trackEvent('chat_citation_clicked', props),
@@ -833,17 +834,17 @@ export const analytics = {
       trackEvent('chat_message_rating_cleared', props),
 
     /** Abandonment: they closed or navigated away while an answer was in flight. */
-    abandoned: (props: { chatId: number; waitedMs: number }) =>
+    abandoned: (props: { chatId: string; waitedMs: number }) =>
       trackEvent('chat_answer_abandoned', props),
 
     /** Refusals, each its own step so the funnel shows where students are lost. */
     coverageWallShown: (props: { facultyId: number | null }) =>
       trackEvent('chat_coverage_wall_shown', props),
 
-    quotaReached: (props: { chatId: number }) =>
+    quotaReached: (props: { chatId: string }) =>
       trackEvent('chat_quota_reached', props),
 
-    errorShown: (props: { chatId: number; message: string }) =>
+    errorShown: (props: { chatId: string; message: string }) =>
       trackEvent('chat_error_shown', props),
 
     noticeAccepted: () => trackEvent('chat_first_use_notice_accepted', {})

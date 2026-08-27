@@ -1,4 +1,8 @@
-import { MeicFeedbackAPIError, sendChatMessage } from '@uni-feedback/api-client'
+import {
+  MeicFeedbackAPIError,
+  sendChatMessage,
+  type ChatScope
+} from '@uni-feedback/api-client'
 import { useCallback, useRef, useState } from 'react'
 import type { DisplayMessage } from '~/components/chat/ChatMessages'
 import { analytics } from '~/utils/analytics'

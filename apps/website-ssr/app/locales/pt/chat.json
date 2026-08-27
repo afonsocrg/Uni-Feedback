@@ -7,10 +7,9 @@
   "recent": "Recentes",
   "delete_chat": "Apagar conversa",
   "untitled": "Nova conversa",
-  "beta_warning": "O chat pode enganar-se. Confirma o que for importante.",
   "placeholder": "Pergunta o que quiseres sobre as tuas cadeiras...",
   "send": "Enviar",
-  "composer_hint": "Só tu vês esta conversa. A equipa do Uni Feedback lê as conversas para perceber o que falta no site.",
+  "composer_hint": "O chat pode enganar-se, confirma o que for importante. Só tu vês esta conversa, mas a equipa do Uni Feedback lê-as para perceber o que falta no site.",
   "working": "A pensar...",
   "working_tool": {
     "search_courses": "A procurar cadeiras...",

@@ -7,10 +7,9 @@
   "recent": "Recent",
   "delete_chat": "Delete chat",
   "untitled": "New chat",
-  "beta_warning": "The chat can get things wrong. Double-check anything important.",
   "placeholder": "Ask anything about your courses...",
   "send": "Send",
-  "composer_hint": "Only you can see this conversation. The Uni Feedback team reads chats to find out what is missing from the site.",
+  "composer_hint": "The chat can get things wrong, so double-check anything important. Only you can see this conversation, but the Uni Feedback team reads chats to find out what is missing from the site.",
   "working": "Thinking...",
   "working_tool": {
     "search_courses": "Looking for courses...",
