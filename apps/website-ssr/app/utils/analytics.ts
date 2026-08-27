@@ -745,6 +745,7 @@ export const analytics = {
     opened: (props: {
       source:
         | 'navbar'
+        | 'footer'
         | 'landing'
         | 'course_page'
         | 'degree_page'

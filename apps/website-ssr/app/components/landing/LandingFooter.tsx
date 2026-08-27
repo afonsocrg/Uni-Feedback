@@ -33,6 +33,10 @@ export function LandingFooter() {
       links: [
         { href: browseLink, label: t('footer.links.browse_courses') },
         {
+          href: `${getLocalePath('chat', lang)}?source=footer`,
+          label: t('footer.links.chat')
+        },
+        {
           href: `${getReviewPath(lang)}?from=footer`,
           label: t('footer.links.give_feedback'),
           onClick: () => {

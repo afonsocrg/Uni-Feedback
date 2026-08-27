@@ -29,6 +29,7 @@ interface ChatPageContentProps {
   scope: ChatScope | null
   source:
     | 'navbar'
+    | 'footer'
     | 'landing'
     | 'course_page'
     | 'degree_page'

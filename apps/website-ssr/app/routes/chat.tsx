@@ -31,6 +31,7 @@ export default function ChatPage() {
   const source = params.get('source')
   const knownSources = [
     'navbar',
+    'footer',
     'landing',
     'course_page',
     'degree_page',
