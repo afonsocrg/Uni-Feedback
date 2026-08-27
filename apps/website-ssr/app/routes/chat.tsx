@@ -31,6 +31,7 @@ export default function ChatPage() {
   const source = params.get('source')
   const knownSources = [
     'navbar',
+    'mobile_menu',
     'footer',
     'landing',
     'browse_page',
@@ -45,6 +46,7 @@ export default function ChatPage() {
 
   return (
     <ChatPageContent
+      scopeLabel={params.get('scopeLabel')}
       chatId={null}
       scope={
         hasScope

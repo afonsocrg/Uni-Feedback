@@ -2,18 +2,22 @@ import { useTranslation } from 'react-i18next'
 
 interface ChatEmptyStateProps {
   onPick: (question: string) => void
+  /** Set when the student arrived from a course, degree or faculty page. */
+  scopeLabel?: string | null
 }
 
 const SUGGESTION_KEYS = ['hardest', 'assessment', 'no_exam'] as const
 
-export function ChatEmptyState({ onPick }: ChatEmptyStateProps) {
+export function ChatEmptyState({ onPick, scopeLabel }: ChatEmptyStateProps) {
   const { t } = useTranslation('chat')
 
   return (
     <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-5 overflow-y-auto px-5 py-10">
       <div className="flex max-w-md flex-col gap-2 text-center">
         <h2 className="text-lg font-semibold text-foreground">
-          {t('empty_title')}
+          {scopeLabel
+            ? t('empty_title_scoped', { name: scopeLabel })
+            : t('empty_title')}
         </h2>
         {/* Saying what it does NOT know is cheaper than a disappointed first
             question: entry grades and applications are the highest-volume real

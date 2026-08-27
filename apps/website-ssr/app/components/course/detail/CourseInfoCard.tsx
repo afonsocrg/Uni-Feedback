@@ -12,6 +12,7 @@ import { Clock, ExternalLink, Flag, Star } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
+import { AskChatButton } from '~/components/chat/AskChatButton'
 import { useLang } from '~/hooks'
 import { analytics, getPageName } from '~/utils/analytics'
 import { getCourseFeedbackPath } from '~/utils/i18n-routes'
@@ -246,7 +247,7 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
         </div>
 
         {/* Primary CTA */}
-        <div className="mt-6">
+        <div className="mt-6 flex flex-wrap items-center gap-2 max-sm:flex-col max-sm:items-stretch">
           <Button asChild className="text-white max-sm:w-full">
             <Link
               to={reviewFormUrl}
@@ -262,6 +263,15 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
               {t('reviews.give_feedback')}
             </Link>
           </Button>
+          {/* Beside the primary CTA rather than in the title row: this is an
+              action, and it belongs where the page's other action already is. */}
+          <AskChatButton
+            name={course.acronym}
+            courseId={course.id}
+            source="course_page"
+            variant="outline"
+            className="max-sm:w-full"
+          />
         </div>
       </div>
 

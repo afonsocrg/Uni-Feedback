@@ -55,5 +55,7 @@
   "close_chats": "Close chats",
   "ask_about": "Ask about {{name}}",
   "chat_prompt": "or ask the chat",
-  "chat_no_results": "Ask the chat"
+  "chat_no_results": "Ask the chat",
+  "scoped_to": "About {{name}}",
+  "empty_title_scoped": "Ask me about {{name}}"
 }

@@ -1,5 +1,5 @@
 import { Button } from '@uni-feedback/ui'
-import { ArrowLeft, GraduationCap, PanelLeft } from 'lucide-react'
+import { GraduationCap, PanelLeft } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useLang } from '~/hooks'
 import { getLocalePath } from '~/utils/i18n-routes'
@@ -74,60 +74,44 @@ function TopBar({
       </Button>
 
       {!sidebarOpen && (
-        <>
-          <a
-            href={getLocalePath('home', lang)}
-            className="flex items-center gap-1.5 transition-opacity hover:opacity-80"
-          >
-            <GraduationCap className="size-5 text-primary" />
-            <span className="text-sm font-semibold text-foreground">
-              Uni Feedback
-            </span>
-          </a>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="ml-auto h-8 gap-1.5 text-muted-foreground"
-            asChild
-          >
-            <a href={getLocalePath('browse', lang)}>
-              <ArrowLeft className="size-3.5" />
-              <span className="hidden sm:inline">{t('back_to_site')}</span>
-            </a>
-          </Button>
-        </>
+        <a
+          href={getLocalePath('home', lang)}
+          title={t('back_to_site')}
+          className="flex items-center gap-1.5 transition-opacity hover:opacity-80"
+        >
+          <GraduationCap className="size-5 text-primary" />
+          <span className="text-sm font-semibold text-foreground">
+            Uni Feedback
+          </span>
+        </a>
       )}
     </div>
   )
 }
 
 /** Top of the sidebar: brand, and the way back to the rest of the site. */
+/**
+ * The way back to the site.
+ *
+ * The logo alone, with no second "back" control beside it. A logo that returns
+ * to the home page is the one navigation convention every site shares, so
+ * pairing it with an arrow button pointing at the same place was two controls
+ * doing one job. The title attribute says so for anyone who hesitates.
+ */
 export function BackToSite() {
   const { t } = useTranslation('chat')
   const lang = useLang()
 
   return (
-    <div className="flex flex-col gap-1">
-      <a
-        href={getLocalePath('home', lang)}
-        className="flex items-center gap-2 rounded-md px-1 py-1 transition-opacity hover:opacity-80"
-      >
-        <GraduationCap className="size-6 text-primary" />
-        <span className="text-base font-semibold text-foreground">
-          Uni Feedback
-        </span>
-      </a>
-      <Button
-        variant="ghost"
-        size="sm"
-        className="h-8 justify-start gap-1.5 px-1 text-muted-foreground"
-        asChild
-      >
-        <a href={getLocalePath('browse', lang)}>
-          <ArrowLeft className="size-3.5" />
-          {t('back_to_site')}
-        </a>
-      </Button>
-    </div>
+    <a
+      href={getLocalePath('home', lang)}
+      title={t('back_to_site')}
+      className="flex items-center gap-2 rounded-md px-1 py-1 transition-opacity hover:opacity-80"
+    >
+      <GraduationCap className="size-6 text-primary" />
+      <span className="text-base font-semibold text-foreground">
+        Uni Feedback
+      </span>
+    </a>
   )
 }

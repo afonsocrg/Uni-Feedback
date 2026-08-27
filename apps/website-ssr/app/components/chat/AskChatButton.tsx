@@ -52,6 +52,9 @@ export function AskChatButton({
   if (courseId) params.set('courseId', String(courseId))
   if (degreeId) params.set('degreeId', String(degreeId))
   if (facultyId) params.set('facultyId', String(facultyId))
+  // Display only, so the chat can name what it is scoped to before a chat row
+  // exists. The scope itself is always the id: this is a label, never trusted.
+  if (name) params.set('scopeLabel', name)
 
   return (
     <Button variant={variant} size={size} className={className} asChild>

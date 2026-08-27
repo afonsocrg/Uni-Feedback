@@ -18,6 +18,7 @@ import { ChatComposer } from './ChatComposer'
 import { ChatEmptyState } from './ChatEmptyState'
 import { ChatFirstUseNotice } from './ChatFirstUseNotice'
 import { ChatMessages } from './ChatMessages'
+import { ChatScopeChip } from './ChatScopeChip'
 import { ChatShell } from './ChatShell'
 import { ChatSidebar } from './ChatSidebar'
 import { ChatCoverageWall, ChatQuotaWall } from './ChatWalls'
@@ -27,8 +28,11 @@ interface ChatPageContentProps {
   chatId: number | null
   /** From query params when arriving from a course, degree or faculty page. */
   scope: ChatScope | null
+  /** Display name for the scope, so it can be shown before a chat exists. */
+  scopeLabel?: string | null
   source:
     | 'navbar'
+    | 'mobile_menu'
     | 'footer'
     | 'landing'
     | 'browse_page'
@@ -41,6 +45,7 @@ interface ChatPageContentProps {
 export function ChatPageContent({
   chatId: initialChatId,
   scope,
+  scopeLabel,
   source
 }: ChatPageContentProps) {
   const { t } = useTranslation('chat')
@@ -277,8 +282,17 @@ export function ChatPageContent({
       }
     >
       <>
+        {scopeLabel && (
+          <div className="flex justify-center border-b border-border px-5 py-2">
+            <ChatScopeChip label={scopeLabel} />
+          </div>
+        )}
+
         {showEmptyState ? (
-          <ChatEmptyState onPick={(question) => send(question, true)} />
+          <ChatEmptyState
+            scopeLabel={scopeLabel}
+            onPick={(question) => send(question, true)}
+          />
         ) : (
           <ChatMessages
             chatId={activeChatId ?? 0}

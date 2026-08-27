@@ -55,5 +55,7 @@
   "close_chats": "Fechar conversas",
   "ask_about": "Perguntar sobre {{name}}",
   "chat_prompt": "ou pergunta ao chat",
-  "chat_no_results": "Pergunta ao chat"
+  "chat_no_results": "Pergunta ao chat",
+  "scoped_to": "Sobre {{name}}",
+  "empty_title_scoped": "Pergunta-me sobre {{name}}"
 }
