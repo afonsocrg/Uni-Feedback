@@ -96,7 +96,12 @@ export type ShareChannel = 'whatsapp' | 'copy_url' | 'native'
  * with no field chosen; `content_section` is one of the description / assessment
  * / bibliography tabs, which opens with that field pre-filled.
  */
-export type CorrectionEntryPoint = 'course_info_card' | 'content_section'
+export type CorrectionEntryPoint =
+  | 'course_info_card'
+  | 'content_section'
+  /** Deep-linked from a chat answer that reported the field as missing. This is
+   *  how we measure whether the chat feeds contributions back into the site. */
+  | 'chat_answer'
 
 /**
  * A browse page that lists things behind a cards/list view toggle: the faculty
@@ -393,38 +398,47 @@ export const analytics = {
 
   auth: {
     /**
-     * Track when auth dialog is shown to user
+     * The sign-in funnel.
+     *
+     * Every step carries `trigger`, which is what makes conversion answerable
+     * per surface: "of the people the chat asked to sign in, how many finished,
+     * and how many of those were new accounts". Without it these events are one
+     * undifferentiated pile and the chat's acquisition claim cannot be checked.
      */
     dialogShown: (props?: { trigger: string }) =>
       trackEvent('auth_dialog_shown', props),
 
-    /**
-     * Track when user enters email in auth flow
-     */
-    emailEntered: (props?: { emailDomain?: string }) =>
+    emailEntered: (props?: { emailDomain?: string; trigger?: string }) =>
       trackEvent('auth_email_entered', props),
 
-    /**
-     * Track when OTP is successfully requested
-     */
-    otpRequested: () => trackEvent('auth_otp_requested'),
+    otpRequested: (props?: { trigger?: string }) =>
+      trackEvent('auth_otp_requested', props),
+
+    otpEntered: (props?: { trigger?: string }) =>
+      trackEvent('auth_otp_entered', props),
 
     /**
-     * Track when user enters OTP code
+     * `isNewUser` separates acquisition from re-authentication. A chat that only
+     * makes existing students log in is not growing the list, however good its
+     * conversion rate looks.
      */
-    otpEntered: () => trackEvent('auth_otp_entered'),
+    completed: (props?: {
+      authMethod: string
+      trigger?: string
+      isNewUser?: boolean
+    }) => trackEvent('auth_completed', props),
+
+    failed: (props: { step: string; errorType: string; trigger?: string }) =>
+      trackEvent('auth_failed', props),
 
     /**
-     * Track successful authentication completion
+     * They typed an address from a university we do not cover.
+     *
+     * High signal and otherwise invisible: it is demand from someone we cannot
+     * serve, and the domain says which institution to look at next.
      */
-    completed: (props?: { authMethod: string }) =>
-      trackEvent('auth_completed', props),
-
-    /**
-     * Track authentication failures
-     */
-    failed: (props: { step: string; errorType: string }) =>
-      trackEvent('auth_failed', props)
+    unsupportedDomain: (props: { emailDomain: string; trigger?: string }) =>
+      trackEvent('auth_unsupported_domain_entered', props)
   },
 
   engagement: {
@@ -796,7 +810,19 @@ export const analytics = {
         | 'faculty_page'
         | 'direct'
       hasContext: boolean
-      chatCount: number
+      /**
+       * Whether they arrived already signed in.
+       *
+       * The chat is login-gated, so this is what splits the one surface into
+       * its two funnels: a signed-out arrival is a signup funnel and has a
+       * login wall in the middle, a signed-in one goes straight to an answer.
+       * Measuring them as one funnel makes the wall look like a step that 80%
+       * of people skip, which reads as drop-off it is not.
+       */
+      isAuthenticated: boolean
+      /** Their existing conversations, or null when we cannot know: a
+       *  signed-out visitor's list is a 401, not an empty list. */
+      chatCount: number | null
     }) => trackEvent('chat_opened', props),
 
     messageSent: (props: {
@@ -838,8 +864,61 @@ export const analytics = {
       trackEvent('chat_answer_abandoned', props),
 
     /** Refusals, each its own step so the funnel shows where students are lost. */
-    coverageWallShown: (props: { facultyId: number | null }) =>
-      trackEvent('chat_coverage_wall_shown', props),
+    restingShown: (props: { code: string }) =>
+      trackEvent('chat_resting_shown', props),
+
+    /**
+     * The login wall. `loginWallShown` fires when they try to send without an
+     * account, which is the moment of intent, not on arrival: the requirement is
+     * stated above the composer long before this.
+     */
+    loginWallShown: (props: { hasContext: boolean; source: string }) =>
+      trackEvent('chat_login_wall_shown', props),
+
+    loginWallCompleted: (props: { source: string }) =>
+      trackEvent('chat_login_wall_completed', props),
+
+    /** Closed the dialog without signing in. The question is kept either way. */
+    loginWallAbandoned: (props: { source: string }) =>
+      trackEvent('chat_login_wall_abandoned', props),
+
+    /**
+     * Retrieval came back empty and the answer carried an ask.
+     *
+     * This is the coverage signal that the removed per-faculty gate used to
+     * approximate, except measured on real questions instead of guessed in
+     * advance.
+     */
+    gapShown: (props: {
+      chatId: string
+      kind: string
+      courseId: number | null
+    }) => trackEvent('chat_gap_shown', props),
+
+    gapActionClicked: (props: {
+      chatId: string
+      kind: string
+      action: 'share' | 'review' | 'correct' | 'add_course' | 'request_access'
+    }) => trackEvent('chat_gap_action_clicked', props),
+
+    /** The door for people who cannot sign up at all. */
+    accessRequestOpened: (props: { source: string }) =>
+      trackEvent('chat_access_request_opened', props),
+
+    accessRequestSubmitted: (props: {
+      source: string
+      facultyCount: number
+      hasQuestion: boolean
+    }) => trackEvent('chat_access_request_submitted', props),
+
+    /**
+     * They opened the form again having already sent one, so it showed the
+     * receipt instead. Pairs with `chat_access_request_opened` to separate
+     * people still waiting from fresh demand, which the opened count alone
+     * silently mixes together.
+     */
+    accessRequestAlreadySent: (props: { source: string }) =>
+      trackEvent('chat_access_request_already_sent', props),
 
     quotaReached: (props: { chatId: string }) =>
       trackEvent('chat_quota_reached', props),
