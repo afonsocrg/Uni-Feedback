@@ -65,7 +65,27 @@ export async function loader({ request }: Route.LoaderArgs) {
   i18n.changeLanguage(lang)
   const theme = getThemeFromCookie(request.headers.get('cookie'))
   _ssrTheme = theme
-  return { lang, theme, origin: getRequestOrigin(request) }
+  // Whether to advertise the chat. See `useShowChatEntryPoints`.
+  //
+  // Named for what it does rather than after the API's `CHAT_ENABLED`, because
+  // they are different decisions and are meant to be able to disagree: the API
+  // flag stops answers being generated, this one stops us pointing at the
+  // feature. Sharing a name implied they had to match, which made the ordinary
+  // incident case (bounce the API, leave the site alone) look like a mistake.
+  //
+  // Read from this server's own environment rather than asked of the API. An
+  // earlier version fetched it so there would be one source of truth, which put
+  // an HTTP call on the critical path of every page render to decide whether to
+  // draw a link: a slow API became a slow homepage, and what it bought was
+  // cosmetic, since switching the API off already gives students the resting
+  // screen on its own.
+  const showChatEntryPoints = process.env.SHOW_CHAT_ENTRY_POINTS === 'true'
+  return {
+    lang,
+    theme,
+    showChatEntryPoints,
+    origin: getRequestOrigin(request)
+  }
 }
 
 const queryClient = new QueryClient({

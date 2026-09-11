@@ -6,7 +6,7 @@ import {
   LanguagePreferenceControl,
   ThemePreferenceControl
 } from '~/components/layout/PreferenceControls'
-import { useAuth, useLang } from '~/hooks'
+import { useAuth, useLang, useShowChatEntryPoints } from '~/hooks'
 import { useLastVisitedPath } from '~/hooks/useLastVisitedPath'
 import { analytics, getPageName } from '~/utils/analytics'
 import { INSTAGRAM_URL, TIKTOK_URL } from '~/utils/constants'
@@ -27,6 +27,7 @@ interface FooterLinkGroup {
 export function LandingFooter() {
   const { t } = useTranslation()
   const lang = useLang()
+  const showChatEntryPoints = useShowChatEntryPoints()
   const { isAuthenticated } = useAuth()
   const lastVisitedPath = useLastVisitedPath()
   const browsePath = getLocalePath('browse', lang)
@@ -37,10 +38,16 @@ export function LandingFooter() {
       title: t('footer.groups.explore'),
       links: [
         { href: browseLink, label: t('footer.links.browse_courses') },
-        {
-          href: `${getLocalePath('chat', lang)}?source=footer`,
-          label: t('footer.links.chat')
-        },
+        // Dropped entirely rather than rendered dead when the chat is off: a
+        // footer is a list of places you can go.
+        ...(showChatEntryPoints
+          ? [
+              {
+                href: `${getLocalePath('chat', lang)}?source=footer`,
+                label: t('footer.links.chat')
+              }
+            ]
+          : []),
         {
           href: `${getReviewPath(lang)}?from=footer`,
           label: t('footer.links.give_feedback'),

@@ -1,7 +1,7 @@
 import { Button } from '@uni-feedback/ui'
 import { MessageCircleQuestion } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { useLang } from '~/hooks'
+import { useLang, useShowChatEntryPoints } from '~/hooks'
 import { getLocalePath } from '~/utils/i18n-routes'
 
 interface AskChatButtonProps {
@@ -47,6 +47,13 @@ export function AskChatButton({
 }: AskChatButtonProps) {
   const { t } = useTranslation('chat')
   const lang = useLang()
+  const showChatEntryPoints = useShowChatEntryPoints()
+
+  // Gated here rather than at each of the six call sites, so a page cannot
+  // acquire a chat button that outlives the switch. Renders nothing at all:
+  // these buttons sit inside headers and search fields where a disabled
+  // control would just be a question the student cannot act on.
+  if (!showChatEntryPoints) return null
 
   const params = new URLSearchParams({ source })
   if (courseId) params.set('courseId', String(courseId))

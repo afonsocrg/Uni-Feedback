@@ -1,7 +1,7 @@
 import { Button, cn } from '@uni-feedback/ui'
 import { useTranslation } from 'react-i18next'
 import { useMatches } from 'react-router'
-import { useAuth, useLang } from '~/hooks'
+import { useAuth, useLang, useShowChatEntryPoints } from '~/hooks'
 import { useLastVisitedPath } from '~/hooks/useLastVisitedPath'
 import { analytics, getPageName } from '~/utils/analytics'
 import { getLocalePath, getReviewPath } from '~/utils/i18n-routes'
@@ -22,6 +22,7 @@ import { MobileDrawer } from './MobileDrawer'
 export function LandingHeader() {
   const { t } = useTranslation()
   const lang = useLang()
+  const showChatEntryPoints = useShowChatEntryPoints()
   const lastVisitedPath = useLastVisitedPath()
   const browsePath = getLocalePath('browse', lang)
   const browseLink = lastVisitedPath !== '/' ? lastVisitedPath : browsePath
@@ -69,27 +70,31 @@ export function LandingHeader() {
             </NavLink>
 
             {/* Chat is reachable from everywhere on purpose: the goal is that
-                students slide into it rather than having to find it. */}
-            <NavLink
-              href={`${getLocalePath('chat', lang)}?source=navbar`}
-              isActive={activeKeys.has('chat')}
-              onClick={() =>
-                analytics.navigation.navLinkClicked({
-                  destination: 'chat',
-                  surface: 'navbar',
-                  referrerPage: getPageName(window.location.pathname)
-                })
-              }
-            >
-              {t('nav.chat')}
-              {/* A dot instead of a "Beta" pill: the pill was a whole extra
+                students slide into it rather than having to find it. All of
+                that is off when the chat is, so the switch does not leave a
+                Beta dot in the navbar pointing at a resting screen. */}
+            {showChatEntryPoints && (
+              <NavLink
+                href={`${getLocalePath('chat', lang)}?source=navbar`}
+                isActive={activeKeys.has('chat')}
+                onClick={() =>
+                  analytics.navigation.navLinkClicked({
+                    destination: 'chat',
+                    surface: 'navbar',
+                    referrerPage: getPageName(window.location.pathname)
+                  })
+                }
+              >
+                {t('nav.chat')}
+                {/* A dot instead of a "Beta" pill: the pill was a whole extra
                   object in the scan. The word itself lives on the chat page. */}
-              <span
-                aria-hidden="true"
-                className="ml-1 inline-block size-1.5 rounded-full bg-primary align-middle"
-              />
-              <span className="sr-only"> (Beta)</span>
-            </NavLink>
+                <span
+                  aria-hidden="true"
+                  className="ml-1 inline-block size-1.5 rounded-full bg-primary align-middle"
+                />
+                <span className="sr-only"> (Beta)</span>
+              </NavLink>
+            )}
           </nav>
 
           <div className="flex-1" />

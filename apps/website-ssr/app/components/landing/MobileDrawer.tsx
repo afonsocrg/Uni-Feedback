@@ -11,7 +11,7 @@ import {
   LanguagePreferenceControl,
   ThemePreferenceControl
 } from '~/components/layout/PreferenceControls'
-import { useLang } from '~/hooks'
+import { useLang, useShowChatEntryPoints } from '~/hooks'
 import { analytics, getPageName } from '~/utils/analytics'
 import { getLocalePath, getReviewPath } from '~/utils/i18n-routes'
 
@@ -33,6 +33,7 @@ export function MobileDrawer({
 }: MobileDrawerProps) {
   const { t } = useTranslation()
   const lang = useLang()
+  const showChatEntryPoints = useShowChatEntryPoints()
 
   const trackNavClick = (destination: 'browse' | 'chat') => () =>
     analytics.navigation.navLinkClicked({
@@ -83,24 +84,26 @@ export function MobileDrawer({
 
               {/* The navbar chat entry is desktop-only, so without this the
                   chat is unreachable from the nav on a phone, which is where
-                  most students are. */}
-              <Button
-                variant="ghost"
-                className="w-full justify-start h-12 text-base px-4"
-                asChild
-              >
-                <a
-                  href={`${getLocalePath('chat', lang)}?source=mobile_menu`}
-                  onClick={trackNavClick('chat')}
+                  most students are. Gated with the rest of them. */}
+              {showChatEntryPoints && (
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start h-12 text-base px-4"
+                  asChild
                 >
-                  {t('nav.chat')}
-                  <span
-                    aria-hidden="true"
-                    className="ml-1.5 inline-block size-1.5 rounded-full bg-primary align-middle"
-                  />
-                  <span className="sr-only"> (Beta)</span>
-                </a>
-              </Button>
+                  <a
+                    href={`${getLocalePath('chat', lang)}?source=mobile_menu`}
+                    onClick={trackNavClick('chat')}
+                  >
+                    {t('nav.chat')}
+                    <span
+                      aria-hidden="true"
+                      className="ml-1.5 inline-block size-1.5 rounded-full bg-primary align-middle"
+                    />
+                    <span className="sr-only"> (Beta)</span>
+                  </a>
+                </Button>
+              )}
 
               <Button
                 variant="ghost"

@@ -25,10 +25,19 @@ export const CHAT_CONFIG = {
    * message, whatever the database says.
    *
    * This is the "back tomorrow" lever, and it needs to exist before launch day
-   * rather than be added after a bad night.
+   * rather than be added after a bad night. The spend ceiling below only rests
+   * the chat for money; this is the one that covers everything else, from a
+   * bad answer doing the rounds to a provider incident, without a deploy.
+   *
+   * **Defaults to off, and must be turned on deliberately.** An environment
+   * that has never heard of this variable is one nobody decided to run a paid
+   * model in, so the safe reading of silence is "no". The failure that costs us
+   * is the invisible one: defaulting to on meant a deploy to any environment
+   * without the variable set quietly opened the chat and started spending,
+   * while the opposite mistake is a visible "resting" screen we notice and fix.
    */
   get enabled(): boolean {
-    return envBool('CHAT_ENABLED', true)
+    return envBool('CHAT_ENABLED', false)
   },
 
   /**
