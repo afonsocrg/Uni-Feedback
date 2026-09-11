@@ -22,6 +22,7 @@ import {
   askedWithoutSearching,
   attributesOpinionsWithoutReviews
 } from '../chatService'
+import { ChatToolExecutor } from '../chatTools'
 
 /**
  * A scripted model.
@@ -238,6 +239,76 @@ describe('ChatService', () => {
         })
 
         expect(result.guardsFired).toHaveLength(0)
+      })
+    })
+
+    it('still fires when the review call failed, because nothing was read', async () => {
+      await withTestDb(async () => {
+        const { user, course } = await seed()
+        // A tool executor whose review lookup blows up, the way an unvalidated
+        // argument used to. The call is attempted, and attempted is not read.
+        class BrokenReviews extends ChatToolExecutor {
+          override async execute(name: string, args: Record<string, unknown>) {
+            if (name === 'get_course_reviews') {
+              throw new Error('syntax error at or near "="')
+            }
+            return super.execute(name, args)
+          }
+        }
+        const llm = new StubLlm([
+          callTool('get_course_reviews', { courseId: course.id }),
+          say('Os alunos dizem que o projeto é trabalhoso.'),
+          callTool('get_course', { courseId: course.id }),
+          say('Não consegui ler as opiniões dos alunos sobre AMS.')
+        ])
+        const chat = new ChatService({} as Env, {
+          llm,
+          tools: new BrokenReviews()
+        })
+
+        const created = await chat.createChat({ userId: user.id })
+        const result = await chat.sendMessage({
+          chat: created,
+          userId: user.id,
+          content: 'O que dizem sobre AMS?'
+        })
+
+        expect(result.guardsFired).toContain('grounding')
+        // What was attempted is still on the record.
+        expect(result.toolsUsed).toContain('get_course_reviews')
+      })
+    })
+
+    it('reads reviews normally when the model invents a topic', async () => {
+      await withTestDb(async () => {
+        const { user, course } = await seed()
+        const { service: chat, llm } = service([
+          // "difficulty" is not in the enum. It used to reach the query as an
+          // undefined column and come back as a SQL syntax error.
+          callTool('get_course_reviews', {
+            courseId: course.id,
+            topic: 'difficulty'
+          }),
+          say('Um aluno escreveu: "O projeto é muito trabalhoso."')
+        ])
+
+        const created = await chat.createChat({ userId: user.id })
+        const result = await chat.sendMessage({
+          chat: created,
+          userId: user.id,
+          content: 'AMS é difícil?'
+        })
+
+        expect(result.guardsFired).toHaveLength(0)
+        // The tool result the model saw is the review list, not an error
+        // object. The loop appends to the same array it passed the stub, so
+        // look for the tool message rather than at the tail.
+        const toolMessage = llm.calls[1].messages.find((m) => m.role === 'tool')
+        expect(toolMessage).toBeDefined()
+        const payload = JSON.parse((toolMessage as { content: string }).content)
+        expect(payload.error).toBeUndefined()
+        expect(payload.topic).toBeNull()
+        expect(payload.reviews[0].comment).toContain('trabalhoso')
       })
     })
   })

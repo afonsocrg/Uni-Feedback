@@ -222,6 +222,59 @@ function flag(value: unknown): boolean | undefined {
   return undefined
 }
 
+/** Postgres int4. Anything above it is "value out of range", not a row. */
+const MAX_INT4 = 2_147_483_647
+
+/**
+ * A positive integer, or nothing.
+ *
+ * Every numeric argument here is an id, a count or a year of a plan, and the
+ * model is free to send `-1`, `2.5` or `1e12` for any of them. Passed through,
+ * those reach Postgres as "LIMIT must not be negative" or "value out of range",
+ * and the resulting tool error reads to the model exactly like "not found",
+ * which is the false negative this whole file is built to avoid. So: not a
+ * number, not finite, not an integer, not positive, or above int4 all read as
+ * absent. A `max` clamps a count ("give me 1000" means "give me many"); an id
+ * is never clamped, because 1e12 clamped is a different, equally wrong row.
+ */
+function int(value: unknown, max?: number): number | undefined {
+  const n = num(value)
+  if (n === undefined || !Number.isInteger(n) || n < 1) return undefined
+  if (max !== undefined) return Math.min(n, max)
+  return n > MAX_INT4 ? undefined : n
+}
+
+/**
+ * One of a declared set, or nothing.
+ *
+ * The tool schema names the enum, and the model still invents members: a
+ * `topic: "difficulty"` was seen once. Before this check that value reached
+ * the query builder as a column lookup that came back `undefined`, which
+ * rendered as ` = $1` and was a syntax error. Worse, the failed call still
+ * counted as "reviews were read" for the grounding guard. Off-enum now means
+ * "no filter", which returns the unfiltered reviews and lets the model do
+ * the narrowing itself.
+ */
+function oneOf<const T extends readonly string[]>(
+  value: unknown,
+  allowed: T
+): T[number] | undefined {
+  return typeof value === 'string' &&
+    (allowed as readonly string[]).includes(value)
+    ? (value as T[number])
+    : undefined
+}
+
+const COURSE_SORTS = [
+  'relevance',
+  'rating',
+  'review_count',
+  'heaviest_workload',
+  'lightest_workload'
+] as const
+
+const REVIEW_TOPICS = ['teaching', 'assessment', 'materials', 'tips'] as const
+
 export class ChatToolExecutor {
   constructor(
     private readonly retrieval: ChatRetrievalService = new ChatRetrievalService()
@@ -245,12 +298,12 @@ export class ChatToolExecutor {
           query: str(args.query),
           facultyName: str(args.facultyName),
           degreeAcronym: str(args.degreeAcronym),
-          curriculumYear: num(args.curriculumYear),
+          curriculumYear: int(args.curriculumYear, 10),
           term: str(args.term),
           hasMandatoryExam: flag(args.hasMandatoryExam),
-          sort: str(args.sort) as never,
-          minReviews: num(args.minReviews),
-          limit: num(args.limit)
+          sort: oneOf(args.sort, COURSE_SORTS),
+          minReviews: int(args.minReviews, 10_000),
+          limit: int(args.limit, 50)
         })
         return {
           payload: result,
@@ -262,7 +315,7 @@ export class ChatToolExecutor {
       }
 
       case 'get_course': {
-        const courseId = num(args.courseId)
+        const courseId = int(args.courseId)
         if (courseId === undefined) {
           return { payload: { error: 'courseId is required' }, entities: [] }
         }
@@ -286,14 +339,14 @@ export class ChatToolExecutor {
       }
 
       case 'get_course_reviews': {
-        const courseId = num(args.courseId)
+        const courseId = int(args.courseId)
         if (courseId === undefined) {
           return { payload: { error: 'courseId is required' }, entities: [] }
         }
         const reviews = await this.retrieval.getCourseReviews({
           courseId,
-          topic: str(args.topic) as never,
-          limit: num(args.limit)
+          topic: oneOf(args.topic, REVIEW_TOPICS),
+          limit: int(args.limit, 50)
         })
         return {
           payload: reviews,
@@ -305,7 +358,7 @@ export class ChatToolExecutor {
         const result = await this.retrieval.searchDegrees({
           query: str(args.query),
           facultyName: str(args.facultyName),
-          limit: num(args.limit)
+          limit: int(args.limit, 50)
         })
         return {
           payload: result,
@@ -317,13 +370,13 @@ export class ChatToolExecutor {
       }
 
       case 'get_degree': {
-        const degreeId = num(args.degreeId)
+        const degreeId = int(args.degreeId)
         if (degreeId === undefined) {
           return { payload: { error: 'degreeId is required' }, entities: [] }
         }
         const degree = await this.retrieval.getDegree({
           degreeId,
-          curriculumYear: num(args.curriculumYear)
+          curriculumYear: int(args.curriculumYear, 10)
         })
         if (!degree) {
           return {

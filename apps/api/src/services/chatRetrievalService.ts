@@ -222,7 +222,7 @@ export class ChatRetrievalService {
   // -------------------------------------------------------------------------
 
   async searchCourses(args: SearchCoursesArgs) {
-    const limit = Math.min(args.limit ?? 10, MAX_SEARCH_RESULTS)
+    const limit = Math.max(1, Math.min(args.limit ?? 10, MAX_SEARCH_RESULTS))
     const q = (args.query ?? '').trim()
     const sort = args.sort ?? 'relevance'
 
@@ -552,7 +552,7 @@ export class ChatRetrievalService {
     topic?: 'teaching' | 'assessment' | 'materials' | 'tips'
     limit?: number
   }) {
-    const limit = Math.min(args.limit ?? 8, MAX_REVIEWS)
+    const limit = Math.max(1, Math.min(args.limit ?? 8, MAX_REVIEWS))
 
     const conditions = [
       getFeedbackWhereCondition(args.courseId),
@@ -600,7 +600,7 @@ export class ChatRetrievalService {
   // -------------------------------------------------------------------------
 
   async searchDegrees(args: SearchDegreesArgs) {
-    const limit = Math.min(args.limit ?? 10, MAX_SEARCH_RESULTS)
+    const limit = Math.max(1, Math.min(args.limit ?? 10, MAX_SEARCH_RESULTS))
     const q = (args.query ?? '').trim()
 
     let rows = await this.runDegreeQuery(args, q, limit, false)

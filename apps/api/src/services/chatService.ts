@@ -403,6 +403,12 @@ export class ChatService {
     const usage: LlmUsage = { inputTokens: 0, outputTokens: 0, costMicros: 0 }
     const toolCalls: Array<{ name: string; args: unknown; ms: number }> = []
     const toolsUsed: string[] = []
+    // Only calls that returned data. `toolsUsed` is the record of what the
+    // model attempted, and is what gets logged and shown; the guards below have
+    // to judge on what it actually READ. A `get_course_reviews` that threw put
+    // no review in front of the model, so counting it would let an answer
+    // speak for students on the strength of an error message.
+    const toolsSucceeded: string[] = []
     const entities: EntityRef[] = []
     const guardsFired: string[] = []
     const gaps = new ChatGapDetector()
@@ -435,7 +441,7 @@ export class ChatService {
         const answer = message.content ?? ''
 
         // Guard 1: asked a question without looking anything up.
-        if (!retriedSearch && askedWithoutSearching(answer, toolsUsed)) {
+        if (!retriedSearch && askedWithoutSearching(answer, toolsSucceeded)) {
           retriedSearch = true
           guardsFired.push('forced_search')
           messages.pop()
@@ -446,7 +452,7 @@ export class ChatService {
         // Guard 2: spoke for students without reading a review.
         if (
           !retriedGrounding &&
-          attributesOpinionsWithoutReviews(answer, toolsUsed)
+          attributesOpinionsWithoutReviews(answer, toolsSucceeded)
         ) {
           retriedGrounding = true
           guardsFired.push('grounding')
@@ -483,6 +489,9 @@ export class ChatService {
         try {
           const result = await this.tools.execute(call.function.name, args)
           payload = result.payload
+          // A payload of `{ error }` is the executor's own refusal (missing id,
+          // unknown course) and put no data in front of the model either.
+          if (!isErrorPayload(payload)) toolsSucceeded.push(call.function.name)
           for (const entity of result.entities) {
             if (
               !entities.some(
@@ -669,6 +678,15 @@ export class ChatService {
 }
 
 // ---------------------------------------------------------------------------
+
+function isErrorPayload(payload: unknown): boolean {
+  return (
+    typeof payload === 'object' &&
+    payload !== null &&
+    'error' in payload &&
+    Object.keys(payload).length === 1
+  )
+}
 
 function startOfToday(): Date {
   const now = new Date()
