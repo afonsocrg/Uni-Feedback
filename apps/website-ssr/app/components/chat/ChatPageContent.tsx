@@ -1,4 +1,5 @@
 import {
+  MeicFeedbackAPIError,
   deleteChat,
   getChat,
   getFaculties,
@@ -8,7 +9,7 @@ import {
 } from '@uni-feedback/api-client'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router'
+import { useLocation, useNavigate } from 'react-router'
 import { AuthDialog } from '~/components/AuthDialog'
 import type { AuthUser } from '~/context/AuthContext'
 import { useAuth, useChatStream, useLang, useLocalStorage } from '~/hooks'
@@ -170,8 +171,14 @@ export function ChatPageContent({
    * is set in the `finally`, so a 401 settles it just as a success does.
    */
   const trackedOpen = useRef(false)
+  // Set by the navigation after a first answer (below). That remount is the
+  // same visit continuing, not a second arrival, and counting it would add a
+  // `source: 'direct'` open to the funnel for every conversation started.
+  const continued = Boolean(
+    (useLocation().state as { continued?: boolean } | null)?.continued
+  )
   useEffect(() => {
-    if (!loaded || authLoading || trackedOpen.current) return
+    if (!loaded || authLoading || trackedOpen.current || continued) return
     trackedOpen.current = true
     analytics.chat.opened({
       source,
@@ -179,10 +186,25 @@ export function ChatPageContent({
       isAuthenticated,
       chatCount: isAuthenticated ? chats.length : null
     })
-  }, [loaded, authLoading, isAuthenticated, chats.length, hasContext, source])
+  }, [
+    loaded,
+    authLoading,
+    isAuthenticated,
+    chats.length,
+    hasContext,
+    source,
+    continued
+  ])
 
   // Load an existing conversation when the URL points at one.
+  //
+  // `/chat/:a` and `/chat/:b` are the same route module, so switching chats
+  // in the sidebar does not unmount this component and the unmount abort
+  // below never runs. Without an abort here, a turn still in flight for the
+  // previous chat would deliver its answer into whichever chat is on screen,
+  // and its `created` event would rewrite the URL back to the old one.
   useEffect(() => {
+    abort()
     if (initialChatId === null) {
       reset([])
       return
@@ -201,11 +223,21 @@ export function ChatPageContent({
           }))
         )
       })
-      .catch(() => undefined)
+      .catch((error: unknown) => {
+        if (cancelled) return
+        // An id that is not theirs, or not anything: sending into it would
+        // 404 on every message while the screen showed a working empty chat.
+        // Any other failure (a 401 on an expired session, a network blip) is
+        // left alone; the id may be perfectly good and the wall on send
+        // handles the session case.
+        if (error instanceof MeicFeedbackAPIError && error.status === 404) {
+          navigate(getLocalePath('chat', lang), { replace: true })
+        }
+      })
     return () => {
       cancelled = true
     }
-  }, [initialChatId, reset])
+  }, [initialChatId, reset, abort, navigate, lang])
 
   // The stream names the chat after its first exchange.
   useEffect(() => {
@@ -231,38 +263,29 @@ export function ChatPageContent({
     })
   }, [answeredAt, activeChatId])
 
-  // The URL moves only when the chat exists, which is the moment the first
-  // answer comes back. Until then the student stays on /chat and nothing has
-  // been written, so a refused or failed first message leaves no trace.
+  // The URL moves only when the chat exists and its first turn has fully
+  // streamed. Until then the student stays on /chat and nothing has been
+  // written, so a refused or failed first message leaves no trace.
+  //
+  // A real navigation, not `history.replaceState`. The rewrite used to skip
+  // the remount that `/chat` to `/chat/:chatId` costs (a refetch of the
+  // conversation already on screen), but it left React Router's own location
+  // stale for the rest of the session: `useLocation()` kept saying
+  // `/chat?source=...`, and the language switch built its target from that,
+  // sending the student to an empty new chat in the other language. The
+  // remount is the honest price. `replace` so no empty /chat is left in the
+  // back stack; `continued` so the fresh mount does not count as a second
+  // arrival in the funnel.
+  //
+  // The fresh mount loads the chat and the list itself, which is why nothing
+  // here touches `chats` or `activeChatId`.
   useEffect(() => {
     if (!createdChatId || createdChatId === activeChatId) return
-    setActiveChatId(createdChatId)
-    setChats((prev) => [
-      {
-        id: createdChatId,
-        title: title ?? null,
-        createdAt: new Date().toISOString(),
-        lastMessageAt: new Date().toISOString()
-      },
-      ...prev
-    ])
-    // Rewrite the URL without routing to it.
-    //
-    // `/chat` and `/chat/:chatId` are different routes, so navigating between
-    // them unmounts this component and mounts a fresh one, which then refetches
-    // the conversation it is already holding. That round trip is the flicker.
-    //
-    // The answer is already on screen and the state is already correct: the
-    // only thing left to do is make the address bar agree, so that a refresh or
-    // a shared link lands in the right place. replaceState rather than
-    // pushState, so a new chat leaves no empty /chat behind in the back stack,
-    // which is what `replace: true` was doing.
-    window.history.replaceState(
-      window.history.state,
-      '',
-      `${getLocalePath('chat', lang)}/${createdChatId}`
-    )
-  }, [createdChatId, activeChatId, title, lang])
+    navigate(`${getLocalePath('chat', lang)}/${createdChatId}`, {
+      replace: true,
+      state: { continued: true }
+    })
+  }, [createdChatId, activeChatId, lang, navigate])
 
   /**
    * Send, or ask them to sign in first.
@@ -318,6 +341,11 @@ export function ChatPageContent({
   }
 
   const startNewChat = () => {
+    // From /chat itself (a first turn still in flight) the navigate below is a
+    // no-op, so nothing else would stop the stream: its answer would land in
+    // the fresh conversation and its `created` would move the URL to the old
+    // one.
+    abort()
     setActiveChatId(null)
     reset([])
     navigate(getLocalePath('chat', lang))

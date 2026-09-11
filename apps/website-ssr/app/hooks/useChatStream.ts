@@ -53,6 +53,12 @@ export function useChatStream(
     setRefusalCode(null)
     setQuotaReached(false)
     setCreatedChatId(null)
+    // Both belong to the turn that just finished, and the caller's effects key
+    // on them together with the active chat id. Left standing, opening another
+    // chat re-applied them to it: renamed to the previous chat's title and
+    // bumped to the top of the list as if it had just answered.
+    setTitle(null)
+    setAnsweredAt(null)
   }, [])
 
   const send = useCallback(
@@ -82,6 +88,7 @@ export function useChatStream(
       abortRef.current = controller
       const startedAt = Date.now()
       let answered = false
+      let createdId: string | null = null
 
       try {
         for await (const event of sendChatMessage(chatId, content, {
@@ -135,7 +142,12 @@ export function useChatStream(
             case 'created':
               // The chat exists now. Only at this point is there a URL to move
               // to, which is why nothing navigates before the first answer.
-              setCreatedChatId(event.chatId)
+              //
+              // Held until the stream closes rather than published here: the
+              // caller navigates on it, which unmounts the page and aborts
+              // this very stream, and `done` (the quota, the answer analytics)
+              // is still on its way behind this event.
+              createdId = event.chatId
               if (event.title) setTitle(event.title)
               break
 
@@ -183,6 +195,10 @@ export function useChatStream(
       } finally {
         abortRef.current = null
         setWorkingTool(null)
+        // Published only now, once nothing more can arrive on this stream, so
+        // the navigation it triggers cannot cut the turn short. It is set even
+        // after a late `error` event: the chat exists and has its answer.
+        if (createdId) setCreatedChatId(createdId)
         if (!answered) {
           // Drop the optimistic user message that never got an answer, so a
           // retry does not read as a duplicate question.
