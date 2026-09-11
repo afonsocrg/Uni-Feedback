@@ -86,6 +86,18 @@ export const CHAT_CONFIG = {
     return envInt('CHAT_MAX_TOOL_ITERATIONS', 8)
   },
 
+  /**
+   * How long one provider call may take before it is abandoned, in ms.
+   *
+   * Without it a hung request at OpenRouter hangs the SSE stream, and the
+   * student's composer with it, for as long as the socket stays open. The
+   * spike's slowest single call was well under 30s; 60s leaves room for a
+   * long final answer and still fails inside the time a student will wait.
+   */
+  get llmTimeoutMs(): number {
+    return envInt('CHAT_LLM_TIMEOUT_MS', 60_000)
+  },
+
   /** Messages kept as conversation history, oldest trimmed first. */
   get maxHistoryMessages(): number {
     return envInt('CHAT_MAX_HISTORY_MESSAGES', 20)
