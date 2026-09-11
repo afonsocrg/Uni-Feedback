@@ -1,6 +1,7 @@
 import type { Components, Options } from 'react-markdown'
 import ReactMarkdown from 'react-markdown'
 import rehypeRaw from 'rehype-raw'
+import rehypeSanitize, { defaultSchema } from 'rehype-sanitize'
 import remarkGfm from 'remark-gfm'
 
 interface MarkdownProps {
@@ -27,6 +28,37 @@ const remarkNoIndentedCode: NonNullable<Options['remarkPlugins']>[number] =
     const extensions = (data.micromarkExtensions ??= [])
     extensions.push({ disable: { null: ['codeIndented'] } })
   }
+
+/**
+ * What raw HTML is allowed to survive.
+ *
+ * `rehypeRaw` turns inline HTML in the source into real elements, which is
+ * wanted for the odd `<br>` or `<sup>` in a scraped course description. It is
+ * also how a student-written review, or a chat answer that quotes one, could
+ * carry an `<iframe>`, a `<form>`, a `<style>` overlay or an `on*` handler into
+ * every reader's page. So everything `rehypeRaw` produces goes through the
+ * GitHub sanitising schema next: known-safe tags and attributes only, `href`
+ * limited to http(s)/mailto/relative, no scripts, no event handlers, no styles.
+ *
+ * Presentation is unaffected: the components below add their classes AFTER
+ * sanitising, in React, so nothing here strips them. The schema also prefixes
+ * any `id` with `user-content-`, which is what stops injected markup from
+ * shadowing the page's own anchors.
+ *
+ * Order matters: sanitise has to run after raw, or it sanitises a tree the
+ * raw HTML has not been parsed into yet.
+ *
+ * Images are removed on top of the GitHub schema, which allows them. An
+ * `<img>` is a request to whatever host the markup names, which hands the
+ * reader's address and user agent to whoever wrote the review, and on the
+ * server React even emits a preload hint for it. No content on the site uses
+ * images in markdown (checked 2026-09-11: none in reviews, course or degree
+ * text, legal pages or locales), so nothing is lost.
+ */
+const sanitizeSchema = {
+  ...defaultSchema,
+  tagNames: (defaultSchema.tagNames ?? []).filter((tag) => tag !== 'img')
+}
 
 const defaultComponents: Components = {
   a: ({ ...props }) => {
@@ -88,7 +120,7 @@ export function Markdown({
     >
       <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkNoIndentedCode]}
-        rehypePlugins={[rehypeRaw]}
+        rehypePlugins={[rehypeRaw, [rehypeSanitize, sanitizeSchema]]}
         components={mergedComponents}
       >
         {children}

@@ -95,20 +95,35 @@ export function ChatMessages({
                   // Every link in an answer points into the site, which is the
                   // whole point of grounding. Tracking the click is how we find
                   // out whether the chat feeds the site or eats it.
-                  a: ({ href, ...props }) => (
-                    <a
-                      {...props}
-                      href={href}
-                      className="text-primaryBlue underline underline-offset-2 hover:text-primaryBlue/80"
-                      onClick={() =>
-                        analytics.chat.citationClicked({
-                          chatId,
-                          entityType: entityTypeFromHref(href),
-                          href: href ?? ''
-                        })
-                      }
-                    />
-                  )
+                  //
+                  // The prompt forbids external links, but the model reads
+                  // student-written reviews and can echo one, so an external
+                  // href is still treated as such: new tab, no opener, no
+                  // referrer.
+                  a: ({ href, ...props }) => {
+                    const isExternal = href?.startsWith('http') ?? false
+                    return (
+                      <a
+                        {...props}
+                        href={href}
+                        className="text-primaryBlue underline underline-offset-2 hover:text-primaryBlue/80"
+                        {...(isExternal && {
+                          target: '_blank',
+                          rel: 'noopener noreferrer'
+                        })}
+                        onClick={() =>
+                          analytics.chat.citationClicked({
+                            chatId,
+                            entityType: entityTypeFromHref(href),
+                            href: href ?? ''
+                          })
+                        }
+                      />
+                    )
+                  }
+                  // Images, scripts, iframes and the rest are stripped by the
+                  // shared `Markdown` component's sanitiser, so nothing a
+                  // quoted review carries can reach the DOM from here.
                 }}
               >
                 {message.content}
