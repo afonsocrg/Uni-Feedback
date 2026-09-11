@@ -757,7 +757,10 @@ interface SendChatAccessRequestNotificationArgs {
   question?: string
   /** Set when the person already had an account. */
   userId?: number | null
-  /** A second submission from the same address, so this row replaced an older one. */
+  /**
+   * A second submission from the same address. Rows are appended, never
+   * replaced (0042), so this is a person telling us more, not a correction.
+   */
   isRepeat?: boolean
 }
 
@@ -785,7 +788,9 @@ export async function sendChatAccessRequestNotification(
   } = args
 
   const lines = [
-    isRepeat ? '🔓 CHAT ACCESS REQUEST (updated)' : '🔓 CHAT ACCESS REQUEST',
+    isRepeat
+      ? '🔓 CHAT ACCESS REQUEST (asked before)'
+      : '🔓 CHAT ACCESS REQUEST',
     '',
     `📧 ${email}`
   ]
