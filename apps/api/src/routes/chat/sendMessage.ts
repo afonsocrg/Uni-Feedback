@@ -112,7 +112,7 @@ export class SendChatMessage extends OpenAPIRoute {
             message:
               error instanceof AppError
                 ? error.message
-                : 'Algo correu mal. Tenta outra vez.'
+                : 'Something went wrong. Please try again.'
           })
         } finally {
           controller.close()

@@ -58,7 +58,7 @@ export function checkIpRateLimit(c: Context): void {
   entry.count += 1
   if (entry.count > CHAT_CONFIG.hourlyIpLimit) {
     throw new TooManyRequestsError(
-      'Demasiados pedidos. Tenta novamente daqui a pouco.',
+      'Too many requests. Try again in a little while.',
       { data: { code: 'ip_rate_limit' satisfies ChatRefusalCode } }
     )
   }
@@ -84,10 +84,9 @@ export async function assertCanSendMessage(
   user: { id: number }
 ): Promise<void> {
   if (!CHAT_CONFIG.enabled) {
-    throw new ForbiddenError(
-      'O chat está a descansar. Volta a tentar mais tarde.',
-      { data: { code: 'chat_resting' satisfies ChatRefusalCode } }
-    )
+    throw new ForbiddenError('The chat is resting. Try again later.', {
+      data: { code: 'chat_resting' satisfies ChatRefusalCode }
+    })
   }
 
   // Global spend ceiling. Degrades to "resting", never to an error page.
@@ -97,7 +96,7 @@ export async function assertCanSendMessage(
       `[chat] daily cost ceiling reached: ${spent} >= ${CHAT_CONFIG.dailyCostCeilingMicros} micros`
     )
     throw new ForbiddenError(
-      'O chat está a descansar por hoje. Volta a tentar amanhã.',
+      'The chat is resting for today. Come back tomorrow.',
       { data: { code: 'spend_ceiling' satisfies ChatRefusalCode } }
     )
   }
@@ -107,7 +106,7 @@ export async function assertCanSendMessage(
   const usedToday = await service.countMessagesToday(user.id)
   if (usedToday >= CHAT_CONFIG.dailyMessageLimit) {
     throw new TooManyRequestsError(
-      `Atingiste o limite de ${CHAT_CONFIG.dailyMessageLimit} mensagens por dia. Volta amanhã.`,
+      `You have reached the limit of ${CHAT_CONFIG.dailyMessageLimit} messages per day. Come back tomorrow.`,
       { data: { code: 'quota' satisfies ChatRefusalCode } }
     )
   }
