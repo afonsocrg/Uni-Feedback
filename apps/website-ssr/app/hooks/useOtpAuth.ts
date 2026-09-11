@@ -18,6 +18,8 @@ export interface VerifyOtpResult {
   user?: VerifyOtpResponse['user']
   error?: string
   attemptsRemaining?: number
+  /** True when this sign-in created the account, rather than logging into one. */
+  isNewUser?: boolean
 }
 
 /**
@@ -70,7 +72,8 @@ export function useOtpAuth() {
       const response = await apiVerifyOtp(data)
       return {
         success: true,
-        user: response.user
+        user: response.user,
+        isNewUser: response.isNewUser
       }
     } catch (error) {
       if (error instanceof MeicFeedbackAPIError) {

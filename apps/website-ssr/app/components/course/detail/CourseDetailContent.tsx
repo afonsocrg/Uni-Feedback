@@ -3,6 +3,7 @@ import type { Course } from '@uni-feedback/db/schema'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@uni-feedback/ui'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useSearchParams } from 'react-router'
 import {
   Breadcrumb,
   CourseAssessment,
@@ -46,6 +47,24 @@ export function CourseDetailContent({
   feedback
 }: CourseDetailContentProps) {
   const { t } = useTranslation('course')
+  const [params] = useSearchParams()
+
+  /**
+   * A deep link asking for one field's correction editor.
+   *
+   * Comes from a chat answer that reported the field as missing. Validated
+   * against the fields that actually have a section, so a hand-typed value
+   * cannot select a tab that does not exist.
+   */
+  const requested = params.get('correct')
+  const correctField = (
+    ['description', 'assessment', 'bibliography'] as const
+  ).find((field) => field === requested)
+
+  const [tab, setTab] = useState(
+    correctField ?? (feedback.length > 0 ? 'feedback' : 'description')
+  )
+
   const [showLeftFade, setShowLeftFade] = useState(false)
   const [showRightFade, setShowRightFade] = useState(false)
   const tabsListRef = useRef<HTMLDivElement>(null)
@@ -89,7 +108,10 @@ export function CourseDetailContent({
         <CourseInfoCard course={course} />
 
         <div className="mt-12">
-          <Tabs defaultValue={feedback.length > 0 ? 'feedback' : 'description'}>
+          {/* Controlled, so a `?correct=` deep link can select the tab as well
+              as open the dialog. Inactive tabs are not mounted, so opening the
+              editor without switching to its tab would open nothing. */}
+          <Tabs value={tab} onValueChange={setTab}>
             <div className="relative">
               {/* Left gradient fade (opacity transitions) */}
               <div
@@ -123,13 +145,22 @@ export function CourseDetailContent({
               </TabsList>
             </div>
             <TabsContent value="description">
-              <CourseDescription {...{ course }} />
+              <CourseDescription
+                course={course}
+                autoOpen={correctField === 'description'}
+              />
             </TabsContent>
             <TabsContent value="assessment">
-              <CourseAssessment {...{ course }} />
+              <CourseAssessment
+                course={course}
+                autoOpen={correctField === 'assessment'}
+              />
             </TabsContent>
             <TabsContent value="bibliography">
-              <CourseBibliography {...{ course }} />
+              <CourseBibliography
+                course={course}
+                autoOpen={correctField === 'bibliography'}
+              />
             </TabsContent>
             <TabsContent value="feedback">
               <CourseReviews course={course} feedback={feedback} />

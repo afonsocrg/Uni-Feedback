@@ -1137,7 +1137,13 @@ export class AuthService {
     email: string,
     otp: string
   ): Promise<
-    | (Session & { accessToken: string; refreshToken: string; user: User })
+    | (Session & {
+        accessToken: string
+        refreshToken: string
+        user: User
+        /** True when this sign-in created the account. */
+        isNewUser: boolean
+      })
     | { error: string; attemptsRemaining?: number }
   > {
     const normalizedEmail = email.toLowerCase()
@@ -1188,6 +1194,10 @@ export class AuthService {
 
     // OTP is valid - find or create user
     let user = await this.findUserByEmail(normalizedEmail)
+    // Whether this sign-in IS the signup. Reported to the client so the funnel
+    // can separate "the chat acquired a user" from "the chat made an existing
+    // user log in", which are very different claims about the feature.
+    const isNewUser = !user
 
     if (!user) {
       // Auto-create student user on first sign-in with referral tracking
@@ -1218,6 +1228,6 @@ export class AuthService {
       return { ...session, user: user! }
     })
 
-    return result
+    return { ...result, isNewUser }
   }
 }

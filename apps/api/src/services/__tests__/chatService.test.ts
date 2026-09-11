@@ -81,8 +81,7 @@ describe('ChatService', () => {
     const faculty = await createFaculty({
       name: 'Instituto Superior Técnico',
       shortName: 'IST',
-      slug: 'ist',
-      chatEnabled: true
+      slug: 'ist'
     })
     const degree = await createDegree(faculty.id, {
       name: 'Licenciatura em Engenharia Informática e de Computadores',

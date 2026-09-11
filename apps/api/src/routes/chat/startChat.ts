@@ -60,10 +60,7 @@ export class StartChat extends OpenAPIRoute {
 
     // Before anything is written. A refusal here leaves no trace, which is the
     // whole point of collapsing this into one call.
-    await assertCanSendMessage(c, service, {
-      id: authContext.user.id,
-      email: authContext.user.email
-    })
+    await assertCanSendMessage(c, service, { id: authContext.user.id })
 
     const encoder = new TextEncoder()
 
@@ -91,7 +88,10 @@ export class StartChat extends OpenAPIRoute {
 
           send('answer', {
             messageId: turn.assistantMessageId,
-            content: turn.answer
+            content: turn.answer,
+            // Travels with the answer rather than with `done`, because the ask
+            // it drives is rendered under this message.
+            gap: turn.gap
           })
 
           // Named before the client is told the chat exists, so the sidebar

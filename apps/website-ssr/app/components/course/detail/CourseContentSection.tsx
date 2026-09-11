@@ -14,6 +14,14 @@ interface CourseContentSectionProps {
   /** Which course field this section renders, also the correction field. */
   field: CourseContentField
   content?: string | null
+  /**
+   * Open the correction dialog on arrival, targeted at this field.
+   *
+   * Set by a `?correct=` deep link, which is how a chat answer that reported the
+   * field as missing hands the student straight to the editor. The chat owns no
+   * contribution UI of its own: everything it needs already lives here.
+   */
+  autoOpen?: boolean
 }
 
 /**
@@ -25,10 +33,14 @@ interface CourseContentSectionProps {
 export function CourseContentSection({
   course,
   field,
-  content
+  content,
+  autoOpen = false
 }: CourseContentSectionProps) {
   const { t } = useTranslation('course')
   const [dialogOpen, setDialogOpen] = useState(false)
+  // Sticks for the life of the dialog, so the submit event is attributed to the
+  // link that opened it rather than to the section it happens to live in.
+  const [fromDeepLink, setFromDeepLink] = useState(false)
   const hasContent = Boolean(content?.trim())
 
   // Inactive tabs aren't mounted, so a mount means the student opened this
@@ -45,15 +57,26 @@ export function CourseContentSection({
     })
   }, [course.id, field, hasContent])
 
-  const openDialog = () => {
+  const openDialog = (fromChat = false) => {
     analytics.correction.dialogOpened({
       courseId: course.id,
-      entryPoint: 'content_section',
+      entryPoint: fromChat ? 'chat_answer' : 'content_section',
       prefilledField: field,
       hasExistingContent: hasContent
     })
+    setFromDeepLink(fromChat)
     setDialogOpen(true)
   }
+
+  // Once, on arrival. Re-opening every time the component re-renders would trap
+  // anyone who closes it.
+  const autoOpenedRef = useRef(false)
+  useEffect(() => {
+    if (!autoOpen || autoOpenedRef.current) return
+    autoOpenedRef.current = true
+    openDialog(true)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoOpen])
 
   const getCurrentValue = (requestedField: CorrectionRequestField) =>
     requestedField === field ? (content ?? undefined) : undefined
@@ -66,7 +89,7 @@ export function CourseContentSection({
         </h2>
         {hasContent && (
           <button
-            onClick={openDialog}
+            onClick={() => openDialog()}
             className="text-sm text-muted-foreground hover:text-foreground hover:underline cursor-pointer inline-flex items-center gap-1.5 flex-shrink-0"
           >
             <PenLine className="size-3.5" />
@@ -81,7 +104,7 @@ export function CourseContentSection({
           <p className="mt-6 text-sm text-muted-foreground">
             {t(`${field}.outdated_help`)}{' '}
             <button
-              onClick={openDialog}
+              onClick={() => openDialog()}
               className="text-primaryBlue hover:underline cursor-pointer font-medium"
             >
               {t('correction.suggest_edit')}
@@ -100,7 +123,7 @@ export function CourseContentSection({
             {t(`${field}.empty_help`)}
           </p>
           <Button
-            onClick={openDialog}
+            onClick={() => openDialog()}
             className="mt-5 text-white max-sm:w-full"
           >
             <PenLine className="size-4" />
@@ -115,7 +138,7 @@ export function CourseContentSection({
         getCurrentValue={getCurrentValue}
         open={dialogOpen}
         onOpenChange={setDialogOpen}
-        entryPoint="content_section"
+        entryPoint={fromDeepLink ? 'chat_answer' : 'content_section'}
         defaultField={field}
       />
     </div>

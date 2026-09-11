@@ -1,6 +1,5 @@
 import { CHAT_CONFIG } from '@config/chat'
 import { ChatService } from '@services/chatService'
-import { findFacultyByEmail } from '@utils/emailValidation'
 import type { Context } from 'hono'
 import { ForbiddenError, TooManyRequestsError } from '../utils'
 
@@ -31,6 +30,19 @@ function clientIp(c: Context): string {
   )
 }
 
+/**
+ * Machine-readable reason on a refusal, so the client can tell them apart.
+ *
+ * Without it every refusal is a bare 403 and the UI has to guess, which is how
+ * a student hitting the kill switch used to be told we lacked data about their
+ * university. The message is for the student; the code is for the branch.
+ */
+export type ChatRefusalCode =
+  | 'chat_resting'
+  | 'spend_ceiling'
+  | 'ip_rate_limit'
+  | 'quota'
+
 export function checkIpRateLimit(c: Context): void {
   const ip = clientIp(c)
   if (ip === 'unknown') return
@@ -46,13 +58,10 @@ export function checkIpRateLimit(c: Context): void {
   entry.count += 1
   if (entry.count > CHAT_CONFIG.hourlyIpLimit) {
     throw new TooManyRequestsError(
-      'Demasiados pedidos. Tenta novamente daqui a pouco.'
+      'Demasiados pedidos. Tenta novamente daqui a pouco.',
+      { data: { code: 'ip_rate_limit' satisfies ChatRefusalCode } }
     )
   }
-}
-
-export interface ChatAccess {
-  facultyId: number | null
 }
 
 /**
@@ -60,15 +69,24 @@ export interface ChatAccess {
  *
  * Order matters: the global switches are checked before the per-user ones, so a
  * user who is over quota during an outage is told about the outage.
+ *
+ * **There is no per-faculty gate.** It was removed before launch: blocking a
+ * student because we guessed we had nothing useful for their university also
+ * blocked the signup and the question that would have told us what they wanted,
+ * which is the whole reason the chat logs exist. The thin-data case is handled
+ * in the answer (see the gap detection in `ChatService`) rather than at the
+ * door. Cost was never the reason either: Phase 0 measured a refusal at ~0.005
+ * EUR and zero tool calls, against the daily ceiling above.
  */
 export async function assertCanSendMessage(
   c: Context,
   service: ChatService,
-  user: { id: number; email: string }
-): Promise<ChatAccess> {
+  user: { id: number }
+): Promise<void> {
   if (!CHAT_CONFIG.enabled) {
     throw new ForbiddenError(
-      'O chat está a descansar. Volta a tentar mais tarde.'
+      'O chat está a descansar. Volta a tentar mais tarde.',
+      { data: { code: 'chat_resting' satisfies ChatRefusalCode } }
     )
   }
 
@@ -79,30 +97,20 @@ export async function assertCanSendMessage(
       `[chat] daily cost ceiling reached: ${spent} >= ${CHAT_CONFIG.dailyCostCeilingMicros} micros`
     )
     throw new ForbiddenError(
-      'O chat está a descansar por hoje. Volta a tentar amanhã.'
+      'O chat está a descansar por hoje. Volta a tentar amanhã.',
+      { data: { code: 'spend_ceiling' satisfies ChatRefusalCode } }
     )
   }
 
   checkIpRateLimit(c)
 
-  // The coverage wall. A student whose faculty is not enabled is not told "no",
-  // they are told why and asked to help: see the plan's section 3. The API's job
-  // is only to refuse; the UI turns that refusal into the ask.
-  const faculty = await findFacultyByEmail(user.email)
-  if (!faculty?.chatEnabled) {
-    throw new ForbiddenError(
-      'O chat ainda não está disponível para a tua universidade.'
-    )
-  }
-
   const usedToday = await service.countMessagesToday(user.id)
   if (usedToday >= CHAT_CONFIG.dailyMessageLimit) {
     throw new TooManyRequestsError(
-      `Atingiste o limite de ${CHAT_CONFIG.dailyMessageLimit} mensagens por dia. Volta amanhã.`
+      `Atingiste o limite de ${CHAT_CONFIG.dailyMessageLimit} mensagens por dia. Volta amanhã.`,
+      { data: { code: 'quota' satisfies ChatRefusalCode } }
     )
   }
-
-  return { facultyId: faculty.id }
 }
 
 /** Remaining messages today, for the counter the UI shows. */

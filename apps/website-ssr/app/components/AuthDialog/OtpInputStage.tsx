@@ -10,6 +10,7 @@ import {
 } from '@uni-feedback/ui'
 import { Loader2 } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { AuthUser } from '~/context/AuthContext'
 import { useOtpAuth } from '~/hooks'
 import { analytics } from '~/utils/analytics'
@@ -17,17 +18,22 @@ import { OTP_CONFIG } from '~/utils/constants'
 
 export interface OtpInputStageProps {
   email: string
-  onSuccess: (user: AuthUser) => void
+  /** `isNewUser` distinguishes a signup from a returning login, for the funnel. */
+  onSuccess: (user: AuthUser, isNewUser?: boolean) => void
   onChangeEmail: () => void
   showHeader?: boolean
+  /** Where this sign-in was asked for, carried on every auth event. */
+  trigger?: string
 }
 
 export function OtpInputStage({
   email,
   onSuccess,
   onChangeEmail,
-  showHeader = true
+  showHeader = true,
+  trigger
 }: OtpInputStageProps) {
+  const { t } = useTranslation('feedback')
   const [otp, setOtp] = useState('')
   const [isVerifying, setIsVerifying] = useState(false)
   const [error, setError] = useState<string>()
@@ -56,7 +62,7 @@ export function OtpInputStage({
       setError(undefined)
 
       // Track OTP entered
-      analytics.auth.otpEntered()
+      analytics.auth.otpEntered({ trigger })
 
       try {
         const result = await verifyOtp({
@@ -65,12 +71,13 @@ export function OtpInputStage({
         })
 
         if (result.success && result.user) {
-          onSuccess(result.user)
+          onSuccess(result.user, result.isNewUser)
         } else {
           // Track OTP verification failure
           analytics.auth.failed({
             step: 'otp_verification',
-            errorType: 'invalid_code'
+            errorType: 'invalid_code',
+            trigger
           })
 
           setError(result.error)
@@ -83,15 +90,16 @@ export function OtpInputStage({
         // Track OTP verification failure
         analytics.auth.failed({
           step: 'otp_verification',
-          errorType: 'network'
+          errorType: 'network',
+          trigger
         })
 
-        setError('Verification failed. Please try again.')
+        setError(t('auth.verify_failed_generic'))
       } finally {
         setIsVerifying(false)
       }
     },
-    [email, verifyOtp, onSuccess]
+    [email, verifyOtp, onSuccess, trigger, t]
   )
 
   // Auto-submit when OTP is complete (with a small delay for UX)
@@ -146,9 +154,9 @@ export function OtpInputStage({
     <>
       {showHeader && (
         <DialogHeader>
-          <DialogTitle>Enter verification code</DialogTitle>
+          <DialogTitle>{t('auth.otp_title')}</DialogTitle>
           <DialogDescription>
-            We sent a 6-digit code to
+            {t('auth.otp_sent')}
             <br />
             <span className="font-semibold">{email}</span>
           </DialogDescription>
@@ -180,7 +188,7 @@ export function OtpInputStage({
         {isVerifying && (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Loader2 className="size-4 animate-spin" />
-            <span>Verifying...</span>
+            <span>{t('auth.verifying')}</span>
           </div>
         )}
 
@@ -189,8 +197,7 @@ export function OtpInputStage({
             <p className="text-sm text-destructive">{error}</p>
             {attemptsRemaining !== undefined && attemptsRemaining > 0 && (
               <p className="text-xs text-muted-foreground mt-1">
-                {attemptsRemaining} attempt{attemptsRemaining !== 1 ? 's' : ''}{' '}
-                remaining
+                {t('auth.attempts_remaining', { count: attemptsRemaining })}
               </p>
             )}
           </div>
@@ -204,17 +211,16 @@ export function OtpInputStage({
             disabled={cooldownSeconds > 0 || isVerifying}
           >
             {cooldownSeconds > 0
-              ? `Resend code (${cooldownSeconds}s)`
-              : 'Resend code'}
+              ? t('auth.resend_cooldown', { seconds: cooldownSeconds })
+              : t('auth.resend')}
           </Button>
           <Button size="sm" onClick={onChangeEmail} disabled={isVerifying}>
-            Use a different email
+            {t('auth.change_email')}
           </Button>
         </div>
 
         <p className="text-xs text-muted-foreground text-center">
-          Don't see the email? Check your spam folder or search for{' '}
-          <span className="font-medium">@uni-feedback.com</span> in your inbox
+          {t('auth.spam_hint', { domain: '@uni-feedback.com' })}
         </p>
       </div>
     </>

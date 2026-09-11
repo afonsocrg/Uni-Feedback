@@ -64,8 +64,11 @@ export const CHAT_TOOL_DEFINITIONS = [
               'Only courses taught in a term whose name contains this, e.g. "1" for the first semester, "P1". Term names vary by faculty.'
           },
           hasMandatoryExam: {
-            type: 'boolean',
-            description: 'Filter by whether the course has a mandatory exam.'
+            type: 'string',
+            enum: ['any', 'yes', 'no'],
+            // 'any' exists so there is something harmless to fill. See `flag()`.
+            description:
+              'Filter by whether the course has a mandatory exam. Use "any" (the default) unless the student explicitly asked about exams.'
           },
           sort: {
             type: 'string',
@@ -173,12 +176,50 @@ export const REVIEW_TOOL_NAMES = ['get_course_reviews']
 
 type Args = Record<string, unknown>
 
+/**
+ * A number the caller actually meant.
+ *
+ * Zero is treated as absent, and that is not a shortcut. Models fill optional
+ * parameters with placeholders rather than omitting them: an observed call for
+ * "Computabilidade e Complexidade no IST" arrived as
+ * `{query, facultyName: 'IST', curriculumYear: 0, minReviews: 0, term: '',
+ * degreeAcronym: '', hasMandatoryExam: false}`. Passed through, that filters on
+ * curriculum year 0, which no offering has, so a course we hold came back as
+ * nothing found.
+ *
+ * The output of that is indistinguishable from an honest "we do not have it",
+ * which is the failure this whole design is most afraid of. None of the numeric
+ * parameters here has a meaningful zero (year 0, "at least 0 reviews", 0
+ * results), so reading zero as absent is both safe and what the caller meant.
+ */
 function num(value: unknown): number | undefined {
-  return typeof value === 'number' && Number.isFinite(value) ? value : undefined
+  return typeof value === 'number' && Number.isFinite(value) && value !== 0
+    ? value
+    : undefined
 }
 
 function str(value: unknown): string | undefined {
   return typeof value === 'string' && value.length > 0 ? value : undefined
+}
+
+/**
+ * A tri-state flag, as a string with an explicit neutral value.
+ *
+ * Same placeholder problem as `num`, except `false` is a legitimate value here
+ * ("courses without a mandatory exam"), so it cannot be ignored the way zero
+ * can. A plain boolean is unusable: an unfilled one arrives as `false` and
+ * silently hides every course that does have an exam.
+ *
+ * Two-value 'yes'/'no' is no better, and this was measured rather than guessed:
+ * switching to it made the model fill 'yes', which is just as much a filter. The
+ * model fills whatever the schema declares, so the only reliable defence is to
+ * give it something inert to fill. Hence 'any', named as the default in the
+ * description, mapping to no filter at all.
+ */
+function flag(value: unknown): boolean | undefined {
+  if (value === 'yes' || value === true) return true
+  if (value === 'no' || value === false) return false
+  return undefined
 }
 
 export class ChatToolExecutor {
@@ -206,10 +247,7 @@ export class ChatToolExecutor {
           degreeAcronym: str(args.degreeAcronym),
           curriculumYear: num(args.curriculumYear),
           term: str(args.term),
-          hasMandatoryExam:
-            typeof args.hasMandatoryExam === 'boolean'
-              ? args.hasMandatoryExam
-              : undefined,
+          hasMandatoryExam: flag(args.hasMandatoryExam),
           sort: str(args.sort) as never,
           minReviews: num(args.minReviews),
           limit: num(args.limit)

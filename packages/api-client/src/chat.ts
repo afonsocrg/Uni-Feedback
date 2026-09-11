@@ -1,6 +1,6 @@
 import { API_BASE_URL } from './config'
 import { MeicFeedbackAPIError } from './errors'
-import { apiDelete, apiGet, apiPost } from './utils'
+import { apiDelete, apiGet, apiPost, fetchWithRefresh } from './utils'
 
 export interface ChatSummary {
   /** The opaque public id, which is what URLs address. */
@@ -20,6 +20,26 @@ export interface ChatMessage {
   createdAt: string
   /** The caller's own rating, so a reloaded chat shows what they already judged. */
   rating: ChatMessageRating | null
+}
+
+/**
+ * What a turn went looking for and did not find.
+ *
+ * Produced by the server, never by the model: the ask it drives writes rows, and
+ * a write that must not happen by accident should not be reachable by a
+ * generated tool call.
+ */
+export type ChatGapKind = 'no_reviews' | 'missing_field' | 'no_courses'
+
+export interface ChatGap {
+  kind: ChatGapKind
+  field?: 'description' | 'assessment'
+  courseId?: number
+  courseName?: string
+  /** The real page URL, from the tool payload. Never build one client-side. */
+  courseUrl?: string
+  degreeId?: number
+  facultyId?: number
 }
 
 export interface ChatScope {
@@ -66,6 +86,52 @@ export async function rateChatMessage(
   await apiPost(`/chat/messages/${messageId}/rating`, { rating, comment })
 }
 
+export type ChatRefusalCode =
+  | 'chat_resting'
+  | 'spend_ceiling'
+  | 'ip_rate_limit'
+  | 'quota'
+
+export interface ChatAccessRequestInput {
+  email: string
+  facultyIds?: number[]
+  otherUniversities?: string
+  /**
+   * Who they are. Several are allowed on purpose: the options are not on one
+   * axis, so "at university" and "wants a master's elsewhere" are both true of
+   * the same person.
+   */
+  roles?: (
+    | 'high_school'
+    | 'bachelor'
+    | 'masters'
+    | 'finished'
+    | 'applying'
+    | 'want_masters'
+    | 'changing_university'
+    | 'university_not_listed'
+    | 'studying_abroad'
+    | 'other'
+  )[]
+  /** The question they typed, when they arrived from one. */
+  question?: string
+  /** Recorded rather than asked: the UI language they were reading in. */
+  locale?: string
+  source?: string
+}
+
+/**
+ * Ask to be told when the chat opens up.
+ *
+ * Unauthenticated: this is the door for people who cannot sign up at all, since
+ * login requires a university email.
+ */
+export async function requestChatAccess(
+  input: ChatAccessRequestInput
+): Promise<void> {
+  await apiPost('/chat/access-requests', input)
+}
+
 /** Take back a rating. Clicking a selected thumb clears it. */
 export async function clearChatMessageRating(messageId: number): Promise<void> {
   await apiDelete(`/chat/messages/${messageId}/rating`)
@@ -84,7 +150,13 @@ export type ChatStreamEvent =
   /** First message only: the chat now exists, and this is the id to navigate to. */
   | { type: 'created'; chatId: string; title: string | null }
   | { type: 'working'; tool: string }
-  | { type: 'answer'; messageId: number; content: string }
+  | {
+      type: 'answer'
+      messageId: number
+      content: string
+      /** Set when retrieval came back empty, so the UI can offer the right ask. */
+      gap: ChatGap | null
+    }
   | {
       type: 'done'
       remainingMessages: number
@@ -126,13 +198,20 @@ export async function* sendChatMessage(
         contextSource: options.scope?.source
       }
 
-  const response = await fetch(url, {
+  const init: RequestInit = {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
     body: JSON.stringify(body),
     signal: options.signal
-  })
+  }
+
+  // Shares the refresh-and-retry every other call gets from `apiFetch`. This
+  // one cannot go through `apiFetch` itself because the response is an SSE
+  // stream to be read frame by frame, not a body to parse, but an expired
+  // access token has to behave the same here as everywhere else: a student who
+  // spends more than 15 minutes reading an answer is still signed in.
+  const response = await fetchWithRefresh(url, init)
 
   // Every gate runs before the stream opens, so refusals arrive as real status
   // codes and carry a message worth showing the student verbatim.
@@ -140,8 +219,12 @@ export async function* sendChatMessage(
     const error = await response
       .json()
       .catch(() => ({ error: 'Request failed' }))
+    // `data` carries the refusal `code`, which is what lets the UI tell a
+    // resting chat from a quota from anything else. Without it every refusal is
+    // an indistinguishable 403.
     throw new MeicFeedbackAPIError(error.error ?? 'Request failed', {
-      status: response.status
+      status: response.status,
+      data: error.data
     })
   }
 

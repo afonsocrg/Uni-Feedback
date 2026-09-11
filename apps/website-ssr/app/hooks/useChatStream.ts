@@ -1,6 +1,7 @@
 import {
   MeicFeedbackAPIError,
   sendChatMessage,
+  type ChatRefusalCode,
   type ChatScope
 } from '@uni-feedback/api-client'
 import { useCallback, useRef, useState } from 'react'
@@ -25,6 +26,14 @@ export function useChatStream(
   const [error, setError] = useState<string | null>(null)
   /** HTTP status behind the error, so callers can tell a refusal from a fault. */
   const [errorStatus, setErrorStatus] = useState<number | null>(null)
+  /**
+   * Which refusal it was.
+   *
+   * The status alone is not enough: the kill switch, the spend ceiling and (once)
+   * the coverage gate are all 403, and branching on the status is what made an
+   * outage read as "we have no data about your university".
+   */
+  const [refusalCode, setRefusalCode] = useState<ChatRefusalCode | null>(null)
   const [quotaReached, setQuotaReached] = useState(false)
   const [title, setTitle] = useState<string | null>(null)
   /** Set when this turn created the chat, so the caller can move the URL. */
@@ -41,6 +50,7 @@ export function useChatStream(
     setWorkingTool(null)
     setError(null)
     setErrorStatus(null)
+    setRefusalCode(null)
     setQuotaReached(false)
     setCreatedChatId(null)
   }, [])
@@ -53,6 +63,7 @@ export function useChatStream(
       const isFirstMessage = messages.length === 0
       setError(null)
       setErrorStatus(null)
+      setRefusalCode(null)
       setMessages((prev) => [
         ...prev,
         { id: optimisticId.current--, role: 'user', content }
@@ -92,9 +103,19 @@ export function useChatStream(
                 {
                   id: event.messageId,
                   role: 'assistant',
-                  content: event.content
+                  content: event.content,
+                  // What retrieval could not find, so the message can carry the
+                  // ask that matches it.
+                  gap: event.gap
                 }
               ])
+              if (event.gap) {
+                analytics.chat.gapShown({
+                  chatId: chatId ?? 'new',
+                  kind: event.gap.kind,
+                  courseId: event.gap.courseId ?? null
+                })
+              }
               break
 
             case 'done':
@@ -146,6 +167,15 @@ export function useChatStream(
               : 'error_generic'
           if (caught instanceof MeicFeedbackAPIError) {
             setErrorStatus(caught.status ?? null)
+            const code = (caught.data as { code?: ChatRefusalCode } | undefined)
+              ?.code
+            setRefusalCode(code ?? null)
+            // Reaching the cap on a fresh load refuses before the stream opens,
+            // so the wall has to come from here as well as from `done`.
+            if (code === 'quota') {
+              setQuotaReached(true)
+              analytics.chat.quotaReached({ chatId: chatId ?? 'new' })
+            }
           }
           setError(message)
           analytics.chat.errorShown({ chatId: chatId ?? 'new', message })
@@ -179,6 +209,7 @@ export function useChatStream(
     workingTool,
     error,
     errorStatus,
+    refusalCode,
     quotaReached,
     title,
     createdChatId,

@@ -9,6 +9,7 @@ import {
 } from '@uni-feedback/db/schema'
 import { and, desc, eq, gte, isNull, sql } from 'drizzle-orm'
 import { ChatContextService, type ChatScope } from './chatContextService'
+import { ChatGapDetector, type ChatGap } from './chatGap'
 import { ChatLlmClient, type LlmMessage, type LlmUsage } from './chatLlm'
 import {
   CHAT_SYSTEM_PROMPT,
@@ -37,6 +38,8 @@ export interface TurnResult {
   toolsUsed: string[]
   guardsFired: string[]
   hitIterationCap: boolean
+  /** What retrieval went looking for and did not find, if anything. */
+  gap: ChatGap | null
 }
 
 interface EntityRef {
@@ -356,7 +359,10 @@ export class ChatService {
         toolCalls: turn.toolCalls,
         guardsFired: turn.guardsFired,
         hitIterationCap: turn.hitIterationCap,
-        contextTokens: context.estimatedTokens
+        contextTokens: context.estimatedTokens,
+        // What the turn looked for and did not find. Stored as well as sent, so
+        // "which gaps do students hit most" is a query rather than a guess.
+        gap: turn.gap
       },
       model: CHAT_CONFIG.model,
       usage: turn.usage,
@@ -376,7 +382,8 @@ export class ChatService {
       iterations: turn.iterations,
       toolsUsed: turn.toolsUsed,
       guardsFired: turn.guardsFired,
-      hitIterationCap: turn.hitIterationCap
+      hitIterationCap: turn.hitIterationCap,
+      gap: turn.gap
     }
   }
 
@@ -398,6 +405,7 @@ export class ChatService {
     const toolsUsed: string[] = []
     const entities: EntityRef[] = []
     const guardsFired: string[] = []
+    const gaps = new ChatGapDetector()
 
     let retriedSearch = false
     let retriedGrounding = false
@@ -455,7 +463,8 @@ export class ChatService {
           entityUrls,
           guardsFired,
           iterations,
-          hitIterationCap: false
+          hitIterationCap: false,
+          gap: gaps.result()
         }
       }
 
@@ -490,6 +499,8 @@ export class ChatService {
           }
         }
 
+        gaps.observe(call.function.name, payload)
+
         toolsUsed.push(call.function.name)
         toolCalls.push({
           name: call.function.name,
@@ -515,7 +526,8 @@ export class ChatService {
       entityUrls,
       guardsFired,
       iterations,
-      hitIterationCap: true
+      hitIterationCap: true,
+      gap: gaps.result()
     }
   }
 

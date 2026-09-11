@@ -274,20 +274,14 @@ export const chatMessageFeedbackRelations = relations(
   })
 )
 
+// The faculties a request names live in `responses.facultyIds`, not in columns,
+// so there is nothing to relate here beyond the optional account.
 export const chatAccessRequestRelations = relations(
   chatAccessRequests,
   ({ one }) => ({
     user: one(users, {
       fields: [chatAccessRequests.userId],
       references: [users.id]
-    }),
-    faculty: one(faculties, {
-      fields: [chatAccessRequests.facultyId],
-      references: [faculties.id]
-    }),
-    degree: one(degrees, {
-      fields: [chatAccessRequests.degreeId],
-      references: [degrees.id]
     })
   })
 )

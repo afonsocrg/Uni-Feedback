@@ -59,10 +59,7 @@ export class SendChatMessage extends OpenAPIRoute {
 
     // Every gate runs BEFORE the stream opens, so a refusal is a normal HTTP
     // status the client can handle, not an error buried inside a 200 stream.
-    await assertCanSendMessage(c, service, {
-      id: authContext.user.id,
-      email: authContext.user.email
-    })
+    await assertCanSendMessage(c, service, { id: authContext.user.id })
 
     const encoder = new TextEncoder()
 
@@ -86,7 +83,10 @@ export class SendChatMessage extends OpenAPIRoute {
 
           send('answer', {
             messageId: result.assistantMessageId,
-            content: result.answer
+            content: result.answer,
+            // Travels with the answer rather than with `done`, because the ask
+            // it drives is rendered under this message.
+            gap: result.gap
           })
 
           const remaining = await remainingMessages(

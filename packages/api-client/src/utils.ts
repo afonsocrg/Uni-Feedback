@@ -7,6 +7,42 @@ interface ApiOptions {
 }
 
 /**
+ * Fetch, and if the session has expired, refresh it and try once more.
+ *
+ * Access tokens live 15 minutes, so this is the difference between a student
+ * being signed in and a student *appearing* to be signed out halfway through a
+ * visit. Exported because `apiFetch` is not the only caller: the chat's answer
+ * stream is a hand-written `fetch` (EventSource is GET-only and cannot send
+ * credentials with a JSON body) and used to skip this entirely, which made the
+ * second message of a long session fail with a generic error.
+ *
+ * Returns the response the caller should act on: the retry's when a refresh
+ * happened, the original 401 otherwise. Deliberately does not interpret the
+ * body, because callers disagree about what a body is. `apiFetch` parses JSON;
+ * the chat reads an SSE stream.
+ *
+ * Safe to retry because `init.body` is a string rather than a consumed stream,
+ * and because every route checks auth before writing anything to its response.
+ */
+export async function fetchWithRefresh(
+  url: string,
+  init: RequestInit
+): Promise<Response> {
+  const response = await fetch(url, init)
+  if (response.status !== 401) return response
+
+  const refreshed = await fetch(`${API_BASE_URL}/auth/refresh`, {
+    method: 'POST',
+    credentials: 'include',
+    signal: init.signal
+  }).catch(() => null)
+
+  // A failed refresh falls through to the original 401, so the caller reports
+  // "not signed in" rather than whatever the refresh endpoint said.
+  return refreshed?.ok ? fetch(url, init) : response
+}
+
+/**
  * Base fetch wrapper with common configuration
  */
 async function apiFetch(
@@ -38,40 +74,9 @@ async function apiFetch(
     config.credentials = 'include'
   }
 
-  const response = await fetch(url, config)
-
-  // Handle 401 Unauthorized errors with token refresh
-  if (response.status === 401 && requiresAuth) {
-    let retryResponse: Response | undefined
-    try {
-      const refreshResponse = await fetch(`${API_BASE_URL}/auth/refresh`, {
-        method: 'POST',
-        credentials: 'include'
-      })
-      if (refreshResponse.ok) {
-        retryResponse = await fetch(url, config)
-      }
-    } catch {
-      // refresh or network error — fall through to original error handling
-    }
-
-    if (retryResponse !== undefined) {
-      if (!retryResponse.ok) {
-        const error = await retryResponse
-          .json()
-          .catch(() => ({ error: 'Request failed' }))
-        if (error.error) {
-          throw new MeicFeedbackAPIError(error.error, {
-            status: retryResponse.status,
-            requestId: error.requestId,
-            data: error.data
-          })
-        }
-        throw new Error(`Request failed with status ${retryResponse.status}`)
-      }
-      return retryResponse
-    }
-  }
+  const response = requiresAuth
+    ? await fetchWithRefresh(url, config)
+    : await fetch(url, config)
 
   if (!response.ok) {
     const error = await response

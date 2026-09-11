@@ -71,6 +71,8 @@ export interface VerifyOtpResponse {
     role: string
     referralCode: string
   }
+  /** True when this sign-in created the account, rather than logging into one. */
+  isNewUser?: boolean
 }
 
 export interface VerifyOtpErrorResponse {

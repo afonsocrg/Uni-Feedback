@@ -1,7 +1,9 @@
+import type { ChatGap } from '@uni-feedback/api-client'
 import { Markdown } from '@uni-feedback/ui'
 import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { analytics } from '~/utils/analytics'
+import { ChatGapAsk } from './ChatGapAsk'
 import { MessageRating } from './MessageRating'
 
 export interface DisplayMessage {
@@ -10,6 +12,8 @@ export interface DisplayMessage {
   content: string
   /** Set when the message came back from the server already rated. */
   rating?: 'helpful' | 'not_helpful' | null
+  /** What this answer went looking for and did not find, if anything. */
+  gap?: ChatGap | null
 }
 
 interface ChatMessagesProps {
@@ -116,6 +120,7 @@ export function ChatMessages({
                   initialRating={message.rating ?? null}
                 />
               )}
+              {message.gap && <ChatGapAsk chatId={chatId} gap={message.gap} />}
             </div>
           )
         )}

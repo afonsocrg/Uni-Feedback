@@ -16,12 +16,7 @@ import { analytics } from '~/utils/analytics'
 export function ChatFirstUseNotice({ onAccept }: { onAccept: () => void }) {
   const { t } = useTranslation('chat')
 
-  const points = [
-    t('notice_private'),
-    t('notice_linked'),
-    t('notice_read'),
-    t('notice_personal_data')
-  ]
+  const points = [t('notice_private'), t('notice_read')]
 
   return (
     <div className="flex min-h-0 flex-1 items-center justify-center overflow-y-auto px-5 py-10">

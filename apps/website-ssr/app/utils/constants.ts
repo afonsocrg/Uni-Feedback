@@ -39,6 +39,11 @@ export const STORAGE_KEYS = {
   // chosen", which is what lets the first render pick a sensible default from
   // the viewport instead of guessing during SSR.
   CHAT_SIDEBAR_OPEN: 'uni-feedback-chat-sidebar-open',
+  // The address someone used to ask for chat access, so the form can say "we
+  // already have this" instead of taking a second copy. Client-only because the
+  // API deliberately accepts repeats: the row is never overwritten, and this is
+  // only here to stop a person filling the same form twice by accident.
+  CHAT_ACCESS_REQUEST_EMAIL: 'uni-feedback-chat-access-request-email',
 
   // Course browser preferences (used in feedback flow)
   SELECTED_FACULTY_ID: 'uni-feedback-selected-faculty-id',

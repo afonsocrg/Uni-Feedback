@@ -1,17 +1,20 @@
 import { DialogDescription, DialogHeader, DialogTitle } from '@uni-feedback/ui'
 import { Check } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 export interface SuccessStageProps {
   title?: string
   description?: string
 }
 export function SuccessStage({ title, description }: SuccessStageProps) {
+  const { t } = useTranslation('feedback')
+
   return (
     <>
       <DialogHeader>
-        <DialogTitle>{title ?? 'Email verified!'}</DialogTitle>
+        <DialogTitle>{title ?? t('auth.success_title')}</DialogTitle>
         <DialogDescription>
-          {description ?? "You're all set!"}
+          {description ?? t('auth.success_desc')}
         </DialogDescription>
       </DialogHeader>
 

@@ -10,6 +10,7 @@ import {
   GetChat,
   ListChats,
   RateChatMessage,
+  RequestChatAccess,
   SendChatMessage,
   StartChat
 } from './chat'
@@ -105,6 +106,9 @@ router.delete('/chat/:id', DeleteChat)
 router.post('/chat/:id/messages', SendChatMessage)
 router.post('/chat/messages/:id/rating', RateChatMessage)
 router.delete('/chat/messages/:id/rating', ClearChatMessageRating)
+// Unauthenticated on purpose: this is the door for people who cannot sign up,
+// so putting it behind auth would make it unreachable by the people it is for.
+router.post('/chat/access-requests', RequestChatAccess)
 
 // ---------------------------------------------------------
 // Nested routers

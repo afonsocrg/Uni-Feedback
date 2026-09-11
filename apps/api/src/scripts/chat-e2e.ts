@@ -69,10 +69,27 @@ await DatabaseContext.run(drizzle(sql, { schema }), async () => {
     `cost=${result.usage.costMicros} micros  in/out=${result.usage.inputTokens}/${result.usage.outputTokens}  ${((Date.now() - started) / 1000).toFixed(1)}s`
   )
 
+  console.log(`gap: ${result.gap ? JSON.stringify(result.gap) : 'none'}`)
+
+  const [assistant] = await db
+    .select({ metadata: chatMessages.metadata })
+    .from(chatMessages)
+    .where(eq(chatMessages.id, result.assistantMessageId))
+  console.log(
+    `tool args: ${JSON.stringify((assistant?.metadata as { toolCalls?: unknown })?.toolCalls)}`
+  )
+
   const title = await service.generateTitle(chat.id)
   console.log(`title: ${title}`)
 
-  const links = await db.select().from(chatMessageEntities)
+  // Scoped to THIS answer. Unscoped, it dumped the whole table, so one turn
+  // looked like it had written several hundred entity links when the real
+  // number is single digits, which is alarming in exactly the wrong way for a
+  // script whose job is to be the pre-rollout gate.
+  const links = await db
+    .select()
+    .from(chatMessageEntities)
+    .where(eq(chatMessageEntities.messageId, result.assistantMessageId))
   console.log(
     `entity links: ${links.map((l) => `${l.entityType}:${l.entityId}/${l.relation}`).join(' ')}`
   )

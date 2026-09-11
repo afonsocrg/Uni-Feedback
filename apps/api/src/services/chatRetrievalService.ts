@@ -183,13 +183,12 @@ export class ChatRetrievalService {
   // Faculties
   // -------------------------------------------------------------------------
 
-  async listFaculties(options: { enabledOnly?: boolean } = {}) {
+  async listFaculties() {
     const rows = await database()
       .select({
         id: faculties.id,
         name: faculties.name,
         shortName: faculties.shortName,
-        chatEnabled: faculties.chatEnabled,
         // Every entity carries its own link. The spike showed that if a tool
         // returns an entity without a URL, the model eventually builds one, and
         // an invented link is indistinguishable from a real one until clicked.
@@ -202,13 +201,11 @@ export class ChatRetrievalService {
       .leftJoin(degrees, eq(degrees.facultyId, faculties.id))
       .leftJoin(courses, eq(courses.degreeId, degrees.id))
       .leftJoin(feedback, eq(feedback.courseId, courses.id))
-      .where(options.enabledOnly ? eq(faculties.chatEnabled, true) : undefined)
       .groupBy(
         faculties.id,
         faculties.name,
         faculties.shortName,
-        faculties.slug,
-        faculties.chatEnabled
+        faculties.slug
       )
       .orderBy(desc(sql`count(${feedback.id})`))
 

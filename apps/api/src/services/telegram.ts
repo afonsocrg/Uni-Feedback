@@ -14,7 +14,22 @@ import {
 } from '@uni-feedback/utils'
 
 // Telegram
-async function sendToTelegram(env: Env, message: string) {
+interface SendToTelegramOptions {
+  /**
+   * Pass `null` for messages that quote text a student typed. Telegram rejects
+   * the whole request when Markdown entities do not balance, and an underscore
+   * or asterisk in someone's free-form answer is enough to do that.
+   */
+  parseMode?: 'Markdown' | null
+}
+
+async function sendToTelegram(
+  env: Env,
+  message: string,
+  options: SendToTelegramOptions = {}
+) {
+  const { parseMode = 'Markdown' } = options
+
   if (!env.TELEGRAM_BOT_TOKEN || !env.TELEGRAM_CHAT_ID) {
     console.warn(
       'TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID not set. Skipping telegram notification.'
@@ -28,10 +43,10 @@ async function sendToTelegram(env: Env, message: string) {
   const payload = {
     chat_id: env.TELEGRAM_CHAT_ID,
     text: message.slice(0, 4096),
-    parse_mode: 'Markdown'
+    ...(parseMode ? { parse_mode: parseMode } : {})
   }
 
-  const options = {
+  const requestOptions = {
     method: 'post',
     headers: {
       'Content-Type': 'application/json'
@@ -40,7 +55,7 @@ async function sendToTelegram(env: Env, message: string) {
   }
 
   // console.log('Sending telegram request', options)
-  const response = await fetch(url, options)
+  const response = await fetch(url, requestOptions)
   // console.log('Got telegram response', response)
 
   return response
@@ -715,4 +730,79 @@ ${filterDetails.length > 0 ? filterDetails.map((f) => `• ${f}`).join('\n') : '
 `.trim()
 
   return sendToTelegram(env, message)
+}
+
+const CHAT_ACCESS_ROLE_LABELS: Record<string, string> = {
+  high_school: 'In high school',
+  bachelor: 'Doing a bachelor',
+  masters: 'Doing a master or PhD',
+  finished: 'Already finished a degree',
+  applying: 'Wants to apply to university',
+  want_masters: 'Wants to do a master',
+  changing_university: 'Wants to change university',
+  university_not_listed: 'University not on Uni Feedback',
+  studying_abroad: 'Studies outside Portugal',
+  other: 'Something else'
+}
+
+interface SendChatAccessRequestNotificationArgs {
+  email: string
+  source?: string | null
+  /** Short names of the faculties they picked, already resolved. */
+  faculties?: string[]
+  otherUniversities?: string
+  /** Every option they picked. The combinations are the point, so all are shown. */
+  roles?: string[]
+  locale?: string
+  question?: string
+  /** Set when the person already had an account. */
+  userId?: number | null
+  /** A second submission from the same address, so this row replaced an older one. */
+  isRepeat?: boolean
+}
+
+/**
+ * Someone asked to be let into the chat.
+ *
+ * Sent as plain text rather than Markdown: the message quotes a question the
+ * person typed, and an unbalanced `_` or `*` in it would make Telegram reject
+ * the whole request.
+ */
+export async function sendChatAccessRequestNotification(
+  env: Env,
+  args: SendChatAccessRequestNotificationArgs
+) {
+  const {
+    email,
+    source,
+    faculties,
+    otherUniversities,
+    roles,
+    locale,
+    question,
+    userId,
+    isRepeat
+  } = args
+
+  const lines = [
+    isRepeat ? '🔓 CHAT ACCESS REQUEST (updated)' : '🔓 CHAT ACCESS REQUEST',
+    '',
+    `📧 ${email}`
+  ]
+
+  if (userId) lines.push(`👤 Logged in, user #${userId}`)
+  if (roles?.length) {
+    const labels = roles.map((r) => CHAT_ACCESS_ROLE_LABELS[r] ?? r)
+    lines.push(`🙋 Who: ${labels.join(' + ')}`)
+  }
+  if (faculties?.length) lines.push(`🎓 Universities: ${faculties.join(', ')}`)
+  if (otherUniversities) lines.push(`🏫 Other: ${otherUniversities}`)
+  if (source) lines.push(`📍 Source: ${source}`)
+  if (locale) lines.push(`🌐 Locale: ${locale}`)
+
+  if (question) {
+    lines.push('', '❓ Question they wanted to ask:', question)
+  }
+
+  return sendToTelegram(env, lines.join('\n').trim(), { parseMode: null })
 }

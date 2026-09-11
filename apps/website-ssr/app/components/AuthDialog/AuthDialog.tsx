@@ -40,6 +40,35 @@ export interface AuthDialogProps {
   successTitle?: string
   /** Custom description for the success stage */
   successDescription?: string
+  /**
+   * The second door, for someone with no university email.
+   *
+   * Optional, so surfaces that have nowhere to send those people simply do not
+   * offer it. Where it is passed, it appears on the input stage before they type
+   * and replaces "try again" as the primary action when the API refuses the
+   * address, because at that point trying again is not something they can do.
+   */
+  /**
+   * Where this sign-in was asked for ('chat', 'feedback_submission', ...).
+   *
+   * Carried on every auth event so conversion can be measured per surface. It
+   * used to be hardcoded to 'feedback_submission' on the dialog-shown event,
+   * which meant any other caller was silently misattributed.
+   */
+  trigger?: string
+  noUniversityEmail?: {
+    label: string
+    onClick: () => void
+    /**
+     * Shown in place of the generic "use an email ending with ..." line when the
+     * typed domain is not one we can verify.
+     *
+     * Decided locally rather than from the API response: the check is a string
+     * comparison the client can already do, and doing it here means the person
+     * is told before an email is sent rather than after a failed round trip.
+     */
+    explanation: string
+  }
 }
 
 const emailSchema = z.object({
@@ -56,7 +85,9 @@ export function AuthDialog({
   title,
   description,
   successTitle,
-  successDescription
+  successDescription,
+  trigger = 'feedback_submission',
+  noUniversityEmail
 }: AuthDialogProps) {
   const [modalState, setModalState] = useState<ModalState>({
     stage: 'input',
@@ -79,7 +110,7 @@ export function AuthDialog({
       form.reset()
     } else {
       // Track auth dialog shown
-      analytics.auth.dialogShown({ trigger: 'feedback_submission' })
+      analytics.auth.dialogShown({ trigger })
 
       // Load saved email from localStorage when modal opens
       const savedEmail = localStorage.getItem(STORAGE_KEYS.LAST_LOGIN_EMAIL)
@@ -87,21 +118,21 @@ export function AuthDialog({
         form.setValue('email', savedEmail)
       }
     }
-  }, [open, form])
+  }, [open, form, trigger])
 
   const handleEmailSubmit = async (values: EmailFormData) => {
     setModalState({ stage: 'input', isSubmitting: true })
 
     // Track email entered
     const emailDomain = values.email.split('@')[1]
-    analytics.auth.emailEntered({ emailDomain })
+    analytics.auth.emailEntered({ emailDomain, trigger })
 
     try {
       const result = await requestOtp({ email: values.email })
 
       if (result.success || result.retryAfterSeconds) {
         // Track OTP requested successfully
-        analytics.auth.otpRequested()
+        analytics.auth.otpRequested({ trigger })
 
         // Save email to localStorage for next time
         localStorage.setItem(STORAGE_KEYS.LAST_LOGIN_EMAIL, values.email)
@@ -114,7 +145,8 @@ export function AuthDialog({
         // Track auth failure
         analytics.auth.failed({
           step: 'otp_request',
-          errorType: 'api_error'
+          errorType: 'api_error',
+          trigger
         })
 
         setModalState({
@@ -135,16 +167,17 @@ export function AuthDialog({
       // Track auth failure
       analytics.auth.failed({
         step: 'otp_request',
-        errorType: 'network'
+        errorType: 'network',
+        trigger
       })
 
       setModalState({ stage: 'error', error: errorMessage })
     }
   }
 
-  const handleOtpSuccess = (user: AuthUser) => {
+  const handleOtpSuccess = (user: AuthUser, isNewUser?: boolean) => {
     // Track successful authentication
-    analytics.auth.completed({ authMethod: 'otp' })
+    analytics.auth.completed({ authMethod: 'otp', trigger, isNewUser })
 
     setModalState({ stage: 'success', user })
     setTimeout(() => {
@@ -160,11 +193,14 @@ export function AuthDialog({
     setModalState({ stage: 'input', isSubmitting: false })
   }
 
-  // Determine if modal should be closable
-  const canClose =
-    modalState.stage === 'input' ||
-    modalState.stage === 'error' ||
-    modalState.stage === 'success'
+  // Determine if modal should be closable.
+  //
+  // 'success' is deliberately NOT closable: it is a 2s confirmation that ends
+  // by calling `onSuccess`, so dismissing it fires the caller's `onClose` for a
+  // sign-in that actually worked. On the chat that meant a completed login was
+  // recorded as `chat_login_wall_abandoned`, counting the same person as both a
+  // conversion and a drop-off.
+  const canClose = modalState.stage === 'input' || modalState.stage === 'error'
 
   return (
     <Dialog open={open} onOpenChange={canClose ? onClose : () => {}}>
@@ -186,6 +222,8 @@ export function AuthDialog({
             universityName={universityName}
             title={title}
             description={description}
+            noUniversityEmail={noUniversityEmail}
+            trigger={trigger}
           />
         )}
 
@@ -194,6 +232,7 @@ export function AuthDialog({
             email={modalState.email}
             onSuccess={handleOtpSuccess}
             onChangeEmail={handleChangeEmail}
+            trigger={trigger}
           />
         )}
 

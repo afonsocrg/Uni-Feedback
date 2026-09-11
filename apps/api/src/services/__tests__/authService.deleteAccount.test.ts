@@ -76,7 +76,7 @@ describe('AuthService.deleteUserAccount', () => {
       await db.insert(chatAccessRequests).values({
         userId: user.id,
         email: user.email,
-        facultyId: faculty.id
+        responses: { facultyIds: [faculty.id] }
       })
 
       // The whole point: this must not throw.
@@ -141,7 +141,7 @@ describe('AuthService.deleteUserAccount', () => {
       await db.insert(chatAccessRequests).values({
         userId: user.id,
         email: user.email,
-        facultyId: faculty.id
+        responses: { facultyIds: [faculty.id] }
       })
 
       await authService.deleteUserAccount(user.id)

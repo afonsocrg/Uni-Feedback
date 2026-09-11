@@ -134,6 +134,31 @@ To produce an answer, your message, the recent conversation, and the relevant co
 
 **Please do not enter personal or sensitive data.** The Chat has no need for it, and anything you type is stored. This includes information about other people.
 
+### 3.5 Requesting Access to the Chat
+
+Signing in to Uni Feedback requires a university email address, so people who are not enrolled at a university we cover cannot create an account. If you are in that position, you can ask us to tell you when the Chat opens up to you.
+
+**What we collect when you do**
+
+- Your email address, which is the only required field
+- Optionally: which universities you are interested in, whether you are an applicant, a high-school student or something else, and the question you wanted to ask
+
+**Why we collect it**
+
+- To contact you once, when the Chat becomes available to people like you
+- To decide which universities to cover next, based on how many people are waiting for each one
+
+**How long we keep it**
+
+Until we have contacted you and you have had a reasonable opportunity to sign up, or until you ask us to delete it, whichever comes first. Write to afonso@uni-feedback.com at any time and we will remove it.
+
+**What we do not do with it**
+
+- We do not add you to a marketing list. This address is used for the notification described above and nothing else. If we later want to send you anything else, we will ask for your consent separately first
+- We do not share it with universities or any other third party
+
+You do not need an account to make this request, and making one does not create an account.
+
 ## 4. How We Share Your Information
 
 ### 4.1 Public Information
@@ -204,6 +229,8 @@ However, no system is completely secure, and we cannot guarantee absolute securi
 - **Deleting a chat removes it from your view and from any further use, but the record is kept.** We say this plainly rather than implying erasure. If you want a conversation permanently removed, contact us and we will delete it
 - Ratings and comments you leave on answers are kept alongside the conversation. Removing a rating deletes it outright
 
+**Chat access requests:** Kept until we have contacted you about the Chat becoming available, or until you ask us to delete the request. See Section 3.5
+
 ### 6.3 Analytics Data
 
 - Aggregated and anonymized usage data may be retained indefinitely for business intelligence purposes
@@ -260,7 +287,7 @@ As a platform operating in Portugal, we comply with the General Data Protection 
 
 - **Contract:** Providing the Platform services you sign up for, including answering your questions in the Chat
 - **Legitimate interest:** Improving the Platform, understanding what information students are missing, keeping the service secure, and controlling its running costs. This is the basis on which we read Chat conversations, and we consider it proportionate because the conversations are about courses rather than about you, we ask you not to enter personal data, and we tell you plainly in the product itself
-- **Consent:** Where explicitly provided for certain activities, including any future use of your Chat history to send you communications
+- **Consent:** Where explicitly provided for certain activities, including any future use of your Chat history to send you communications. Asking us to tell you when the Chat opens up (Section 3.5) is consent of this kind: you give us an address for one specific message, and you can withdraw it at any time
 - **Legal compliance:** Meeting Portuguese and EU legal requirements
 
 You can object to processing based on legitimate interest at any time (Section 7.4). In practice, not using the Chat is the simplest way to keep your questions out of it entirely.

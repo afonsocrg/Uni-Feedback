@@ -33,7 +33,9 @@ export class VerifyOtp extends OpenAPIRoute {
                 username: z.string(),
                 role: z.string(),
                 referralCode: z.string().nullable()
-              })
+              }),
+              /** True when this sign-in created the account. */
+              isNewUser: z.boolean()
             })
           }
         }
@@ -80,7 +82,8 @@ export class VerifyOtp extends OpenAPIRoute {
         username: result.user.username,
         role: result.user.role,
         referralCode: result.user.referralCode
-      }
+      },
+      isNewUser: result.isNewUser
     })
 
     // Set auth cookies

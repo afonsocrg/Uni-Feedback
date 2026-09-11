@@ -1,5 +1,4 @@
 import {
-  boolean,
   integer,
   jsonb,
   pgTable,
@@ -26,12 +25,6 @@ export const faculties = pgTable('faculties', {
 
   url: text('url').notNull(),
   emailSuffixes: jsonb('email_suffixes'),
-
-  // Whether the AI chat is open to this faculty's students. The alpha starts on
-  // IST alone, because it is the only faculty where the structural data and the
-  // opinion data are both dense. A flag rather than a constant so widening
-  // coverage is a DB update, not a deploy.
-  chatEnabled: boolean('chat_enabled').notNull().default(false),
 
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow()

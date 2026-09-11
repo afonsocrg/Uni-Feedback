@@ -75,6 +75,7 @@ export class RequestOtp extends OpenAPIRoute {
     const isValid = await isUniversityEmail(normalizedEmail)
 
     if (!isValid && env.NODE_ENV !== 'development') {
+      // if (!isValid) {
       throw new BadRequestError('Please use your university email address.')
     }
 

@@ -4,6 +4,7 @@ import {
   DialogHeader,
   DialogTitle
 } from '@uni-feedback/ui'
+import { useTranslation } from 'react-i18next'
 
 export interface ErrorStageProps {
   error: string
@@ -11,20 +12,22 @@ export interface ErrorStageProps {
   onCancel?: () => void
 }
 export function ErrorStage({ error, onTryAgain, onCancel }: ErrorStageProps) {
+  const { t } = useTranslation('feedback')
+
   return (
     <>
       <DialogHeader>
-        <DialogTitle>Verification failed</DialogTitle>
+        <DialogTitle>{t('auth.verify_failed_title')}</DialogTitle>
         <DialogDescription>{error}</DialogDescription>
       </DialogHeader>
 
       <div className="flex flex-col space-y-2">
         <Button onClick={onTryAgain} className="w-full">
-          Try again
+          {t('auth.try_again')}
         </Button>
         {onCancel && (
           <Button variant="outline" onClick={onCancel} className="w-full">
-            Cancel
+            {t('auth.cancel')}
           </Button>
         )}
       </div>

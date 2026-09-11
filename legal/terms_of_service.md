@@ -75,7 +75,9 @@ You understand that by submitting content, you are contributing to a public educ
 
 The Chat answers questions about courses and degrees using information held on the Platform: course details we have gathered, and reviews written by other students. It is a way to read our data, not a separate source of knowledge.
 
-The Chat is in beta. It is available only to signed-in students, only for universities we have enabled, and it is subject to daily usage limits. We may change those limits, restrict access, or switch the Chat off entirely at any time and without notice.
+The Chat is in beta. It is available to signed-in students, and it is subject to daily usage limits. We may change those limits, restrict access, or switch the Chat off entirely at any time and without notice.
+
+How much the Chat knows varies a great deal between universities and between courses, because it answers only from the information we hold. For some courses it will tell you it does not know. That is the Chat working as intended rather than failing, and we would rather say so than guess.
 
 ### 4A.2 The Chat Can Be Wrong
 

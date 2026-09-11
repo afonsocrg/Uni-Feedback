@@ -4,11 +4,22 @@ import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 interface ChatComposerProps {
-  onSend: (content: string) => void
+  /**
+   * Returning `false` means the message was not accepted, and what they typed
+   * stays in the box.
+   *
+   * That is what keeps the login wall honest: a student who is asked to sign in
+   * on send, then closes the dialog or mistypes the code, must not find their
+   * question deleted. Hiding a requirement to harvest a question would be a
+   * bait; keeping the question is what makes it a trade.
+   */
+  onSend: (content: string) => boolean | void
   disabled: boolean
+  /** Rendered under the input instead of the usual hint. */
+  footer?: React.ReactNode
 }
 
-export function ChatComposer({ onSend, disabled }: ChatComposerProps) {
+export function ChatComposer({ onSend, disabled, footer }: ChatComposerProps) {
   const { t } = useTranslation('chat')
   const [value, setValue] = useState('')
   const ref = useRef<HTMLTextAreaElement>(null)
@@ -16,8 +27,8 @@ export function ChatComposer({ onSend, disabled }: ChatComposerProps) {
   const submit = () => {
     const trimmed = value.trim()
     if (!trimmed || disabled) return
+    if (onSend(trimmed) === false) return
     setValue('')
-    onSend(trimmed)
     ref.current?.focus()
   }
 
@@ -71,9 +82,11 @@ export function ChatComposer({ onSend, disabled }: ChatComposerProps) {
             <ArrowUp className="size-4" />
           </Button>
         </div>
-        <span className="text-xs text-muted-foreground">
-          {t('composer_hint')}
-        </span>
+        {footer ?? (
+          <span className="text-xs text-muted-foreground">
+            {t('composer_hint')}
+          </span>
+        )}
       </div>
     </div>
   )

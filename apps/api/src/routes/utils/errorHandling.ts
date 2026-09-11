@@ -50,8 +50,11 @@ export class UnauthorizedError extends AppError {
 }
 
 export class ForbiddenError extends AppError {
-  constructor(message: string = 'Forbidden') {
-    super(message, 403)
+  constructor(
+    message: string = 'Forbidden',
+    details?: Record<string, unknown>
+  ) {
+    super(message, 403, details)
   }
 }
 
