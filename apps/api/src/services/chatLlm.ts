@@ -71,6 +71,11 @@ export interface CompleteOptions {
   withTools?: boolean
   /** Forces a tool call this turn. Used by the search guard, never by default. */
   forceToolCall?: boolean
+  /**
+   * Forbids tool calls this turn while keeping the tools declared, which the
+   * tool-call history in `messages` needs. Used once the iteration cap is hit.
+   */
+  forbidToolCalls?: boolean
   temperature?: number
   maxTokens?: number
   signal?: AbortSignal
@@ -95,6 +100,7 @@ export class ChatLlmClient {
     if (options.withTools !== false) {
       body.tools = CHAT_TOOL_DEFINITIONS
       if (options.forceToolCall) body.tool_choice = 'required'
+      else if (options.forbidToolCalls) body.tool_choice = 'none'
     }
     if (options.maxTokens) body.max_tokens = options.maxTokens
 

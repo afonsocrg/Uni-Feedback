@@ -87,6 +87,17 @@ export const CHAT_TOOL_DEFINITIONS = [
             description:
               'Only courses with at least this many reviews. Use 10 or more when ranking.'
           },
+          ects: {
+            type: 'number',
+            description:
+              'Only courses worth exactly this many ECTS, e.g. 3 or 7.5. Use it for "cadeiras de 3 ECTS" instead of reading whole degree plans.'
+          },
+          degreeLevel: {
+            type: 'string',
+            enum: ['any', 'bachelor', 'master', 'minor'],
+            description:
+              'Only courses from licenciaturas ("bachelor"), mestrados ("master") or minors. Use "any" (the default) unless the student named a level.'
+          },
           limit: { type: 'number', description: 'Max results, default 10.' }
         },
         required: []
@@ -222,6 +233,16 @@ function flag(value: unknown): boolean | undefined {
   return undefined
 }
 
+/**
+ * A positive number that may be fractional, or nothing.
+ *
+ * ECTS is the one argument where 7.5 is a real value, so `int` would drop it.
+ */
+function positive(value: unknown): number | undefined {
+  const n = num(value)
+  return n !== undefined && n > 0 && n <= 1000 ? n : undefined
+}
+
 /** Postgres int4. Anything above it is "value out of range", not a row. */
 const MAX_INT4 = 2_147_483_647
 
@@ -275,6 +296,10 @@ const COURSE_SORTS = [
 
 const REVIEW_TOPICS = ['teaching', 'assessment', 'materials', 'tips'] as const
 
+// 'any' is deliberately absent: it is the inert value the model fills, and
+// off-enum already reads as no filter.
+const DEGREE_LEVELS = ['bachelor', 'master', 'minor'] as const
+
 export class ChatToolExecutor {
   constructor(
     private readonly retrieval: ChatRetrievalService = new ChatRetrievalService()
@@ -303,6 +328,8 @@ export class ChatToolExecutor {
           hasMandatoryExam: flag(args.hasMandatoryExam),
           sort: oneOf(args.sort, COURSE_SORTS),
           minReviews: int(args.minReviews, 10_000),
+          ects: positive(args.ects),
+          degreeLevel: oneOf(args.degreeLevel, DEGREE_LEVELS),
           limit: int(args.limit, 50)
         })
         return {

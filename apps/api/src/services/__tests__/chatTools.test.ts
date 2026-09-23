@@ -101,4 +101,28 @@ describe('ChatToolExecutor argument cleaning', () => {
       })
     )
   })
+
+  it('keeps a fractional ECTS value, which int() would drop', async () => {
+    const { retrieval, tools } = executor()
+    await tools.execute('search_courses', { ects: 7.5 })
+    expect(retrieval.searchCourses).toHaveBeenCalledWith(
+      expect.objectContaining({ ects: 7.5 })
+    )
+  })
+
+  it('reads the "any" degree level as no filter', async () => {
+    const { retrieval, tools } = executor()
+    await tools.execute('search_courses', { ects: 3, degreeLevel: 'any' })
+    expect(retrieval.searchCourses).toHaveBeenCalledWith(
+      expect.objectContaining({ ects: 3, degreeLevel: undefined })
+    )
+  })
+
+  it('passes a real degree level through', async () => {
+    const { retrieval, tools } = executor()
+    await tools.execute('search_courses', { degreeLevel: 'master' })
+    expect(retrieval.searchCourses).toHaveBeenCalledWith(
+      expect.objectContaining({ degreeLevel: 'master' })
+    )
+  })
 })

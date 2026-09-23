@@ -20,7 +20,8 @@ import { ChatLlmClient } from '../chatLlm'
 import {
   ChatService,
   askedWithoutSearching,
-  attributesOpinionsWithoutReviews
+  attributesOpinionsWithoutReviews,
+  withoutEmDashes
 } from '../chatService'
 import { ChatToolExecutor } from '../chatTools'
 
@@ -147,6 +148,33 @@ describe('ChatService', () => {
 
         expect(result.hitIterationCap).toBe(true)
         expect(result.iterations).toBe(8)
+      })
+    })
+
+    it('answers from what it read when the cap is hit, instead of apologising', async () => {
+      await withTestDb(async () => {
+        const { user, course } = await seed()
+        const { service: chat, llm } = service([
+          ...Array.from({ length: 8 }, () =>
+            callTool('get_course', { courseId: course.id })
+          ),
+          say(
+            'Encontrei estas cadeiras leves, mas não consegui confirmar o P2.'
+          )
+        ])
+
+        const created = await chat.createChat({ userId: user.id })
+        const result = await chat.sendMessage({
+          chat: created,
+          userId: user.id,
+          content: 'loop'
+        })
+
+        expect(result.hitIterationCap).toBe(true)
+        expect(result.answer).toContain('Encontrei estas cadeiras')
+        // The ninth call is the forced answer, with tools forbidden.
+        expect(llm.calls[8].forbidToolCalls).toBe(true)
+        expect(result.usage.costMicros).toBe(900)
       })
     })
   })
@@ -558,5 +586,30 @@ describe('guard predicates', () => {
     ).toBe(false)
     // A refusal is not a question, and forcing a search on it wastes money.
     expect(askedWithoutSearching('Não temos essa informação.', [])).toBe(false)
+  })
+})
+
+describe('withoutEmDashes', () => {
+  it('replaces em dashes in the model prose', () => {
+    expect(
+      withoutEmDashes('[PCM](https://x/46) — **muito pesada**, com 7 reviews.')
+    ).toBe('[PCM](https://x/46), **muito pesada**, com 7 reviews.')
+  })
+
+  it('leaves a quoted review verbatim', () => {
+    const answer = 'Um aluno escreveu: “o projeto — enorme — vale a pena”.'
+    expect(withoutEmDashes(answer)).toBe(answer)
+  })
+
+  it('handles straight quotes and prose on both sides', () => {
+    expect(
+      withoutEmDashes(
+        'Pesada — um aluno disse "3 projetos — longos" — e pronto.'
+      )
+    ).toBe('Pesada, um aluno disse "3 projetos — longos", e pronto.')
+  })
+
+  it('keeps en dashes in ranges', () => {
+    expect(withoutEmDashes('Notas entre 16–19.')).toBe('Notas entre 16–19.')
   })
 })

@@ -14,6 +14,7 @@ import { ChatLlmClient, type LlmMessage, type LlmUsage } from './chatLlm'
 import {
   CHAT_SYSTEM_PROMPT,
   GROUNDING_CORRECTION,
+  ITERATION_CAP_NUDGE,
   TITLE_PROMPT
 } from './chatPrompt'
 import { ChatToolExecutor, REVIEW_TOOL_NAMES } from './chatTools'
@@ -345,6 +346,7 @@ export class ChatService {
     ]
 
     const turn = await this.runToolLoop(messages, seededUrls, input.onProgress)
+    turn.answer = withoutEmDashes(turn.answer)
 
     const assistantSeq = nextSeq + 1
     const assistantMessageId = await this.persistMessage({
@@ -525,8 +527,28 @@ export class ChatService {
       }
     }
 
+    // Out of iterations. Seen on production (2026-09-16): a question with
+    // three filters had the model retrying one search with small variations
+    // until the cap, and the student got an apology while the data it had
+    // already read would have answered them. One last call with tools
+    // forbidden turns that into an answer from what it has; the apology is
+    // only for when even that comes back empty.
+    messages.push({ role: 'user', content: ITERATION_CAP_NUDGE })
+    const final = await this.llm.complete({
+      model: CHAT_CONFIG.model,
+      messages,
+      forbidToolCalls: true
+    })
+    usage.inputTokens += final.usage.inputTokens
+    usage.outputTokens += final.usage.outputTokens
+    usage.costMicros += final.usage.costMicros
+    const finalAnswer = final.message.tool_calls?.length
+      ? ''
+      : (final.message.content ?? '').trim()
+
     return {
       answer:
+        finalAnswer ||
         'Desculpa, não consegui chegar a uma resposta. Podes reformular a pergunta?',
       usage,
       toolCalls,
@@ -678,6 +700,24 @@ export class ChatService {
 }
 
 // ---------------------------------------------------------------------------
+
+/**
+ * Em dashes out of the model's own prose, quotes left alone.
+ *
+ * The prompt forbids them and the model writes them anyway (seen on
+ * production, 2026-09-11), so this is the harness enforcing a copy rule the
+ * prompt can only ask for. Text inside quotation marks is a student's review
+ * and is quoted verbatim, dashes included.
+ */
+export function withoutEmDashes(answer: string): string {
+  return answer
+    .split(/(“[^”]*”|"[^"\n]*")/)
+    .map((part, i) =>
+      // Odd indexes are the captured quotes.
+      i % 2 === 1 ? part : part.replace(/[ \t]*—[ \t]*/g, ', ')
+    )
+    .join('')
+}
 
 function isErrorPayload(payload: unknown): boolean {
   return (

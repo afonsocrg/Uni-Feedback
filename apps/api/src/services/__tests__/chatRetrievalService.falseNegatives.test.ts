@@ -251,4 +251,62 @@ describe('ChatRetrievalService: entity resolution must not report false negative
       })
     })
   })
+
+  describe('ECTS and degree level filters', () => {
+    // Production, 2026-09-20: asked for 3 ECTS master's courses near control
+    // and navigation, the model read a handful of degree plans and said there
+    // were none. A dozen existed. These filters let one call enumerate them.
+    it('finds a 3 ECTS master course, stored under either spelling of the level', async () => {
+      await withTestDb(async () => {
+        const { ist, leic } = await seed()
+        const memec = await createDegree(ist.id, {
+          name: 'Mestrado em Engenharia Mecânica',
+          acronym: 'MEMec',
+          slug: 'memec',
+          type: 'Master'
+        })
+        const mint = await createDegree(ist.id, {
+          name: 'Mestrado Integrado em Arquitetura',
+          acronym: 'MA',
+          slug: 'ma',
+          type: 'Mestrado Integrado'
+        })
+        const cnl = await createCourse(memec.id, {
+          name: 'Controlo Não Linear',
+          acronym: 'CNL',
+          ects: 3
+        })
+        await initCourseStats(cnl.id)
+        const estatica = await createCourse(mint.id, {
+          name: 'Estática',
+          acronym: 'Est',
+          ects: 3
+        })
+        await initCourseStats(estatica.id)
+        const sixEcts = await createCourse(memec.id, {
+          name: 'Sistemas de Navegação',
+          acronym: 'SN',
+          ects: 6
+        })
+        await initCourseStats(sixEcts.id)
+        const bachelorThree = await createCourse(leic.id, {
+          name: 'Gestão',
+          acronym: 'G',
+          ects: 3
+        })
+        await initCourseStats(bachelorThree.id)
+
+        const result = await service.searchCourses({
+          facultyName: 'IST',
+          ects: 3,
+          degreeLevel: 'master',
+          limit: 50
+        })
+        expect(result.courses.map((c) => c.name).sort()).toEqual([
+          'Controlo Não Linear',
+          'Estática'
+        ])
+      })
+    })
+  })
 })

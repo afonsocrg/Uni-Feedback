@@ -62,7 +62,23 @@ export interface SearchCoursesArgs {
   hasMandatoryExam?: boolean
   sort?: CourseSort
   minReviews?: number
+  /** Exact ECTS value, e.g. 3 or 7.5. */
+  ects?: number
+  degreeLevel?: DegreeLevel
   limit?: number
+}
+
+/**
+ * `degrees.type` is whatever each faculty's scraper wrote: "Bachelor" and
+ * "Licenciatura" are the same thing, and so are "Master" and "Mestrado
+ * Integrado". The model asks by level, never by the stored spelling.
+ */
+export type DegreeLevel = 'bachelor' | 'master' | 'minor'
+
+const DEGREE_TYPES_BY_LEVEL: Record<DegreeLevel, string[]> = {
+  bachelor: ['Bachelor', 'Licenciatura'],
+  master: ['Master', 'Mestrado Integrado'],
+  minor: ['Minor']
 }
 
 export interface SearchDegreesArgs {
@@ -313,6 +329,14 @@ export class ChatRetrievalService {
     if (args.minReviews !== undefined) {
       conditions.push(
         sql`coalesce(${courseStats.totalFeedbackCount}, 0) >= ${args.minReviews}`
+      )
+    }
+    if (args.ects !== undefined) {
+      conditions.push(sql`${courses.ects} = ${args.ects}`)
+    }
+    if (args.degreeLevel) {
+      conditions.push(
+        inArray(degrees.type, DEGREE_TYPES_BY_LEVEL[args.degreeLevel])
       )
     }
     if (args.hasMandatoryExam !== undefined) {
