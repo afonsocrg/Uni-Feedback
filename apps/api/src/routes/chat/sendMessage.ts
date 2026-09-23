@@ -6,6 +6,7 @@ import type { Context } from 'hono'
 import { z } from 'zod'
 import { AppError, NotFoundError } from '../utils'
 import { assertCanSendMessage, remainingMessages } from './access'
+import { sseResponse } from './sse'
 
 /**
  * Send a message and stream the answer back.
@@ -61,73 +62,47 @@ export class SendChatMessage extends OpenAPIRoute {
     // status the client can handle, not an error buried inside a 200 stream.
     await assertCanSendMessage(c, service, { id: authContext.user.id })
 
-    const encoder = new TextEncoder()
+    return sseResponse(async (send) => {
+      try {
+        send('start', { chatId: chat.publicId })
 
-    const stream = new ReadableStream({
-      start: async (controller) => {
-        const send = (event: string, data: unknown) => {
-          controller.enqueue(
-            encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`)
-          )
+        const result = await service.sendMessage({
+          chat,
+          userId: authContext.user.id,
+          content: body.content,
+          onProgress: ({ tool }) => send('working', { tool })
+        })
+
+        send('answer', {
+          messageId: result.assistantMessageId,
+          content: result.answer,
+          // Travels with the answer rather than with `done`, because the ask
+          // it drives is rendered under this message.
+          gap: result.gap
+        })
+
+        const remaining = await remainingMessages(service, authContext.user.id)
+        send('done', {
+          remainingMessages: remaining,
+          latencyMs: result.latencyMs,
+          toolsUsed: result.toolsUsed,
+          guardsFired: result.guardsFired
+        })
+
+        // Titles are cosmetic, so they are generated after the answer is
+        // already on its way and never block or fail it.
+        if (!chat.title) {
+          const title = await service.generateTitle(chat.id)
+          if (title) send('title', { title })
         }
-
-        try {
-          send('start', { chatId: chat.publicId })
-
-          const result = await service.sendMessage({
-            chat,
-            userId: authContext.user.id,
-            content: body.content,
-            onProgress: ({ tool }) => send('working', { tool })
-          })
-
-          send('answer', {
-            messageId: result.assistantMessageId,
-            content: result.answer,
-            // Travels with the answer rather than with `done`, because the ask
-            // it drives is rendered under this message.
-            gap: result.gap
-          })
-
-          const remaining = await remainingMessages(
-            service,
-            authContext.user.id
-          )
-          send('done', {
-            remainingMessages: remaining,
-            latencyMs: result.latencyMs,
-            toolsUsed: result.toolsUsed,
-            guardsFired: result.guardsFired
-          })
-
-          // Titles are cosmetic, so they are generated after the answer is
-          // already on its way and never block or fail it.
-          if (!chat.title) {
-            const title = await service.generateTitle(chat.id)
-            if (title) send('title', { title })
-          }
-        } catch (error) {
-          console.error('[chat] turn failed:', error)
-          send('error', {
-            message:
-              error instanceof AppError
-                ? error.message
-                : 'Something went wrong. Please try again.'
-          })
-        } finally {
-          controller.close()
-        }
-      }
-    })
-
-    return new Response(stream, {
-      headers: {
-        'Content-Type': 'text/event-stream; charset=utf-8',
-        'Cache-Control': 'no-cache, no-transform',
-        Connection: 'keep-alive',
-        // Nginx buffers proxied responses by default, which would hold the whole
-        // stream until the turn finished and quietly undo the point of it.
-        'X-Accel-Buffering': 'no'
+      } catch (error) {
+        console.error('[chat] turn failed:', error)
+        send('error', {
+          message:
+            error instanceof AppError
+              ? error.message
+              : 'Something went wrong. Please try again.'
+        })
       }
     })
   }

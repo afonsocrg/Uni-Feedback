@@ -6,6 +6,7 @@ import type { Context } from 'hono'
 import { z } from 'zod'
 import { AppError } from '../utils'
 import { assertCanSendMessage, remainingMessages } from './access'
+import { sseResponse } from './sse'
 
 /**
  * Start a conversation by sending its first message.
@@ -62,76 +63,55 @@ export class StartChat extends OpenAPIRoute {
     // whole point of collapsing this into one call.
     await assertCanSendMessage(c, service, { id: authContext.user.id })
 
-    const encoder = new TextEncoder()
+    return sseResponse(async (send) => {
+      try {
+        const { chat, turn } = await service.startChat({
+          userId: authContext.user.id,
+          content: body.content,
+          language: body.language,
+          scope: {
+            facultyId: body.contextFacultyId,
+            degreeId: body.contextDegreeId,
+            courseId: body.contextCourseId,
+            source: body.contextSource
+          },
+          onProgress: ({ tool }) => send('working', { tool })
+        })
 
-    const stream = new ReadableStream({
-      start: async (controller) => {
-        const send = (event: string, data: unknown) => {
-          controller.enqueue(
-            encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`)
-          )
-        }
+        send('answer', {
+          messageId: turn.assistantMessageId,
+          content: turn.answer,
+          // Travels with the answer rather than with `done`, because the ask
+          // it drives is rendered under this message.
+          gap: turn.gap
+        })
 
-        try {
-          const { chat, turn } = await service.startChat({
-            userId: authContext.user.id,
-            content: body.content,
-            language: body.language,
-            scope: {
-              facultyId: body.contextFacultyId,
-              degreeId: body.contextDegreeId,
-              courseId: body.contextCourseId,
-              source: body.contextSource
-            },
-            onProgress: ({ tool }) => send('working', { tool })
-          })
+        // Named before the client is told the chat exists, so the sidebar
+        // never shows an untitled row.
+        const title = await service.generateTitle(chat.id)
 
-          send('answer', {
-            messageId: turn.assistantMessageId,
-            content: turn.answer,
-            // Travels with the answer rather than with `done`, because the ask
-            // it drives is rendered under this message.
-            gap: turn.gap
-          })
+        // `created` carries the id the URL should move to. The client stays
+        // on /chat until this arrives, so a refused or failed first message
+        // never changes the URL.
+        send('created', { chatId: chat.publicId, title })
 
-          // Named before the client is told the chat exists, so the sidebar
-          // never shows an untitled row.
-          const title = await service.generateTitle(chat.id)
-
-          // `created` carries the id the URL should move to. The client stays
-          // on /chat until this arrives, so a refused or failed first message
-          // never changes the URL.
-          send('created', { chatId: chat.publicId, title })
-
-          send('done', {
-            remainingMessages: await remainingMessages(
-              service,
-              authContext.user.id
-            ),
-            latencyMs: turn.latencyMs,
-            toolsUsed: turn.toolsUsed,
-            guardsFired: turn.guardsFired
-          })
-        } catch (error) {
-          console.error('[chat] first turn failed:', error)
-          send('error', {
-            message:
-              error instanceof AppError
-                ? error.message
-                : 'Something went wrong. Please try again.'
-          })
-        } finally {
-          controller.close()
-        }
-      }
-    })
-
-    return new Response(stream, {
-      headers: {
-        'Content-Type': 'text/event-stream; charset=utf-8',
-        'Cache-Control': 'no-cache, no-transform',
-        Connection: 'keep-alive',
-        'X-Accel-Buffering': 'no'
+        send('done', {
+          remainingMessages: await remainingMessages(
+            service,
+            authContext.user.id
+          ),
+          latencyMs: turn.latencyMs,
+          toolsUsed: turn.toolsUsed,
+          guardsFired: turn.guardsFired
+        })
+      } catch (error) {
+        console.error('[chat] first turn failed:', error)
+        send('error', {
+          message:
+            error instanceof AppError
+              ? error.message
+              : 'Something went wrong. Please try again.'
+        })
       }
     })
   }
