@@ -394,14 +394,19 @@ export class ChatRetrievalService {
           asc(courses.name)
         ]
       // Workload runs 1 = very heavy to 5 = very light, so ascending is heaviest.
+      //
+      // The direction is written into the SQL rather than wrapped in asc() /
+      // desc(): those append their keyword after the expression, which made
+      // this `... nulls last asc`, a syntax error. Every workload sort failed
+      // on production until 2026-09-23, reading to the model as a failed search.
       case 'heaviest_workload':
         return [
-          asc(sql`${courseStats.averageWorkload} nulls last`),
+          sql`${courseStats.averageWorkload} asc nulls last`,
           asc(courses.name)
         ]
       case 'lightest_workload':
         return [
-          desc(sql`${courseStats.averageWorkload} nulls last`),
+          sql`${courseStats.averageWorkload} desc nulls last`,
           asc(courses.name)
         ]
       case 'review_count':

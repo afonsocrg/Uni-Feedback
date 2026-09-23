@@ -1,3 +1,5 @@
+import { courseStats } from '@uni-feedback/db/schema'
+import { eq } from 'drizzle-orm'
 import { beforeEach, describe, expect, it } from 'vitest'
 import {
   createCourse,
@@ -6,7 +8,7 @@ import {
   createIdenticalRelationship,
   initCourseStats
 } from '../../../test/helpers'
-import { cleanAllTables, withTestDb } from '../../../test/setup'
+import { cleanAllTables, getTestDb, withTestDb } from '../../../test/setup'
 import { ChatRetrievalService } from '../chatRetrievalService'
 
 /**
@@ -305,6 +307,43 @@ describe('ChatRetrievalService: entity resolution must not report false negative
         expect(result.courses.map((c) => c.name).sort()).toEqual([
           'Controlo Não Linear',
           'Estática'
+        ])
+      })
+    })
+  })
+
+  describe('workload sorts', () => {
+    // Both sorts were a SQL syntax error from launch until 2026-09-23, so
+    // "cadeiras mais difíceis" never got a ranked list.
+    it('ranks heaviest first and lightest first, with unrated courses last', async () => {
+      await withTestDb(async () => {
+        const { ams, fisica, progFct } = await seed()
+        const db = getTestDb()
+        await db
+          .update(courseStats)
+          .set({ averageWorkload: 1.5, totalFeedbackCount: 3 })
+          .where(eq(courseStats.courseId, fisica.id))
+        await db
+          .update(courseStats)
+          .set({ averageWorkload: 4.5, totalFeedbackCount: 3 })
+          .where(eq(courseStats.courseId, ams.id))
+
+        const heaviest = await service.searchCourses({
+          sort: 'heaviest_workload'
+        })
+        expect(heaviest.courses.map((c) => c.courseId)).toEqual([
+          fisica.id,
+          ams.id,
+          progFct.id
+        ])
+
+        const lightest = await service.searchCourses({
+          sort: 'lightest_workload'
+        })
+        expect(lightest.courses.map((c) => c.courseId)).toEqual([
+          ams.id,
+          fisica.id,
+          progFct.id
         ])
       })
     })
