@@ -14,7 +14,7 @@
     "theme_dark": "Dark",
     "theme_system": "System",
     "language": "Language",
-    "chat": "Chat",
+    "chat": "AI Chat",
     "account": "Account"
   },
   "footer": {
@@ -40,7 +40,7 @@
       "contact": "Contact",
       "terms": "Terms of Service",
       "privacy": "Privacy Policy",
-      "chat": "Chat"
+      "chat": "AI Chat"
     }
   },
   "breadcrumb": {

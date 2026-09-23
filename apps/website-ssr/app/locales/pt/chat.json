@@ -1,7 +1,7 @@
 {
-  "meta_title": "Chat | Uni Feedback",
+  "meta_title": "Chat IA | Uni Feedback",
   "meta_desc": "Pergunta o que quiseres sobre as cadeiras e os cursos das universidades portuguesas, com base no que outros alunos escreveram.",
-  "nav_label": "Chat",
+  "nav_label": "Chat IA",
   "beta": "Beta",
   "new_chat": "Nova conversa",
   "recent": "Recentes",
@@ -42,8 +42,8 @@
   "open_chats": "Ver conversas",
   "close_chats": "Fechar conversas",
   "ask_about": "Perguntar sobre {{name}}",
-  "chat_prompt": "ou pergunta ao chat",
-  "chat_no_results": "Pergunta ao chat",
+  "chat_prompt": "ou pergunta ao Chat IA",
+  "chat_no_results": "Pergunta ao Chat IA",
   "scoped_to": "Sobre {{name}}",
   "empty_title_scoped": "O que queres saber sobre {{name}}?",
   "resting_title": "O chat está a descansar",
@@ -63,7 +63,7 @@
     "add_course": "Adicionar ao Uni Feedback"
   },
   "access": {
-    "title": "Pedir acesso ao chat",
+    "title": "Pedir acesso ao Chat IA",
     "subtitle": "Por agora o chat é só para quem tem email de universidade. Deixa o teu email e avisamos-te assim que abrirmos a toda a gente.",
     "email": "O teu email",
     "email_placeholder": "email@exemplo.com",

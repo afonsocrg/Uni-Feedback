@@ -1,7 +1,7 @@
 {
-  "meta_title": "Chat | Uni Feedback",
+  "meta_title": "AI Chat | Uni Feedback",
   "meta_desc": "Ask anything about courses and degrees at Portuguese universities, grounded in what other students wrote.",
-  "nav_label": "Chat",
+  "nav_label": "AI Chat",
   "beta": "Beta",
   "new_chat": "New chat",
   "recent": "Recent",
@@ -42,8 +42,8 @@
   "open_chats": "Show chats",
   "close_chats": "Close chats",
   "ask_about": "Ask about {{name}}",
-  "chat_prompt": "or ask the chat",
-  "chat_no_results": "Ask the chat",
+  "chat_prompt": "or ask the AI Chat",
+  "chat_no_results": "Ask the AI Chat",
   "scoped_to": "About {{name}}",
   "empty_title_scoped": "What do you want to know about {{name}}?",
   "resting_title": "The chat is resting",
@@ -63,7 +63,7 @@
     "add_course": "Add it to Uni Feedback"
   },
   "access": {
-    "title": "Request access to the chat",
+    "title": "Request access to the AI Chat",
     "subtitle": "For now the chat is only for people with a university email. Leave your email and we'll let you know as soon as we open it to everyone.",
     "email": "Your email",
     "email_placeholder": "email@example.com",

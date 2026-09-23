@@ -14,7 +14,7 @@
     "theme_dark": "Escuro",
     "theme_system": "Sistema",
     "language": "Idioma",
-    "chat": "Chat",
+    "chat": "Chat IA",
     "account": "Conta"
   },
   "footer": {
@@ -40,7 +40,7 @@
       "contact": "Contacto",
       "terms": "Termos de Serviço",
       "privacy": "Política de Privacidade",
-      "chat": "Chat"
+      "chat": "Chat IA"
     }
   },
   "breadcrumb": {
