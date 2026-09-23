@@ -17,6 +17,12 @@ interface ChatSidebarProps {
    */
   open: boolean | null
   onNewChat: () => void
+  /**
+   * The chat on screen is new and empty. "New chat" is then secondary: it is
+   * the most prominent control on an empty screen, and students clicked it
+   * instead of typing into the composer.
+   */
+  isEmptyDraft: boolean
   onSelect: (chatId: string) => void
   onDelete: (chatId: string) => void
   onClose: () => void
@@ -27,6 +33,7 @@ export function ChatSidebar({
   activeChatId,
   open,
   onNewChat,
+  isEmptyDraft,
   onSelect,
   onDelete,
   onClose
@@ -70,7 +77,11 @@ export function ChatSidebar({
         <div className="flex h-full w-64 flex-col gap-4 p-3">
           <BackToSite />
 
-          <Button onClick={onNewChat} className="w-full gap-1.5">
+          <Button
+            onClick={onNewChat}
+            variant={isEmptyDraft ? 'outline' : 'default'}
+            className="w-full gap-1.5"
+          >
             <Plus className="size-4" />
             {t('new_chat')}
           </Button>

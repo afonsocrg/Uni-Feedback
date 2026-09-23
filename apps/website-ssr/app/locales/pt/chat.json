@@ -26,10 +26,6 @@
     "assessment": "O que dizem os alunos sobre a avaliação de Física I?",
     "no_exam": "Que cadeiras não têm exame?"
   },
-  "notice_title": "Antes de começares",
-  "notice_private": "As conversas ficam ligadas à tua conta e mais nenhum utilizador as consegue ler.",
-  "notice_read": "A equipa do Uni Feedback tem acesso aos chats para perceber o que pode melhorar, por isso não escrevas dados pessoais ou sensíveis, teus ou de outras pessoas.",
-  "notice_accept": "Percebi!",
   "rating_helpful": "Resposta útil",
   "rating_not_helpful": "Resposta pouco útil",
   "rating_comment_label": "O que correu mal?",
@@ -54,7 +50,7 @@
   "resting_body": "Voltamos em breve. Entretanto podes continuar a explorar as cadeiras pelo site.",
   "login_required": "Precisas de entrar com o email da universidade. Não tens um? <request>Pede acesso</request>.",
   "login_dialog_title": "Entra para veres a resposta",
-  "login_dialog_description": "Usa o teu email da universidade. Enviamos-te um código, e a tua pergunta fica à espera.",
+  "login_dialog_description": "Usa o teu email da universidade. Enviamos-te um código, e a tua pergunta fica à espera. Nenhum outro utilizador vê as tuas conversas, mas a equipa do Uni Feedback tem acesso a elas, por isso não escrevas dados pessoais.",
   "gap": {
     "no_reviews": "Ainda ninguém avaliou {{name}}, por isso não te sei dizer o que os alunos acharam. Conheces alguém que a tenha feito?",
     "share_course": "Partilhar a cadeira",

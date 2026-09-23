@@ -31,10 +31,6 @@ export const SITE_URL =
 // LocalStorage keys
 // Convention: All keys should be prefixed with 'uni-feedback-' for namespace isolation
 export const STORAGE_KEYS = {
-  // Chat first-use notice. Client-only on purpose: it is a "have you read this"
-  // acknowledgement, not consent we need to prove, and the terms carry the
-  // durable version.
-  CHAT_NOTICE_ACCEPTED: 'uni-feedback-chat-notice-accepted',
   // Sidebar open/collapsed, remembered across visits. Null means "never
   // chosen", which is what lets the first render pick a sensible default from
   // the viewport instead of guessing during SSR.

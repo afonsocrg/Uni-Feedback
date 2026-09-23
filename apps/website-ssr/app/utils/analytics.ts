@@ -924,9 +924,7 @@ export const analytics = {
       trackEvent('chat_quota_reached', props),
 
     errorShown: (props: { chatId: string; message: string }) =>
-      trackEvent('chat_error_shown', props),
-
-    noticeAccepted: () => trackEvent('chat_first_use_notice_accepted', {})
+      trackEvent('chat_error_shown', props)
   }
 }
 

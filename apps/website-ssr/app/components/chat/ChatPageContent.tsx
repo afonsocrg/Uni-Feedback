@@ -19,7 +19,6 @@ import { getLocalePath } from '~/utils/i18n-routes'
 import { ChatAccessRequestDialog } from './ChatAccessRequestDialog'
 import { ChatComposer } from './ChatComposer'
 import { ChatEmptyState } from './ChatEmptyState'
-import { ChatFirstUseNotice } from './ChatFirstUseNotice'
 import { ChatMessages } from './ChatMessages'
 import { ChatShell } from './ChatShell'
 import { ChatSidebar } from './ChatSidebar'
@@ -83,10 +82,6 @@ export function ChatPageContent({
       .catch(() => undefined)
   }, [authOpen, emailSuffixes.length])
 
-  const [noticeAccepted, setNoticeAccepted] = useLocalStorage(
-    STORAGE_KEYS.CHAT_NOTICE_ACCEPTED,
-    false
-  )
   const [chats, setChats] = useState<ChatSummary[]>([])
   const [activeChatId, setActiveChatId] = useState<string | null>(initialChatId)
   const [loaded, setLoaded] = useState(false)
@@ -127,9 +122,9 @@ export function ChatPageContent({
    * Whether localStorage has been read yet.
    *
    * `useLocalStorage` is SSR-safe by returning its default on the first render
-   * and hydrating in an effect, which means `noticeAccepted` is briefly false
-   * for everyone, including students who accepted months ago. Rendering the
-   * notice on that first frame is what made it flash.
+   * and hydrating in an effect, which means the sidebar state is briefly the
+   * default for everyone. Rendering on that first frame is what made the old
+   * first-use notice flash.
    *
    * The fix is not to move the notice somewhere else: it is to not decide
    * before we know. Effects run in declaration order, and the hooks above are
@@ -340,7 +335,21 @@ export function ChatPageContent({
     }
   }
 
+  const isEmptyDraft =
+    activeChatId === null && stream.messages.length === 0 && !stream.isStreaming
+
   const startNewChat = () => {
+    // Already on a new, empty chat. Navigating to /chat would do nothing
+    // visible except drop the query string, and with it the course or degree
+    // the student arrived scoped to. Seen on production (2026-09-20): a
+    // student came from a degree page, clicked this before typing, and the
+    // chat then had to ask them which degree they meant.
+    if (isEmptyDraft) {
+      if (!window.matchMedia('(min-width: 768px)').matches) {
+        setSidebarOpen(false)
+      }
+      return
+    }
     // From /chat itself (a first turn still in flight) the navigate below is a
     // no-op, so nothing else would stop the stream: its answer would land in
     // the fresh conversation and its `created` would move the URL to the old
@@ -392,18 +401,6 @@ export function ChatPageContent({
     )
   }
 
-  if (!noticeAccepted) {
-    return (
-      <ChatShell
-        sidebar={null}
-        sidebarOpen={false}
-        onToggleSidebar={() => undefined}
-      >
-        <ChatFirstUseNotice onAccept={() => setNoticeAccepted(true)} />
-      </ChatShell>
-    )
-  }
-
   const showEmptyState = loaded && stream.messages.length === 0
 
   return (
@@ -416,6 +413,7 @@ export function ChatPageContent({
           activeChatId={activeChatId}
           open={sidebarOpen}
           onNewChat={startNewChat}
+          isEmptyDraft={isEmptyDraft}
           onSelect={(id) => {
             // Only dismiss the drawer on small screens. On desktop the sidebar
             // is part of the layout: closing it every time a chat is opened
@@ -461,6 +459,7 @@ export function ChatPageContent({
           <ChatComposer
             onSend={send}
             disabled={stream.isStreaming}
+            autoFocus={showEmptyState}
             footer={
               isAuthenticated ? undefined : (
                 // Stated before they type, not sprung on them at send. The

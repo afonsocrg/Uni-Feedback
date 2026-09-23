@@ -26,10 +26,6 @@
     "assessment": "What do students say about how Física I is assessed?",
     "no_exam": "Which courses have no exam?"
   },
-  "notice_title": "Before you start",
-  "notice_private": "Conversations are linked to your account, and no other user can read them.",
-  "notice_read": "The Uni Feedback team has access to chats to see what we can improve, so please do not write personal or sensitive data, yours or anyone else's.",
-  "notice_accept": "Got it, let's go",
   "rating_helpful": "Helpful answer",
   "rating_not_helpful": "Not helpful",
   "rating_comment_label": "What went wrong?",
@@ -54,7 +50,7 @@
   "resting_body": "We will be back shortly. In the meantime you can keep exploring courses on the site.",
   "login_required": "You need to sign in with your university email. Don't have one? <request>Request access</request>.",
   "login_dialog_title": "Sign in to see the answer",
-  "login_dialog_description": "Use your university email. We send you a code, and your question stays waiting.",
+  "login_dialog_description": "Use your university email. We send you a code, and your question stays waiting. No other user can see your conversations, but the Uni Feedback team has access to them, so please don't write personal data.",
   "gap": {
     "no_reviews": "Nobody has reviewed {{name}} yet, so I cannot tell you what students thought. Do you know someone who took it?",
     "share_course": "Share the course",

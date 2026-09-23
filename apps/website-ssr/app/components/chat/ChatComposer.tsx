@@ -1,6 +1,6 @@
 import { Button, Textarea, cn } from '@uni-feedback/ui'
 import { ArrowUp } from 'lucide-react'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 interface ChatComposerProps {
@@ -17,12 +17,29 @@ interface ChatComposerProps {
   disabled: boolean
   /** Rendered under the input instead of the usual hint. */
   footer?: React.ReactNode
+  /**
+   * Focus the input on arrival, so the blinking cursor says "type here". Desktop
+   * only: on a phone it would throw the keyboard over the screen before the
+   * student has read anything.
+   */
+  autoFocus?: boolean
 }
 
-export function ChatComposer({ onSend, disabled, footer }: ChatComposerProps) {
+export function ChatComposer({
+  onSend,
+  disabled,
+  footer,
+  autoFocus = false
+}: ChatComposerProps) {
   const { t } = useTranslation('chat')
   const [value, setValue] = useState('')
   const ref = useRef<HTMLTextAreaElement>(null)
+
+  useEffect(() => {
+    if (autoFocus && window.matchMedia('(min-width: 768px)').matches) {
+      ref.current?.focus()
+    }
+  }, [autoFocus])
 
   const submit = () => {
     const trimmed = value.trim()
