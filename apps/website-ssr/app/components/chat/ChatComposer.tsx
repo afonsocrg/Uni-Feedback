@@ -23,16 +23,19 @@ interface ChatComposerProps {
    * student has read anything.
    */
   autoFocus?: boolean
+  /** Text to start with, e.g. a question the login wall sent back. */
+  initialValue?: string
 }
 
 export function ChatComposer({
   onSend,
   disabled,
   footer,
-  autoFocus = false
+  autoFocus = false,
+  initialValue = ''
 }: ChatComposerProps) {
   const { t } = useTranslation('chat')
-  const [value, setValue] = useState('')
+  const [value, setValue] = useState(initialValue)
   const ref = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {

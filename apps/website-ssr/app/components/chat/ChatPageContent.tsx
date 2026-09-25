@@ -2,7 +2,6 @@ import {
   MeicFeedbackAPIError,
   deleteChat,
   getChat,
-  getFaculties,
   listChats,
   type ChatScope,
   type ChatSummary
@@ -10,15 +9,16 @@ import {
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router'
-import { AuthDialog } from '~/components/AuthDialog'
 import type { AuthUser } from '~/context/AuthContext'
 import { useAuth, useChatStream, useLang, useLocalStorage } from '~/hooks'
 import { analytics } from '~/utils/analytics'
 import { STORAGE_KEYS } from '~/utils/constants'
 import { getLocalePath } from '~/utils/i18n-routes'
+import type { ChatPrefillState } from './AskChatInput'
 import { ChatAccessRequestDialog } from './ChatAccessRequestDialog'
 import { ChatComposer } from './ChatComposer'
 import { ChatEmptyState } from './ChatEmptyState'
+import { ChatLoginWall } from './ChatLoginWall'
 import { ChatMessages } from './ChatMessages'
 import { ChatShell } from './ChatShell'
 import { ChatSidebar } from './ChatSidebar'
@@ -38,6 +38,7 @@ interface ChatPageContentProps {
     | 'landing'
     | 'browse_page'
     | 'course_page'
+    | 'course_page_inline'
     | 'degree_page'
     | 'faculty_page'
     | 'direct'
@@ -64,23 +65,6 @@ export function ChatPageContent({
   const [pendingQuestion, setPendingQuestion] = useState<string | null>(null)
   const [authOpen, setAuthOpen] = useState(false)
   const [accessOpen, setAccessOpen] = useState(false)
-
-  /**
-   * Every domain we can verify, so the dialog can say "not one of ours" before
-   * sending a code that was never going to arrive.
-   *
-   * Fetched only once the wall is actually needed. An empty list simply means no
-   * client-side check and the API refuses as it always did.
-   */
-  const [emailSuffixes, setEmailSuffixes] = useState<string[]>([])
-  useEffect(() => {
-    if (!authOpen || emailSuffixes.length > 0) return
-    getFaculties()
-      .then((faculties) =>
-        setEmailSuffixes(faculties.flatMap((f) => f.emailSuffixes ?? []))
-      )
-      .catch(() => undefined)
-  }, [authOpen, emailSuffixes.length])
 
   const [chats, setChats] = useState<ChatSummary[]>([])
   const [activeChatId, setActiveChatId] = useState<string | null>(initialChatId)
@@ -324,10 +308,45 @@ export function ChatPageContent({
     analytics.chat.loginWallShown({ hasContext, source })
   }, [stream.errorStatus, hasContext, source])
 
+  /**
+   * A question asked from a course page, sent once on arrival.
+   *
+   * It comes in router state, never the URL (see `AskChatInput`). The state is
+   * cleared before sending, so a refresh or the back button does not ask it
+   * again. Signed out, `send` raises the login wall exactly as a typed question
+   * would; if they close it, the question is put back in the composer instead
+   * of lost.
+   */
+  const location = useLocation()
+  const prefill = (location.state as ChatPrefillState | null)?.question
+  const prefillHandled = useRef(false)
+  const [draft, setDraft] = useState<string | null>(null)
+  useEffect(() => {
+    if (prefillHandled.current || !prefill) return
+    if (!hydrated || authLoading || !loaded) return
+    prefillHandled.current = true
+    navigate(`${location.pathname}${location.search}`, {
+      replace: true,
+      state: null
+    })
+    if (send(prefill) === false) setDraft(prefill)
+  }, [
+    prefill,
+    hydrated,
+    authLoading,
+    loaded,
+    navigate,
+    location.pathname,
+    location.search,
+    send
+  ])
+
   const onAuthSuccess = (user: AuthUser) => {
     setUser(user)
+    // The pending question is being sent below; the composer copy would
+    // otherwise sit there as a duplicate.
+    setDraft(null)
     setAuthOpen(false)
-    analytics.chat.loginWallCompleted({ source })
     if (pendingQuestion) {
       const question = pendingQuestion
       setPendingQuestion(null)
@@ -457,6 +476,8 @@ export function ChatPageContent({
           <ChatQuotaWall />
         ) : (
           <ChatComposer
+            key={draft === null ? 'empty' : 'draft'}
+            initialValue={draft ?? undefined}
             onSend={send}
             disabled={stream.isStreaming}
             autoFocus={showEmptyState}
@@ -486,32 +507,16 @@ export function ChatPageContent({
           />
         )}
 
-        <AuthDialog
+        <ChatLoginWall
           open={authOpen}
+          source={source}
+          question={pendingQuestion}
           onSuccess={onAuthSuccess}
-          onClose={() => {
-            setAuthOpen(false)
-            analytics.chat.loginWallAbandoned({ source })
-          }}
-          title={t('login_dialog_title')}
-          description={t('login_dialog_description')}
-          trigger="chat"
-          allowedEmailSuffixes={
-            emailSuffixes.length > 0 ? emailSuffixes : undefined
-          }
-          noUniversityEmail={{
-            label: t('access.no_university_email'),
-            explanation: t('access.wrong_domain'),
-            // Swaps one dialog for the other. Keeping them separate components
-            // means AuthDialog stays generic: it offers a door, it does not know
-            // what is behind it.
-            onClick: () => {
-              setAuthOpen(false)
-              setAccessOpen(true)
-            }
-          }}
+          onClose={() => setAuthOpen(false)}
         />
 
+        {/* The composer's own "Pede acesso" link. The wall carries its own
+            copy of this dialog for the swap from the login form. */}
         <ChatAccessRequestDialog
           open={accessOpen}
           onOpenChange={setAccessOpen}

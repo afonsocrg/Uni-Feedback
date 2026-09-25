@@ -806,6 +806,7 @@ export const analytics = {
         | 'landing'
         | 'browse_page'
         | 'course_page'
+        | 'course_page_inline'
         | 'degree_page'
         | 'faculty_page'
         | 'direct'
@@ -824,6 +825,19 @@ export const analytics = {
        *  signed-out visitor's list is a 401, not an empty list. */
       chatCount: number | null
     }) => trackEvent('chat_opened', props),
+
+    /**
+     * A question typed into the course page's own box, before the chat page
+     * opens. The next step is `chat_opened{source: 'course_page_inline'}` on the
+     * chat page, which sends the question itself. Kept separate so a drop
+     * between typing and the chat loading is visible.
+     */
+    inlinePromptSubmitted: (props: {
+      source: 'course_page'
+      courseId: number
+      isAuthenticated: boolean
+      messageLength: number
+    }) => trackEvent('chat_inline_prompt_submitted', props),
 
     messageSent: (props: {
       /** The chat's public id, or 'new' for a first message. */

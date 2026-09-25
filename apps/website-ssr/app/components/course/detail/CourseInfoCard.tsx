@@ -12,7 +12,7 @@ import { Clock, ExternalLink, Flag, Star } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
-import { AskChatButton } from '~/components/chat/AskChatButton'
+import { AskChatInput } from '~/components/chat/AskChatInput'
 import { useLang } from '~/hooks'
 import { analytics, getPageName } from '~/utils/analytics'
 import { getCourseFeedbackPath } from '~/utils/i18n-routes'
@@ -264,13 +264,15 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
             </Link>
           </Button>
           {/* Beside the primary CTA rather than in the title row: this is an
-              action, and it belongs where the page's other action already is. */}
-          <AskChatButton
-            name={course.acronym}
+              action, and it belongs where the page's other action already is.
+              A box rather than a button, so the question is asked here and
+              the chat opens already answering it. */}
+          <AskChatInput
+            // The full name, not the acronym: "sobre SIRS" reads as jargon,
+            // and this also names the chat it opens.
+            name={course.name}
             courseId={course.id}
-            source="course_page"
-            variant="outline"
-            className="max-sm:w-full"
+            className="min-w-64 flex-1 max-sm:w-full"
           />
         </div>
       </div>
