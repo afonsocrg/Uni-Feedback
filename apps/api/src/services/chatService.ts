@@ -403,7 +403,7 @@ export class ChatService {
     onProgress?: (info: { tool: string }) => void
   ) {
     const usage: LlmUsage = { inputTokens: 0, outputTokens: 0, costMicros: 0 }
-    const toolCalls: Array<{ name: string; args: unknown; ms: number }> = []
+    const toolCalls: ToolCallRecord[] = []
     const toolsUsed: string[] = []
     // Only calls that returned data. `toolsUsed` is the record of what the
     // model attempted, and is what gets logged and shown; the guards below have
@@ -516,7 +516,8 @@ export class ChatService {
         toolCalls.push({
           name: call.function.name,
           args,
-          ms: Date.now() - callStarted
+          ms: Date.now() - callStarted,
+          ...recordResult(payload)
         })
 
         messages.push({
@@ -769,4 +770,43 @@ function citedFrom(answer: string, urls: Map<string, EntityRef>): EntityRef[] {
     if (answer.includes(url)) cited.push(entity)
   }
   return cited
+}
+
+/**
+ * One tool call as stored on the assistant message, for the admin transcript.
+ *
+ * The result is kept as well as the arguments: an answer that is fluent and
+ * wrong is usually a retrieval that came back thin, and without the payload the
+ * reader can only guess which. Capped so a course with hundreds of reviews does
+ * not turn one message row into a megabyte; the cut is marked and the size
+ * kept, since "the model saw 80KB" is itself a debugging fact.
+ */
+export interface ToolCallRecord {
+  name: string
+  args: unknown
+  ms: number
+  result?: unknown
+  resultTruncated?: boolean
+  resultBytes?: number
+}
+
+const TOOL_RESULT_STORE_LIMIT = 16_000
+
+function recordResult(
+  payload: unknown
+): Pick<ToolCallRecord, 'result' | 'resultTruncated' | 'resultBytes'> {
+  let json: string
+  try {
+    json = JSON.stringify(payload) ?? 'null'
+  } catch {
+    return { result: { error: 'unserialisable tool result' } }
+  }
+  if (json.length <= TOOL_RESULT_STORE_LIMIT) {
+    return { result: payload, resultBytes: json.length }
+  }
+  return {
+    result: json.slice(0, TOOL_RESULT_STORE_LIMIT),
+    resultTruncated: true,
+    resultBytes: json.length
+  }
 }

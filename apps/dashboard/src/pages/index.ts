@@ -1,5 +1,7 @@
 export * from './AudioFeedbackPage'
 export * from './auth'
+export * from './ChatDetailPage'
+export * from './ChatsPage'
 export * from './CourseDetailPage'
 export * from './CoursesPage'
 export * from './DegreeDetailPage'

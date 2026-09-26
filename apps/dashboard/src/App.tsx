@@ -1,6 +1,8 @@
 import { DashboardLayout, ProtectedRoute } from '@components'
 import {
   AudioFeedbackPage,
+  ChatDetailPage,
+  ChatsPage,
   CourseDetailPage,
   CoursesPage,
   CreateAccountPage,
@@ -60,6 +62,8 @@ function App() {
               <Route path="feedback/:id" element={<FeedbackDetailPage />} />
               <Route path="giveaway" element={<GiveawayPage />} />
               <Route path="audio-feedback" element={<AudioFeedbackPage />} />
+              <Route path="chats" element={<ChatsPage />} />
+              <Route path="chats/:id" element={<ChatDetailPage />} />
               {/* <Route path="profile" element={<ProfilePage />} /> */}
             </Route>
 

@@ -12,6 +12,7 @@ import {
 } from '@uni-feedback/ui'
 import {
   BookOpen,
+  Bot,
   Building2,
   Gift,
   GraduationCap,
@@ -64,6 +65,11 @@ const items = [
     title: 'Giveaway',
     url: '/giveaway',
     icon: Gift
+  },
+  {
+    title: 'AI Chat',
+    url: '/chats',
+    icon: Bot
   }
 ]
 

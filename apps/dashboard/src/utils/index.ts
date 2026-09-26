@@ -1,3 +1,4 @@
+export * from './chatFormat'
 export * from './constants'
 export * from './download'
 export * from './errorHandling'

@@ -894,3 +894,193 @@ export async function submitAudioFeedback(
 ): Promise<{ feedbackId: number }> {
   return apiPost<{ feedbackId: number }>('/admin/audio-feedback/submit', params)
 }
+
+// ---------------------------------------------------------------------------
+// AI chat transcripts (admin, read-only)
+// ---------------------------------------------------------------------------
+
+export interface AdminChatContext {
+  facultyId: number | null
+  facultyShortName: string | null
+  degreeId: number | null
+  degreeAcronym: string | null
+  courseId: number | null
+  courseAcronym: string | null
+  source: string | null
+}
+
+export interface AdminChatSummary {
+  /** The public uuid, which is also what the student-facing URL uses. */
+  id: string
+  title: string | null
+  language: string | null
+  userId: number
+  userEmail: string
+  userName: string
+  context: AdminChatContext
+  firstQuestion: string | null
+  messageCount: number
+  totalCostMicros: number
+  helpfulCount: number
+  notHelpfulCount: number
+  createdAt: string
+  lastMessageAt: string | null
+  deletedAt: string | null
+}
+
+export interface AdminChatsQuery {
+  page?: number
+  limit?: number
+  email?: string
+  faculty_id?: number
+  language?: 'pt' | 'en'
+  rating?: 'helpful' | 'not_helpful' | 'none'
+  deleted?: boolean
+  created_after?: string
+  sort?: 'recent' | 'random'
+}
+
+export type AdminChatsResponse = PaginatedResponse<AdminChatSummary>
+
+export interface AdminChatEntity {
+  type: string
+  id: number
+  relation: 'mentioned' | 'retrieved' | 'cited' | string
+  label: string
+}
+
+export interface AdminChatToolCall {
+  name: string
+  args: unknown
+  ms: number
+  /** What the tool returned. Missing on answers recorded before 2026-09-25. */
+  result?: unknown
+  /** True when `result` is the first 16KB of the JSON as a string. */
+  resultTruncated?: boolean
+  resultBytes?: number
+}
+
+export interface AdminChatMessage {
+  id: number
+  seq: number
+  role: 'user' | 'assistant' | 'system' | 'tool' | string
+  content: string
+  createdAt: string
+  model: string | null
+  inputTokens: number | null
+  outputTokens: number | null
+  costMicros: number | null
+  latencyMs: number | null
+  metadata: {
+    toolCalls?: AdminChatToolCall[]
+    guardsFired?: string[]
+    hitIterationCap?: boolean
+    contextTokens?: number
+    gap?: { kind: string; [key: string]: unknown } | null
+    [key: string]: unknown
+  }
+  rating: {
+    rating: 'helpful' | 'not_helpful' | string
+    comment: string | null
+    createdAt: string
+  } | null
+  entities: AdminChatEntity[]
+}
+
+export interface AdminChatDetail {
+  id: string
+  title: string | null
+  language: string | null
+  userId: number
+  userEmail: string
+  userName: string
+  context: AdminChatContext & {
+    facultyName: string | null
+    degreeName: string | null
+    courseName: string | null
+  }
+  totals: {
+    messageCount: number
+    costMicros: number
+    inputTokens: number
+    outputTokens: number
+  }
+  createdAt: string
+  updatedAt: string
+  lastMessageAt: string | null
+  deletedAt: string | null
+  messages: AdminChatMessage[]
+}
+
+export interface AdminChatTotals {
+  chats: number
+  deletedChats: number
+  uniqueUsers: number
+  questions: number
+  answers: number
+  costMicros: number
+  helpful: number
+  notHelpful: number
+}
+
+export interface AdminChatCount {
+  key: string
+  count: number
+}
+
+export interface AdminChatStats {
+  days: number
+  allTime: AdminChatTotals
+  window: AdminChatTotals
+  latency: { p50Ms: number | null; p95Ms: number | null }
+  quality: {
+    guardsFired: number
+    hitIterationCap: number
+    gaps: AdminChatCount[]
+  }
+  perDay: {
+    date: string
+    chats: number
+    questions: number
+    uniqueUsers: number
+    costMicros: number
+    notHelpful: number
+  }[]
+  byLanguage: AdminChatCount[]
+  byContextSource: AdminChatCount[]
+  topTools: AdminChatCount[]
+  topCited: { type: string; id: number; label: string; count: number }[]
+  returningUsers: number
+}
+
+export async function getAdminChats(
+  query?: AdminChatsQuery
+): Promise<AdminChatsResponse> {
+  const params = new URLSearchParams()
+  if (query?.page) params.set('page', query.page.toString())
+  if (query?.limit) params.set('limit', query.limit.toString())
+  if (query?.email) params.set('email', query.email)
+  if (query?.faculty_id) params.set('faculty_id', query.faculty_id.toString())
+  if (query?.language) params.set('language', query.language)
+  if (query?.rating) params.set('rating', query.rating)
+  if (query?.deleted !== undefined)
+    params.set('deleted', query.deleted.toString())
+  if (query?.created_after) params.set('created_after', query.created_after)
+  if (query?.sort) params.set('sort', query.sort)
+
+  const url = params.toString() ? `/admin/chats?${params}` : '/admin/chats'
+  return apiGet<AdminChatsResponse>(url)
+}
+
+export async function getAdminChatDetails(
+  chatId: string
+): Promise<AdminChatDetail> {
+  return apiGet<AdminChatDetail>(`/admin/chats/${chatId}`)
+}
+
+export async function getAdminChatStats(
+  days?: number
+): Promise<AdminChatStats> {
+  const url = days ? `/admin/chats/stats?days=${days}` : '/admin/chats/stats'
+  return apiGet<AdminChatStats>(url)
+}
