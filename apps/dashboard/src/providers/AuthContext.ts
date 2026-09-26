@@ -8,6 +8,12 @@ export interface AuthContextType {
   login: (credentials: LoginRequest) => Promise<void>
   logout: () => Promise<void>
   refreshAuth: () => Promise<void>
+  /**
+   * Forget the session locally without calling the API. For when the API has
+   * already said the session is gone (a 401), so a logout call would only fail
+   * again and delay the redirect to login.
+   */
+  expireSession: () => void
   setUser: (user: User) => void
 }
 

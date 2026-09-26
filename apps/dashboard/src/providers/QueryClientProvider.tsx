@@ -12,35 +12,40 @@ interface QueryClientProviderProps {
   children: React.ReactNode
 }
 
+const isUnauthorized = (error: unknown) =>
+  error instanceof MeicFeedbackAPIError && error.status === 401
+
+// A 4xx is the API's verdict, not a flake: retrying a 401 or 403 only delays
+// the redirect to login (or the "no access" state) by another round trip.
+const isClientError = (error: unknown) =>
+  error instanceof MeicFeedbackAPIError &&
+  error.status !== undefined &&
+  error.status >= 400 &&
+  error.status < 500
+
 export function QueryClientProvider({ children }: QueryClientProviderProps) {
-  const { logout } = useAuth()
+  const { expireSession } = useAuth()
 
   const queryClient = useMemo(() => {
+    // The API already tried a token refresh before answering 401 (see
+    // `fetchWithRefresh`), so the session is gone. Dropping the cached user is
+    // what makes `ProtectedRoute` send the student to login with `returnTo`.
+    const onError = (error: unknown) => {
+      if (isUnauthorized(error)) expireSession()
+    }
+
     return new QueryClient({
-      queryCache: new QueryCache({
-        onError: (error) => {
-          // Handle 401 errors globally by logging out
-          if (error instanceof MeicFeedbackAPIError && error.status === 401) {
-            logout()
-          }
-        }
-      }),
-      mutationCache: new MutationCache({
-        onError: (error) => {
-          // Handle 401 errors globally by logging out
-          if (error instanceof MeicFeedbackAPIError && error.status === 401) {
-            logout()
-          }
-        }
-      }),
+      queryCache: new QueryCache({ onError }),
+      mutationCache: new MutationCache({ onError }),
       defaultOptions: {
         queries: {
-          retry: 1,
+          retry: (failureCount, error) =>
+            !isClientError(error) && failureCount < 1,
           refetchOnWindowFocus: false
         }
       }
     })
-  }, [logout])
+  }, [expireSession])
 
   return (
     <TanStackQueryClientProvider client={queryClient}>
