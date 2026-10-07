@@ -13,7 +13,10 @@ export function DashboardLayout() {
   return (
     <SidebarProvider open={sidebarOpen} onOpenChange={setSidebarOpen}>
       <DashboardSidebar />
-      <div className="w-full flex flex-col min-h-screen">
+      {/* min-w-0: a flex item defaults to min-width:auto, so a fixed-width
+          child (a chart's SVG, a nowrap table) would stop this column from
+          shrinking when the sidebar opens and push the page sideways. */}
+      <div className="w-full min-w-0 flex flex-col min-h-screen">
         <main className="p-4 flex-1">
           <SidebarTrigger className="mb-2" />
           <Outlet />

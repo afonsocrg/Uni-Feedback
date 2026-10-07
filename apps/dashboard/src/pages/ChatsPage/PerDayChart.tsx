@@ -167,7 +167,7 @@ function ColumnChart({ days, metric }: { days: Day[]; metric: Metric }) {
   )
 
   return (
-    <div ref={containerRef} className="relative w-full">
+    <div ref={containerRef} className="relative w-full min-w-0 overflow-hidden">
       <svg
         width={width}
         height={HEIGHT}
