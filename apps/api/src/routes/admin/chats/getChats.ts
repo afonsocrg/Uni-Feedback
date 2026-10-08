@@ -26,6 +26,11 @@ import { z } from 'zod'
 
 const ChatsQuerySchema = PaginationQuerySchema.extend({
   email: z.string().optional(),
+  // Exact account match, for the user page. `email` stays a substring search.
+  user_id: z
+    .string()
+    .optional()
+    .transform((val) => (val ? parseInt(val, 10) : undefined)),
   faculty_id: z
     .string()
     .optional()
@@ -109,6 +114,7 @@ export class GetChats extends OpenAPIRoute {
       page,
       limit,
       email,
+      user_id,
       faculty_id,
       language,
       rating,
@@ -165,6 +171,10 @@ export class GetChats extends OpenAPIRoute {
       conditions.push(
         sql`LOWER(${users.email}) LIKE ${`%${email.toLowerCase()}%`}`
       )
+    }
+
+    if (user_id !== undefined) {
+      conditions.push(eq(chats.userId, user_id))
     }
 
     if (faculty_id !== undefined) {

@@ -27,3 +27,21 @@ export function getFeedbackPermalinkUrl(
   const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl
   return `${cleanBaseUrl}${getFeedbackPermalink(courseId, feedbackId)}`
 }
+
+/**
+ * The path a referral link points at. The login page reads `ref` and
+ * credits the referrer once the new account submits its first feedback.
+ */
+export function getReferralPath(referralCode: string): string {
+  return `/login?ref=${encodeURIComponent(referralCode)}`
+}
+
+/**
+ * The full shareable referral link.
+ * @param baseUrl - Website origin (e.g. https://uni-feedback.com)
+ * @param referralCode - The user's referral code
+ */
+export function getReferralUrl(baseUrl: string, referralCode: string): string {
+  const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl
+  return `${cleanBaseUrl}${getReferralPath(referralCode)}`
+}

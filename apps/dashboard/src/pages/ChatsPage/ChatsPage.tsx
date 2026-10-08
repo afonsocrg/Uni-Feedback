@@ -29,7 +29,7 @@ import {
 } from '@uni-feedback/ui'
 import { Bot, Search, Shuffle, ThumbsDown, ThumbsUp, X } from 'lucide-react'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { formatCost, formatDateTime, truncate } from '../../utils/chatFormat'
 import { ChatStatsOverview } from './ChatStatsOverview'
 
@@ -263,8 +263,15 @@ function ChatRow({
           </p>
         )}
       </TableCell>
-      <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
-        {chat.userEmail}
+      <TableCell className="text-sm whitespace-nowrap">
+        <Link
+          to={`/users/${chat.userId}`}
+          className="text-muted-foreground hover:text-primaryBlue hover:underline"
+          title={chat.userName}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {chat.userEmail}
+        </Link>
       </TableCell>
       <TableCell className="text-sm whitespace-nowrap">
         {contextParts.length > 0 ? (

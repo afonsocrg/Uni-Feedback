@@ -1,3 +1,4 @@
+import { getReferralUrl } from '@uni-feedback/utils'
 import { useTranslation } from 'react-i18next'
 import { useShare, type NativeShareInput, type Share } from './useShare'
 
@@ -27,7 +28,7 @@ export function useReferralShare(referralCode: string | null): ReferralShare {
   // server-rendered (e.g. the dev `?preview=success` escape hatch loaded directly).
   const referralUrl =
     referralCode && typeof window !== 'undefined'
-      ? `${window.location.origin}/login?ref=${referralCode}`
+      ? getReferralUrl(window.location.origin, referralCode)
       : null
 
   const { copyLink, nativeShare, ...share } = useShare({

@@ -42,7 +42,7 @@ import {
 import { GenerateCourseReport, GenerateDegreeReport } from './reports'
 import { RefreshStats } from './stats'
 import { GetDegreeSuggestions } from './suggestions'
-import { GetUsers } from './users'
+import { GetUserDetails, GetUsers, SearchUsers, UpdateUser } from './users'
 
 const app = new Hono()
 
@@ -108,6 +108,11 @@ router.post('/reports/degree', GenerateDegreeReport)
 // Stats routes
 router.post('/stats/refresh', RefreshStats)
 
+// User routes. The list stays superuser-only (inside GetUsers); a single
+// user's page is admin-level because feedback pages link to it.
 router.get('/users', GetUsers)
+router.get('/users/search', SearchUsers) // Before `/users/:id` so "search" is not parsed as an id
+router.get('/users/:id', GetUserDetails)
+router.put('/users/:id', UpdateUser)
 
 export { router }

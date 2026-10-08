@@ -1,6 +1,12 @@
 import { BadRequestError, NotFoundError } from '@routes/utils/errorHandling'
 import { database } from '@uni-feedback/db'
-import { courses, degrees, faculties, feedback } from '@uni-feedback/db/schema'
+import {
+  courses,
+  degrees,
+  faculties,
+  feedback,
+  users
+} from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
@@ -11,6 +17,11 @@ const FeedbackDetailsParamsSchema = z.object({
 
 const AdminFeedbackDetailSchema = z.object({
   id: z.number(),
+  // Set when the feedback was submitted from an account. Legacy email-only
+  // submissions have both of these null and only `email` filled in.
+  userId: z.number().nullable(),
+  userEmail: z.string().nullable(),
+  userName: z.string().nullable(),
   email: z.string().nullable(),
   schoolYear: z.number().nullable(),
   rating: z.number(),
@@ -83,6 +94,9 @@ export class GetFeedbackDetails extends OpenAPIRoute {
     const feedbackResult = await database()
       .select({
         id: feedback.id,
+        userId: feedback.userId,
+        userEmail: users.email,
+        userName: users.username,
         email: feedback.email,
         schoolYear: feedback.schoolYear,
         rating: feedback.rating,
@@ -104,6 +118,7 @@ export class GetFeedbackDetails extends OpenAPIRoute {
       .leftJoin(courses, eq(feedback.courseId, courses.id))
       .leftJoin(degrees, eq(courses.degreeId, degrees.id))
       .leftJoin(faculties, eq(degrees.facultyId, faculties.id))
+      .leftJoin(users, eq(feedback.userId, users.id))
       .where(eq(feedback.id, id))
       .limit(1)
 

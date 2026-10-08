@@ -18,6 +18,7 @@ import {
   LoginPage,
   NotFoundPage,
   ResetPasswordPage,
+  UserDetailPage,
   UsersPage
 } from '@pages'
 import { Providers } from '@providers'
@@ -52,6 +53,7 @@ function App() {
             >
               <Route index element={<HomePage />} />
               <Route path="users" element={<UsersPage />} />
+              <Route path="users/:id" element={<UserDetailPage />} />
               <Route path="faculties" element={<FacultiesPage />} />
               <Route path="faculties/:id" element={<FacultyDetailPage />} />
               <Route path="degrees" element={<DegreesPage />} />

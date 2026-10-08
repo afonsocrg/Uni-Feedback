@@ -51,6 +51,39 @@ export interface AdminUsersQuery {
   search?: string
 }
 
+export type AdminUserRole = 'student' | 'admin' | 'super_admin'
+
+export interface AdminUserDetail {
+  id: number
+  email: string
+  username: string
+  role: AdminUserRole
+  superuser: boolean
+  referralCode: string | null
+  instagramHandle: string | null
+  referredByUserId: number | null
+  referredByEmail: string | null
+  createdAt: string
+  updatedAt: string
+  feedbackCount: number
+  approvedFeedbackCount: number
+  chatCount: number
+}
+
+export interface AdminUserSearchResult {
+  id: number
+  email: string
+  username: string
+}
+
+export interface AdminUserUpdateData {
+  email?: string
+  username?: string
+  instagramHandle?: string | null
+  /** Superuser only */
+  role?: AdminUserRole
+}
+
 // Admin Courses Types
 export interface AdminCourse {
   id: number
@@ -261,6 +294,10 @@ export interface AdminFeedbackAnalysis {
 
 export interface AdminFeedback {
   id: number
+  /** Account that submitted it; null for legacy email-only submissions */
+  userId: number | null
+  /** Current email of the linked account, null when userId is null */
+  userEmail: string | null
   email: string | null
   schoolYear: number | null
   rating: number
@@ -283,6 +320,8 @@ export interface AdminFeedback {
 }
 
 export interface AdminFeedbackDetail extends AdminFeedback {
+  /** Username of the linked account, null when userId is null */
+  userName: string | null
   updatedAt: string
 }
 
@@ -301,6 +340,8 @@ export interface AdminFeedbackQuery {
   degree_id?: number
   faculty_id?: number
   email?: string
+  /** Only matches feedback linked to this account (email-only rows excluded) */
+  user_id?: number
   approved?: boolean
   rating?: number
   workload_rating?: number
@@ -328,6 +369,7 @@ export interface FeedbackExportFilters {
   is_approved?: boolean | null
   created_after?: string
   created_before?: string
+  user_id?: number
 }
 
 export interface FeedbackUpdateData {
@@ -366,6 +408,46 @@ export async function getAdminUsers(
 
   const url = params.toString() ? `/admin/users?${params}` : '/admin/users'
   return apiGet<AdminUsersResponse>(url)
+}
+
+/**
+ * Search users by email or username (admin). At most `limit` results.
+ */
+export async function searchAdminUsers(
+  q: string,
+  limit = 20
+): Promise<AdminUserSearchResult[]> {
+  const params = new URLSearchParams()
+  if (q) params.set('q', q)
+  params.set('limit', limit.toString())
+  return apiGet<AdminUserSearchResult[]>(`/admin/users/search?${params}`)
+}
+
+/**
+ * Get one user's account details (admin)
+ */
+export async function getAdminUserDetails(
+  userId: number
+): Promise<AdminUserDetail> {
+  return apiGet<AdminUserDetail>(`/admin/users/${userId}`)
+}
+
+/**
+ * Update a user's basic account fields (admin; role changes need superuser)
+ */
+export async function updateAdminUser(
+  userId: number,
+  updates: AdminUserUpdateData
+): Promise<{
+  id: number
+  email: string
+  username: string
+  role: AdminUserRole
+  instagramHandle: string | null
+  updatedAt: string
+  message: string
+}> {
+  return apiPut(`/admin/users/${userId}`, updates)
 }
 
 /**
@@ -678,6 +760,7 @@ export async function getAdminFeedbackNew(
   if (query?.degree_id) params.set('degree_id', query.degree_id.toString())
   if (query?.faculty_id) params.set('faculty_id', query.faculty_id.toString())
   if (query?.email) params.set('email', query.email)
+  if (query?.user_id) params.set('user_id', query.user_id.toString())
   if (query?.approved !== undefined)
     params.set('approved', query.approved.toString())
   if (query?.rating) params.set('rating', query.rating.toString())
@@ -932,6 +1015,7 @@ export interface AdminChatsQuery {
   page?: number
   limit?: number
   email?: string
+  user_id?: number
   faculty_id?: number
   language?: 'pt' | 'en'
   rating?: 'helpful' | 'not_helpful' | 'none'
@@ -1060,6 +1144,7 @@ export async function getAdminChats(
   if (query?.page) params.set('page', query.page.toString())
   if (query?.limit) params.set('limit', query.limit.toString())
   if (query?.email) params.set('email', query.email)
+  if (query?.user_id) params.set('user_id', query.user_id.toString())
   if (query?.faculty_id) params.set('faculty_id', query.faculty_id.toString())
   if (query?.language) params.set('language', query.language)
   if (query?.rating) params.set('rating', query.rating)

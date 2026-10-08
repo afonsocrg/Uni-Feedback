@@ -13,7 +13,10 @@ const CHIP_COLORS = {
   amber: 'bg-tint-amber text-tint-amber-fg border-tint-amber-border',
   'deep-purple': 'bg-tint-violet text-tint-violet-fg border-tint-violet-border',
   indigo: 'bg-tint-indigo text-tint-indigo-fg border-tint-indigo-border',
-  gray: 'bg-tint-gray text-tint-gray-fg border-tint-gray-border'
+  gray: 'bg-tint-gray text-tint-gray-fg border-tint-gray-border',
+  // Plain chip on the page background, for labels that should not compete
+  // with the coloured ones (an email beside a faculty acronym, say).
+  white: 'bg-background text-foreground border-border'
 } as const
 
 export type ChipColor = keyof typeof CHIP_COLORS
@@ -22,11 +25,11 @@ export type ChipColor = keyof typeof CHIP_COLORS
  * The assignable hues, in an order where neighbouring entries are also distant
  * hues. Callers colouring a *sequence* (terms along a timeline, say) can walk
  * this and trust that adjacent items stay told apart; `getColorForLabel` cannot
- * promise that, since a hash has no idea what sits next to what. Excludes gray,
- * which is reserved for callers that ask for it by name.
+ * promise that, since a hash has no idea what sits next to what. Excludes gray
+ * and white, which are reserved for callers that ask for them by name.
  */
 export const CHIP_COLOR_KEYS = Object.keys(CHIP_COLORS).filter(
-  (key) => key !== 'gray'
+  (key) => key !== 'gray' && key !== 'white'
 ) as ChipColor[]
 
 export const getColorForLabel = (label: string): string => {

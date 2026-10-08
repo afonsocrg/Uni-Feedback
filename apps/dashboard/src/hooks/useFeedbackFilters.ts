@@ -7,6 +7,8 @@ export interface FeedbackFilters {
   workloadRatingFilter: string
   hasCommentFilter: string
   schoolYearFilter: string
+  /** users.id of the author; only account-linked feedback matches */
+  authorFilter: number | null
 }
 
 export interface UseFeedbackFiltersReturn extends FeedbackFilters {
@@ -15,6 +17,7 @@ export interface UseFeedbackFiltersReturn extends FeedbackFilters {
   setWorkloadRatingFilter: (value: string) => void
   setHasCommentFilter: (value: string) => void
   setSchoolYearFilter: (value: string) => void
+  setAuthorFilter: (value: number | null) => void
   resetAll: () => void
 }
 
@@ -23,7 +26,8 @@ const DEFAULT_FILTERS: FeedbackFilters = {
   ratingFilter: 'all',
   workloadRatingFilter: 'all',
   hasCommentFilter: 'all',
-  schoolYearFilter: 'all'
+  schoolYearFilter: 'all',
+  authorFilter: null
 }
 
 export function useFeedbackFilters(): UseFeedbackFiltersReturn {
@@ -52,6 +56,10 @@ export function useFeedbackFilters(): UseFeedbackFiltersReturn {
     setFilters({ ...filters, schoolYearFilter: value })
   }
 
+  const setAuthorFilter = (value: number | null) => {
+    setFilters({ ...filters, authorFilter: value })
+  }
+
   const resetAll = () => {
     setFilters(DEFAULT_FILTERS)
   }
@@ -62,11 +70,14 @@ export function useFeedbackFilters(): UseFeedbackFiltersReturn {
     workloadRatingFilter: filters.workloadRatingFilter,
     hasCommentFilter: filters.hasCommentFilter,
     schoolYearFilter: filters.schoolYearFilter,
+    // Older persisted filter objects predate this key
+    authorFilter: filters.authorFilter ?? null,
     setApprovedFilter,
     setRatingFilter,
     setWorkloadRatingFilter,
     setHasCommentFilter,
     setSchoolYearFilter,
+    setAuthorFilter,
     resetAll
   }
 }

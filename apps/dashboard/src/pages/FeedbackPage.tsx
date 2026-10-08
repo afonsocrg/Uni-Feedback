@@ -1,12 +1,14 @@
 import { PaginationControls } from '@components'
-import { useAdminFilters, useFeedbackFilters } from '@hooks'
+import { useAdminFilters, useDebounced, useFeedbackFilters } from '@hooks'
 import { useQuery } from '@tanstack/react-query'
 import {
   exportFeedbackCsv,
   getAdminCoursesNew,
   getAdminFeedbackNew,
+  getAdminUserDetails,
   getDegreeSuggestions,
   getFaculties,
+  searchAdminUsers,
   type AdminFeedbackQuery,
   type FeedbackExportFilters
 } from '@uni-feedback/api-client'
@@ -45,13 +47,14 @@ import {
 } from '@uni-feedback/ui'
 import { getCurrentSchoolYear } from '@uni-feedback/utils'
 import { Check, ChevronsUpDown, Download, MessageSquare, X } from 'lucide-react'
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { downloadBlob } from '../utils/download'
 import { markdownToText } from '../utils/markdownToText'
 
 export function FeedbackPage() {
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
 
   // Local state for pagination and filters
   const [page, setPage] = useState(1)
@@ -71,13 +74,31 @@ export function FeedbackPage() {
     workloadRatingFilter,
     hasCommentFilter,
     schoolYearFilter,
+    authorFilter,
     setApprovedFilter,
     setRatingFilter,
     setWorkloadRatingFilter,
     setHasCommentFilter,
     setSchoolYearFilter,
+    setAuthorFilter,
     resetAll: resetFeedbackFilters
   } = useFeedbackFilters()
+
+  // A user page deep-links here with ?user_id=. Move it into the persisted
+  // filter and drop it from the URL so a later visit is not stuck on it.
+  const urlAuthorId = searchParams.get('user_id')
+  useEffect(() => {
+    if (urlAuthorId === null) return
+    const parsed = parseInt(urlAuthorId, 10)
+    if (!isNaN(parsed)) {
+      setAuthorFilter(parsed)
+      setPage(1)
+    }
+    const next = new URLSearchParams(searchParams)
+    next.delete('user_id')
+    setSearchParams(next, { replace: true })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [urlAuthorId])
 
   const [isExporting, setIsExporting] = useState(false)
 
@@ -86,6 +107,9 @@ export function FeedbackPage() {
   const selectedCourseId = courseId?.toString() ?? 'all'
   const [degreePopoverOpen, setDegreePopoverOpen] = useState(false)
   const [coursePopoverOpen, setCoursePopoverOpen] = useState(false)
+  const [authorPopoverOpen, setAuthorPopoverOpen] = useState(false)
+  const [authorSearch, setAuthorSearch] = useState('')
+  const debouncedAuthorSearch = useDebounced(authorSearch, 300)
 
   // Build query object using debounced search and current filters
   const query: AdminFeedbackQuery = {
@@ -112,7 +136,8 @@ export function FeedbackPage() {
     }),
     ...(schoolYearFilter !== 'all' && {
       school_year: parseInt(schoolYearFilter, 10)
-    })
+    }),
+    ...(authorFilter !== null && { user_id: authorFilter })
   }
 
   // Fetch data
@@ -145,6 +170,22 @@ export function FeedbackPage() {
         limit: 1000 // Get all courses for the degree
       }),
     enabled: degreeId !== null
+  })
+
+  // Server-side search so the popover never has to hold every account.
+  // Only fetched while the popover is open.
+  const { data: authorOptions = [], isFetching: authorsLoading } = useQuery({
+    queryKey: ['admin-user-search', debouncedAuthorSearch],
+    queryFn: () => searchAdminUsers(debouncedAuthorSearch),
+    enabled: authorPopoverOpen,
+    placeholderData: (previous) => previous
+  })
+
+  // Label for the active author filter, independent of the search results.
+  const { data: selectedAuthor } = useQuery({
+    queryKey: ['user-details', authorFilter],
+    queryFn: () => getAdminUserDetails(authorFilter as number),
+    enabled: authorFilter !== null
   })
 
   const feedback = feedbackResponse?.data || []
@@ -198,12 +239,20 @@ export function FeedbackPage() {
     setPage(1)
   }
 
+  const handleAuthorChange = (userId: number | null) => {
+    setAuthorFilter(userId)
+    setAuthorPopoverOpen(false)
+    setAuthorSearch('')
+    setPage(1)
+  }
+
   // Handle clear all filters
   const handleClearFilters = () => {
     resetAdminFilters()
     resetFeedbackFilters()
     setDegreePopoverOpen(false)
     setCoursePopoverOpen(false)
+    setAuthorPopoverOpen(false)
     setPage(1)
   }
 
@@ -222,19 +271,9 @@ export function FeedbackPage() {
     navigate(`/feedback/${feedbackId}`)
   }
 
-  const handleFacultyClick = (e: React.MouseEvent, facultyId: number) => {
+  const handleAuthorClick = (e: React.MouseEvent, userId: number) => {
     e.stopPropagation()
-    navigate(`/faculties/${facultyId}`)
-  }
-
-  const handleDegreeClick = (e: React.MouseEvent, degreeId: number) => {
-    e.stopPropagation()
-    navigate(`/degrees/${degreeId}`)
-  }
-
-  const handleCourseClick = (e: React.MouseEvent, courseId: number) => {
-    e.stopPropagation()
-    navigate(`/courses/${courseId}`)
+    navigate(`/users/${userId}`)
   }
 
   const handleExportCsv = async () => {
@@ -254,6 +293,7 @@ export function FeedbackPage() {
         ...(hasCommentFilter !== 'all' && {
           has_comment: hasCommentFilter === 'with'
         }),
+        ...(authorFilter !== null && { user_id: authorFilter }),
         ...(approvedFilter === 'all'
           ? { is_approved: null }
           : approvedFilter === 'approved'
@@ -276,7 +316,8 @@ export function FeedbackPage() {
     ratingFilter !== 'all' ||
     workloadRatingFilter !== 'all' ||
     hasCommentFilter !== 'all' ||
-    schoolYearFilter !== 'all'
+    schoolYearFilter !== 'all' ||
+    authorFilter !== null
 
   const currentSchoolYear = getCurrentSchoolYear()
   const schoolYearOptions = Array.from(
@@ -586,7 +627,104 @@ export function FeedbackPage() {
                   <SelectItem value="pending">Not Approved</SelectItem>
                 </SelectContent>
               </Select>
+
+              <Popover
+                open={authorPopoverOpen}
+                onOpenChange={(open) => {
+                  setAuthorPopoverOpen(open)
+                  if (!open) setAuthorSearch('')
+                }}
+              >
+                {/* The clear button sits beside the trigger, not inside it:
+                    a button inside a button is invalid HTML. */}
+                <div className="flex w-full sm:w-64">
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={authorPopoverOpen}
+                      className={cn(
+                        'flex-1 min-w-0 justify-between font-normal',
+                        authorFilter !== null && 'rounded-r-none border-r-0'
+                      )}
+                    >
+                      <span className="truncate">
+                        {authorFilter === null
+                          ? 'All authors'
+                          : (selectedAuthor?.email ?? `User #${authorFilter}`)}
+                      </span>
+                      <ChevronsUpDown className="opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  {authorFilter !== null && (
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="rounded-l-none shrink-0"
+                      onClick={() => handleAuthorChange(null)}
+                      aria-label="Clear author filter"
+                      title="Clear author filter"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+                <PopoverContent className="w-[360px] p-0">
+                  {/* shouldFilter off: the API already did the matching */}
+                  <Command shouldFilter={false}>
+                    <CommandInput
+                      placeholder="Search by email or name..."
+                      className="h-9"
+                      value={authorSearch}
+                      onValueChange={setAuthorSearch}
+                    />
+                    <CommandList>
+                      <CommandEmpty>
+                        {authorsLoading ? 'Searching...' : 'No users found.'}
+                      </CommandEmpty>
+                      <CommandGroup>
+                        {authorOptions.map((author) => (
+                          <CommandItem
+                            value={author.id.toString()}
+                            key={author.id}
+                            onSelect={() => handleAuthorChange(author.id)}
+                          >
+                            <div className="min-w-0">
+                              <p className="truncate">{author.email}</p>
+                              <p className="text-xs text-muted-foreground truncate">
+                                {author.username}
+                              </p>
+                            </div>
+                            <Check
+                              className={cn(
+                                'ml-auto shrink-0',
+                                author.id === authorFilter
+                                  ? 'opacity-100'
+                                  : 'opacity-0'
+                              )}
+                            />
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
+
+            {authorFilter !== null && (
+              <p className="text-xs text-muted-foreground">
+                Showing feedback submitted from{' '}
+                <button
+                  type="button"
+                  className="underline hover:text-foreground"
+                  onClick={() => navigate(`/users/${authorFilter}`)}
+                >
+                  {selectedAuthor?.email ?? `user #${authorFilter}`}
+                </button>
+                . Legacy email-only submissions are not included.
+              </p>
+            )}
 
             <div className="flex flex-wrap gap-2 pt-2">
               <Button
@@ -645,10 +783,9 @@ export function FeedbackPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Faculty</TableHead>
-                      <TableHead>Degree</TableHead>
                       <TableHead>Course</TableHead>
                       <TableHead>School Year</TableHead>
+                      <TableHead>Author</TableHead>
                       <TableHead>Ratings</TableHead>
                       <TableHead>Comment</TableHead>
                       <TableHead className="text-center">Approved</TableHead>
@@ -661,37 +798,61 @@ export function FeedbackPage() {
                         className="cursor-pointer hover:bg-muted/50"
                         onClick={() => handleFeedbackClick(feedbackItem.id)}
                       >
-                        <TableCell>
-                          <Chip
-                            label={feedbackItem.facultyShortName}
-                            onClick={(e) =>
-                              handleFacultyClick(e, feedbackItem.facultyId)
-                            }
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Chip
-                            label={feedbackItem.degreeAcronym}
-                            onClick={(e) =>
-                              handleDegreeClick(e, feedbackItem.degreeId)
-                            }
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Chip
-                            label={feedbackItem.courseAcronym}
-                            onClick={(e) =>
-                              handleCourseClick(e, feedbackItem.courseId)
-                            }
-                          />
+                        <TableCell className="min-w-[260px] max-w-[420px]">
+                          {/* Full names, one column. The row click opens the
+                              feedback; the parts themselves are not links. */}
+                          <p className="text-sm">
+                            <span className="text-muted-foreground">
+                              {feedbackItem.facultyName}
+                            </span>
+                            <span className="text-muted-foreground mx-1.5">
+                              ›
+                            </span>
+                            <span className="text-muted-foreground">
+                              {feedbackItem.degreeName}
+                            </span>
+                            <span className="text-muted-foreground mx-1.5">
+                              ›
+                            </span>
+                            <span className="font-medium">
+                              {feedbackItem.courseName}
+                            </span>
+                          </p>
                         </TableCell>
                         <TableCell>
                           {feedbackItem.schoolYear ? (
                             <Chip
+                              color="white"
                               label={`${feedbackItem.schoolYear}/${feedbackItem.schoolYear + 1}`}
                             />
                           ) : (
                             <span className="text-muted-foreground">-</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="max-w-[240px]">
+                          {feedbackItem.userId !== null ? (
+                            <Chip
+                              color="white"
+                              label={
+                                feedbackItem.userEmail ??
+                                feedbackItem.email ??
+                                `User #${feedbackItem.userId}`
+                              }
+                              className="max-w-full truncate cursor-pointer hover:bg-muted transition-colors"
+                              onClick={(e) =>
+                                handleAuthorClick(e, feedbackItem.userId!)
+                              }
+                            />
+                          ) : feedbackItem.email ? (
+                            <Chip
+                              color="white"
+                              label={feedbackItem.email}
+                              className="max-w-full truncate text-muted-foreground"
+                            />
+                          ) : (
+                            <span className="text-sm text-muted-foreground">
+                              Anonymous
+                            </span>
                           )}
                         </TableCell>
                         <TableCell>

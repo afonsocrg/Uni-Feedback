@@ -6,7 +6,8 @@ import {
   faculties,
   feedback,
   feedbackAnalysis,
-  pointRegistry
+  pointRegistry,
+  users
 } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
 import { and, count, desc, eq, gt, isNotNull, isNull, sql } from 'drizzle-orm'
@@ -26,6 +27,10 @@ const FeedbackQuerySchema = PaginationQuerySchema.extend({
     .optional()
     .transform((val) => (val ? parseInt(val, 10) : undefined)),
   email: z.string().optional(),
+  user_id: z
+    .string()
+    .optional()
+    .transform((val) => (val ? parseInt(val, 10) : undefined)),
   approved: z
     .string()
     .optional()
@@ -63,6 +68,9 @@ const FeedbackQuerySchema = PaginationQuerySchema.extend({
 
 const AdminFeedbackSchema = z.object({
   id: z.number(),
+  userId: z.number().nullable(),
+  // Current email of the linked account; null for legacy email-only rows
+  userEmail: z.string().nullable(),
   email: z.string().nullable(),
   schoolYear: z.number().nullable(),
   rating: z.number(),
@@ -134,6 +142,7 @@ export class GetFeedback extends OpenAPIRoute {
       degree_id,
       faculty_id,
       email,
+      user_id,
       approved,
       rating,
       workload_rating,
@@ -162,6 +171,12 @@ export class GetFeedback extends OpenAPIRoute {
       conditions.push(
         sql`LOWER(${feedback.email}) LIKE ${`%${email.toLowerCase()}%`}`
       )
+    }
+
+    // Author filter only matches feedback linked to an account. Legacy
+    // email-only submissions have no user_id and are intentionally skipped.
+    if (user_id !== undefined) {
+      conditions.push(eq(feedback.userId, user_id))
     }
 
     if (approved !== undefined) {
@@ -236,6 +251,8 @@ export class GetFeedback extends OpenAPIRoute {
     const feedbackResult = await database()
       .select({
         id: feedback.id,
+        userId: feedback.userId,
+        userEmail: users.email,
         email: feedback.email,
         schoolYear: feedback.schoolYear,
         rating: feedback.rating,
@@ -274,6 +291,7 @@ export class GetFeedback extends OpenAPIRoute {
           eq(pointRegistry.sourceType, 'submit_feedback')
         )
       )
+      .leftJoin(users, eq(feedback.userId, users.id))
       .where(whereClause)
       .orderBy(desc(feedback.createdAt))
       .limit(limit)
@@ -282,6 +300,8 @@ export class GetFeedback extends OpenAPIRoute {
     const response = {
       data: feedbackResult.map((fb) => ({
         id: fb.id,
+        userId: fb.userId,
+        userEmail: fb.userEmail,
         email: fb.email,
         schoolYear: fb.schoolYear,
         rating: fb.rating,

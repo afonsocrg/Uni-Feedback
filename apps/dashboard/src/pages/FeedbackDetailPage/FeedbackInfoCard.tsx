@@ -156,12 +156,31 @@ export function FeedbackInfoCard({ feedback }: FeedbackInfoCardProps) {
               </dd>
             </div>
 
-            {/* Email (non-editable) */}
+            {/* Author (non-editable). Linked accounts go to the user page;
+                legacy rows only carry the email they were submitted with. */}
             <div className="space-y-2">
-              <dt className="font-medium text-sm">Email</dt>
-              <dd className="text-sm">
-                {feedback.email ? (
-                  <Badge variant="outline">{feedback.email}</Badge>
+              <dt className="font-medium text-sm">Author</dt>
+              <dd className="text-sm flex items-center gap-2 flex-wrap">
+                {feedback.userId !== null ? (
+                  <>
+                    <Chip
+                      label={feedback.userEmail ?? feedback.email ?? 'Unknown'}
+                      className="cursor-pointer hover:opacity-80 transition-opacity"
+                      onClick={() => navigate(`/users/${feedback.userId}`)}
+                    />
+                    {feedback.userName && (
+                      <span className="text-muted-foreground">
+                        {feedback.userName}
+                      </span>
+                    )}
+                  </>
+                ) : feedback.email ? (
+                  <>
+                    <Badge variant="outline">{feedback.email}</Badge>
+                    <span className="text-muted-foreground text-xs">
+                      email only, no account
+                    </span>
+                  </>
                 ) : (
                   <span className="text-muted-foreground">Anonymous</span>
                 )}

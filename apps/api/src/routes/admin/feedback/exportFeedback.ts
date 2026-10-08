@@ -26,7 +26,8 @@ const ExportFiltersSchema = z.object({
   has_comment: z.boolean().optional(),
   is_approved: z.boolean().nullable().optional(),
   created_after: z.string().optional(),
-  created_before: z.string().optional()
+  created_before: z.string().optional(),
+  user_id: z.number().optional()
 })
 
 const ExportFeedbackBodySchema = z.object({
@@ -137,6 +138,10 @@ function generateFilename(
     parts.push(`before-${date}`)
   }
 
+  if (filters.user_id !== undefined) {
+    parts.push(`user-${filters.user_id}`)
+  }
+
   // Terms filter
   if (filters.terms && filters.terms.length > 0) {
     const termsList = filters.terms.map((t: string) => slugify(t)).join('-')
@@ -195,7 +200,8 @@ export class ExportFeedback extends OpenAPIRoute {
       has_comment,
       is_approved,
       created_after,
-      created_before
+      created_before,
+      user_id
     } = filters
 
     // Fetch resource names for filename and notification
@@ -269,6 +275,10 @@ export class ExportFeedback extends OpenAPIRoute {
 
     if (faculty_id !== undefined) {
       conditions.push(eq(degrees.facultyId, faculty_id))
+    }
+
+    if (user_id !== undefined) {
+      conditions.push(eq(feedback.userId, user_id))
     }
 
     // Approval filter: null = all, true = approved only (default), false = pending only

@@ -140,7 +140,12 @@ export function ChatDetailPage() {
             <dl className="grid grid-cols-[max-content_1fr] gap-x-6 gap-y-2 text-sm">
               <dt className="text-muted-foreground">User</dt>
               <dd>
-                {chat.userEmail}
+                <Link
+                  className="text-primaryBlue hover:underline"
+                  to={`/users/${chat.userId}`}
+                >
+                  {chat.userEmail}
+                </Link>
                 <span className="text-muted-foreground">
                   {' '}
                   · {chat.userName}

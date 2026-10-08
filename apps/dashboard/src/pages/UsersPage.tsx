@@ -19,9 +19,11 @@ import {
 import { initCap } from '@uni-feedback/utils'
 import { Ellipsis, Plus, Search, Shield, Users } from 'lucide-react'
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { InviteUserDialog } from '../components/InviteUserDialog'
 
 export function UsersPage() {
+  const navigate = useNavigate()
   const [searchTerm, setSearchTerm] = useState('')
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false)
 
@@ -147,7 +149,11 @@ export function UsersPage() {
                 </TableHeader>
                 <TableBody>
                   {filteredUsers.map((user) => (
-                    <TableRow key={user.id}>
+                    <TableRow
+                      key={user.id}
+                      className="cursor-pointer hover:bg-muted/50"
+                      onClick={() => navigate(`/users/${user.id}`)}
+                    >
                       <TableCell className="font-medium">
                         {user.username}
                       </TableCell>
@@ -169,8 +175,14 @@ export function UsersPage() {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          {/* Placeholder for future actions */}
-                          <Button variant="ghost" size="sm" disabled>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              navigate(`/users/${user.id}`)
+                            }}
+                          >
                             <Ellipsis />
                           </Button>
                         </div>

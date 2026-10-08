@@ -1,0 +1,105 @@
+import { useQuery } from '@tanstack/react-query'
+import {
+  getAdminUserDetails,
+  type AdminUserDetail
+} from '@uni-feedback/api-client'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger
+} from '@uni-feedback/ui'
+import { Bot, MessageSquare, User } from 'lucide-react'
+import { useState } from 'react'
+import { useParams } from 'react-router-dom'
+import { InvalidIdError } from '../../components/InvalidIdError'
+import { QueryError } from '../../components/QueryError'
+import { UserChatsTabContent } from './UserChatsTabContent'
+import { UserDetailPageSkeleton } from './UserDetailPageSkeleton'
+import { UserFeedbackTabContent } from './UserFeedbackTabContent'
+import { UserInfoCard } from './UserInfoCard'
+
+function getTabTitle(activeTab: string, user: AdminUserDetail): string {
+  switch (activeTab) {
+    case 'chats':
+      return `AI Chats ${user.chatCount ? `(${user.chatCount})` : ''}`
+    default:
+      return `Feedback ${user.feedbackCount ? `(${user.feedbackCount})` : ''}`
+  }
+}
+
+export function UserDetailPage() {
+  const { id } = useParams<{ id: string }>()
+  const [activeTab, setActiveTab] = useState('feedback')
+
+  const userId = id ? parseInt(id, 10) : 0
+
+  const {
+    data: user,
+    isLoading,
+    error,
+    refetch
+  } = useQuery({
+    queryKey: ['user-details', userId],
+    queryFn: () => getAdminUserDetails(userId),
+    enabled: !!userId
+  })
+
+  if (!userId) {
+    return <InvalidIdError entityType="user" />
+  }
+
+  if (error) {
+    return (
+      <QueryError entityType="user" error={error} onRetry={() => refetch()} />
+    )
+  }
+
+  if (isLoading || !user) {
+    return <UserDetailPageSkeleton />
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="space-y-4">
+        <div className="flex items-center gap-2 text-primaryBlue">
+          <User className="h-6 w-6" />
+          <h1 className="text-2xl font-bold">{user.username}</h1>
+        </div>
+      </div>
+
+      <UserInfoCard user={user} />
+
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList>
+          <TabsTrigger value="feedback">
+            <MessageSquare className="h-4 w-4" />
+            <span>Feedback</span>
+          </TabsTrigger>
+          <TabsTrigger value="chats">
+            <Bot className="h-4 w-4" />
+            <span>AI Chats</span>
+          </TabsTrigger>
+        </TabsList>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>{getTabTitle(activeTab, user)}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <TabsContent value="feedback" className="space-y-4">
+              <UserFeedbackTabContent userId={userId} />
+            </TabsContent>
+            <TabsContent value="chats" className="space-y-4">
+              <UserChatsTabContent userId={userId} />
+            </TabsContent>
+          </CardContent>
+        </Card>
+      </Tabs>
+    </div>
+  )
+}
