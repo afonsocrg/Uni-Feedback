@@ -81,11 +81,11 @@ export function UserDetailPage() {
         <TabsList>
           <TabsTrigger value="feedback">
             <MessageSquare className="h-4 w-4" />
-            <span>Feedback</span>
+            <span>Feedback ({user.feedbackCount})</span>
           </TabsTrigger>
           <TabsTrigger value="chats">
             <Bot className="h-4 w-4" />
-            <span>AI Chats</span>
+            <span>AI Chats ({user.chatCount})</span>
           </TabsTrigger>
           <TabsTrigger value="referrals">
             <UserPlus className="h-4 w-4" />
