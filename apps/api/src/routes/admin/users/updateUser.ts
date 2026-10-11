@@ -1,4 +1,4 @@
-import { requireAdmin, requireSuperuser } from '@middleware'
+import { requireAdmin } from '@middleware'
 import {
   AlreadyExistsError,
   BadRequestError,
@@ -25,7 +25,7 @@ const UserUpdateBodySchema = z.object({
     .transform((val) => val.replace(/^@/, ''))
     .nullable()
     .optional(),
-  // Changing a role is a privilege change, so it is superuser-only below.
+  // Nobody can change their own role, see the handler.
   role: z.enum(['student', 'admin', 'super_admin']).optional()
 })
 
@@ -44,7 +44,7 @@ export class UpdateUser extends OpenAPIRoute {
     tags: ['Admin - Users'],
     summary: 'Update user information',
     description:
-      'Update the basic account fields of a user. Changing the role requires a superuser.',
+      'Update the basic account fields of a user. Superuser only, like every /admin/users route.',
     request: {
       params: UserUpdateParamsSchema,
       body: {
@@ -106,11 +106,8 @@ export class UpdateUser extends OpenAPIRoute {
       throw new BadRequestError('No update fields provided')
     }
 
-    if (updates.role !== undefined) {
-      await requireSuperuser(c)
-      if (userId === authContext.user.id) {
-        throw new BadRequestError('You cannot change your own role')
-      }
+    if (updates.role !== undefined && userId === authContext.user.id) {
+      throw new BadRequestError('You cannot change your own role')
     }
 
     const [existing] = await database()

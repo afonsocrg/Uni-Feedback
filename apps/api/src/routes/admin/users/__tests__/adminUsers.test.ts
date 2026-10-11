@@ -120,7 +120,7 @@ describe('Admin user routes', () => {
     it('returns account fields with feedback counts and the referrer', async () => {
       await withTestDb(async () => {
         const { student, referrer } = await seed()
-        const { cookie } = await createAuthenticatedUser('admin')
+        const { cookie } = await createAuthenticatedUser('super_admin')
 
         const res = await app.request(
           `/admin/users/${student.id}`,
@@ -142,22 +142,38 @@ describe('Admin user routes', () => {
       })
     })
 
-    it('is admin-level, not superuser-only', async () => {
+    it('is superuser-only, like every /admin/users route', async () => {
       await withTestDb(async () => {
         const { student } = await seed()
-        const { cookie } = await createAuthenticatedUser('admin')
-        const res = await app.request(
-          `/admin/users/${student.id}`,
-          { headers: { Cookie: cookie } },
-          testEnv
-        )
-        expect(res.status).toBe(200)
+        const admin = await createAuthenticatedUser('admin')
+        const headers = { Cookie: admin.cookie }
+        const forbidden: [string, string][] = [
+          ['GET', '/admin/users'],
+          ['GET', '/admin/users/search?q=a'],
+          ['GET', `/admin/users/${student.id}`],
+          ['PUT', `/admin/users/${student.id}`],
+          ['GET', `/admin/users/${student.id}/referrals`],
+          ['GET', `/admin/users/${student.id}/chat-stats`]
+        ]
+        for (const [method, path] of forbidden) {
+          const res = await app.request(
+            path,
+            {
+              method,
+              headers: { ...headers, 'Content-Type': 'application/json' },
+              body:
+                method === 'PUT' ? JSON.stringify({ username: 'x' }) : undefined
+            },
+            testEnv
+          )
+          expect(res.status, `${method} ${path}`).toBe(403)
+        }
       })
     })
 
     it('404s for a missing user', async () => {
       await withTestDb(async () => {
-        const { cookie } = await createAuthenticatedUser('admin')
+        const { cookie } = await createAuthenticatedUser('super_admin')
         const res = await app.request(
           '/admin/users/999999',
           { headers: { Cookie: cookie } },
@@ -180,10 +196,10 @@ describe('Admin user routes', () => {
         testEnv
       )
 
-    it('lets an admin edit username, email and instagram', async () => {
+    it('edits username, email and instagram', async () => {
       await withTestDb(async () => {
         const { student } = await seed()
-        const { cookie } = await createAuthenticatedUser('admin')
+        const { cookie } = await createAuthenticatedUser('super_admin')
 
         const res = await put(cookie, student.id, {
           username: 'Alice S.',
@@ -208,7 +224,7 @@ describe('Admin user routes', () => {
     it('clears instagram with null or an empty string', async () => {
       await withTestDb(async () => {
         const { student } = await seed()
-        const { cookie } = await createAuthenticatedUser('admin')
+        const { cookie } = await createAuthenticatedUser('super_admin')
         expect(
           (await put(cookie, student.id, { instagramHandle: '' })).status
         ).toBe(200)
@@ -223,7 +239,7 @@ describe('Admin user routes', () => {
     it('rejects an email another account already uses', async () => {
       await withTestDb(async () => {
         const { student, referrer } = await seed()
-        const { cookie } = await createAuthenticatedUser('admin')
+        const { cookie } = await createAuthenticatedUser('super_admin')
         const res = await put(cookie, student.id, { email: referrer.email })
         expect(res.status).toBe(409)
       })
@@ -232,7 +248,7 @@ describe('Admin user routes', () => {
     it('rejects an empty body and an invalid email', async () => {
       await withTestDb(async () => {
         const { student } = await seed()
-        const { cookie } = await createAuthenticatedUser('admin')
+        const { cookie } = await createAuthenticatedUser('super_admin')
         expect((await put(cookie, student.id, {})).status).toBe(400)
         expect(
           (await put(cookie, student.id, { email: 'not-an-email' })).status
@@ -240,15 +256,9 @@ describe('Admin user routes', () => {
       })
     })
 
-    it('only a superuser can change a role', async () => {
+    it('changes the role and keeps the legacy superuser flag in step', async () => {
       await withTestDb(async () => {
         const { student } = await seed()
-        const admin = await createAuthenticatedUser('admin')
-        const forbidden = await put(admin.cookie, student.id, {
-          role: 'admin'
-        })
-        expect(forbidden.status).toBe(403)
-
         const su = await createAuthenticatedUser('super_admin')
         const ok = await put(su.cookie, student.id, { role: 'admin' })
         expect(ok.status).toBe(200)
@@ -294,7 +304,7 @@ describe('Admin user routes', () => {
     it("sums only that user's chats, deleted ones included", async () => {
       await withTestDb(async () => {
         const { student } = await seed()
-        const { cookie } = await createAuthenticatedUser('admin')
+        const { cookie } = await createAuthenticatedUser('super_admin')
 
         const res = await app.request(
           `/admin/users/${student.id}/chat-stats`,
@@ -340,7 +350,7 @@ describe('Admin user routes', () => {
     it('lists referred accounts with their feedback counts', async () => {
       await withTestDb(async () => {
         const { student, referrer } = await seed()
-        const { cookie } = await createAuthenticatedUser('admin')
+        const { cookie } = await createAuthenticatedUser('super_admin')
 
         const detail = await json(
           await app.request(
@@ -388,11 +398,11 @@ describe('Admin user routes', () => {
   })
 
   describe('GET /admin/users/search', () => {
-    it('matches email or username case-insensitively and is admin-level', async () => {
+    it('matches email or username case-insensitively', async () => {
       await withTestDb(async () => {
         const { student, referrer } = await seed()
         await createUser({ email: 'gone@deleted.local', username: 'gone' })
-        const { cookie } = await createAuthenticatedUser('admin')
+        const { cookie } = await createAuthenticatedUser('super_admin')
 
         const get = async (q: string) =>
           (
@@ -434,7 +444,7 @@ describe('Admin user routes', () => {
         for (let i = 0; i < 5; i++) {
           await createUser({ email: `bulk${i}@example.com` })
         }
-        const { cookie } = await createAuthenticatedUser('admin')
+        const { cookie } = await createAuthenticatedUser('super_admin')
         const res = await app.request(
           '/admin/users/search?q=bulk&limit=2',
           { headers: { Cookie: cookie } },
@@ -449,7 +459,7 @@ describe('Admin user routes', () => {
     it('returns only account-linked rows for that user and exposes userId', async () => {
       await withTestDb(async () => {
         const { student, approved, pending, legacy } = await seed()
-        const { cookie } = await createAuthenticatedUser('admin')
+        const { cookie } = await createAuthenticatedUser('super_admin')
 
         const res = await app.request(
           `/admin/feedback?user_id=${student.id}`,
@@ -488,7 +498,7 @@ describe('Admin user routes', () => {
     it("returns only that user's chats, deleted ones included", async () => {
       await withTestDb(async () => {
         const { student, studentChat, deletedChat } = await seed()
-        const { cookie } = await createAuthenticatedUser('admin')
+        const { cookie } = await createAuthenticatedUser('super_admin')
 
         const body = await json(
           await app.request(
@@ -518,7 +528,7 @@ describe('Admin user routes', () => {
     it('carries the linked account email and name, null for legacy rows', async () => {
       await withTestDb(async () => {
         const { student, approved, legacy } = await seed()
-        const { cookie } = await createAuthenticatedUser('admin')
+        const { cookie } = await createAuthenticatedUser('super_admin')
 
         const linked = await json(
           await app.request(

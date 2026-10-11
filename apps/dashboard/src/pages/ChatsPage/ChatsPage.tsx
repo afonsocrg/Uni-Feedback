@@ -1,5 +1,5 @@
 import { PaginationControls } from '@components'
-import { useDebouncedSearch } from '@hooks'
+import { useAuth, useDebouncedSearch } from '@hooks'
 import { useQuery } from '@tanstack/react-query'
 import {
   getAdminChats,
@@ -37,6 +37,8 @@ type RatingFilter = 'all' | 'not_helpful' | 'helpful' | 'none'
 
 export function ChatsPage() {
   const navigate = useNavigate()
+  const { user: viewer } = useAuth()
+  const canOpenUsers = viewer?.role === 'super_admin'
 
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(20)
@@ -194,6 +196,7 @@ export function ChatsPage() {
                       <ChatRow
                         key={chat.id}
                         chat={chat}
+                        canOpenUsers={canOpenUsers}
                         onOpen={() => navigate(`/chats/${chat.id}`)}
                       />
                     ))}
@@ -222,9 +225,12 @@ export function ChatsPage() {
 
 function ChatRow({
   chat,
+  canOpenUsers,
   onOpen
 }: {
   chat: AdminChatSummary
+  /** User pages are superuser-only; others see the email as plain text */
+  canOpenUsers: boolean
   onOpen: () => void
 }) {
   const contextParts = [
@@ -264,14 +270,20 @@ function ChatRow({
         )}
       </TableCell>
       <TableCell className="text-sm whitespace-nowrap">
-        <Link
-          to={`/users/${chat.userId}`}
-          className="text-muted-foreground hover:text-primaryBlue hover:underline"
-          title={chat.userName}
-          onClick={(e) => e.stopPropagation()}
-        >
-          {chat.userEmail}
-        </Link>
+        {canOpenUsers ? (
+          <Link
+            to={`/users/${chat.userId}`}
+            className="text-muted-foreground hover:text-primaryBlue hover:underline"
+            title={chat.userName}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {chat.userEmail}
+          </Link>
+        ) : (
+          <span className="text-muted-foreground" title={chat.userName}>
+            {chat.userEmail}
+          </span>
+        )}
       </TableCell>
       <TableCell className="text-sm whitespace-nowrap">
         {contextParts.length > 0 ? (

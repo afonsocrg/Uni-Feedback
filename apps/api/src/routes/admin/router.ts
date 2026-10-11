@@ -1,5 +1,6 @@
-import { requireAdmin } from '@middleware'
+import { requireAdmin, requireSuperuser } from '@middleware'
 import { fromHono } from 'chanfana'
+import type { Context, Next } from 'hono'
 import { Hono } from 'hono'
 import { GetFacultyDetails } from '../faculties'
 import { ProcessAudio, SubmitAudioFeedback } from './audioFeedback'
@@ -58,6 +59,15 @@ app.use('*', async (c, next) => {
   await next()
 })
 
+// Accounts are superuser territory: listing, reading, searching and editing
+// users, and the per-user feedback, chat and referral views.
+const superuserOnly = async (c: Context, next: Next) => {
+  await requireSuperuser(c)
+  await next()
+}
+app.use('/users', superuserOnly)
+app.use('/users/*', superuserOnly)
+
 const router = fromHono(app, { passthroughErrors: true })
 
 // Faculty routes
@@ -115,8 +125,7 @@ router.post('/reports/degree', GenerateDegreeReport)
 // Stats routes
 router.post('/stats/refresh', RefreshStats)
 
-// User routes. The list stays superuser-only (inside GetUsers); a single
-// user's page is admin-level because feedback pages link to it.
+// User routes (all superuser-only, see the middleware above)
 router.get('/users', GetUsers)
 router.get('/users/search', SearchUsers) // Before `/users/:id` so "search" is not parsed as an id
 router.get('/users/:id', GetUserDetails)

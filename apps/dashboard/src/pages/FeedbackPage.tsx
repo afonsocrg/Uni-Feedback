@@ -1,5 +1,10 @@
 import { PaginationControls } from '@components'
-import { useAdminFilters, useDebounced, useFeedbackFilters } from '@hooks'
+import {
+  useAdminFilters,
+  useAuth,
+  useDebounced,
+  useFeedbackFilters
+} from '@hooks'
 import { useQuery } from '@tanstack/react-query'
 import {
   exportFeedbackCsv,
@@ -55,6 +60,11 @@ import { markdownToText } from '../utils/markdownToText'
 export function FeedbackPage() {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
+  const { user: viewer } = useAuth()
+  // /admin/users/* is superuser-only, so only superusers get the author
+  // picker (it searches users) and the author links. Admins can still land
+  // here with ?user_id= and clear the filter.
+  const isSuperuser = viewer?.role === 'super_admin'
 
   // Local state for pagination and filters
   const [page, setPage] = useState(1)
@@ -177,7 +187,7 @@ export function FeedbackPage() {
   const { data: authorOptions = [], isFetching: authorsLoading } = useQuery({
     queryKey: ['admin-user-search', debouncedAuthorSearch],
     queryFn: () => searchAdminUsers(debouncedAuthorSearch),
-    enabled: authorPopoverOpen,
+    enabled: authorPopoverOpen && isSuperuser,
     placeholderData: (previous) => previous
   })
 
@@ -185,7 +195,7 @@ export function FeedbackPage() {
   const { data: selectedAuthor } = useQuery({
     queryKey: ['user-details', authorFilter],
     queryFn: () => getAdminUserDetails(authorFilter as number),
-    enabled: authorFilter !== null
+    enabled: authorFilter !== null && isSuperuser
   })
 
   const feedback = feedbackResponse?.data || []
@@ -628,100 +638,123 @@ export function FeedbackPage() {
                 </SelectContent>
               </Select>
 
-              <Popover
-                open={authorPopoverOpen}
-                onOpenChange={(open) => {
-                  setAuthorPopoverOpen(open)
-                  if (!open) setAuthorSearch('')
-                }}
-              >
-                {/* The clear button sits beside the trigger, not inside it:
-                    a button inside a button is invalid HTML. */}
-                <div className="flex w-full sm:w-64">
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={authorPopoverOpen}
-                      className={cn(
-                        'flex-1 min-w-0 justify-between font-normal',
-                        authorFilter !== null && 'rounded-r-none border-r-0'
-                      )}
-                    >
-                      <span className="truncate">
-                        {authorFilter === null
-                          ? 'All authors'
-                          : (selectedAuthor?.email ?? `User #${authorFilter}`)}
-                      </span>
-                      <ChevronsUpDown className="opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  {authorFilter !== null && (
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="rounded-l-none shrink-0"
-                      onClick={() => handleAuthorChange(null)}
-                      aria-label="Clear author filter"
-                      title="Clear author filter"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-                <PopoverContent className="w-[360px] p-0">
-                  {/* shouldFilter off: the API already did the matching */}
-                  <Command shouldFilter={false}>
-                    <CommandInput
-                      placeholder="Search by email or name..."
-                      className="h-9"
-                      value={authorSearch}
-                      onValueChange={setAuthorSearch}
-                    />
-                    <CommandList>
-                      <CommandEmpty>
-                        {authorsLoading ? 'Searching...' : 'No users found.'}
-                      </CommandEmpty>
-                      <CommandGroup>
-                        {authorOptions.map((author) => (
-                          <CommandItem
-                            value={author.id.toString()}
-                            key={author.id}
-                            onSelect={() => handleAuthorChange(author.id)}
-                          >
-                            <div className="min-w-0">
-                              <p className="truncate">{author.email}</p>
-                              <p className="text-xs text-muted-foreground truncate">
-                                {author.username}
-                              </p>
-                            </div>
-                            <Check
-                              className={cn(
-                                'ml-auto shrink-0',
-                                author.id === authorFilter
-                                  ? 'opacity-100'
-                                  : 'opacity-0'
-                              )}
-                            />
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
+              {isSuperuser ? (
+                <Popover
+                  open={authorPopoverOpen}
+                  onOpenChange={(open) => {
+                    setAuthorPopoverOpen(open)
+                    if (!open) setAuthorSearch('')
+                  }}
+                >
+                  {/* The clear button sits beside the trigger, not inside it:
+                      a button inside a button is invalid HTML. */}
+                  <div className="flex w-full sm:w-64">
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={authorPopoverOpen}
+                        className={cn(
+                          'flex-1 min-w-0 justify-between font-normal',
+                          authorFilter !== null && 'rounded-r-none border-r-0'
+                        )}
+                      >
+                        <span className="truncate">
+                          {authorFilter === null
+                            ? 'All authors'
+                            : (selectedAuthor?.email ??
+                              `User #${authorFilter}`)}
+                        </span>
+                        <ChevronsUpDown className="opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    {authorFilter !== null && (
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="rounded-l-none shrink-0"
+                        onClick={() => handleAuthorChange(null)}
+                        aria-label="Clear author filter"
+                        title="Clear author filter"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                  <PopoverContent className="w-[360px] p-0">
+                    {/* shouldFilter off: the API already did the matching */}
+                    <Command shouldFilter={false}>
+                      <CommandInput
+                        placeholder="Search by email or name..."
+                        className="h-9"
+                        value={authorSearch}
+                        onValueChange={setAuthorSearch}
+                      />
+                      <CommandList>
+                        <CommandEmpty>
+                          {authorsLoading ? 'Searching...' : 'No users found.'}
+                        </CommandEmpty>
+                        <CommandGroup>
+                          {authorOptions.map((author) => (
+                            <CommandItem
+                              value={author.id.toString()}
+                              key={author.id}
+                              onSelect={() => handleAuthorChange(author.id)}
+                            >
+                              <div className="min-w-0">
+                                <p className="truncate">{author.email}</p>
+                                <p className="text-xs text-muted-foreground truncate">
+                                  {author.username}
+                                </p>
+                              </div>
+                              <Check
+                                className={cn(
+                                  'ml-auto shrink-0',
+                                  author.id === authorFilter
+                                    ? 'opacity-100'
+                                    : 'opacity-0'
+                                )}
+                              />
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+              ) : (
+                authorFilter !== null && (
+                  <Button
+                    variant="outline"
+                    className="w-full sm:w-64 justify-between font-normal"
+                    onClick={() => handleAuthorChange(null)}
+                    title="Clear author filter"
+                  >
+                    <span className="truncate">
+                      {selectedAuthor?.email ?? `User #${authorFilter}`}
+                    </span>
+                    <X className="h-4 w-4 shrink-0" />
+                  </Button>
+                )
+              )}
             </div>
 
             {authorFilter !== null && (
               <p className="text-xs text-muted-foreground">
                 Showing feedback submitted from{' '}
-                <button
-                  type="button"
-                  className="underline hover:text-foreground"
-                  onClick={() => navigate(`/users/${authorFilter}`)}
-                >
-                  {selectedAuthor?.email ?? `user #${authorFilter}`}
-                </button>
+                {isSuperuser ? (
+                  <button
+                    type="button"
+                    className="underline hover:text-foreground"
+                    onClick={() => navigate(`/users/${authorFilter}`)}
+                  >
+                    {selectedAuthor?.email ?? `user #${authorFilter}`}
+                  </button>
+                ) : (
+                  <span>
+                    {selectedAuthor?.email ?? `user #${authorFilter}`}
+                  </span>
+                )}
                 . Legacy email-only submissions are not included.
               </p>
             )}
@@ -838,9 +871,16 @@ export function FeedbackPage() {
                                 feedbackItem.email ??
                                 `User #${feedbackItem.userId}`
                               }
-                              className="max-w-full truncate cursor-pointer hover:bg-muted transition-colors"
-                              onClick={(e) =>
-                                handleAuthorClick(e, feedbackItem.userId!)
+                              className={cn(
+                                'max-w-full truncate',
+                                isSuperuser &&
+                                  'cursor-pointer hover:bg-muted transition-colors'
+                              )}
+                              onClick={
+                                isSuperuser
+                                  ? (e) =>
+                                      handleAuthorClick(e, feedbackItem.userId!)
+                                  : undefined
                               }
                             />
                           ) : feedbackItem.email ? (

@@ -1,3 +1,4 @@
+import { useAuth } from '@hooks'
 import { useQuery } from '@tanstack/react-query'
 import { getAdminChatDetails } from '@uni-feedback/api-client'
 import {
@@ -23,6 +24,9 @@ export function ChatDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const chatId = id && UUID_RE.test(id) ? id : null
+  // User pages are superuser-only, so the email only links for them
+  const { user: viewer } = useAuth()
+  const canOpenUsers = viewer?.role === 'super_admin'
 
   const {
     data: chat,
@@ -140,12 +144,16 @@ export function ChatDetailPage() {
             <dl className="grid grid-cols-[max-content_1fr] gap-x-6 gap-y-2 text-sm">
               <dt className="text-muted-foreground">User</dt>
               <dd>
-                <Link
-                  className="text-primaryBlue hover:underline"
-                  to={`/users/${chat.userId}`}
-                >
-                  {chat.userEmail}
-                </Link>
+                {canOpenUsers ? (
+                  <Link
+                    className="text-primaryBlue hover:underline"
+                    to={`/users/${chat.userId}`}
+                  >
+                    {chat.userEmail}
+                  </Link>
+                ) : (
+                  chat.userEmail
+                )}
                 <span className="text-muted-foreground">
                   {' '}
                   · {chat.userName}

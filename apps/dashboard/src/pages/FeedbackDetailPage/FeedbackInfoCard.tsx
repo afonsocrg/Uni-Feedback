@@ -5,6 +5,7 @@ import {
   EditableWorkloadRating,
   UnapprovalMessageDialog
 } from '@components'
+import { useAuth } from '@hooks'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   AdminFeedbackDetail,
@@ -40,6 +41,9 @@ export function FeedbackInfoCard({ feedback }: FeedbackInfoCardProps) {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  // User pages are superuser-only, so the author chip only links for them
+  const { user: viewer } = useAuth()
+  const canOpenUsers = viewer?.role === 'super_admin'
 
   const [editValues, setEditValues] = useState<Record<string, number | null>>(
     {}
@@ -165,8 +169,16 @@ export function FeedbackInfoCard({ feedback }: FeedbackInfoCardProps) {
                   <>
                     <Chip
                       label={feedback.userEmail ?? feedback.email ?? 'Unknown'}
-                      className="cursor-pointer hover:opacity-80 transition-opacity"
-                      onClick={() => navigate(`/users/${feedback.userId}`)}
+                      className={
+                        canOpenUsers
+                          ? 'cursor-pointer hover:opacity-80 transition-opacity'
+                          : ''
+                      }
+                      onClick={
+                        canOpenUsers
+                          ? () => navigate(`/users/${feedback.userId}`)
+                          : undefined
+                      }
                     />
                     {feedback.userName && (
                       <span className="text-muted-foreground">

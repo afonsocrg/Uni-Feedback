@@ -23,9 +23,9 @@ const UserSearchResultSchema = z.object({
 })
 
 /**
- * Admin-level user lookup for pickers (the feedback list's author filter).
- * The full list in GetUsers is superuser-only; this one returns at most 50
- * matches by email or username, which is what a picker needs.
+ * User lookup for pickers (the feedback list's author filter). Unlike the
+ * full list in GetUsers it returns at most 50 matches by email or username,
+ * which is what a picker needs. Superuser-only like every /admin/users route.
  */
 export class SearchUsers extends OpenAPIRoute {
   schema = {
