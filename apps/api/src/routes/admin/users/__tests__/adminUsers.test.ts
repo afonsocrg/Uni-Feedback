@@ -1,5 +1,10 @@
 import { database } from '@uni-feedback/db'
-import { chats, users } from '@uni-feedback/db/schema'
+import {
+  chatMessageFeedback,
+  chatMessages,
+  chats,
+  users
+} from '@uni-feedback/db/schema'
 import { eq } from 'drizzle-orm'
 import { beforeEach, describe, expect, it } from 'vitest'
 import {
@@ -59,9 +64,44 @@ describe('Admin user routes', () => {
       .insert(chats)
       .values({ userId: student.id, language: 'en', deletedAt: new Date() })
       .returning()
-    await database()
+    const [referrerChat] = await database()
       .insert(chats)
       .values({ userId: referrer.id, title: 'Other', language: 'pt' })
+      .returning()
+    // Student: two turns with a thumbs down and known costs. Referrer: one
+    // turn, which the student's totals must not pick up.
+    const [, a1] = await database()
+      .insert(chatMessages)
+      .values([
+        { chatId: studentChat.id, seq: 1, role: 'user', content: 'q1' },
+        {
+          chatId: studentChat.id,
+          seq: 2,
+          role: 'assistant',
+          content: 'a1',
+          costMicros: 12000
+        },
+        { chatId: deletedChat.id, seq: 1, role: 'user', content: 'q2' },
+        {
+          chatId: deletedChat.id,
+          seq: 2,
+          role: 'assistant',
+          content: 'a2',
+          costMicros: 3000
+        },
+        { chatId: referrerChat.id, seq: 1, role: 'user', content: 'other' },
+        {
+          chatId: referrerChat.id,
+          seq: 2,
+          role: 'assistant',
+          content: 'other a',
+          costMicros: 99000
+        }
+      ])
+      .returning()
+    await database()
+      .insert(chatMessageFeedback)
+      .values({ messageId: a1.id, userId: student.id, rating: 'not_helpful' })
     return {
       course,
       referrer,
@@ -98,6 +138,7 @@ describe('Admin user routes', () => {
         expect(body.feedbackCount).toBe(2)
         expect(body.approvedFeedbackCount).toBe(1)
         expect(body.chatCount).toBe(2)
+        expect(body.referralCount).toBe(0)
       })
     })
 
@@ -245,6 +286,103 @@ describe('Admin user routes', () => {
         expect((await put(cookie, student.id, { username: 'x' })).status).toBe(
           403
         )
+      })
+    })
+  })
+
+  describe('GET /admin/users/:id/chat-stats', () => {
+    it("sums only that user's chats, deleted ones included", async () => {
+      await withTestDb(async () => {
+        const { student } = await seed()
+        const { cookie } = await createAuthenticatedUser('admin')
+
+        const res = await app.request(
+          `/admin/users/${student.id}/chat-stats`,
+          { headers: { Cookie: cookie } },
+          testEnv
+        )
+        expect(res.status).toBe(200)
+        const body = await json(res)
+        expect(body).toMatchObject({
+          chats: 2,
+          deletedChats: 1,
+          questions: 2,
+          answers: 2,
+          costMicros: 15000,
+          helpful: 0,
+          notHelpful: 1
+        })
+        expect(body.firstChatAt).not.toBeNull()
+        expect(body.lastChatAt).not.toBeNull()
+
+        const fresh = await createUser()
+        const empty = await json(
+          await app.request(
+            `/admin/users/${fresh.id}/chat-stats`,
+            { headers: { Cookie: cookie } },
+            testEnv
+          )
+        )
+        expect(empty).toMatchObject({ chats: 0, costMicros: 0 })
+        expect(empty.lastChatAt).toBeNull()
+
+        const missing = await app.request(
+          '/admin/users/999999/chat-stats',
+          { headers: { Cookie: cookie } },
+          testEnv
+        )
+        expect(missing.status).toBe(404)
+      })
+    })
+  })
+
+  describe('GET /admin/users/:id/referrals', () => {
+    it('lists referred accounts with their feedback counts', async () => {
+      await withTestDb(async () => {
+        const { student, referrer } = await seed()
+        const { cookie } = await createAuthenticatedUser('admin')
+
+        const detail = await json(
+          await app.request(
+            `/admin/users/${referrer.id}`,
+            { headers: { Cookie: cookie } },
+            testEnv
+          )
+        )
+        expect(detail.referralCount).toBe(1)
+
+        const res = await app.request(
+          `/admin/users/${referrer.id}/referrals`,
+          { headers: { Cookie: cookie } },
+          testEnv
+        )
+        expect(res.status).toBe(200)
+        const body = await json(res)
+        expect(body).toHaveLength(1)
+        expect(body[0]).toMatchObject({
+          id: student.id,
+          email: student.email,
+          username: 'alice',
+          feedbackCount: 2,
+          approvedFeedbackCount: 1
+        })
+
+        // The student referred nobody
+        const none = await json(
+          await app.request(
+            `/admin/users/${student.id}/referrals`,
+            { headers: { Cookie: cookie } },
+            testEnv
+          )
+        )
+        expect(none).toEqual([])
+
+        const missing = await app.request(
+          '/admin/users/999999/referrals',
+          { headers: { Cookie: cookie } },
+          testEnv
+        )
+        expect(missing.status).toBe(404)
       })
     })
   })

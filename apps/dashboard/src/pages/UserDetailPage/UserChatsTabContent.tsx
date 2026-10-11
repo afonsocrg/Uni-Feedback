@@ -1,13 +1,21 @@
 import { PaginationControls } from '@components'
 import { useQuery } from '@tanstack/react-query'
-import { getAdminChats, type AdminChatsQuery } from '@uni-feedback/api-client'
+import {
+  getAdminChats,
+  getAdminUserChatStats,
+  type AdminChatsQuery,
+  type AdminUserChatStats
+} from '@uni-feedback/api-client'
 import {
   Badge,
+  Card,
+  CardContent,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
+  Skeleton,
   Table,
   TableBody,
   TableCell,
@@ -53,6 +61,11 @@ export function UserChatsTabContent({ userId }: UserChatsTabContentProps) {
     queryFn: () => getAdminChats(query)
   })
 
+  const { data: stats, isLoading: statsLoading } = useQuery({
+    queryKey: ['user-chat-stats', userId],
+    queryFn: () => getAdminUserChatStats(userId)
+  })
+
   if (error) {
     return (
       <div className="text-center py-8">
@@ -66,6 +79,16 @@ export function UserChatsTabContent({ userId }: UserChatsTabContentProps) {
 
   return (
     <div className="space-y-4">
+      {statsLoading || !stats ? (
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Skeleton key={i} className="h-20" />
+          ))}
+        </div>
+      ) : (
+        <ChatTotals stats={stats} />
+      )}
+
       <div className="flex gap-4 justify-end">
         <Select
           value={ratingFilter}
@@ -244,6 +267,76 @@ export function UserChatsTabContent({ userId }: UserChatsTabContentProps) {
           />
         </>
       )}
+    </div>
+  )
+}
+
+/**
+ * The user's share of the AI chat totals, in the same tiles as the AI Chat
+ * page's overview so the two read alike.
+ */
+function ChatTotals({ stats }: { stats: AdminUserChatStats }) {
+  const costPerChat = stats.chats
+    ? formatCost(stats.costMicros / stats.chats)
+    : '–'
+  const rated = stats.helpful + stats.notHelpful
+
+  const tiles: { label: string; value: string; hint?: string }[] = [
+    {
+      label: 'Chats',
+      value: String(stats.chats),
+      hint: stats.deletedChats
+        ? `${stats.deletedChats} deleted by the user`
+        : undefined
+    },
+    {
+      label: 'Questions',
+      value: String(stats.questions),
+      hint: stats.chats
+        ? `${(stats.questions / stats.chats).toFixed(1)} per chat`
+        : undefined
+    },
+    {
+      label: 'Cost',
+      value: formatCost(stats.costMicros),
+      hint: stats.chats ? `${costPerChat} per chat` : undefined
+    },
+    {
+      label: 'Ratings',
+      value: rated ? `${stats.helpful} up · ${stats.notHelpful} down` : '–',
+      hint: rated
+        ? `${rated} of ${stats.answers} answers rated`
+        : 'no answers rated'
+    },
+    {
+      label: 'Last chat',
+      value: stats.lastChatAt ? formatDateTime(stats.lastChatAt) : '–',
+      hint: stats.firstChatAt
+        ? `first ${formatDateTime(stats.firstChatAt)}`
+        : undefined
+    }
+  ]
+
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+      {tiles.map((tile) => (
+        <Card key={tile.label} className="py-3 gap-1">
+          <CardContent className="px-4">
+            <p className="text-xs text-muted-foreground">{tile.label}</p>
+            <p className="text-2xl font-semibold tabular-nums truncate">
+              {tile.value}
+            </p>
+            {tile.hint && (
+              <p
+                className="text-xs text-muted-foreground truncate"
+                title={tile.hint}
+              >
+                {tile.hint}
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      ))}
     </div>
   )
 }

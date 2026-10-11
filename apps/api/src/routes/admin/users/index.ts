@@ -1,4 +1,6 @@
+export { GetUserChatStats } from './getUserChatStats'
 export { GetUserDetails } from './getUserDetails'
+export { GetUserReferrals } from './getUserReferrals'
 export { GetUsers } from './getUsers'
 export { SearchUsers } from './searchUsers'
 export { UpdateUser } from './updateUser'

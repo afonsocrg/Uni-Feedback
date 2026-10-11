@@ -13,7 +13,7 @@ import {
   TabsList,
   TabsTrigger
 } from '@uni-feedback/ui'
-import { Bot, MessageSquare, User } from 'lucide-react'
+import { Bot, MessageSquare, User, UserPlus } from 'lucide-react'
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { InvalidIdError } from '../../components/InvalidIdError'
@@ -22,11 +22,14 @@ import { UserChatsTabContent } from './UserChatsTabContent'
 import { UserDetailPageSkeleton } from './UserDetailPageSkeleton'
 import { UserFeedbackTabContent } from './UserFeedbackTabContent'
 import { UserInfoCard } from './UserInfoCard'
+import { UserReferralsTabContent } from './UserReferralsTabContent'
 
 function getTabTitle(activeTab: string, user: AdminUserDetail): string {
   switch (activeTab) {
     case 'chats':
       return `AI Chats ${user.chatCount ? `(${user.chatCount})` : ''}`
+    case 'referrals':
+      return `Referrals ${user.referralCount ? `(${user.referralCount})` : ''}`
     default:
       return `Feedback ${user.feedbackCount ? `(${user.feedbackCount})` : ''}`
   }
@@ -84,6 +87,10 @@ export function UserDetailPage() {
             <Bot className="h-4 w-4" />
             <span>AI Chats</span>
           </TabsTrigger>
+          <TabsTrigger value="referrals">
+            <UserPlus className="h-4 w-4" />
+            <span>Referrals ({user.referralCount})</span>
+          </TabsTrigger>
         </TabsList>
 
         <Card>
@@ -96,6 +103,9 @@ export function UserDetailPage() {
             </TabsContent>
             <TabsContent value="chats" className="space-y-4">
               <UserChatsTabContent userId={userId} />
+            </TabsContent>
+            <TabsContent value="referrals" className="space-y-4">
+              <UserReferralsTabContent userId={userId} />
             </TabsContent>
           </CardContent>
         </Card>

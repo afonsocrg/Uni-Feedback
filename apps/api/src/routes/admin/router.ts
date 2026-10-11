@@ -42,7 +42,14 @@ import {
 import { GenerateCourseReport, GenerateDegreeReport } from './reports'
 import { RefreshStats } from './stats'
 import { GetDegreeSuggestions } from './suggestions'
-import { GetUserDetails, GetUsers, SearchUsers, UpdateUser } from './users'
+import {
+  GetUserChatStats,
+  GetUserDetails,
+  GetUserReferrals,
+  GetUsers,
+  SearchUsers,
+  UpdateUser
+} from './users'
 
 const app = new Hono()
 
@@ -113,6 +120,8 @@ router.post('/stats/refresh', RefreshStats)
 router.get('/users', GetUsers)
 router.get('/users/search', SearchUsers) // Before `/users/:id` so "search" is not parsed as an id
 router.get('/users/:id', GetUserDetails)
+router.get('/users/:id/referrals', GetUserReferrals)
+router.get('/users/:id/chat-stats', GetUserChatStats)
 router.put('/users/:id', UpdateUser)
 
 export { router }

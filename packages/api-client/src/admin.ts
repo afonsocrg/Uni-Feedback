@@ -68,6 +68,28 @@ export interface AdminUserDetail {
   feedbackCount: number
   approvedFeedbackCount: number
   chatCount: number
+  referralCount: number
+}
+
+export interface AdminUserChatStats {
+  chats: number
+  deletedChats: number
+  questions: number
+  answers: number
+  costMicros: number
+  helpful: number
+  notHelpful: number
+  firstChatAt: string | null
+  lastChatAt: string | null
+}
+
+export interface AdminReferredUser {
+  id: number
+  email: string
+  username: string
+  createdAt: string
+  feedbackCount: number
+  approvedFeedbackCount: number
 }
 
 export interface AdminUserSearchResult {
@@ -430,6 +452,24 @@ export async function getAdminUserDetails(
   userId: number
 ): Promise<AdminUserDetail> {
   return apiGet<AdminUserDetail>(`/admin/users/${userId}`)
+}
+
+/**
+ * All-time AI chat totals for one user (deleted chats included)
+ */
+export async function getAdminUserChatStats(
+  userId: number
+): Promise<AdminUserChatStats> {
+  return apiGet<AdminUserChatStats>(`/admin/users/${userId}/chat-stats`)
+}
+
+/**
+ * Accounts created through this user's referral link, newest first
+ */
+export async function getAdminUserReferrals(
+  userId: number
+): Promise<AdminReferredUser[]> {
+  return apiGet<AdminReferredUser[]>(`/admin/users/${userId}/referrals`)
 }
 
 /**

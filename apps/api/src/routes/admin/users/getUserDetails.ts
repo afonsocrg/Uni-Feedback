@@ -24,7 +24,9 @@ export const AdminUserDetailSchema = z.object({
   feedbackCount: z.number(),
   approvedFeedbackCount: z.number(),
   /** Includes soft-deleted chats, same as the admin chat list */
-  chatCount: z.number()
+  chatCount: z.number(),
+  /** Accounts created through this user's referral link */
+  referralCount: z.number()
 })
 
 export class GetUserDetails extends OpenAPIRoute {
@@ -89,6 +91,11 @@ export class GetUserDetails extends OpenAPIRoute {
       .from(chats)
       .where(eq(chats.userId, id))
 
+    const [referralCounts] = await database()
+      .select({ total: count() })
+      .from(users)
+      .where(eq(users.referredByUserId, id))
+
     let referredByEmail: string | null = null
     if (user.referredByUserId !== null) {
       const [referrer] = await database()
@@ -113,7 +120,8 @@ export class GetUserDetails extends OpenAPIRoute {
       updatedAt: user.updatedAt?.toISOString() ?? '',
       feedbackCount: counts?.total ?? 0,
       approvedFeedbackCount: counts?.approved ?? 0,
-      chatCount: chatCounts?.total ?? 0
+      chatCount: chatCounts?.total ?? 0,
+      referralCount: referralCounts?.total ?? 0
     })
   }
 }
