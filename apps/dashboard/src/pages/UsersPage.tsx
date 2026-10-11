@@ -1,5 +1,7 @@
+import { SortableTableHead } from '@components'
+import { useTableSort } from '@hooks'
 import { useQuery } from '@tanstack/react-query'
-import { getUsers } from '@uni-feedback/api-client'
+import { getUsers, type AdminUserListItem } from '@uni-feedback/api-client'
 import {
   Badge,
   Button,
@@ -23,6 +25,8 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { InviteUserDialog } from '../components/InviteUserDialog'
 
+type SortKey = 'feedbackCount' | 'chatCount' | 'referralCount'
+
 export function UsersPage() {
   const navigate = useNavigate()
   const [searchTerm, setSearchTerm] = useState('')
@@ -38,10 +42,16 @@ export function UsersPage() {
     queryFn: getUsers
   })
 
-  const filteredUsers = users.filter(
-    (user) =>
-      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.username.toLowerCase().includes(searchTerm.toLowerCase())
+  // The list is small and unpaginated, so sorting happens on the client
+  const { directionOf, toggle, sortRows } = useTableSort<SortKey>()
+
+  const filteredUsers: AdminUserListItem[] = sortRows(
+    users.filter(
+      (user) =>
+        user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.username.toLowerCase().includes(searchTerm.toLowerCase())
+    ),
+    (user: AdminUserListItem, key: SortKey) => user[key]
   )
 
   const handleInviteSuccess = () => {
@@ -145,9 +155,33 @@ export function UsersPage() {
                     <TableHead>Name</TableHead>
                     <TableHead>Email</TableHead>
                     <TableHead>Role</TableHead>
-                    <TableHead className="w-24 text-right">Feedback</TableHead>
-                    <TableHead className="w-24 text-right">AI Chats</TableHead>
-                    <TableHead className="w-24 text-right">Referrals</TableHead>
+                    <SortableTableHead
+                      sortKey="feedbackCount"
+                      direction={directionOf('feedbackCount')}
+                      onToggle={toggle}
+                      align="right"
+                      className="w-28"
+                    >
+                      Feedback
+                    </SortableTableHead>
+                    <SortableTableHead
+                      sortKey="chatCount"
+                      direction={directionOf('chatCount')}
+                      onToggle={toggle}
+                      align="right"
+                      className="w-28"
+                    >
+                      AI Chats
+                    </SortableTableHead>
+                    <SortableTableHead
+                      sortKey="referralCount"
+                      direction={directionOf('referralCount')}
+                      onToggle={toggle}
+                      align="right"
+                      className="w-28"
+                    >
+                      Referrals
+                    </SortableTableHead>
                     <TableHead className="w-24">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
