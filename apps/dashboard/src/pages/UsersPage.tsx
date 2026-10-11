@@ -7,6 +7,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  cn,
   Input,
   Skeleton,
   Table,
@@ -144,6 +145,9 @@ export function UsersPage() {
                     <TableHead>Name</TableHead>
                     <TableHead>Email</TableHead>
                     <TableHead>Role</TableHead>
+                    <TableHead className="w-24 text-right">Feedback</TableHead>
+                    <TableHead className="w-24 text-right">AI Chats</TableHead>
+                    <TableHead className="w-24 text-right">Referrals</TableHead>
                     <TableHead className="w-24">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -173,6 +177,9 @@ export function UsersPage() {
                           <Badge variant="outline">{initCap(user.role)}</Badge>
                         )}
                       </TableCell>
+                      <CountCell value={user.feedbackCount} />
+                      <CountCell value={user.chatCount} />
+                      <CountCell value={user.referralCount} />
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <Button
@@ -203,5 +210,19 @@ export function UsersPage() {
         onSuccess={handleInviteSuccess}
       />
     </div>
+  )
+}
+
+/** Right-aligned count; zero is dimmed so the active accounts stand out. */
+function CountCell({ value }: { value: number }) {
+  return (
+    <TableCell
+      className={cn(
+        'text-right tabular-nums',
+        value === 0 && 'text-muted-foreground'
+      )}
+    >
+      {value}
+    </TableCell>
   )
 }

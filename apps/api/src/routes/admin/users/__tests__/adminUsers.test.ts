@@ -300,6 +300,44 @@ describe('Admin user routes', () => {
     })
   })
 
+  describe('GET /admin/users', () => {
+    it('lists accounts with feedback, chat and referral counts', async () => {
+      await withTestDb(async () => {
+        const { student, referrer } = await seed()
+        await createUser({ email: 'gone@deleted.local', username: 'gone' })
+        const { cookie } = await createAuthenticatedUser('super_admin')
+
+        const res = await app.request(
+          '/admin/users',
+          { headers: { Cookie: cookie } },
+          testEnv
+        )
+        expect(res.status).toBe(200)
+        const body = await json(res)
+        const byId = Object.fromEntries(
+          body.map((u: { id: number }) => [u.id, u])
+        )
+        expect(byId[student.id]).toMatchObject({
+          email: student.email,
+          role: 'student',
+          feedbackCount: 2,
+          chatCount: 2,
+          referralCount: 0
+        })
+        expect(byId[referrer.id]).toMatchObject({
+          feedbackCount: 0,
+          chatCount: 1,
+          referralCount: 1
+        })
+        expect(
+          body.some((u: { email: string }) =>
+            u.email.endsWith('@deleted.local')
+          )
+        ).toBe(false)
+      })
+    })
+  })
+
   describe('GET /admin/users/:id/chat-stats', () => {
     it("sums only that user's chats, deleted ones included", async () => {
       await withTestDb(async () => {

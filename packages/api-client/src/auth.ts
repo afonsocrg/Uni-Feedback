@@ -318,11 +318,19 @@ export async function verifyOtp(
   })
 }
 
+/** A row of the admin users list: the account plus what it has done */
+export interface AdminUserListItem extends User {
+  superuser: boolean
+  feedbackCount: number
+  chatCount: number
+  referralCount: number
+}
+
 /**
- * Get all users (superuser only)
+ * Get all users with activity counts (superuser only)
  */
-export async function getUsers(): Promise<User[]> {
-  return apiGet<User[]>('/admin/users')
+export async function getUsers(): Promise<AdminUserListItem[]> {
+  return apiGet<AdminUserListItem[]>('/admin/users')
 }
 
 /**
