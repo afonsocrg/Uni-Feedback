@@ -13,6 +13,7 @@ import {
   getAdminUserDetails,
   getDegreeSuggestions,
   getFaculties,
+  isSuperuser,
   searchAdminUsers,
   type AdminFeedbackQuery,
   type FeedbackExportFilters
@@ -64,7 +65,7 @@ export function FeedbackPage() {
   // /admin/users/* is superuser-only, so only superusers get the author
   // picker (it searches users) and the author links. Admins can still land
   // here with ?user_id= and clear the filter.
-  const isSuperuser = viewer?.role === 'super_admin'
+  const viewerIsSuperuser = isSuperuser(viewer)
 
   // Local state for pagination and filters
   const [page, setPage] = useState(1)
@@ -187,7 +188,7 @@ export function FeedbackPage() {
   const { data: authorOptions = [], isFetching: authorsLoading } = useQuery({
     queryKey: ['admin-user-search', debouncedAuthorSearch],
     queryFn: () => searchAdminUsers(debouncedAuthorSearch),
-    enabled: authorPopoverOpen && isSuperuser,
+    enabled: authorPopoverOpen && viewerIsSuperuser,
     placeholderData: (previous) => previous
   })
 
@@ -195,7 +196,7 @@ export function FeedbackPage() {
   const { data: selectedAuthor } = useQuery({
     queryKey: ['user-details', authorFilter],
     queryFn: () => getAdminUserDetails(authorFilter as number),
-    enabled: authorFilter !== null && isSuperuser
+    enabled: authorFilter !== null && viewerIsSuperuser
   })
 
   const feedback = feedbackResponse?.data || []
@@ -638,7 +639,7 @@ export function FeedbackPage() {
                 </SelectContent>
               </Select>
 
-              {isSuperuser ? (
+              {viewerIsSuperuser ? (
                 <Popover
                   open={authorPopoverOpen}
                   onOpenChange={(open) => {
@@ -742,7 +743,7 @@ export function FeedbackPage() {
             {authorFilter !== null && (
               <p className="text-xs text-muted-foreground">
                 Showing feedback submitted from{' '}
-                {isSuperuser ? (
+                {viewerIsSuperuser ? (
                   <button
                     type="button"
                     className="underline hover:text-foreground"
@@ -873,11 +874,11 @@ export function FeedbackPage() {
                               }
                               className={cn(
                                 'max-w-full truncate',
-                                isSuperuser &&
+                                viewerIsSuperuser &&
                                   'cursor-pointer hover:bg-muted transition-colors'
                               )}
                               onClick={
-                                isSuperuser
+                                viewerIsSuperuser
                                   ? (e) =>
                                       handleAuthorClick(e, feedbackItem.userId!)
                                   : undefined

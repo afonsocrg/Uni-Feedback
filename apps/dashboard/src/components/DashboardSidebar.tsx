@@ -1,4 +1,5 @@
 import { useAuth } from '@hooks'
+import { isSuperuser } from '@uni-feedback/api-client'
 import {
   Sidebar,
   SidebarContent,
@@ -83,7 +84,7 @@ export function DashboardSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {items
-                .filter((item) => !item.superuserOnly || user?.superuser)
+                .filter((item) => !item.superuserOnly || isSuperuser(user))
                 .map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>

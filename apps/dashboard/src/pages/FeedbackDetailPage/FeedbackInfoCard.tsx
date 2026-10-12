@@ -10,6 +10,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   AdminFeedbackDetail,
   approveFeedback,
+  isSuperuser,
   unapproveFeedback,
   updateFeedback
 } from '@uni-feedback/api-client'
@@ -43,7 +44,7 @@ export function FeedbackInfoCard({ feedback }: FeedbackInfoCardProps) {
   const queryClient = useQueryClient()
   // User pages are superuser-only, so the author chip only links for them
   const { user: viewer } = useAuth()
-  const canOpenUsers = viewer?.role === 'super_admin'
+  const canOpenUsers = isSuperuser(viewer)
 
   const [editValues, setEditValues] = useState<Record<string, number | null>>(
     {}

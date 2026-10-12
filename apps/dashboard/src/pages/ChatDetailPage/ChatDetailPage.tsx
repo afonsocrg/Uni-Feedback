@@ -1,6 +1,6 @@
 import { useAuth } from '@hooks'
 import { useQuery } from '@tanstack/react-query'
-import { getAdminChatDetails } from '@uni-feedback/api-client'
+import { getAdminChatDetails, isSuperuser } from '@uni-feedback/api-client'
 import {
   Badge,
   Button,
@@ -26,7 +26,7 @@ export function ChatDetailPage() {
   const chatId = id && UUID_RE.test(id) ? id : null
   // User pages are superuser-only, so the email only links for them
   const { user: viewer } = useAuth()
-  const canOpenUsers = viewer?.role === 'super_admin'
+  const canOpenUsers = isSuperuser(viewer)
 
   const {
     data: chat,

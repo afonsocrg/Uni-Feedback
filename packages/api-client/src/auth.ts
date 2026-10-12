@@ -11,6 +11,7 @@ export interface LoginResponse {
     email: string
     username: string
     role: string
+    superuser: boolean
     referralCode: string
   }
 }
@@ -41,8 +42,19 @@ export interface User {
   email: string
   username: string
   role: string
+  superuser: boolean
   createdAt: string
   updatedAt: string
+}
+
+/**
+ * Whether the account passes the API's superuser gate (`requireSuperuser`):
+ * either the `super_admin` role or the legacy `superuser` flag.
+ */
+export function isSuperuser(
+  user: Pick<User, 'role' | 'superuser'> | null | undefined
+): boolean {
+  return !!user && (user.role === 'super_admin' || user.superuser === true)
 }
 
 export interface RequestMagicLinkRequest {
@@ -320,7 +332,6 @@ export async function verifyOtp(
 
 /** A row of the admin users list: the account plus what it has done */
 export interface AdminUserListItem extends User {
-  superuser: boolean
   feedbackCount: number
   chatCount: number
   referralCount: number
