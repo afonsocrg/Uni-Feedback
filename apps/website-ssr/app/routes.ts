@@ -26,6 +26,11 @@ export default [
   ].map((path) =>
     route(path, 'routes/redirect-to-en.tsx', { id: `redirect-to-en/${path}` })
   ),
+  ...['en/en/*', 'deiras/*'].map((path) =>
+    route(path, 'routes/redirect-malformed.tsx', {
+      id: `redirect-malformed/${path}`
+    })
+  ),
   ...buildRoutes(routeConfig, 'pt'),
   route('/en', 'routes/en-layout.tsx', buildRoutes(routeConfig, 'en'))
 ] satisfies RouteConfig

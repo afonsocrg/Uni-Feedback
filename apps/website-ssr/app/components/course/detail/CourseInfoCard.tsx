@@ -251,6 +251,9 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
           <Button asChild className="text-white max-sm:w-full">
             <Link
               to={reviewFormUrl}
+              // The form is noindex: one per course, ~8k near-identical pages.
+              // Not following it keeps crawl budget on the course pages.
+              rel="nofollow"
               onClick={() => {
                 // Same historical name as `?from=course_reviews` above.
                 analytics.navigation.feedbackFormLinkClicked({

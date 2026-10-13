@@ -34,6 +34,8 @@ export function CourseReviewContentEmpty({
         <Button asChild className="text-white">
           <Link
             to={reviewFormUrl}
+            // Noindex form page; see the CTA in CourseInfoCard.
+            rel="nofollow"
             onClick={() => {
               analytics.navigation.feedbackFormLinkClicked({
                 source: 'course_page_empty_state',
