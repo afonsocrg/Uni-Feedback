@@ -121,8 +121,12 @@ function HreflangLinks() {
   const lang = detectLang(pathname)
   const ptPath = lang === 'pt' ? pathname : getEquivalentPath(pathname, 'en')
   const enPath = lang === 'en' ? pathname : getEquivalentPath(pathname, 'pt')
+  // Each language version is canonical to itself (the hreflang pair ties them
+  // together). Built from the pathname alone, so query-string variants and the
+  // www host collapse onto one URL.
   return (
     <>
+      <link rel="canonical" href={`${origin}${pathname}`} />
       <link rel="alternate" hrefLang="pt" href={`${origin}${ptPath}`} />
       <link rel="alternate" hrefLang="en" href={`${origin}${enPath}`} />
       <link rel="alternate" hrefLang="x-default" href={`${origin}${ptPath}`} />

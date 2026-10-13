@@ -6,12 +6,14 @@ import { FacultyPageContent } from '~/components'
 import { userPreferences } from '~/utils'
 
 import { getDegreePath, getFacultyPath } from '~/utils/i18n-routes'
-import { buildMeta } from '~/utils/meta'
+import { buildMeta, metaT } from '~/utils/meta'
 import { getRequestOrigin } from '~/utils/request'
 
 import type { Route } from './+types/$facultySlug'
 
-export function meta({ loaderData, matches }: Route.MetaArgs) {
+export function meta({ loaderData, location, matches }: Route.MetaArgs) {
+  const t = metaT(location, 'browse')
+
   if (!loaderData.faculty) {
     return buildMeta({
       matches,
@@ -22,36 +24,22 @@ export function meta({ loaderData, matches }: Route.MetaArgs) {
 
   const { faculty, degrees, origin } = loaderData
 
-  // Build title
-  const title = `${faculty.name} (${faculty.shortName}) - Degrees & Course Reviews - Uni Feedback`
+  const title = t('meta.faculty_title', {
+    name: faculty.name,
+    shortName: faculty.shortName
+  })
 
-  // Build description with stats
-  const totalCourses = degrees.reduce(
-    (sum, d) => sum + Number(d.courseCount),
-    0
-  )
   const totalFeedback = degrees.reduce(
     (sum, d) => sum + Number(d.feedbackCount),
     0
   )
-
-  let description = `Browse ${degrees.length} degree${degrees.length !== 1 ? 's' : ''} and ${totalCourses} course${totalCourses !== 1 ? 's' : ''} from ${faculty.name}`
-
-  if (totalFeedback > 0) {
-    description += ` with ${totalFeedback} student review${totalFeedback !== 1 ? 's' : ''}`
-  }
-
-  description +=
-    '. Read honest, anonymous feedback to help you choose the right courses.'
-
-  // Add top degrees to description
-  const topDegrees = degrees
-    .slice(0, 3)
-    .map((d) => d.name)
-    .join(', ')
-  if (topDegrees) {
-    description += ` Popular degrees: ${topDegrees}.`
-  }
+  const description =
+    totalFeedback > 0
+      ? t('meta.faculty_description_reviews', {
+          shortName: faculty.shortName,
+          count: totalFeedback
+        })
+      : t('meta.faculty_description', { shortName: faculty.shortName })
 
   // Schema.org structured data
   const structuredData = {

@@ -3,54 +3,43 @@ import { type AnyColumn, desc, eq, sql } from 'drizzle-orm'
 import { CourseDetailContent } from '~/components'
 import { getCurrentUserId } from '~/lib/auth.server'
 import { getCoursePath } from '~/utils/i18n-routes'
-import { buildMeta } from '~/utils/meta'
+import { buildMeta, metaT } from '~/utils/meta'
 import { getRequestOrigin } from '~/utils/request'
 
 import type { Route } from './+types/courses.$courseId'
 
-export function meta({ loaderData, matches }: Route.MetaArgs) {
+export function meta({ loaderData, location, matches }: Route.MetaArgs) {
+  const t = metaT(location, 'course')
+
   if (!loaderData.course) {
     return buildMeta({
       matches,
-      title: 'Course Not Found - Uni Feedback',
-      description: 'The requested course was not found.'
+      title: t('meta.not_found_title'),
+      description: t('meta.not_found_desc')
     })
   }
 
   const { course, feedback, origin } = loaderData
 
-  // Build a more descriptive title with context
-  const titleParts = [course.name]
-  if (course.acronym) {
-    titleParts.push(`(${course.acronym})`)
-  }
-  if (course.degree) {
-    titleParts.push(`- ${course.degree.name}`)
-  }
-  if (course.faculty) {
-    titleParts.push(`- ${course.faculty.name}`)
-  }
-  titleParts.push('- Uni Feedback')
+  // Titles get cut around 60 characters, so lead with what people search for
+  // (course name and acronym, then the school) and leave the degree out: the
+  // same course is often shared by several degrees anyway.
+  const courseLabel = course.acronym
+    ? `${course.name} (${course.acronym})`
+    : course.name
+  const subject = course.faculty
+    ? `${courseLabel}, ${course.faculty.shortName}`
+    : courseLabel
 
-  const title = titleParts.join(' ')
-
-  // Build a more informative description
-  let description = `Read honest, anonymous student reviews for ${course.name} (${course.acronym})`
-
-  if (course.degree) {
-    description += ` from the ${course.degree.name}`
-  }
-
-  if (course.faculty) {
-    description += ` at ${course.faculty.name}`
-  }
-
-  if (course.totalFeedbackCount > 0) {
-    description += `. Average rating: ${Number(course.averageRating).toFixed(1)}/5 based on ${course.totalFeedbackCount} student review${course.totalFeedbackCount === 1 ? '' : 's'}`
-  }
-
-  description +=
-    '. Get insights on workload, assessment, and course content to help you make informed decisions.'
+  const title = t('meta.title', { subject })
+  const description =
+    course.totalFeedbackCount > 0
+      ? t('meta.description_reviews', {
+          subject,
+          count: course.totalFeedbackCount,
+          rating: Number(course.averageRating).toFixed(1)
+        })
+      : t('meta.description', { subject })
 
   // Build Schema.org structured data
   const structuredData = {

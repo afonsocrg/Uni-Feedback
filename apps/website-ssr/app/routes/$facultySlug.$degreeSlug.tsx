@@ -6,12 +6,14 @@ import { DegreePageContent } from '~/components'
 import { userPreferences } from '~/utils'
 
 import { getCoursePath, getDegreePath } from '~/utils/i18n-routes'
-import { buildMeta } from '~/utils/meta'
+import { buildMeta, metaT } from '~/utils/meta'
 import { getRequestOrigin } from '~/utils/request'
 
 import type { Route } from './+types/$facultySlug.$degreeSlug'
 
-export function meta({ loaderData, matches }: Route.MetaArgs) {
+export function meta({ loaderData, location, matches }: Route.MetaArgs) {
+  const t = metaT(location, 'browse')
+
   if (!loaderData.faculty || !loaderData.degree) {
     return buildMeta({
       matches,
@@ -22,38 +24,29 @@ export function meta({ loaderData, matches }: Route.MetaArgs) {
 
   const { faculty, degree, courses, origin } = loaderData
 
-  // Build title
-  const title = `${degree.name} (${degree.acronym}) - ${faculty.shortName} - Course Feedback - Uni Feedback`
+  // Lead with the acronym: students search "meic ist", not the degree's full
+  // name, and a long title gets cut before the acronym ever shows.
+  const title = t('meta.degree_title', {
+    acronym: degree.acronym,
+    faculty: faculty.shortName
+  })
 
-  // Build description with stats
   const totalFeedback = courses.reduce(
     (sum, c) => sum + Number(c.totalFeedbackCount),
     0
   )
-  const coursesWithReviews = courses.filter(
-    (c) => Number(c.totalFeedbackCount) > 0
-  ).length
-
-  let description = `Browse ${courses.length} course${courses.length !== 1 ? 's' : ''} from ${degree.name} at ${faculty.name}`
-
-  if (totalFeedback > 0) {
-    description += ` with ${totalFeedback} student review${totalFeedback !== 1 ? 's' : ''} across ${coursesWithReviews} course${coursesWithReviews !== 1 ? 's' : ''}`
+  const descriptionParams = {
+    degreeName: degree.name,
+    acronym: degree.acronym,
+    faculty: faculty.shortName
   }
-
-  description +=
-    '. Read honest, anonymous feedback to help you choose the right courses.'
-
-  // Add top courses to description
-  const topCourses = courses
-    .filter((c) => Number(c.totalFeedbackCount) > 0)
-    .sort((a, b) => Number(b.totalFeedbackCount) - Number(a.totalFeedbackCount))
-    .slice(0, 3)
-    .map((c) => c.acronym)
-    .join(', ')
-
-  if (topCourses) {
-    description += ` Popular courses: ${topCourses}.`
-  }
+  const description =
+    totalFeedback > 0
+      ? t('meta.degree_description_reviews', {
+          ...descriptionParams,
+          count: totalFeedback
+        })
+      : t('meta.degree_description', descriptionParams)
 
   // Schema.org structured data
   const structuredData = {

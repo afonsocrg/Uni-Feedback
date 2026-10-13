@@ -4,8 +4,10 @@
     "not_found_desc": "The requested course was not found.",
     "feedback_title": "Give Feedback for {{courseName}} - Uni Feedback",
     "feedback_desc": "Share your experience with {{courseName}} ({{acronym}}) at {{faculty}}. Your anonymous feedback helps fellow students make informed decisions.",
-    "reviews_title": "Read honest, anonymous student reviews for {{courseName}} ({{acronym}})",
-    "reviews_desc": "Get insights on workload, assessment, and course content to help you make informed decisions."
+    "title": "{{subject}}: reviews | Uni Feedback",
+    "description": "Anonymous student reviews of {{subject}}: workload, assessment and tips from students who took it.",
+    "description_reviews_one": "Rated {{rating}}/5 from 1 anonymous review of {{subject}}. Workload, assessment and tips from students who took it.",
+    "description_reviews_other": "Rated {{rating}}/5 from {{count}} anonymous reviews of {{subject}}. Workload, assessment and tips from students who took it."
   },
   "tabs": {
     "feedback": "Feedback",

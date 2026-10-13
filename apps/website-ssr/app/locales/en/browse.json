@@ -3,7 +3,15 @@
     "title": "Browse Universities - Uni Feedback",
     "description": "Choose your university to explore degrees and courses with honest, anonymous student reviews.",
     "universities_suffix": " Available universities: {{names}}{{more}}.",
-    "and_more": ", and more"
+    "and_more": ", and more",
+    "faculty_title": "{{name}} ({{shortName}}): course reviews | Uni Feedback",
+    "faculty_description": "{{shortName}}: anonymous student reviews of the courses in every degree. Workload, assessment and tips to help you choose.",
+    "faculty_description_reviews_one": "{{shortName}}: 1 anonymous student review of the courses in every degree. Workload, assessment and tips to help you choose.",
+    "faculty_description_reviews_other": "{{shortName}}: {{count}} anonymous student reviews of the courses in every degree. Workload, assessment and tips to help you choose.",
+    "degree_title": "{{acronym}} {{faculty}}: course reviews | Uni Feedback",
+    "degree_description": "{{degreeName}} ({{acronym}}), {{faculty}}: anonymous student reviews of the degree's courses. Workload, assessment and tips.",
+    "degree_description_reviews_one": "{{degreeName}} ({{acronym}}), {{faculty}}: 1 anonymous student review of the degree's courses. Workload, assessment and tips.",
+    "degree_description_reviews_other": "{{degreeName}} ({{acronym}}), {{faculty}}: {{count}} anonymous student reviews of the degree's courses. Workload, assessment and tips."
   },
   "page": {
     "title": "Select Your University",
