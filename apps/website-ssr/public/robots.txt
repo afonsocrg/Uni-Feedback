@@ -1,5 +1,4 @@
 User-agent: *
 Allow: /
-Disallow: /feedback/new
 Sitemap: https://uni-feedback.com/sitemap.xml
 Crawl-delay: 1

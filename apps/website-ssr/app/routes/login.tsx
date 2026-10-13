@@ -17,6 +17,18 @@ import type { AuthUser } from '~/context/AuthContext'
 import { useAuth, useLang, useOtpAuth } from '~/hooks'
 import { STORAGE_KEYS } from '~/utils/constants'
 import { getLocalePath } from '~/utils/i18n-routes'
+import { buildMeta, metaT, SITE_NAME } from '~/utils/meta'
+
+import type { Route } from './+types/login'
+
+export function meta({ location, matches }: Route.MetaArgs) {
+  const t = metaT(location, 'feedback')
+  return buildMeta({
+    matches,
+    title: `${t('auth.title')} | ${SITE_NAME}`,
+    robots: 'noindex, follow'
+  })
+}
 
 export default function LoginPage() {
   const { t } = useTranslation('feedback')

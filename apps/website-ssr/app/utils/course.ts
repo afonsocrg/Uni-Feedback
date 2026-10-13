@@ -46,3 +46,26 @@ export function formatTerms(terms: string[]): string {
   if (terms.length === 1) return `${terms[0]} semester`
   return terms.join(', ') + ' semesters'
 }
+
+/**
+ * Whether a course page has enough content to be worth indexing.
+ *
+ * Most of the catalogue is imported course listings that nobody has reviewed
+ * yet and that came without a syllabus. Those pages are near-identical shells,
+ * and thousands of them dilute crawl budget and site quality signals, so they
+ * are `noindex` and left out of the sitemap until they get feedback or
+ * content. Shared by the course page's meta and the sitemap so both agree.
+ */
+export function isCourseIndexable(course: {
+  totalFeedbackCount: number
+  description: string | null
+  assessment: string | null
+  bibliography: string | null
+}): boolean {
+  return (
+    course.totalFeedbackCount > 0 ||
+    [course.description, course.assessment, course.bibliography].some((text) =>
+      Boolean(text?.trim())
+    )
+  )
+}

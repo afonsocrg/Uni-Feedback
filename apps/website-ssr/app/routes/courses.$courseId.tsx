@@ -2,7 +2,8 @@ import { database, queries, schema } from '@uni-feedback/db'
 import { type AnyColumn, desc, eq, sql } from 'drizzle-orm'
 import { CourseDetailContent } from '~/components'
 import { getCurrentUserId } from '~/lib/auth.server'
-import { getCoursePath } from '~/utils/i18n-routes'
+import { isCourseIndexable } from '~/utils/course'
+import { detectLang, getCoursePath } from '~/utils/i18n-routes'
 import { buildMeta, metaT } from '~/utils/meta'
 import { getRequestOrigin } from '~/utils/request'
 
@@ -10,6 +11,7 @@ import type { Route } from './+types/courses.$courseId'
 
 export function meta({ loaderData, location, matches }: Route.MetaArgs) {
   const t = metaT(location, 'course')
+  const lang = detectLang(location.pathname)
 
   if (!loaderData.course) {
     return buildMeta({
@@ -90,7 +92,7 @@ export function meta({ loaderData, location, matches }: Route.MetaArgs) {
     matches,
     title,
     description,
-    url: `${origin}${getCoursePath('pt', course.id)}`,
+    url: `${origin}${getCoursePath(lang, course.id)}`,
     keywords: [
       course.name,
       course.acronym,
@@ -101,6 +103,9 @@ export function meta({ loaderData, location, matches }: Route.MetaArgs) {
       'university reviews',
       'course ratings'
     ].filter((k): k is string => Boolean(k)),
+    // Same predicate the sitemap uses, so a page we don't list is also one we
+    // ask crawlers not to index.
+    robots: isCourseIndexable(course) ? undefined : 'noindex, follow',
     structuredData
   })
 }

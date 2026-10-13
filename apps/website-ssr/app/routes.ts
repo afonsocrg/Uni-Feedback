@@ -12,6 +12,20 @@ export default [
   route('courses/:courseId', 'routes/redirect-courses.$courseId.tsx'),
   route('courses', 'routes/redirect-courses.tsx'),
   route('partners', 'routes/redirect-partners.tsx'),
+  ...[
+    'browse',
+    'profile',
+    'profile/:tab',
+    'points',
+    'contact',
+    'supporters',
+    'terms',
+    'privacy',
+    'feedback/new',
+    'unsubscribe'
+  ].map((path) =>
+    route(path, 'routes/redirect-to-en.tsx', { id: `redirect-to-en/${path}` })
+  ),
   ...buildRoutes(routeConfig, 'pt'),
   route('/en', 'routes/en-layout.tsx', buildRoutes(routeConfig, 'en'))
 ] satisfies RouteConfig

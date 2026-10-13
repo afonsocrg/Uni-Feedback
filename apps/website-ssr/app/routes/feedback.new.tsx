@@ -25,7 +25,10 @@ export function meta({ location, matches }: Route.MetaArgs) {
   return buildMeta({
     matches,
     title: t('new.meta_title'),
-    description: t('new.meta_desc')
+    description: t('new.meta_desc'),
+    // A search box for picking a course: useful to visitors, thin as a search
+    // result. Kept crawlable (not blocked in robots.txt) so the noindex is seen.
+    robots: 'noindex, follow'
   })
 }
 

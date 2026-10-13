@@ -5,7 +5,7 @@ import { useLocation } from 'react-router'
 import { FacultyPageContent } from '~/components'
 import { userPreferences } from '~/utils'
 
-import { getDegreePath, getFacultyPath } from '~/utils/i18n-routes'
+import { detectLang, getDegreePath, getFacultyPath } from '~/utils/i18n-routes'
 import { buildMeta, metaT } from '~/utils/meta'
 import { getRequestOrigin } from '~/utils/request'
 
@@ -13,6 +13,7 @@ import type { Route } from './+types/$facultySlug'
 
 export function meta({ loaderData, location, matches }: Route.MetaArgs) {
   const t = metaT(location, 'browse')
+  const lang = detectLang(location.pathname)
 
   if (!loaderData.faculty) {
     return buildMeta({
@@ -67,7 +68,7 @@ export function meta({ loaderData, location, matches }: Route.MetaArgs) {
     title,
     description,
     url: faculty.slug
-      ? `${origin}${getFacultyPath('pt', faculty.slug)}`
+      ? `${origin}${getFacultyPath(lang, faculty.slug)}`
       : undefined,
     keywords: [
       faculty.name,
