@@ -74,7 +74,7 @@ export class RequestOtp extends OpenAPIRoute {
     // Validate email domain against faculty whitelist
     const isValid = await isUniversityEmail(normalizedEmail)
 
-    if (!isValid) {
+    if (env.NODE_ENV !== 'development' && !isValid) {
       throw new BadRequestError('Please use your university email address.')
     }
 
