@@ -2,6 +2,7 @@ import { courseStats } from '@uni-feedback/db/schema'
 import { eq } from 'drizzle-orm'
 import { beforeEach, describe, expect, it } from 'vitest'
 import {
+  createApprovedFeedback,
   createCourse,
   createDegree,
   createFaculty,
@@ -344,6 +345,56 @@ describe('ChatRetrievalService: entity resolution must not report false negative
           ams.id,
           fisica.id,
           progFct.id
+        ])
+      })
+    })
+  })
+
+  describe('reviews filtered by school year', () => {
+    // A student rep asked for "only 2025/2026 feedback" on ten courses. With no
+    // filter, the model counted a mixed page itself and got it wrong both ways.
+    it('returns only that year, with counts for every year and a labelled year', async () => {
+      await withTestDb(async () => {
+        const { ams } = await seed()
+        await createApprovedFeedback(ams.id, {
+          schoolYear: 2025,
+          comment: 'Projeto bom'
+        })
+        await createApprovedFeedback(ams.id, { schoolYear: 2025 })
+        await createApprovedFeedback(ams.id, {
+          schoolYear: 2024,
+          comment: 'Exame difícil'
+        })
+
+        const result = await service.getCourseReviews({
+          courseId: ams.id,
+          schoolYear: 2025
+        })
+        expect(result.schoolYear).toBe('2025/2026')
+        expect(result.reviews.map((r) => r.comment)).toEqual(['Projeto bom'])
+        expect(result.reviews[0].schoolYear).toBe('2025/2026')
+        expect(result.reviewsBySchoolYear).toEqual([
+          { schoolYear: '2025/2026', reviews: 2, withComment: 1 },
+          { schoolYear: '2024/2025', reviews: 1, withComment: 1 }
+        ])
+      })
+    })
+
+    it('still reports which years have reviews when the filtered year has none', async () => {
+      await withTestDb(async () => {
+        const { ams } = await seed()
+        await createApprovedFeedback(ams.id, {
+          schoolYear: 2024,
+          comment: 'Exame difícil'
+        })
+
+        const result = await service.getCourseReviews({
+          courseId: ams.id,
+          schoolYear: 2025
+        })
+        expect(result.returned).toBe(0)
+        expect(result.reviewsBySchoolYear).toEqual([
+          { schoolYear: '2024/2025', reviews: 1, withComment: 1 }
         ])
       })
     })

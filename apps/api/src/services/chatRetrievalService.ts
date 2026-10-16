@@ -11,6 +11,10 @@ import {
   feedback,
   feedbackAnalysis
 } from '@uni-feedback/db/schema'
+import {
+  formatSchoolYearString,
+  getCurrentSchoolYear
+} from '@uni-feedback/utils'
 import { and, asc, desc, eq, inArray, isNotNull, sql } from 'drizzle-orm'
 
 /**
@@ -122,6 +126,14 @@ export function workloadLabel(rating: number | null): string | null {
   if (rating === null || rating === undefined) return null
   const labels = ['very heavy', 'heavy', 'moderate', 'light', 'very light']
   return labels[Math.round(rating) - 1] ?? null
+}
+
+/**
+ * School years leave this service as "2025/2026", never as the stored start
+ * year. A bare 2025 is read as "2024/2025" about as often as "2025/2026".
+ */
+function schoolYearLabel(year: number | null): string | null {
+  return year === null ? null : formatSchoolYearString(year)
 }
 
 function truncate(value: string | null, max: number): string | null {
@@ -575,10 +587,18 @@ export class ChatRetrievalService {
    * Respects the `identical` course-relationship merge via
    * `getFeedbackWhereCondition`, so two courses in an identical set can never
    * produce contradictory answers.
+   *
+   * `schoolYear` is the start year (2025 = 2025/2026). Without the filter and
+   * the per-year counts, the model was asked for "only 2025/2026 feedback",
+   * received a mixed page of reviews, and invented the counts: it reported 4
+   * reviews for a year that had 2, and 2 for one that had 4. The counts cover
+   * every year whatever the filter, so an empty filtered result can still say
+   * which years do have reviews instead of reading as "no data".
    */
   async getCourseReviews(args: {
     courseId: number
     topic?: 'teaching' | 'assessment' | 'materials' | 'tips'
+    schoolYear?: number
     limit?: number
   }) {
     const limit = Math.max(1, Math.min(args.limit ?? 8, MAX_REVIEWS))
@@ -599,6 +619,10 @@ export class ChatRetrievalService {
       conditions.push(eq(column, true))
     }
 
+    if (args.schoolYear !== undefined) {
+      conditions.push(eq(feedback.schoolYear, args.schoolYear))
+    }
+
     const rows = await database()
       .select({
         rating: feedback.rating,
@@ -612,12 +636,34 @@ export class ChatRetrievalService {
       .orderBy(desc(feedback.schoolYear), desc(feedback.createdAt))
       .limit(limit)
 
+    const byYear = await database()
+      .select({
+        schoolYear: feedback.schoolYear,
+        reviews: sql<number>`count(*)`,
+        withComment: sql<number>`count(*) filter (where ${feedback.comment} is not null and length(trim(${feedback.comment})) > 0)`
+      })
+      .from(feedback)
+      .where(getFeedbackWhereCondition(args.courseId))
+      .groupBy(feedback.schoolYear)
+      .orderBy(desc(feedback.schoolYear))
+
     return {
       courseId: args.courseId,
       topic: args.topic ?? null,
+      schoolYear:
+        args.schoolYear !== undefined
+          ? formatSchoolYearString(args.schoolYear)
+          : null,
+      currentSchoolYear: formatSchoolYearString(getCurrentSchoolYear()),
       returned: rows.length,
+      reviewsBySchoolYear: byYear.map((y) => ({
+        schoolYear: schoolYearLabel(y.schoolYear),
+        reviews: Number(y.reviews),
+        withComment: Number(y.withComment)
+      })),
       reviews: rows.map((r) => ({
         ...r,
+        schoolYear: schoolYearLabel(r.schoolYear),
         workloadLabel: workloadLabel(r.workloadRating),
         comment: truncate(r.comment, MAX_REVIEW_CHARS)
       }))

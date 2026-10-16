@@ -39,6 +39,7 @@ describe('ChatToolExecutor argument cleaning', () => {
     expect(retrieval.getCourseReviews).toHaveBeenCalledWith({
       courseId: 42,
       topic: undefined,
+      schoolYear: undefined,
       limit: undefined
     })
   })
@@ -125,4 +126,34 @@ describe('ChatToolExecutor argument cleaning', () => {
       expect.objectContaining({ degreeLevel: 'master' })
     )
   })
+
+  it.each([
+    ['2025/2026', 2025],
+    ['2025/26', 2025],
+    [' 2025 - 2026 ', 2025],
+    ['1999/00', undefined]
+  ])('reads school year %j as its start year', async (input, expected) => {
+    const { retrieval, tools } = executor()
+    await tools.execute('get_course_reviews', {
+      courseId: 42,
+      schoolYear: input
+    })
+    expect(retrieval.getCourseReviews).toHaveBeenCalledWith(
+      expect.objectContaining({ schoolYear: expected })
+    )
+  })
+
+  it.each(['2025', 2025, '2025/2027', '', 'this year'])(
+    'drops an ambiguous or malformed school year %j',
+    async (input) => {
+      const { retrieval, tools } = executor()
+      await tools.execute('get_course_reviews', {
+        courseId: 42,
+        schoolYear: input
+      })
+      expect(retrieval.getCourseReviews).toHaveBeenCalledWith(
+        expect.objectContaining({ schoolYear: undefined })
+      )
+    }
+  )
 })

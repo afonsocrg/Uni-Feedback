@@ -131,6 +131,11 @@ export const CHAT_TOOL_DEFINITIONS = [
             type: 'string',
             enum: ['teaching', 'assessment', 'materials', 'tips']
           },
+          schoolYear: {
+            type: 'string',
+            description:
+              'Only reviews from this school year, written "2025/2026". Leave empty for every year (the default). Set it only when the student names a year or says "this year" / "last year"; the response carries `currentSchoolYear` for those. Never report a per-year count you counted yourself: read `reviewsBySchoolYear`, which covers every year whatever the filter.'
+          },
           limit: {
             type: 'number',
             description: 'Max reviews, default 8, capped at 12.'
@@ -286,6 +291,26 @@ function oneOf<const T extends readonly string[]>(
     : undefined
 }
 
+/**
+ * A school year as its start year, or nothing.
+ *
+ * Only "2025/2026" (or "2025/26", "2025-2026") is accepted, never a bare
+ * "2025": that reads as 2024/2025 about as often as 2025/2026, and filtering
+ * on the wrong one returns the other year's reviews labelled as this one's.
+ * Unfiltered is the safer miss, because every review carries its year label
+ * and the per-year counts come back either way.
+ */
+function schoolYear(value: unknown): number | undefined {
+  if (typeof value !== 'string') return undefined
+  const match = value.trim().match(/^(\d{4})\s*[/-]\s*(\d{2}|\d{4})$/)
+  if (!match) return undefined
+  const start = Number(match[1])
+  const end = Number(match[2])
+  const endMatches =
+    match[2].length === 2 ? end === (start + 1) % 100 : end === start + 1
+  return endMatches && start >= 2000 && start <= 2100 ? start : undefined
+}
+
 const COURSE_SORTS = [
   'relevance',
   'rating',
@@ -373,6 +398,7 @@ export class ChatToolExecutor {
         const reviews = await this.retrieval.getCourseReviews({
           courseId,
           topic: oneOf(args.topic, REVIEW_TOPICS),
+          schoolYear: schoolYear(args.schoolYear),
           limit: int(args.limit, 50)
         })
         return {
