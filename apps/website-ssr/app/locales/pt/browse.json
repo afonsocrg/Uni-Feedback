@@ -4,14 +4,15 @@
     "description": "Encontra feedback anónimo de alunos sobre cadeiras, professores, exames e carga de trabalho.",
     "universities_suffix": " Universidades disponíveis: {{names}}{{more}}.",
     "and_more": ", e mais",
-    "faculty_title": "{{name}} ({{shortName}}): opiniões sobre cadeiras | Uni Feedback",
+    "faculty_title": "{{shortName}}: opiniões sobre cadeiras e cursos | Uni Feedback",
     "faculty_description": "{{shortName}}: opiniões anónimas de alunos sobre as cadeiras de cada curso. Carga de trabalho, avaliação e dicas para escolher.",
     "faculty_description_reviews_one": "{{shortName}}: 1 opinião anónima de alunos sobre as cadeiras de cada curso. Carga de trabalho, avaliação e dicas para escolher.",
     "faculty_description_reviews_other": "{{shortName}}: {{count}} opiniões anónimas de alunos sobre as cadeiras de cada curso. Carga de trabalho, avaliação e dicas para escolher.",
     "degree_title": "{{acronym}} {{faculty}}: opiniões sobre as cadeiras | Uni Feedback",
-    "degree_description": "{{degreeName}} ({{acronym}}), {{faculty}}: opiniões anónimas de alunos sobre as cadeiras do curso. Carga de trabalho, avaliação e dicas.",
-    "degree_description_reviews_one": "{{degreeName}} ({{acronym}}), {{faculty}}: 1 opinião anónima de alunos sobre as cadeiras do curso. Carga de trabalho, avaliação e dicas.",
-    "degree_description_reviews_other": "{{degreeName}} ({{acronym}}), {{faculty}}: {{count}} opiniões anónimas de alunos sobre as cadeiras do curso. Carga de trabalho, avaliação e dicas."
+    "degree_description": "{{degreeName}} ({{acronym}}), {{faculty}}: opiniões anónimas de alunos sobre as cadeiras do curso.",
+    "degree_description_reviews_one": "{{degreeName}} ({{acronym}}), {{faculty}}: 1 opinião anónima de alunos sobre as cadeiras do curso.",
+    "degree_description_reviews_other": "{{degreeName}} ({{acronym}}), {{faculty}}: {{count}} opiniões anónimas de alunos sobre as cadeiras do curso.",
+    "degree_description_tail": "Carga de trabalho, avaliação e dicas."
   },
   "page": {
     "title": "Escolhe a tua faculdade",

@@ -24,9 +24,9 @@ export type Lang = 'pt' | 'en'
 export const defaultLang: Lang = 'pt'
 export const supportedLangs: Lang[] = ['pt', 'en']
 
-// Single shared instance — safe for SSR because changeLanguage() is synchronous
-// when all resources are pre-loaded (no async backend).
-// Node.js is single-threaded: the loader sets the lang before renderToString runs.
+// Base instance: owns the resources and the config. Rendering never reads it
+// directly (see `getI18n`), so its language is irrelevant; only `getFixedT`,
+// which takes the language explicitly, is safe to call on it.
 const i18n = i18next.createInstance()
 
 const resources = {
@@ -73,6 +73,21 @@ i18n.use(initReactI18next).init({
 
 export { i18n }
 
+/**
+ * One instance per language, each pinned to it, sharing the base instance's
+ * resource store. Render under `getI18n(lang)` instead of switching a shared
+ * instance with `changeLanguage()`: SSR streams and awaits loaders, so two
+ * requests overlap, and a PT page used to render in English whenever an EN
+ * request switched the shared language in between.
+ */
+const instances = Object.fromEntries(
+  supportedLangs.map((lng) => [lng, i18n.cloneInstance({ lng })])
+) as Record<Lang, typeof i18n>
+
+export function getI18n(lang: Lang) {
+  return instances[lang]
+}
+
 // HMR: when a locale JSON changes, push the new bundles into the running
 // i18next instance and force a re-render — no full page refresh needed.
 if (import.meta.hot) {
@@ -115,7 +130,7 @@ if (import.meta.hot) {
         i18n.addResourceBundle(lng, ns, mod.default, true, true)
       })
       // Re-emit to make react-i18next re-render mounted components.
-      i18n.changeLanguage(i18n.language)
+      supportedLangs.forEach((lng) => instances[lng].changeLanguage(lng))
     }
   )
 }

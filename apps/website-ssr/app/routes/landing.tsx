@@ -17,16 +17,43 @@ import {
   TestimonialsSection,
   TrustSection
 } from '~/components'
-import { buildMeta, metaT } from '~/utils/meta'
+import { INSTAGRAM_URL, TIKTOK_URL } from '~/utils/constants'
+import { detectLang } from '~/utils/i18n-routes'
+import { buildMeta, metaOrigin, metaT, SITE_NAME } from '~/utils/meta'
 
 import type { Route } from './+types/landing'
 
-export function meta({ location, matches }: Route.MetaArgs) {
+export function meta({ loaderData, location, matches }: Route.MetaArgs) {
   const t = metaT(location, 'landing')
+  const origin = metaOrigin(matches)
+  // A count rather than a list of schools: naming a few of them made the
+  // coverage look smaller than it is, and this stays right as schools are added.
+  const facultyCount = loaderData?.faculties.length
   return buildMeta({
     matches,
     title: t('meta_title'),
-    description: t('meta_desc')
+    description: facultyCount
+      ? t('meta_desc', { count: facultyCount })
+      : undefined,
+    // WebSite is what Google reads for the site name it shows in results, and
+    // Organization ties the brand to its logo and social profiles.
+    structuredData: [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        name: SITE_NAME,
+        url: `${origin}/`,
+        inLanguage: detectLang(location.pathname)
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'Organization',
+        name: SITE_NAME,
+        url: `${origin}/`,
+        logo: `${origin}/web-app-manifest-512x512.png`,
+        sameAs: [INSTAGRAM_URL, TIKTOK_URL]
+      }
+    ]
   })
 }
 
@@ -192,7 +219,11 @@ export default function LandingPage({ loaderData }: Route.ComponentProps) {
       {/* <UniversitiesStrip faculties={faculties} /> */}
       <SupportersSection studentClubs={studentClubs} />
       <LiveFeedSection feedbacks={recentFeedbacks} />
-      <GiveawayPromoSection phase={giveawayPhase} />
+      {/* Only while an edition is running or being drawn: once winners are
+          out the band is stale, and the footer still links to the giveaway. */}
+      {giveawayPhase !== 'announced' && (
+        <GiveawayPromoSection phase={giveawayPhase} />
+      )}
       <ContributeStrip />
       <TrustSection />
       <BrowseSection faculties={faculties} degrees={degrees} />

@@ -25,10 +25,10 @@ export function meta({ loaderData, location, matches }: Route.MetaArgs) {
 
   const { faculty, degrees, origin } = loaderData
 
-  const title = t('meta.faculty_title', {
-    name: faculty.name,
-    shortName: faculty.shortName
-  })
+  // Lead with the short name: students search "ist" or "nova sbe", and the
+  // full name (often 50+ characters) pushed the title past truncation. The
+  // full name is still in the H1 and the structured data.
+  const title = t('meta.faculty_title', { shortName: faculty.shortName })
 
   const totalFeedback = degrees.reduce(
     (sum, d) => sum + Number(d.feedbackCount),

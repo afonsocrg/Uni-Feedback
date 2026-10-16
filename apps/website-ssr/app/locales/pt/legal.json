@@ -392,10 +392,12 @@
     "success_title": "Subscrição Cancelada"
   },
   "terms": {
-    "meta_title": "Termos de Serviço | Uni Feedback"
+    "meta_title": "Termos de Serviço | Uni Feedback",
+    "meta_desc": "Os termos que regem a utilização do Uni Feedback: contas, publicação de feedback e regras da plataforma."
   },
   "privacy": {
-    "meta_title": "Política de Privacidade | Uni Feedback"
+    "meta_title": "Política de Privacidade | Uni Feedback",
+    "meta_desc": "Como o Uni Feedback recolhe, usa e protege os teus dados, e como o teu feedback se mantém anónimo."
   },
   "guidelines_full": {
     "meta_title": "Guidelines de Feedback | Uni Feedback",

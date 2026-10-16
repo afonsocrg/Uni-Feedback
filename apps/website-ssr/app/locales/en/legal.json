@@ -392,10 +392,12 @@
     "success_title": "Unsubscribed"
   },
   "terms": {
-    "meta_title": "Terms of Service | Uni Feedback"
+    "meta_title": "Terms of Service | Uni Feedback",
+    "meta_desc": "The terms that govern using Uni Feedback: accounts, posting feedback and platform rules."
   },
   "privacy": {
-    "meta_title": "Privacy Policy | Uni Feedback"
+    "meta_title": "Privacy Policy | Uni Feedback",
+    "meta_desc": "How Uni Feedback collects, uses and protects your data, and how your feedback stays anonymous."
   },
   "guidelines_full": {
     "meta_title": "Feedback Guidelines | Uni Feedback",

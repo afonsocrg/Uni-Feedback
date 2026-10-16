@@ -22,7 +22,7 @@ import {
 import { Toaster } from 'sonner'
 import { NotFound } from '~/components'
 import type { Lang } from '~/i18n/config'
-import { defaultLang, i18n } from '~/i18n/config'
+import { getI18n } from '~/i18n/config'
 import { AuthProvider } from '~/providers/AuthProvider'
 import { AuthRefreshProvider } from '~/providers/AuthRefreshProvider'
 import { ThemeProvider } from '~/providers/ThemeProvider'
@@ -38,11 +38,8 @@ import { getRequestOrigin } from '~/utils/request'
 import type { Route } from './+types/root'
 import { LandingLayout } from './components/landing'
 
-// Module-level lang used for SSR: set by loader before renderToString runs.
-// Safe for Node.js single-threaded synchronous rendering.
-let _ssrLang: Lang = defaultLang
-// Same pattern for the theme — used as a fallback when loader data is
-// unavailable (e.g. during error rendering).
+// Fallback theme for when loader data is unavailable (e.g. during error
+// rendering).
 let _ssrTheme: ResolvedTheme = 'light'
 
 export const links: Route.LinksFunction = () => [
@@ -61,8 +58,6 @@ export const links: Route.LinksFunction = () => [
 export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url)
   const lang = detectLang(url.pathname)
-  _ssrLang = lang
-  i18n.changeLanguage(lang)
   const theme = getThemeFromCookie(request.headers.get('cookie'))
   _ssrTheme = theme
   // Whether to advertise the chat. See `useShowChatEntryPoints`.
@@ -142,6 +137,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
     | { theme?: ResolvedTheme }
     | undefined
   const theme = rootData?.theme ?? _ssrTheme
+  // From the URL, not shared state: concurrent SSR requests can't leak into it.
+  const lang = detectLang(useLocation().pathname)
 
   const envScript =
     typeof process !== 'undefined'
@@ -156,7 +153,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <html
-      lang={_ssrLang}
+      lang={lang}
       className={theme === 'dark' ? 'scroll-smooth dark' : 'scroll-smooth'}
       style={{ colorScheme: theme }}
       suppressHydrationWarning
@@ -194,10 +191,8 @@ export default function App() {
   useEffect(() => {
     userPreferences.initialize()
 
-    // Sync lang attribute and i18n on client-side navigation
-    if (i18n.language !== lang) {
-      i18n.changeLanguage(lang)
-    }
+    // Sync lang attribute on client-side navigation (AppProviders swaps the
+    // i18n instance itself)
     document.documentElement.lang = lang
   }, [lang])
 
@@ -281,21 +276,41 @@ export default function App() {
   }, [])
 
   return (
+    <AppProviders lang={lang} theme={theme}>
+      <Toaster position="top-right" richColors />
+      <Outlet />
+      {import.meta.env.DEV && (
+        <React.Suspense fallback={null}>
+          <ReactQueryDevtools initialIsOpen={false} />
+        </React.Suspense>
+      )}
+    </AppProviders>
+  )
+}
+
+/**
+ * Everything a page needs around it. Shared with the ErrorBoundary so the 404
+ * page (which renders the full header) has the same context as any other page.
+ */
+function AppProviders({
+  lang,
+  theme,
+  children
+}: {
+  lang: Lang
+  theme: ResolvedTheme
+  children: React.ReactNode
+}) {
+  return (
     <ThemeProvider initialResolved={theme}>
-      <I18nextProvider i18n={i18n}>
+      <I18nextProvider i18n={getI18n(lang)}>
         <AuthProvider>
           <AuthRefreshProvider>
             <PersistQueryClientProvider
               client={queryClient}
               persistOptions={{ persister: persister! }}
             >
-              <Toaster position="top-right" richColors />
-              <Outlet />
-              {import.meta.env.DEV && (
-                <React.Suspense fallback={null}>
-                  <ReactQueryDevtools initialIsOpen={false} />
-                </React.Suspense>
-              )}
+              {children}
             </PersistQueryClientProvider>
           </AuthRefreshProvider>
         </AuthProvider>
@@ -313,6 +328,10 @@ const ReactQueryDevtools = import.meta.env.DEV
   : () => null
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
+  const rootData = useRouteLoaderData('root') as
+    | { theme?: ResolvedTheme }
+    | undefined
+  const { pathname } = useLocation()
   let message = 'Oops!'
   let details = 'An unexpected error occurred.'
   let stack: string | undefined
@@ -320,13 +339,14 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   if (isRouteErrorResponse(error)) {
     if (error.status === 404 || error.status === 400) {
       return (
-        <AuthProvider>
-          <AuthRefreshProvider>
-            <LandingLayout>
-              <NotFound />
-            </LandingLayout>
-          </AuthRefreshProvider>
-        </AuthProvider>
+        <AppProviders
+          lang={detectLang(pathname)}
+          theme={rootData?.theme ?? _ssrTheme}
+        >
+          <LandingLayout>
+            <NotFound />
+          </LandingLayout>
+        </AppProviders>
       )
     }
     message = 'Error'

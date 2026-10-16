@@ -50,6 +50,13 @@ function rootData(matches?: readonly [{ data?: RootData }?, ...unknown[]]) {
   return matches?.[0]?.data
 }
 
+/** Absolute site origin for URLs inside `meta` (same source as the OG image). */
+export function metaOrigin(
+  matches?: readonly [{ data?: RootData }?, ...unknown[]]
+): string {
+  return rootData(matches)?.origin ?? SITE_URL
+}
+
 /**
  * Branded social card shipped for every page that doesn't supply its own.
  * Static PNGs live in `public/og/`; one per language. Rendered from the

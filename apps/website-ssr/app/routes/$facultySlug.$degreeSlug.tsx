@@ -41,13 +41,17 @@ export function meta({ loaderData, location, matches }: Route.MetaArgs) {
     acronym: degree.acronym,
     faculty: faculty.shortName
   }
-  const description =
+  const summary =
     totalFeedback > 0
       ? t('meta.degree_description_reviews', {
           ...descriptionParams,
           count: totalFeedback
         })
       : t('meta.degree_description', descriptionParams)
+  // Long degree names push the description past what Google shows (~160
+  // characters), so the generic tail goes first, keeping the name and count.
+  const withTail = `${summary} ${t('meta.degree_description_tail')}`
+  const description = withTail.length <= 160 ? withTail : summary
 
   // Schema.org structured data
   const structuredData = {
