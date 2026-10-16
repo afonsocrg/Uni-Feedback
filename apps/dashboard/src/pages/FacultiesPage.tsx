@@ -1,3 +1,4 @@
+import { usePersistentState } from '@hooks'
 import { useQuery } from '@tanstack/react-query'
 import { getFaculties } from '@uni-feedback/api-client'
 import {
@@ -17,11 +18,14 @@ import {
   TableRow
 } from '@uni-feedback/ui'
 import { Building2, Search } from 'lucide-react'
-import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { STORAGE_KEYS } from '../utils'
 
 export function FacultiesPage() {
-  const [searchTerm, setSearchTerm] = useState('')
+  const [searchTerm, setSearchTerm] = usePersistentState(
+    STORAGE_KEYS.FACULTIES_SEARCH,
+    ''
+  )
   const navigate = useNavigate()
 
   const {

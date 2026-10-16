@@ -1,5 +1,5 @@
 import { PaginationControls } from '@components'
-import { useAuth, useDebouncedSearch } from '@hooks'
+import { useAuth, useDebouncedSearch, usePersistentState } from '@hooks'
 import { useQuery } from '@tanstack/react-query'
 import {
   getAdminChats,
@@ -30,6 +30,7 @@ import {
 import { Bot, Search, Shuffle, ThumbsDown, ThumbsUp, X } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { STORAGE_KEYS } from '../../utils'
 import { formatCost, formatDateTime, truncate } from '../../utils/chatFormat'
 import { ChatStatsOverview } from './ChatStatsOverview'
 
@@ -41,10 +42,14 @@ export function ChatsPage() {
   const canOpenUsers = viewer?.role === 'super_admin'
 
   const [page, setPage] = useState(1)
-  const [limit, setLimit] = useState(20)
-  const { searchTerm, setSearchTerm, debouncedSearchTerm } =
-    useDebouncedSearch()
-  const [ratingFilter, setRatingFilter] = useState<RatingFilter>('all')
+  const [limit, setLimit] = usePersistentState(STORAGE_KEYS.CHATS_PAGE_SIZE, 20)
+  const { searchTerm, setSearchTerm, debouncedSearchTerm } = useDebouncedSearch(
+    STORAGE_KEYS.CHATS_SEARCH
+  )
+  const [ratingFilter, setRatingFilter] = usePersistentState<RatingFilter>(
+    STORAGE_KEYS.CHATS_RATING,
+    'all'
+  )
   // Bumped by the shuffle button so a re-shuffle is a new query key, since a
   // random order with the same key would just come back from the cache.
   const [shuffle, setShuffle] = useState(0)

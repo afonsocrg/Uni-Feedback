@@ -1,4 +1,5 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo } from 'react'
+import { usePersistentState } from './usePersistentState'
 
 export type SortDirection = 'asc' | 'desc'
 
@@ -17,6 +18,12 @@ export interface UseTableSortOptions<K extends string> {
    * override per column with the second argument of `toggle`.
    */
   firstDirection?: SortDirection
+  /**
+   * localStorage key (from `STORAGE_KEYS`) that remembers the sort across
+   * visits. Required so every table decides: pass null only for a sort that
+   * should reset on each visit. See the dashboard-persisted-list-state skill.
+   */
+  storageKey: string | null
 }
 
 export interface UseTableSortReturn<K extends string> {
@@ -49,10 +56,10 @@ export interface UseTableSortReturn<K extends string> {
  * state with `SortableTableHead`. See the dashboard-table-sorting skill.
  */
 export function useTableSort<K extends string>(
-  options: UseTableSortOptions<K> = {}
+  options: UseTableSortOptions<K>
 ): UseTableSortReturn<K> {
-  const { initial = null, firstDirection = 'desc' } = options
-  const [sort, setSort] = useState<SortState<K>>(initial)
+  const { initial = null, firstDirection = 'desc', storageKey } = options
+  const [sort, setSort] = usePersistentState<SortState<K>>(storageKey, initial)
 
   const toggle = useCallback(
     (key: K, first: SortDirection = firstDirection) => {
@@ -64,10 +71,10 @@ export function useTableSort<K extends string>(
         return null
       })
     },
-    [firstDirection]
+    [firstDirection, setSort]
   )
 
-  const clear = useCallback(() => setSort(null), [])
+  const clear = useCallback(() => setSort(null), [setSort])
 
   const directionOf = useCallback(
     (key: K) => (sort?.key === key ? sort.direction : null),

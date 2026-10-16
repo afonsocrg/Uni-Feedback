@@ -148,6 +148,14 @@ The hook runs:
 
 If any check fails, the commit is blocked. Run `pnpm run format` to fix formatting issues, then commit again.
 
+## Admin Dashboard List State
+
+**Every filter, sort, search box and page-size control on a dashboard list
+page must persist across navigation** (localStorage, via `usePersistentState`,
+`useDebouncedSearch` or `useTableSort`, with keys in `STORAGE_KEYS`). A new
+filter on plain `useState` is a bug. See the `dashboard-persisted-list-state`
+skill.
+
 ## Observability
 
 **Every user-facing feature on `website-ssr` must ship with product analytics.**

@@ -10,8 +10,32 @@ import {
   users
 } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
-import { and, count, desc, eq, gt, isNotNull, isNull, sql } from 'drizzle-orm'
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  gt,
+  isNotNull,
+  isNull,
+  sql,
+  type SQL
+} from 'drizzle-orm'
 import { z } from 'zod'
+
+// Allow-list of sortable columns. Each value maps to a column explicitly so
+// nothing from the query string is ever interpolated into SQL.
+const FeedbackSortBySchema = z.enum([
+  'rating',
+  'workload_rating',
+  'school_year'
+])
+const SORT_COLUMNS = {
+  rating: feedback.rating,
+  workload_rating: feedback.workloadRating,
+  school_year: feedback.schoolYear
+} as const
 
 const FeedbackQuerySchema = PaginationQuerySchema.extend({
   course_id: z
@@ -63,7 +87,9 @@ const FeedbackQuerySchema = PaginationQuerySchema.extend({
     .string()
     .optional()
     .transform((val) => (val ? new Date(val) : undefined)),
-  reviewed: z.boolean().optional()
+  reviewed: z.boolean().optional(),
+  sort_by: FeedbackSortBySchema.optional(),
+  sort_dir: z.enum(['asc', 'desc']).optional()
 })
 
 const AdminFeedbackSchema = z.object({
@@ -149,7 +175,9 @@ export class GetFeedback extends OpenAPIRoute {
       has_comment,
       school_year,
       created_after,
-      reviewed
+      reviewed,
+      sort_by,
+      sort_dir = 'desc'
     } = query
 
     // Build where conditions
@@ -226,6 +254,17 @@ export class GetFeedback extends OpenAPIRoute {
 
     const whereClause = conditions.length > 0 ? and(...conditions) : undefined
 
+    // Newest first by default. With a sort column, rows that have no value
+    // (no workload rating, no school year) always sink to the bottom, and
+    // ties keep the newest-first order so pagination stays stable.
+    const orderBy: SQL[] = []
+    if (sort_by) {
+      const column = SORT_COLUMNS[sort_by]
+      const direction = sort_dir === 'asc' ? asc(column) : desc(column)
+      orderBy.push(sql`${direction} NULLS LAST`)
+    }
+    orderBy.push(desc(feedback.createdAt))
+
     // Get total count
     const totalResult = await database()
       .select({ count: count() })
@@ -293,7 +332,7 @@ export class GetFeedback extends OpenAPIRoute {
       )
       .leftJoin(users, eq(feedback.userId, users.id))
       .where(whereClause)
-      .orderBy(desc(feedback.createdAt))
+      .orderBy(...orderBy)
       .limit(limit)
       .offset(offset)
 

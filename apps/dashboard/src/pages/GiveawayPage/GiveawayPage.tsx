@@ -1,4 +1,5 @@
 import { DatePicker, PaginationControls, TriboolIcon } from '@components'
+import { usePersistentState } from '@hooks'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   getAdminFeedbackNew,
@@ -28,6 +29,7 @@ import {
 import { Database, Edit, RefreshCw } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
+import { STORAGE_KEYS } from '../../utils'
 import { AnalysisEditDialog } from './AnalysisEditDialog'
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50, 100]
@@ -65,12 +67,27 @@ export function GiveawayPage() {
 
   // Pagination state
   const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(20)
+  const [pageSize, setPageSize] = usePersistentState(
+    STORAGE_KEYS.GIVEAWAY_PAGE_SIZE,
+    20
+  )
 
   // Filter state
-  const [createdAfter, setCreatedAfter] = useState<Date | undefined>(undefined)
-  const [approvedFilter, setApprovedFilter] = useState<string>('all')
-  const [reviewedFilter, setReviewedFilter] = useState<string>('all')
+  // Persisted as an ISO string, since localStorage only holds JSON
+  const [createdAfterIso, setCreatedAfterIso] = usePersistentState<
+    string | null
+  >(STORAGE_KEYS.GIVEAWAY_CREATED_AFTER, null)
+  const createdAfter = createdAfterIso ? new Date(createdAfterIso) : undefined
+  const setCreatedAfter = (date: Date | undefined) =>
+    setCreatedAfterIso(date?.toISOString() ?? null)
+  const [approvedFilter, setApprovedFilter] = usePersistentState<string>(
+    STORAGE_KEYS.GIVEAWAY_APPROVED,
+    'all'
+  )
+  const [reviewedFilter, setReviewedFilter] = usePersistentState<string>(
+    STORAGE_KEYS.GIVEAWAY_REVIEWED,
+    'all'
+  )
 
   // Dialog state
   const [editingFeedback, setEditingFeedback] = useState<AdminFeedback | null>(

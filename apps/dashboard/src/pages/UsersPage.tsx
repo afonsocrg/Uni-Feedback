@@ -1,5 +1,5 @@
 import { SortableTableHead } from '@components'
-import { useTableSort } from '@hooks'
+import { usePersistentState, useTableSort } from '@hooks'
 import { useQuery } from '@tanstack/react-query'
 import { getUsers, type AdminUserListItem } from '@uni-feedback/api-client'
 import {
@@ -24,12 +24,16 @@ import { Ellipsis, Plus, Search, Shield, Users } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { InviteUserDialog } from '../components/InviteUserDialog'
+import { STORAGE_KEYS } from '../utils'
 
 type SortKey = 'feedbackCount' | 'chatCount' | 'referralCount'
 
 export function UsersPage() {
   const navigate = useNavigate()
-  const [searchTerm, setSearchTerm] = useState('')
+  const [searchTerm, setSearchTerm] = usePersistentState(
+    STORAGE_KEYS.USERS_SEARCH,
+    ''
+  )
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false)
 
   const {
@@ -43,7 +47,9 @@ export function UsersPage() {
   })
 
   // The list is small and unpaginated, so sorting happens on the client
-  const { directionOf, toggle, sortRows } = useTableSort<SortKey>()
+  const { directionOf, toggle, sortRows } = useTableSort<SortKey>({
+    storageKey: STORAGE_KEYS.USERS_SORT
+  })
 
   const filteredUsers: AdminUserListItem[] = sortRows(
     users.filter(

@@ -371,7 +371,12 @@ export interface AdminFeedbackQuery {
   school_year?: number
   created_after?: string
   reviewed?: boolean
+  /** Column to order by; omitted means newest first */
+  sort_by?: AdminFeedbackSortBy
+  sort_dir?: 'asc' | 'desc'
 }
+
+export type AdminFeedbackSortBy = 'rating' | 'workload_rating' | 'school_year'
 
 export interface FeedbackExportFilters {
   faculty_id?: number
@@ -813,6 +818,8 @@ export async function getAdminFeedbackNew(
   if (query?.created_after) params.set('created_after', query.created_after)
   if (query?.reviewed !== undefined)
     params.set('reviewed', query.reviewed.toString())
+  if (query?.sort_by) params.set('sort_by', query.sort_by)
+  if (query?.sort_dir) params.set('sort_dir', query.sort_dir)
 
   const url = params.toString()
     ? `/admin/feedback?${params}`

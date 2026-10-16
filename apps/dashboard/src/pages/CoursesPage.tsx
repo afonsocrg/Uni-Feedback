@@ -1,5 +1,5 @@
 import { PaginationControls } from '@components'
-import { useAdminFilters, useDebouncedSearch } from '@hooks'
+import { useAdminFilters, useDebouncedSearch, usePersistentState } from '@hooks'
 import { useQuery } from '@tanstack/react-query'
 import {
   getAdminCoursesNew,
@@ -43,15 +43,22 @@ import {
 import { BookOpen, Check, ChevronsUpDown, Search } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { STORAGE_KEYS } from '../utils'
 
 export function CoursesPage() {
   const navigate = useNavigate()
 
   // Local state for pagination and filters
   const [page, setPage] = useState(1)
-  const [limit, setLimit] = useState(20)
+  const [limit, setLimit] = usePersistentState(
+    STORAGE_KEYS.COURSES_PAGE_SIZE,
+    20
+  )
   const { facultyId, degreeId, setFaculty, setDegree } = useAdminFilters()
-  const [selectedTerm, setSelectedTerm] = useState('all')
+  const [selectedTerm, setSelectedTerm] = usePersistentState(
+    STORAGE_KEYS.COURSES_TERM,
+    'all'
+  )
 
   const selectedFacultyId = facultyId?.toString() ?? 'all'
   const selectedDegreeId = degreeId?.toString() ?? 'all'
@@ -60,8 +67,7 @@ export function CoursesPage() {
 
   // Debounced search functionality
   const { searchTerm, setSearchTerm, debouncedSearchTerm } = useDebouncedSearch(
-    '',
-    300
+    STORAGE_KEYS.COURSES_SEARCH
   )
 
   // Build query object using debounced search and current filters

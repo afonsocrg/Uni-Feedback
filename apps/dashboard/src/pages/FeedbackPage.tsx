@@ -1,9 +1,11 @@
-import { PaginationControls } from '@components'
+import { PaginationControls, SortableTableHead } from '@components'
 import {
   useAdminFilters,
   useAuth,
   useDebounced,
-  useFeedbackFilters
+  useFeedbackFilters,
+  usePersistentState,
+  useTableSort
 } from '@hooks'
 import { useQuery } from '@tanstack/react-query'
 import {
@@ -16,6 +18,7 @@ import {
   isSuperuser,
   searchAdminUsers,
   type AdminFeedbackQuery,
+  type AdminFeedbackSortBy,
   type FeedbackExportFilters
 } from '@uni-feedback/api-client'
 import {
@@ -55,6 +58,7 @@ import { getCurrentSchoolYear } from '@uni-feedback/utils'
 import { Check, ChevronsUpDown, Download, MessageSquare, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import { STORAGE_KEYS } from '../utils'
 import { downloadBlob } from '../utils/download'
 import { markdownToText } from '../utils/markdownToText'
 
@@ -69,7 +73,10 @@ export function FeedbackPage() {
 
   // Local state for pagination and filters
   const [page, setPage] = useState(1)
-  const [limit, setLimit] = useState(20)
+  const [limit, setLimit] = usePersistentState(
+    STORAGE_KEYS.FEEDBACK_PAGE_SIZE,
+    20
+  )
   const {
     facultyId,
     degreeId,
@@ -113,6 +120,11 @@ export function FeedbackPage() {
 
   const [isExporting, setIsExporting] = useState(false)
 
+  // The list is paginated, so the API does the ordering
+  const { sort, directionOf, toggle } = useTableSort<AdminFeedbackSortBy>({
+    storageKey: STORAGE_KEYS.FEEDBACK_SORT
+  })
+
   const selectedFacultyId = facultyId?.toString() ?? 'all'
   const selectedDegreeId = degreeId?.toString() ?? 'all'
   const selectedCourseId = courseId?.toString() ?? 'all'
@@ -148,7 +160,8 @@ export function FeedbackPage() {
     ...(schoolYearFilter !== 'all' && {
       school_year: parseInt(schoolYearFilter, 10)
     }),
-    ...(authorFilter !== null && { user_id: authorFilter })
+    ...(authorFilter !== null && { user_id: authorFilter }),
+    ...(sort && { sort_by: sort.key, sort_dir: sort.direction })
   }
 
   // Fetch data
@@ -275,6 +288,11 @@ export function FeedbackPage() {
   const handlePageSizeChange = (newLimit: number) => {
     setPage(1)
     setLimit(newLimit)
+  }
+
+  const handleSortToggle = (key: AdminFeedbackSortBy) => {
+    toggle(key)
+    setPage(1)
   }
 
   // Handle row clicks
@@ -817,24 +835,50 @@ export function FeedbackPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Course</TableHead>
-                      <TableHead>School Year</TableHead>
-                      <TableHead>Author</TableHead>
-                      <TableHead>Ratings</TableHead>
+                      <SortableTableHead
+                        sortKey="school_year"
+                        direction={directionOf('school_year')}
+                        onToggle={handleSortToggle}
+                        className="w-28"
+                      >
+                        Year
+                      </SortableTableHead>
+                      <TableHead className="w-56">Author</TableHead>
+                      <SortableTableHead
+                        sortKey="rating"
+                        direction={directionOf('rating')}
+                        onToggle={handleSortToggle}
+                        className="w-28"
+                      >
+                        Rating
+                      </SortableTableHead>
+                      <SortableTableHead
+                        sortKey="workload_rating"
+                        direction={directionOf('workload_rating')}
+                        onToggle={handleSortToggle}
+                        className="w-36"
+                      >
+                        Workload
+                      </SortableTableHead>
                       <TableHead>Comment</TableHead>
-                      <TableHead className="text-center">Approved</TableHead>
+                      <TableHead className="w-24 text-center">
+                        Approved
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
-                  <TableBody>
-                    {feedback.map((feedbackItem) => (
-                      <TableRow
-                        key={feedbackItem.id}
-                        className="cursor-pointer hover:bg-muted/50"
-                        onClick={() => handleFeedbackClick(feedbackItem.id)}
-                      >
-                        <TableCell className="min-w-[260px] max-w-[420px]">
-                          {/* Full names, one column. The row click opens the
-                              feedback; the parts themselves are not links. */}
+                  {/* One body per entry: the course path gets a row of its
+                      own spanning every column, the values sit underneath.
+                      Hovering either row highlights both. */}
+                  {feedback.map((feedbackItem) => (
+                    <TableBody
+                      key={feedbackItem.id}
+                      className="group cursor-pointer border-b last:border-0"
+                      onClick={() => handleFeedbackClick(feedbackItem.id)}
+                    >
+                      <TableRow className="border-0 group-hover:bg-muted/50">
+                        <TableCell colSpan={6} className="pb-1 pt-3">
+                          {/* The row click opens the feedback; the parts
+                              themselves are not links. */}
                           <p className="text-sm">
                             <span className="text-muted-foreground">
                               {feedbackItem.facultyName}
@@ -853,7 +897,9 @@ export function FeedbackPage() {
                             </span>
                           </p>
                         </TableCell>
-                        <TableCell>
+                      </TableRow>
+                      <TableRow className="border-0 group-hover:bg-muted/50">
+                        <TableCell className="pt-1 align-top">
                           {feedbackItem.schoolYear ? (
                             <Chip
                               color="white"
@@ -863,7 +909,7 @@ export function FeedbackPage() {
                             <span className="text-muted-foreground">-</span>
                           )}
                         </TableCell>
-                        <TableCell className="max-w-[240px]">
+                        <TableCell className="max-w-56 pt-1 align-top">
                           {feedbackItem.userId !== null ? (
                             <Chip
                               color="white"
@@ -896,21 +942,21 @@ export function FeedbackPage() {
                             </span>
                           )}
                         </TableCell>
-                        <TableCell>
-                          <div className="space-y-2">
-                            <StarRating value={feedbackItem.rating} size="sm" />
-                            {feedbackItem.workloadRating ? (
-                              <WorkloadRatingDisplay
-                                rating={feedbackItem.workloadRating}
-                              />
-                            ) : (
-                              <span className="text-xs text-muted-foreground">
-                                No workload rating
-                              </span>
-                            )}
-                          </div>
+                        <TableCell className="pt-1 align-top">
+                          <StarRating value={feedbackItem.rating} size="sm" />
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="pt-1 align-top">
+                          {feedbackItem.workloadRating ? (
+                            <WorkloadRatingDisplay
+                              rating={feedbackItem.workloadRating}
+                            />
+                          ) : (
+                            <span className="text-xs text-muted-foreground">
+                              No workload rating
+                            </span>
+                          )}
+                        </TableCell>
+                        <TableCell className="pt-1 align-top">
                           {feedbackItem.comment ? (
                             <p
                               className="text-sm line-clamp-4"
@@ -924,7 +970,7 @@ export function FeedbackPage() {
                             </span>
                           )}
                         </TableCell>
-                        <TableCell className="text-center">
+                        <TableCell className="pt-1 align-top text-center">
                           <div className="flex justify-center">
                             {feedbackItem.approved ? (
                               <Check className="h-4 w-4 text-green-600" />
@@ -934,8 +980,8 @@ export function FeedbackPage() {
                           </div>
                         </TableCell>
                       </TableRow>
-                    ))}
-                  </TableBody>
+                    </TableBody>
+                  ))}
                 </Table>
               </div>
 
