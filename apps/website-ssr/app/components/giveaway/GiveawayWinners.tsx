@@ -7,15 +7,12 @@ import { getAssetUrl } from '~/utils'
  *
  * NAMES ARE OPT-IN, ONE AT A TIME, AND SO ARE PHOTOS. The rules allow "[First name]
  * [Last initial], [Faculty]" with the winner's consent. The Ambassador gave it in
- * writing for his full name and photo; the Nova SBE winner gave it for his name
- * only, so he is named over his faculty's mark rather than a face. The remaining
- * winner has consented to neither, and the default without consent stays what it
- * was: "A student from <degree> at <faculty>" says the useful thing (the prizes
- * went to real students, spread across three faculties) while identifying nobody,
- * since the smallest of the three degrees had 7 contributors in the window,
- * comfortably above the MIN_CONTRIBUTORS floor `giveawayResults.server.ts` uses to
- * decide when a group is small enough to be traceable to individuals. Nobody gets
- * promoted from the anonymous form to a name without asking them first.
+ * writing for his full name and photo; the Nova SBE and IST winners gave it for
+ * their names only, so they are named over their faculty's mark rather than a
+ * face. The default without consent is "A student from <degree> at <faculty>",
+ * which says the useful thing (the prizes went to real students, spread across
+ * three faculties) while identifying nobody. Nobody gets promoted from the
+ * anonymous form to a name without asking them first.
  *
  * The degree shown is whichever one the winner wrote the most reviews for, since
  * a student can review courses listed under several degrees.
@@ -59,6 +56,7 @@ const DRAWN = [
     logo: 'faculties/nova_sbe/logo.png'
   },
   {
+    name: 'Rita Martins',
     degree: 'giveaway_winners.drawn_2_degree',
     faculty: 'giveaway_winners.drawn_2_faculty',
     logo: 'faculties/ist/logo.png'
