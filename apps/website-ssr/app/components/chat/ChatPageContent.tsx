@@ -135,6 +135,28 @@ export function ChatPageContent({
   }, [])
 
   /**
+   * Logging out does not reload the page, and the list above is fetched once
+   * on mount, so without this the previous account's chats (and whichever
+   * conversation was open) stayed on screen until a refresh.
+   *
+   * Only the signed-in to signed-out transition: the first render always reads
+   * as signed out while localStorage hydrates, and that is not a logout.
+   */
+  const wasAuthenticated = useRef(isAuthenticated)
+  useEffect(() => {
+    const loggedOut = wasAuthenticated.current && !isAuthenticated
+    wasAuthenticated.current = isAuthenticated
+    if (!loggedOut) return
+    abort()
+    setChats([])
+    setActiveChatId(null)
+    reset([])
+    if (initialChatId !== null) {
+      navigate(getLocalePath('chat', lang), { replace: true })
+    }
+  }, [isAuthenticated, abort, reset, initialChatId, navigate, lang])
+
+  /**
    * The top of the funnel, fired for everyone.
    *
    * This used to live inside the `listChats().then()` above, which never runs
