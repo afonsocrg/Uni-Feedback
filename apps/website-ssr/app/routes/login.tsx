@@ -16,7 +16,7 @@ import { OtpInputStage } from '~/components/AuthDialog/OtpInputStage'
 import type { AuthUser } from '~/context/AuthContext'
 import { useAuth, useLang, useOtpAuth } from '~/hooks'
 import { STORAGE_KEYS } from '~/utils/constants'
-import { getLocalePath } from '~/utils/i18n-routes'
+import { getLocalePath, getSafeRedirect } from '~/utils/i18n-routes'
 import { buildMeta, metaT, SITE_NAME } from '~/utils/meta'
 
 import type { Route } from './+types/login'
@@ -45,12 +45,17 @@ export default function LoginPage() {
   // Extract referral code from URL
   const referralCode = searchParams.get('ref') || undefined
 
-  // Redirect to profile if user is already logged in
+  const redirectTo =
+    getSafeRedirect(searchParams.get('redirect')) ?? getLocalePath('home', lang)
+
+  // Leave the login page once there is a user: right after the OTP succeeds,
+  // or straight away if they were already logged in. This is the only
+  // navigation, so it can't race a second one to a different page.
   useEffect(() => {
     if (user) {
-      navigate(getLocalePath('profile', lang))
+      navigate(redirectTo, { replace: true })
     }
-  }, [user, navigate, lang])
+  }, [user, navigate, redirectTo])
 
   // Load saved email from localStorage on mount
   useEffect(() => {
@@ -91,11 +96,8 @@ export default function LoginPage() {
   }
 
   const handleOtpSuccess = (user: AuthUser) => {
-    const redirectTo =
-      searchParams.get('redirect') || getLocalePath('home', lang)
     setUser(user)
     toast.success(t('auth.toast_logged_in'))
-    navigate(redirectTo)
   }
 
   const handleTryAgain = () => {

@@ -13,6 +13,24 @@ export function getLocalePath(key: RouteKey, lang: Lang): string {
   return prefix != null ? `${prefix}/${slug}` : `/${slug}`
 }
 
+/**
+ * Login page that sends the user back to `returnTo` once they sign in.
+ * Pass the current path + search so signing in from any page lands you there.
+ * Coming from the login page itself carries no redirect.
+ */
+export function getLoginPath(lang: Lang, returnTo?: string): string {
+  const loginPath = getLocalePath('login', lang)
+  const target = getSafeRedirect(returnTo)
+  if (!target || target.split(/[?#]/)[0] === loginPath) return loginPath
+  return `${loginPath}?redirect=${encodeURIComponent(target)}`
+}
+
+/** Only same-site paths are valid redirect targets (no `//host` or `https://`). */
+export function getSafeRedirect(value: string | null | undefined) {
+  if (!value || !value.startsWith('/') || /^\/[/\\]/.test(value)) return null
+  return value
+}
+
 /** Profile tabs, each addressable at /perfil/<tab> (same segment in PT and EN). */
 export const PROFILE_TABS = ['giveaway', 'feedback'] as const
 export type ProfileTab = (typeof PROFILE_TABS)[number]

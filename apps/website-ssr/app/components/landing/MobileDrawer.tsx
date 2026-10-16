@@ -7,13 +7,14 @@ import {
 } from '@uni-feedback/ui'
 import { LogOut, Menu, User } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { useLocation } from 'react-router'
 import {
   LanguagePreferenceControl,
   ThemePreferenceControl
 } from '~/components/layout/PreferenceControls'
 import { useLang, useShowChatEntryPoints } from '~/hooks'
 import { analytics, getPageName } from '~/utils/analytics'
-import { getLocalePath, getReviewPath } from '~/utils/i18n-routes'
+import { getLocalePath, getLoginPath, getReviewPath } from '~/utils/i18n-routes'
 
 interface MobileDrawerProps {
   browseLink: string
@@ -33,6 +34,7 @@ export function MobileDrawer({
 }: MobileDrawerProps) {
   const { t } = useTranslation()
   const lang = useLang()
+  const location = useLocation()
   const showChatEntryPoints = useShowChatEntryPoints()
 
   const trackNavClick = (destination: 'browse' | 'chat') => () =>
@@ -183,7 +185,14 @@ export function MobileDrawer({
                   {t('nav.sign_in_prompt')}
                 </p>
                 <Button className="w-full h-11" asChild>
-                  <a href={getLocalePath('login', lang)}>{t('nav.sign_in')}</a>
+                  <a
+                    href={getLoginPath(
+                      lang,
+                      `${location.pathname}${location.search}`
+                    )}
+                  >
+                    {t('nav.sign_in')}
+                  </a>
                 </Button>
               </div>
             )}

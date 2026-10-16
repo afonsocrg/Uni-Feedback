@@ -1,13 +1,14 @@
 import { Button, Separator } from '@uni-feedback/ui'
 import { LogOut, User } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { useLocation } from 'react-router'
 import {
   LanguagePreferenceControl,
   ThemePreferenceControl
 } from '~/components/layout/PreferenceControls'
 import { useLang } from '~/hooks'
 import type { NavSurface } from '~/utils/analytics'
-import { getLocalePath } from '~/utils/i18n-routes'
+import { getLocalePath, getLoginPath } from '~/utils/i18n-routes'
 
 interface AccountMenuContentProps {
   isAuthenticated: boolean
@@ -36,6 +37,7 @@ export function AccountMenuContent({
 }: AccountMenuContentProps) {
   const { t } = useTranslation()
   const lang = useLang()
+  const location = useLocation()
 
   if (!isAuthenticated) {
     return (
@@ -45,7 +47,14 @@ export function AccountMenuContent({
             {t('nav.sign_in_prompt')}
           </p>
           <Button className="w-full" asChild>
-            <a href={getLocalePath('login', lang)}>{t('nav.sign_in')}</a>
+            <a
+              href={getLoginPath(
+                lang,
+                `${location.pathname}${location.search}`
+              )}
+            >
+              {t('nav.sign_in')}
+            </a>
           </Button>
         </div>
 

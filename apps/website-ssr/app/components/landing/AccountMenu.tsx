@@ -7,13 +7,14 @@ import {
 } from '@uni-feedback/ui'
 import { ChevronDown, LogOut, User } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { useLocation } from 'react-router'
 import {
   LanguagePreferenceControl,
   ThemePreferenceControl
 } from '~/components/layout/PreferenceControls'
 import { useLang } from '~/hooks'
 import { analytics } from '~/utils/analytics'
-import { getLocalePath } from '~/utils/i18n-routes'
+import { getLocalePath, getLoginPath } from '~/utils/i18n-routes'
 
 interface AccountMenuProps {
   isAuthenticated: boolean
@@ -37,6 +38,7 @@ export function AccountMenu({
 }: AccountMenuProps) {
   const { t } = useTranslation()
   const lang = useLang()
+  const location = useLocation()
 
   const initials = getInitials(user?.username)
 
@@ -119,7 +121,14 @@ export function AccountMenu({
                 {t('nav.sign_in_prompt')}
               </p>
               <Button className="w-full" asChild>
-                <a href={getLocalePath('login', lang)}>{t('nav.sign_in')}</a>
+                <a
+                  href={getLoginPath(
+                    lang,
+                    `${location.pathname}${location.search}`
+                  )}
+                >
+                  {t('nav.sign_in')}
+                </a>
               </Button>
             </div>
 
