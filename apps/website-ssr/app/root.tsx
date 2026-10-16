@@ -277,7 +277,19 @@ export default function App() {
 
   return (
     <AppProviders lang={lang} theme={theme}>
-      <Toaster position="top-right" richColors />
+      <Toaster
+        position="top-right"
+        richColors
+        closeButton
+        // Sonner puts the close button top-left; move it to top-right
+        style={
+          {
+            '--toast-close-button-start': 'unset',
+            '--toast-close-button-end': '0',
+            '--toast-close-button-transform': 'translate(35%, -35%)'
+          } as React.CSSProperties
+        }
+      />
       <Outlet />
       {import.meta.env.DEV && (
         <React.Suspense fallback={null}>
