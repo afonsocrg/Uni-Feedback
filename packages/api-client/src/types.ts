@@ -4,6 +4,8 @@ export interface Faculty {
   shortName: string
   url: string
   emailSuffixes?: string[]
+  /** Path relative to the asset root; render with getAssetUrl. */
+  logo?: string | null
 }
 
 export interface FacultyDetails extends Faculty {

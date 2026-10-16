@@ -24,6 +24,11 @@ export const users = pgTable('users', {
   superuser: boolean('superuser').default(false), // Keep for backward compatibility
   referralCode: text('referral_code').unique(),
   instagramHandle: text('instagram_handle'),
+  // We guess the student's degree from their reviews once. Any answer to that
+  // guess sets this and it is never offered again (see user_degrees).
+  degreeInferenceResolvedAt: timestamp('degree_inference_resolved_at', {
+    withTimezone: true
+  }),
   referredByUserId: integer('referred_by_user_id').references(
     (): AnyPgColumn => users.id,
     {

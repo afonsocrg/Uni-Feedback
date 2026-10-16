@@ -6,6 +6,7 @@ import {
   chats,
   feedbackFull,
   pointRegistry,
+  userDegrees,
   users
 } from '@uni-feedback/db/schema'
 import { eq } from 'drizzle-orm'
@@ -78,6 +79,11 @@ describe('AuthService.deleteUserAccount', () => {
         email: user.email,
         responses: { facultyIds: [faculty.id] }
       })
+
+      // Profile data: cascades with the account instead of being transferred.
+      await db
+        .insert(userDegrees)
+        .values({ userId: user.id, degreeId: degree.id })
 
       // The whole point: this must not throw.
       await authService.deleteUserAccount(user.id)

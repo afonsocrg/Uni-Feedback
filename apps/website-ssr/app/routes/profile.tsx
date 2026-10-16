@@ -1,8 +1,8 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@uni-feedback/ui'
-import { Gift, MessageSquare } from 'lucide-react'
+import { MessageSquare, Route as RouteIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useParams } from 'react-router'
+import { useLocation, useNavigate, useParams } from 'react-router'
 import {
   DeleteAccountSection,
   GenericBreadcrumb,
@@ -10,14 +10,17 @@ import {
   ProfilePageSkeleton,
   ProfileUserInfo
 } from '~/components'
-import { GiveawayTab } from '~/components/giveaway/GiveawayTab'
+import { ProfileJourneyTab } from '~/components/journey'
 import { ReferralShareButtons } from '~/components/referral/ReferralShareButtons'
-import { useLang, useRequiredAuth } from '~/hooks'
+import { useRequiredAuth } from '~/hooks'
 import { useProfileFeedback, useProfileStats } from '~/hooks/queries'
 import { STORAGE_KEYS } from '~/utils/constants'
 import {
   DEFAULT_PROFILE_TAB,
+  detectLang,
   getProfilePath,
+  getProfileTabFromSegment,
+  getProfileTabSegment,
   isProfileTab
 } from '~/utils/i18n-routes'
 import { buildMeta, metaT } from '~/utils/meta'
@@ -37,7 +40,13 @@ export function meta({ location, matches }: Route.MetaArgs) {
 
 export default function ProfilePage() {
   const { t } = useTranslation('feedback')
-  const lang = useLang()
+  // From the URL, not useLang(): i18n.language is synced in root's effect,
+  // which runs after this page's effects. Right after a language switch it
+  // still holds the old language, and since tab segments differ per language
+  // (percurso/journey) the canonicalising redirect below would bounce between
+  // /perfil/percurso and /en/profile/journey forever.
+  const { pathname } = useLocation()
+  const lang = detectLang(pathname)
   const navigate = useNavigate()
   const { user, logout } = useRequiredAuth()
 
@@ -45,7 +54,7 @@ export default function ProfilePage() {
   // shareable permalink. Bare /perfil (and any unknown tab) falls back to the
   // last-opened tab and canonicalises itself to /perfil/<tab> below.
   const { tab } = useParams()
-  const urlTab = isProfileTab(tab) ? tab : null
+  const urlTab = getProfileTabFromSegment(tab)
   const [fallbackTab, setFallbackTab] = useState(DEFAULT_PROFILE_TAB)
   const activeTab = urlTab ?? fallbackTab
 
@@ -55,13 +64,17 @@ export default function ProfilePage() {
   useEffect(() => {
     if (urlTab) {
       localStorage.setItem(STORAGE_KEYS.PROFILE_ACTIVE_TAB, urlTab)
+      // Another language's segment (/perfil/journey): swap in this one's.
+      if (tab !== getProfileTabSegment(lang, urlTab)) {
+        navigate(getProfilePath(lang, urlTab), { replace: true })
+      }
       return
     }
     const saved = localStorage.getItem(STORAGE_KEYS.PROFILE_ACTIVE_TAB)
     const next = isProfileTab(saved) ? saved : DEFAULT_PROFILE_TAB
     setFallbackTab(next)
     navigate(getProfilePath(lang, next), { replace: true })
-  }, [urlTab, lang, navigate])
+  }, [tab, urlTab, lang, navigate])
 
   // `replace` keeps tab switching out of the history stack, so Back still
   // leaves the profile instead of cycling through tabs.
@@ -103,16 +116,16 @@ export default function ProfilePage() {
           />
         </div>
 
-        {/* Feedback + Giveaway Tabs */}
+        {/* "O meu percurso" + the student's reviews */}
         <Tabs
           value={activeTab}
           onValueChange={handleTabChange}
           className="mb-12"
         >
           <TabsList className="mb-4">
-            <TabsTrigger value="giveaway">
-              <Gift className="size-4" />
-              <span>{t('profile.tab_giveaway')}</span>
+            <TabsTrigger value="journey">
+              <RouteIcon className="size-4" />
+              <span>{t('profile.tab_journey')}</span>
             </TabsTrigger>
             <TabsTrigger value="feedback">
               <MessageSquare className="size-4" />
@@ -120,8 +133,8 @@ export default function ProfilePage() {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="giveaway">
-            <GiveawayTab referralCode={user.referralCode} />
+          <TabsContent value="journey">
+            <ProfileJourneyTab />
           </TabsContent>
 
           <TabsContent value="feedback">

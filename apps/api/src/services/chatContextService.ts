@@ -1,4 +1,6 @@
+import { formatSchoolYearString } from '@uni-feedback/utils'
 import { ChatRetrievalService } from './chatRetrievalService'
+import type { Journey, JourneyDegree } from './userDegreeService'
 
 /**
  * Turns a chat's scope into a compact markdown block for the system prompt.
@@ -291,4 +293,74 @@ export class ChatContextService {
       truncated
     }
   }
+}
+
+// ---------------------------------------------------------------------------
+// The student
+// ---------------------------------------------------------------------------
+
+/**
+ * Who is asking, from "O meu percurso", as a block for the system prompt.
+ *
+ * Exists because the commonest question shape is "as cadeiras mais difíceis do
+ * MEU curso", and without this the model's first move was always to ask which
+ * degree, a full round trip before any answer. The ids are the point: with
+ * them the model calls get_degree directly instead of searching for a name.
+ * Names stay next to them so it can say "no MEIC" without a tool call.
+ *
+ * The curriculum year is an estimate (current minus start, plus one), and the
+ * block says so: students repeat years and study part time.
+ *
+ * Empty when we know nothing, which leaves today's behaviour (ask) unchanged.
+ */
+export function buildStudentContext(
+  journey: Journey,
+  currentSchoolYear: number
+): string {
+  const inferred = journey.degrees.length === 0 ? journey.inferred : null
+  const degrees = inferred ? [inferred] : journey.degrees
+  if (degrees.length === 0) return ''
+
+  const lines = [
+    '## About the student',
+    '',
+    inferred
+      ? 'They have NOT told us their degree. This is our guess from the courses they reviewed:'
+      : 'Degrees they told us they take or took, current first:'
+  ]
+
+  for (const d of degrees) {
+    lines.push(
+      `- **${d.degreeAcronym}**, ${d.degreeName}, at ${d.facultyName} (${d.facultyShortName}). degree_id ${d.degreeId}, faculty_id ${d.facultyId}. ${describeYears(d, currentSchoolYear)}`
+    )
+  }
+
+  lines.push(
+    '',
+    `- "O meu curso", "my degree" and the like mean ${degrees[0].degreeAcronym}. Do not ask which degree they take.`,
+    '- If they ask about a different degree or university, answer about that one.'
+  )
+  if (inferred) {
+    lines.push(
+      `- Answer for ${inferred.degreeAcronym}, and close with one short line saying you assumed it and they can correct you.`
+    )
+  }
+  return lines.join('\n')
+}
+
+function describeYears(d: JourneyDegree, current: number): string {
+  const start = d.startSchoolYear
+  const end = d.endSchoolYear
+  if (start === null && end === null) return 'Years unknown.'
+  if (end !== null) {
+    const from =
+      start !== null ? `${formatSchoolYearString(start)} to ` : 'until '
+    return `${from}${formatSchoolYearString(end)}, finished.`
+  }
+  const year = current - (start as number) + 1
+  const estimate =
+    year >= 1
+      ? ` Probably curriculum year ${year} in ${formatSchoolYearString(current)} (an estimate: students repeat years).`
+      : ''
+  return `Started ${formatSchoolYearString(start as number)}, ongoing.${estimate}`
 }

@@ -6,6 +6,13 @@ import { GetUserFeedback } from './feedback'
 import { GetFeedbackRecommendations } from './feedbackRecommendations'
 import { GetGiveawayDashboard } from './giveaway'
 import { DeleteInstagramHandle, SetInstagramHandle } from './instagram'
+import {
+  AddJourneyDegree,
+  DeleteJourneyDegree,
+  DismissInferredDegree,
+  GetJourney,
+  UpdateJourneyDegree
+} from './journey'
 import { GetProfile } from './profile'
 import { GetUserStats } from './stats'
 
@@ -26,5 +33,10 @@ router.get('/feedback', GetUserFeedback)
 router.get('/feedback-recommendations', GetFeedbackRecommendations)
 router.put('/instagram', SetInstagramHandle)
 router.delete('/instagram', DeleteInstagramHandle)
+router.get('/journey', GetJourney)
+router.post('/journey/degrees', AddJourneyDegree)
+router.put('/journey/degrees/:id', UpdateJourneyDegree)
+router.delete('/journey/degrees/:id', DeleteJourneyDegree)
+router.post('/journey/inferred/dismiss', DismissInferredDegree)
 
 export { router }

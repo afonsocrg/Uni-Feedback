@@ -31,19 +31,46 @@ export function getSafeRedirect(value: string | null | undefined) {
   return value
 }
 
-/** Profile tabs, each addressable at /perfil/<tab> (same segment in PT and EN). */
-export const PROFILE_TABS = ['giveaway', 'feedback'] as const
+/** Profile tabs, each addressable at /perfil/<segment>. */
+// 'giveaway' was retired with the campaign; old /perfil/giveaway links and saved
+// tab preferences fall back to the default below.
+export const PROFILE_TABS = ['journey', 'feedback'] as const
 export type ProfileTab = (typeof PROFILE_TABS)[number]
-export const DEFAULT_PROFILE_TAB: ProfileTab = 'giveaway'
+export const DEFAULT_PROFILE_TAB: ProfileTab = 'journey'
+
+/** URL segment per tab and language. The tab id itself is never in the URL. */
+const PROFILE_TAB_SEGMENTS: Record<ProfileTab, Record<Lang, string>> = {
+  journey: { pt: 'percurso', en: 'journey' },
+  feedback: { pt: 'feedback', en: 'feedback' }
+}
 
 export function isProfileTab(value: unknown): value is ProfileTab {
   return PROFILE_TABS.includes(value as ProfileTab)
 }
 
-/** /perfil when no tab is given, /perfil/<tab> otherwise. */
+export function getProfileTabSegment(lang: Lang, tab: ProfileTab): string {
+  return PROFILE_TAB_SEGMENTS[tab][lang]
+}
+
+/**
+ * The tab a URL segment points to. Accepts the other language's segment too,
+ * so /perfil/journey still opens the tab (the page then canonicalises it).
+ */
+export function getProfileTabFromSegment(
+  segment: string | undefined
+): ProfileTab | null {
+  if (!segment) return null
+  return (
+    PROFILE_TABS.find((tab) =>
+      Object.values(PROFILE_TAB_SEGMENTS[tab]).includes(segment)
+    ) ?? null
+  )
+}
+
+/** /perfil when no tab is given, /perfil/<segment> otherwise. */
 export function getProfilePath(lang: Lang, tab?: ProfileTab): string {
   const base = getLocalePath('profile', lang)
-  return tab ? `${base}/${tab}` : base
+  return tab ? `${base}/${getProfileTabSegment(lang, tab)}` : base
 }
 
 /** True for /perfil and any of its tab permalinks. */
@@ -74,11 +101,16 @@ for (const key of Object.keys(routeMap) as RouteKey[]) {
 
 function swapDynamicPath(path: string, from: Lang): string {
   // Profile tabs share one component behind /perfil/:tab, so the generic table
-  // above only holds the literal ":tab" entry. Swap the base and keep the tab.
+  // above only holds the literal ":tab" entry. Swap the base and translate the
+  // tab segment (unknown segments are kept and canonicalised by the page).
   const profileBase = getLocalePath('profile', from)
   if (path.startsWith(`${profileBase}/`)) {
-    const tab = path.slice(profileBase.length + 1)
-    return `${getLocalePath('profile', from === 'pt' ? 'en' : 'pt')}/${tab}`
+    const segment = path.slice(profileBase.length + 1)
+    const to: Lang = from === 'pt' ? 'en' : 'pt'
+    const tab = getProfileTabFromSegment(segment)
+    return tab
+      ? getProfilePath(to, tab)
+      : `${getLocalePath('profile', to)}/${segment}`
   }
 
   if (from === 'pt') {

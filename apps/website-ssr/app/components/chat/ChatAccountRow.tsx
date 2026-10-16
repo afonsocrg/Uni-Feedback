@@ -5,6 +5,7 @@ import {
   AccountMenuContent,
   getInitials
 } from '~/components/account/AccountMenuContent'
+import { JourneyDot } from '~/components/journey'
 import { useAuth, useLang } from '~/hooks'
 import { analytics } from '~/utils/analytics'
 
@@ -38,8 +39,9 @@ export function ChatAccountRow() {
           className="flex w-full cursor-pointer items-center gap-2 rounded-md px-2 py-2 text-left transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           {isAuthenticated ? (
-            <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary text-[11px] font-semibold text-primary-foreground">
+            <span className="relative flex size-7 shrink-0 items-center justify-center rounded-full bg-primary text-[11px] font-semibold text-primary-foreground">
               {getInitials(user?.username)}
+              <JourneyDot placement="corner" />
             </span>
           ) : (
             <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-muted">

@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { JourneyChatPrompt } from '~/components/journey'
 
 interface ChatEmptyStateProps {
   onPick: (question: string) => void
@@ -23,6 +24,7 @@ export function ChatEmptyState({ onPick, scopeLabel }: ChatEmptyStateProps) {
       </div>
 
       <div className="flex w-full max-w-md flex-col gap-2">
+        <JourneyChatPrompt />
         {SUGGESTION_KEYS.map((key) => (
           <button
             key={key}

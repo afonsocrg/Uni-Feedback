@@ -60,7 +60,7 @@ export function GiveawayPointsSection() {
                       ns="legal"
                       components={[
                         <Link
-                          to={getProfilePath(lang, 'giveaway')}
+                          to={getProfilePath(lang)}
                           className="font-medium text-foreground underline hover:text-primary"
                         />
                       ]}
@@ -102,7 +102,7 @@ export function GiveawayPointsSection() {
                           className="font-medium text-foreground underline hover:text-primary"
                         />,
                         <Link
-                          to={getProfilePath(lang, 'giveaway')}
+                          to={getProfilePath(lang)}
                           className="font-medium text-foreground underline hover:text-primary"
                         />
                       ]}

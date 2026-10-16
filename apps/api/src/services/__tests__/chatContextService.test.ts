@@ -8,7 +8,12 @@ import {
   initDegreeStats
 } from '../../../test/helpers'
 import { cleanAllTables, withTestDb } from '../../../test/setup'
-import { ChatContextService, estimateTokens } from '../chatContextService'
+import {
+  buildStudentContext,
+  ChatContextService,
+  estimateTokens
+} from '../chatContextService'
+import type { JourneyDegree } from '../userDegreeService'
 
 describe('ChatContextService', () => {
   let service: ChatContextService
@@ -229,5 +234,64 @@ describe('ChatContextService', () => {
       expect(estimateTokens('abcd')).toBe(1)
       expect(estimateTokens('a'.repeat(400))).toBe(100)
     })
+  })
+})
+
+describe('buildStudentContext', () => {
+  const meic: JourneyDegree = {
+    id: 1,
+    degreeId: 12,
+    degreeName: 'Mestrado em Engenharia Informática e de Computadores',
+    degreeAcronym: 'MEIC',
+    degreeType: 'master',
+    facultyId: 1,
+    facultyName: 'Instituto Superior Técnico',
+    facultyShortName: 'IST',
+    facultyLogo: null,
+    startSchoolYear: 2025,
+    endSchoolYear: null
+  }
+  const leic: JourneyDegree = {
+    ...meic,
+    id: 2,
+    degreeId: 3,
+    degreeName: 'Licenciatura em Engenharia Informática e de Computadores',
+    degreeAcronym: 'LEIC',
+    startSchoolYear: 2022,
+    endSchoolYear: 2024
+  }
+
+  it('is empty when we know nothing, so the model still asks', () => {
+    expect(buildStudentContext({ degrees: [], inferred: null }, 2026)).toBe('')
+  })
+
+  it('gives the ids, the estimated year, and makes the current degree what "my degree" means', () => {
+    const block = buildStudentContext(
+      { degrees: [meic, leic], inferred: null },
+      2026
+    )
+    expect(block).toContain('degree_id 12, faculty_id 1')
+    expect(block).toContain('Probably curriculum year 2 in 2026/2027')
+    expect(block).toContain('2022/2023 to 2024/2025, finished')
+    expect(block).toContain('mean MEIC')
+    expect(block).not.toContain('NOT told us')
+  })
+
+  it('marks an inferred degree as a guess and asks the model to say it assumed', () => {
+    const block = buildStudentContext(
+      { degrees: [], inferred: { ...meic, id: null } },
+      2026
+    )
+    expect(block).toContain('NOT told us')
+    expect(block).toContain('saying you assumed it')
+  })
+
+  it('ignores the guess once the student has declared a degree', () => {
+    const block = buildStudentContext(
+      { degrees: [leic], inferred: { ...meic, id: null } },
+      2026
+    )
+    expect(block).toContain('mean LEIC')
+    expect(block).not.toContain('MEIC**')
   })
 })

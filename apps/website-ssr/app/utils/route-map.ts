@@ -209,8 +209,8 @@ export const routeConfig = [
             slugs: { pt: 'perfil', en: 'profile' }
           },
           // Same component as `profile`, reached with an explicit tab segment so
-          // every profile tab has a permalink (/perfil/giveaway, /perfil/feedback).
-          // The tab names are not localized: both words read the same in PT.
+          // every profile tab has a permalink (/perfil/percurso, /perfil/feedback).
+          // `:tab` is a localized segment; i18n-routes maps it to a tab id.
           {
             key: 'profile-tab',
             file: 'routes/profile.tsx',

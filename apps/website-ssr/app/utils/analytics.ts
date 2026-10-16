@@ -22,7 +22,7 @@ export const getPageName = (path: string): string => {
   // Static routes
   if (path === getLocalePath('home', lang)) return 'home'
   if (path === getLocalePath('browse', lang)) return 'browse'
-  // Covers /perfil and its tab permalinks (/perfil/giveaway, /perfil/feedback).
+  // Covers /perfil and its tab permalinks (/perfil/percurso, /perfil/feedback).
   // Kept as one page name so existing referrerPage funnels stay comparable; the
   // tab itself is visible in $pathname on the pageview.
   if (isProfilePath(path, lang)) return 'profile'
@@ -79,6 +79,18 @@ export type FeedbackEntryPoint =
  * shared <ReferralShareButtons> so we can compare conversion by surface.
  */
 export type ReferralSurface = 'feedback_success' | 'profile' | 'giveaway'
+
+/** Where a student edited "O meu percurso" from. */
+export type JourneySurface = 'profile' | 'chat'
+
+/**
+ * What the degree form was opened for. `inferred` is editing the guess before
+ * accepting it, which saves as a new degree.
+ */
+export type JourneyFormMode = 'add' | 'edit' | 'inferred'
+
+/** What the chat's degree prompt was offering: confirm a guess, or ask. */
+export type JourneyChatPromptState = 'inferred' | 'empty'
 
 /**
  * The channel a share action went out through, for every share surface we have:
@@ -690,6 +702,86 @@ export const analytics = {
       course_id: number
       course_acronym: string
     }) => trackEvent('request_feedback', props)
+  },
+
+  /**
+   * "O meu percurso": the degrees a student declares, and the one-time guess.
+   *
+   * Funnel: `journey_viewed` / `journey_chat_prompt_shown` (entry) →
+   * `journey_degree_form_opened` → `journey_degree_saved` /
+   * `journey_degree_save_failed` / `journey_degree_form_cancelled`. The guess
+   * has its own short path: `journey_inferred_confirmed` (one click) or
+   * `journey_inferred_dismissed`, with "edit" going through the form and
+   * landing as `journey_degree_saved{fromInferred: true}`.
+   */
+  journey: {
+    /**
+     * The profile's "O meu percurso" tab rendered. Denominator for the profile
+     * surface. `fromDot` is whether the account-menu dot was still unseen,
+     * which is how we tell whether the dot brings anyone in.
+     */
+    viewed: (props: {
+      degreeCount: number
+      hasInferred: boolean
+      fromDot: boolean
+    }) => trackEvent('journey_viewed', props),
+
+    /** The chat empty state asked for their degree. Once per mount. */
+    chatPromptShown: (props: { state: JourneyChatPromptState }) =>
+      trackEvent('journey_chat_prompt_shown', props),
+
+    /** "Agora não" on the chat prompt. */
+    chatPromptDismissed: (props: { state: JourneyChatPromptState }) =>
+      trackEvent('journey_chat_prompt_dismissed', props),
+
+    inferredConfirmed: (props: {
+      surface: JourneySurface
+      degreeId: number
+      hasStartYear: boolean
+    }) => trackEvent('journey_inferred_confirmed', props),
+
+    /** "Não é o meu curso". The guess never comes back after this. */
+    inferredDismissed: (props: { surface: JourneySurface; degreeId: number }) =>
+      trackEvent('journey_inferred_dismissed', props),
+
+    degreeFormOpened: (props: {
+      surface: JourneySurface
+      mode: JourneyFormMode
+    }) => trackEvent('journey_degree_form_opened', props),
+
+    /**
+     * Closed without saving. `step` is how far they got, so a drop at the
+     * degree picker (cannot find their degree) reads differently from one at
+     * the years.
+     */
+    degreeFormCancelled: (props: {
+      surface: JourneySurface
+      mode: JourneyFormMode
+      step: 'faculty' | 'degree' | 'years'
+    }) => trackEvent('journey_degree_form_cancelled', props),
+
+    degreeSaved: (props: {
+      surface: JourneySurface
+      mode: JourneyFormMode
+      degreeId: number
+      facultyId: number
+      hasStartYear: boolean
+      hasEndYear: boolean
+      /** Saved from the inferred guess, either as-is or edited. */
+      fromInferred: boolean
+      /** Edited the guess into a different degree: the guess was wrong. */
+      changedInferredDegree: boolean
+    }) => trackEvent('journey_degree_saved', props),
+
+    degreeSaveFailed: (props: {
+      surface: JourneySurface
+      mode: JourneyFormMode
+      /** HTTP status when known: 409 = already in the profile. */
+      status: number | null
+    }) => trackEvent('journey_degree_save_failed', props),
+
+    degreeRemoved: (props: { degreeId: number; remainingCount: number }) =>
+      trackEvent('journey_degree_removed', props)
   },
 
   giveaway: {

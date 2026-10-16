@@ -8,6 +8,7 @@ import {
 import { LogOut, Menu, User } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router'
+import { JourneyDot } from '~/components/journey'
 import {
   LanguagePreferenceControl,
   ThemePreferenceControl
@@ -55,8 +56,9 @@ export function MobileDrawer({
       }}
     >
       <SheetTrigger asChild>
-        <Button size="sm" variant="ghost" className="size-9 p-0">
+        <Button size="sm" variant="ghost" className="relative size-9 p-0">
           <Menu className="size-5" />
+          <JourneyDot placement="corner" />
           <span className="sr-only">{t('nav.menu')}</span>
         </Button>
       </SheetTrigger>
@@ -167,6 +169,7 @@ export function MobileDrawer({
                   <a href={getLocalePath('profile', lang)}>
                     <User className="size-5 mr-3" />
                     {t('nav.profile')}
+                    <JourneyDot placement="inline" />
                   </a>
                 </Button>
 

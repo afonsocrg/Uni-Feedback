@@ -97,5 +97,15 @@
     "role_required": "Escolhe pelo menos uma opção.",
     "no_university_email": "Não tenho email de universidade",
     "wrong_domain": "Só conseguimos verificar emails das universidades que já estão no Uni Feedback. Se a tua não está, diz-nos e avisamos-te quando abrirmos."
+  },
+  "journey_prompt": {
+    "inferred_question": "És de {{degree}} no {{faculty}}?",
+    "empty_question": "De que curso és?",
+    "why": "Assim não tens de o dizer ao chat de cada vez.",
+    "yes": "Sim",
+    "change": "Mudar",
+    "pick": "Escolher curso",
+    "not_now": "Agora não",
+    "dialog_title": "O teu curso"
   }
 }

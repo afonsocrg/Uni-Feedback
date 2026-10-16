@@ -97,5 +97,15 @@
     "role_required": "Pick at least one option.",
     "no_university_email": "I don't have a university email",
     "wrong_domain": "We can only verify emails from universities already on Uni Feedback. If yours is not here yet, tell us and we will let you know when we open up."
+  },
+  "journey_prompt": {
+    "inferred_question": "Are you in {{degree}} at {{faculty}}?",
+    "empty_question": "Which degree are you in?",
+    "why": "So you don't have to tell the chat every time.",
+    "yes": "Yes",
+    "change": "Change",
+    "pick": "Pick degree",
+    "not_now": "Not now",
+    "dialog_title": "Your degree"
   }
 }

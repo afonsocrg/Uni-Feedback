@@ -31,6 +31,12 @@ export const SITE_URL =
 // LocalStorage keys
 // Convention: All keys should be prefixed with 'uni-feedback-' for namespace isolation
 export const STORAGE_KEYS = {
+  // "O meu percurso" account-menu dot, a JSON array of user ids so a shared
+  // browser does not carry one student's answer over to another. Per-browser
+  // on purpose: a dot shown again on a second device is harmless. It clears
+  // the first time they open the profile.
+  JOURNEY_DOT_SEEN: 'uni-feedback-journey-dot-seen',
+
   // Sidebar open/collapsed, remembered across visits. Null means "never
   // chosen", which is what lets the first render pick a sensible default from
   // the viewport instead of guessing during SSR.

@@ -7,8 +7,13 @@ import {
   chatMessages,
   chats
 } from '@uni-feedback/db/schema'
+import { getCurrentSchoolYear } from '@uni-feedback/utils'
 import { and, desc, eq, gte, isNull, sql } from 'drizzle-orm'
-import { ChatContextService, type ChatScope } from './chatContextService'
+import {
+  buildStudentContext,
+  ChatContextService,
+  type ChatScope
+} from './chatContextService'
 import { ChatGapDetector, type ChatGap } from './chatGap'
 import { ChatLlmClient, type LlmMessage, type LlmUsage } from './chatLlm'
 import {
@@ -18,6 +23,7 @@ import {
   TITLE_PROMPT
 } from './chatPrompt'
 import { ChatToolExecutor, REVIEW_TOOL_NAMES } from './chatTools'
+import { UserDegreeService } from './userDegreeService'
 
 /**
  * Runs a chat turn: history in, grounded answer out, everything persisted.
@@ -95,6 +101,7 @@ export class ChatService {
   private readonly llm: ChatLlmClient
   private readonly tools: ChatToolExecutor
   private readonly context: ChatContextService
+  private readonly degrees: UserDegreeService
 
   constructor(
     private readonly env: Env,
@@ -102,11 +109,13 @@ export class ChatService {
       llm?: ChatLlmClient
       tools?: ChatToolExecutor
       context?: ChatContextService
+      degrees?: UserDegreeService
     } = {}
   ) {
     this.llm = deps.llm ?? new ChatLlmClient(env)
     this.tools = deps.tools ?? new ChatToolExecutor()
     this.context = deps.context ?? new ChatContextService()
+    this.degrees = deps.degrees ?? new UserDegreeService()
   }
 
   // -------------------------------------------------------------------------
@@ -334,13 +343,21 @@ export class ChatService {
       context.entities.map((e) => [e.pageUrl, { type: e.type, id: e.id }])
     )
 
+    // Appended after the chat's scope, so the static prompt stays a cacheable
+    // prefix. Read per turn rather than per chat: a degree saved mid-chat
+    // should apply to the next answer.
+    const student = buildStudentContext(
+      await this.degrees.getJourney(input.userId),
+      getCurrentSchoolYear()
+    )
+
     const history = await this.buildHistory(chat.id)
     const messages: LlmMessage[] = [
       {
         role: 'system',
-        content: context.markdown
-          ? `${CHAT_SYSTEM_PROMPT}\n\n${context.markdown}`
-          : CHAT_SYSTEM_PROMPT
+        content: [CHAT_SYSTEM_PROMPT, context.markdown, student]
+          .filter(Boolean)
+          .join('\n\n')
       },
       ...history
     ]

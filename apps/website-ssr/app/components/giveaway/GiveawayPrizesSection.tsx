@@ -62,7 +62,7 @@ export function GiveawayPrizesSection() {
                     components={{
                       profileLink: (
                         <Link
-                          to={getProfilePath(lang, 'giveaway')}
+                          to={getProfilePath(lang)}
                           className="font-medium text-primary underline hover:text-primary/80"
                         />
                       )

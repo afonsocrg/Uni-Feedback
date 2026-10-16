@@ -2,6 +2,7 @@ import { Button, Separator } from '@uni-feedback/ui'
 import { LogOut, User } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router'
+import { JourneyDot } from '~/components/journey'
 import {
   LanguagePreferenceControl,
   ThemePreferenceControl
@@ -79,6 +80,7 @@ export function AccountMenuContent({
         <a href={getLocalePath('profile', lang)}>
           <User className="size-4" />
           {t('nav.profile')}
+          <JourneyDot placement="inline" />
         </a>
       </Button>
 

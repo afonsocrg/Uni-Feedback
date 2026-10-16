@@ -10,7 +10,8 @@ const FacultyResponseSchema = z.object({
   name: z.string(),
   shortName: z.string(),
   url: z.string(),
-  emailSuffixes: z.array(z.string()).optional()
+  emailSuffixes: z.array(z.string()).optional(),
+  logo: z.string().nullable()
 })
 
 export class GetFaculties extends OpenAPIRoute {
@@ -46,7 +47,8 @@ export class GetFaculties extends OpenAPIRoute {
         name: faculties.name,
         shortName: faculties.shortName,
         url: faculties.url,
-        emailSuffixes: faculties.emailSuffixes
+        emailSuffixes: faculties.emailSuffixes,
+        logo: faculties.logo
       })
       .from(faculties)
       .orderBy(faculties.id)
