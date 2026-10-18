@@ -8,7 +8,7 @@ import {
   chats
 } from '@uni-feedback/db/schema'
 import { getCurrentSchoolYear } from '@uni-feedback/utils'
-import { and, desc, eq, gte, isNull, sql } from 'drizzle-orm'
+import { and, desc, eq, gte, isNull, sql, type SQL } from 'drizzle-orm'
 import {
   buildStudentContext,
   ChatContextService,
@@ -749,9 +749,13 @@ function isErrorPayload(payload: unknown): boolean {
   )
 }
 
-function startOfToday(): Date {
-  const now = new Date()
-  return new Date(now.getFullYear(), now.getMonth(), now.getDate())
+/**
+ * Midnight in Lisbon, computed by Postgres. The quota and the spend ceiling reset
+ * on the students' day, not the container's: the container sets no timezone, so
+ * a JS `new Date()` midnight was midnight UTC (1am in Lisbon during summer time).
+ */
+function startOfToday(): SQL {
+  return sql`date_trunc('day', now() at time zone 'Europe/Lisbon') at time zone 'Europe/Lisbon'`
 }
 
 /**

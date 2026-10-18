@@ -4,7 +4,7 @@ import {
   chatMessages,
   chats
 } from '@uni-feedback/db/schema'
-import { eq } from 'drizzle-orm'
+import { eq, sql } from 'drizzle-orm'
 import { beforeEach, describe, expect, it } from 'vitest'
 import {
   createApprovedFeedback,
@@ -524,6 +524,42 @@ describe('ChatService', () => {
         // The ceiling is global, not per user: one runaway user must not need a
         // separate mechanism to stop.
         expect(await chat.spendTodayMicros()).toBe(200)
+      })
+    })
+
+    it('resets at midnight in Lisbon, not midnight UTC', async () => {
+      await withTestDb(async () => {
+        const { user } = await seed()
+        const { service: chat } = service([])
+        const created = await chat.createChat({ userId: user.id })
+
+        // One minute either side of Lisbon's midnight. Midnight UTC is an hour
+        // later in summer, so under the old boundary both rows counted as
+        // "today" for an hour after Lisbon's midnight.
+        const lisbonMidnight = sql`date_trunc('day', now() at time zone 'Europe/Lisbon') at time zone 'Europe/Lisbon'`
+        await database()
+          .insert(chatMessages)
+          .values([
+            {
+              chatId: created.id,
+              seq: 1,
+              role: 'user',
+              content: 'ontem',
+              costMicros: 50,
+              createdAt: sql`${lisbonMidnight} - interval '1 minute'`
+            },
+            {
+              chatId: created.id,
+              seq: 2,
+              role: 'user',
+              content: 'hoje',
+              costMicros: 70,
+              createdAt: sql`${lisbonMidnight} + interval '1 minute'`
+            }
+          ])
+
+        expect(await chat.countMessagesToday(user.id)).toBe(1)
+        expect(await chat.spendTodayMicros()).toBe(70)
       })
     })
   })
