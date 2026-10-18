@@ -40,6 +40,9 @@ const MAX_REVIEWS = 12
 const MAX_REVIEW_CHARS = 900
 const MAX_TEXT_FIELD_CHARS = 1200
 const MAX_CURRICULUM_COURSES = 200
+/** Alternative terms one search may carry, and results kept per term. */
+const MAX_SEARCH_TERMS = 8
+const MAX_RESULTS_PER_TERM = 8
 
 /**
  * Trigram similarity floor for the last-resort fuzzy pass. Low enough to catch
@@ -59,6 +62,12 @@ export type CourseSort =
 
 export interface SearchCoursesArgs {
   query?: string
+  /**
+   * Several alternative terms, searched in one call. A course matching any of
+   * them is returned. Exists so "courses about control, navigation or robotics"
+   * is one call rather than one per keyword, which is what burned iterations.
+   */
+  queries?: string[]
   facultyName?: string
   degreeAcronym?: string
   curriculumYear?: number
@@ -250,6 +259,63 @@ export class ChatRetrievalService {
   // -------------------------------------------------------------------------
 
   async searchCourses(args: SearchCoursesArgs) {
+    const terms = [
+      ...new Set(
+        [args.query, ...(args.queries ?? [])]
+          .map((t) => (t ?? '').trim())
+          .filter(Boolean)
+      )
+    ].slice(0, MAX_SEARCH_TERMS)
+    if (terms.length <= 1) {
+      return this.searchOneTerm({
+        ...args,
+        query: terms[0],
+        queries: undefined
+      })
+    }
+
+    // One search per term, in parallel, so each keeps its own relaxed and
+    // fuzzy fallbacks and its own `matchMode`. A shared OR query would lose
+    // both, and with them the "this term found nothing" signal rule 9 needs.
+    const perTerm = Math.max(1, Math.min(args.limit ?? 5, MAX_RESULTS_PER_TERM))
+    const results = await Promise.all(
+      terms.map((query) =>
+        this.searchOneTerm({
+          ...args,
+          query,
+          queries: undefined,
+          limit: perTerm
+        })
+      )
+    )
+
+    // Merged and deduplicated: a course two terms found is listed once, with
+    // both terms, rather than twice at full size.
+    type Course = (typeof results)[number]['courses'][number]
+    const merged = new Map<number, Course & { matchedQueries: string[] }>()
+    results.forEach((result, i) => {
+      for (const course of result.courses) {
+        const seen = merged.get(course.courseId)
+        if (seen) seen.matchedQueries.push(terms[i])
+        else
+          merged.set(course.courseId, { ...course, matchedQueries: [terms[i]] })
+      }
+    })
+
+    return {
+      queries: results.map((r) => ({
+        query: r.query,
+        matchMode: r.matchMode,
+        matchedTerm: r.matchedTerm,
+        resultCount: r.resultCount
+      })),
+      sort: args.sort ?? 'relevance',
+      resultCount: merged.size,
+      courses: [...merged.values()]
+    }
+  }
+
+  private async searchOneTerm(args: SearchCoursesArgs) {
     const limit = Math.max(1, Math.min(args.limit ?? 10, MAX_SEARCH_RESULTS))
     const q = (args.query ?? '').trim()
     const sort = args.sort ?? 'relevance'

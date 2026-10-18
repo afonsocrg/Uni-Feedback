@@ -44,6 +44,12 @@ export const CHAT_TOOL_DEFINITIONS = [
             description:
               'Course name or acronym, e.g. "AMS" or "Análise Matemática". Omit to list or rank without a text filter.'
           },
+          queries: {
+            type: 'array',
+            items: { type: 'string' },
+            description:
+              'Several alternative terms in ONE call, up to 8, e.g. ["controlo", "navegação", "robótica"] for courses near several topics. Each term is searched separately and reported in `queries` with its own `matchMode`; each course lists the terms that found it in `matchedQueries`. Use this instead of one search_courses call per keyword. `limit` is then per term (default 5).'
+          },
           facultyName: {
             type: 'string',
             description:
@@ -218,6 +224,14 @@ function str(value: unknown): string | undefined {
   return typeof value === 'string' && value.length > 0 ? value : undefined
 }
 
+/** A list of non-empty strings, or nothing. A lone string is a list of one. */
+function strings(value: unknown): string[] | undefined {
+  const list = (Array.isArray(value) ? value : [value])
+    .map(str)
+    .filter((v): v is string => v !== undefined)
+  return list.length > 0 ? list : undefined
+}
+
 /**
  * A tri-state flag, as a string with an explicit neutral value.
  *
@@ -346,6 +360,7 @@ export class ChatToolExecutor {
       case 'search_courses': {
         const result = await this.retrieval.searchCourses({
           query: str(args.query),
+          queries: strings(args.queries),
           facultyName: str(args.facultyName),
           degreeAcronym: str(args.degreeAcronym),
           curriculumYear: int(args.curriculumYear, 10),
