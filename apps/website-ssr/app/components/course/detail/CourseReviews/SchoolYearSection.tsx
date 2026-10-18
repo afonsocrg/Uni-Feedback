@@ -14,14 +14,19 @@ interface SchoolYearSectionProps {
   schoolYear: number
   feedback: CourseFeedback[]
   /**
-   * When false, rating-only feedback is rendered inline instead of behind the
-   * toggle. The course has no commented feedback at all, so collapsing would
-   * leave the page with nothing to read.
+   * When false, rating-only feedback is rendered inline (still after the
+   * commented feedback) instead of behind the toggle. The course has no
+   * commented feedback at all, so collapsing would leave the page with
+   * nothing to read.
    */
   collapseRatingsOnly?: boolean
 }
 
 const firstMEPPYear = 2021
+
+// A year with only a handful of rating-only feedbacks shows them inline: a
+// toggle hiding two or three cards costs more attention than the cards do.
+const ratingsOnlyCollapseThreshold = 5
 
 export function SchoolYearSection({
   courseId,
@@ -32,12 +37,10 @@ export function SchoolYearSection({
   const { t } = useTranslation('course')
   const [isExpanded, setIsExpanded] = useState(false)
 
-  const commented = collapseRatingsOnly
-    ? feedback.filter((f) => hasText(f.comment))
-    : feedback
-  const ratingsOnly = collapseRatingsOnly
-    ? feedback.filter((f) => !hasText(f.comment))
-    : []
+  const commented = feedback.filter((f) => hasText(f.comment))
+  const ratingsOnly = feedback.filter((f) => !hasText(f.comment))
+  const shouldCollapse =
+    collapseRatingsOnly && ratingsOnly.length > ratingsOnlyCollapseThreshold
 
   // Permalinks to rating-only feedback predate this collapse, and the card can
   // only scroll itself into view once it is mounted.
@@ -74,7 +77,7 @@ export function SchoolYearSection({
         ))}
 
         {/* Kept above the expanded cards so the button does not move when clicked. */}
-        {ratingsOnly.length > 0 && (
+        {shouldCollapse && (
           <button
             type="button"
             onClick={handleToggle}
@@ -97,7 +100,7 @@ export function SchoolYearSection({
           </button>
         )}
 
-        {isExpanded &&
+        {(!shouldCollapse || isExpanded) &&
           ratingsOnly.map((f) => (
             <CoursePageFeedbackCard key={f.id} feedback={f} />
           ))}
