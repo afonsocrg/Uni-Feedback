@@ -98,6 +98,8 @@ export function useChatStream(
       abortRef.current = controller
       const startedAt = Date.now()
       let answered = false
+      // `done` carries no content, so the answer's length is kept from `answer`.
+      let answerLength = 0
       let createdId: string | null = null
 
       try {
@@ -113,6 +115,7 @@ export function useChatStream(
 
             case 'answer':
               answered = true
+              answerLength = event.content.length
               setAnsweredAt(Date.now())
               setWorkingTool(null)
               setMessages((prev) => [
@@ -141,7 +144,7 @@ export function useChatStream(
                 latencyMs: event.latencyMs,
                 toolsUsed: event.toolsUsed,
                 guardsFired: event.guardsFired,
-                answerLength: 0
+                answerLength
               })
               if (event.remainingMessages <= 0) {
                 setQuotaReached(true)
