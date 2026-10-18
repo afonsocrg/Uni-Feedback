@@ -102,7 +102,7 @@ export function MobileDrawer({
                     {t('nav.chat')}
                     <span
                       aria-hidden="true"
-                      className="ml-1.5 inline-block size-1.5 rounded-full bg-primary align-middle"
+                      className="ml-1.5 inline-block size-1.5 rounded-full bg-brand-solid align-middle"
                     />
                     <span className="sr-only"> (Beta)</span>
                   </a>

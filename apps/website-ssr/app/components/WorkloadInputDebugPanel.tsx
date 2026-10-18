@@ -65,7 +65,7 @@ export function WorkloadInputDebugPanel({
         <button
           type="button"
           onClick={() => setIsOpen(true)}
-          className="bg-primaryBlue text-white rounded-full p-3 shadow-lg hover:bg-primaryBlue/90 transition-colors"
+          className="bg-brand-solid text-white rounded-full p-3 shadow-lg hover:bg-brand-solid/90 transition-colors"
           title="Debug Panel"
         >
           <Settings className="size-5" />

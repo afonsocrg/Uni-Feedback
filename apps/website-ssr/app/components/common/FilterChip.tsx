@@ -55,7 +55,7 @@ export function FilterChip({
 
   // Sort chips get a solid brand fill; active filters use the soft blue tint.
   const activeChipClass = isSort
-    ? 'bg-primaryBlue text-white border-primaryBlue'
+    ? 'bg-brand-solid text-white border-primaryBlue'
     : 'bg-tint-blue text-tint-blue-fg border-tint-blue-border'
   const showAsActive = isSort || selectedValue
 

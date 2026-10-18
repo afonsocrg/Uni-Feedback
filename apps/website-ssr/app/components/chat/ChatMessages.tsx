@@ -83,7 +83,7 @@ export function ChatMessages({
         {messages.map((message) =>
           message.role === 'user' ? (
             <div key={message.id} className="flex justify-end">
-              <div className="max-w-[85%] rounded-lg rounded-br-sm bg-primaryBlue px-3.5 py-2 text-base text-white">
+              <div className="max-w-[85%] rounded-lg rounded-br-sm bg-brand-solid px-3.5 py-2 text-base text-white">
                 {message.content}
               </div>
             </div>
@@ -145,7 +145,7 @@ export function ChatMessages({
             className="flex items-center gap-2 text-sm text-muted-foreground"
             aria-live="polite"
           >
-            <span className="size-1.5 animate-pulse rounded-full bg-primaryBlue motion-reduce:animate-none" />
+            <span className="size-1.5 animate-pulse rounded-full bg-brand-solid motion-reduce:animate-none" />
             {/* Named after the tool actually running. A turn takes 3 to 14
               seconds, and a spinner that says nothing reads as broken. */}
             {t(`working_tool.${workingTool}`, { defaultValue: t('working') })}

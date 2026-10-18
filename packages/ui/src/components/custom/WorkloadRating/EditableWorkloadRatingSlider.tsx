@@ -59,7 +59,7 @@ export function EditableWorkloadRatingSlider({
 
           {/* Filled track */}
           <div
-            className="absolute top-1/2 -translate-y-1/2 h-1.5 bg-primaryBlue rounded-full pointer-events-none transition-all"
+            className="absolute top-1/2 -translate-y-1/2 h-1.5 bg-brand-solid rounded-full pointer-events-none transition-all"
             style={{ width: `${fillPercentage}%` }}
           />
 

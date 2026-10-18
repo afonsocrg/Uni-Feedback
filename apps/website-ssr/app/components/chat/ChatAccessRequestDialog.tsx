@@ -333,7 +333,7 @@ function Chip({
       className={cn(
         'cursor-pointer rounded-full border px-3 py-1 text-sm transition-colors',
         active
-          ? 'border-primaryBlue bg-primaryBlue text-white'
+          ? 'border-primaryBlue bg-brand-solid text-white'
           : 'border-border bg-card text-foreground hover:border-primaryBlue'
       )}
     >

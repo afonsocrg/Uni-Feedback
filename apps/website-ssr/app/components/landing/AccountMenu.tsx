@@ -60,7 +60,7 @@ export function AccountMenu({
           className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-border py-0.5 pr-2 pl-0.5 text-muted-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           {isAuthenticated ? (
-            <span className="relative flex size-8 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
+            <span className="relative flex size-8 items-center justify-center rounded-full bg-brand-solid text-xs font-semibold text-primary-foreground">
               {initials}
               <JourneyDot placement="corner" />
             </span>

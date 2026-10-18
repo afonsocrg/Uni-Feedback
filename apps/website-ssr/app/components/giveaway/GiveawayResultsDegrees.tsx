@@ -122,7 +122,7 @@ export function GiveawayResultsDegrees({
                       reads as a single picture, not per-row progress. */}
                   <div className="col-span-2 col-start-2 mt-2.5 h-1 overflow-hidden rounded-full bg-muted">
                     <div
-                      className="h-full rounded-full bg-primaryBlue/70"
+                      className="h-full rounded-full bg-brand-solid/70"
                       style={{
                         width: `${Math.round((degree.reviews / topReviews) * 100)}%`
                       }}

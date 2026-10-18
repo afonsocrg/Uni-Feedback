@@ -83,7 +83,7 @@ export function FeedbackPointsProgress({
         aria-valuemax={MAX_FEEDBACK_POINTS}
       >
         <div
-          className="h-full rounded-full bg-primaryBlue transition-all duration-500 ease-out"
+          className="h-full rounded-full bg-brand-solid transition-all duration-500 ease-out"
           style={{ width: `${progress}%` }}
         />
       </div>

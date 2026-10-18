@@ -30,6 +30,7 @@
   --brand-600: #1a5a7a; /* announcement gradient edge */
   --brand-500: #23729f; /* the brand blue */
   --brand-400: #3f92c0;
+  --brand-350: #67addd; /* dark-mode brand text: 5.7:1 on cards, AA on every surface */
   --brand-300: #7fb8d9;
 
   /* Gold — star ratings & FNAC */
@@ -80,6 +81,11 @@
   /* Brand — themeable (was a fixed literal #23729f) */
   --brand: var(--brand-500);
   --brand-foreground: #ffffff;
+
+  /* Brand solid — filled brand surfaces that carry white text (buttons, chips,
+     checkboxes). Same as brand in light; in dark it stays deeper than the
+     text blue so white labels keep their contrast. */
+  --brand-solid: var(--brand-500);
 
   /* Brand emphasis — large brand surfaces (CTA bands). Vivid in light. */
   --brand-emphasis: oklch(0.527 0.098 234.873);
@@ -175,7 +181,9 @@
   --card-foreground: oklch(0.9 0 0);
   --popover: oklch(0.295 0 0);
   --popover-foreground: oklch(0.9 0 0);
-  --primary: oklch(0.62 0.108 240);
+  /* Text-weight blue: lighter than the fills so titles/links clear WCAG AA on
+     every dark surface. Solid fills use --brand-solid instead. */
+  --primary: var(--brand-350);
   --primary-foreground: oklch(0.98 0 0);
   --secondary: oklch(0.335 0 0);
   --secondary-foreground: oklch(0.9 0 0);
@@ -188,9 +196,13 @@
   --input: oklch(1 0 0 / 17%);
   --ring: oklch(0.556 0 0);
 
-  /* Brand — lighter so it stays legible on dark surfaces */
-  --brand: var(--brand-400);
+  /* Brand — lighter so it stays legible as text on dark surfaces */
+  --brand: var(--brand-350);
   --brand-foreground: #ffffff;
+
+  /* Brand solid — keeps the deeper blue for fills, so white labels on buttons
+     don't lose contrast and big blue areas don't glare. */
+  --brand-solid: var(--brand-400);
 
   /* Brand emphasis — large brand surfaces (CTA bands): muted deep navy in
      dark so they don't glare against the page. */
@@ -323,6 +335,7 @@
   --color-primaryBlue: var(--brand);
   --color-brand: var(--brand);
   --color-brand-foreground: var(--brand-foreground);
+  --color-brand-solid: var(--brand-solid);
   --color-brand-emphasis: var(--brand-emphasis);
   --color-brand-emphasis-foreground: var(--brand-emphasis-foreground);
   --color-interactive: var(--interactive);

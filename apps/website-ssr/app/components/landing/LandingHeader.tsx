@@ -90,7 +90,7 @@ export function LandingHeader() {
                   object in the scan. The word itself lives on the chat page. */}
                 <span
                   aria-hidden="true"
-                  className="ml-1 inline-block size-1.5 rounded-full bg-primary align-middle"
+                  className="ml-1 inline-block size-1.5 rounded-full bg-brand-solid align-middle"
                 />
                 <span className="sr-only"> (Beta)</span>
               </NavLink>
@@ -162,7 +162,7 @@ function NavLink({ href, isActive, onClick, children }: NavLinkProps) {
       {isActive && (
         // Lands on the header's bottom rule: 16px of container padding below
         // the stretched link, then the 1px border itself.
-        <span className="absolute inset-x-3 -bottom-[17px] h-0.5 rounded-t-full bg-primary" />
+        <span className="absolute inset-x-3 -bottom-[17px] h-0.5 rounded-t-full bg-brand-solid" />
       )}
     </a>
   )

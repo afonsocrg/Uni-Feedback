@@ -34,7 +34,7 @@ export default function ContactPage() {
 
             <a
               href="mailto:afonso@uni-feedback.com"
-              className="inline-flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90 transition-colors px-6 py-3 rounded-lg font-medium"
+              className="inline-flex items-center gap-2 bg-brand-solid text-primary-foreground hover:bg-brand-solid/90 transition-colors px-6 py-3 rounded-lg font-medium"
             >
               <Mail className="size-4" />
               {t('contact.email_btn')}

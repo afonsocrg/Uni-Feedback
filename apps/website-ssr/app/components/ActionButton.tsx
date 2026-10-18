@@ -14,8 +14,8 @@ export function ActionButton({
 }: ActionButtonProps) {
   const buttonClasses =
     variant === 'primary'
-      ? 'bg-primaryBlue hover:bg-primaryBlue/80 text-white'
-      : 'bg-background border-2 border-primaryBlue text-primaryBlue hover:bg-primaryBlue hover:text-white'
+      ? 'bg-brand-solid hover:bg-brand-solid/80 text-white'
+      : 'bg-background border-2 border-primaryBlue text-primaryBlue hover:bg-brand-solid hover:text-white'
 
   const commonClasses =
     'font-semibold py-2 md:py-3 w-full max-w-[180px] rounded-lg shadow transition-all text-lg focus:outline-none focus:ring-2 focus:ring-primaryBlue focus:ring-offset-2 cursor-pointer flex items-center justify-center text-center'

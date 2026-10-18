@@ -42,8 +42,8 @@ export function PollingStage({
         <div className="relative">
           <Mail className="size-16 text-primaryBlue" />
           <div className="absolute -top-1 -right-1">
-            <div className="size-4 bg-primaryBlue rounded-full animate-ping" />
-            <div className="absolute top-0 right-0 size-4 bg-primaryBlue rounded-full" />
+            <div className="size-4 bg-brand-solid rounded-full animate-ping" />
+            <div className="absolute top-0 right-0 size-4 bg-brand-solid rounded-full" />
           </div>
         </div>
 

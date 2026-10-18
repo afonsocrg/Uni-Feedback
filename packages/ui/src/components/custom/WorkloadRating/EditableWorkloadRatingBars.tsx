@@ -48,7 +48,7 @@ export function EditableWorkloadRatingBars({
               className={cn(
                 'rounded-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primaryBlue focus:ring-offset-1',
                 disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
-                isFilled ? 'bg-primaryBlue' : 'bg-muted'
+                isFilled ? 'bg-brand-solid' : 'bg-muted'
               )}
               style={{
                 width: barWidth,

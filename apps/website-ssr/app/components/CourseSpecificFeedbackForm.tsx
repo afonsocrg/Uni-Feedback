@@ -338,7 +338,7 @@ export function CourseSpecificFeedbackForm({
                                   className={cn(
                                     'px-2.5 py-0.5 text-xs transition-colors',
                                     isSelected
-                                      ? 'border-transparent bg-primaryBlue text-white hover:bg-primaryBlue/90'
+                                      ? 'border-transparent bg-brand-solid text-white hover:bg-brand-solid/90'
                                       : 'border-border bg-muted text-muted-foreground hover:bg-muted/80'
                                   )}
                                 >

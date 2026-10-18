@@ -128,7 +128,7 @@ export function FeedbackCarousel({
               onClick={() => setCurrentIndex(index)}
               className={`h-2 rounded-full transition-all duration-500 cursor-pointer ${
                 index === currentIndex
-                  ? 'w-8 bg-primary'
+                  ? 'w-8 bg-brand-solid'
                   : 'w-2 bg-muted hover:bg-muted-foreground'
               }`}
               aria-label={t('feedback_carousel.go_to_aria', {

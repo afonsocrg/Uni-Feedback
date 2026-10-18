@@ -86,6 +86,11 @@ const BRAND = [
     swatchClass: 'bg-primaryBlue',
     util: 'bg-primaryBlue'
   },
+  {
+    name: 'brand-solid (fills)',
+    swatchClass: 'bg-brand-solid',
+    util: 'bg-brand-solid'
+  },
   { name: 'destructive', swatchClass: 'bg-destructive', util: 'bg-destructive' }
 ]
 
