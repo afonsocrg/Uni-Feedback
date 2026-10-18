@@ -446,6 +446,70 @@ describe('ChatService', () => {
       })
     })
 
+    it('records what the student asked about on their message', async () => {
+      await withTestDb(async () => {
+        const { user, course } = await seed()
+        const { service: chat } = service([
+          callTool('search_courses', { query: 'AMS' }),
+          callTool('get_course_reviews', { courseId: course.id }),
+          say('Os alunos dizem que o projeto é trabalhoso.')
+        ])
+
+        const created = await chat.createChat({ userId: user.id })
+        await chat.sendMessage({
+          chat: created,
+          userId: user.id,
+          content: 'O que dizem sobre AMS?'
+        })
+
+        // The course looked up by id, not every candidate the search returned.
+        const mentioned = await database()
+          .select({
+            role: chatMessages.role,
+            type: chatMessageEntities.entityType,
+            id: chatMessageEntities.entityId
+          })
+          .from(chatMessageEntities)
+          .innerJoin(
+            chatMessages,
+            eq(chatMessageEntities.messageId, chatMessages.id)
+          )
+          .where(eq(chatMessageEntities.relation, 'mentioned'))
+        expect(mentioned).toEqual([
+          { role: 'user', type: 'course', id: course.id }
+        ])
+      })
+    })
+
+    it("falls back to the chat's scope when nothing was looked up by id", async () => {
+      await withTestDb(async () => {
+        const { user, degree } = await seed()
+        const { service: chat } = service([
+          callTool('search_courses', { degreeAcronym: 'LEIC' }),
+          say('A mais difícil é AMS.')
+        ])
+
+        const created = await chat.createChat({
+          userId: user.id,
+          scope: { degreeId: degree.id, source: 'degree_page' }
+        })
+        await chat.sendMessage({
+          chat: created,
+          userId: user.id,
+          content: 'Qual é a cadeira mais difícil?'
+        })
+
+        const mentioned = await database()
+          .select({
+            type: chatMessageEntities.entityType,
+            id: chatMessageEntities.entityId
+          })
+          .from(chatMessageEntities)
+          .where(eq(chatMessageEntities.relation, 'mentioned'))
+        expect(mentioned).toEqual([{ type: 'degree', id: degree.id }])
+      })
+    })
+
     it('keeps conversation history across turns', async () => {
       await withTestDb(async () => {
         const { user } = await seed()

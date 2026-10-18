@@ -318,14 +318,13 @@ export class ChatService {
     const chat = input.chat
 
     const nextSeq = await this.nextSeq(chat.id)
-    await this.persistMessage({
+    // Its `mentioned` entities are written after the turn: what the student
+    // meant is only known once the model has resolved it.
+    const userMessageId = await this.persistMessage({
       chatId: chat.id,
       seq: nextSeq,
       role: 'user',
       content: input.content,
-      // On a user message this is what the STUDENT asked about, which is the
-      // analytics gold. Populated below from the chat's scope, since we cannot
-      // know what they meant until the model resolves it.
       entities: [],
       relation: 'mentioned'
     })
@@ -364,6 +363,15 @@ export class ChatService {
 
     const turn = await this.runToolLoop(messages, seededUrls, input.onProgress)
     turn.answer = withoutEmDashes(turn.answer)
+
+    // What the student was asking about: the courses and degrees the model
+    // looked up by id. A turn that looked nothing up by id (a filtered search,
+    // or an answer from the context block alone) falls back to the chat's scope.
+    await this.insertEntities(
+      userMessageId,
+      turn.targeted.length > 0 ? turn.targeted : scopeEntities(chat),
+      'mentioned'
+    )
 
     const assistantSeq = nextSeq + 1
     const assistantMessageId = await this.persistMessage({
@@ -429,6 +437,8 @@ export class ChatService {
     // speak for students on the strength of an error message.
     const toolsSucceeded: string[] = []
     const entities: EntityRef[] = []
+    // The ids the model passed in, as opposed to everything the tools returned.
+    const targeted: EntityRef[] = []
     const guardsFired: string[] = []
     const gaps = new ChatGapDetector()
 
@@ -485,6 +495,7 @@ export class ChatService {
           toolCalls,
           toolsUsed,
           entities,
+          targeted,
           entityUrls,
           guardsFired,
           iterations,
@@ -510,7 +521,18 @@ export class ChatService {
           payload = result.payload
           // A payload of `{ error }` is the executor's own refusal (missing id,
           // unknown course) and put no data in front of the model either.
-          if (!isErrorPayload(payload)) toolsSucceeded.push(call.function.name)
+          if (!isErrorPayload(payload)) {
+            toolsSucceeded.push(call.function.name)
+            const target = targetOf(call.function.name, args)
+            if (
+              target &&
+              !targeted.some(
+                (e) => e.type === target.type && e.id === target.id
+              )
+            ) {
+              targeted.push(target)
+            }
+          }
           for (const entity of result.entities) {
             if (
               !entities.some(
@@ -572,6 +594,7 @@ export class ChatService {
       toolCalls,
       toolsUsed,
       entities,
+      targeted,
       entityUrls,
       guardsFired,
       iterations,
@@ -672,29 +695,29 @@ export class ChatService {
       })
       .returning({ id: chatMessages.id })
 
-    const rows = [
-      ...input.entities.map((e) => ({
-        messageId: message.id,
-        entityType: e.type,
-        entityId: e.id,
-        relation: input.relation
-      })),
-      ...(input.citedEntities ?? []).map((e) => ({
-        messageId: message.id,
-        entityType: e.type,
-        entityId: e.id,
-        relation: 'cited' as const
-      }))
-    ]
-
-    if (rows.length > 0) {
-      await database()
-        .insert(chatMessageEntities)
-        .values(rows)
-        .onConflictDoNothing()
-    }
+    await this.insertEntities(message.id, input.entities, input.relation)
+    await this.insertEntities(message.id, input.citedEntities ?? [], 'cited')
 
     return message.id
+  }
+
+  private async insertEntities(
+    messageId: number,
+    entities: EntityRef[],
+    relation: 'mentioned' | 'retrieved' | 'cited'
+  ): Promise<void> {
+    if (entities.length === 0) return
+    await database()
+      .insert(chatMessageEntities)
+      .values(
+        entities.map((e) => ({
+          messageId,
+          entityType: e.type,
+          entityId: e.id,
+          relation
+        }))
+      )
+      .onConflictDoNothing()
   }
 
   /** Conversation history, trimmed to the most recent turns. */
@@ -747,6 +770,39 @@ function isErrorPayload(payload: unknown): boolean {
     'error' in payload &&
     Object.keys(payload).length === 1
   )
+}
+
+/** The entity a tool call asked for by id, if it asked for one. */
+function targetOf(
+  tool: string,
+  args: Record<string, unknown>
+): EntityRef | null {
+  const id = (key: string) => {
+    const value = Number(args[key])
+    // Zero is a placeholder, not an id (see `chatTools.ts`).
+    return Number.isInteger(value) && value > 0 ? value : null
+  }
+  if (tool === 'get_course' || tool === 'get_course_reviews') {
+    const courseId = id('courseId')
+    return courseId ? { type: 'course', id: courseId } : null
+  }
+  if (tool === 'get_degree') {
+    const degreeId = id('degreeId')
+    return degreeId ? { type: 'degree', id: degreeId } : null
+  }
+  return null
+}
+
+/** What the chat was opened about, most specific first. */
+function scopeEntities(chat: Chat): EntityRef[] {
+  const refs: EntityRef[] = []
+  if (chat.contextCourseId)
+    refs.push({ type: 'course', id: chat.contextCourseId })
+  if (chat.contextDegreeId)
+    refs.push({ type: 'degree', id: chat.contextDegreeId })
+  if (chat.contextFacultyId)
+    refs.push({ type: 'faculty', id: chat.contextFacultyId })
+  return refs
 }
 
 /**
