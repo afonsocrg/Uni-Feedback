@@ -184,19 +184,30 @@ export function CourseSpecificFeedbackForm({
     }
   }, [rating, workloadRating])
 
-  // Auto-save draft when rating/workload changes
+  // Auto-save draft when school year/rating/workload changes
   // Comment changes are handled separately by CommentSection to avoid re-renders
   useEffect(() => {
-    if (enableAutoSave && (rating > 0 || workloadRating > 0)) {
+    if (
+      enableAutoSave &&
+      (rating > 0 || workloadRating > 0 || selectedSchoolYear !== undefined)
+    ) {
       // Get current comment value without watching it
       const currentComment = form.getValues('comment') || ''
       saveDraft({
         rating,
         workloadRating,
-        comment: currentComment
+        comment: currentComment,
+        schoolYear: selectedSchoolYear
       })
     }
-  }, [rating, workloadRating, saveDraft, enableAutoSave, form])
+  }, [
+    rating,
+    workloadRating,
+    selectedSchoolYear,
+    saveDraft,
+    enableAutoSave,
+    form
+  ])
 
   // Callback for when comment changes (debounced in CommentSection)
   const handleCommentChange = useCallback(
@@ -216,7 +227,8 @@ export function CourseSpecificFeedbackForm({
         saveDraft({
           rating: form.getValues('rating'),
           workloadRating: form.getValues('workloadRating'),
-          comment
+          comment,
+          schoolYear: form.getValues('schoolYear')
         })
       }
     },
@@ -229,6 +241,14 @@ export function CourseSpecificFeedbackForm({
       form.setValue('rating', existingDraft.rating)
       form.setValue('workloadRating', existingDraft.workloadRating)
       form.setValue('comment', existingDraft.comment)
+      // The student picked this year themselves, so restoring it keeps the
+      // "no default year" rule. Skip years that have left the picker.
+      if (
+        existingDraft.schoolYear !== undefined &&
+        schoolYears.includes(existingDraft.schoolYear)
+      ) {
+        form.setValue('schoolYear', existingDraft.schoolYear)
+      }
     }
     setShowDraftDialog(false)
     setHasDismissedDraft(true)
@@ -498,6 +518,7 @@ export function CourseSpecificFeedbackForm({
           rating={existingDraft.rating}
           workloadRating={existingDraft.workloadRating}
           comment={existingDraft.comment}
+          schoolYear={existingDraft.schoolYear}
           onRestore={handleRestoreDraft}
           onDiscard={handleDiscardDraft}
         />

@@ -20,6 +20,7 @@ export interface FeedbackDraft {
   rating: number
   workloadRating: number
   comment: string
+  schoolYear?: number // Missing in drafts saved before it was recorded
   timestamp: number // For "draft from X ago" message
 }
 

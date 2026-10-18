@@ -6,6 +6,7 @@ export interface FeedbackFormValues {
   rating: number
   workloadRating: number
   comment: string
+  schoolYear?: number
 }
 
 export interface UseFeedbackDraftReturn {

@@ -9,7 +9,7 @@ import {
   EditableStarRating,
   WorkloadRatingDisplay
 } from '@uni-feedback/ui'
-import { getRelativeTime } from '@uni-feedback/utils'
+import { formatSchoolYearString, getRelativeTime } from '@uni-feedback/utils'
 import { Clock } from 'lucide-react'
 import { useLang, useWorkloadLabel } from '~/hooks'
 import { FeedbackMarkdown } from './feedback'
@@ -20,6 +20,7 @@ interface FeedbackDraftDialogProps {
   rating: number
   workloadRating: number
   comment: string
+  schoolYear?: number
   onRestore: () => void
   onDiscard: () => void
 }
@@ -34,6 +35,7 @@ export function FeedbackDraftDialog({
   rating,
   workloadRating,
   comment,
+  schoolYear,
   onRestore,
   onDiscard
 }: FeedbackDraftDialogProps) {
@@ -55,6 +57,18 @@ export function FeedbackDraftDialog({
         <div className="space-y-4 py-2">
           {/* Draft Preview */}
           <div className="space-y-4">
+            {/* School Year - same order as the form */}
+            {schoolYear !== undefined && (
+              <div>
+                <div className="text-sm font-medium text-foreground mb-2">
+                  School Year
+                </div>
+                <div className="text-sm text-foreground">
+                  {formatSchoolYearString(schoolYear, { yearFormat: 'short' })}
+                </div>
+              </div>
+            )}
+
             {/* Ratings - side by side with flex-wrap */}
             <div className="flex flex-wrap gap-6">
               {/* Rating */}
