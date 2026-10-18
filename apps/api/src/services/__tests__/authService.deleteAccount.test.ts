@@ -159,6 +159,34 @@ describe('AuthService.deleteUserAccount', () => {
     })
   })
 
+  it('also drops requests sent logged out with the same email', async () => {
+    await withTestDb(async () => {
+      const db = database()
+      const user = await createUser()
+      const other = await createUser({ email: 'outro@tecnico.ulisboa.pt' })
+      const faculty = await createFaculty()
+
+      // Logged out: no user id, only the address, as the endpoint stores it.
+      await db.insert(chatAccessRequests).values([
+        {
+          userId: null,
+          email: user.email.toLowerCase(),
+          responses: { facultyIds: [faculty.id] }
+        },
+        {
+          userId: null,
+          email: other.email,
+          responses: { facultyIds: [faculty.id] }
+        }
+      ])
+
+      await authService.deleteUserAccount(user.id)
+
+      const remaining = await db.select().from(chatAccessRequests)
+      expect(remaining.map((r) => r.email)).toEqual([other.email])
+    })
+  })
+
   it('still preserves feedback, which the anonymised user inherits', async () => {
     await withTestDb(async () => {
       const db = database()

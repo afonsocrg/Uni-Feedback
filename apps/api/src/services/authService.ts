@@ -668,9 +668,20 @@ export class AuthService {
       // Chat access requests carry an email, which is personal data the
       // anonymised account must not keep. Drop them rather than transferring:
       // they are a waitlist, and a deleted account does not want to be on it.
+      // Match by address too: a request sent while logged out has no user id,
+      // only the same email.
+      const [{ email }] = await tx
+        .select({ email: users.email })
+        .from(users)
+        .where(eq(users.id, userId))
       await tx
         .delete(chatAccessRequests)
-        .where(eq(chatAccessRequests.userId, userId))
+        .where(
+          or(
+            eq(chatAccessRequests.userId, userId),
+            eq(chatAccessRequests.email, email.trim().toLowerCase())
+          )
+        )
 
       // Step 3: Delete original user (cascades to sessions, passwordResetTokens)
       await tx.delete(users).where(eq(users.id, userId))
