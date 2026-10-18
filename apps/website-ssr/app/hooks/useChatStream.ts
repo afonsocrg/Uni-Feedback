@@ -40,6 +40,15 @@ export function useChatStream(
   const [createdChatId, setCreatedChatId] = useState<string | null>(null)
   /** Bumped when an answer lands, so the caller can re-sort the chat list. */
   const [answeredAt, setAnsweredAt] = useState<number | null>(null)
+  /**
+   * True from send until the stream closes, which outlasts `workingTool`.
+   *
+   * On a first turn the answer arrives before the chat id: the server names the
+   * chat (a second model call) and only then sends `created`. A message sent in
+   * that window had no chat id, so it started a second conversation. The
+   * composer now waits for the whole stream, not just the answer.
+   */
+  const [inFlight, setInFlight] = useState(false)
 
   // Negative ids for optimistic messages, so they never collide with real ones.
   const optimisticId = useRef(-1)
@@ -64,7 +73,7 @@ export function useChatStream(
   const send = useCallback(
     async (content: string, sendOptions: { usedSuggestion?: boolean } = {}) => {
       // chatId null is valid now: the first message creates the conversation.
-      if (workingTool !== null) return
+      if (inFlight) return
 
       const isFirstMessage = messages.length === 0
       setError(null)
@@ -75,6 +84,7 @@ export function useChatStream(
         { id: optimisticId.current--, role: 'user', content }
       ])
       setWorkingTool('search_courses')
+      setInFlight(true)
 
       analytics.chat.messageSent({
         chatId: chatId ?? 'new',
@@ -195,6 +205,7 @@ export function useChatStream(
       } finally {
         abortRef.current = null
         setWorkingTool(null)
+        setInFlight(false)
         // Published only now, once nothing more can arrive on this stream, so
         // the navigation it triggers cannot cut the turn short. It is set even
         // after a late `error` event: the chat exists and has its answer.
@@ -211,10 +222,10 @@ export function useChatStream(
     [
       chatId,
       hasContext,
+      inFlight,
       messages.length,
       options.language,
-      options.scope,
-      workingTool
+      options.scope
     ]
   )
 
@@ -230,7 +241,7 @@ export function useChatStream(
     title,
     createdChatId,
     answeredAt,
-    isStreaming: workingTool !== null,
+    isStreaming: inFlight,
     reset,
     send,
     abort
