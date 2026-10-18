@@ -87,6 +87,28 @@ export const CHAT_CONFIG = {
   },
 
   /**
+   * Hard cap on tool calls within ONE iteration.
+   *
+   * `maxToolIterations` bounds round trips, but one round trip can carry any
+   * number of calls. Calls past the cap are answered with an error telling the
+   * model to batch instead. 12, not lower: a "which do you recommend" question
+   * legitimately fetches a course and its reviews for six courses at once, and
+   * a cap of 6 measured (2026-10-18) as refused calls re-sent in an extra round,
+   * which is the latency the cap was meant to save.
+   */
+  get maxToolCallsPerIteration(): number {
+    return envInt('CHAT_MAX_TOOL_CALLS_PER_ITERATION', 12)
+  },
+
+  /**
+   * Of those, how many `get_degree` calls. Each can return a whole degree plan
+   * (up to 200 courses), so these are the calls that make a step expensive.
+   */
+  get maxDegreePlansPerIteration(): number {
+    return envInt('CHAT_MAX_DEGREE_PLANS_PER_ITERATION', 3)
+  },
+
+  /**
    * How long one provider call may take before it is abandoned, in ms.
    *
    * Without it a hung request at OpenRouter hangs the SSE stream, and the

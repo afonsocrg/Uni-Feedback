@@ -545,48 +545,82 @@ export class ChatService {
         }
       }
 
-      for (const call of calls) {
-        const callStarted = Date.now()
-        let args: Record<string, unknown> = {}
-        try {
-          args = JSON.parse(call.function.arguments || '{}')
-        } catch {
-          args = {}
+      // The calls of one step are independent (the model wrote them all
+      // before seeing any result), so they run in parallel. Run one after
+      // another, six get_course calls cost six round trips of waiting.
+      // Bookkeeping below stays in call order, so the transcript and the
+      // tool messages read the same as before.
+      const maxCalls = CHAT_CONFIG.maxToolCallsPerIteration
+      const maxPlans = CHAT_CONFIG.maxDegreePlansPerIteration
+      let plans = 0
+      const refused = calls.map((call, index) => {
+        if (index >= maxCalls) return true
+        if (call.function.name !== 'get_degree') return false
+        plans += 1
+        return plans > maxPlans
+      })
+      const executed = await Promise.all(
+        calls.map(async (call, index) => {
+          const started = Date.now()
+          let args: Record<string, unknown> = {}
+          try {
+            args = JSON.parse(call.function.arguments || '{}')
+          } catch {
+            args = {}
+          }
+          // Capped per step, not only per turn: one step could otherwise ask
+          // for a dozen whole degree plans at once.
+          if (refused[index]) {
+            return {
+              args,
+              payload: { error: TOO_MANY_CALLS(maxCalls, maxPlans) },
+              found: [] as EntityRef[],
+              ms: 0
+            }
+          }
+          onProgress?.({ tool: call.function.name })
+          try {
+            const result = await this.tools.execute(call.function.name, args)
+            return {
+              args,
+              payload: result.payload,
+              found: result.entities,
+              ms: Date.now() - started
+            }
+          } catch (error) {
+            return {
+              args,
+              payload: {
+                error: error instanceof Error ? error.message : String(error)
+              },
+              found: [] as EntityRef[],
+              ms: Date.now() - started
+            }
+          }
+        })
+      )
+
+      calls.forEach((call, index) => {
+        const { args, payload, found, ms } = executed[index]
+
+        // A payload of `{ error }` is the executor's own refusal (missing id,
+        // unknown course) and put no data in front of the model either.
+        if (!isErrorPayload(payload)) {
+          toolsSucceeded.push(call.function.name)
+          const target = targetOf(call.function.name, args)
+          if (
+            target &&
+            !targeted.some((e) => e.type === target.type && e.id === target.id)
+          ) {
+            targeted.push(target)
+          }
+          collectUrls(payload, entityUrls)
         }
-
-        onProgress?.({ tool: call.function.name })
-
-        let payload: unknown
-        try {
-          const result = await this.tools.execute(call.function.name, args)
-          payload = result.payload
-          // A payload of `{ error }` is the executor's own refusal (missing id,
-          // unknown course) and put no data in front of the model either.
-          if (!isErrorPayload(payload)) {
-            toolsSucceeded.push(call.function.name)
-            const target = targetOf(call.function.name, args)
-            if (
-              target &&
-              !targeted.some(
-                (e) => e.type === target.type && e.id === target.id
-              )
-            ) {
-              targeted.push(target)
-            }
-          }
-          for (const entity of result.entities) {
-            if (
-              !entities.some(
-                (e) => e.type === entity.type && e.id === entity.id
-              )
-            ) {
-              entities.push(entity)
-            }
-          }
-          collectUrls(result.payload, entityUrls)
-        } catch (error) {
-          payload = {
-            error: error instanceof Error ? error.message : String(error)
+        for (const entity of found) {
+          if (
+            !entities.some((e) => e.type === entity.type && e.id === entity.id)
+          ) {
+            entities.push(entity)
           }
         }
 
@@ -596,7 +630,7 @@ export class ChatService {
         toolCalls.push({
           name: call.function.name,
           args,
-          ms: Date.now() - callStarted,
+          ms,
           ...recordResult(payload)
         })
 
@@ -605,7 +639,7 @@ export class ChatService {
           tool_call_id: call.id,
           content: JSON.stringify(payload)
         })
-      }
+      })
     }
 
     // Out of iterations. Seen on production (2026-09-16): a question with
@@ -823,6 +857,10 @@ function isErrorPayload(payload: unknown): boolean {
     Object.keys(payload).length === 1
   )
 }
+
+/** What the model reads for a call past the per-step cap. */
+const TOO_MANY_CALLS = (max: number, plans: number) =>
+  `Not run: at most ${max} tool calls per step, ${plans} of them get_degree. Call again with the ones you still need, or cover several items in one call (search_courses with \`queries\` or filters, get_degree with \`curriculumYear\`).`
 
 /** The entity a tool call asked for by id, if it asked for one. */
 function targetOf(

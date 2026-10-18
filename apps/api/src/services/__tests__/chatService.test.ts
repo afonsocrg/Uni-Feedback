@@ -129,6 +129,56 @@ describe('ChatService', () => {
       })
     })
 
+    it('refuses calls past the per-step cap, and answers every call id', async () => {
+      await withTestDb(async () => {
+        const { user, course, degree } = await seed()
+        // 14 calls: two past the overall cap, and five get_degree of which
+        // only three may run.
+        const many = Array.from({ length: 14 }, (_, i) => ({
+          id: `call_${i}`,
+          type: 'function' as const,
+          function:
+            i < 5
+              ? {
+                  name: 'get_degree',
+                  arguments: JSON.stringify({ degreeId: degree.id })
+                }
+              : {
+                  name: 'get_course',
+                  arguments: JSON.stringify({ courseId: course.id })
+                }
+        }))
+        const { service: chat, llm } = service([
+          { message: { role: 'assistant', content: null, tool_calls: many } },
+          say('AMS tem 6 ECTS.')
+        ])
+
+        const created = await chat.createChat({ userId: user.id })
+        await chat.sendMessage({
+          chat: created,
+          userId: user.id,
+          content: 'Quantos ECTS tem AMS?'
+        })
+
+        // The provider requires a tool message for every call id, in order.
+        const toolMessages = llm.calls[1].messages.filter(
+          (m) => m.role === 'tool'
+        )
+        expect(toolMessages.map((m) => m.tool_call_id)).toEqual(
+          many.map((c) => c.id)
+        )
+        const refused = toolMessages.filter((m) =>
+          m.content.includes('Not run')
+        )
+        expect(refused.map((m) => m.tool_call_id)).toEqual([
+          'call_3',
+          'call_4',
+          'call_12',
+          'call_13'
+        ])
+      })
+    })
+
     it('stops at the iteration cap instead of looping forever', async () => {
       await withTestDb(async () => {
         const { user, course } = await seed()

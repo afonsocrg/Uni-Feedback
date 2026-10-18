@@ -1,11 +1,13 @@
+import { academicTerms, courseOfferings } from '@uni-feedback/db/schema'
 import { beforeEach, describe, expect, it } from 'vitest'
 import {
   createCourse,
   createDegree,
   createFaculty,
-  initCourseStats
+  initCourseStats,
+  initDegreeStats
 } from '../../../test/helpers'
-import { cleanAllTables, withTestDb } from '../../../test/setup'
+import { cleanAllTables, getTestDb, withTestDb } from '../../../test/setup'
 import { ChatRetrievalService } from '../chatRetrievalService'
 
 /**
@@ -77,6 +79,50 @@ describe('ChatRetrievalService: batched and compact lookups', () => {
       const result = await service.searchCourses({ queries: ['redes'] })
       expect('matchMode' in result && result.matchMode).toBe('exact')
       expect(result.courses).toHaveLength(1)
+    })
+  })
+
+  it('returns one curriculum row per course, with every term it runs in', async () => {
+    await withTestDb(async () => {
+      const { ist, meec, redes } = await seed()
+      const db = getTestDb()
+      const terms = await db
+        .insert(academicTerms)
+        .values([
+          { facultyId: ist.id, name: '1º Semestre', startTick: 0, endTick: 1 },
+          { facultyId: ist.id, name: '2º Semestre', startTick: 2, endTick: 3 }
+        ])
+        .returning({ id: academicTerms.id })
+      await db.insert(courseOfferings).values(
+        terms.map((t) => ({
+          courseId: redes.id,
+          curriculumYear: 1,
+          academicTermId: t.id
+        }))
+      )
+
+      const degree = await service.getDegree({ degreeId: meec.id })
+
+      const rows = degree!.curriculum.filter((c) => c.courseId === redes.id)
+      expect(rows).toHaveLength(1)
+      expect(rows[0].terms).toEqual(['1º Semestre', '2º Semestre'])
+      expect(rows[0].curriculumYears).toEqual([1])
+    })
+  })
+
+  it('counts faculties from degree_stats', async () => {
+    await withTestDb(async () => {
+      const { ist, meec } = await seed()
+      await initDegreeStats(meec.id, 3)
+
+      const [faculty] = await service.listFaculties()
+
+      expect(faculty).toMatchObject({
+        id: ist.id,
+        degreeCount: 1,
+        courseCount: 3,
+        reviewCount: 0
+      })
     })
   })
 })

@@ -230,21 +230,23 @@ export class ChatRetrievalService {
         // returns an entity without a URL, the model eventually builds one, and
         // an invented link is indistinguishable from a real one until clicked.
         pageUrl: sql<string>`${SITE_URL} || '/' || ${faculties.slug}`,
-        degreeCount: sql<number>`count(distinct ${degrees.id})`,
-        courseCount: sql<number>`count(distinct ${courses.id})`,
-        reviewCount: sql<number>`count(${feedback.id}) filter (where ${feedback.approvedAt} is not null)`
+        // From degree_stats rather than a join over every course and review:
+        // this runs on every turn of a faculty-scoped chat, and the full join
+        // was the most expensive query a turn made.
+        degreeCount: sql<number>`count(${degrees.id})`,
+        courseCount: sql<number>`coalesce(sum(${degreeStats.courseCount}), 0)`,
+        reviewCount: sql<number>`coalesce(sum(${degreeStats.feedbackCount}), 0)`
       })
       .from(faculties)
       .leftJoin(degrees, eq(degrees.facultyId, faculties.id))
-      .leftJoin(courses, eq(courses.degreeId, degrees.id))
-      .leftJoin(feedback, eq(feedback.courseId, courses.id))
+      .leftJoin(degreeStats, eq(degreeStats.degreeId, degrees.id))
       .groupBy(
         faculties.id,
         faculties.name,
         faculties.shortName,
         faculties.slug
       )
-      .orderBy(desc(sql`count(${feedback.id})`))
+      .orderBy(desc(sql`coalesce(sum(${degreeStats.feedbackCount}), 0)`))
 
     return rows.map((r) => ({
       ...r,
@@ -883,11 +885,35 @@ export class ChatRetrievalService {
       .orderBy(asc(courseOfferings.curriculumYear), asc(courses.name))
       .limit(MAX_CURRICULUM_COURSES)
 
+    // The query returns one row per offering, so a course taught in both
+    // semesters came back twice, at full size, and read as two courses. One row
+    // per course, with every year and term it runs in.
+    const byCourse = new Map<
+      number,
+      Omit<(typeof curriculum)[number], 'curriculumYear' | 'term'> & {
+        curriculumYears: number[]
+        terms: string[]
+      }
+    >()
+    for (const { curriculumYear, term, ...course } of curriculum) {
+      let row = byCourse.get(course.courseId)
+      if (!row) {
+        row = { ...course, curriculumYears: [], terms: [] }
+        byCourse.set(course.courseId, row)
+      }
+      if (
+        curriculumYear !== null &&
+        !row.curriculumYears.includes(curriculumYear)
+      )
+        row.curriculumYears.push(curriculumYear)
+      if (term !== null && !row.terms.includes(term)) row.terms.push(term)
+    }
+
     return {
       ...degree,
       description: truncate(degree.description, MAX_TEXT_FIELD_CHARS),
       curriculumYearFilter: args.curriculumYear ?? null,
-      curriculum: curriculum.map((c) => ({
+      curriculum: [...byCourse.values()].map((c) => ({
         ...c,
         reviewCount: c.reviewCount ?? 0,
         workloadLabel: workloadLabel(c.averageWorkload)
