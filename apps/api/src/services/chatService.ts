@@ -597,7 +597,10 @@ export class ChatService {
 
       const transcript = messages
         .slice(0, 2)
-        .map((m) => `${m.role}: ${m.content.slice(0, 500)}`)
+        .map(
+          (m) =>
+            `${m.role === 'user' ? 'Student' : 'Assistant reply'}: ${m.content.slice(0, 500)}`
+        )
         .join('\n\n')
 
       const completion = await this.llm.complete({

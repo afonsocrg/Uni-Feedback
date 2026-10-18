@@ -125,8 +125,25 @@ export const GROUNDING_CORRECTION = `You described what students say or think, b
  * The example used to name a real degree ("Cadeiras difíceis de LEIC"), and a
  * first exchange that named no degree at all came back titled with LEIC
  * (production, 2026-09-11, for a student asking about MEIC). Placeholders only.
+ *
+ * Names were still leaking from the reply: when the student named no degree,
+ * the assistant asked which one and listed examples ("LEIC no IST", a few
+ * courses from other universities), and the title picked those up. Three of
+ * seven chats were mistitled that way (audit of 2026-10-18).
  */
-export const TITLE_PROMPT = `Write a title of at most 6 words for this conversation, in the language the student used. Describe the topic, not the interaction: "Cadeiras difíceis de <curso>", never "Pergunta sobre cadeiras". Only use a course, degree or university name that appears in the conversation; if none does, leave it out. No quotes, no punctuation at the end. Reply with the title only.`
+export const TITLE_PROMPT = `Write a title of at most 6 words for this conversation.
+
+Say what the student asked, not how: "Pontos fortes e fracos de <cadeira>", "Easiest courses in <degree>", "Cadeiras leves sem exame no <curso>", "Hardest courses in <degree>". Never "Pergunta sobre cadeiras".
+
+Name a course, degree or university only if the conversation is about it:
+- The student named it (keep it, in their words: "business analytics", "MEIC"), or
+- The assistant's reply answers about that one course, degree or university.
+
+Never take a name from a reply that asks which one the student means, gives examples, or lists options from several universities. If the student named none, leave names out: "Cadeiras difíceis do meu curso", "Courses without an exam".
+
+No quotes, no punctuation at the end. Reply with the title only.
+
+Language: the one the Student line is written in. If the student wrote in English, the title is in English, even though these instructions show Portuguese examples.`
 
 /**
  * Sent when the tool loop runs out of iterations, with tools forbidden.
