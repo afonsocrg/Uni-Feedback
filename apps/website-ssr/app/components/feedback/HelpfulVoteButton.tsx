@@ -69,6 +69,7 @@ export function HelpfulVoteButton({
       size="sm"
       onClick={handleToggleVote}
       disabled={isLoading}
+      authModalProps={{ trigger: 'helpful_vote' }}
       className={cn(
         'h-8 px-2 text-muted-foreground hover:text-foreground',
         hasVoted && 'text-primaryBlue hover:text-primaryBlue/80',

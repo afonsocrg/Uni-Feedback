@@ -450,7 +450,17 @@ export const analytics = {
      * serve, and the domain says which institution to look at next.
      */
     unsupportedDomain: (props: { emailDomain: string; trigger?: string }) =>
-      trackEvent('auth_unsupported_domain_entered', props)
+      trackEvent('auth_unsupported_domain_entered', props),
+
+    /**
+     * They closed the dialog without signing in.
+     *
+     * Before this, leaving was only the absence of `auth_email_entered`.
+     * `stage` says whether they left before typing ('input') or after a
+     * failure ('error'). The dialog cannot be closed from the code step.
+     */
+    dialogClosed: (props: { trigger: string; stage: 'input' | 'error' }) =>
+      trackEvent('auth_dialog_closed', props)
   },
 
   engagement: {

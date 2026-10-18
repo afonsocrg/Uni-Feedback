@@ -13,7 +13,7 @@ import {
   cn
 } from '@uni-feedback/ui'
 import { Loader2, Mail } from 'lucide-react'
-import { useEffect, useRef } from 'react'
+import { type ReactNode, useEffect, useRef } from 'react'
 import type { UseFormReturn } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { analytics } from '~/utils/analytics'
@@ -28,7 +28,7 @@ export interface InputStageProps {
   allowedEmailSuffixes?: string[]
   universityName?: string
   title?: string
-  description?: string
+  description?: ReactNode
   /**
    * A way out for someone who has no university email.
    *

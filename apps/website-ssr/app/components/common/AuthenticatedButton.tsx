@@ -14,6 +14,7 @@ interface AuthenticatedButtonProps extends ButtonProps {
     | 'description'
     | 'successTitle'
     | 'successDescription'
+    | 'trigger'
   >
 }
 

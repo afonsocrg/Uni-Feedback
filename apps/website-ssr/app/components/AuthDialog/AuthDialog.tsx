@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { MeicFeedbackAPIError } from '@uni-feedback/api-client'
 import { Dialog, DialogContent } from '@uni-feedback/ui'
-import { useEffect, useState } from 'react'
+import { type ReactNode, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import type { AuthUser } from '~/context/AuthContext'
@@ -35,7 +35,7 @@ export interface AuthDialogProps {
   /** Custom title for the input stage */
   title?: string
   /** Custom description for the input stage */
-  description?: string
+  description?: ReactNode
   /** Custom title for the success stage */
   successTitle?: string
   /** Custom description for the success stage */
@@ -202,8 +202,14 @@ export function AuthDialog({
   // conversion and a drop-off.
   const canClose = modalState.stage === 'input' || modalState.stage === 'error'
 
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (nextOpen || !canClose) return
+    analytics.auth.dialogClosed({ trigger, stage: modalState.stage })
+    onClose?.()
+  }
+
   return (
-    <Dialog open={open} onOpenChange={canClose ? onClose : () => {}}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent
         className="sm:max-w-md"
         onInteractOutside={(e) => {

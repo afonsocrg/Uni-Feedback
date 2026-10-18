@@ -347,6 +347,7 @@ export function CorrectionRequestDialog({
                     type="submit"
                     disabled={isSubmitting}
                     className="flex-1"
+                    authModalProps={{ trigger: 'correction' }}
                   >
                     {isSubmitting ? (
                       <>

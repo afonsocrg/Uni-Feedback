@@ -10,7 +10,7 @@
     "help_desc": "Envia-nos um email para",
     "placeholder": "teu.email@faculdade.pt",
     "sending": "A enviar...",
-    "submit": "Enviar código de verificação",
+    "submit": "Enviar código",
     "terms_prefix": "Ao continuar, aceitas os nossos",
     "terms_link": "Termos",
     "privacy_link": "Política de Privacidade",
@@ -35,7 +35,7 @@
     "success_title": "Email verificado!",
     "success_desc": "Está tudo pronto.",
     "domain_error": "Usa um email que termine em {{suffixes}}",
-    "email_required_desc_university": "Introduz o teu email da {{university}} para confirmarmos que és aluno."
+    "email_required_desc_university": "Introduz o teu email da faculdade para confirmarmos onde estudas."
   },
   "new": {
     "meta_title": "Encontrar a Tua Cadeira - Uni Feedback",
@@ -74,6 +74,9 @@
     "submitting": "A submeter...",
     "submit": "Dar Feedback",
     "auth_success_desc": "A submeter o teu feedback...",
+    "auth_title": "Confirma a tua faculdade",
+    "auth_desc": "Introduz o teu email da faculdade para confirmarmos onde estudas. <0>O teu feedback é anónimo</0>: a tua identidade nunca é mostrada.",
+    "anonymity_note": "O teu feedback é anónimo. O email só serve para confirmar a tua faculdade.",
     "terms_prefix": "Ao submeter, aceitas os nossos",
     "terms_link": "Termos de Serviço",
     "terms_conjunction": "e a nossa",

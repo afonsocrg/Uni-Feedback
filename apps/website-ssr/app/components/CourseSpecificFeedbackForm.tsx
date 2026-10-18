@@ -17,10 +17,10 @@ import {
   formatSchoolYearString,
   getCurrentSchoolYear
 } from '@uni-feedback/utils'
-import { Loader2, Send } from 'lucide-react'
+import { Loader2, Lock, Send } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { type UseFormReturn } from 'react-hook-form'
-import { useTranslation } from 'react-i18next'
+import { Trans, useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { ChangeCourseDialog, FeedbackDraftDialog } from '~/components'
 import { AuthenticatedButton } from '~/components/common'
@@ -430,7 +430,18 @@ export function CourseSpecificFeedbackForm({
                   allowedEmailSuffixes:
                     currentCourse.degree.faculty.emailSuffixes,
                   universityName: currentCourse.degree.faculty.shortName,
-                  successDescription: t('form.auth_success_desc')
+                  title: t('form.auth_title'),
+                  description: (
+                    <Trans
+                      i18nKey="form.auth_desc"
+                      ns="feedback"
+                      components={[
+                        <span className="font-medium text-foreground" />
+                      ]}
+                    />
+                  ),
+                  successDescription: t('form.auth_success_desc'),
+                  trigger: 'feedback_submission'
                 }}
               >
                 {isSubmitting ? (
@@ -446,7 +457,14 @@ export function CourseSpecificFeedbackForm({
                 )}
               </AuthenticatedButton>
 
-              <p className="text-xs text-muted-foreground text-center mt-4">
+              {/* Said before the click, not only in the login dialog: students
+                  who worry about being identified decide here */}
+              <p className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground text-center mt-3">
+                <Lock className="size-3.5 shrink-0" />
+                <span>{t('form.anonymity_note')}</span>
+              </p>
+
+              <p className="text-xs text-muted-foreground text-center mt-2">
                 {t('form.terms_prefix')}{' '}
                 <Link
                   to={getLocalePath('terms', lang)}

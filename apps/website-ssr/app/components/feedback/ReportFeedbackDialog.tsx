@@ -267,6 +267,7 @@ export function ReportFeedbackDialog({
                     type="submit"
                     variant="outline"
                     disabled={isSubmitting}
+                    authModalProps={{ trigger: 'report' }}
                     className="flex-1 border-destructive text-destructive hover:bg-destructive/10 hover:text-destructive"
                   >
                     {isSubmitting ? (

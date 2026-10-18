@@ -10,7 +10,7 @@
     "help_desc": "Email us at",
     "placeholder": "your.email@university.edu",
     "sending": "Sending...",
-    "submit": "Send verification code",
+    "submit": "Send code",
     "terms_prefix": "By continuing, you agree to our",
     "terms_link": "Terms",
     "privacy_link": "Privacy Policy",
@@ -35,7 +35,7 @@
     "success_title": "Email verified!",
     "success_desc": "You're all set.",
     "domain_error": "Please use an email ending with {{suffixes}}",
-    "email_required_desc_university": "Enter your {{university}} email to verify you're a student."
+    "email_required_desc_university": "Enter your university email so we can confirm where you study."
   },
   "new": {
     "meta_title": "Find Your Course - Uni Feedback",
@@ -74,6 +74,9 @@
     "submitting": "Submitting...",
     "submit": "Give Feedback",
     "auth_success_desc": "Submitting your feedback...",
+    "auth_title": "Confirm your university",
+    "auth_desc": "Enter your university email so we can confirm where you study. <0>Your feedback is anonymous</0>: your identity is never shown.",
+    "anonymity_note": "Your feedback is anonymous. Your email is only used to confirm your university.",
     "terms_prefix": "By submitting, you agree to our",
     "terms_link": "Terms of Service",
     "terms_conjunction": "and",
