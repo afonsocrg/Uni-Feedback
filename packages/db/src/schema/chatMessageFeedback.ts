@@ -30,7 +30,7 @@ export const chatFeedbackRatingEnum = pgEnum('chat_feedback_rating', [
  * `comment` is only ever asked for after a thumbs down. Asking everyone to write
  * gets no data; asking the annoyed minority gets the useful data.
  *
- * `userId` declares no `onDelete`, same reasoning as `chats.userId`.
+ * `userId` is `ON DELETE RESTRICT`, same reasoning as `chats.userId`.
  */
 export const chatMessageFeedback = pgTable(
   'chat_message_feedback',
@@ -41,7 +41,7 @@ export const chatMessageFeedback = pgTable(
       .references(() => chatMessages.id, { onDelete: 'cascade' }),
     userId: integer('user_id')
       .notNull()
-      .references(() => users.id),
+      .references(() => users.id, { onDelete: 'restrict' }),
     rating: chatFeedbackRatingEnum('rating').notNull(),
     comment: text('comment'),
     createdAt: timestamp('created_at', { withTimezone: true })

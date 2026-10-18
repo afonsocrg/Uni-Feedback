@@ -67,7 +67,9 @@ export const chatAccessRequests = pgTable(
   'chat_access_requests',
   {
     id: serial('id').primaryKey(),
-    userId: integer('user_id').references(() => users.id),
+    userId: integer('user_id').references(() => users.id, {
+      onDelete: 'restrict'
+    }),
     email: text('email').notNull(),
     /** Which surface it came from: 'login_wall' | 'chat_gap' | ... */
     source: text('source'),
