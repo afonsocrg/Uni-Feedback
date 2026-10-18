@@ -171,16 +171,42 @@ export class ChatLlmClient {
       )
     }
 
+    const inputTokens = raw.usage?.prompt_tokens ?? 0
+    const outputTokens = raw.usage?.completion_tokens ?? 0
     return {
       message,
       finishReason: raw.choices?.[0]?.finish_reason ?? null,
       usage: {
-        inputTokens: raw.usage?.prompt_tokens ?? 0,
-        outputTokens: raw.usage?.completion_tokens ?? 0,
-        // OpenRouter reports cost in USD. Stored as integer micro-units so sums
-        // never drift; the currency label is nominal at this scale.
-        costMicros: Math.round((raw.usage?.cost ?? 0) * 1_000_000)
+        inputTokens,
+        outputTokens,
+        costMicros: costMicros(raw.usage?.cost, inputTokens, outputTokens)
       }
     }
   }
+}
+
+/**
+ * Pessimistic per-token prices, in USD per million tokens, used only when
+ * OpenRouter omits `cost`. Several times what the chat models charge, on
+ * purpose: a reading of 0 would mean the spend ceiling never trips, while an
+ * overestimate only rests the chat early, which is visible and cheap.
+ */
+const FALLBACK_USD_PER_MILLION = { input: 5, output: 20 }
+
+function costMicros(
+  reported: number | undefined,
+  inputTokens: number,
+  outputTokens: number
+): number {
+  // OpenRouter reports cost in USD. Stored as integer micro-units so sums
+  // never drift; the currency label is nominal at this scale.
+  if (typeof reported === 'number') return Math.round(reported * 1_000_000)
+  if (inputTokens === 0 && outputTokens === 0) return 0
+  console.warn(
+    '[chat] OpenRouter returned no cost, using the fallback estimate'
+  )
+  return Math.round(
+    inputTokens * FALLBACK_USD_PER_MILLION.input +
+      outputTokens * FALLBACK_USD_PER_MILLION.output
+  )
 }

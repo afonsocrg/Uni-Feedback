@@ -300,9 +300,24 @@ export class ChatService {
       })
       return { chat, turn }
     } catch (error) {
-      // Nothing was said, so there is no conversation to keep. Hard delete: a
-      // chat that never had a message is not a record of anything.
-      await database().delete(chats).where(eq(chats.id, chat.id))
+      // Nothing was answered, so there is no conversation to keep. Hard delete:
+      // a chat that never had an answer is not a record of anything. Unless the
+      // failed turn already spent money: then the cost lives on its question and
+      // the spend ceiling has to keep seeing it, so the chat is only hidden.
+      const [row] = await database()
+        .select({
+          spent: sql<number>`coalesce(sum(${chatMessages.costMicros}), 0)`
+        })
+        .from(chatMessages)
+        .where(eq(chatMessages.chatId, chat.id))
+      if (Number(row?.spent ?? 0) > 0) {
+        await database()
+          .update(chats)
+          .set({ deletedAt: new Date() })
+          .where(eq(chats.id, chat.id))
+      } else {
+        await database().delete(chats).where(eq(chats.id, chat.id))
+      }
       throw error
     }
   }
@@ -361,7 +376,33 @@ export class ChatService {
       ...history
     ]
 
-    const turn = await this.runToolLoop(messages, seededUrls, input.onProgress)
+    // Owned here rather than by the loop, so a turn that throws halfway still
+    // tells us what it spent.
+    const usage: LlmUsage = { inputTokens: 0, outputTokens: 0, costMicros: 0 }
+    let turn: Awaited<ReturnType<ChatService['runToolLoop']>>
+    try {
+      turn = await this.runToolLoop(
+        messages,
+        seededUrls,
+        usage,
+        input.onProgress
+      )
+    } catch (error) {
+      // Every call before the failure was paid for. Charged to the question,
+      // since there is no answer to carry it, so the spend ceiling sees it.
+      if (usage.costMicros > 0 || usage.inputTokens > 0) {
+        await database()
+          .update(chatMessages)
+          .set({
+            model: CHAT_CONFIG.model,
+            inputTokens: usage.inputTokens,
+            outputTokens: usage.outputTokens,
+            costMicros: usage.costMicros
+          })
+          .where(eq(chatMessages.id, userMessageId))
+      }
+      throw error
+    }
     turn.answer = withoutEmDashes(turn.answer)
 
     // What the student was asking about: the courses and degrees the model
@@ -425,9 +466,9 @@ export class ChatService {
   private async runToolLoop(
     messages: LlmMessage[],
     entityUrls: Map<string, EntityRef>,
+    usage: LlmUsage,
     onProgress?: (info: { tool: string }) => void
   ) {
-    const usage: LlmUsage = { inputTokens: 0, outputTokens: 0, costMicros: 0 }
     const toolCalls: ToolCallRecord[] = []
     const toolsUsed: string[] = []
     // Only calls that returned data. `toolsUsed` is the record of what the
@@ -635,6 +676,17 @@ export class ChatService {
           { role: 'user', content: transcript }
         ]
       })
+
+      // Added to the first answer, which is what it was spent on, so the spend
+      // ceiling counts it. Only the cost: the tokens are another model's.
+      if (completion.usage.costMicros > 0) {
+        await database()
+          .update(chatMessages)
+          .set({
+            costMicros: sql`coalesce(${chatMessages.costMicros}, 0) + ${completion.usage.costMicros}`
+          })
+          .where(eq(chatMessages.id, messages[1].id))
+      }
 
       const title = (completion.message.content ?? '')
         .trim()

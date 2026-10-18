@@ -591,6 +591,56 @@ describe('ChatService', () => {
       })
     })
 
+    it('counts what a failed turn spent before it failed', async () => {
+      await withTestDb(async () => {
+        const { user, course } = await seed()
+        // One paid tool call, then the provider fails.
+        const { service: chat } = service([
+          callTool('get_course', { courseId: course.id })
+        ])
+
+        await expect(
+          chat.startChat({ userId: user.id, content: 'Quantos ECTS tem AMS?' })
+        ).rejects.toThrow()
+
+        expect(await chat.spendTodayMicros()).toBe(100)
+        // Hidden from the student, kept for the ceiling.
+        const [kept] = await database().select().from(chats)
+        expect(kept.deletedAt).not.toBeNull()
+      })
+    })
+
+    it('still hard-deletes a failed first chat that spent nothing', async () => {
+      await withTestDb(async () => {
+        const { user } = await seed()
+        const { service: chat } = service([])
+
+        await expect(
+          chat.startChat({ userId: user.id, content: 'olá' })
+        ).rejects.toThrow()
+
+        expect(await database().select().from(chats)).toHaveLength(0)
+      })
+    })
+
+    it("charges the title call to the chat's first answer", async () => {
+      await withTestDb(async () => {
+        const { user } = await seed()
+        const { service: chat } = service([
+          say('Depende da cadeira.'),
+          say('Cadeiras difíceis')
+        ])
+
+        const { chat: created } = await chat.startChat({
+          userId: user.id,
+          content: 'Que cadeiras são difíceis?'
+        })
+        await chat.generateTitle(created.id)
+
+        expect(await chat.spendTodayMicros()).toBe(200)
+      })
+    })
+
     it('resets at midnight in Lisbon, not midnight UTC', async () => {
       await withTestDb(async () => {
         const { user } = await seed()
