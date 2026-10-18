@@ -271,6 +271,7 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
               A box rather than a button, so the question is asked here and
               the chat opens already answering it. */}
           <AskChatInput
+            source="course_page"
             // The full name, not the acronym: "sobre SIRS" reads as jargon,
             // and this also names the chat it opens.
             name={course.name}

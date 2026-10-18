@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLang } from '~/hooks'
 import { getAssetUrl } from '~/utils'
+import { analytics } from '~/utils/analytics'
 import {
   getDegreePath,
   getFacultyPath,
@@ -47,6 +48,34 @@ export function BrowseSection({ faculties, degrees }: BrowseSectionProps) {
   const [selectedFacultyId, setSelectedFacultyId] = useState<number>(
     sortedFaculties[0]?.id ?? 0
   )
+  const [changedFaculty, setChangedFaculty] = useState(false)
+
+  const selectFaculty = (
+    faculty: FacultyInfo,
+    position: number,
+    layout: 'mobile_chips' | 'desktop_list'
+  ) => {
+    setSelectedFacultyId(faculty.id)
+    setChangedFaculty(true)
+    analytics.landing.pickerFacultySelected({
+      facultySlug: faculty.slug,
+      position,
+      layout
+    })
+  }
+
+  const onDegreeClick = (degree: DegreeWithStats, position: number) =>
+    analytics.landing.pickerDegreeClicked({
+      facultySlug: degree.faculty.slug,
+      degreeSlug: degree.slug,
+      position,
+      changedFaculty
+    })
+
+  const onSeeAllClick = () =>
+    analytics.landing.pickerSeeAllClicked({
+      facultySlug: selectedFaculty?.slug ?? null
+    })
 
   const selectedFaculty = sortedFaculties.find(
     (f) => f.id === selectedFacultyId
@@ -69,10 +98,10 @@ export function BrowseSection({ faculties, degrees }: BrowseSectionProps) {
 
           {/* Mobile: tabs */}
           <div className="md:hidden mb-4 flex gap-2 overflow-x-auto pb-2">
-            {sortedFaculties.map((faculty) => (
+            {sortedFaculties.map((faculty, i) => (
               <button
                 key={faculty.id}
-                onClick={() => setSelectedFacultyId(faculty.id)}
+                onClick={() => selectFaculty(faculty, i, 'mobile_chips')}
                 className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                   selectedFacultyId === faculty.id
                     ? 'bg-muted-foreground/20 text-foreground'
@@ -98,10 +127,10 @@ export function BrowseSection({ faculties, degrees }: BrowseSectionProps) {
             {/* Left: faculty list. Capped just short of a whole row so the
                 next faculty peeks out and the list reads as scrollable. */}
             <div className="space-y-1 max-h-[25rem] overflow-y-auto pr-1">
-              {sortedFaculties.map((faculty) => (
+              {sortedFaculties.map((faculty, i) => (
                 <button
                   key={faculty.id}
-                  onClick={() => setSelectedFacultyId(faculty.id)}
+                  onClick={() => selectFaculty(faculty, i, 'desktop_list')}
                   className={`cursor-pointer w-full text-left flex items-center gap-2.5 px-3 py-4 rounded-lg text-sm font-medium transition-colors ${
                     selectedFacultyId === faculty.id
                       ? 'bg-muted text-foreground'
@@ -124,11 +153,16 @@ export function BrowseSection({ faculties, degrees }: BrowseSectionProps) {
 
             {/* Right: degrees grid + footer link */}
             <div className="flex flex-col gap-3">
-              <DegreeGrid degrees={filteredDegrees} lang={lang} />
+              <DegreeGrid
+                degrees={filteredDegrees}
+                lang={lang}
+                onDegreeClick={onDegreeClick}
+              />
               {selectedFaculty?.slug && allFilteredDegrees.length > 9 && (
                 <div className="text-right">
                   <a
                     href={getFacultyPath(lang, selectedFaculty.slug)}
+                    onClick={onSeeAllClick}
                     className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                   >
                     {t('browse_section.see_all')}
@@ -140,11 +174,17 @@ export function BrowseSection({ faculties, degrees }: BrowseSectionProps) {
 
           {/* Mobile: degree grid */}
           <div className="md:hidden">
-            <DegreeGrid degrees={filteredDegrees} mobileLimit={6} lang={lang} />
+            <DegreeGrid
+              degrees={filteredDegrees}
+              mobileLimit={6}
+              lang={lang}
+              onDegreeClick={onDegreeClick}
+            />
             {selectedFaculty?.slug && allFilteredDegrees.length > 6 && (
               <div className="text-center mt-4">
                 <a
                   href={getFacultyPath(lang, selectedFaculty.slug)}
+                  onClick={onSeeAllClick}
                   className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                 >
                   {t('browse_section.see_all')}
@@ -185,11 +225,13 @@ function sortFacultiesByActivity(
 function DegreeGrid({
   degrees,
   mobileLimit,
-  lang
+  lang,
+  onDegreeClick
 }: {
   degrees: DegreeWithStats[]
   mobileLimit?: number
   lang: Lang
+  onDegreeClick: (degree: DegreeWithStats, position: number) => void
 }) {
   const { t } = useTranslation('landing')
   if (degrees.length === 0) {
@@ -213,6 +255,7 @@ function DegreeGrid({
           <a
             key={degree.id}
             href={href}
+            onClick={() => onDegreeClick(degree, i)}
             className={`group flex flex-col bg-background rounded-xl border p-4 hover:border-interactive hover:shadow-sm transition-all ${hiddenOnMobile}`}
           >
             <div className="flex-1">

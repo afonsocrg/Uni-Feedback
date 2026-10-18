@@ -37,6 +37,7 @@ export default function ChatPage() {
     'browse_page',
     'course_page',
     'course_page_inline',
+    'landing_inline',
     'degree_page',
     'faculty_page'
   ] as const

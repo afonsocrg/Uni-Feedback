@@ -190,5 +190,11 @@
     "subtitle_announced": "See who won the 3 FNAC cards and everything students wrote this month.",
     "cta_announced": "See the winners",
     "banner": "🎁 Giveaway live! Win a €50 FNAC gift card."
+  },
+  "ask_chat": {
+    "eyebrow": "AI Chat",
+    "title": "Questions about courses, degrees or faculties? Ask us.",
+    "subtitle": "Which courses in your degree are the lightest, how a course is assessed, which of two to pick. We answer from student feedback and each course's data.",
+    "placeholder": "Which courses are the lightest?"
   }
 }

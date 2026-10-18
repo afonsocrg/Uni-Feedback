@@ -2,6 +2,7 @@ import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LandingFeedbackCard } from '~/components/feedback/cards/LandingFeedbackCard'
+import { analytics } from '~/utils/analytics'
 
 interface FeedbackWithCourse {
   id: number
@@ -25,11 +26,24 @@ export function LiveFeedSection({ feedbacks }: LiveFeedSectionProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [atStart, setAtStart] = useState(true)
   const [atEnd, setAtEnd] = useState(false)
+  // Whether anyone browses past the first cards. Autocapture only sees the
+  // desktop arrows (4 people in 30 days, 2026-10-18); a phone swipe leaves no
+  // trace, so the first horizontal scroll of each page view is tracked here.
+  const scrollTracked = useRef(false)
+  const lastArrowAt = useRef(0)
   const updateBounds = () => {
     const el = scrollRef.current
     if (!el) return
     setAtStart(el.scrollLeft <= 0)
     setAtEnd(el.scrollLeft + el.clientWidth >= el.scrollWidth - 1)
+    if (el.scrollLeft > 0 && !scrollTracked.current) {
+      scrollTracked.current = true
+      analytics.landing.feedScrolled({
+        // An arrow's smooth scroll lands here within a second of the click;
+        // anything else is a swipe, a trackpad or a shift-wheel.
+        method: Date.now() - lastArrowAt.current < 1000 ? 'arrow' : 'swipe'
+      })
+    }
   }
 
   useEffect(() => {
@@ -43,6 +57,7 @@ export function LiveFeedSection({ feedbacks }: LiveFeedSectionProps) {
   if (feedbacks.length === 0) return null
 
   const scroll = (dir: 'left' | 'right') => {
+    lastArrowAt.current = Date.now()
     scrollRef.current?.scrollBy({
       left: dir === 'right' ? 320 : -320,
       behavior: 'smooth'
@@ -104,8 +119,18 @@ export function LiveFeedSection({ feedbacks }: LiveFeedSectionProps) {
                       key={i}
                       className="flex flex-col gap-4 w-72 flex-shrink-0"
                     >
-                      {feedbacks.slice(i * 2, i * 2 + 2).map((fb) => (
-                        <LandingFeedbackCard key={fb.id} feedback={fb} />
+                      {feedbacks.slice(i * 2, i * 2 + 2).map((fb, j) => (
+                        <LandingFeedbackCard
+                          key={fb.id}
+                          feedback={fb}
+                          onClick={() =>
+                            analytics.landing.feedCardClicked({
+                              feedbackId: fb.id,
+                              courseId: fb.courseId,
+                              position: i * 2 + j
+                            })
+                          }
+                        />
                       ))}
                     </div>
                   )

@@ -39,6 +39,7 @@ interface ChatPageContentProps {
     | 'browse_page'
     | 'course_page'
     | 'course_page_inline'
+    | 'landing_inline'
     | 'degree_page'
     | 'faculty_page'
     | 'direct'

@@ -152,6 +152,37 @@ export type SearchSurface =
   | 'degree_page'
   | 'feedback_course_browser'
   | 'change_course_dialog'
+  | 'landing_hero'
+
+/**
+ * The landing page's sections, in no particular order (the page order travels
+ * as `position` on `landing_section_viewed`, so reordering the page does not
+ * rename anything here).
+ */
+export type LandingSection =
+  | 'hero'
+  | 'ask_chat'
+  | 'supporters'
+  | 'live_feed'
+  | 'giveaway_promo'
+  | 'contribute_strip'
+  | 'trust'
+  | 'browse'
+  | 'more_than_your_network'
+  | 'founder'
+  | 'testimonials'
+  | 'contribute_cta'
+  | 'faq'
+  | 'final_cta'
+
+/** What a hero search click opened. `browse_all` is the dropdown's footer link,
+ *  `enter` is pressing Enter in the box (which also opens the browse page). */
+export type LandingSearchResultType =
+  | 'course'
+  | 'degree'
+  | 'faculty'
+  | 'browse_all'
+  | 'enter'
 
 /**
  * Which piece of site chrome a navigation or preference action came from. The
@@ -899,6 +930,90 @@ export const analytics = {
    * question the context columns were added for: do students who arrive from a
    * course page get better answers than those starting cold?
    */
+  /**
+   * The landing page. Before these existed, the only evidence of how it was used
+   * was PostHog's scroll percentage and autocapture clicks (2026-10-18): the
+   * median visit saw about one screen, and the hero search was used by roughly
+   * eight times as many people as the course picker. These turn that into
+   * per-section reach and per-component funnels that survive a reorder.
+   */
+  landing: {
+    /**
+     * A section's top came into view (once per section per page view). The
+     * per-section reach curve: `hero` fires on load and is the denominator.
+     * `position` is the section's place in the page order at the time, so a
+     * reorder shows up as the same section at a new position rather than as a
+     * break in the series.
+     */
+    sectionViewed: (props: {
+      section: LandingSection
+      position: number
+      isAuthenticated: boolean
+    }) => trackEvent('landing_section_viewed', props),
+
+    /**
+     * The hero search box got focus, once per page view. Top of the search
+     * funnel: focused -> `course_search_performed{surface: 'landing_hero'}` ->
+     * `landing_search_result_clicked`.
+     */
+    searchFocused: () => trackEvent('landing_search_focused', {}),
+
+    /**
+     * A hero search result was opened. `position` is the row's index within its
+     * group (courses, degrees, faculties), `resultsCount` the total shown. The
+     * query text is not sent here; it is on the `course_search_performed`
+     * before it.
+     */
+    searchResultClicked: (props: {
+      resultType: LandingSearchResultType
+      position: number | null
+      resultsCount: number
+      queryLength: number
+    }) => trackEvent('landing_search_result_clicked', props),
+
+    /**
+     * A faculty picked in the "Que curso estás a tirar?" section. `layout` says
+     * which control: chips on mobile, the side list on desktop. `position` is
+     * its place in the activity-sorted list.
+     */
+    pickerFacultySelected: (props: {
+      facultySlug: string | null
+      position: number
+      layout: 'mobile_chips' | 'desktop_list'
+    }) => trackEvent('landing_picker_faculty_selected', props),
+
+    /**
+     * A degree card opened from the picker. The picker's conversion step.
+     * `changedFaculty` is false when the student took a degree of the
+     * preselected (most active) faculty without touching the list.
+     */
+    pickerDegreeClicked: (props: {
+      facultySlug: string | null
+      degreeSlug: string | null
+      position: number
+      changedFaculty: boolean
+    }) => trackEvent('landing_picker_degree_clicked', props),
+
+    /** The picker's "see all degrees" link to the faculty page. */
+    pickerSeeAllClicked: (props: { facultySlug: string | null }) =>
+      trackEvent('landing_picker_see_all_clicked', props),
+
+    /**
+     * The live feed carousel scrolled sideways for the first time in this page
+     * view. `method` separates the desktop arrows from a swipe or trackpad.
+     * Its reach is `landing_section_viewed{section: 'live_feed'}`.
+     */
+    feedScrolled: (props: { method: 'arrow' | 'swipe' }) =>
+      trackEvent('landing_feed_scrolled', props),
+
+    /** A review card in the live feed opened (it links to that review). */
+    feedCardClicked: (props: {
+      feedbackId: number
+      courseId: number
+      position: number
+    }) => trackEvent('landing_feed_card_clicked', props)
+  },
+
   chat: {
     opened: (props: {
       source:
@@ -909,6 +1024,7 @@ export const analytics = {
         | 'browse_page'
         | 'course_page'
         | 'course_page_inline'
+        | 'landing_inline'
         | 'degree_page'
         | 'faculty_page'
         | 'direct'
@@ -929,14 +1045,16 @@ export const analytics = {
     }) => trackEvent('chat_opened', props),
 
     /**
-     * A question typed into the course page's own box, before the chat page
-     * opens. The next step is `chat_opened{source: 'course_page_inline'}` on the
-     * chat page, which sends the question itself. Kept separate so a drop
-     * between typing and the chat loading is visible.
+     * A question typed into an ask box outside the chat (the course page's, or
+     * the landing page section's), before the chat page opens. The next step is
+     * `chat_opened{source: '<source>_inline'}` on the chat page, which sends the
+     * question itself. Kept separate so a drop between typing and the chat
+     * loading is visible.
      */
     inlinePromptSubmitted: (props: {
-      source: 'course_page'
-      courseId: number
+      source: 'course_page' | 'landing'
+      /** Null on the landing page, whose box is not about one course. */
+      courseId: number | null
       isAuthenticated: boolean
       messageLength: number
     }) => trackEvent('chat_inline_prompt_submitted', props),

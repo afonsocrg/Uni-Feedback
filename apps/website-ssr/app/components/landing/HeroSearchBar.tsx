@@ -12,6 +12,7 @@ import { Search } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLang } from '~/hooks'
+import { analytics, type LandingSearchResultType } from '~/utils/analytics'
 import { getCoursePath, getLocalePath } from '~/utils/i18n-routes'
 
 export function HeroSearchBar() {
@@ -25,6 +26,7 @@ export function HeroSearchBar() {
   const [faculties, setFaculties] = useState<FacultySearchResult[]>([])
   const [open, setOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
+  const focusTracked = useRef(false)
 
   useEffect(() => {
     if (!query.trim()) {
@@ -56,6 +58,34 @@ export function HeroSearchBar() {
     return () => clearTimeout(timer)
   }, [query])
 
+  const resultsCount = courses.length + degrees.length + faculties.length
+
+  // Its own, slower debounce: the fetch above runs on every 200ms pause, and
+  // counting those would log each half-typed word as a search.
+  useEffect(() => {
+    const q = query.trim()
+    if (!q || !open) return
+    const timer = setTimeout(() => {
+      analytics.discovery.searchPerformed({
+        searchQuery: q,
+        resultsCount,
+        surface: 'landing_hero'
+      })
+    }, 1000)
+    return () => clearTimeout(timer)
+  }, [query, open, resultsCount])
+
+  const trackResult = (
+    resultType: LandingSearchResultType,
+    position: number | null
+  ) =>
+    analytics.landing.searchResultClicked({
+      resultType,
+      position,
+      resultsCount,
+      queryLength: query.trim().length
+    })
+
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (
@@ -74,6 +104,7 @@ export function HeroSearchBar() {
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && query.trim()) {
+      trackResult('enter', null)
       window.location.href = browsePath
     }
     if (e.key === 'Escape') {
@@ -93,7 +124,13 @@ export function HeroSearchBar() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
-          onFocus={() => hasResults && setOpen(true)}
+          onFocus={() => {
+            if (!focusTracked.current) {
+              focusTracked.current = true
+              analytics.landing.searchFocused()
+            }
+            if (hasResults) setOpen(true)
+          }}
           placeholder={t('search.placeholder')}
           className="w-full pl-12 pr-4 h-12 text-base font-light rounded-xl border border-input bg-background shadow-sm focus:outline-none focus:border-primary transition-colors placeholder:text-muted-foreground/50"
           aria-label={t('search.aria_label')}
@@ -108,10 +145,11 @@ export function HeroSearchBar() {
               <div className="px-3 pt-3 pb-1 text-xs text-semibold text-muted-foreground/70">
                 {t('search.tab_courses')}
               </div>
-              {courses.map((course) => (
+              {courses.map((course, i) => (
                 <a
                   key={course.id}
                   href={getCoursePath(lang, course.id)}
+                  onClick={() => trackResult('course', i)}
                   className="flex items-center justify-between pl-6 pr-3 py-2.5 hover:bg-muted transition-colors"
                 >
                   <div className="min-w-0 mr-3">
@@ -143,7 +181,7 @@ export function HeroSearchBar() {
               <div className="px-3 pt-3 pb-1 text-xs text-muted-foreground/70">
                 {t('search.tab_degrees')}
               </div>
-              {degrees.map((degree) => {
+              {degrees.map((degree, i) => {
                 const href =
                   degree.faculty.slug && degree.slug
                     ? `/${degree.faculty.slug}/${degree.slug}`
@@ -152,6 +190,7 @@ export function HeroSearchBar() {
                   <a
                     key={degree.id}
                     href={href}
+                    onClick={() => trackResult('degree', i)}
                     className="flex items-center justify-between pl-6 pr-3 py-2.5 hover:bg-muted transition-colors"
                   >
                     <div className="min-w-0 mr-3">
@@ -180,12 +219,13 @@ export function HeroSearchBar() {
               <div className="px-3 pt-3 pb-1 text-xs text-muted-foreground/70 border-t">
                 {t('search.tab_faculties')}
               </div>
-              {faculties.map((faculty) => {
+              {faculties.map((faculty, i) => {
                 const href = faculty.slug ? `/${faculty.slug}` : browsePath
                 return (
                   <a
                     key={faculty.id}
                     href={href}
+                    onClick={() => trackResult('faculty', i)}
                     className="flex items-center justify-between pl-6 pr-3 py-2.5 hover:bg-muted transition-colors"
                   >
                     <span className="text-sm font-medium truncate">
@@ -207,6 +247,7 @@ export function HeroSearchBar() {
           <div className="border-t px-3 py-2.5">
             <a
               href={browsePath}
+              onClick={() => trackResult('browse_all', null)}
               className="text-xs text-muted-foreground hover:text-foreground transition-colors"
             >
               {t('search.browse_all')}

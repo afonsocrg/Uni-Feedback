@@ -9,11 +9,15 @@ import { analytics } from '~/utils/analytics'
 import { getLocalePath } from '~/utils/i18n-routes'
 import { ChatLoginWall } from './ChatLoginWall'
 
-interface AskChatInputProps {
-  name: string
-  courseId: number
+type AskChatInputProps = {
   className?: string
-}
+  /** 'lg' for a section of its own, where the box is the whole call to action. */
+  size?: 'default' | 'lg'
+} & (
+  | { source: 'course_page'; name: string; courseId: number }
+  /** Unscoped: the chat opens with no course, and the model asks if it needs to. */
+  | { source: 'landing'; placeholder: string }
+)
 
 /** Router state the chat page reads to send the question on arrival. */
 export interface ChatPrefillState {
@@ -37,7 +41,8 @@ export interface ChatPrefillState {
  * query string would put it in PostHog's captured `$current_url`, server logs
  * and browser history.
  */
-export function AskChatInput({ name, courseId, className }: AskChatInputProps) {
+export function AskChatInput(props: AskChatInputProps) {
+  const { className, size = 'default' } = props
   const { t } = useTranslation('chat')
   const lang = useLang()
   const navigate = useNavigate()
@@ -49,13 +54,22 @@ export function AskChatInput({ name, courseId, className }: AskChatInputProps) {
   // Same switch as AskChatButton: no entry point outlives it.
   if (!showChatEntryPoints) return null
 
+  // What the chat page sees as `source`, so each box is its own entry point.
+  const chatSource = `${props.source}_inline` as const
+  const course = props.source === 'course_page' ? props : null
+  const placeholder = course
+    ? t('ask_input_placeholder', { name: course.name })
+    : props.source === 'landing'
+      ? props.placeholder
+      : ''
+
   const submit = () => {
     const question = value.trim()
     if (!question) return
 
     analytics.chat.inlinePromptSubmitted({
-      source: 'course_page',
-      courseId,
+      source: props.source,
+      courseId: course?.courseId ?? null,
       isAuthenticated,
       messageLength: question.length
     })
@@ -63,8 +77,8 @@ export function AskChatInput({ name, courseId, className }: AskChatInputProps) {
     if (!authLoading && !isAuthenticated) {
       setWallOpen(true)
       analytics.chat.loginWallShown({
-        hasContext: true,
-        source: 'course_page_inline'
+        hasContext: course !== null,
+        source: chatSource
       })
       return
     }
@@ -72,11 +86,11 @@ export function AskChatInput({ name, courseId, className }: AskChatInputProps) {
   }
 
   const openChat = (question: string) => {
-    const params = new URLSearchParams({
-      source: 'course_page_inline',
-      courseId: String(courseId),
-      scopeLabel: name
-    })
+    const params = new URLSearchParams({ source: chatSource })
+    if (course) {
+      params.set('courseId', String(course.courseId))
+      params.set('scopeLabel', course.name)
+    }
     const state: ChatPrefillState = { question }
     navigate(`${getLocalePath('chat', lang)}?${params.toString()}`, { state })
   }
@@ -96,7 +110,8 @@ export function AskChatInput({ name, courseId, className }: AskChatInputProps) {
           submit()
         }}
         className={cn(
-          'flex h-9 min-w-0 items-center gap-2 rounded-md border border-border bg-card pl-3 pr-1 focus-within:border-primaryBlue focus-within:ring-2 focus-within:ring-primaryBlue/30',
+          'flex min-w-0 items-center gap-2 rounded-md border border-border bg-card pr-1 focus-within:border-primaryBlue focus-within:ring-2 focus-within:ring-primaryBlue/30',
+          size === 'lg' ? 'h-12 rounded-lg pl-4 pr-1.5' : 'h-9 pl-3',
           className
         )}
       >
@@ -107,26 +122,29 @@ export function AskChatInput({ name, courseId, className }: AskChatInputProps) {
         <input
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          placeholder={t('ask_input_placeholder', { name })}
-          aria-label={t('ask_input_placeholder', { name })}
+          placeholder={placeholder}
+          aria-label={placeholder}
           maxLength={2000}
           // text-base below md: iOS zooms into any input under 16px on focus.
-          className="min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-muted-foreground md:text-sm"
+          className={cn(
+            'min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-muted-foreground',
+            size === 'default' && 'md:text-sm'
+          )}
         />
         <Button
           type="submit"
           size="icon"
           disabled={value.trim().length === 0}
           aria-label={t('send')}
-          className="size-7 shrink-0"
+          className={cn('shrink-0', size === 'lg' ? 'size-9' : 'size-7')}
         >
-          <ArrowUp className="size-3.5" />
+          <ArrowUp className={size === 'lg' ? 'size-4' : 'size-3.5'} />
         </Button>
       </form>
 
       <ChatLoginWall
         open={wallOpen}
-        source="course_page_inline"
+        source={chatSource}
         question={value.trim() || null}
         onSuccess={onSignedIn}
         onClose={() => setWallOpen(false)}

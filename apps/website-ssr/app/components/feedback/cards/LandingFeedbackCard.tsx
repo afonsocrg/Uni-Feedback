@@ -17,9 +17,13 @@ interface LandingFeedbackCardProps {
       degree: { faculty: { shortName: string } } | null
     }
   }
+  onClick?: () => void
 }
 
-export function LandingFeedbackCard({ feedback }: LandingFeedbackCardProps) {
+export function LandingFeedbackCard({
+  feedback,
+  onClick
+}: LandingFeedbackCardProps) {
   const lang = useLang()
   const workloadLabel = useWorkloadLabel()
   const href = getFeedbackAnchor(lang, feedback.courseId, feedback.id)
@@ -29,6 +33,7 @@ export function LandingFeedbackCard({ feedback }: LandingFeedbackCardProps) {
   return (
     <a
       href={href}
+      onClick={onClick}
       className="bg-card rounded-xl shadow-sm border border-border p-6 hover:shadow-md hover:border-border transition-all flex flex-col"
     >
       {/* Header: stars + workload badge */}

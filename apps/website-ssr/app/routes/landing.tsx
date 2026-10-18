@@ -2,7 +2,9 @@ import { database } from '@uni-feedback/db'
 import * as schema from '@uni-feedback/db/schema'
 import { getGiveawayPhase, GIVEAWAY_PHASES } from '@uni-feedback/utils'
 import { and, desc, eq, isNotNull, isNull, sql } from 'drizzle-orm'
+import type { ReactNode } from 'react'
 import {
+  AskChatSection,
   BrowseSection,
   ContributeCTASection,
   ContributeStrip,
@@ -15,8 +17,10 @@ import {
   MoreThanYourNetworkSection,
   SupportersSection,
   TestimonialsSection,
+  TrackedSection,
   TrustSection
 } from '~/components'
+import type { LandingSection } from '~/utils/analytics'
 import { INSTAGRAM_URL, TIKTOK_URL } from '~/utils/constants'
 import { detectLang } from '~/utils/i18n-routes'
 import { buildMeta, metaOrigin, metaT, SITE_NAME } from '~/utils/meta'
@@ -213,26 +217,46 @@ export default function LandingPage({ loaderData }: Route.ComponentProps) {
     stats
   } = loaderData
 
+  // Order chosen from data (2026-10-18): the median landing visit sees about
+  // one screen, and the hero search is the page's main action. The supporters
+  // strip reads as part of the hero, so it stays under the search bar, and the
+  // chat comes right after it: close to the top, but not on the first screen,
+  // where a second input box next to the search would compete with it.
+  // Everything below reaches a shrinking minority; see `landing_section_viewed`
+  // for the per-section reach.
+  const sections: Array<[LandingSection, ReactNode]> = [
+    ['hero', <HeroSection stats={stats} />],
+    ['supporters', <SupportersSection studentClubs={studentClubs} />],
+    ['ask_chat', <AskChatSection />],
+    ['live_feed', <LiveFeedSection feedbacks={recentFeedbacks} />],
+    // Only while an edition is running or being drawn: once winners are out
+    // the band is stale, and the footer still links to the giveaway.
+    ...(giveawayPhase !== 'announced'
+      ? [
+          [
+            'giveaway_promo',
+            <GiveawayPromoSection phase={giveawayPhase} />
+          ] as [LandingSection, ReactNode]
+        ]
+      : []),
+    ['contribute_strip', <ContributeStrip />],
+    ['trust', <TrustSection />],
+    ['browse', <BrowseSection faculties={faculties} degrees={degrees} />],
+    ['more_than_your_network', <MoreThanYourNetworkSection />],
+    ['founder', <FounderSection />],
+    ['testimonials', <TestimonialsSection testimonials={testimonials} />],
+    ['contribute_cta', <ContributeCTASection />],
+    ['faq', <LandingFAQSection />],
+    ['final_cta', <CTASection contributors={stats.contributors} />]
+  ]
+
   return (
     <>
-      <HeroSection stats={stats} />
-      {/* <UniversitiesStrip faculties={faculties} /> */}
-      <SupportersSection studentClubs={studentClubs} />
-      <LiveFeedSection feedbacks={recentFeedbacks} />
-      {/* Only while an edition is running or being drawn: once winners are
-          out the band is stale, and the footer still links to the giveaway. */}
-      {giveawayPhase !== 'announced' && (
-        <GiveawayPromoSection phase={giveawayPhase} />
-      )}
-      <ContributeStrip />
-      <TrustSection />
-      <BrowseSection faculties={faculties} degrees={degrees} />
-      <MoreThanYourNetworkSection />
-      <FounderSection />
-      <TestimonialsSection testimonials={testimonials} />
-      <ContributeCTASection />
-      <LandingFAQSection />
-      <CTASection contributors={stats.contributors} />
+      {sections.map(([section, node], position) => (
+        <TrackedSection key={section} section={section} position={position}>
+          {node}
+        </TrackedSection>
+      ))}
     </>
   )
 }
