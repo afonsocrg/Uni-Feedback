@@ -2,9 +2,23 @@ import { PaginationQuerySchema, getPaginatedSchema } from '@types'
 import { database, offeringsSubquery } from '@uni-feedback/db'
 import { courses, degrees, faculties } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
-import { and, count, eq, or, sql } from 'drizzle-orm'
+import { and, asc, count, desc, eq, or, sql, type SQL } from 'drizzle-orm'
 import { z } from 'zod'
 import { CourseOfferingSchema } from '../../courses/offeringSchema'
+
+// Allow-list of sortable columns. Each value maps to an expression explicitly
+// so nothing from the query string is ever interpolated into SQL.
+const CourseSortBySchema = z.enum(['feedback_count'])
+
+const feedbackCountSql = sql<number>`(
+  SELECT COUNT(*)
+  FROM feedback
+  WHERE feedback.course_id = ${courses.id}
+)`
+
+const SORT_COLUMNS = {
+  feedback_count: feedbackCountSql
+} as const
 
 const CoursesQuerySchema = PaginationQuerySchema.extend({
   search: z.string().optional(),
@@ -16,7 +30,9 @@ const CoursesQuerySchema = PaginationQuerySchema.extend({
     .string()
     .optional()
     .transform((val) => (val ? parseInt(val, 10) : undefined)),
-  term: z.string().optional()
+  term: z.string().optional(),
+  sort_by: CourseSortBySchema.optional(),
+  sort_dir: z.enum(['asc', 'desc']).optional()
 })
 
 const AdminCourseSchema = z.object({
@@ -70,7 +86,16 @@ export class GetCourses extends OpenAPIRoute {
 
   async handle() {
     const { query } = await this.getValidatedData<typeof this.schema>()
-    const { page, limit, search, degree_id, faculty_id, term } = query
+    const {
+      page,
+      limit,
+      search,
+      degree_id,
+      faculty_id,
+      term,
+      sort_by,
+      sort_dir = 'desc'
+    } = query
 
     // Build where conditions
     const conditions = []
@@ -105,6 +130,15 @@ export class GetCourses extends OpenAPIRoute {
 
     const whereClause = conditions.length > 0 ? and(...conditions) : undefined
 
+    // Alphabetical by default. With a sort column, ties keep the alphabetical
+    // order (and then id) so pagination stays stable.
+    const orderBy: SQL[] = []
+    if (sort_by) {
+      const column = SORT_COLUMNS[sort_by]
+      orderBy.push(sort_dir === 'asc' ? asc(column) : desc(column))
+    }
+    orderBy.push(asc(courses.name), asc(courses.id))
+
     // Get total count
     const totalResult = await database()
       .select({ count: count() })
@@ -132,17 +166,13 @@ export class GetCourses extends OpenAPIRoute {
         facultyShortName: faculties.shortName,
         offerings: offeringsSubquery(),
         createdAt: courses.createdAt,
-        totalFeedbackCount: sql<number>`(
-            SELECT COUNT(*)
-            FROM feedback
-            WHERE feedback.course_id = ${courses.id}
-          )`
+        totalFeedbackCount: feedbackCountSql
       })
       .from(courses)
       .leftJoin(degrees, eq(courses.degreeId, degrees.id))
       .leftJoin(faculties, eq(degrees.facultyId, faculties.id))
       .where(whereClause)
-      .orderBy(courses.name)
+      .orderBy(...orderBy)
       .limit(limit)
       .offset(offset)
 

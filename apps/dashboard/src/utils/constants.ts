@@ -13,6 +13,7 @@ export const STORAGE_KEYS = {
   COURSES_SEARCH: 'uni-feedback-dashboard-courses-search',
   COURSES_TERM: 'uni-feedback-dashboard-courses-term',
   COURSES_PAGE_SIZE: 'uni-feedback-dashboard-courses-page-size',
+  COURSES_SORT: 'uni-feedback-dashboard-courses-sort',
   CHATS_SEARCH: 'uni-feedback-dashboard-chats-search',
   CHATS_RATING: 'uni-feedback-dashboard-chats-rating',
   CHATS_PAGE_SIZE: 'uni-feedback-dashboard-chats-page-size',

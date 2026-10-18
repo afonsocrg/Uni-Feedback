@@ -1,12 +1,18 @@
-import { PaginationControls } from '@components'
-import { useAdminFilters, useDebouncedSearch, usePersistentState } from '@hooks'
+import { PaginationControls, SortableTableHead } from '@components'
+import {
+  useAdminFilters,
+  useDebouncedSearch,
+  usePersistentState,
+  useTableSort
+} from '@hooks'
 import { useQuery } from '@tanstack/react-query'
 import {
   getAdminCoursesNew,
   getAllTerms,
   getDegreeSuggestions,
   getFaculties,
-  type AdminCoursesQuery
+  type AdminCoursesQuery,
+  type AdminCoursesSortBy
 } from '@uni-feedback/api-client'
 import {
   Badge,
@@ -65,6 +71,11 @@ export function CoursesPage() {
   const [degreePopoverOpen, setDegreePopoverOpen] = useState(false)
   const [termPopoverOpen, setTermPopoverOpen] = useState(false)
 
+  // The list is paginated, so the API does the ordering
+  const { sort, directionOf, toggle } = useTableSort<AdminCoursesSortBy>({
+    storageKey: STORAGE_KEYS.COURSES_SORT
+  })
+
   // Debounced search functionality
   const { searchTerm, setSearchTerm, debouncedSearchTerm } = useDebouncedSearch(
     STORAGE_KEYS.COURSES_SEARCH
@@ -81,7 +92,8 @@ export function CoursesPage() {
     ...(degreeId !== null && {
       degree_id: degreeId
     }),
-    ...(selectedTerm !== 'all' && { term: selectedTerm })
+    ...(selectedTerm !== 'all' && { term: selectedTerm }),
+    ...(sort && { sort_by: sort.key, sort_dir: sort.direction })
   }
 
   // Fetch data
@@ -132,6 +144,11 @@ export function CoursesPage() {
   const handleTermChange = (newTerm: string) => {
     setSelectedTerm(newTerm)
     setPage(1) // Reset to first page when changing filters
+  }
+
+  const handleSortToggle = (key: AdminCoursesSortBy) => {
+    toggle(key)
+    setPage(1)
   }
 
   // Handle pagination
@@ -408,7 +425,14 @@ export function CoursesPage() {
                       <TableHead>Name</TableHead>
                       <TableHead>ECTS</TableHead>
                       <TableHead>Terms</TableHead>
-                      <TableHead className="text-right">Feedback</TableHead>
+                      <SortableTableHead
+                        sortKey="feedback_count"
+                        direction={directionOf('feedback_count')}
+                        onToggle={handleSortToggle}
+                        align="right"
+                      >
+                        Feedback
+                      </SortableTableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>

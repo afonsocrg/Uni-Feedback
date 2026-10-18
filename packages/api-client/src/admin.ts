@@ -130,7 +130,12 @@ export interface AdminCoursesQuery {
   degree_id?: number
   faculty_id?: number
   term?: string
+  /** Column to order by; omitted means alphabetical */
+  sort_by?: AdminCoursesSortBy
+  sort_dir?: 'asc' | 'desc'
 }
+
+export type AdminCoursesSortBy = 'feedback_count'
 
 export interface AdminCoursesResponse {
   courses: AdminCourse[]
@@ -752,6 +757,8 @@ export async function getAdminCoursesNew(
   if (query?.degree_id) params.set('degree_id', query.degree_id.toString())
   if (query?.faculty_id) params.set('faculty_id', query.faculty_id.toString())
   if (query?.term) params.set('term', query.term)
+  if (query?.sort_by) params.set('sort_by', query.sort_by)
+  if (query?.sort_dir) params.set('sort_dir', query.sort_dir)
 
   const url = params.toString() ? `/admin/courses?${params}` : '/admin/courses'
   return apiGet<PaginatedResponse<AdminCourse>>(url)
