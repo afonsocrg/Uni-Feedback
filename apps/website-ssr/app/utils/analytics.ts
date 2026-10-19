@@ -1,6 +1,12 @@
-import type { CorrectionRequestField } from '@uni-feedback/api-client'
+import type {
+  CorrectionRequestField,
+  ReportCategory
+} from '@uni-feedback/api-client'
+import type { ToolbarFormat } from '@uni-feedback/ui'
 import posthog from 'posthog-js'
+import type { Lang } from '~/i18n/config'
 import { detectLang, getLocalePath, isProfilePath } from '~/utils/i18n-routes'
+import type { ThemePreference } from '~/utils/theme'
 
 /**
  * Core event tracking function
@@ -267,7 +273,7 @@ export const analytics = {
      * formatting (the reason it was added) or just added chrome.
      */
     commentFormatted: (props: {
-      format: string
+      format: ToolbarFormat
       source: 'toolbar' | 'bubble'
       surface: FeedbackFormSurface
     }) => trackEvent('feedback_form_comment_formatted', props),
@@ -300,7 +306,7 @@ export const analytics = {
      */
     failed: (props: {
       courseId: number
-      errorType: string
+      errorType: 'validation' | 'api_error' | 'network'
       errorMessage?: string
     }) => trackEvent('feedback_submission_failed', props),
 
@@ -471,13 +477,16 @@ export const analytics = {
      * conversion rate looks.
      */
     completed: (props?: {
-      authMethod: string
+      authMethod: 'otp'
       trigger?: string
       isNewUser?: boolean
     }) => trackEvent('auth_completed', props),
 
-    failed: (props: { step: string; errorType: string; trigger?: string }) =>
-      trackEvent('auth_failed', props),
+    failed: (props: {
+      step: 'otp_request' | 'otp_verification'
+      errorType: 'api_error' | 'network' | 'invalid_code'
+      trigger?: string
+    }) => trackEvent('auth_failed', props),
 
     /**
      * They typed an address from a university we do not cover.
@@ -521,7 +530,7 @@ export const analytics = {
     /**
      * Track when report is submitted
      */
-    reportSubmitted: (props: { feedbackId: number; reason: string }) =>
+    reportSubmitted: (props: { feedbackId: number; reason: ReportCategory }) =>
       trackEvent('feedback_report_submitted', props)
   },
 
@@ -575,7 +584,7 @@ export const analytics = {
       courseId: number
       field: CorrectionRequestField
       entryPoint: CorrectionEntryPoint
-      errorType: string
+      errorType: 'api_error'
     }) => trackEvent('correction_submission_failed', props),
 
     /**
@@ -850,8 +859,15 @@ export const analytics = {
      * Track the entry into the results page from the campaign landing page.
      * `source` says which of the landing page's entry points did the work.
      */
-    resultsLinkClicked: (props: { source: string; referrerPage?: string }) =>
-      trackEvent('giveaway_results_link_clicked', props)
+    resultsLinkClicked: (props: {
+      source:
+        | 'giveaway_hero'
+        | 'giveaway_hero_announced'
+        | 'giveaway_hero_drawing'
+        | 'landing_promo_announced'
+        | 'landing_promo_ended'
+      referrerPage?: string
+    }) => trackEvent('giveaway_results_link_clicked', props)
   },
 
   navigation: {
@@ -892,12 +908,15 @@ export const analytics = {
      * decision to demote them off the navbar had to be inferred from locale
      * pageviews. This measures it directly from now on.
      */
-    preferenceChanged: (props: {
-      preference: 'theme' | 'language'
-      value: string
-      surface: NavSurface
-      isAuthenticated: boolean
-    }) => trackEvent('nav_preference_changed', props)
+    preferenceChanged: (
+      props: (
+        | { preference: 'theme'; value: ThemePreference }
+        | { preference: 'language'; value: Lang }
+      ) & {
+        surface: NavSurface
+        isAuthenticated: boolean
+      }
+    ) => trackEvent('nav_preference_changed', props)
   },
 
   /**
