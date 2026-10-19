@@ -62,7 +62,7 @@ export function CoursesTabContent({ degreeId }: CoursesTabContentProps) {
 
   // Courses tab pagination (using local state to avoid conflicts with other tabs)
   const [coursesPage, setCoursesPage] = useState(1)
-  const [coursesLimit, setCoursesLimit] = useState(20)
+  const [coursesLimit, setCoursesLimit] = useState(50)
 
   // Build query object using debounced search and current filters
   const coursesQuery: AdminCoursesQuery = {

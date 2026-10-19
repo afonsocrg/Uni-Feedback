@@ -75,7 +75,7 @@ export function FeedbackPage() {
   const [page, setPage] = useState(1)
   const [limit, setLimit] = usePersistentState(
     STORAGE_KEYS.FEEDBACK_PAGE_SIZE,
-    20
+    50
   )
   const {
     facultyId,

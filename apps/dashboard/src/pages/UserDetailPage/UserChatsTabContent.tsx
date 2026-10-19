@@ -42,7 +42,7 @@ interface UserChatsTabContentProps {
 export function UserChatsTabContent({ userId }: UserChatsTabContentProps) {
   const navigate = useNavigate()
   const [page, setPage] = useState(1)
-  const [limit, setLimit] = useState(10)
+  const [limit, setLimit] = useState(50)
   const [ratingFilter, setRatingFilter] = useState<RatingFilter>('all')
 
   const query: AdminChatsQuery = {

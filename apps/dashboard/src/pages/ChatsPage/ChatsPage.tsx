@@ -42,7 +42,7 @@ export function ChatsPage() {
   const canOpenUsers = viewer?.role === 'super_admin'
 
   const [page, setPage] = useState(1)
-  const [limit, setLimit] = usePersistentState(STORAGE_KEYS.CHATS_PAGE_SIZE, 20)
+  const [limit, setLimit] = usePersistentState(STORAGE_KEYS.CHATS_PAGE_SIZE, 50)
   const { searchTerm, setSearchTerm, debouncedSearchTerm } = useDebouncedSearch(
     STORAGE_KEYS.CHATS_SEARCH
   )

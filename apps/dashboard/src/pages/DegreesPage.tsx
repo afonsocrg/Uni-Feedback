@@ -41,7 +41,7 @@ export function DegreesPage() {
   const [page, setPage] = useState(1)
   const [limit, setLimit] = usePersistentState(
     STORAGE_KEYS.DEGREES_PAGE_SIZE,
-    20
+    50
   )
   const { facultyId, setFaculty } = useAdminFilters()
   const [selectedType, setSelectedType] = usePersistentState(

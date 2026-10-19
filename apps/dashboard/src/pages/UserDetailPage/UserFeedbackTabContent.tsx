@@ -35,7 +35,7 @@ export function UserFeedbackTabContent({
 }: UserFeedbackTabContentProps) {
   const navigate = useNavigate()
   const [page, setPage] = useState(1)
-  const [limit, setLimit] = useState(10)
+  const [limit, setLimit] = useState(50)
   const [approvedFilter, setApprovedFilter] = useState<string>('all')
 
   const query: AdminFeedbackQuery = {

@@ -34,7 +34,7 @@ export function CourseGroupsTabContent({
 
   // Course Groups tab pagination (using local state to avoid conflicts with other tabs)
   const [courseGroupsPage, setCourseGroupsPage] = useState(1)
-  const [courseGroupsLimit, setCourseGroupsLimit] = useState(20)
+  const [courseGroupsLimit, setCourseGroupsLimit] = useState(50)
 
   // Course Groups query
   const courseGroupsQuery: AdminCourseGroupsQuery = {

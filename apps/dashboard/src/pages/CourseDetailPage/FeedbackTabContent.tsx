@@ -30,7 +30,7 @@ export function FeedbackTabContent({ courseId }: FeedbackTabContentProps) {
   const navigate = useNavigate()
   const [page, setPage] = useState(1)
   const [approvedFilter, setApprovedFilter] = useState<string>('all')
-  const [limit, setLimit] = useState(10)
+  const [limit, setLimit] = useState(50)
 
   const feedbackQuery = useMemo(() => {
     const query: {

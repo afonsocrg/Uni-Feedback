@@ -32,8 +32,6 @@ import { toast } from 'sonner'
 import { STORAGE_KEYS } from '../../utils'
 import { AnalysisEditDialog } from './AnalysisEditDialog'
 
-const PAGE_SIZE_OPTIONS = [10, 20, 50, 100]
-
 export function GiveawayPage() {
   const queryClient = useQueryClient()
 
@@ -69,7 +67,7 @@ export function GiveawayPage() {
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = usePersistentState(
     STORAGE_KEYS.GIVEAWAY_PAGE_SIZE,
-    20
+    50
   )
 
   // Filter state
@@ -377,7 +375,6 @@ export function GiveawayPage() {
               total={data.total}
               onPageChange={setPage}
               onPageSizeChange={handlePageSizeChange}
-              pageSizeOptions={PAGE_SIZE_OPTIONS}
             />
           )}
         </CardContent>

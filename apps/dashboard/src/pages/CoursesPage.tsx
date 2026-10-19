@@ -58,7 +58,7 @@ export function CoursesPage() {
   const [page, setPage] = useState(1)
   const [limit, setLimit] = usePersistentState(
     STORAGE_KEYS.COURSES_PAGE_SIZE,
-    20
+    50
   )
   const { facultyId, degreeId, setFaculty, setDegree } = useAdminFilters()
   const [selectedTerm, setSelectedTerm] = usePersistentState(

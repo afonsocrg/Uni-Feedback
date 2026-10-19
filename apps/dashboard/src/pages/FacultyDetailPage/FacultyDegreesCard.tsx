@@ -39,7 +39,7 @@ export function FacultyDegreesCard({ facultyId }: FacultyDegreesCardProps) {
 
   // Degrees pagination state
   const [degreesPage, setDegreesPage] = useState(1)
-  const [degreesLimit, setDegreesLimit] = useState(20)
+  const [degreesLimit, setDegreesLimit] = useState(50)
 
   // Build query object using debounced search and current filters
   const degreesQuery: AdminDegreesQuery = {
