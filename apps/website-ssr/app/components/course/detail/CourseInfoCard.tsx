@@ -59,10 +59,9 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
 
   // `course_reviews` names the funnel step, not this component: the primary CTA
   // moved up here from <CourseReviews>, and it is still the same step. Renaming
-  // it would strand the history on `feedback_form_viewed.entry_point`, and any
-  // value outside FeedbackEntryPoint silently degrades to `direct`.
+  // it would strand the history on `feedback_form_viewed.entry_point`.
   const reviewFormUrl = useMemo(
-    () => `${getCourseFeedbackPath(lang, course.id)}?from=course_reviews`,
+    () => getCourseFeedbackPath(lang, course.id, 'course_reviews'),
     [lang, course.id]
   )
 

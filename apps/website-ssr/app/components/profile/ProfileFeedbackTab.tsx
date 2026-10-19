@@ -50,7 +50,7 @@ export function ProfileFeedbackTab({
           {t('profile.my_feedback_title')}
         </h2>
         <Link
-          to={`${getReviewPath(lang)}?from=profile`}
+          to={getReviewPath(lang, 'profile')}
           onClick={() => {
             analytics.navigation.feedbackFormLinkClicked({
               source: 'profile_page',

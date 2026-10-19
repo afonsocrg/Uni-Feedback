@@ -105,7 +105,7 @@ export function GiveawayResultsHero({
           <div className="flex flex-wrap items-center gap-3 pt-2">
             <Button size="lg" asChild>
               <a
-                href={`${getReviewPath(lang)}?from=giveaway_results`}
+                href={getReviewPath(lang, 'giveaway_results')}
                 onClick={() => {
                   analytics.navigation.feedbackFormLinkClicked({
                     source: 'giveaway_results_hero',

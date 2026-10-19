@@ -23,7 +23,7 @@ export function CourseReviewsContent({
   const { t } = useTranslation('course')
   const lang = useLang()
   const reviewFormUrl = useMemo(() => {
-    return `${getCourseFeedbackPath(lang, courseId)}?from=course_reviews`
+    return getCourseFeedbackPath(lang, courseId, 'course_reviews')
   }, [lang, courseId])
 
   const groupedFeedback = useMemo(() => {

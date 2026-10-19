@@ -1,4 +1,5 @@
 import type { Lang } from '~/i18n/config'
+import type { FeedbackLinkSource } from './analytics'
 import { LANG_PREFIXES, type RouteKey, routeMap } from './route-map'
 
 export type { Lang, RouteKey }
@@ -154,10 +155,10 @@ export function getEquivalentPath(fullPath: string, currentLang: Lang): string {
   return swapDynamicPath(pathOnly, currentLang) + suffix
 }
 
-export function getReviewPath(lang: Lang, courseId?: number): string {
+/** `from` tags the link for `feedback_browser_viewed`. */
+export function getReviewPath(lang: Lang, from?: FeedbackLinkSource): string {
   const base = getLocalePath('feedback-new', lang)
-  const params = courseId ? `?courseId=${courseId}` : ''
-  return `${base}${params}`
+  return from ? `${base}?from=${from}` : base
 }
 
 export function getCoursePath(lang: Lang, courseId: number): string {
@@ -166,8 +167,14 @@ export function getCoursePath(lang: Lang, courseId: number): string {
     : `/${COURSE_SEGMENT.pt}/${courseId}`
 }
 
-export function getCourseFeedbackPath(lang: Lang, courseId: number): string {
-  return `${getCoursePath(lang, courseId)}/feedback`
+/** `from` tags the link for `feedback_form_viewed.entry_point`. */
+export function getCourseFeedbackPath(
+  lang: Lang,
+  courseId: number,
+  from?: FeedbackLinkSource
+): string {
+  const path = `${getCoursePath(lang, courseId)}/feedback`
+  return from ? `${path}?from=${from}` : path
 }
 
 export function getFacultyPath(lang: Lang, facultySlug: string): string {

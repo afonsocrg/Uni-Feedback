@@ -58,7 +58,7 @@ export function GiveawayCTASection({ phase }: GiveawayCTASectionProps) {
               asChild
             >
               <a
-                href={`${getReviewPath(lang)}?from=giveaway`}
+                href={getReviewPath(lang, 'giveaway')}
                 onClick={() => {
                   analytics.navigation.feedbackFormLinkClicked({
                     source: drawing ? 'giveaway_cta_drawing' : 'giveaway_cta',

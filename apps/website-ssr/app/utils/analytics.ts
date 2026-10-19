@@ -61,18 +61,35 @@ export const getPageName = (path: string): string => {
  * Type-safe analytics tracking utilities
  * Organized by feature area for better maintainability
  */
-export type FeedbackEntryPoint =
-  | 'course_browser'
-  | 'course_card'
-  | 'course_reviews'
-  | 'navbar'
-  | 'footer'
-  | 'nav_drawer'
-  | 'profile'
-  | 'points'
-  | 'giveaway'
-  | 'recommendations'
-  | 'direct'
+/**
+ * Every `?from=` value an in-app link into the feedback flow may carry. The one
+ * list: the type derives from it, the path builders in `i18n-routes` only accept
+ * its values, and the form validates against it. So a link tagged with anything
+ * else fails type-check instead of silently landing in PostHog as `direct`.
+ */
+export const FEEDBACK_LINK_SOURCES = [
+  'course_browser',
+  'course_list',
+  'course_reviews',
+  'navbar',
+  'footer',
+  'nav_drawer',
+  'profile',
+  'points',
+  'giveaway',
+  'giveaway_results',
+  'recommendations',
+  'chat_gap'
+] as const
+
+export type FeedbackLinkSource = (typeof FEEDBACK_LINK_SOURCES)[number]
+
+/** `direct` is any arrival without a recognised `?from=`. */
+export type FeedbackEntryPoint = FeedbackLinkSource | 'direct'
+
+export function toFeedbackEntryPoint(from: string | null): FeedbackEntryPoint {
+  return FEEDBACK_LINK_SOURCES.find((source) => source === from) ?? 'direct'
+}
 
 /**
  * Where a referral/invite share action was triggered from. Threaded through the

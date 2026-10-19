@@ -115,7 +115,7 @@ export function MobileDrawer({
                 asChild
               >
                 <a
-                  href={`${getReviewPath(lang)}?from=nav_drawer`}
+                  href={getReviewPath(lang, 'nav_drawer')}
                   onClick={() => {
                     analytics.navigation.feedbackFormLinkClicked({
                       source: 'mobile_menu',

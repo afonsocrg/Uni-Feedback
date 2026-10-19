@@ -159,7 +159,11 @@ export function SubmitFeedbackSuccess({
                 {recommendations.map((course) => (
                   <div key={course.id}>
                     <a
-                      href={`${getCourseFeedbackPath(lang, course.id)}?from=recommendations`}
+                      href={getCourseFeedbackPath(
+                        lang,
+                        course.id,
+                        'recommendations'
+                      )}
                       onClick={() =>
                         analytics.navigation.feedbackFormLinkClicked({
                           source: 'success_recommendation',

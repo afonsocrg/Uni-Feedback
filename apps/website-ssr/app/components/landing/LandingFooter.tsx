@@ -49,7 +49,7 @@ export function LandingFooter() {
             ]
           : []),
         {
-          href: `${getReviewPath(lang)}?from=footer`,
+          href: getReviewPath(lang, 'footer'),
           label: t('footer.links.give_feedback'),
           onClick: () => {
             analytics.navigation.feedbackFormLinkClicked({

@@ -60,7 +60,7 @@ export function HowToWinSection() {
           <div className="text-center">
             <Button size="lg" className="text-lg px-8" asChild>
               <a
-                href={`${getReviewPath(lang)}?from=giveaway`}
+                href={getReviewPath(lang, 'giveaway')}
                 onClick={() => {
                   analytics.navigation.feedbackFormLinkClicked({
                     source: 'giveaway_how_to_win',

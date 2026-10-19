@@ -52,12 +52,9 @@ export default function FeedbackBrowserPage({
     if (courseIdParam) {
       const courseId = Number(courseIdParam)
       if (!isNaN(courseId) && courseId > 0) {
-        navigate(
-          `${getCourseFeedbackPath(lang, courseId)}?from=course_browser`,
-          {
-            replace: true
-          }
-        )
+        navigate(getCourseFeedbackPath(lang, courseId, 'course_browser'), {
+          replace: true
+        })
       }
     }
   }, [searchParams, navigate, lang])
@@ -79,7 +76,7 @@ export default function FeedbackBrowserPage({
     analytics.feedback.courseSelectedFromBrowser({ courseId })
 
     // Navigate to course-specific feedback page with entry point
-    navigate(`${getCourseFeedbackPath(lang, courseId)}?from=course_browser`)
+    navigate(getCourseFeedbackPath(lang, courseId, 'course_browser'))
   }
 
   return (

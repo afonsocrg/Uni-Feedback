@@ -110,7 +110,7 @@ export default function PointsPage() {
                   ns="legal"
                   components={[
                     <Link
-                      to={`${getReviewPath(lang)}?from=points`}
+                      to={getReviewPath(lang, 'points')}
                       className="font-medium text-primary hover:underline"
                       onClick={() => {
                         analytics.navigation.feedbackFormLinkClicked({

@@ -64,7 +64,7 @@ export function GiveawayResultsCTA({
             <div className="flex justify-center pt-2">
               <Button size="lg" variant="secondary" asChild>
                 <a
-                  href={`${getReviewPath(lang)}?from=giveaway_results`}
+                  href={getReviewPath(lang, 'giveaway_results')}
                   onClick={() => {
                     analytics.navigation.feedbackFormLinkClicked({
                       source: 'giveaway_results_cta',

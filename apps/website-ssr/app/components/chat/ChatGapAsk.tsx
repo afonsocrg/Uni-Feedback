@@ -64,9 +64,7 @@ export function ChatGapAsk({ chatId, gap }: ChatGapAskProps) {
           asChild
           onClick={() => track('review')}
         >
-          <a
-            href={`${getCourseFeedbackPath(lang, gap.courseId ?? 0)}?from=chat_gap`}
-          >
+          <a href={getCourseFeedbackPath(lang, gap.courseId ?? 0, 'chat_gap')}>
             {t('gap.i_took_it')}
           </a>
         </Button>

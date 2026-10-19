@@ -36,7 +36,7 @@ export function LandingHeader() {
     activeKeys.has(key)
   )
 
-  const reviewHref = `${getReviewPath(lang)}?from=navbar`
+  const reviewHref = getReviewPath(lang, 'navbar')
   const trackFeedbackClick = () => {
     analytics.navigation.feedbackFormLinkClicked({
       source: 'navbar',

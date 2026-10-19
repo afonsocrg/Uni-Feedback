@@ -20,11 +20,7 @@ import { DuplicateFeedbackResolution } from '~/components/feedback/DuplicateFeed
 import { useAuth, useLang } from '~/hooks'
 import { useSubmitFeedback } from '~/hooks/queries'
 import { getCurrentUserId } from '~/lib/auth.server'
-import {
-  analytics,
-  getPageName,
-  type FeedbackEntryPoint
-} from '~/utils/analytics'
+import { analytics, getPageName, toFeedbackEntryPoint } from '~/utils/analytics'
 import {
   detectLang,
   getFeedbackEditPath,
@@ -178,28 +174,10 @@ export default function CourseSpecificFeedbackPage({
 
   // Track feedback form view
   useEffect(() => {
-    const fromParam = searchParams.get('from')
-    const entryPoint: FeedbackEntryPoint =
-      fromParam &&
-      [
-        'course_browser',
-        'course_card',
-        'course_reviews',
-        'navbar',
-        'footer',
-        'nav_drawer',
-        'profile',
-        'points',
-        'giveaway',
-        'recommendations'
-      ].includes(fromParam)
-        ? (fromParam as FeedbackEntryPoint)
-        : 'direct'
-
     analytics.feedback.formViewed({
       courseId: course.id,
       isAuthenticated,
-      entryPoint
+      entryPoint: toFeedbackEntryPoint(searchParams.get('from'))
     })
   }, [course.id, isAuthenticated, searchParams])
 

@@ -147,9 +147,7 @@ function CourseRow({
               referrerPage: getPageName(window.location.pathname),
               courseId: course.id
             })
-            navigate(
-              `${getCourseFeedbackPath(lang, course.id)}?from=course_list`
-            )
+            navigate(getCourseFeedbackPath(lang, course.id, 'course_list'))
           }}
         >
           Give the first feedback!
