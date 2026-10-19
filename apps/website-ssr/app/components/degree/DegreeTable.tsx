@@ -23,10 +23,10 @@ function DegreeRow({
       href={getHref(degree)}
       onClick={() => onSelect(degree)}
       title={degree.name}
-      /* No type chip, unlike <DegreeCard>: the name already opens with
-         "Mestrado em" / "Licenciatura em", so the chip only repeated it, and a
-         colored badge down every row of a long listing is exactly the noise the
-         list view exists to avoid. The type still earns its filter chip. */
+      /* No type chip: the name already opens with "Mestrado em" /
+         "Licenciatura em", so the chip only repeats it, and a colored badge
+         down every row of a long listing is noise. The type still earns its
+         filter chip. */
       meta={
         <span className="text-xs text-muted-foreground">{degree.acronym}</span>
       }

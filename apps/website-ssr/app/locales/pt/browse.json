@@ -51,11 +51,6 @@
     "tag_optional": "Optativa",
     "legend_mandatory_exam": "Exame obrigatório"
   },
-  "listing": {
-    "view_label": "Vista",
-    "view_cards": "Cartões",
-    "view_list": "Lista"
-  },
   "faculty_page": {
     "title": "Escolhe o teu curso",
     "search_placeholder": "Procurar cursos...",

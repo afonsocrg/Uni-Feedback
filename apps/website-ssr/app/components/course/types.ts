@@ -48,10 +48,8 @@ export interface CourseSection {
 }
 
 /**
- * Shared by every course-listing component (`CourseCardGrid`, `CourseTable`),
- * so a page can swap one for another without touching its filtering or
- * grouping. Listings only decide how courses look: they never filter, sort or
- * regroup what they are handed.
+ * Props of the course listing (`CourseTable`). Listings only decide how courses
+ * look: they never filter, sort or regroup what they are handed.
  */
 export interface CourseListingProps {
   sections: CourseSection[]

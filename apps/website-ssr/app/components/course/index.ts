@@ -1,5 +1,3 @@
-export * from './CourseCard'
-export * from './CourseCardGrid'
 export * from './CourseTable'
 export * from './detail'
 export * from './types'

@@ -40,9 +40,9 @@ function CourseRow({
     <ListingRow
       href={getCoursePath(lang, course.id)}
       onClick={() => {
-        // Same "consumer browses a course" signal as the card grid, so the two
-        // view modes are comparable. The "give the first feedback" button below
-        // stops propagation, so a review-intent click is not counted as a browse.
+        // The "consumer browses a course" signal. The "give the first feedback"
+        // button below stops propagation, so a review-intent click is not
+        // counted as a browse.
         analytics.discovery.courseCardClicked({
           courseId: course.id,
           sourcePage: getPageName(window.location.pathname),
@@ -184,8 +184,7 @@ function CourseTableLegend({ sections }: CourseListingProps) {
 }
 
 export function CourseTable({ sections }: CourseListingProps) {
-  // Flat rank across sections, matching CourseCardGrid so the two view modes
-  // produce comparable `positionInList` values.
+  // Flat rank across sections, for `positionInList`.
   let position = 0
 
   return (

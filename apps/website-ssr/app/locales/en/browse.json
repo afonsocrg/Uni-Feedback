@@ -51,11 +51,6 @@
     "tag_optional": "Optional",
     "legend_mandatory_exam": "Mandatory exam"
   },
-  "listing": {
-    "view_label": "View",
-    "view_cards": "Cards",
-    "view_list": "List"
-  },
   "faculty_page": {
     "title": "Select Your Degree",
     "search_placeholder": "Search degrees...",

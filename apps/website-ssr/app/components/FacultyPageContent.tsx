@@ -2,18 +2,16 @@ import type { Faculty } from '@uni-feedback/db/schema'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLang } from '~/hooks'
-import type { ViewMode } from '~/utils/analytics'
 import { analytics } from '~/utils/analytics'
 import { loadDegreeFilters, saveDegreeFilters } from '~/utils/filterStorage'
 import { getDegreePath } from '~/utils/i18n-routes'
 import { userPreferences } from '~/utils/userPreferences'
-import { BrowsePageLayout, DegreeCardGrid, DegreeTable } from '.'
+import { BrowsePageLayout, DegreeTable } from '.'
 import { AskChatButton } from './chat/AskChatButton'
 import { FilterChip } from './common/FilterChip'
 import { FilterRow } from './common/FilterRow'
 import { MissingItemNote } from './common/MissingItemNote'
 import { SearchInput } from './common/SearchInput'
-import { DEFAULT_VIEW_MODE, ViewModeToggle } from './common/ViewModeToggle'
 import type { DegreeWithCounts } from './degree/types'
 
 function insensitiveMatch(text: string, query: string): boolean {
@@ -36,19 +34,15 @@ export function FacultyPageContent({
   const lang = useLang()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedType, setSelectedType] = useState<string | null>(null)
-  const [viewMode, setViewMode] = useState<ViewMode>(DEFAULT_VIEW_MODE)
 
-  // Entry event of the browse funnel, and the denominator for this page's view
-  // mode switch rate. Keyed on the faculty so navigating to another one counts
-  // as a new view, and deliberately not on `viewMode`: this records the page as
-  // *served*, so re-firing it on a toggle would double-count the view.
+  // Entry event of the browse funnel. Keyed on the faculty so navigating to
+  // another one counts as a new view.
   useEffect(() => {
     if (!faculty.slug) return
 
     analytics.discovery.facultyPageViewed({
       facultySlug: faculty.slug,
-      degreeCount: degrees.length,
-      defaultViewMode: DEFAULT_VIEW_MODE
+      degreeCount: degrees.length
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [faculty.slug])
@@ -143,18 +137,9 @@ export function FacultyPageContent({
         />
       }
       filterChips={
-        // The row renders even with no degree types to filter by, because the
-        // view toggle lives here and is always available.
-        <FilterRow
-          trailing={
-            <ViewModeToggle
-              value={viewMode}
-              onChange={setViewMode}
-              surface="faculty_page"
-            />
-          }
-          filters={
-            showTypeFilter && (
+        showTypeFilter && (
+          <FilterRow
+            filters={
               <FilterChip
                 label={t('faculty_page.filter_label')}
                 options={availableTypes.map((type) => ({
@@ -165,9 +150,9 @@ export function FacultyPageContent({
                 onValueChange={handleTypeChange}
                 placeholder={t('faculty_page.filter_placeholder')}
               />
-            )
-          }
-        />
+            }
+          />
+        )
       }
       actions={
         <MissingItemNote
@@ -193,12 +178,6 @@ export function FacultyPageContent({
             label={t('chat_no_results', { ns: 'chat' })}
           />
         </div>
-      ) : viewMode === 'cards' ? (
-        <DegreeCardGrid
-          degrees={filteredDegrees}
-          getHref={getDegreeUrl}
-          onSelect={handleDegreeClick}
-        />
       ) : (
         <DegreeTable
           degrees={filteredDegrees}

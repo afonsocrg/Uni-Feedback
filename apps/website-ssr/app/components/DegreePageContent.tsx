@@ -5,16 +5,14 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDebounce, useLang } from '~/hooks'
 import { insensitiveMatch } from '~/utils'
-import type { ViewMode } from '~/utils/analytics'
 import { analytics } from '~/utils/analytics'
 import { loadCourseFilters, saveCourseFilters } from '~/utils/filterStorage'
-import { BrowsePageLayout, CourseCardGrid, CourseTable } from '.'
+import { BrowsePageLayout, CourseTable } from '.'
 import { AskChatButton } from './chat/AskChatButton'
 import { FilterChip } from './common/FilterChip'
 import { FilterRow } from './common/FilterRow'
 import { MissingItemNote } from './common/MissingItemNote'
 import { SearchInput } from './common/SearchInput'
-import { DEFAULT_VIEW_MODE, ViewModeToggle } from './common/ViewModeToggle'
 import type { CourseSection, CourseWithFeedback } from './course/types'
 
 interface CourseGroupWithIds {
@@ -121,20 +119,16 @@ export function DegreePageContent({
   >(null)
   const [courseTypeFilter, setCourseTypeFilter] = useState<boolean | null>(null)
   const [sortBy, setSortBy] = useState<SortOption>('reviews')
-  const [viewMode, setViewMode] = useState<ViewMode>(DEFAULT_VIEW_MODE)
 
   // Entry event of the discovery funnel. Keyed on the degree so a client-side
-  // navigation to another degree page counts as a new view, and deliberately
-  // not on `viewMode`: this records the page as *served*, so re-firing it on a
-  // toggle would double-count the view and make the switch rate meaningless.
+  // navigation to another degree page counts as a new view.
   useEffect(() => {
     if (!faculty.slug || !degree.slug) return
 
     analytics.discovery.degreePageViewed({
       facultySlug: faculty.slug,
       degreeSlug: degree.slug,
-      courseCount: courses.length,
-      defaultViewMode: DEFAULT_VIEW_MODE
+      courseCount: courses.length
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [faculty.slug, degree.slug])
@@ -566,13 +560,6 @@ export function DegreePageContent({
       }
       filterChips={
         <FilterRow
-          trailing={
-            <ViewModeToggle
-              value={viewMode}
-              onChange={setViewMode}
-              surface="degree_page"
-            />
-          }
           filters={
             <>
               <FilterChip
@@ -674,8 +661,6 @@ export function DegreePageContent({
             label={t('chat_no_results', { ns: 'chat' })}
           />
         </div>
-      ) : viewMode === 'cards' ? (
-        <CourseCardGrid sections={sections} />
       ) : (
         <CourseTable sections={sections} />
       )}

@@ -9,10 +9,8 @@ export interface DegreeWithCounts {
 }
 
 /**
- * Shared by every degree-listing component (`DegreeCardGrid`, `DegreeTable`),
- * so the faculty page can swap one for another without touching its filtering
- * or sorting. Listings only decide how degrees look: they never filter or sort
- * what they are handed.
+ * Props of the degree listing (`DegreeTable`). Listings only decide how degrees
+ * look: they never filter or sort what they are handed.
  *
  * `getHref` and `onSelect` stay with the page because they carry routing and
  * preference-persistence concerns, which are not a listing's business.
