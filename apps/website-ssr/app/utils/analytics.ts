@@ -1175,6 +1175,21 @@ export const identifyUser = (
 }
 
 /**
+ * Report an error PostHog would not see on its own: one that React Router
+ * caught and rendered (ErrorBoundary), or one we caught and handled.
+ * Uncaught errors are already captured by `capture_exceptions` in root.tsx.
+ */
+export const captureError = (
+  error: unknown,
+  properties?: Record<string, unknown>
+) => {
+  if (typeof window === 'undefined') return
+  if (!posthog.__loaded) return
+
+  posthog.captureException(error, properties)
+}
+
+/**
  * Reset user identification (on logout)
  */
 export const resetUser = () => {

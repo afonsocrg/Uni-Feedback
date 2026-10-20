@@ -27,6 +27,7 @@ import { AuthProvider } from '~/providers/AuthProvider'
 import { AuthRefreshProvider } from '~/providers/AuthRefreshProvider'
 import { ThemeProvider } from '~/providers/ThemeProvider'
 import { userPreferences } from '~/utils'
+import { captureError } from '~/utils/analytics'
 import {
   getThemeFromCookie,
   type ResolvedTheme,
@@ -233,6 +234,11 @@ export default function App() {
           // pageview, so sessions looked like they all bounced.
           capture_pageview: 'history_change',
           capture_pageleave: true,
+          // Uncaught errors and unhandled promise rejections, as `$exception`
+          // events in PostHog error tracking. Render errors never reach
+          // window.onerror (React Router catches them), so ErrorBoundary
+          // reports those itself.
+          capture_exceptions: true,
           defaults: '2025-05-24'
         })
         console.log('[PostHog] Successfully initialized')
@@ -344,6 +350,14 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
     | { theme?: ResolvedTheme }
     | undefined
   const { pathname } = useLocation()
+
+  // A 404 is a page that doesn't exist, not a bug. Anything else that lands
+  // here (a render or loader error, a 5xx) PostHog would otherwise never see.
+  useEffect(() => {
+    if (isRouteErrorResponse(error) && error.status < 500) return
+    captureError(error, { source: 'error_boundary', path: pathname })
+  }, [error, pathname])
+
   let message = 'Oops!'
   let details = 'An unexpected error occurred.'
   let stack: string | undefined
