@@ -139,11 +139,6 @@ export function CourseSpecificFeedbackForm({
   const ratingsTrackedRef = useRef(false)
   const commentTrackedRef = useRef(false)
 
-  // Check if all required fields are filled
-  const isFormValid = useMemo(() => {
-    return rating > 0 && workloadRating > 0 && selectedSchoolYear !== undefined
-  }, [rating, workloadRating, selectedSchoolYear])
-
   // Generate school years
   const schoolYears = useMemo(
     () => Array.from({ length: 5 }, (_, i) => getCurrentSchoolYear() - i),
@@ -264,6 +259,17 @@ export function CourseSpecificFeedbackForm({
     setEnableAutoSave(true)
   }
 
+  // The submit button sits below the comment box, so the errors it raises are
+  // off-screen. Bring the first one into view, once React has rendered it.
+  const formRef = useRef<HTMLFormElement>(null)
+  const scrollToFirstError = () => {
+    requestAnimationFrame(() => {
+      formRef.current
+        ?.querySelector('[aria-invalid="true"]')
+        ?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    })
+  }
+
   // Wrap onSubmit to clear draft on successful submission
   const handleSubmit = async (values: FeedbackFormData) => {
     await onSubmit(values)
@@ -296,7 +302,8 @@ export function CourseSpecificFeedbackForm({
           </div>
 
           <form
-            onSubmit={form.handleSubmit(handleSubmit)}
+            ref={formRef}
+            onSubmit={form.handleSubmit(handleSubmit, scrollToFirstError)}
             className="space-y-8"
           >
             {/* Main Feedback Section */}
@@ -445,7 +452,17 @@ export function CourseSpecificFeedbackForm({
               <AuthenticatedButton
                 type="submit"
                 className="w-full"
-                disabled={isSubmitting || !isFormValid}
+                disabled={isSubmitting}
+                // Show what's missing before asking a signed-out student to sign
+                // in. Validating through handleSubmit (not trigger) counts as a
+                // submit, so the errors clear as soon as each field is fixed.
+                beforeAuth={async () => {
+                  let isValid = false
+                  await form.handleSubmit(() => {
+                    isValid = true
+                  }, scrollToFirstError)()
+                  return isValid
+                }}
                 authModalProps={{
                   allowedEmailSuffixes:
                     currentCourse.degree.faculty.emailSuffixes,

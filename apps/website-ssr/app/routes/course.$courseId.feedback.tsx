@@ -9,8 +9,10 @@ import {
 import { database } from '@uni-feedback/db'
 import { courses, feedback } from '@uni-feedback/db/schema'
 import { and, eq } from 'drizzle-orm'
-import { useEffect, useState } from 'react'
+import type { TFunction } from 'i18next'
+import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { redirect, useSearchParams } from 'react-router'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -31,22 +33,23 @@ import { buildMeta } from '~/utils/meta'
 import type { Route } from './+types/course.$courseId.feedback'
 
 // Form schema for feedback submission (reuse from feedback.new.tsx)
-const feedbackSchema = z.object({
-  // No default in the form: the student must actively assert the year. The
-  // giveaway only counts the current year, so a preselected current year would
-  // make passivity pay and honesty cost.
-  schoolYear: z
-    .number({ error: 'Please pick the year you took this course' })
-    .min(2000, 'Invalid school year'),
-  courseId: z.number().min(1, 'Course is required'),
-  facultyId: z.number().min(1, 'Faculty is required'),
-  degreeId: z.number().min(1, 'Degree is required'),
-  rating: z.number().min(1, 'Rating is required').max(5),
-  workloadRating: z.number().min(1, 'Workload rating is required').max(5),
-  comment: z.string().optional()
-})
+const createFeedbackSchema = (t: TFunction<'feedback'>) =>
+  z.object({
+    // No default in the form: the student must actively assert the year. The
+    // giveaway only counts the current year, so a preselected current year would
+    // make passivity pay and honesty cost.
+    schoolYear: z
+      .number({ error: t('form.error_school_year') })
+      .min(2000, t('form.error_school_year')),
+    courseId: z.number().min(1, 'Course is required'),
+    facultyId: z.number().min(1, 'Faculty is required'),
+    degreeId: z.number().min(1, 'Degree is required'),
+    rating: z.number().min(1, t('form.error_rating')).max(5),
+    workloadRating: z.number().min(1, t('form.error_workload')).max(5),
+    comment: z.string().optional()
+  })
 
-export type FeedbackFormData = z.infer<typeof feedbackSchema>
+export type FeedbackFormData = z.infer<ReturnType<typeof createFeedbackSchema>>
 
 export function meta({ loaderData, matches }: Route.MetaArgs) {
   if (!loaderData.course) {
@@ -157,13 +160,16 @@ export default function CourseSpecificFeedbackPage({
   const [isLoadingRecommendations, setIsLoadingRecommendations] =
     useState(false)
 
+  const { t } = useTranslation('feedback')
+  const feedbackSchema = useMemo(() => createFeedbackSchema(t), [t])
+
   // Create form with course pre-selected
   const form = useForm<FeedbackFormData>({
     resolver: zodResolver(feedbackSchema),
     // Don't flag a field while it's being filled in: first check on blur, then live.
     mode: 'onTouched',
     defaultValues: {
-      // schoolYear is intentionally unset — see feedbackSchema.
+      // schoolYear is intentionally unset — see createFeedbackSchema.
       courseId: course.id,
       facultyId: course.degree.faculty.id,
       degreeId: course.degree.id,
@@ -203,7 +209,7 @@ export default function CourseSpecificFeedbackPage({
       setReferralBonusEarned(response.referralBonusEarned ?? 0)
       setSubmittedCourseId(values.courseId)
       setSubmittedFeedbackId(response.feedbackId)
-      toast.success('Feedback submitted successfully!')
+      toast.success(t('form.toast_submitted'))
       setIsSubmitSuccess(true)
 
       // Fetch recommendations immediately after successful submission
@@ -225,10 +231,10 @@ export default function CourseSpecificFeedbackPage({
         if (error.status === 409 && error.data.feedback) {
           setDuplicateFeedback(error.data.feedback)
           toast.info(
-            `You've already submitted feedback for ${error.data.feedback.course.name}`,
-            {
-              description: 'You can update your existing feedback below.'
-            }
+            t('form.toast_duplicate_title', {
+              courseName: error.data.feedback.course.name
+            }),
+            { description: t('form.toast_duplicate_desc') }
           )
           analytics.feedback.duplicateShown({
             courseId: values.courseId,
@@ -252,7 +258,7 @@ export default function CourseSpecificFeedbackPage({
         })
 
         console.error('Failed to submit feedback:', error)
-        toast.error('Failed to submit feedback. Please try again.')
+        toast.error(t('form.toast_submit_failed'))
       }
       throw error
     }
@@ -296,7 +302,7 @@ export default function CourseSpecificFeedbackPage({
         commentChanged: values.comment !== duplicateFeedback.comment
       })
 
-      toast.success('Feedback updated successfully!')
+      toast.success(t('edit.toast_updated'))
       setSubmittedCourseId(duplicateFeedback.courseId)
       setSubmittedFeedbackId(duplicateFeedback.id)
       setDuplicateFeedback(null)
@@ -322,7 +328,7 @@ export default function CourseSpecificFeedbackPage({
       if (error instanceof MeicFeedbackAPIError) {
         toast.error(error.message)
       } else {
-        toast.error('Failed to update feedback. Please try again.')
+        toast.error(t('form.toast_update_failed'))
       }
     }
   }

@@ -74,7 +74,12 @@ export function InputStage({
     )
   }
   const isValidDomain = validateEmailDomain(email)
-  const showDomainError = isValidEmail && !isValidDomain
+  const isWrongDomain = isValidEmail && !isValidDomain
+  // Wait until they leave the field or press send: mid-typing, "a@tecnico.ul"
+  // is not wrong yet, and a saved email shouldn't greet them with a warning.
+  const { touchedFields, isSubmitted } = form.formState
+  const showDomainError =
+    isWrongDomain && (!!touchedFields.email || isSubmitted)
 
   /**
    * Someone we cannot serve, told us who they are.
@@ -115,7 +120,9 @@ export function InputStage({
         <form
           onSubmit={(e) => {
             e.stopPropagation()
-            form.handleSubmit(onSubmit)(e)
+            form.handleSubmit(async (values) => {
+              if (!isWrongDomain) await onSubmit(values)
+            })(e)
           }}
           className="space-y-4"
         >
@@ -170,7 +177,7 @@ export function InputStage({
           <Button
             type="submit"
             className="w-full"
-            disabled={modalState.isSubmitting || showDomainError}
+            disabled={modalState.isSubmitting}
           >
             {modalState.isSubmitting ? (
               <>

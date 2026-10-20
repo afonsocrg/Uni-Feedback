@@ -16,6 +16,11 @@ interface AuthenticatedButtonProps extends ButtonProps {
     | 'successDescription'
     | 'trigger'
   >
+  /**
+   * Runs before the auth dialog opens. Return false to keep it closed, e.g. so
+   * a form can show its errors before asking the user to sign in.
+   */
+  beforeAuth?: () => boolean | Promise<boolean>
 }
 
 /**
@@ -31,6 +36,7 @@ export function AuthenticatedButton({
   type,
   children,
   authModalProps,
+  beforeAuth,
   ...props
 }: AuthenticatedButtonProps) {
   const { isAuthenticated, setUser } = useAuth()
@@ -40,12 +46,13 @@ export function AuthenticatedButton({
     null
   )
 
-  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
     if (isAuthenticated) {
       onClick?.(e)
     } else {
       // Prevent form submission when not authenticated
       e.preventDefault()
+      if (beforeAuth && !(await beforeAuth())) return
       // Store the event for later use after authentication
       pendingEventRef.current = e
       setShowAuthDialog(true)
