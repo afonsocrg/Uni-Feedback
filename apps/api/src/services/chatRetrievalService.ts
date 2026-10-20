@@ -1,6 +1,11 @@
-import { database, getFeedbackWhereCondition } from '@uni-feedback/db'
+import {
+  database,
+  getFeedbackWhereCondition,
+  getRelatedCourseIdsSubquery
+} from '@uni-feedback/db'
 import {
   academicTerms,
+  courseGradeStats,
   courseOfferings,
   courseRelationships,
   courseStats,
@@ -15,7 +20,7 @@ import {
   formatSchoolYearString,
   getCurrentSchoolYear
 } from '@uni-feedback/utils'
-import { and, asc, desc, eq, inArray, isNotNull, sql } from 'drizzle-orm'
+import { and, asc, desc, eq, inArray, isNotNull, or, sql } from 'drizzle-orm'
 
 /**
  * Retrieval for the AI chat.
@@ -636,6 +641,35 @@ export class ChatRetrievalService {
       .from(feedback)
       .where(getFeedbackWhereCondition(courseId))
 
+    // Grades are entered against whichever row of an identical set we had at
+    // hand, so read the whole set. One year per entry: the course's own row wins.
+    const gradeRows = await database()
+      .select({
+        courseId: courseGradeStats.courseId,
+        schoolYear: courseGradeStats.schoolYear,
+        averageGrade: courseGradeStats.averageGrade
+      })
+      .from(courseGradeStats)
+      .where(
+        or(
+          eq(courseGradeStats.courseId, courseId),
+          inArray(
+            courseGradeStats.courseId,
+            getRelatedCourseIdsSubquery(courseId)
+          )
+        )
+      )
+      .orderBy(desc(courseGradeStats.schoolYear))
+    const gradesByYear = new Map<number, (typeof gradeRows)[number]>()
+    for (const g of gradeRows) {
+      const seen = gradesByYear.get(g.schoolYear)
+      if (!seen || g.courseId === courseId) gradesByYear.set(g.schoolYear, g)
+    }
+    const gradeAverages = [...gradesByYear.values()].map((g) => ({
+      schoolYear: formatSchoolYearString(g.schoolYear),
+      averageGrade: Math.round(g.averageGrade * 10) / 10
+    }))
+
     return {
       ...row,
       description: truncate(row.description, MAX_TEXT_FIELD_CHARS),
@@ -645,6 +679,7 @@ export class ChatRetrievalService {
       workloadLabel: workloadLabel(row.averageWorkload),
       commentedReviewCount: Number(counts?.commented ?? 0),
       offerings,
+      gradeAverages,
       pageUrl: courseUrl(row.courseId)
     }
   }

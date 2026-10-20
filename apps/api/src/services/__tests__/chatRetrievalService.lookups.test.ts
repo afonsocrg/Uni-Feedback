@@ -1,9 +1,14 @@
-import { academicTerms, courseOfferings } from '@uni-feedback/db/schema'
+import {
+  academicTerms,
+  courseGradeStats,
+  courseOfferings
+} from '@uni-feedback/db/schema'
 import { beforeEach, describe, expect, it } from 'vitest'
 import {
   createCourse,
   createDegree,
   createFaculty,
+  createIdenticalRelationship,
   initCourseStats,
   initDegreeStats
 } from '../../../test/helpers'
@@ -123,6 +128,37 @@ describe('ChatRetrievalService: batched and compact lookups', () => {
         courseCount: 3,
         reviewCount: 0
       })
+    })
+  })
+
+  it('reads grade averages across the identical set, newest first', async () => {
+    await withTestDb(async () => {
+      const { ist, controlo } = await seed()
+      const other = await createDegree(ist.id, {
+        name: 'Mestrado em Engenharia Aeroespacial',
+        acronym: 'MEAer',
+        slug: 'meaer'
+      })
+      const twin = await createCourse(other.id, {
+        name: 'Controlo Não Linear',
+        acronym: 'CNL'
+      })
+      await initCourseStats(twin.id)
+      await createIdenticalRelationship(controlo.id, twin.id)
+      await getTestDb()
+        .insert(courseGradeStats)
+        .values([
+          { courseId: twin.id, schoolYear: 2023, averageGrade: 14.25 },
+          { courseId: twin.id, schoolYear: 2024, averageGrade: 12 },
+          // Same year on both rows: the course's own entry wins.
+          { courseId: controlo.id, schoolYear: 2024, averageGrade: 15.8 }
+        ])
+
+      const course = await service.getCourse(controlo.id)
+      expect(course?.gradeAverages).toEqual([
+        { schoolYear: '2024/2025', averageGrade: 15.8 },
+        { schoolYear: '2023/2024', averageGrade: 14.3 }
+      ])
     })
   })
 })

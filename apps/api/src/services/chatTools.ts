@@ -115,7 +115,7 @@ export const CHAT_TOOL_DEFINITIONS = [
     function: {
       name: 'get_course',
       description:
-        'Full record for one course: description, ECTS, assessment, which curriculum year and term it runs in, ratings, and how many reviews carry a written comment. Read `workloadLabel`, never the raw number: the workload scale is inverted (1 = very heavy, 5 = very light).',
+        'Full record for one course: description, ECTS, assessment, which curriculum year and term it runs in, ratings, how many reviews carry a written comment, and `gradeAverages` (official average final grade, 0-20, per school year; empty when we have none). Read `workloadLabel`, never the raw number: the workload scale is inverted (1 = very heavy, 5 = very light).',
       parameters: {
         type: 'object',
         properties: { courseId: { type: 'number' } },
