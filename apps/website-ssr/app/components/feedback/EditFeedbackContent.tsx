@@ -62,7 +62,8 @@ export function EditFeedbackContent({
   const { t } = useTranslation('feedback')
   const form = useForm({
     resolver: zodResolver(editFeedbackSchema),
-    mode: 'onChange',
+    // Don't flag a field while it's being filled in: first check on blur, then live.
+    mode: 'onTouched',
     defaultValues: {
       rating: feedback.rating,
       workloadRating: feedback.workloadRating,

@@ -160,7 +160,8 @@ export default function CourseSpecificFeedbackPage({
   // Create form with course pre-selected
   const form = useForm<FeedbackFormData>({
     resolver: zodResolver(feedbackSchema),
-    mode: 'onChange',
+    // Don't flag a field while it's being filled in: first check on blur, then live.
+    mode: 'onTouched',
     defaultValues: {
       // schoolYear is intentionally unset — see feedbackSchema.
       courseId: course.id,
