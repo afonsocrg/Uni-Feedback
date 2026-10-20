@@ -19,7 +19,12 @@ export function EditableStarRating({
   const [hoverValue, setHoverValue] = useState<number | null>(null)
 
   if (disabled) {
-    return <StarRatingWithLabel {...starRatingWithLabelProps} />
+    return (
+      <StarRatingWithLabel
+        {...starRatingWithLabelProps}
+        labelFunction={labelFunction}
+      />
+    )
   }
 
   const displayValue = hoverValue ?? starRatingWithLabelProps.value

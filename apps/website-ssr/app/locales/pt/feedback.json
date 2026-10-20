@@ -100,6 +100,18 @@
       "tips": "Dicas"
     }
   },
+  "draft": {
+    "title": "Tens um rascunho",
+    "desc": "Encontrámos um feedback que começaste a escrever.",
+    "school_year": "Ano letivo",
+    "rating": "Como foi a cadeira",
+    "workload": "Carga de trabalho",
+    "comment": "O teu feedback",
+    "no_comment": "Sem comentário guardado",
+    "last_saved": "Guardado {{timeAgo}}",
+    "discard": "Começar do zero",
+    "restore": "Recuperar rascunho"
+  },
   "success": {
     "title": "Obrigado por contribuíres!",
     "subtitle": "O teu feedback vai ajudar imensos alunos a escolher as melhores cadeiras!!",

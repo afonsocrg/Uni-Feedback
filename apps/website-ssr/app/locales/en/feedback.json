@@ -100,6 +100,18 @@
       "tips": "Tips"
     }
   },
+  "draft": {
+    "title": "Draft found",
+    "desc": "We found a feedback draft you were working on.",
+    "school_year": "School year",
+    "rating": "Course rating",
+    "workload": "Workload",
+    "comment": "Your feedback",
+    "no_comment": "No comment saved",
+    "last_saved": "Last saved {{timeAgo}}",
+    "discard": "Start fresh",
+    "restore": "Restore draft"
+  },
   "success": {
     "title": "Thanks for contributing!",
     "subtitle": "Your feedback will help hundreds of students finding the right courses!!",

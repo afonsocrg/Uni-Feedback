@@ -11,6 +11,7 @@ import {
 } from '@uni-feedback/ui'
 import { formatSchoolYearString, getRelativeTime } from '@uni-feedback/utils'
 import { Clock } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useLang, useWorkloadLabel } from '~/hooks'
 import { FeedbackMarkdown } from './feedback'
 
@@ -39,6 +40,7 @@ export function FeedbackDraftDialog({
   onRestore,
   onDiscard
 }: FeedbackDraftDialogProps) {
+  const { t } = useTranslation('feedback')
   const lang = useLang()
   const workloadLabel = useWorkloadLabel()
   const timeAgo = getRelativeTime(draftTimestamp, lang)
@@ -48,10 +50,8 @@ export function FeedbackDraftDialog({
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onDiscard()}>
       <DialogContent className="max-w-[600px] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Draft Found</DialogTitle>
-          <DialogDescription>
-            We found a feedback draft you were working on.
-          </DialogDescription>
+          <DialogTitle>{t('draft.title')}</DialogTitle>
+          <DialogDescription>{t('draft.desc')}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-2">
@@ -61,7 +61,7 @@ export function FeedbackDraftDialog({
             {schoolYear !== undefined && (
               <div>
                 <div className="text-sm font-medium text-foreground mb-2">
-                  School Year
+                  {t('draft.school_year')}
                 </div>
                 <div className="text-sm text-foreground">
                   {formatSchoolYearString(schoolYear, { yearFormat: 'short' })}
@@ -75,13 +75,20 @@ export function FeedbackDraftDialog({
               {rating > 0 && (
                 <div className="flex-1 min-w-[200px]">
                   <div className="text-sm font-medium text-foreground mb-2">
-                    Course Rating
+                    {t('draft.rating')}
                   </div>
                   <EditableStarRating
                     value={rating}
                     onChange={() => {}}
                     disabled={true}
                     size="md"
+                    labelFunction={(rating) =>
+                      (
+                        t('form.star_ratings', {
+                          returnObjects: true
+                        }) as string[]
+                      )[rating - 1] ?? ''
+                    }
                   />
                 </div>
               )}
@@ -90,7 +97,7 @@ export function FeedbackDraftDialog({
               {workloadRating > 0 && (
                 <div className="flex-1 min-w-[200px]">
                   <div className="text-sm font-medium text-foreground mb-2">
-                    Workload
+                    {t('draft.workload')}
                   </div>
                   <WorkloadRatingDisplay
                     rating={workloadRating}
@@ -103,14 +110,14 @@ export function FeedbackDraftDialog({
             {/* Comment - always shown */}
             <div>
               <div className="text-sm font-medium text-foreground mb-2">
-                Your Feedback
+                {t('draft.comment')}
               </div>
               <div className="text-sm text-foreground max-h-[200px] overflow-y-auto">
                 {hasComment ? (
                   <FeedbackMarkdown>{comment}</FeedbackMarkdown>
                 ) : (
                   <p className="text-muted-foreground italic">
-                    No comment saved
+                    {t('draft.no_comment')}
                   </p>
                 )}
               </div>
@@ -119,7 +126,7 @@ export function FeedbackDraftDialog({
             {/* Timestamp - secondary information */}
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <Clock className="size-3" />
-              <span>Last saved {timeAgo}</span>
+              <span>{t('draft.last_saved', { timeAgo })}</span>
             </div>
           </div>
         </div>
@@ -130,10 +137,10 @@ export function FeedbackDraftDialog({
             onClick={onDiscard}
             className="flex-1 sm:flex-1"
           >
-            Start Fresh
+            {t('draft.discard')}
           </Button>
           <Button onClick={onRestore} className="flex-1 sm:flex-1">
-            Restore Draft
+            {t('draft.restore')}
           </Button>
         </DialogFooter>
       </DialogContent>
