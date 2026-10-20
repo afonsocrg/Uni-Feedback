@@ -13,7 +13,7 @@ import {
   TabsList,
   TabsTrigger
 } from '@uni-feedback/ui'
-import { Bot, MessageSquare, User, UserPlus } from 'lucide-react'
+import { Bot, GraduationCap, MessageSquare, User, UserPlus } from 'lucide-react'
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { InvalidIdError } from '../../components/InvalidIdError'
@@ -22,6 +22,7 @@ import { UserChatsTabContent } from './UserChatsTabContent'
 import { UserDetailPageSkeleton } from './UserDetailPageSkeleton'
 import { UserFeedbackTabContent } from './UserFeedbackTabContent'
 import { UserInfoCard } from './UserInfoCard'
+import { UserJourneyTabContent } from './UserJourneyTabContent'
 import { UserReferralsTabContent } from './UserReferralsTabContent'
 
 function getTabTitle(activeTab: string, user: AdminUserDetail): string {
@@ -30,6 +31,8 @@ function getTabTitle(activeTab: string, user: AdminUserDetail): string {
       return `AI Chats ${user.chatCount ? `(${user.chatCount})` : ''}`
     case 'referrals':
       return `Referrals ${user.referralCount ? `(${user.referralCount})` : ''}`
+    case 'journey':
+      return `Academic journey ${user.journeyDegreeCount ? `(${user.journeyDegreeCount})` : ''}`
     default:
       return `Feedback ${user.feedbackCount ? `(${user.feedbackCount})` : ''}`
   }
@@ -91,6 +94,10 @@ export function UserDetailPage() {
             <UserPlus className="h-4 w-4" />
             <span>Referrals ({user.referralCount})</span>
           </TabsTrigger>
+          <TabsTrigger value="journey">
+            <GraduationCap className="h-4 w-4" />
+            <span>Academic journey ({user.journeyDegreeCount})</span>
+          </TabsTrigger>
         </TabsList>
 
         <Card>
@@ -106,6 +113,9 @@ export function UserDetailPage() {
             </TabsContent>
             <TabsContent value="referrals" className="space-y-4">
               <UserReferralsTabContent userId={userId} />
+            </TabsContent>
+            <TabsContent value="journey" className="space-y-4">
+              <UserJourneyTabContent userId={userId} />
             </TabsContent>
           </CardContent>
         </Card>

@@ -103,6 +103,7 @@ describe('Admin user routes', () => {
       .insert(chatMessageFeedback)
       .values({ messageId: a1.id, userId: student.id, rating: 'not_helpful' })
     return {
+      faculty,
       course,
       referrer,
       student,
@@ -139,6 +140,7 @@ describe('Admin user routes', () => {
         expect(body.approvedFeedbackCount).toBe(1)
         expect(body.chatCount).toBe(2)
         expect(body.referralCount).toBe(0)
+        expect(body.journeyDegreeCount).toBe(0)
       })
     })
 
@@ -153,7 +155,11 @@ describe('Admin user routes', () => {
           ['GET', `/admin/users/${student.id}`],
           ['PUT', `/admin/users/${student.id}`],
           ['GET', `/admin/users/${student.id}/referrals`],
-          ['GET', `/admin/users/${student.id}/chat-stats`]
+          ['GET', `/admin/users/${student.id}/chat-stats`],
+          ['GET', `/admin/users/${student.id}/journey`],
+          ['POST', `/admin/users/${student.id}/journey/degrees`],
+          ['PUT', `/admin/users/${student.id}/journey/degrees/1`],
+          ['DELETE', `/admin/users/${student.id}/journey/degrees/1`]
         ]
         for (const [method, path] of forbidden) {
           const res = await app.request(
@@ -162,7 +168,11 @@ describe('Admin user routes', () => {
               method,
               headers: { ...headers, 'Content-Type': 'application/json' },
               body:
-                method === 'PUT' ? JSON.stringify({ username: 'x' }) : undefined
+                method === 'PUT'
+                  ? JSON.stringify({ username: 'x' })
+                  : method === 'POST' || method === 'PUT'
+                    ? JSON.stringify({ degreeId: 1 })
+                    : undefined
             },
             testEnv
           )
@@ -431,6 +441,154 @@ describe('Admin user routes', () => {
           testEnv
         )
         expect(missing.status).toBe(404)
+      })
+    })
+  })
+
+  describe('/admin/users/:id/journey', () => {
+    it('adds, lists and removes declared degrees', async () => {
+      await withTestDb(async () => {
+        const { student, course } = await seed()
+        const { cookie } = await createAuthenticatedUser('super_admin')
+        const headers = { Cookie: cookie, 'Content-Type': 'application/json' }
+        const base = `/admin/users/${student.id}/journey`
+
+        const added = await app.request(
+          `${base}/degrees`,
+          {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({ degreeId: course.degreeId })
+          },
+          testEnv
+        )
+        expect(added.status).toBe(201)
+        const { degree } = await json(added)
+        expect(degree.degreeAcronym).toBe('LEIC-A')
+
+        const duplicate = await app.request(
+          `${base}/degrees`,
+          {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({ degreeId: course.degreeId })
+          },
+          testEnv
+        )
+        expect(duplicate.status).toBe(409)
+
+        const listed = await json(await app.request(base, { headers }, testEnv))
+        expect(listed.degrees).toHaveLength(1)
+        const details = await json(
+          await app.request(`/admin/users/${student.id}`, { headers }, testEnv)
+        )
+        expect(details.journeyDegreeCount).toBe(1)
+
+        const removed = await app.request(
+          `${base}/degrees/${degree.id}`,
+          { method: 'DELETE', headers },
+          testEnv
+        )
+        expect(removed.status).toBe(200)
+        const after = await json(await app.request(base, { headers }, testEnv))
+        expect(after.degrees).toHaveLength(0)
+      })
+    })
+
+    it('edits the degree and years of an entry', async () => {
+      await withTestDb(async () => {
+        const { faculty, student, course } = await seed()
+        const other = await createDegree(faculty.id, {
+          acronym: 'MEIC-A',
+          slug: 'meic-a'
+        })
+        const { cookie } = await createAuthenticatedUser('super_admin')
+        const headers = { Cookie: cookie, 'Content-Type': 'application/json' }
+        const base = `/admin/users/${student.id}/journey/degrees`
+
+        const { degree } = await json(
+          await app.request(
+            base,
+            {
+              method: 'POST',
+              headers,
+              body: JSON.stringify({ degreeId: course.degreeId })
+            },
+            testEnv
+          )
+        )
+
+        const updated = await app.request(
+          `${base}/${degree.id}`,
+          {
+            method: 'PUT',
+            headers,
+            body: JSON.stringify({
+              degreeId: other.id,
+              startSchoolYear: 2022,
+              endSchoolYear: 2023
+            })
+          },
+          testEnv
+        )
+        expect(updated.status).toBe(200)
+        const body = await json(updated)
+        expect(body.degree.degreeAcronym).toBe('MEIC-A')
+        expect(body.degree.startSchoolYear).toBe(2022)
+        expect(body.degree.endSchoolYear).toBe(2023)
+
+        const backwards = await app.request(
+          `${base}/${degree.id}`,
+          {
+            method: 'PUT',
+            headers,
+            body: JSON.stringify({
+              degreeId: other.id,
+              startSchoolYear: 2023,
+              endSchoolYear: 2022
+            })
+          },
+          testEnv
+        )
+        expect(backwards.status).toBe(400)
+      })
+    })
+
+    it("cannot remove another user's degree", async () => {
+      await withTestDb(async () => {
+        const { student, referrer, course } = await seed()
+        const { cookie } = await createAuthenticatedUser('super_admin')
+        const headers = { Cookie: cookie, 'Content-Type': 'application/json' }
+
+        const { degree } = await json(
+          await app.request(
+            `/admin/users/${referrer.id}/journey/degrees`,
+            {
+              method: 'POST',
+              headers,
+              body: JSON.stringify({ degreeId: course.degreeId })
+            },
+            testEnv
+          )
+        )
+        const res = await app.request(
+          `/admin/users/${student.id}/journey/degrees/${degree.id}`,
+          { method: 'DELETE', headers },
+          testEnv
+        )
+        expect(res.status).toBe(404)
+      })
+    })
+
+    it('404s for a missing user', async () => {
+      await withTestDb(async () => {
+        const { cookie } = await createAuthenticatedUser('super_admin')
+        const res = await app.request(
+          '/admin/users/999999/journey',
+          { headers: { Cookie: cookie } },
+          testEnv
+        )
+        expect(res.status).toBe(404)
       })
     })
   })

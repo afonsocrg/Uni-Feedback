@@ -1,3 +1,4 @@
+import type { JourneyDegree, JourneyDegreeInput } from './journey'
 import type { CourseOffering } from './types'
 import {
   apiDelete,
@@ -69,6 +70,7 @@ export interface AdminUserDetail {
   approvedFeedbackCount: number
   chatCount: number
   referralCount: number
+  journeyDegreeCount: number
 }
 
 export interface AdminUserChatStats {
@@ -480,6 +482,48 @@ export async function getAdminUserReferrals(
   userId: number
 ): Promise<AdminReferredUser[]> {
   return apiGet<AdminReferredUser[]>(`/admin/users/${userId}/referrals`)
+}
+
+/**
+ * A user's declared degrees, current first (admin)
+ */
+export async function getAdminUserJourney(
+  userId: number
+): Promise<{ degrees: JourneyDegree[] }> {
+  return apiGet(`/admin/users/${userId}/journey`)
+}
+
+/**
+ * Add a degree to a user's journey (admin)
+ */
+export async function addAdminUserJourneyDegree(
+  userId: number,
+  input: JourneyDegreeInput
+): Promise<{ degree: JourneyDegree }> {
+  return apiPost(`/admin/users/${userId}/journey/degrees`, input)
+}
+
+/**
+ * Change a journey entry's degree or years (admin). `userDegreeId` is the
+ * journey row id, not the degree id.
+ */
+export async function updateAdminUserJourneyDegree(
+  userId: number,
+  userDegreeId: number,
+  input: JourneyDegreeInput
+): Promise<{ degree: JourneyDegree }> {
+  return apiPut(`/admin/users/${userId}/journey/degrees/${userDegreeId}`, input)
+}
+
+/**
+ * Remove a degree from a user's journey (admin). `userDegreeId` is the
+ * journey row id, not the degree id.
+ */
+export async function removeAdminUserJourneyDegree(
+  userId: number,
+  userDegreeId: number
+): Promise<{ message: string }> {
+  return apiDelete(`/admin/users/${userId}/journey/degrees/${userDegreeId}`)
 }
 
 /**

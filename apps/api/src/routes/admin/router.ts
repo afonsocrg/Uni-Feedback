@@ -44,12 +44,16 @@ import { GenerateCourseReport, GenerateDegreeReport } from './reports'
 import { RefreshStats } from './stats'
 import { GetDegreeSuggestions } from './suggestions'
 import {
+  AddUserJourneyDegree,
+  DeleteUserJourneyDegree,
   GetUserChatStats,
   GetUserDetails,
+  GetUserJourney,
   GetUserReferrals,
   GetUsers,
   SearchUsers,
-  UpdateUser
+  UpdateUser,
+  UpdateUserJourneyDegree
 } from './users'
 
 const app = new Hono()
@@ -60,7 +64,7 @@ app.use('*', async (c, next) => {
 })
 
 // Accounts are superuser territory: listing, reading, searching and editing
-// users, and the per-user feedback, chat and referral views.
+// users, and the per-user feedback, chat, referral and journey views.
 const superuserOnly = async (c: Context, next: Next) => {
   await requireSuperuser(c)
   await next()
@@ -131,6 +135,13 @@ router.get('/users/search', SearchUsers) // Before `/users/:id` so "search" is n
 router.get('/users/:id', GetUserDetails)
 router.get('/users/:id/referrals', GetUserReferrals)
 router.get('/users/:id/chat-stats', GetUserChatStats)
+router.get('/users/:id/journey', GetUserJourney)
+router.post('/users/:id/journey/degrees', AddUserJourneyDegree)
+router.put('/users/:id/journey/degrees/:userDegreeId', UpdateUserJourneyDegree)
+router.delete(
+  '/users/:id/journey/degrees/:userDegreeId',
+  DeleteUserJourneyDegree
+)
 router.put('/users/:id', UpdateUser)
 
 export { router }

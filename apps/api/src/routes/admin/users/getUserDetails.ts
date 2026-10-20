@@ -1,6 +1,6 @@
 import { NotFoundError } from '@routes/utils/errorHandling'
 import { database } from '@uni-feedback/db'
-import { chats, feedback, users } from '@uni-feedback/db/schema'
+import { chats, feedback, userDegrees, users } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
 import { count, eq, isNotNull, sql } from 'drizzle-orm'
 import { z } from 'zod'
@@ -26,7 +26,9 @@ export const AdminUserDetailSchema = z.object({
   /** Includes soft-deleted chats, same as the admin chat list */
   chatCount: z.number(),
   /** Accounts created through this user's referral link */
-  referralCount: z.number()
+  referralCount: z.number(),
+  /** Declared degrees in the academic journey */
+  journeyDegreeCount: z.number()
 })
 
 export class GetUserDetails extends OpenAPIRoute {
@@ -96,6 +98,11 @@ export class GetUserDetails extends OpenAPIRoute {
       .from(users)
       .where(eq(users.referredByUserId, id))
 
+    const [journeyCounts] = await database()
+      .select({ total: count() })
+      .from(userDegrees)
+      .where(eq(userDegrees.userId, id))
+
     let referredByEmail: string | null = null
     if (user.referredByUserId !== null) {
       const [referrer] = await database()
@@ -121,7 +128,8 @@ export class GetUserDetails extends OpenAPIRoute {
       feedbackCount: counts?.total ?? 0,
       approvedFeedbackCount: counts?.approved ?? 0,
       chatCount: chatCounts?.total ?? 0,
-      referralCount: referralCounts?.total ?? 0
+      referralCount: referralCounts?.total ?? 0,
+      journeyDegreeCount: journeyCounts?.total ?? 0
     })
   }
 }
