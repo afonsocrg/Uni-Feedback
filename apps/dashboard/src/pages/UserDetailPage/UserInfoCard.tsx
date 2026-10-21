@@ -19,7 +19,7 @@ import {
 import { getReferralUrl, initCap } from '@uni-feedback/utils'
 import { Check, Copy, MessageSquare, Shield } from 'lucide-react'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import { getWebsiteUrl } from '../../utils'
 

@@ -22,14 +22,14 @@ import {
   UsersPage
 } from '@pages'
 import { Providers } from '@providers'
-import { Route, BrowserRouter as Router, Routes } from 'react-router-dom'
+import { Route, BrowserRouter as Router, Routes } from 'react-router'
 import { PrivacyPage } from './pages/PrivacyPage'
 import { TermsPage } from './pages/TermsPage'
 
 function App() {
   return (
     <Providers>
-      <Router future={{ v7_startTransition: true }}>
+      <Router>
         <div className="min-h-screen bg-background">
           <Routes>
             {/* Auth Routes */}

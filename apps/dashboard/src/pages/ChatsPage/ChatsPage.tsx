@@ -29,7 +29,7 @@ import {
 } from '@uni-feedback/ui'
 import { Bot, Search, Shuffle, ThumbsDown, ThumbsUp, X } from 'lucide-react'
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router'
 import { STORAGE_KEYS } from '../../utils'
 import { formatCost, formatDateTime, truncate } from '../../utils/chatFormat'
 import { ChatStatsOverview } from './ChatStatsOverview'

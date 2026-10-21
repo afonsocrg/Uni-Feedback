@@ -25,7 +25,7 @@ import {
 } from '@uni-feedback/ui'
 import { Edit3, HelpCircle } from 'lucide-react'
 import { useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 import { toast } from 'sonner'
 
 interface FacultyInfoCardProps {

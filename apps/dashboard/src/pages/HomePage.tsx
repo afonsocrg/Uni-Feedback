@@ -1,7 +1,7 @@
 import { useAuth } from '@hooks/useAuth'
 import { Card, CardContent, CardHeader, CardTitle } from '@uni-feedback/ui'
 import { BookOpen, Building2, GraduationCap, MessageSquare } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 interface ActionCard {
   title: string

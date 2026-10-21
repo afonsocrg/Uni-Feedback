@@ -31,7 +31,7 @@ import {
 } from '@uni-feedback/ui'
 import { GraduationCap, Search } from 'lucide-react'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 import { STORAGE_KEYS } from '../utils'
 
 export function DegreesPage() {

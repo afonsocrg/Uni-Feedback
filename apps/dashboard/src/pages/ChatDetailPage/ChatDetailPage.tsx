@@ -11,7 +11,7 @@ import {
   Skeleton
 } from '@uni-feedback/ui'
 import { ArrowLeft, Bot } from 'lucide-react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router'
 import { InvalidIdError } from '../../components/InvalidIdError'
 import { QueryError } from '../../components/QueryError'
 import { formatCost, formatDateTime, formatMs } from '../../utils/chatFormat'

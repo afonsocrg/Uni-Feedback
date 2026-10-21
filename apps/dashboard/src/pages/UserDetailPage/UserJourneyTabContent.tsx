@@ -21,7 +21,7 @@ import {
 import { formatSchoolYearString } from '@uni-feedback/utils'
 import { Pencil, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import { JourneyDegreeDialog } from './JourneyDegreeDialog'
 

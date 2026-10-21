@@ -1,5 +1,5 @@
 import { Button } from '@uni-feedback/ui'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 export function NotFoundPage() {
   const navigate = useNavigate()

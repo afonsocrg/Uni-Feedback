@@ -2,7 +2,7 @@ import { AdminFeedbackDetail } from '@uni-feedback/api-client'
 import { Button, Markdown } from '@uni-feedback/ui'
 import { Edit3 } from 'lucide-react'
 import { useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 import { EditCommentDialog } from './EditCommentDialog'
 
 interface CommentTabContentProps {

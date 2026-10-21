@@ -30,7 +30,7 @@ import {
 } from '@uni-feedback/utils'
 import { Check, Edit3, X } from 'lucide-react'
 import { useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router'
 import { toast } from 'sonner'
 import { EditFeedbackDialog } from './EditFeedbackDialog'
 

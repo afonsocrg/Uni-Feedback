@@ -23,7 +23,7 @@ import {
 } from '@uni-feedback/ui'
 import { Check, X } from 'lucide-react'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 import { markdownToText } from '../../utils/markdownToText'
 
 interface UserFeedbackTabContentProps {

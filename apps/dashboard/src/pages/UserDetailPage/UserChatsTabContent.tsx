@@ -25,7 +25,7 @@ import {
 } from '@uni-feedback/ui'
 import { ThumbsDown, ThumbsUp } from 'lucide-react'
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router'
 import { formatCost, formatDateTime, truncate } from '../../utils/chatFormat'
 
 type RatingFilter = 'all' | 'not_helpful' | 'helpful' | 'none'

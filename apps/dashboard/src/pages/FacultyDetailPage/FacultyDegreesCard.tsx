@@ -23,7 +23,7 @@ import {
 } from '@uni-feedback/ui'
 import { Search } from 'lucide-react'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 interface FacultyDegreesCardProps {
   facultyId: number

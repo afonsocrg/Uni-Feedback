@@ -15,7 +15,7 @@ import {
 } from '@uni-feedback/ui'
 import { Edit3, FileText } from 'lucide-react'
 import { useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router'
 import { toast } from 'sonner'
 import { DegreeEditDialog } from './DegreeEditDialog'
 import { GenerateReportDialog } from './GenerateReportDialog'

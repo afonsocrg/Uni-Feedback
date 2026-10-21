@@ -18,7 +18,7 @@ import {
   MessageSquare
 } from 'lucide-react'
 import { useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 import { InvalidIdError } from '../../components/InvalidIdError'
 import { QueryError } from '../../components/QueryError'
 import { AssessmentTabContent } from './AssessmentTabContent'

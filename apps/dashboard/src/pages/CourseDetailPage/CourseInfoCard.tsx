@@ -15,7 +15,7 @@ import {
 } from '@uni-feedback/ui'
 import { Edit3, ExternalLink, FileText, HelpCircle } from 'lucide-react'
 import { useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router'
 import { toast } from 'sonner'
 import { openCourseInWebsite } from '../../utils'
 import { CourseEditDialog } from './CourseEditDialog'

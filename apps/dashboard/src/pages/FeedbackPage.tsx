@@ -57,7 +57,7 @@ import {
 import { getCurrentSchoolYear } from '@uni-feedback/utils'
 import { Check, ChevronsUpDown, Download, MessageSquare, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router'
 import { STORAGE_KEYS } from '../utils'
 import { downloadBlob } from '../utils/download'
 import { markdownToText } from '../utils/markdownToText'

@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow
 } from '@uni-feedback/ui'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 interface UserReferralsTabContentProps {
   userId: number

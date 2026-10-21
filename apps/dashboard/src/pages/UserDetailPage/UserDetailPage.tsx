@@ -15,7 +15,7 @@ import {
 } from '@uni-feedback/ui'
 import { Bot, GraduationCap, MessageSquare, User, UserPlus } from 'lucide-react'
 import { useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 import { InvalidIdError } from '../../components/InvalidIdError'
 import { QueryError } from '../../components/QueryError'
 import { UserChatsTabContent } from './UserChatsTabContent'

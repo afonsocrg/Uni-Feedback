@@ -18,7 +18,7 @@ import {
   TableRow
 } from '@uni-feedback/ui'
 import { Building2, Search } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 import { STORAGE_KEYS } from '../utils'
 
 export function FacultiesPage() {
