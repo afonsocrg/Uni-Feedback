@@ -54,6 +54,9 @@ export const facultyExternalIds = sourcesSchema.table(
 
 // DGES and InfoCursos ids are the (unit code, course code) pair written as
 // '1518/9121': a course code alone is shared by many schools.
+// An outside id belongs to one degree, except InfoCursos (migration 0056): one InfoCursos
+// programme can cover several of our degrees (Nova IMS specializations). The partial unique
+// index enforcing that lives in the migration.
 export const degreeExternalIds = sourcesSchema.table(
   'degree_external_ids',
   {
@@ -68,7 +71,7 @@ export const degreeExternalIds = sourcesSchema.table(
       .notNull()
       .defaultNow()
   },
-  (t) => [unique().on(t.source, t.externalId)]
+  (t) => [unique().on(t.source, t.externalId, t.degreeId)]
 )
 
 export type UniversityExternalId = typeof universityExternalIds.$inferSelect
