@@ -25,14 +25,14 @@
     "clean": "rm -rf node_modules"
   },
   "dependencies": {
-    "drizzle-orm": "^0.44.5",
-    "postgres": "^3.4.5"
+    "drizzle-orm": "^0.45.4",
+    "postgres": "^3.4.9"
   },
   "devDependencies": {
-    "@types/node": "^20",
-    "dotenv": "^16.4.7",
+    "@types/node": "^20.19.43",
+    "dotenv": "^16.6.1",
     "dotenv-cli": "^8.0.0",
-    "drizzle-kit": "^0.31.4",
-    "typescript": "^5.8.3"
+    "drizzle-kit": "^0.31.11",
+    "typescript": "^5.9.3"
   }
 }

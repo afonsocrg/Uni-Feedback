@@ -19,7 +19,6 @@ esbuild
       'resend',
       'posthog-node',
       '@oslojs/*',
-      'uuid',
       'dayjs'
     ]
   })

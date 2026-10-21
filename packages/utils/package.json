@@ -12,6 +12,6 @@
     "clean": "rm -rf node_modules"
   },
   "devDependencies": {
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.3"
   }
 }

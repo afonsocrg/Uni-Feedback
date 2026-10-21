@@ -37,13 +37,14 @@
   "pnpm": {
     "overrides": {
       "@types/react": "^19.0.0",
-      "@types/react-dom": "^19.0.0"
+      "@types/react-dom": "^19.0.0",
+      "vite-plugin-markdown>markdown-it": "^14.3.3"
     }
   },
   "devDependencies": {
     "lint-staged": "^16.4.0",
-    "prettier": "^3.8.1",
+    "prettier": "^3.8.5",
     "prettier-plugin-organize-imports": "^4.3.0",
-    "turbo": "^2.8.0"
+    "turbo": "^2.11.10"
   }
 }
