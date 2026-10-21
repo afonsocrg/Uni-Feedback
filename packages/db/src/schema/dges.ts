@@ -50,3 +50,26 @@ export const dgesGuide = sourcesSchema.table(
 
 export type DgesAdmission = typeof dgesAdmissions.$inferSelect
 export type DgesGuide = typeof dgesGuide.$inferSelect
+
+// InfoCursos (DGEEC) per-degree indicators, one row per edition and indicator
+// (migration 0052). National and raw; joined like the DGES tables.
+export const infocursosIndicators = sourcesSchema.table(
+  'infocursos_indicators',
+  {
+    unitCode: text('unit_code').notNull(),
+    courseCode: text('course_code').notNull(),
+    edition: integer('edition').notNull(),
+    indicator: text('indicator').notNull(),
+    degreeLevel: text('degree_level'),
+    data: jsonb('data').notNull(),
+    sourceFile: text('source_file').notNull(),
+    importedAt: timestamp('imported_at', { withTimezone: true })
+      .notNull()
+      .defaultNow()
+  },
+  (t) => [
+    primaryKey({ columns: [t.unitCode, t.courseCode, t.edition, t.indicator] })
+  ]
+)
+
+export type InfocursosIndicator = typeof infocursosIndicators.$inferSelect
