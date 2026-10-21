@@ -21,6 +21,7 @@
     "request_link": "Don't see your university? Request it here"
   },
   "degree_page": {
+    "about_title": "About the degree",
     "search_placeholder": "Search by name or acronym...",
     "sort_label": "Sort By",
     "sort_default": "Most Reviews",

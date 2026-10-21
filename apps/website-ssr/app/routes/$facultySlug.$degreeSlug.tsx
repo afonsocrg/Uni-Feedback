@@ -5,7 +5,7 @@ import {
   schema
 } from '@uni-feedback/db'
 import { isDiscontinued } from '@uni-feedback/utils'
-import { eq, sql } from 'drizzle-orm'
+import { and, eq, isNotNull, sql } from 'drizzle-orm'
 import { useEffect } from 'react'
 import { redirect, useLocation } from 'react-router'
 import { DegreePageContent } from '~/components'
@@ -226,9 +226,26 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     courseIds: group.courseIds ? group.courseIds.split(',').map(Number) : []
   }))
 
+  // Our own description, in the page's language, once reviewed. Pages in a
+  // language with no reviewed text show no "about" section.
+  const [details] = await db
+    .select({ description: schema.degreeDetails.description })
+    .from(schema.degreeDetails)
+    .where(
+      and(
+        eq(schema.degreeDetails.degreeId, degree.id),
+        eq(
+          schema.degreeDetails.lang,
+          detectLang(new URL(request.url).pathname)
+        ),
+        isNotNull(schema.degreeDetails.reviewedAt)
+      )
+    )
+
   return {
     faculty,
     degree,
+    about: details?.description ?? null,
     courses: coursesWithFeedback,
     academicTerms,
     courseGroups: formattedCourseGroups,
@@ -253,6 +270,7 @@ export default function DegreePage({ loaderData }: Route.ComponentProps) {
     <DegreePageContent
       faculty={loaderData.faculty}
       degree={loaderData.degree}
+      about={loaderData.about}
       courses={loaderData.courses}
       academicTerms={loaderData.academicTerms}
       courseGroups={loaderData.courseGroups}

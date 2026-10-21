@@ -4,7 +4,8 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-  CHIP_COLOR_KEYS
+  CHIP_COLOR_KEYS,
+  Markdown
 } from '@uni-feedback/ui'
 import { isDiscontinued, toOrdinal } from '@uni-feedback/utils'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -117,6 +118,8 @@ const ADD_COURSE_FORM_URL =
 interface DegreePageContentProps {
   faculty: Faculty
   degree: Degree
+  /** Our reviewed description (markdown), shown below the course plan */
+  about?: string | null
   courses: CourseWithFeedback[]
   academicTerms: AcademicTermInfo[]
   courseGroups: CourseGroupWithIds[]
@@ -125,6 +128,7 @@ interface DegreePageContentProps {
 export function DegreePageContent({
   faculty,
   degree,
+  about,
   courses,
   academicTerms,
   courseGroups
@@ -756,6 +760,16 @@ export function DegreePageContent({
             </Accordion>
           )}
         </div>
+      )}
+
+      {/* Below the plan, never between the student and the course list */}
+      {about && (
+        <section className="mt-12 border-t border-border pt-8">
+          <h2 className="mb-4 text-lg font-semibold">
+            {t('degree_page.about_title')}
+          </h2>
+          <Markdown>{about}</Markdown>
+        </section>
       )}
     </BrowsePageLayout>
   )

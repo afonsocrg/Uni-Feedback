@@ -21,6 +21,7 @@
     "request_link": "Não vês a tua faculdade? Pede aqui"
   },
   "degree_page": {
+    "about_title": "Sobre o curso",
     "search_placeholder": "Pesquisar por nome ou sigla...",
     "sort_label": "Ordenar Por",
     "sort_default": "Mais feedback",
