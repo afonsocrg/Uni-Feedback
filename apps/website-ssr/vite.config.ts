@@ -38,9 +38,8 @@ export default defineConfig(({ isSsrBuild }) => ({
       'posthog-js',
       '@tiptap/react',
       '@tiptap/starter-kit',
-      '@tiptap/extension-placeholder',
+      '@tiptap/extensions',
       '@tiptap/extension-bubble-menu',
-      '@tiptap/extension-link',
       '@tiptap/pm',
       '@tiptap/core',
       'tiptap-markdown'

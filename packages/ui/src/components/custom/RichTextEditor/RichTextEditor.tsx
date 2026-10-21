@@ -1,12 +1,20 @@
-import Placeholder from '@tiptap/extension-placeholder'
+import { Placeholder } from '@tiptap/extensions'
 import { EditorContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import * as React from 'react'
-import { Markdown } from 'tiptap-markdown'
+import { Markdown, type MarkdownStorage } from 'tiptap-markdown'
 import { cn } from '../../../utils'
 import { BubbleMenuBar } from './BubbleMenuBar'
 import { MenuBar } from './MenuBar'
 import type { ToolbarFormat } from './toolbarItems'
+
+// tiptap v3 types `editor.storage` by augmentation, which tiptap-markdown
+// doesn't ship
+declare module '@tiptap/core' {
+  interface Storage {
+    markdown: MarkdownStorage
+  }
+}
 
 export interface RichTextEditorProps {
   value?: string
@@ -36,11 +44,17 @@ export function RichTextEditor({
 }: RichTextEditorProps) {
   const editor = useEditor({
     immediatelyRender: false,
+    // The toolbars read `editor.isActive` during render, so they need a
+    // re-render on every transaction (v3 no longer does this by default).
+    shouldRerenderOnTransaction: true,
     extensions: [
       StarterKit.configure({
         heading: {
           levels: [2, 3]
-        }
+        },
+        // Not offered in the toolbar, and new to StarterKit in v3
+        link: false,
+        underline: false
       }),
       Placeholder.configure({
         placeholder,
@@ -80,7 +94,7 @@ export function RichTextEditor({
   // Update editor content when value changes externally
   React.useEffect(() => {
     if (editor && value !== editor.storage.markdown.getMarkdown()) {
-      editor.commands.setContent(value)
+      editor.commands.setContent(value, { emitUpdate: false })
     }
   }, [editor, value])
 

@@ -1,4 +1,5 @@
-import { BubbleMenu, type Editor } from '@tiptap/react'
+import type { Editor } from '@tiptap/react'
+import { BubbleMenu, type BubbleMenuProps } from '@tiptap/react/menus'
 import * as React from 'react'
 import { getToolbarItems, type ToolbarFormat } from './toolbarItems'
 
@@ -7,12 +8,19 @@ interface BubbleMenuBarProps {
   onFormat?: (format: ToolbarFormat) => void
 }
 
+// Module-level so their identity is stable: BubbleMenu dispatches a
+// transaction whenever these props change, and the editor re-renders on every
+// transaction, so inline values loop forever.
+const MENU_OPTIONS = { placement: 'top', offset: 8 } as const
+const showOnSelection: BubbleMenuProps['shouldShow'] = ({ editor }) =>
+  !editor.state.selection.empty
+
 export function BubbleMenuBar({ editor, onFormat }: BubbleMenuBarProps) {
   return (
     <BubbleMenu
       editor={editor}
-      tippyOptions={{ duration: 100 }}
-      shouldShow={({ editor }) => !editor.state.selection.empty}
+      options={MENU_OPTIONS}
+      shouldShow={showOnSelection}
       className="bg-gray-900 rounded-lg shadow-lg flex items-center gap-0.5 p-1"
     >
       {getToolbarItems(editor).map((item) => (
