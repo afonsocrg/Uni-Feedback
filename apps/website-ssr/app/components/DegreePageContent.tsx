@@ -19,6 +19,7 @@ import { AskChatButton } from './chat/AskChatButton'
 import { FilterChip } from './common/FilterChip'
 import { FilterRow } from './common/FilterRow'
 import { MissingItemNote } from './common/MissingItemNote'
+import { ReportErrorNote } from './common/ReportErrorNote'
 import { SearchInput } from './common/SearchInput'
 import type { CourseSection, CourseWithFeedback } from './course/types'
 
@@ -689,11 +690,19 @@ export function DegreePageContent({
         />
       }
       actions={
-        <MissingItemNote
-          text={t('degree_page.missing_course')}
-          linkLabel={t('degree_page.request_link')}
-          href={ADD_COURSE_FORM_URL}
-        />
+        <div className="space-y-2">
+          <MissingItemNote
+            text={t('degree_page.missing_course')}
+            linkLabel={t('degree_page.request_link')}
+            href={ADD_COURSE_FORM_URL}
+          />
+          <ReportErrorNote
+            surface="degree_page"
+            pageName={`${degree.acronym} (${faculty.shortName})`}
+            facultySlug={faculty.slug}
+            degreeSlug={degree.slug}
+          />
+        </div>
       }
     >
       {!courses || courses.length === 0 ? (
@@ -769,6 +778,14 @@ export function DegreePageContent({
             {t('degree_page.about_title')}
           </h2>
           <Markdown>{about}</Markdown>
+          <div className="mt-4">
+            <ReportErrorNote
+              surface="degree_about"
+              pageName={`${degree.acronym} (${faculty.shortName})`}
+              facultySlug={faculty.slug}
+              degreeSlug={degree.slug}
+            />
+          </div>
         </section>
       )}
     </BrowsePageLayout>

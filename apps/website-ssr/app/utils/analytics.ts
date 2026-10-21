@@ -131,6 +131,12 @@ export type ShareChannel = 'whatsapp' | 'copy_url' | 'native'
  * with no field chosen; `content_section` is one of the description / assessment
  * / bibliography tabs, which opens with that field pre-filled.
  */
+/**
+ * Where a "spotted a mistake?" mailto link was clicked. `degree_about` sits
+ * under our degree description; `*_page` is the foot of the page.
+ */
+export type ErrorReportSurface = 'degree_about' | 'degree_page' | 'faculty_page'
+
 export type CorrectionEntryPoint =
   | 'course_info_card'
   | 'content_section'
@@ -596,7 +602,19 @@ export const analytics = {
       entryPoint: CorrectionEntryPoint
       fieldSelected: boolean
       hasNotes: boolean
-    }) => trackEvent('correction_dialog_dismissed', props)
+    }) => trackEvent('correction_dialog_dismissed', props),
+
+    /**
+     * Track a click on a "spotted a mistake? let us know" mailto link on a
+     * degree or faculty page. Only intent: whether the email is sent is
+     * invisible to us. Clicks over page views decide whether it becomes an
+     * in-page form.
+     */
+    errorReportClicked: (props: {
+      surface: ErrorReportSurface
+      facultySlug: string | null
+      degreeSlug: string | null
+    }) => trackEvent('error_report_clicked', props)
   },
 
   discovery: {

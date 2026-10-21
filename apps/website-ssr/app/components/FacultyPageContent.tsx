@@ -15,6 +15,7 @@ import { AskChatButton } from './chat/AskChatButton'
 import { FilterChip } from './common/FilterChip'
 import { FilterRow } from './common/FilterRow'
 import { MissingItemNote } from './common/MissingItemNote'
+import { ReportErrorNote } from './common/ReportErrorNote'
 import { SearchInput } from './common/SearchInput'
 import type { DegreeWithCounts } from './degree/types'
 
@@ -164,11 +165,18 @@ export function FacultyPageContent({
         )
       }
       actions={
-        <MissingItemNote
-          text={t('faculty_page.missing_degree')}
-          linkLabel={t('faculty_page.request_link')}
-          href={ADD_COURSE_FORM_URL}
-        />
+        <div className="space-y-2">
+          <MissingItemNote
+            text={t('faculty_page.missing_degree')}
+            linkLabel={t('faculty_page.request_link')}
+            href={ADD_COURSE_FORM_URL}
+          />
+          <ReportErrorNote
+            surface="faculty_page"
+            pageName={faculty.shortName}
+            facultySlug={faculty.slug}
+          />
+        </div>
       }
     >
       {!degrees || degrees.length === 0 ? (

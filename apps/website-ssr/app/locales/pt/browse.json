@@ -20,6 +20,12 @@
     "no_results": "Nenhuma faculdade corresponde à tua pesquisa.",
     "request_link": "Não vês a tua faculdade? Pede aqui"
   },
+  "report_error": {
+    "text": "Encontraste algum erro?",
+    "link": "Avisa-nos",
+    "subject": "Erro em {{name}}",
+    "body": "Página: {{url}}\n\nO que está errado:\n"
+  },
   "degree_page": {
     "about_title": "Sobre o curso",
     "search_placeholder": "Pesquisar por nome ou sigla...",
