@@ -70,15 +70,6 @@ export function meta({ loaderData, location, matches }: Route.MetaArgs) {
     url: faculty.slug
       ? `${origin}${getFacultyPath(lang, faculty.slug)}`
       : undefined,
-    keywords: [
-      faculty.name,
-      faculty.shortName,
-      'degrees',
-      'course reviews',
-      'student feedback',
-      ...degrees.map((d) => d.name),
-      ...degrees.map((d) => d.acronym)
-    ].filter((k): k is string => Boolean(k)),
     structuredData
   })
 }

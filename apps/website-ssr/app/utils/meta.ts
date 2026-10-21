@@ -98,7 +98,6 @@ interface BuildMetaOptions {
   /** twitter:card. Defaults to 'summary_large_image' when an image is set, else 'summary'. */
   twitterCard?: 'summary' | 'summary_large_image'
   robots?: string
-  keywords?: string | string[]
   /** Schema.org JSON-LD object(s). */
   structuredData?: object | object[]
   /** Any extra raw descriptors to append. */
@@ -114,7 +113,6 @@ export function buildMeta({
   image,
   twitterCard = 'summary_large_image',
   robots,
-  keywords,
   structuredData,
   extra = []
 }: BuildMetaOptions): MetaDescriptor[] {
@@ -156,14 +154,6 @@ export function buildMeta({
     ...(img ? [{ name: 'twitter:image', content: img.url }] : []),
 
     ...(robots ? [{ name: 'robots', content: robots }] : []),
-    ...(keywords
-      ? [
-          {
-            name: 'keywords',
-            content: Array.isArray(keywords) ? keywords.join(', ') : keywords
-          }
-        ]
-      : []),
     ...((structuredData
       ? (Array.isArray(structuredData) ? structuredData : [structuredData]).map(
           (data) => ({ 'script:ld+json': data })

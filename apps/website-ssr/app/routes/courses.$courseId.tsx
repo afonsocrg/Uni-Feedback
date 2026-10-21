@@ -93,16 +93,6 @@ export function meta({ loaderData, location, matches }: Route.MetaArgs) {
     title,
     description,
     url: `${origin}${getCoursePath(lang, course.id)}`,
-    keywords: [
-      course.name,
-      course.acronym,
-      course.degree?.name,
-      course.faculty?.name,
-      'course reviews',
-      'student feedback',
-      'university reviews',
-      'course ratings'
-    ].filter((k): k is string => Boolean(k)),
     // Same predicate the sitemap uses, so a page we don't list is also one we
     // ask crawlers not to index.
     robots: isCourseIndexable(course) ? undefined : 'noindex, follow',

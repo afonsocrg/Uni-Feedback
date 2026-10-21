@@ -16,7 +16,8 @@ import {
   degrees,
   faculties,
   feedback,
-  feedbackAnalysis
+  feedbackAnalysis,
+  type DegreeType
 } from '@uni-feedback/db/schema'
 import {
   formatSchoolYearString,
@@ -105,16 +106,15 @@ export interface SearchCoursesArgs {
 }
 
 /**
- * `degrees.type` is whatever each faculty's scraper wrote: "Bachelor" and
- * "Licenciatura" are the same thing, and so are "Master" and "Mestrado
- * Integrado". The model asks by level, never by the stored spelling.
+ * The model asks by level, which is coarser than `degrees.type`: an integrated
+ * master's counts as a master's.
  */
 export type DegreeLevel = 'bachelor' | 'master' | 'minor'
 
-const DEGREE_TYPES_BY_LEVEL: Record<DegreeLevel, string[]> = {
-  bachelor: ['Bachelor', 'Licenciatura'],
-  master: ['Master', 'Mestrado Integrado'],
-  minor: ['Minor']
+const DEGREE_TYPES_BY_LEVEL: Record<DegreeLevel, DegreeType[]> = {
+  bachelor: ['bachelor'],
+  master: ['master', 'integrated_master'],
+  minor: ['minor']
 }
 
 export interface SearchDegreesArgs {

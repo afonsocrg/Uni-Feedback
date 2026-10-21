@@ -259,20 +259,20 @@ describe('ChatRetrievalService: entity resolution must not report false negative
     // Production, 2026-09-20: asked for 3 ECTS master's courses near control
     // and navigation, the model read a handful of degree plans and said there
     // were none. A dozen existed. These filters let one call enumerate them.
-    it('finds a 3 ECTS master course, stored under either spelling of the level', async () => {
+    it('finds a 3 ECTS master course, stored as either a master or an integrated master', async () => {
       await withTestDb(async () => {
         const { ist, leic } = await seed()
         const memec = await createDegree(ist.id, {
           name: 'Mestrado em Engenharia Mecânica',
           acronym: 'MEMec',
           slug: 'memec',
-          type: 'Master'
+          type: 'master'
         })
         const mint = await createDegree(ist.id, {
           name: 'Mestrado Integrado em Arquitetura',
           acronym: 'MA',
           slug: 'ma',
-          type: 'Mestrado Integrado'
+          type: 'integrated_master'
         })
         const cnl = await createCourse(memec.id, {
           name: 'Controlo Não Linear',

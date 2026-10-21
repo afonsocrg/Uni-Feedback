@@ -59,11 +59,11 @@ export function DegreeEditDialog({
     }
   })
 
-  // Fetch degree types for the faculty
+  // Every valid type, not only the ones this faculty already uses
   const { data: degreeTypesResponse } = useQuery({
-    queryKey: ['degree-types', degree?.facultyId],
-    queryFn: () => getAdminDegreeTypes(degree?.facultyId),
-    enabled: !!degree?.facultyId && open
+    queryKey: ['degree-types'],
+    queryFn: () => getAdminDegreeTypes(),
+    enabled: open
   })
 
   const updateMutation = useMutation({

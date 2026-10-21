@@ -1,10 +1,33 @@
-import { integer, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core'
+import {
+  integer,
+  pgEnum,
+  pgTable,
+  serial,
+  text,
+  timestamp
+} from 'drizzle-orm/pg-core'
 import { faculties } from './faculty'
+
+// The closed set of degree types, in the order they are listed to students.
+// `other` holds what a faculty catalogues as a degree but isn't one (IST's HACS).
+export const DEGREE_TYPES = [
+  'bachelor',
+  'integrated_master',
+  'master',
+  'minor',
+  'postgraduate',
+  'phd',
+  'other'
+] as const
+
+export type DegreeType = (typeof DEGREE_TYPES)[number]
+
+export const degreeTypeEnum = pgEnum('degree_type', DEGREE_TYPES)
 
 export const degrees = pgTable('degrees', {
   id: serial('id').primaryKey(),
   externalId: text('external_id'),
-  type: text('type').notNull(),
+  type: degreeTypeEnum('type').notNull(),
   name: text('name').notNull(),
   acronym: text('acronym').notNull(),
   slug: text('slug'),

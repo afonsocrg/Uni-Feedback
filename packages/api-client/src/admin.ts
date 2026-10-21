@@ -672,7 +672,8 @@ export async function getAdminDegrees(
 }
 
 /**
- * Get all degree types for filtering
+ * Degree types. Without a faculty: every valid type (for editing). With one:
+ * the types that faculty uses (for filtering).
  */
 export async function getAdminDegreeTypes(
   facultyId?: number

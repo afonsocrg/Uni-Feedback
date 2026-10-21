@@ -61,14 +61,6 @@ export function meta({ loaderData, location, matches }: Route.MetaArgs) {
     matches,
     title: t('meta.title'),
     description,
-    keywords: [
-      'university reviews',
-      'portuguese universities',
-      'student feedback',
-      'course reviews',
-      'university comparison',
-      ...(loaderData?.faculties?.map((f) => f.name) || [])
-    ],
     structuredData: structuredData ?? undefined
   })
 }

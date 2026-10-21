@@ -1,6 +1,8 @@
+import type { DegreeType } from '@uni-feedback/db/schema'
+
 export interface DegreeWithCounts {
   id: number
-  type: string
+  type: DegreeType
   name: string
   acronym: string
   slug: string | null

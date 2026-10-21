@@ -55,7 +55,7 @@
     "legend_mandatory_exam": "Exame obrigatório"
   },
   "faculty_page": {
-    "title": "Escolhe o teu curso",
+    "title": "{{name}}: escolhe o teu curso",
     "search_placeholder": "Procurar cursos...",
     "filter_label": "Tipo de curso",
     "filter_placeholder": "Todos os Tipos",
@@ -66,6 +66,15 @@
     "column_degree": "Curso",
     "column_courses": "Cadeiras",
     "column_feedback": "Feedback"
+  },
+  "degree_types": {
+    "bachelor": "Licenciaturas",
+    "integrated_master": "Mestrados Integrados",
+    "master": "Mestrados",
+    "minor": "Minors",
+    "postgraduate": "Pós-graduações",
+    "phd": "Doutoramentos",
+    "other": "Outros"
   },
   "course_browser": {
     "title": "A que cadeira queres dar feedback?",

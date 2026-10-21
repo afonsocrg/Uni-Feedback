@@ -33,11 +33,11 @@ export function DegreeInfoCard({ degree }: DegreeInfoCardProps) {
     useState(false)
 
   const degreeId = id ? parseInt(id, 10) : 0
-  // Degree types query for the faculty
+  // Every valid type, not only the ones this faculty already uses
   const { data: degreeTypesResponse } = useQuery({
-    queryKey: ['degree-types', degree?.facultyId],
-    queryFn: () => getAdminDegreeTypes(degree?.facultyId),
-    enabled: !!degree?.facultyId
+    queryKey: ['degree-types'],
+    queryFn: () => getAdminDegreeTypes(),
+    enabled: !!degree
   })
 
   const updateMutation = useMutation({

@@ -55,7 +55,7 @@
     "legend_mandatory_exam": "Mandatory exam"
   },
   "faculty_page": {
-    "title": "Select Your Degree",
+    "title": "{{name}}: choose your degree",
     "search_placeholder": "Search degrees...",
     "filter_label": "Degree Type",
     "filter_placeholder": "All Degree Types",
@@ -66,6 +66,15 @@
     "column_degree": "Degree",
     "column_courses": "Courses",
     "column_feedback": "Feedback"
+  },
+  "degree_types": {
+    "bachelor": "Bachelor's",
+    "integrated_master": "Integrated master's",
+    "master": "Master's",
+    "minor": "Minors",
+    "postgraduate": "Postgraduate",
+    "phd": "PhD",
+    "other": "Other"
   },
   "course_browser": {
     "title": "Find a course to give feedback",

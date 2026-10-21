@@ -1,7 +1,7 @@
 import { database } from '@uni-feedback/db'
-import { degrees } from '@uni-feedback/db/schema'
+import { DEGREE_TYPES, degrees } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
-import { and, eq, sql } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 
 const DegreeTypesQuerySchema = z.object({
@@ -20,7 +20,7 @@ export class GetDegreeTypes extends OpenAPIRoute {
     tags: ['Admin - Degrees'],
     summary: 'Get all degree types',
     description:
-      'Retrieve all distinct degree types available in the system for filtering, optionally filtered by faculty',
+      'Without faculty_id: every valid degree type, in display order (for editing). With faculty_id: the types that faculty uses (for filtering)',
     request: {
       query: DegreeTypesQuerySchema
     },
@@ -40,30 +40,18 @@ export class GetDegreeTypes extends OpenAPIRoute {
     const { query } = await this.getValidatedData<typeof this.schema>()
     const { faculty_id } = query
 
-    // Build where conditions
-    const conditions = [
-      sql`${degrees.type} IS NOT NULL AND ${degrees.type} != ''`
-    ]
-
-    if (faculty_id) {
-      conditions.push(eq(degrees.facultyId, faculty_id))
+    if (!faculty_id) {
+      return Response.json({ types: DEGREE_TYPES })
     }
 
-    const whereClause =
-      conditions.length > 1 ? and(...conditions) : conditions[0]
-
-    // Get distinct degree types
+    // Ordered by the enum, which is the display order
     const typesResult = await database()
-      .selectDistinct({
-        type: degrees.type
-      })
+      .selectDistinct({ type: degrees.type })
       .from(degrees)
-      .where(whereClause)
+      .where(eq(degrees.facultyId, faculty_id))
       .orderBy(degrees.type)
 
-    const types = typesResult
-      .map((row) => row.type)
-      .filter((type) => type !== null && type !== '')
+    const types = typesResult.map((row) => row.type)
 
     return Response.json({ types })
   }

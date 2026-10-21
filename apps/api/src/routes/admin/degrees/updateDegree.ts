@@ -1,6 +1,6 @@
 import { requireAdmin } from '@middleware'
 import { database } from '@uni-feedback/db'
-import { degrees } from '@uni-feedback/db/schema'
+import { DEGREE_TYPES, degrees } from '@uni-feedback/db/schema'
 import { detectChanges, notifyAdminChange } from '@utils/notificationHelpers'
 import { OpenAPIRoute } from 'chanfana'
 import { eq } from 'drizzle-orm'
@@ -11,7 +11,7 @@ import { NotFoundError, ValidationError } from '../../utils'
 const DegreeUpdateSchema = z.object({
   name: z.string().min(1).optional(),
   acronym: z.string().min(1).optional(),
-  type: z.string().min(1).optional(),
+  type: z.enum(DEGREE_TYPES).optional(),
   description: z.string().nullable().optional()
 })
 
@@ -108,15 +108,6 @@ export class UpdateDegree extends OpenAPIRoute {
         validationErrors.push({
           field: 'acronym',
           message: 'Degree acronym cannot be empty'
-        })
-      }
-    }
-
-    if (updateData.type !== undefined) {
-      if (updateData.type === null || updateData.type.trim() === '') {
-        validationErrors.push({
-          field: 'type',
-          message: 'Degree type cannot be empty'
         })
       }
     }

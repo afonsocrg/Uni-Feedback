@@ -1,5 +1,5 @@
 import { database } from '@uni-feedback/db'
-import { degrees, faculties } from '@uni-feedback/db/schema'
+import { DEGREE_TYPES, degrees, faculties } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
 import { and, count, eq, or, sql } from 'drizzle-orm'
 import { z } from 'zod'
@@ -18,7 +18,7 @@ const DegreesQuerySchema = z.object({
     .string()
     .optional()
     .transform((val) => (val ? parseInt(val, 10) : undefined)),
-  type: z.string().optional()
+  type: z.enum(DEGREE_TYPES).optional()
 })
 
 const AdminDegreeSchema = z.object({

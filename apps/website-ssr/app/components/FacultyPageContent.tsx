@@ -1,4 +1,8 @@
-import type { Faculty } from '@uni-feedback/db/schema'
+import {
+  DEGREE_TYPES,
+  type DegreeType,
+  type Faculty
+} from '@uni-feedback/db/schema'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLang } from '~/hooks'
@@ -63,7 +67,8 @@ export function FacultyPageContent({
   }
 
   const availableTypes = useMemo(() => {
-    return [...new Set(degrees?.map((degree) => degree.type))].sort()
+    const present = new Set<DegreeType>(degrees?.map((degree) => degree.type))
+    return DEGREE_TYPES.filter((type) => present.has(type))
   }, [degrees])
 
   // A faculty whose degrees are all one type gets no type chip: it could only
@@ -71,10 +76,14 @@ export function FacultyPageContent({
   // doesn't vanish as the search narrows the list.
   const showTypeFilter = availableTypes.length > 1
 
-  // The chip is gone but its selection lives on in localStorage, and filtering
-  // on a stale one (saved before this faculty's degrees narrowed to a single
-  // type) would empty the page with no chip left to undo it.
-  const activeType = showTypeFilter ? selectedType : null
+  // A saved selection can be stale: saved before this faculty's degrees
+  // narrowed to a single type (the chip is gone), or a type spelling from
+  // before degree types were normalised. Filtering on it would empty the page
+  // with nothing selected in the chip to undo it.
+  const activeType =
+    showTypeFilter && availableTypes.some((type) => type === selectedType)
+      ? selectedType
+      : null
 
   const filteredDegrees = useMemo(() => {
     return (
@@ -116,7 +125,7 @@ export function FacultyPageContent({
 
   return (
     <BrowsePageLayout
-      title={t('faculty_page.title')}
+      title={t('faculty_page.title', { name: faculty.name })}
       faculty={faculty}
       searchBar={
         <SearchInput
@@ -144,9 +153,9 @@ export function FacultyPageContent({
                 label={t('faculty_page.filter_label')}
                 options={availableTypes.map((type) => ({
                   value: type,
-                  label: type
+                  label: t(`degree_types.${type}`)
                 }))}
-                selectedValue={selectedType}
+                selectedValue={activeType}
                 onValueChange={handleTypeChange}
                 placeholder={t('faculty_page.filter_placeholder')}
               />
