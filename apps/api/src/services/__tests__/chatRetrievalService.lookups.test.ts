@@ -1,6 +1,8 @@
 import {
   academicTerms,
   courseGradeStats,
+  courseGroup,
+  courseGroupsCourses,
   courseOfferings
 } from '@uni-feedback/db/schema'
 import { beforeEach, describe, expect, it } from 'vitest'
@@ -140,6 +142,96 @@ describe('ChatRetrievalService: batched and compact lookups', () => {
       const ids = degree!.curriculum.map((c) => c.courseId)
       expect(ids).not.toContain(retired.id)
       expect(ids).toHaveLength(3)
+    })
+  })
+
+  it('exposes course groups on the degree, the course and the search', async () => {
+    await withTestDb(async () => {
+      const { meec, controlo, robotica, redes } = await seed()
+      const db = getTestDb()
+      const [ai, networks] = await db
+        .insert(courseGroup)
+        .values([
+          { name: 'Inteligência Artificial', degreeId: meec.id },
+          { name: 'Redes', degreeId: meec.id }
+        ])
+        .returning({ id: courseGroup.id })
+      await db.insert(courseGroupsCourses).values([
+        { courseGroupId: ai.id, courseId: controlo.id },
+        { courseGroupId: ai.id, courseId: robotica.id },
+        { courseGroupId: networks.id, courseId: redes.id },
+        { courseGroupId: networks.id, courseId: robotica.id }
+      ])
+
+      const degree = await service.getDegree({ degreeId: meec.id })
+      expect(degree!.courseGroups).toEqual([
+        { name: 'Inteligência Artificial', courseCount: 2 },
+        { name: 'Redes', courseCount: 2 }
+      ])
+      expect(
+        degree!.curriculum.find((c) => c.courseId === robotica.id)?.groups
+      ).toEqual(['Inteligência Artificial', 'Redes'])
+
+      const course = await service.getCourse(redes.id)
+      expect(course?.groups).toEqual(['Redes'])
+
+      // Accent-insensitive, partial name
+      const result = await service.searchCourses({
+        courseGroup: 'inteligencia',
+        degreeAcronym: 'MEEC'
+      })
+      expect(result.courses.map((c) => c.courseId).sort()).toEqual(
+        [controlo.id, robotica.id].sort()
+      )
+    })
+  })
+
+  it("lists a degree's course groups with their courses, filtered by name", async () => {
+    await withTestDb(async () => {
+      const { meec, controlo, robotica, redes } = await seed()
+      const retired = await createCourse(meec.id, {
+        name: 'Controlo Clássico',
+        acronym: 'CC',
+        lastTaughtYear: 2025
+      })
+      const db = getTestDb()
+      const [ai, networks] = await db
+        .insert(courseGroup)
+        .values([
+          { name: 'Inteligência Artificial', degreeId: meec.id },
+          { name: 'Redes', degreeId: meec.id }
+        ])
+        .returning({ id: courseGroup.id })
+      await db.insert(courseGroupsCourses).values([
+        { courseGroupId: ai.id, courseId: controlo.id },
+        { courseGroupId: ai.id, courseId: robotica.id },
+        // A stale membership must not put a retired course in a group
+        { courseGroupId: ai.id, courseId: retired.id },
+        { courseGroupId: networks.id, courseId: redes.id }
+      ])
+
+      const all = await service.getCourseGroups({ degreeId: meec.id })
+      expect(all!.groups.map((g) => [g.name, g.courseCount])).toEqual([
+        ['Inteligência Artificial', 2],
+        ['Redes', 1]
+      ])
+      expect(all!.groups[0].courses?.map((c) => c.courseId)).toEqual([
+        controlo.id,
+        robotica.id
+      ])
+      expect(all!.groups[0].courses?.[0]).toMatchObject({
+        pageUrl: expect.stringContaining(`/cadeiras/${controlo.id}`)
+      })
+
+      const one = await service.getCourseGroups({
+        degreeId: meec.id,
+        groupName: 'inteligencia'
+      })
+      expect(one!.groups.map((g) => g.name)).toEqual([
+        'Inteligência Artificial'
+      ])
+
+      expect(await service.getCourseGroups({ degreeId: 999999 })).toBeNull()
     })
   })
 

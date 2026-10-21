@@ -6,6 +6,8 @@ import {
 import {
   academicTerms,
   courseGradeStats,
+  courseGroup,
+  courseGroupsCourses,
   courseOfferings,
   courseRelationships,
   courseStats,
@@ -93,6 +95,12 @@ export interface SearchCoursesArgs {
   /** Exact ECTS value, e.g. 3 or 7.5. */
   ects?: number
   degreeLevel?: DegreeLevel
+  /**
+   * Part of a course group's name, e.g. "Inteligência Artificial". Groups are
+   * whatever a faculty bundles courses into: MEIC specializations, MEEC areas,
+   * FLUL majors and minors.
+   */
+  courseGroup?: string
   limit?: number
 }
 
@@ -440,6 +448,14 @@ export class ChatRetrievalService {
         inArray(degrees.type, DEGREE_TYPES_BY_LEVEL[args.degreeLevel])
       )
     }
+    if (args.courseGroup) {
+      conditions.push(
+        sql`exists (select 1 from ${courseGroupsCourses} m
+          join ${courseGroup} g on g.id = m.course_group_id
+          where m.course_id = ${courses.id}
+            and immutable_unaccent(g.name) ILIKE ${unaccented(`%${args.courseGroup}%`)})`
+      )
+    }
     if (args.hasMandatoryExam !== undefined) {
       conditions.push(
         sql`${courses.hasMandatoryExam} is not distinct from ${args.hasMandatoryExam}`
@@ -695,6 +711,16 @@ export class ChatRetrievalService {
       averageGrade: Math.round(g.averageGrade * 10) / 10
     }))
 
+    const groups = await database()
+      .select({ name: courseGroup.name })
+      .from(courseGroupsCourses)
+      .innerJoin(
+        courseGroup,
+        eq(courseGroupsCourses.courseGroupId, courseGroup.id)
+      )
+      .where(eq(courseGroupsCourses.courseId, courseId))
+      .orderBy(asc(courseGroup.name))
+
     const { lastTaughtYear, ...rest } = row
     return {
       ...rest,
@@ -706,6 +732,7 @@ export class ChatRetrievalService {
       workloadLabel: workloadLabel(row.averageWorkload),
       commentedReviewCount: Number(counts?.commented ?? 0),
       offerings,
+      groups: groups.map((g) => g.name),
       gradeAverages,
       pageUrl: courseUrl(row.courseId)
     }
@@ -886,6 +913,101 @@ export class ChatRetrievalService {
   }
 
   /**
+   * A degree's course groups, each with its courses.
+   *
+   * Groups are whatever a faculty bundles a degree's courses into: MEIC
+   * specializations, MEEC main and secondary areas, FLUL majors and minors.
+   * Without a `groupName` every group comes back, which for FLUL's LLC is 60
+   * groups and 600 memberships. Past `MAX_CURRICULUM_COURSES` memberships the
+   * courses are left out and the model is told to narrow, rather than spending
+   * a whole context on one listing.
+   */
+  async getCourseGroups(args: { degreeId: number; groupName?: string }) {
+    const [degree] = await database()
+      .select({
+        degreeId: degrees.id,
+        name: degrees.name,
+        acronym: degrees.acronym,
+        facultyShortName: faculties.shortName,
+        pageUrl: sql<string>`${SITE_URL} || '/' || ${faculties.slug} || '/' || ${degrees.slug}`
+      })
+      .from(degrees)
+      .innerJoin(faculties, eq(degrees.facultyId, faculties.id))
+      .where(eq(degrees.id, args.degreeId))
+      .limit(1)
+
+    if (!degree) return null
+
+    const rows = await database()
+      .select({
+        groupName: courseGroup.name,
+        courseId: courses.id,
+        name: courses.name,
+        acronym: courses.acronym,
+        ects: courses.ects,
+        averageRating: courseStats.averageRating,
+        averageWorkload: courseStats.averageWorkload,
+        reviewCount: courseStats.totalFeedbackCount
+      })
+      .from(courseGroup)
+      .innerJoin(
+        courseGroupsCourses,
+        eq(courseGroupsCourses.courseGroupId, courseGroup.id)
+      )
+      .innerJoin(courses, eq(courses.id, courseGroupsCourses.courseId))
+      .leftJoin(courseStats, eq(courseStats.courseId, courses.id))
+      .where(
+        and(
+          eq(courseGroup.degreeId, args.degreeId),
+          isNull(courses.lastTaughtYear),
+          args.groupName
+            ? sql`${normalized(courseGroup.name)} ILIKE ${unaccented(`%${args.groupName}%`)}`
+            : undefined
+        )
+      )
+      .orderBy(asc(courseGroup.name), asc(courses.name))
+
+    const coursesIncluded = rows.length <= MAX_CURRICULUM_COURSES
+    const groups = new Map<
+      string,
+      {
+        name: string
+        courseCount: number
+        courses?: Array<Record<string, unknown>>
+      }
+    >()
+    for (const { groupName, averageWorkload, reviewCount, ...course } of rows) {
+      let group = groups.get(groupName)
+      if (!group) {
+        group = {
+          name: groupName,
+          courseCount: 0,
+          ...(coursesIncluded ? { courses: [] } : {})
+        }
+        groups.set(groupName, group)
+      }
+      group.courseCount += 1
+      group.courses?.push({
+        ...course,
+        reviewCount: reviewCount ?? 0,
+        workloadLabel: workloadLabel(averageWorkload),
+        pageUrl: courseUrl(course.courseId)
+      })
+    }
+
+    return {
+      ...degree,
+      groupNameFilter: args.groupName ?? null,
+      groups: [...groups.values()],
+      ...(coursesIncluded
+        ? {}
+        : {
+            note: `Too many courses to list (${rows.length}). Call again with groupName to get the courses of one group.`
+          })
+    }
+  }
+
+  /**
    * One degree plus its curriculum.
    *
    * `curriculumYear` narrows to a single year, which is both what most questions
@@ -977,12 +1099,42 @@ export class ChatRetrievalService {
       if (term !== null && !row.terms.includes(term)) row.terms.push(term)
     }
 
+    // The degree's course groups (MEIC specializations, MEEC areas, FLUL
+    // majors and minors). Listed in full even when the curriculum is narrowed
+    // to one year, so "which specializations are there" never needs the plan.
+    const memberships = await database()
+      .select({
+        name: courseGroup.name,
+        courseId: courseGroupsCourses.courseId
+      })
+      .from(courseGroup)
+      .innerJoin(
+        courseGroupsCourses,
+        eq(courseGroupsCourses.courseGroupId, courseGroup.id)
+      )
+      .where(eq(courseGroup.degreeId, args.degreeId))
+      .orderBy(asc(courseGroup.name))
+    const groupSizes = new Map<string, number>()
+    const groupsByCourse = new Map<number, string[]>()
+    for (const { name, courseId } of memberships) {
+      groupSizes.set(name, (groupSizes.get(name) ?? 0) + 1)
+      groupsByCourse.set(courseId, [
+        ...(groupsByCourse.get(courseId) ?? []),
+        name
+      ])
+    }
+
     return {
       ...degree,
       description: truncate(degree.description, MAX_TEXT_FIELD_CHARS),
       curriculumYearFilter: args.curriculumYear ?? null,
+      courseGroups: [...groupSizes].map(([name, courseCount]) => ({
+        name,
+        courseCount
+      })),
       curriculum: [...byCourse.values()].map((c) => ({
         ...c,
+        groups: groupsByCourse.get(c.courseId) ?? [],
         reviewCount: c.reviewCount ?? 0,
         workloadLabel: workloadLabel(c.averageWorkload)
       }))

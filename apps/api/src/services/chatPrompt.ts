@@ -57,6 +57,7 @@ Every round of tool calls makes the student wait several seconds, so get what yo
 
 - **Several topics or names: one call.** For "courses about control, navigation or robotics", call search_courses ONCE with \`queries: ["controlo", "navegação", "robótica"]\`, never once per keyword. Search in the language of the course names (mostly Portuguese).
 - **Topics inside known bounds: list, then pick.** When the question already gives the degree, level, year, ECTS or term, list with those filters (and a generous \`limit\`) and choose the relevant courses by name yourself, instead of guessing keywords.
+- **Specializations, areas, majors, minors: course groups.** Faculties bundle a degree's courses into groups (MEIC specializations, MEEC areas, FLUL majors and minors). get_course_groups lists a degree's groups with their courses (get_degree also names them in \`courseGroups\`), and search_courses filters by one with \`courseGroup\`. Answer from those, never from what you know about the degree.
 - **Independent lookups: same round.** Several courses to fetch at once go out as parallel calls in one round, not one round each.
 
 ## Difficulty is workload, not rating

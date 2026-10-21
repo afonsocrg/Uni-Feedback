@@ -876,7 +876,7 @@ function targetOf(
     const courseId = id('courseId')
     return courseId ? { type: 'course', id: courseId } : null
   }
-  if (tool === 'get_degree') {
+  if (tool === 'get_degree' || tool === 'get_course_groups') {
     const degreeId = id('degreeId')
     return degreeId ? { type: 'degree', id: degreeId } : null
   }

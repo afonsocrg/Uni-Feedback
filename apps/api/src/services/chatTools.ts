@@ -104,6 +104,11 @@ export const CHAT_TOOL_DEFINITIONS = [
             description:
               'Only courses from licenciaturas ("bachelor"), mestrados ("master") or minors. Use "any" (the default) unless the student named a level.'
           },
+          courseGroup: {
+            type: 'string',
+            description:
+              'Only courses in a course group whose name contains this, e.g. "Inteligência Artificial". Course groups are how a faculty bundles a degree\'s courses: specializations (MEIC), areas (MEEC), majors and minors (FLUL). Read the exact names from get_degree\'s `courseGroups`, and pair it with degreeAcronym.'
+          },
           limit: { type: 'number', description: 'Max results, default 10.' }
         },
         required: []
@@ -115,7 +120,7 @@ export const CHAT_TOOL_DEFINITIONS = [
     function: {
       name: 'get_course',
       description:
-        'Full record for one course: description, ECTS, assessment, which curriculum year and term it runs in, ratings, how many reviews carry a written comment, and `gradeAverages` (official average final grade, 0-20, per school year; empty when we have none). Read `workloadLabel`, never the raw number: the workload scale is inverted (1 = very heavy, 5 = very light).',
+        'Full record for one course: description, ECTS, assessment, which curriculum year and term it runs in, ratings, how many reviews carry a written comment, `groups` (the course groups it belongs to in its degree, e.g. MEIC specializations), and `gradeAverages` (official average final grade, 0-20, per school year; empty when we have none). Read `workloadLabel`, never the raw number: the workload scale is inverted (1 = very heavy, 5 = very light).',
       parameters: {
         type: 'object',
         properties: { courseId: { type: 'number' } },
@@ -173,7 +178,7 @@ export const CHAT_TOOL_DEFINITIONS = [
     function: {
       name: 'get_degree',
       description:
-        'Full record for one degree, including its curriculum: every course with its curriculum year, term, ECTS, mandatory-exam flag, rating and workload. Pass curriculumYear to get one year only, which is much smaller and cheaper than the whole plan.',
+        "Full record for one degree, including its curriculum: every course with its curriculum year, term, ECTS, mandatory-exam flag, rating, workload and `groups`. `courseGroups` lists the groups the faculty bundles the degree's courses into, under whatever name it uses: specializations / áreas de especialização (MEIC), main and secondary areas (MEEC), majors and minors (FLUL), perfis, ramos. Use it for any question about specializations, areas, majors or branches. An empty `courseGroups` means we hold no grouping for this degree, not that the degree has none. Pass curriculumYear to get one year only, which is much smaller and cheaper than the whole plan; `courseGroups` stays complete.",
       parameters: {
         type: 'object',
         properties: {
@@ -181,6 +186,26 @@ export const CHAT_TOOL_DEFINITIONS = [
           curriculumYear: {
             type: 'number',
             description: 'Optional: only courses of this year of the plan.'
+          }
+        },
+        required: ['degreeId']
+      }
+    }
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'get_course_groups',
+      description:
+        'The groups a faculty bundles a degree\'s courses into, each with its courses (rating, workload, review count). Faculties call them different things: specializations / áreas de especialização (MEIC), main and secondary areas (MEEC), majors and minors (FLUL), perfis, ramos. Use it for "que especializações há em MEIC?" or "cadeiras da especialização de IA". An empty `groups` means we hold no grouping for this degree, not that it has none. If the response carries a `note`, the courses were left out: call again with `groupName`.',
+      parameters: {
+        type: 'object',
+        properties: {
+          degreeId: { type: 'number' },
+          groupName: {
+            type: 'string',
+            description:
+              'Optional: only groups whose name contains this, e.g. "Inteligência Artificial".'
           }
         },
         required: ['degreeId']
@@ -370,6 +395,7 @@ export class ChatToolExecutor {
           minReviews: int(args.minReviews, 10_000),
           ects: positive(args.ects),
           degreeLevel: oneOf(args.degreeLevel, DEGREE_LEVELS),
+          courseGroup: str(args.courseGroup),
           limit: int(args.limit, 50)
         })
         return {
@@ -460,6 +486,35 @@ export class ChatToolExecutor {
               type: 'course' as const,
               id: c.courseId
             }))
+          ]
+        }
+      }
+
+      case 'get_course_groups': {
+        const degreeId = int(args.degreeId)
+        if (degreeId === undefined) {
+          return { payload: { error: 'degreeId is required' }, entities: [] }
+        }
+        const result = await this.retrieval.getCourseGroups({
+          degreeId,
+          groupName: str(args.groupName)
+        })
+        if (!result) {
+          return {
+            payload: { error: `No degree found with id ${degreeId}` },
+            entities: []
+          }
+        }
+        const courseIds = new Set(
+          result.groups.flatMap((g) =>
+            (g.courses ?? []).map((c) => c.courseId as number)
+          )
+        )
+        return {
+          payload: result,
+          entities: [
+            { type: 'degree', id: result.degreeId },
+            ...[...courseIds].map((id) => ({ type: 'course' as const, id }))
           ]
         }
       }

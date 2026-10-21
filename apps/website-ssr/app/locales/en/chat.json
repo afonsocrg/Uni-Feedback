@@ -17,6 +17,7 @@
     "get_course_reviews": "Reading student reviews...",
     "search_degrees": "Looking for degrees...",
     "get_degree": "Reading the curriculum...",
+    "get_course_groups": "Checking the degree's specializations...",
     "list_faculties": "Checking which universities we cover..."
   },
   "empty_title": "What do you want to know?",
