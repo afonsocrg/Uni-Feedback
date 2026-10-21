@@ -2,6 +2,7 @@ import {
   integer,
   pgEnum,
   pgTable,
+  real,
   serial,
   text,
   timestamp
@@ -32,6 +33,13 @@ export const degrees = pgTable('degrees', {
   acronym: text('acronym').notNull(),
   slug: text('slug'),
   campus: text('campus').notNull(), // This field may be removed later. It may be too specific
+  // Facts (migration 0050). NULL means unknown, never guessed.
+  ects: real('ects'),
+  durationSemesters: integer('duration_semesters'),
+  /** 'pt' | 'en' | 'pt_en' */
+  teachingLanguage: text('teaching_language'),
+  /** 'daytime' | 'after_work' | 'both' */
+  schedule: text('schedule'),
   description: text('description'),
   url: text('url'),
   facultyId: integer('faculty_id').references(() => faculties.id),
