@@ -1,7 +1,7 @@
-import { database, schema } from '@uni-feedback/db'
+import { database, findFacultySlugRedirect, schema } from '@uni-feedback/db'
 import { and, eq, gt, sql } from 'drizzle-orm'
 import { useEffect } from 'react'
-import { useLocation } from 'react-router'
+import { redirect, useLocation } from 'react-router'
 import { FacultyPageContent } from '~/components'
 import { userPreferences } from '~/utils'
 
@@ -93,6 +93,15 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   })
 
   if (!faculty) {
+    // A renamed faculty: send old URLs to the current one
+    const currentSlug = await findFacultySlugRedirect(facultySlug)
+    if (currentSlug) {
+      const { pathname, search } = new URL(request.url)
+      throw redirect(
+        `${getFacultyPath(detectLang(pathname), currentSlug)}${search}`,
+        { status: 301 }
+      )
+    }
     throw new Response('Faculty not found', { status: 404 })
   }
 

@@ -1,8 +1,13 @@
-import { database, offeringsSubquery, schema } from '@uni-feedback/db'
+import {
+  database,
+  findDegreeSlugRedirect,
+  offeringsSubquery,
+  schema
+} from '@uni-feedback/db'
 import { isDiscontinued } from '@uni-feedback/utils'
 import { eq, sql } from 'drizzle-orm'
 import { useEffect } from 'react'
-import { useLocation } from 'react-router'
+import { redirect, useLocation } from 'react-router'
 import { DegreePageContent } from '~/components'
 import { userPreferences } from '~/utils'
 
@@ -125,6 +130,22 @@ export function meta({ loaderData, location, matches }: Route.MetaArgs) {
   })
 }
 
+// A renamed faculty or degree slug (or both): 301 to the current URL, keeping
+// the language and the query string. Returns when the slugs were never renamed.
+async function redirectRenamedDegree(
+  request: Request,
+  facultySlug: string,
+  degreeSlug: string
+) {
+  const current = await findDegreeSlugRedirect(facultySlug, degreeSlug)
+  if (!current) return
+  const { pathname, search } = new URL(request.url)
+  throw redirect(
+    `${getDegreePath(detectLang(pathname), current.facultySlug, current.degreeSlug)}${search}`,
+    { status: 301 }
+  )
+}
+
 export async function loader({ params, request }: Route.LoaderArgs) {
   const { facultySlug, degreeSlug } = params
   const db = database()
@@ -135,6 +156,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   })
 
   if (!faculty) {
+    await redirectRenamedDegree(request, facultySlug, degreeSlug)
     throw new Response('Faculty not found', { status: 404 })
   }
 
@@ -145,6 +167,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   })
 
   if (!degree) {
+    await redirectRenamedDegree(request, facultySlug, degreeSlug)
     throw new Response('Degree not found', { status: 404 })
   }
 
