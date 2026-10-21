@@ -1,6 +1,12 @@
 import type { Degree, Faculty } from '@uni-feedback/db/schema'
-import { CHIP_COLOR_KEYS } from '@uni-feedback/ui'
-import { toOrdinal } from '@uni-feedback/utils'
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+  CHIP_COLOR_KEYS
+} from '@uni-feedback/ui'
+import { isDiscontinued, toOrdinal } from '@uni-feedback/utils'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDebounce, useLang } from '~/hooks'
@@ -86,6 +92,25 @@ const byTerm = (a: TermLabel, b: TermLabel) =>
 
 type SortOption = 'rating' | 'alphabetical' | 'reviews' | 'workload'
 
+function compareCourses(sortBy: SortOption) {
+  return (a: CourseWithFeedback, b: CourseWithFeedback) => {
+    switch (sortBy) {
+      case 'rating':
+        return Number(b.averageRating || 0) - Number(a.averageRating || 0)
+      case 'alphabetical':
+        return a.name.localeCompare(b.name)
+      case 'reviews':
+        return (
+          Number(b.totalFeedbackCount || 0) - Number(a.totalFeedbackCount || 0)
+        )
+      case 'workload':
+        return Number(b.averageWorkload || 0) - Number(a.averageWorkload || 0)
+      default:
+        return 0
+    }
+  }
+}
+
 const ADD_COURSE_FORM_URL =
   'https://docs.google.com/forms/d/e/1FAIpQLSd2FBk_hbv6v0iW-y8wtY6DL-fDIE_GlyA8rSkamSJJfCjCFQ/viewform'
 
@@ -119,6 +144,23 @@ export function DegreePageContent({
   >(null)
   const [courseTypeFilter, setCourseTypeFilter] = useState<boolean | null>(null)
   const [sortBy, setSortBy] = useState<SortOption>('reviews')
+  // null until the student opens or closes it: the section then follows the
+  // search, open while the query matches a course no longer taught
+  const [pastExpandedByUser, setPastExpandedByUser] = useState<boolean | null>(
+    null
+  )
+
+  // A course with `lastTaughtYear` set has left the degree's plan. It keeps its
+  // page and its reviews, but listing it among the current courses would tell a
+  // newcomer it can still be taken. So it stays out of the filters, the
+  // year/term sections and "Other", and gets a collapsed section of its own.
+  const { offeredCourses, pastCourses } = useMemo(
+    () => ({
+      offeredCourses: courses.filter((c) => !isDiscontinued(c.lastTaughtYear)),
+      pastCourses: courses.filter((c) => isDiscontinued(c.lastTaughtYear))
+    }),
+    [courses]
+  )
 
   // Entry event of the discovery funnel. Keyed on the degree so a client-side
   // navigation to another degree page counts as a new view.
@@ -128,7 +170,8 @@ export function DegreePageContent({
     analytics.discovery.degreePageViewed({
       facultySlug: faculty.slug,
       degreeSlug: degree.slug,
-      courseCount: courses.length
+      courseCount: offeredCourses.length,
+      pastCourseCount: pastCourses.length
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [faculty.slug, degree.slug])
@@ -175,7 +218,7 @@ export function DegreePageContent({
   // Available curriculum years for filtering (from offerings)
   const availableCurriculumYears = useMemo(() => {
     const years = new Set<number>()
-    courses.forEach((course) => {
+    offeredCourses.forEach((course) => {
       course.offerings.forEach((offering) => {
         if (offering.curriculumYear !== null) {
           years.add(offering.curriculumYear)
@@ -183,18 +226,18 @@ export function DegreePageContent({
       })
     })
     return Array.from(years).sort((a, b) => a - b)
-  }, [courses])
+  }, [offeredCourses])
 
   // Available academic term names for filtering (from offerings)
   const availableTerms = useMemo(() => {
     const terms = new Set<string>()
-    courses.forEach((course) => {
+    offeredCourses.forEach((course) => {
       course.offerings.forEach((offering) => {
         terms.add(offering.academicTerm.name)
       })
     })
     return Array.from(terms).sort()
-  }, [courses])
+  }, [offeredCourses])
 
   // A property every course answers the same way makes for a chip that can only
   // be a no-op or a way to empty the list, so it stays hidden. "Unknown" counts
@@ -204,13 +247,14 @@ export function DegreePageContent({
   // Read off the whole course set, never `filteredCourses`, so chips don't
   // disappear as the list narrows and take their own selection with them.
   const showExamFilter = useMemo(
-    () => new Set(courses.map((course) => course.hasMandatoryExam)).size > 1,
-    [courses]
+    () =>
+      new Set(offeredCourses.map((course) => course.hasMandatoryExam)).size > 1,
+    [offeredCourses]
   )
 
   const showCourseTypeFilter = useMemo(
-    () => new Set(courses.map((course) => course.isMandatory)).size > 1,
-    [courses]
+    () => new Set(offeredCourses.map((course) => course.isMandatory)).size > 1,
+    [offeredCourses]
   )
 
   const showCurriculumYearFilter = availableCurriculumYears.length > 1
@@ -263,7 +307,7 @@ export function DegreePageContent({
 
   // Filtered courses based on search and filters
   const filteredCourses = useMemo(() => {
-    return courses
+    return offeredCourses
       .filter((course) => {
         const matchesSearch = insensitiveMatch(
           `${course.name} ${course.acronym}`,
@@ -302,27 +346,9 @@ export function DegreePageContent({
           matchesCourseType
         )
       })
-      .sort((a, b) => {
-        switch (sortBy) {
-          case 'rating':
-            return Number(b.averageRating || 0) - Number(a.averageRating || 0)
-          case 'alphabetical':
-            return a.name.localeCompare(b.name)
-          case 'reviews':
-            return (
-              Number(b.totalFeedbackCount || 0) -
-              Number(a.totalFeedbackCount || 0)
-            )
-          case 'workload':
-            return (
-              Number(b.averageWorkload || 0) - Number(a.averageWorkload || 0)
-            )
-          default:
-            return 0
-        }
-      })
+      .sort(compareCourses(sortBy))
   }, [
-    courses,
+    offeredCourses,
     searchQuery,
     activeCurriculumYear,
     activeTerm,
@@ -332,6 +358,27 @@ export function DegreePageContent({
     activeExamFilter,
     activeCourseType
   ])
+
+  // Courses no longer taught have no year, term or group to filter on, so only
+  // the search narrows them
+  const filteredPastCourses = useMemo(
+    () =>
+      pastCourses
+        .filter((course) =>
+          insensitiveMatch(`${course.name} ${course.acronym}`, searchQuery)
+        )
+        .sort(compareCourses(sortBy)),
+    [pastCourses, searchQuery, sortBy]
+  )
+
+  // A new query hands the section back to the search
+  useEffect(() => {
+    setPastExpandedByUser(null)
+  }, [searchQuery])
+
+  const pastExpanded =
+    pastExpandedByUser ??
+    (searchQuery.trim().length > 0 && filteredPastCourses.length > 0)
 
   // Fire the browse-side search event once the query settles. Unlike the
   // feedback course browser (which hits the API), this filters an in-memory
@@ -350,10 +397,10 @@ export function DegreePageContent({
     lastTrackedSearchRef.current = debouncedSearch
     analytics.discovery.searchPerformed({
       searchQuery: debouncedSearch,
-      resultsCount: filteredCourses.length,
+      resultsCount: filteredCourses.length + filteredPastCourses.length,
       surface: 'degree_page'
     })
-  }, [debouncedSearch, filteredCourses.length])
+  }, [debouncedSearch, filteredCourses.length, filteredPastCourses.length])
 
   // Group the filtered courses into (curriculum year, parent term) buckets, each
   // split into runs of courses sharing a term.
@@ -649,7 +696,7 @@ export function DegreePageContent({
         <div className="text-center text-muted-foreground py-8">
           {t('degree_page.no_courses')}
         </div>
-      ) : filteredCourses.length === 0 ? (
+      ) : filteredCourses.length === 0 && filteredPastCourses.length === 0 ? (
         <div className="flex flex-col items-center gap-3 py-8 text-center text-muted-foreground">
           {t('degree_page.no_results')}
           <AskChatButton
@@ -662,7 +709,53 @@ export function DegreePageContent({
           />
         </div>
       ) : (
-        <CourseTable sections={sections} />
+        <div className="space-y-8">
+          {filteredCourses.length > 0 && <CourseTable sections={sections} />}
+          {filteredPastCourses.length > 0 && (
+            <Accordion
+              type="single"
+              collapsible
+              value={pastExpanded ? 'past' : ''}
+              onValueChange={(value) => {
+                const expanded = value === 'past'
+                setPastExpandedByUser(expanded)
+                if (faculty.slug && degree.slug) {
+                  analytics.discovery.degreePastCoursesToggled({
+                    facultySlug: faculty.slug,
+                    degreeSlug: degree.slug,
+                    expanded,
+                    pastCourseCount: pastCourses.length
+                  })
+                }
+              }}
+            >
+              <AccordionItem value="past" className="border-b-0">
+                <AccordionTrigger className="border-b border-border pb-2 pt-0 text-lg font-semibold text-muted-foreground hover:no-underline hover:text-foreground">
+                  {t('degree_page.past_courses', {
+                    count: filteredPastCourses.length
+                  })}
+                </AccordionTrigger>
+                <AccordionContent className="pt-3">
+                  <p className="mb-3 px-3 text-sm text-muted-foreground">
+                    {t('degree_page.past_courses_hint')}
+                  </p>
+                  <CourseTable
+                    sections={[
+                      {
+                        key: 'past',
+                        heading: null,
+                        entries: filteredPastCourses.map((course) => ({
+                          course,
+                          terms: []
+                        }))
+                      }
+                    ]}
+                  />
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          )}
+        </div>
       )}
     </BrowsePageLayout>
   )

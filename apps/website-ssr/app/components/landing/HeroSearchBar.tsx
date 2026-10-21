@@ -14,6 +14,7 @@ import { useTranslation } from 'react-i18next'
 import { useLang } from '~/hooks'
 import { analytics, type LandingSearchResultType } from '~/utils/analytics'
 import { getCoursePath, getLocalePath } from '~/utils/i18n-routes'
+import { LastTaughtTag } from '../course/LastTaughtTag'
 
 export function HeroSearchBar() {
   const { t } = useTranslation('landing')
@@ -156,8 +157,11 @@ export function HeroSearchBar() {
                     <span className="text-xs text-muted-foreground block">
                       {course.faculty.shortName} · {course.degree.name}
                     </span>
-                    <span className="text-sm font-medium block truncate">
-                      {course.name}
+                    <span className="flex items-center gap-2">
+                      <span className="text-sm font-medium truncate">
+                        {course.name}
+                      </span>
+                      <LastTaughtTag lastTaughtYear={course.lastTaughtYear} />
                     </span>
                   </div>
                   {course.reviewCount > 0 && (

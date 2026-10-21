@@ -71,6 +71,8 @@ export type FeedbackForEdit = {
   courseName: string
   courseCode: string
   courseId: number
+  /** Last school year the course was taught; null = still taught */
+  courseLastTaughtYear: number | null
   degreeName: string
   facultyShortName: string
 }

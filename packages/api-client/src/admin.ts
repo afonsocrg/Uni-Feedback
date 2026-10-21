@@ -122,6 +122,8 @@ export interface AdminCourse {
   facultyShortName: string
   totalFeedbackCount: number
   offerings: CourseOffering[]
+  /** Last school year taught (2025 = 2025/2026); null = still taught */
+  lastTaughtYear: number | null
   createdAt: string
 }
 
@@ -158,6 +160,8 @@ export interface AdminCourseDetail {
   bibliography: string | null
   assessment: string | null
   hasMandatoryExam: boolean | null
+  /** Last school year taught (2025 = 2025/2026); null = still taught */
+  lastTaughtYear: number | null
   degreeId: number
   degreeName: string
   degreeAcronym: string
@@ -177,6 +181,7 @@ export interface CourseUpdateData {
   bibliography?: string | null
   assessment?: string | null
   hasMandatoryExam?: boolean | null
+  lastTaughtYear?: number | null
 }
 
 export interface AllTermsResponse {

@@ -96,3 +96,32 @@ export function formatYear(year: number, format: 'short' | 'long'): string {
   }
   return yearString
 }
+
+/**
+ * Whether a course is no longer taught. `courses.last_taught_year` is NULL for
+ * a course still taught, and otherwise the last school year it ran.
+ */
+export function isDiscontinued(
+  lastTaughtYear: number | null | undefined
+): boolean {
+  return lastTaughtYear != null
+}
+
+/**
+ * The latest school year a student can review a course for: the current one,
+ * or, for a discontinued course, the last year it was taught. Feedback for a
+ * year after that would describe an edition that never happened.
+ *
+ * @example
+ * // In 2026/2027, for a course last taught in 2025/2026
+ * getLatestReviewableSchoolYear(2025) // returns 2025
+ * getLatestReviewableSchoolYear(null) // returns 2026
+ */
+export function getLatestReviewableSchoolYear(
+  lastTaughtYear: number | null | undefined,
+  currentSchoolYear: number = getCurrentSchoolYear()
+): number {
+  return lastTaughtYear == null
+    ? currentSchoolYear
+    : Math.min(lastTaughtYear, currentSchoolYear)
+}

@@ -11,6 +11,7 @@ import { storage } from '~/utils/storage'
 import { FilterChip } from './common/FilterChip'
 import { SearchableFilterChip } from './common/SearchableFilterChip'
 import { SearchInput } from './common/SearchInput'
+import { LastTaughtTag } from './course/LastTaughtTag'
 
 interface CourseBrowserProps {
   faculties: Faculty[]
@@ -229,8 +230,9 @@ export function CourseBrowser({
                       <h3 className="text-lg font-bold text-foreground leading-tight">
                         {course.name}
                       </h3>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="flex items-center gap-2 text-sm text-muted-foreground">
                         {course.acronym}
+                        <LastTaughtTag lastTaughtYear={course.lastTaughtYear} />
                       </p>
                       {course.hasUserFeedback && course.userRating && (
                         <div className="flex items-center gap-1.5">

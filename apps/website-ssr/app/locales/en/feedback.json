@@ -62,6 +62,7 @@
   "form": {
     "change_course": "Change course",
     "school_year_label": "When did you take it?",
+    "school_year_last_taught": "This course is no longer taught. It was last taught in {{year}}.",
     "school_year_help": "Pick the year you actually took the course. The year is shown on your review and helps other students know how current it is.",
     "rating_label": "How was the course?",
     "workload_label": "How heavy was the workload?",

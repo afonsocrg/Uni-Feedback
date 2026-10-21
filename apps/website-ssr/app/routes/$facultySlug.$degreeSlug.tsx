@@ -1,4 +1,5 @@
 import { database, offeringsSubquery, schema } from '@uni-feedback/db'
+import { isDiscontinued } from '@uni-feedback/utils'
 import { eq, sql } from 'drizzle-orm'
 import { useEffect } from 'react'
 import { useLocation } from 'react-router'
@@ -53,6 +54,12 @@ export function meta({ loaderData, location, matches }: Route.MetaArgs) {
   const withTail = `${summary} ${t('meta.degree_description_tail')}`
   const description = withTail.length <= 160 ? withTail : summary
 
+  // What the degree offers today. Discontinued courses keep their pages (and
+  // count towards the review total above), but are not part of the degree now.
+  const offeredCourses = courses.filter(
+    (c) => !isDiscontinued(c.lastTaughtYear)
+  )
+
   // Schema.org structured data
   const structuredData = {
     '@context': 'https://schema.org',
@@ -68,11 +75,11 @@ export function meta({ loaderData, location, matches }: Route.MetaArgs) {
       degree.slug && {
         url: `${origin}${getDegreePath('pt', faculty.slug, degree.slug)}`
       }),
-    ...(courses.length > 0 && {
+    ...(offeredCourses.length > 0 && {
       offers: {
         '@type': 'ItemList',
-        numberOfItems: courses.length,
-        itemListElement: courses.map((course, index) => ({
+        numberOfItems: offeredCourses.length,
+        itemListElement: offeredCourses.map((course, index) => ({
           '@type': 'ListItem',
           position: index + 1,
           item: {
@@ -111,8 +118,8 @@ export function meta({ loaderData, location, matches }: Route.MetaArgs) {
       'course reviews',
       'student feedback',
       'university courses',
-      ...courses.map((c) => c.name),
-      ...courses.map((c) => c.acronym)
+      ...offeredCourses.map((c) => c.name),
+      ...offeredCourses.map((c) => c.acronym)
     ].filter((k): k is string => Boolean(k)),
     structuredData
   })
@@ -151,6 +158,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
       offerings: offeringsSubquery(),
       hasMandatoryExam: schema.courses.hasMandatoryExam,
       isMandatory: schema.courses.isMandatory,
+      lastTaughtYear: schema.courses.lastTaughtYear,
       averageRating:
         sql<number>`coalesce(${schema.courseStats.averageRating}, 0)`.as(
           'average_rating'

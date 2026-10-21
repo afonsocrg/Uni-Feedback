@@ -16,7 +16,8 @@ const CourseResponseSchema = z.object({
   averageWorkload: z.number().nullable(),
   totalFeedbackCount: z.number(),
   offerings: z.array(CourseOfferingSchema),
-  hasMandatoryExam: z.boolean().nullable()
+  hasMandatoryExam: z.boolean().nullable(),
+  lastTaughtYear: z.number().nullable()
 })
 
 export class GetDegreeCourses extends OpenAPIRoute {
@@ -89,7 +90,8 @@ export class GetDegreeCourses extends OpenAPIRoute {
           ),
         degreeId: courses.degreeId,
         offerings: offeringsSubquery(),
-        hasMandatoryExam: courses.hasMandatoryExam
+        hasMandatoryExam: courses.hasMandatoryExam,
+        lastTaughtYear: courses.lastTaughtYear
       })
       .from(courses)
       .leftJoin(feedbackJoin.table, feedbackJoin.condition)

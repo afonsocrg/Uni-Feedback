@@ -115,6 +115,34 @@ describe('ChatRetrievalService: batched and compact lookups', () => {
     })
   })
 
+  it('tells the model a course is no longer taught, and keeps it off the curriculum', async () => {
+    await withTestDb(async () => {
+      const { meec } = await seed()
+      const retired = await createCourse(meec.id, {
+        name: 'Controlo Clássico',
+        acronym: 'CC',
+        lastTaughtYear: 2025
+      })
+      await initCourseStats(retired.id)
+
+      const course = await service.getCourse(retired.id)
+      expect(course?.lastTaughtSchoolYear).toBe('2025/2026')
+      expect(course && 'lastTaughtYear' in course).toBe(false)
+
+      // Search still finds it, flagged
+      const result = await service.searchCourses({ queries: ['clássico'] })
+      expect(result.courses[0]).toMatchObject({
+        courseId: retired.id,
+        lastTaughtSchoolYear: '2025/2026'
+      })
+
+      const degree = await service.getDegree({ degreeId: meec.id })
+      const ids = degree!.curriculum.map((c) => c.courseId)
+      expect(ids).not.toContain(retired.id)
+      expect(ids).toHaveLength(3)
+    })
+  })
+
   it('counts faculties from degree_stats', async () => {
     await withTestDb(async () => {
       const { ist, meec } = await seed()

@@ -49,6 +49,9 @@
     "no_results": "Nenhuma cadeira corresponde à tua pesquisa.",
     "other_courses": "Outras cadeiras",
     "tag_optional": "Optativa",
+    "past_courses": "Cadeiras que já não são lecionadas ({{count}})",
+    "past_courses_hint": "Já não fazem parte do plano do curso. Continuas a poder ler o feedback e a dar o teu sobre os anos em que foram lecionadas.",
+    "tag_last_taught": "Até {{year}}",
     "legend_mandatory_exam": "Exame obrigatório"
   },
   "faculty_page": {

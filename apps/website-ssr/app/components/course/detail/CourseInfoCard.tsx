@@ -8,7 +8,8 @@ import {
   StarRating,
   WorkloadRatingDisplay
 } from '@uni-feedback/ui'
-import { Clock, ExternalLink, Flag, Star } from 'lucide-react'
+import { formatSchoolYearString } from '@uni-feedback/utils'
+import { Clock, ExternalLink, Flag, History, Star } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
@@ -30,6 +31,8 @@ export interface CourseInfoCardProps {
     offerings: CourseOffering[]
     ects?: number | null
     hasMandatoryExam?: boolean | null
+    /** Last school year taught (2025 = 2025/2026); null = still taught */
+    lastTaughtYear?: number | null
     averageRating: number
     averageWorkload: number
     totalFeedbackCount: number
@@ -162,6 +165,18 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
             {t('info.suggest_correction')}
           </button>
         </div>
+
+        {/* Said before any fact, so nobody reads the page as a course they
+            can still take. The reviews and the feedback form stay: students
+            who took it can still review the years it ran. */}
+        {course.lastTaughtYear != null && (
+          <p className="flex items-start gap-2 rounded-md border border-border bg-muted px-3 py-2 text-sm text-muted-foreground">
+            <History className="mt-0.5 size-4 flex-shrink-0" />
+            {t('info.no_longer_taught', {
+              year: formatSchoolYearString(course.lastTaughtYear)
+            })}
+          </p>
+        )}
 
         {/* Course facts */}
         <div className="flex flex-wrap items-center gap-2">

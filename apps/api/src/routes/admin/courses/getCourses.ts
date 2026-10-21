@@ -48,6 +48,7 @@ const AdminCourseSchema = z.object({
   facultyShortName: z.string(),
   totalFeedbackCount: z.number(),
   offerings: z.array(CourseOfferingSchema),
+  lastTaughtYear: z.number().nullable(),
   createdAt: z.string()
 })
 
@@ -165,6 +166,7 @@ export class GetCourses extends OpenAPIRoute {
         facultyName: faculties.name,
         facultyShortName: faculties.shortName,
         offerings: offeringsSubquery(),
+        lastTaughtYear: courses.lastTaughtYear,
         createdAt: courses.createdAt,
         totalFeedbackCount: feedbackCountSql
       })

@@ -17,7 +17,16 @@ import {
   degreeStats,
   feedback
 } from '@uni-feedback/db/schema'
-import { and, count, eq, inArray, isNotNull, or, sql } from 'drizzle-orm'
+import {
+  and,
+  count,
+  eq,
+  inArray,
+  isNotNull,
+  isNull,
+  or,
+  sql
+} from 'drizzle-orm'
 
 export class StatsService {
   /**
@@ -235,11 +244,15 @@ export class StatsService {
           )
         )
 
-    // Count courses in degree
+    // Count the courses the degree offers today. A discontinued course keeps
+    // its reviews (counted below) but is no longer part of the degree, and a
+    // degree left with none drops off its faculty page.
     const courseCountResult = await db
       .select({ count: count() })
       .from(courses)
-      .where(eq(courses.degreeId, degreeId))
+      .where(
+        and(eq(courses.degreeId, degreeId), isNull(courses.lastTaughtYear))
+      )
 
     // Count feedback for courses in degree (including related courses)
     const feedbackCountResult = await db

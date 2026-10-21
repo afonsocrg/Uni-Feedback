@@ -10,12 +10,16 @@ import {
   feedbackAnalysis,
   feedbackFull
 } from '@uni-feedback/db/schema'
-import { countWords } from '@uni-feedback/utils'
+import {
+  countWords,
+  formatSchoolYearString,
+  getLatestReviewableSchoolYear
+} from '@uni-feedback/utils'
 import { contentJson, OpenAPIRoute } from 'chanfana'
 import { and, desc, eq } from 'drizzle-orm'
 import type { Context } from 'hono'
 import { z } from 'zod'
-import { ForbiddenError } from '../utils'
+import { BadRequestError, ForbiddenError } from '../utils'
 
 const EditFeedbackRequestSchema = z
   .object({
@@ -69,8 +73,30 @@ export class EditFeedback extends OpenAPIRoute {
 
     const newComment = body.comment?.trim() || null
 
-    // Check if identical
     const newSchoolYear = body.schoolYear ?? existingFeedback.schoolYear
+
+    // Moving a review to another year must not land after the course ended.
+    // A review already stored for a later year can still be edited otherwise.
+    if (
+      newSchoolYear != null &&
+      newSchoolYear !== existingFeedback.schoolYear
+    ) {
+      const [course] = await database()
+        .select({ lastTaughtYear: courses.lastTaughtYear })
+        .from(courses)
+        .where(eq(courses.id, existingFeedback.courseId))
+        .limit(1)
+      if (
+        course &&
+        newSchoolYear > getLatestReviewableSchoolYear(course.lastTaughtYear)
+      ) {
+        throw new BadRequestError(
+          `This course was last taught in ${formatSchoolYearString(course.lastTaughtYear!)}`
+        )
+      }
+    }
+
+    // Check if identical
     const isIdentical =
       existingFeedback.rating === body.rating &&
       existingFeedback.workloadRating === body.workloadRating &&

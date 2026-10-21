@@ -50,6 +50,8 @@ export interface Course {
   totalFeedbackCount: number
   offerings: CourseOffering[]
   hasMandatoryExam: boolean | null
+  /** Last school year taught (2025 = 2025/2026); null = still taught */
+  lastTaughtYear: number | null
 }
 
 export interface CourseDetail extends Course {
@@ -123,6 +125,8 @@ export interface CourseSearchResult {
   userRating: number | null
   avgRating: number | null
   reviewCount: number
+  /** Last school year taught (2025 = 2025/2026); null = still taught */
+  lastTaughtYear: number | null
 }
 
 export interface DegreeSearchResult {

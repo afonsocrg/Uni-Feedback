@@ -16,6 +16,7 @@
     "bibliography": "Bibliografia"
   },
   "info": {
+    "no_longer_taught": "Esta cadeira já não é lecionada. Foi lecionada pela última vez em {{year}}.",
     "course_page": "Página da Cadeira",
     "no_reviews": "Sem avaliações ainda",
     "workload_label": "Carga de trabalho",

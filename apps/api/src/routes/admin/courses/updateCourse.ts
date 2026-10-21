@@ -15,7 +15,9 @@ const CourseUpdateSchema = z.object({
   description: z.string().nullable().optional(),
   bibliography: z.string().nullable().optional(),
   assessment: z.string().nullable().optional(),
-  hasMandatoryExam: z.boolean().nullable().optional()
+  hasMandatoryExam: z.boolean().nullable().optional(),
+  // Last school year taught (2025 = 2025/2026); null = still taught
+  lastTaughtYear: z.number().int().min(2000).max(2100).nullable().optional()
 })
 
 const CourseResponseSchema = z.object({
@@ -27,6 +29,7 @@ const CourseResponseSchema = z.object({
   bibliography: z.string().nullable(),
   assessment: z.string().nullable(),
   hasMandatoryExam: z.boolean().nullable(),
+  lastTaughtYear: z.number().nullable(),
   degreeId: z.number(),
   createdAt: z.string(),
   updatedAt: z.string()
@@ -37,7 +40,7 @@ export class UpdateCourse extends OpenAPIRoute {
     tags: ['Admin - Courses'],
     summary: 'Update course information',
     description:
-      'Updates course information including name, acronym, ects, description, bibliography, assessment, and hasMandatoryExam',
+      'Updates course information including name, acronym, ects, description, bibliography, assessment, hasMandatoryExam and lastTaughtYear',
     request: {
       params: z.object({
         id: z.string().transform((val) => parseInt(val, 10))
@@ -148,6 +151,8 @@ export class UpdateCourse extends OpenAPIRoute {
       dbUpdateData.assessment = updateData.assessment
     if (updateData.hasMandatoryExam !== undefined)
       dbUpdateData.hasMandatoryExam = updateData.hasMandatoryExam
+    if (updateData.lastTaughtYear !== undefined)
+      dbUpdateData.lastTaughtYear = updateData.lastTaughtYear
 
     // Detect changes for notification
     const changes = detectChanges(existingCourse[0], dbUpdateData, [
@@ -157,7 +162,8 @@ export class UpdateCourse extends OpenAPIRoute {
       'description',
       'bibliography',
       'assessment',
-      'hasMandatoryExam'
+      'hasMandatoryExam',
+      'lastTaughtYear'
     ])
 
     // Update course
@@ -177,6 +183,7 @@ export class UpdateCourse extends OpenAPIRoute {
         bibliography: courses.bibliography,
         assessment: courses.assessment,
         hasMandatoryExam: courses.hasMandatoryExam,
+        lastTaughtYear: courses.lastTaughtYear,
         degreeId: courses.degreeId,
         createdAt: courses.createdAt,
         updatedAt: courses.updatedAt

@@ -47,6 +47,7 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
       name?: string
       acronym?: string
       ects?: number | null
+      lastTaughtYear?: number | null
     }) => updateCourse(courseId, updates),
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -145,6 +146,28 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
               type="number"
               // placeholder="Enter ECTS credits"
             />
+
+            {/* Discontinued: hides the course from its degree's listing and
+                caps the school years it can be reviewed for. See
+                courses.last_taught_year (migration 0045). */}
+            <div className="space-y-1">
+              <EditableField
+                label="Last taught in (start year, e.g. 2025 = 2025/26)"
+                value={course.lastTaughtYear?.toString() || ''}
+                onSave={(value) => {
+                  updateMutation.mutate({
+                    lastTaughtYear: value === '' ? null : Number(value)
+                  })
+                }}
+                disabled={updateMutation.isPending}
+                type="number"
+              />
+              <p className="text-xs text-muted-foreground">
+                {course.lastTaughtYear == null
+                  ? 'Empty: still taught.'
+                  : `No longer taught: listed under "courses no longer taught", reviewable up to ${course.lastTaughtYear}/${String(course.lastTaughtYear + 1).slice(2)}.`}
+              </p>
+            </div>
 
             {/* Terms */}
             <div className="space-y-2">

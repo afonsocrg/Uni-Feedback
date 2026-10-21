@@ -16,6 +16,7 @@
     "bibliography": "Bibliography"
   },
   "info": {
+    "no_longer_taught": "This course is no longer taught. It was last taught in {{year}}.",
     "course_page": "Course Page",
     "no_reviews": "No reviews yet",
     "workload_label": "Workload",

@@ -49,6 +49,9 @@
     "no_results": "No courses match your search criteria.",
     "other_courses": "Other courses",
     "tag_optional": "Optional",
+    "past_courses": "Courses no longer taught ({{count}})",
+    "past_courses_hint": "These are no longer part of the degree's plan. You can still read their feedback and give yours for the years they were taught.",
+    "tag_last_taught": "Until {{year}}",
     "legend_mandatory_exam": "Mandatory exam"
   },
   "faculty_page": {

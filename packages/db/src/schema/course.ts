@@ -31,6 +31,9 @@ export const courses = pgTable('courses', {
   hasMandatoryExam: boolean('has_mandatory_exam'),
   isMandatory: boolean('is_mandatory'),
   duration: text('duration'),
+  // Last school year the course was taught (feedback.school_year encoding,
+  // 2025 = 2025/2026). NULL = still taught. See migration 0045.
+  lastTaughtYear: integer('last_taught_year'),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow()
 })

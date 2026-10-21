@@ -20,7 +20,17 @@ import {
   formatSchoolYearString,
   getCurrentSchoolYear
 } from '@uni-feedback/utils'
-import { and, asc, desc, eq, inArray, isNotNull, or, sql } from 'drizzle-orm'
+import {
+  and,
+  asc,
+  desc,
+  eq,
+  inArray,
+  isNotNull,
+  isNull,
+  or,
+  sql
+} from 'drizzle-orm'
 
 /**
  * Retrieval for the AI chat.
@@ -205,6 +215,11 @@ function relaxQuery(q: string): string | null {
 
 // ---------------------------------------------------------------------------
 
+/** "2025/2026" for a discontinued course, null for one still taught. */
+function lastTaughtSchoolYear(lastTaughtYear: number | null) {
+  return lastTaughtYear == null ? null : formatSchoolYearString(lastTaughtYear)
+}
+
 interface CourseRow {
   courseId: number
   name: string
@@ -218,6 +233,7 @@ interface CourseRow {
   hasMandatoryExam: boolean | null
   reviewCount: number | null
   hasDescription: boolean
+  lastTaughtYear: number | null
 }
 
 export class ChatRetrievalService {
@@ -460,6 +476,7 @@ export class ChatRetrievalService {
         averageWorkload: courseStats.averageWorkload,
         hasMandatoryExam: courses.hasMandatoryExam,
         reviewCount: courseStats.totalFeedbackCount,
+        lastTaughtYear: courses.lastTaughtYear,
         hasDescription: sql<boolean>`(${courses.description} is not null and length(trim(${courses.description})) > 0)`
       })
       .from(courses)
@@ -519,8 +536,12 @@ export class ChatRetrievalService {
    * it ask "which one did you mean?" about a distinction that does not exist.
    */
   private async collapseIdenticalCourses(rows: CourseRow[]) {
-    const decorate = (row: CourseRow, alsoInDegrees: string[]) => ({
+    const decorate = (
+      { lastTaughtYear, ...row }: CourseRow,
+      alsoInDegrees: string[]
+    ) => ({
       ...row,
+      lastTaughtSchoolYear: lastTaughtSchoolYear(lastTaughtYear),
       reviewCount: row.reviewCount ?? 0,
       hasDescription: Boolean(row.hasDescription),
       workloadLabel: workloadLabel(row.averageWorkload),
@@ -567,8 +588,11 @@ export class ChatRetrievalService {
     }
 
     const representatives = [...groups.values()].map((group) => {
+      // The row still taught speaks for the set: its page is the one to link
       const sorted = [...group].sort(
-        (a, b) => (b.reviewCount ?? 0) - (a.reviewCount ?? 0)
+        (a, b) =>
+          Number(a.lastTaughtYear != null) - Number(b.lastTaughtYear != null) ||
+          (b.reviewCount ?? 0) - (a.reviewCount ?? 0)
       )
       const [best, ...rest] = sorted
       return decorate(
@@ -596,6 +620,7 @@ export class ChatRetrievalService {
         bibliography: courses.bibliography,
         hasMandatoryExam: courses.hasMandatoryExam,
         isMandatory: courses.isMandatory,
+        lastTaughtYear: courses.lastTaughtYear,
         degreeId: degrees.id,
         degreeName: degrees.name,
         degreeAcronym: degrees.acronym,
@@ -670,8 +695,10 @@ export class ChatRetrievalService {
       averageGrade: Math.round(g.averageGrade * 10) / 10
     }))
 
+    const { lastTaughtYear, ...rest } = row
     return {
-      ...row,
+      ...rest,
+      lastTaughtSchoolYear: lastTaughtSchoolYear(lastTaughtYear),
       description: truncate(row.description, MAX_TEXT_FIELD_CHARS),
       assessment: truncate(row.assessment, MAX_TEXT_FIELD_CHARS),
       bibliography: truncate(row.bibliography, 400),
@@ -909,11 +936,17 @@ export class ChatRetrievalService {
         eq(courseOfferings.academicTermId, academicTerms.id)
       )
       .leftJoin(courseStats, eq(courseStats.courseId, courses.id))
+      // The curriculum is what a student can take: discontinued courses are
+      // left out (search_courses still finds them)
       .where(
         args.curriculumYear === undefined
-          ? eq(courses.degreeId, args.degreeId)
+          ? and(
+              eq(courses.degreeId, args.degreeId),
+              isNull(courses.lastTaughtYear)
+            )
           : and(
               eq(courses.degreeId, args.degreeId),
+              isNull(courses.lastTaughtYear),
               eq(courseOfferings.curriculumYear, args.curriculumYear)
             )
       )

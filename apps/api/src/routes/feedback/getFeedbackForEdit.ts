@@ -47,6 +47,7 @@ export class GetFeedbackForEdit extends OpenAPIRoute {
         courseName: courses.name,
         courseCode: courses.acronym,
         courseId: courses.id,
+        courseLastTaughtYear: courses.lastTaughtYear,
         degreeName: degrees.name,
         facultyShortName: faculties.shortName
       })

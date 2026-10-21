@@ -10,7 +10,12 @@ import {
   feedbackAnalysis,
   feedbackFull
 } from '@uni-feedback/db/schema'
-import { countWords, getCurrentSchoolYear } from '@uni-feedback/utils'
+import {
+  countWords,
+  formatSchoolYearString,
+  getCurrentSchoolYear,
+  getLatestReviewableSchoolYear
+} from '@uni-feedback/utils'
 import { contentJson, OpenAPIRoute } from 'chanfana'
 import { and, eq } from 'drizzle-orm'
 import type { Context } from 'hono'
@@ -80,6 +85,16 @@ export class SubmitFeedback extends OpenAPIRoute {
       throw new NotFoundError('Course not found')
     }
     const course = courseResult[0]
+
+    // A discontinued course can only be reviewed for the years it ran
+    if (
+      body.schoolYear >
+      getLatestReviewableSchoolYear(course.lastTaughtYear, currentSchoolYear)
+    ) {
+      throw new BadRequestError(
+        `This course was last taught in ${formatSchoolYearString(course.lastTaughtYear!)}`
+      )
+    }
 
     if (!course.degreeId) {
       throw new NotFoundError('Course has no associated degree')

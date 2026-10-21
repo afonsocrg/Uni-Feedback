@@ -8,6 +8,8 @@ export interface CourseWithFeedback {
   offerings: CourseOffering[]
   hasMandatoryExam: boolean | null
   isMandatory: boolean | null
+  /** Last school year taught (2025 = 2025/2026); null = still taught */
+  lastTaughtYear: number | null
   averageRating: number
   averageWorkload: number
   totalFeedbackCount: number

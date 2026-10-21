@@ -2,7 +2,7 @@ import { NotFoundError } from '@routes/utils/errorHandling'
 import { database } from '@uni-feedback/db'
 import { courses, degrees, faculties } from '@uni-feedback/db/schema'
 import { OpenAPIRoute } from 'chanfana'
-import { count, eq } from 'drizzle-orm'
+import { and, count, eq, isNull } from 'drizzle-orm'
 import type { Context } from 'hono'
 import { z } from 'zod'
 
@@ -86,7 +86,11 @@ export class GetFacultyDetails extends OpenAPIRoute {
         courseCount: count(courses.id)
       })
       .from(degrees)
-      .leftJoin(courses, eq(degrees.id, courses.degreeId))
+      // Courses offered today: discontinued ones are not counted
+      .leftJoin(
+        courses,
+        and(eq(degrees.id, courses.degreeId), isNull(courses.lastTaughtYear))
+      )
       .where(eq(degrees.facultyId, facultyId))
       .groupBy(degrees.id)
 

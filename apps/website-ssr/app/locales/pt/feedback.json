@@ -62,6 +62,7 @@
   "form": {
     "change_course": "Mudar de cadeira",
     "school_year_label": "Em que ano letivo tiveste a cadeira?",
+    "school_year_last_taught": "Esta cadeira já não é lecionada. Foi lecionada pela última vez em {{year}}.",
     "school_year_help": "Escolhe o ano em que tiveste mesmo a cadeira. O ano aparece na tua review e ajuda outros alunos a saber se ainda é atual.",
     "rating_label": "Como foi a cadeira?",
     "workload_label": "Qual foi a carga de trabalho?",

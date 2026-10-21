@@ -15,7 +15,7 @@ import {
 } from '@uni-feedback/ui'
 import {
   formatSchoolYearString,
-  getCurrentSchoolYear
+  getLatestReviewableSchoolYear
 } from '@uni-feedback/utils'
 import { Loader2, Lock, Send } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -36,6 +36,8 @@ interface CourseWithDetails {
   id: number
   name: string
   acronym: string
+  /** Last school year taught (2025 = 2025/2026); null = still taught */
+  lastTaughtYear?: number | null
   degree: {
     id: number
     name: string
@@ -97,6 +99,7 @@ export function CourseSpecificFeedbackForm({
         id: selectedCourse.id,
         name: selectedCourse.name,
         acronym: selectedCourse.acronym,
+        lastTaughtYear: selectedCourse.lastTaughtYear,
         degree: {
           id: selectedCourse.degree.id,
           name: selectedCourse.degree.name,
@@ -139,11 +142,22 @@ export function CourseSpecificFeedbackForm({
   const ratingsTrackedRef = useRef(false)
   const commentTrackedRef = useRef(false)
 
-  // Generate school years
-  const schoolYears = useMemo(
-    () => Array.from({ length: 5 }, (_, i) => getCurrentSchoolYear() - i),
-    []
-  )
+  // The last five school years the course could have been taken in. For a
+  // course no longer taught they end at its last edition (the API refuses
+  // later years too).
+  const lastTaughtYear = currentCourse.lastTaughtYear ?? null
+  const schoolYears = useMemo(() => {
+    const latest = getLatestReviewableSchoolYear(lastTaughtYear)
+    return Array.from({ length: 5 }, (_, i) => latest - i)
+  }, [lastTaughtYear])
+
+  // Switching to a course that ended earlier can strand the chosen year
+  useEffect(() => {
+    const chosen = form.getValues('schoolYear')
+    if (chosen !== undefined && !schoolYears.includes(chosen)) {
+      form.resetField('schoolYear')
+    }
+  }, [schoolYears, form])
 
   // Show draft recovery dialog on mount if draft exists AND form is empty
   // If form has content, just enable auto-save (user is working on new feedback)
@@ -322,6 +336,13 @@ export function CourseSpecificFeedbackForm({
                       {/* <p className="text-sm text-muted-foreground">
                         {t('form.school_year_help')}
                       </p> */}
+                      {lastTaughtYear !== null && (
+                        <p className="text-sm text-muted-foreground">
+                          {t('form.school_year_last_taught', {
+                            year: formatSchoolYearString(lastTaughtYear)
+                          })}
+                        </p>
+                      )}
                       <FormControl>
                         <div className="flex flex-wrap gap-2 pt-2">
                           {schoolYears.map((year) => {

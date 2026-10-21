@@ -11,6 +11,7 @@ import { analytics, getPageName } from '~/utils/analytics'
 import { getCourseFeedbackPath, getCoursePath } from '~/utils/i18n-routes'
 import { ListingRow } from '../common/ListingRow'
 import { RowTag } from '../common/RowTag'
+import { LastTaughtTag } from './LastTaughtTag'
 import type { CourseListingEntry, CourseListingProps } from './types'
 
 // Fixed widths from `md` up are what keep the rating and workload cells lined up
@@ -102,6 +103,9 @@ function CourseRow({
           {course.isMandatory === false && (
             <RowTag label={t('degree_page.tag_optional')} />
           )}
+          {/* A course no longer taught says when it last ran: the reviews
+              under it describe editions up to that year */}
+          <LastTaughtTag lastTaughtYear={course.lastTaughtYear} />
         </>
       }
     >

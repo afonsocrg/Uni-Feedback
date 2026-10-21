@@ -30,7 +30,8 @@ const CourseSearchResultSchema = z.object({
   hasUserFeedback: z.boolean(),
   userRating: z.number().nullable(),
   avgRating: z.number().nullable(),
-  reviewCount: z.number()
+  reviewCount: z.number(),
+  lastTaughtYear: z.number().nullable()
 })
 
 const SearchResponseSchema = z.object({
@@ -125,6 +126,10 @@ export class SearchCourses extends OpenAPIRoute {
       conditions.push(eq(degrees.facultyId, faculty_id))
     }
 
+    // Discontinued courses stay findable (their reviews are still useful)
+    // but come after every course that is still taught
+    const discontinuedLast = asc(sql`(${courses.lastTaughtYear} IS NOT NULL)`)
+
     const db = database()
     const whereClause = conditions.length > 0 ? and(...conditions) : undefined
 
@@ -138,6 +143,7 @@ export class SearchCourses extends OpenAPIRoute {
       userRating: number | null
       avgRating: number | null
       reviewCount: number
+      lastTaughtYear: number | null
     }>
 
     if (userId) {
@@ -159,7 +165,8 @@ export class SearchCourses extends OpenAPIRoute {
           hasUserFeedback: sql<boolean>`(${feedback.id} IS NOT NULL)`,
           userRating: feedback.rating,
           avgRating: courseStats.averageRating,
-          reviewCount: courseStats.totalFeedbackCount
+          reviewCount: courseStats.totalFeedbackCount,
+          lastTaughtYear: courses.lastTaughtYear
         })
         .from(courses)
         .innerJoin(degrees, eq(courses.degreeId, degrees.id))
@@ -171,6 +178,7 @@ export class SearchCourses extends OpenAPIRoute {
         .leftJoin(courseStats, eq(courseStats.courseId, courses.id))
         .where(whereClause)
         .orderBy(
+          discontinuedLast,
           ...(sort === 'review_count_asc'
             ? [
                 asc(sql`COALESCE(${courseStats.totalFeedbackCount}, 0)`),
@@ -206,7 +214,8 @@ export class SearchCourses extends OpenAPIRoute {
             shortName: faculties.shortName
           },
           avgRating: courseStats.averageRating,
-          reviewCount: courseStats.totalFeedbackCount
+          reviewCount: courseStats.totalFeedbackCount,
+          lastTaughtYear: courses.lastTaughtYear
         })
         .from(courses)
         .innerJoin(degrees, eq(courses.degreeId, degrees.id))
@@ -214,6 +223,7 @@ export class SearchCourses extends OpenAPIRoute {
         .leftJoin(courseStats, eq(courseStats.courseId, courses.id))
         .where(whereClause)
         .orderBy(
+          discontinuedLast,
           ...(sort === 'review_count_asc'
             ? [
                 asc(sql`COALESCE(${courseStats.totalFeedbackCount}, 0)`),

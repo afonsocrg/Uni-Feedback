@@ -14,7 +14,7 @@ import {
 } from '@uni-feedback/ui'
 import {
   formatSchoolYearString,
-  getCurrentSchoolYear
+  getLatestReviewableSchoolYear
 } from '@uni-feedback/utils'
 import { Loader2, Save, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
@@ -35,6 +35,8 @@ interface EditFeedbackContentProps {
     schoolYear: number | null
     courseName: string
     courseCode: string
+    /** Last school year the course was taught; null = still taught */
+    courseLastTaughtYear?: number | null
     degreeName: string
     facultyShortName: string
     approvedAt: string | null
@@ -68,14 +70,24 @@ export function EditFeedbackContent({
       rating: feedback.rating,
       workloadRating: feedback.workloadRating,
       comment: feedback.comment || '',
-      schoolYear: feedback.schoolYear ?? getCurrentSchoolYear()
+      schoolYear:
+        feedback.schoolYear ??
+        getLatestReviewableSchoolYear(feedback.courseLastTaughtYear)
     }
   })
 
-  const schoolYears = useMemo(
-    () => Array.from({ length: 5 }, (_, i) => getCurrentSchoolYear() - i),
-    []
-  )
+  // As on the submit form, a course no longer taught offers no year after its
+  // last edition. The year already saved always stays selectable, so an older
+  // review that predates the rule can still be edited.
+  const schoolYears = useMemo(() => {
+    const latest = getLatestReviewableSchoolYear(feedback.courseLastTaughtYear)
+    const years = Array.from({ length: 5 }, (_, i) => latest - i)
+    if (feedback.schoolYear !== null && !years.includes(feedback.schoolYear)) {
+      years.push(feedback.schoolYear)
+      years.sort((a, b) => b - a)
+    }
+    return years
+  }, [feedback.courseLastTaughtYear, feedback.schoolYear])
 
   const [categories, setCategories] = useState<FeedbackCategories | null>(null)
 

@@ -679,7 +679,23 @@ export const analytics = {
       facultySlug: string
       degreeSlug: string
       courseCount: number
+      /** Discontinued courses, in the collapsed section (not in courseCount) */
+      pastCourseCount: number
     }) => trackEvent('degree_page_viewed', props),
+
+    /**
+     * Track opening or closing the degree page's collapsed "courses no longer
+     * taught" section. `degree_page_viewed` with `pastCourseCount > 0` is the
+     * denominator: how often students go looking for a course that left the
+     * plan. A search that matches one opens the section on its own, and that
+     * does not fire this: only the student's own click does.
+     */
+    degreePastCoursesToggled: (props: {
+      facultySlug: string
+      degreeSlug: string
+      expanded: boolean
+      pastCourseCount: number
+    }) => trackEvent('degree_past_courses_toggled', props),
 
     /**
      * Phase 4: Track course discovery patterns
