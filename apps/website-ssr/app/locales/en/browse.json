@@ -12,7 +12,9 @@
     "degree_description": "{{degreeName}} ({{acronym}}), {{faculty}}: anonymous student reviews of the degree's courses.",
     "degree_description_reviews_one": "{{degreeName}} ({{acronym}}), {{faculty}}: 1 anonymous student review of the degree's courses.",
     "degree_description_reviews_other": "{{degreeName}} ({{acronym}}), {{faculty}}: {{count}} anonymous student reviews of the degree's courses.",
-    "degree_description_tail": "Workload, assessment and tips."
+    "degree_description_tail": "Workload, assessment and tips.",
+    "degree_title_full": "{{acronym}} {{faculty}}: study plan, reviews and entry grades | Uni Feedback",
+    "degree_title_plan": "{{acronym}} {{faculty}}: study plan and reviews | Uni Feedback"
   },
   "page": {
     "title": "Select Your University",
@@ -59,7 +61,168 @@
     "past_courses": "Courses no longer taught ({{count}})",
     "past_courses_hint": "These are no longer part of the degree's plan. You can still read their feedback and give yours for the years they were taught.",
     "tag_last_taught": "Until {{year}}",
-    "legend_mandatory_exam": "Mandatory exam"
+    "legend_mandatory_exam": "Mandatory exam",
+    "view_courses_one": "See the course",
+    "view_courses_other": "See the {{n}} courses",
+    "toc_label": "On this page",
+    "sections": {
+      "about": "About the degree",
+      "plan": "Study plan",
+      "admission": "Admission",
+      "outcomes": "After the degree",
+      "highlights": "The courses, according to students",
+      "highlights_short": "The courses",
+      "campus": "Campus",
+      "faq": "FAQ",
+      "related": "Related"
+    },
+    "show_more": "Show more",
+    "show_less": "Show less",
+    "source_label": "Source:",
+    "facts": {
+      "type": {
+        "bachelor": "Bachelor's",
+        "integrated_master": "Integrated master's",
+        "master": "Master's",
+        "minor": "Minor",
+        "postgraduate": "Postgraduate",
+        "phd": "PhD",
+        "other": "Other"
+      },
+      "years_one": "{{n}} year",
+      "years_other": "{{n}} years",
+      "semesters_one": "{{n}} semester",
+      "semesters_other": "{{n}} semesters",
+      "ects": "{{n}} ECTS",
+      "campus": "Campus {{names}}",
+      "schedule": {
+        "daytime": "Daytime",
+        "after_work": "Evening classes",
+        "both": "Daytime and evening"
+      },
+      "language": {
+        "pt": "Taught in Portuguese",
+        "en": "Taught in English",
+        "pt_en": "Taught in Portuguese and English"
+      },
+      "courses_one": "{{n}} course",
+      "courses_other": "{{n}} courses",
+      "feedback_one": "{{n}} review",
+      "feedback_other": "{{n}} reviews"
+    },
+    "admission": {
+      "last_grade": "Last admitted grade, 1st phase {{year}}",
+      "previous": "{{grade}} in {{year}}",
+      "vagas": "Places {{year}}",
+      "candidatos": "Applicants 1st phase {{year}}",
+      "first_option": "{{n}} as 1st choice",
+      "media": "Average of admitted students {{year}}",
+      "chart_title": "Last admitted grade (1st phase)",
+      "chart_label": "Last admitted grade in the 1st phase, {{from}} to {{to}}",
+      "table_toggle": "See every year",
+      "table_year": "Year",
+      "table_grade": "Last admitted",
+      "table_vagas": "Places",
+      "after_work": "Evening track: {{grade}} in the 1st phase of {{year}}",
+      "after_work_vagas": "Evening track: {{grade}} in the 1st phase of {{year}}, {{vagas}} places",
+      "exams_title": "Entrance exams",
+      "exams_one_of": "One of these combinations:",
+      "formula": "Formula: <b>{{secondary}}%</b> secondary school average + <b>{{exams}}%</b> entrance exams.",
+      "minimum_both": "Minimums: <b>{{application}}</b> application grade, <b>{{exams}}</b> in the exams.",
+      "minimum_application": "Minimum: <b>{{application}}</b> application grade.",
+      "minimum_exams": "Minimum: <b>{{exams}}</b> in the entrance exams.",
+      "missing": "We don't have this degree's admission data yet.",
+      "source_dges": "DGES, national admission contest",
+      "source_years": "DGES, national admission contest ({{from}} to {{to}})"
+    },
+    "fees": {
+      "title": "Tuition fees {{year}}",
+      "student": {
+        "national": "national students",
+        "international": "international students",
+        "all": "all students"
+      },
+      "period": {
+        "year": "per year",
+        "total": "for the whole degree",
+        "semester": "per semester",
+        "ects": "per ECTS"
+      },
+      "label": "{{period}}, {{student}}",
+      "faq_item": "{{amount}} {{period}} ({{student}})",
+      "missing": "We don't have the {{year}} tuition fees yet.",
+      "source": "tuition fees {{year}}"
+    },
+    "outcomes": {
+      "unemployment": "Graduate unemployment",
+      "compare_both": "National: {{national}} · Area: {{area}}",
+      "compare_national": "National: {{national}}",
+      "compare_area": "Area: {{area}}",
+      "completion": "Finish in the expected time",
+      "completion_plus3": "{{pct}} within 3 extra years",
+      "plus3_only": "Finish within 3 extra years",
+      "still_in_course": "Still in the degree after year 1",
+      "missing": "There is no public data yet on how this degree's students do.",
+      "source": "InfoCursos, {{edition}} edition",
+      "broader": {
+        "mestrado": "Figures for the master's in {{name}} as a whole (all specializations).",
+        "licenciatura": "Figures for the bachelor's in {{name}} as a whole (all specializations).",
+        "other": "Figures for the {{name}} programme as a whole (all specializations)."
+      }
+    },
+    "highlights": {
+      "best": "Best rated",
+      "heaviest": "Heaviest",
+      "hint": "Among courses with at least {{n}} reviews."
+    },
+    "campus": {
+      "map": "See on the map",
+      "missing": "We don't know which campus this degree is taught on yet.",
+      "language_missing": "Teaching language: unknown.",
+      "schedule_missing": "Schedule: unknown."
+    },
+    "contribute": {
+      "link": "Know this? Help us fill it in",
+      "subject": "Missing information on {{name}}: {{field}}",
+      "body": "Page: {{url}}\n\nWhat I know (and where I saw it):\n",
+      "field": {
+        "teaching_language": "teaching language",
+        "schedule": "schedule",
+        "campus": "campus",
+        "admission": "admission",
+        "fees": "tuition fees",
+        "outcomes": "after the degree"
+      }
+    },
+    "ask": {
+      "link": "Ask us",
+      "heaviest_year": "Which year of {{acronym}} is the heaviest?",
+      "hardest_course": "Which {{acronym}} course is the hardest?",
+      "best_courses": "Which {{acronym}} courses get the best reviews?"
+    },
+    "faq": {
+      "last_grade_q": "What was the last admitted grade for {{acronym}}?",
+      "last_grade_a": "{{grade}} in the 1st phase of {{year}}, according to DGES.",
+      "last_grade_a_prev": "{{grade}} in the 1st phase of {{year}} ({{previous}} in {{previousYear}}), according to DGES.",
+      "exams_q": "Which entrance exams does {{acronym}} require?",
+      "exams_a_one": "{{list}}, according to DGES.",
+      "exams_a_many": "One of these combinations, according to DGES: {{list}}.",
+      "fees_q": "How much does {{acronym}} cost?",
+      "fees_a": "In {{year}}: {{list}}.",
+      "unemployment_q": "Do {{acronym}} graduates find jobs?",
+      "unemployment_a": "Graduate unemployment for {{acronym}} is {{rate}}, according to InfoCursos ({{edition}} edition).",
+      "unemployment_a_national": "Graduate unemployment for {{acronym}} is {{rate}}, against {{national}} nationally, according to InfoCursos ({{edition}} edition).",
+      "heaviest_q": "What is the heaviest course in {{acronym}}?",
+      "heaviest_a": "According to students' reviews, {{course}} ({{label}}, {{n}} reviews)."
+    },
+    "related": {
+      "campus_sibling": "Same degree, another campus",
+      "continues_to": "Follow-on master's",
+      "continues_from": "Bachelor's that leads here",
+      "equivalent": "Equivalent degree at another faculty",
+      "similar": "Similar degree"
+    },
+    "retired_notice": "This degree is no longer offered. Its courses and their reviews are still available."
   },
   "faculty_page": {
     "title": "{{name}}: choose your degree",

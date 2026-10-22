@@ -9,9 +9,22 @@ import { and, eq, isNotNull, sql } from 'drizzle-orm'
 import { useEffect } from 'react'
 import { redirect, useLocation } from 'react-router'
 import { DegreePageContent } from '~/components'
+import {
+  buildFaq,
+  computeHighlights,
+  formatSchoolYear,
+  latestGrades
+} from '~/components/degree/content'
+import { loadDegreePageExtras } from '~/lib/degreePage.server'
 import { userPreferences } from '~/utils'
 
-import { detectLang, getCoursePath, getDegreePath } from '~/utils/i18n-routes'
+import {
+  detectLang,
+  getCoursePath,
+  getDegreePath,
+  getFacultyPath,
+  getLocalePath
+} from '~/utils/i18n-routes'
 import { buildMeta, metaT } from '~/utils/meta'
 import { getRequestOrigin } from '~/utils/request'
 
@@ -29,14 +42,17 @@ export function meta({ loaderData, location, matches }: Route.MetaArgs) {
     })
   }
 
-  const { faculty, degree, courses, origin } = loaderData
+  const { faculty, degree, courses, origin, extras } = loaderData
 
   // Lead with the acronym: students search "meic ist", not the degree's full
-  // name, and a long title gets cut before the acronym ever shows.
-  const title = t('meta.degree_title', {
-    acronym: degree.acronym,
-    faculty: faculty.shortName
-  })
+  // name, and a long title gets cut before the acronym ever shows. The entry
+  // grade joins the title only when the page shows one (licenciaturas with
+  // DGES data): "LEIC-A IST: plano curricular, opiniões e média de entrada".
+  const { latest: latestGrade } = latestGrades(extras.admissions)
+  const title = t(
+    latestGrade ? 'meta.degree_title_full' : 'meta.degree_title_plan',
+    { acronym: degree.acronym, faculty: faculty.shortName }
+  )
 
   const totalFeedback = courses.reduce(
     (sum, c) => sum + Number(c.totalFeedbackCount),
@@ -65,56 +81,170 @@ export function meta({ loaderData, location, matches }: Route.MetaArgs) {
     (c) => !isDiscontinued(c.lastTaughtYear)
   )
 
-  // Schema.org structured data
-  const structuredData = {
+  const pageUrl =
+    faculty.slug && degree.slug
+      ? `${origin}${getDegreePath(lang, faculty.slug, degree.slug)}`
+      : undefined
+
+  // The program and its facts: only what the page shows, nothing guessed.
+  const semesters = degree.durationSemesters
+  const program = {
     '@context': 'https://schema.org',
-    '@type': 'EducationalOrganization',
+    '@type': 'EducationalOccupationalProgram',
     name: degree.name,
     alternateName: degree.acronym,
-    parentOrganization: {
+    ...(pageUrl && { url: pageUrl }),
+    provider: {
       '@type': 'CollegeOrUniversity',
       name: faculty.name,
-      alternateName: faculty.shortName
+      alternateName: faculty.shortName,
+      ...(faculty.url && { sameAs: faculty.url })
     },
-    ...(faculty.slug &&
-      degree.slug && {
-        url: `${origin}${getDegreePath('pt', faculty.slug, degree.slug)}`
-      }),
-    ...(offeredCourses.length > 0 && {
-      offers: {
-        '@type': 'ItemList',
-        numberOfItems: offeredCourses.length,
-        itemListElement: offeredCourses.map((course, index) => ({
-          '@type': 'ListItem',
-          position: index + 1,
-          item: {
-            '@type': 'Course',
-            name: course.name,
-            courseCode: course.acronym,
-            url: `${origin}${getCoursePath('pt', course.id)}`,
-            ...(Number(course.totalFeedbackCount) > 0 && {
-              aggregateRating: {
-                '@type': 'AggregateRating',
-                ratingValue: Number(course.averageRating).toFixed(1),
-                reviewCount: course.totalFeedbackCount.toString(),
-                bestRating: '5',
-                worstRating: '1'
-              }
-            })
+    educationalCredentialAwarded: t(`degree_page.facts.type.${degree.type}`),
+    ...(semesters && {
+      timeToComplete:
+        semesters % 2 === 0 ? `P${semesters / 2}Y` : `P${semesters * 6}M`
+    }),
+    ...(degree.ects && { numberOfCredits: degree.ects }),
+    ...(degree.teachingLanguage && {
+      inLanguage:
+        degree.teachingLanguage === 'pt_en'
+          ? ['pt', 'en']
+          : degree.teachingLanguage
+    }),
+    ...(degree.schedule && {
+      timeOfDay:
+        degree.schedule === 'daytime'
+          ? 'Morning'
+          : degree.schedule === 'after_work'
+            ? 'Evening'
+            : ['Morning', 'Evening']
+    }),
+    ...(extras.campuses.length > 0 && {
+      location: extras.campuses.map((campus) => ({
+        '@type': 'Place',
+        name: campus.name,
+        ...(campus.address && {
+          address: {
+            '@type': 'PostalAddress',
+            streetAddress: campus.address,
+            ...(campus.postalCode && { postalCode: campus.postalCode }),
+            ...(campus.city && { addressLocality: campus.city }),
+            addressCountry: 'PT'
           }
-        }))
-      }
+        }),
+        ...(campus.latitude !== null &&
+          campus.longitude !== null && {
+            geo: {
+              '@type': 'GeoCoordinates',
+              latitude: campus.latitude,
+              longitude: campus.longitude
+            }
+          })
+      }))
+    }),
+    ...(extras.admissions?.guide?.nextYearVagas && {
+      maximumEnrollment: extras.admissions.guide.nextYearVagas.vagas
+    }),
+    ...(extras.fees && {
+      offers: extras.fees.rows.map((row) => ({
+        '@type': 'Offer',
+        category: `${t('degree_page.fees.label', {
+          period: t(`degree_page.fees.period.${row.period}`, {
+            defaultValue: row.period
+          }),
+          student: t(`degree_page.fees.student.${row.studentType}`, {
+            defaultValue: row.studentType
+          })
+        })}, ${formatSchoolYear(extras.fees!.schoolYear)}`,
+        price: row.amountEur,
+        priceCurrency: 'EUR'
+      }))
+    }),
+    ...(offeredCourses.length > 0 && {
+      hasCourse: offeredCourses.map((course) => ({
+        '@type': 'Course',
+        name: course.name,
+        courseCode: course.acronym,
+        url: `${origin}${getCoursePath(lang, course.id)}`,
+        ...(Number(course.totalFeedbackCount) > 0 && {
+          aggregateRating: {
+            '@type': 'AggregateRating',
+            ratingValue: Number(course.averageRating).toFixed(1),
+            reviewCount: course.totalFeedbackCount.toString(),
+            bestRating: '5',
+            worstRating: '1'
+          }
+        })
+      }))
     })
   }
+
+  const breadcrumbs = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Uni Feedback',
+        item: `${origin}${getLocalePath('browse', lang)}`
+      },
+      ...(faculty.slug
+        ? [
+            {
+              '@type': 'ListItem',
+              position: 2,
+              name: faculty.shortName,
+              item: `${origin}${getFacultyPath(lang, faculty.slug)}`
+            }
+          ]
+        : []),
+      {
+        '@type': 'ListItem',
+        position: faculty.slug ? 3 : 2,
+        name: degree.acronym,
+        ...(pageUrl && { item: pageUrl })
+      }
+    ]
+  }
+
+  // FAQPage only for the questions the page actually shows, built by the same
+  // function from the same data
+  const workloadLabels = metaT(location, 'common')('workload_ratings', {
+    returnObjects: true
+  }) as string[]
+  const faq = buildFaq(t, lang, {
+    acronym: degree.acronym,
+    admissions: extras.admissions,
+    fees: extras.fees,
+    outcomes: extras.outcomes,
+    highlights: computeHighlights(courses),
+    isRetired:
+      offeredCourses.length === 0 &&
+      courses.some((course) => isDiscontinued(course.lastTaughtYear)),
+    workloadLabel: (rating) => workloadLabels[Math.round(rating) - 1] ?? ''
+  })
+  const faqPage =
+    faq.length > 0
+      ? {
+          '@context': 'https://schema.org',
+          '@type': 'FAQPage',
+          mainEntity: faq.map((item) => ({
+            '@type': 'Question',
+            name: item.question,
+            acceptedAnswer: { '@type': 'Answer', text: item.answer }
+          }))
+        }
+      : null
+
+  const structuredData = [program, breadcrumbs, ...(faqPage ? [faqPage] : [])]
 
   return buildMeta({
     matches,
     title,
     description,
-    url:
-      faculty.slug && degree.slug
-        ? `${origin}${getDegreePath(lang, faculty.slug, degree.slug)}`
-        : undefined,
+    url: pageUrl,
     structuredData
   })
 }
@@ -228,7 +358,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
 
   // Our own description, in the page's language, once reviewed. Pages in a
   // language with no reviewed text show no "about" section.
-  const [details] = await db
+  const detailsQuery = db
     .select({ description: schema.degreeDetails.description })
     .from(schema.degreeDetails)
     .where(
@@ -242,6 +372,11 @@ export async function loader({ params, request }: Route.LoaderArgs) {
       )
     )
 
+  const [[details], extras] = await Promise.all([
+    detailsQuery,
+    loadDegreePageExtras(degree.id, faculty.universityId)
+  ])
+
   return {
     faculty,
     degree,
@@ -249,6 +384,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     courses: coursesWithFeedback,
     academicTerms,
     courseGroups: formattedCourseGroups,
+    extras,
     origin: getRequestOrigin(request)
   }
 }
@@ -274,6 +410,7 @@ export default function DegreePage({ loaderData }: Route.ComponentProps) {
       courses={loaderData.courses}
       academicTerms={loaderData.academicTerms}
       courseGroups={loaderData.courseGroups}
+      extras={loaderData.extras}
     />
   )
 }

@@ -12,7 +12,9 @@
     "degree_description": "{{degreeName}} ({{acronym}}), {{faculty}}: opiniões anónimas de alunos sobre as cadeiras do curso.",
     "degree_description_reviews_one": "{{degreeName}} ({{acronym}}), {{faculty}}: 1 opinião anónima de alunos sobre as cadeiras do curso.",
     "degree_description_reviews_other": "{{degreeName}} ({{acronym}}), {{faculty}}: {{count}} opiniões anónimas de alunos sobre as cadeiras do curso.",
-    "degree_description_tail": "Carga de trabalho, avaliação e dicas."
+    "degree_description_tail": "Carga de trabalho, avaliação e dicas.",
+    "degree_title_full": "{{acronym}} {{faculty}}: plano curricular, opiniões e média de entrada | Uni Feedback",
+    "degree_title_plan": "{{acronym}} {{faculty}}: plano curricular e opiniões | Uni Feedback"
   },
   "page": {
     "title": "Escolhe a tua faculdade",
@@ -59,7 +61,168 @@
     "past_courses": "Cadeiras que já não são lecionadas ({{count}})",
     "past_courses_hint": "Já não fazem parte do plano do curso. Continuas a poder ler o feedback e a dar o teu sobre os anos em que foram lecionadas.",
     "tag_last_taught": "Até {{year}}",
-    "legend_mandatory_exam": "Exame obrigatório"
+    "legend_mandatory_exam": "Exame obrigatório",
+    "view_courses_one": "Ver a cadeira",
+    "view_courses_other": "Ver as {{n}} cadeiras",
+    "toc_label": "Nesta página",
+    "sections": {
+      "about": "Sobre o curso",
+      "plan": "Plano curricular",
+      "admission": "Ingresso",
+      "outcomes": "Depois do curso",
+      "highlights": "As cadeiras segundo os alunos",
+      "highlights_short": "As cadeiras",
+      "campus": "Campus",
+      "faq": "Perguntas frequentes",
+      "related": "Relacionados"
+    },
+    "show_more": "Mostrar mais",
+    "show_less": "Mostrar menos",
+    "source_label": "Fonte:",
+    "facts": {
+      "type": {
+        "bachelor": "Licenciatura",
+        "integrated_master": "Mestrado integrado",
+        "master": "Mestrado",
+        "minor": "Minor",
+        "postgraduate": "Pós-graduação",
+        "phd": "Doutoramento",
+        "other": "Outro"
+      },
+      "years_one": "{{n}} ano",
+      "years_other": "{{n}} anos",
+      "semesters_one": "{{n}} semestre",
+      "semesters_other": "{{n}} semestres",
+      "ects": "{{n}} ECTS",
+      "campus": "Campus {{names}}",
+      "schedule": {
+        "daytime": "Horário diurno",
+        "after_work": "Pós-laboral",
+        "both": "Diurno e pós-laboral"
+      },
+      "language": {
+        "pt": "Em português",
+        "en": "Em inglês",
+        "pt_en": "Em português e inglês"
+      },
+      "courses_one": "{{n}} cadeira",
+      "courses_other": "{{n}} cadeiras",
+      "feedback_one": "{{n}} feedback",
+      "feedback_other": "{{n}} feedbacks"
+    },
+    "admission": {
+      "last_grade": "Nota do último colocado, 1.ª fase {{year}}",
+      "previous": "{{grade}} em {{year}}",
+      "vagas": "Vagas {{year}}",
+      "candidatos": "Candidatos 1.ª fase {{year}}",
+      "first_option": "{{n}} em 1.ª opção",
+      "media": "Média dos colocados {{year}}",
+      "chart_title": "Nota do último colocado (1.ª fase)",
+      "chart_label": "Nota do último colocado na 1.ª fase, de {{from}} a {{to}}",
+      "table_toggle": "Ver todos os anos",
+      "table_year": "Ano",
+      "table_grade": "Último colocado",
+      "table_vagas": "Vagas",
+      "after_work": "Regime pós-laboral: {{grade}} na 1.ª fase de {{year}}",
+      "after_work_vagas": "Regime pós-laboral: {{grade}} na 1.ª fase de {{year}}, {{vagas}} vagas",
+      "exams_title": "Provas de ingresso",
+      "exams_one_of": "Uma destas combinações:",
+      "formula": "Fórmula: <b>{{secondary}}%</b> média do secundário + <b>{{exams}}%</b> provas de ingresso.",
+      "minimum_both": "Mínimos: <b>{{application}}</b> na nota de candidatura, <b>{{exams}}</b> nas provas.",
+      "minimum_application": "Mínimo: <b>{{application}}</b> na nota de candidatura.",
+      "minimum_exams": "Mínimo: <b>{{exams}}</b> nas provas de ingresso.",
+      "missing": "Ainda não temos os dados de acesso deste curso.",
+      "source_dges": "DGES, Concurso Nacional de Acesso",
+      "source_years": "DGES, Concurso Nacional de Acesso ({{from}} a {{to}})"
+    },
+    "fees": {
+      "title": "Propinas {{year}}",
+      "student": {
+        "national": "estudantes nacionais",
+        "international": "estudantes internacionais",
+        "all": "todos os estudantes"
+      },
+      "period": {
+        "year": "por ano",
+        "total": "pelo curso completo",
+        "semester": "por semestre",
+        "ects": "por ECTS"
+      },
+      "label": "{{period}}, {{student}}",
+      "faq_item": "{{amount}} {{period}} ({{student}})",
+      "missing": "Ainda não temos as propinas de {{year}}.",
+      "source": "propinas {{year}}"
+    },
+    "outcomes": {
+      "unemployment": "Desemprego dos diplomados",
+      "compare_both": "Nacional: {{national}} · Área: {{area}}",
+      "compare_national": "Nacional: {{national}}",
+      "compare_area": "Área: {{area}}",
+      "completion": "Terminam no tempo previsto",
+      "completion_plus3": "{{pct}} até mais 3 anos",
+      "plus3_only": "Terminam até 3 anos depois do previsto",
+      "still_in_course": "Continuam no curso após o 1.º ano",
+      "missing": "Ainda não há dados públicos sobre o percurso dos alunos deste curso.",
+      "source": "InfoCursos, edição {{edition}}",
+      "broader": {
+        "mestrado": "Dados do mestrado em {{name}} no seu conjunto (todas as especializações).",
+        "licenciatura": "Dados da licenciatura em {{name}} no seu conjunto (todas as especializações).",
+        "other": "Dados do curso {{name}} no seu conjunto (todas as especializações)."
+      }
+    },
+    "highlights": {
+      "best": "Mais bem avaliadas",
+      "heaviest": "Mais pesadas",
+      "hint": "Entre as cadeiras com pelo menos {{n}} feedbacks."
+    },
+    "campus": {
+      "map": "Ver no mapa",
+      "missing": "Ainda não sabemos em que campus o curso é lecionado.",
+      "language_missing": "Língua de ensino: sem informação.",
+      "schedule_missing": "Horário: sem informação."
+    },
+    "contribute": {
+      "link": "Sabes isto? Ajuda-nos a completar",
+      "subject": "Informação em falta em {{name}}: {{field}}",
+      "body": "Página: {{url}}\n\nO que sei (e onde o vi):\n",
+      "field": {
+        "teaching_language": "língua de ensino",
+        "schedule": "horário",
+        "campus": "campus",
+        "admission": "ingresso",
+        "fees": "propinas",
+        "outcomes": "depois do curso"
+      }
+    },
+    "ask": {
+      "link": "Pergunta-nos",
+      "heaviest_year": "Qual é o ano mais pesado de {{acronym}}?",
+      "hardest_course": "Qual é a cadeira mais difícil de {{acronym}}?",
+      "best_courses": "Que cadeiras de {{acronym}} têm melhor feedback?"
+    },
+    "faq": {
+      "last_grade_q": "Qual foi a nota do último colocado em {{acronym}}?",
+      "last_grade_a": "{{grade}} na 1.ª fase de {{year}}, segundo a DGES.",
+      "last_grade_a_prev": "{{grade}} na 1.ª fase de {{year}} ({{previous}} em {{previousYear}}), segundo a DGES.",
+      "exams_q": "Que provas de ingresso são precisas para {{acronym}}?",
+      "exams_a_one": "{{list}}, segundo a DGES.",
+      "exams_a_many": "Uma destas combinações, segundo a DGES: {{list}}.",
+      "fees_q": "Quanto custa {{acronym}}?",
+      "fees_a": "Em {{year}}: {{list}}.",
+      "unemployment_q": "Os diplomados de {{acronym}} arranjam emprego?",
+      "unemployment_a": "A taxa de desemprego dos diplomados de {{acronym}} é de {{rate}}, segundo o InfoCursos (edição {{edition}}).",
+      "unemployment_a_national": "A taxa de desemprego dos diplomados de {{acronym}} é de {{rate}}, contra {{national}} a nível nacional, segundo o InfoCursos (edição {{edition}}).",
+      "heaviest_q": "Qual é a cadeira mais pesada de {{acronym}}?",
+      "heaviest_a": "Segundo o feedback dos alunos, {{course}} ({{label}}, {{n}} feedbacks)."
+    },
+    "related": {
+      "campus_sibling": "Mesmo curso, outro campus",
+      "continues_to": "Mestrado de continuidade",
+      "continues_from": "Licenciatura que dá acesso",
+      "equivalent": "Curso equivalente noutra faculdade",
+      "similar": "Curso semelhante"
+    },
+    "retired_notice": "Este curso já não é lecionado. As cadeiras e o feedback continuam disponíveis."
   },
   "faculty_page": {
     "title": "{{name}}: escolhe o teu curso",

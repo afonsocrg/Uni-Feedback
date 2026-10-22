@@ -15,13 +15,16 @@ export function ReportErrorNote({
   surface,
   pageName,
   facultySlug,
-  degreeSlug
+  degreeSlug,
+  align = 'center'
 }: {
   surface: ErrorReportSurface
   /** What the page is about, for the email subject ("LEIC-A (IST)") */
   pageName: string
   facultySlug?: string | null
   degreeSlug?: string | null
+  /** 'left' inside a section, next to the data it covers */
+  align?: 'center' | 'left'
 }) {
   const { t } = useTranslation('browse')
 
@@ -38,7 +41,9 @@ export function ReportErrorNote({
   }
 
   return (
-    <p className="text-center text-sm text-muted-foreground">
+    <p
+      className={`text-sm text-muted-foreground ${align === 'center' ? 'text-center' : 'text-left'}`}
+    >
       <span>{t('report_error.text')} </span>
       <a
         href={`mailto:${ERROR_REPORT_EMAIL}`}

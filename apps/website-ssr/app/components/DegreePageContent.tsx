@@ -4,17 +4,20 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-  CHIP_COLOR_KEYS,
-  Markdown
+  CHIP_COLOR_KEYS
 } from '@uni-feedback/ui'
-import { isDiscontinued, toOrdinal } from '@uni-feedback/utils'
+import {
+  getCurrentSchoolYear,
+  isDiscontinued,
+  toOrdinal
+} from '@uni-feedback/utils'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useDebounce, useLang } from '~/hooks'
+import { useDebounce, useLang, useWorkloadLabel } from '~/hooks'
 import { insensitiveMatch } from '~/utils'
-import { analytics } from '~/utils/analytics'
+import { analytics, type DegreeSectionId } from '~/utils/analytics'
 import { loadCourseFilters, saveCourseFilters } from '~/utils/filterStorage'
-import { BrowsePageLayout, CourseTable } from '.'
+import { Breadcrumb, CourseTable } from '.'
 import { AskChatButton } from './chat/AskChatButton'
 import { FilterChip } from './common/FilterChip'
 import { FilterRow } from './common/FilterRow'
@@ -22,6 +25,27 @@ import { MissingItemNote } from './common/MissingItemNote'
 import { ReportErrorNote } from './common/ReportErrorNote'
 import { SearchInput } from './common/SearchInput'
 import type { CourseSection, CourseWithFeedback } from './course/types'
+import { AskChatPrompt } from './degree/AskChatPrompt'
+import { buildFaq, computeHighlights } from './degree/content'
+import {
+  AboutSection,
+  AdmissionSection,
+  CampusSection,
+  DegreeHeader,
+  FaqSection,
+  HighlightsSection,
+  OutcomesSection,
+  RelatedSection,
+  SectionShell,
+  type DegreeTrack
+} from './degree/DegreeSections'
+import { DegreeTocBar, DegreeTocSidebar } from './degree/DegreeToc'
+import type { DegreePageExtras } from './degree/pageTypes'
+import {
+  scrollToSection,
+  useScrollSpy,
+  type TocSection
+} from './degree/scrollSpy'
 
 interface CourseGroupWithIds {
   id: number
@@ -119,23 +143,46 @@ const ADD_COURSE_FORM_URL =
 interface DegreePageContentProps {
   faculty: Faculty
   degree: Degree
-  /** Our reviewed description (markdown), shown below the course plan */
+  /** Our reviewed description (markdown) in the page's language */
   about?: string | null
   courses: CourseWithFeedback[]
   academicTerms: AcademicTermInfo[]
   courseGroups: CourseGroupWithIds[]
+  /** Campus, admission, fees, outcomes and related degrees (v2) */
+  extras: DegreePageExtras
 }
 
+/** Types whose admission goes through the Concurso Nacional (DGES) */
+const CNA_TYPES = new Set(['bachelor', 'integrated_master'])
+/** Types InfoCursos covers */
+const INFOCURSOS_TYPES = new Set(['bachelor', 'integrated_master', 'master'])
+/** Types we expect a published fee for */
+const FEE_TYPES = new Set([
+  'bachelor',
+  'integrated_master',
+  'master',
+  'postgraduate'
+])
+
+/**
+ * The degree page (v2, prds/content_rich_pages.md decision 19): a header of
+ * facts, then sections in one server-rendered page (no tabs), each rendered
+ * only with data, with a sticky table of contents on the side (a "Nesta
+ * página" bar and sheet on phones). The course plan keeps its search, filters
+ * and past-courses section exactly as before.
+ */
 export function DegreePageContent({
   faculty,
   degree,
   about,
   courses,
   academicTerms,
-  courseGroups
+  courseGroups,
+  extras
 }: DegreePageContentProps) {
   const { t } = useTranslation('browse')
   const lang = useLang()
+  const workloadLabel = useWorkloadLabel()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCurriculumYear, setSelectedCurriculumYear] = useState<
     number | null
@@ -167,6 +214,93 @@ export function DegreePageContent({
     [courses]
   )
 
+  // The sections that render, in page order. Each needs data (or, for a block
+  // we expect, a fallback line inviting a contribution); the table of contents
+  // lists exactly these.
+  const highlights = useMemo(() => computeHighlights(courses), [courses])
+  // Every course has left the plan: the degree is no longer taught. Its real
+  // data stays, but nothing asks for what we don't have, and the FAQ asks
+  // nothing that implies it is still open.
+  const isRetired = offeredCourses.length === 0 && pastCourses.length > 0
+  const expectsAdmission = !isRetired && CNA_TYPES.has(degree.type)
+  const expectsFees = !isRetired && FEE_TYPES.has(degree.type)
+  const expectsOutcomes = !isRetired && INFOCURSOS_TYPES.has(degree.type)
+  const showAdmission =
+    extras.admissions !== null ||
+    extras.fees !== null ||
+    expectsAdmission ||
+    expectsFees
+  const showOutcomes = extras.outcomes !== null || expectsOutcomes
+  const faqItems = buildFaq(t, lang, {
+    acronym: degree.acronym,
+    admissions: extras.admissions,
+    fees: extras.fees,
+    outcomes: extras.outcomes,
+    highlights,
+    workloadLabel,
+    isRetired
+  })
+
+  const tocSections: TocSection[] = [
+    ...(about
+      ? [{ id: 'sobre' as const, label: t('degree_page.sections.about') }]
+      : []),
+    { id: 'plano', label: t('degree_page.sections.plan') },
+    ...(showAdmission
+      ? [
+          {
+            id: 'ingresso' as const,
+            label: t('degree_page.sections.admission')
+          }
+        ]
+      : []),
+    ...(showOutcomes
+      ? [{ id: 'depois' as const, label: t('degree_page.sections.outcomes') }]
+      : []),
+    ...(highlights
+      ? [
+          {
+            id: 'destaques' as const,
+            label: t('degree_page.sections.highlights_short')
+          }
+        ]
+      : []),
+    ...(!isRetired || extras.campuses.length > 0
+      ? [{ id: 'campus' as const, label: t('degree_page.sections.campus') }]
+      : []),
+    ...(faqItems.length > 0
+      ? [{ id: 'faq' as const, label: t('degree_page.sections.faq') }]
+      : []),
+    ...(extras.related.length > 0
+      ? [
+          {
+            id: 'relacionados' as const,
+            label: t('degree_page.sections.related')
+          }
+        ]
+      : [])
+  ]
+  const tocSectionsRef = useRef(tocSections)
+  tocSectionsRef.current = tocSections
+
+  const track: DegreeTrack = {
+    facultySlug: faculty.slug,
+    degreeSlug: degree.slug,
+    pageName: `${degree.acronym} (${faculty.shortName})`
+  }
+  const currentSection = useScrollSpy(tocSections, track)
+  const trackTocClick =
+    (surface: 'sidebar' | 'mobile_sheet' | 'header_button') =>
+    (section: DegreeSectionId) => {
+      if (!faculty.slug || !degree.slug) return
+      analytics.discovery.degreeTocClicked({
+        facultySlug: faculty.slug,
+        degreeSlug: degree.slug,
+        section,
+        surface
+      })
+    }
+
   // Entry event of the discovery funnel. Keyed on the degree so a client-side
   // navigation to another degree page counts as a new view.
   useEffect(() => {
@@ -176,7 +310,8 @@ export function DegreePageContent({
       facultySlug: faculty.slug,
       degreeSlug: degree.slug,
       courseCount: offeredCourses.length,
-      pastCourseCount: pastCourses.length
+      pastCourseCount: pastCourses.length,
+      sections: tocSectionsRef.current.map((section) => section.id)
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [faculty.slug, degree.slug])
@@ -383,7 +518,9 @@ export function DegreePageContent({
 
   const pastExpanded =
     pastExpandedByUser ??
-    (searchQuery.trim().length > 0 && filteredPastCourses.length > 0)
+    // A degree no longer taught has nothing else to list, so it starts open
+    (offeredCourses.length === 0 ||
+      (searchQuery.trim().length > 0 && filteredPastCourses.length > 0))
 
   // Fire the browse-side search event once the query settles. Unlike the
   // feedback course browser (which hits the API), this filters an in-memory
@@ -587,12 +724,15 @@ export function DegreePageContent({
             : [])
         ]
 
-  return (
-    <BrowsePageLayout
-      title={degree.name}
-      faculty={faculty}
-      degree={degree}
-      searchBar={
+  const totalFeedback = courses.reduce(
+    (sum, course) => sum + Number(course.totalFeedbackCount || 0),
+    0
+  )
+  const scopeLabel = degree.acronym
+
+  const plan = (
+    <>
+      <div className="mb-2">
         <SearchInput
           trailing={
             <AskChatButton
@@ -609,8 +749,8 @@ export function DegreePageContent({
           onChange={setSearchQuery}
           placeholder={t('degree_page.search_placeholder')}
         />
-      }
-      filterChips={
+      </div>
+      <div className="mb-4">
         <FilterRow
           filters={
             <>
@@ -688,23 +828,8 @@ export function DegreePageContent({
             </>
           }
         />
-      }
-      actions={
-        <div className="space-y-2">
-          <MissingItemNote
-            text={t('degree_page.missing_course')}
-            linkLabel={t('degree_page.request_link')}
-            href={ADD_COURSE_FORM_URL}
-          />
-          <ReportErrorNote
-            surface="degree_page"
-            pageName={`${degree.acronym} (${faculty.shortName})`}
-            facultySlug={faculty.slug}
-            degreeSlug={degree.slug}
-          />
-        </div>
-      }
-    >
+      </div>
+
       {!courses || courses.length === 0 ? (
         <div className="text-center text-muted-foreground py-8">
           {t('degree_page.no_courses')}
@@ -723,7 +848,9 @@ export function DegreePageContent({
         </div>
       ) : (
         <div className="space-y-8">
-          {filteredCourses.length > 0 && <CourseTable sections={sections} />}
+          {filteredCourses.length > 0 && (
+            <CourseTable sections={sections} headingLevel="h3" />
+          )}
           {filteredPastCourses.length > 0 && (
             <Accordion
               type="single"
@@ -753,6 +880,7 @@ export function DegreePageContent({
                     {t('degree_page.past_courses_hint')}
                   </p>
                   <CourseTable
+                    headingLevel="h3"
                     sections={[
                       {
                         key: 'past',
@@ -771,23 +899,156 @@ export function DegreePageContent({
         </div>
       )}
 
-      {/* Below the plan, never between the student and the course list */}
-      {about && (
-        <section className="mt-12 border-t border-border pt-8">
-          <h2 className="mb-4 text-lg font-semibold">
-            {t('degree_page.about_title')}
-          </h2>
-          <Markdown>{about}</Markdown>
-          <div className="mt-4">
-            <ReportErrorNote
-              surface="degree_about"
-              pageName={`${degree.acronym} (${faculty.shortName})`}
-              facultySlug={faculty.slug}
-              degreeSlug={degree.slug}
-            />
-          </div>
-        </section>
+      <div className="mt-6">
+        <MissingItemNote
+          text={t('degree_page.missing_course')}
+          linkLabel={t('degree_page.request_link')}
+          href={ADD_COURSE_FORM_URL}
+        />
+      </div>
+      {totalFeedback > 0 && (
+        <AskChatPrompt
+          template="best_courses"
+          section="plano"
+          question={t('degree_page.ask.best_courses', {
+            acronym: degree.acronym
+          })}
+          degreeId={degree.id}
+          scopeLabel={scopeLabel}
+        />
       )}
-    </BrowsePageLayout>
+    </>
+  )
+
+  return (
+    <div className="min-h-screen">
+      <div className="container mx-auto px-4 pt-4">
+        <Breadcrumb faculty={faculty} degree={degree} />
+      </div>
+
+      <DegreeTocBar
+        sections={tocSections}
+        current={currentSection}
+        onNavigate={trackTocClick('mobile_sheet')}
+        onOpen={() => {
+          if (faculty.slug && degree.slug) {
+            analytics.discovery.degreeTocOpened({
+              facultySlug: faculty.slug,
+              degreeSlug: degree.slug
+            })
+          }
+        }}
+      />
+
+      <div className="container mx-auto px-4 pb-16 pt-4 md:pt-6">
+        <div className="mx-auto max-w-6xl lg:grid lg:grid-cols-[minmax(0,1fr)_13rem] lg:gap-12">
+          <div className="min-w-0">
+            <DegreeHeader
+              degree={degree}
+              facultyName={faculty.name}
+              universityName={extras.universityName}
+              campuses={extras.campuses}
+              courseCount={offeredCourses.length}
+              feedbackCount={totalFeedback}
+              isRetired={isRetired}
+              onViewCourses={() => {
+                trackTocClick('header_button')('plano')
+                scrollToSection('plano')
+              }}
+            />
+
+            {about && <AboutSection about={about} track={track} />}
+
+            <SectionShell
+              id="plano"
+              title={t('degree_page.sections.plan')}
+              first={!about}
+            >
+              {plan}
+            </SectionShell>
+
+            {showAdmission && (
+              <AdmissionSection
+                admissions={extras.admissions}
+                fees={extras.fees}
+                admissionExpected={expectsAdmission}
+                feesExpected={expectsFees}
+                schoolYear={getCurrentSchoolYear()}
+                track={track}
+              />
+            )}
+
+            {showOutcomes && (
+              <OutcomesSection
+                outcomes={extras.outcomes}
+                showFallback={expectsOutcomes}
+                track={track}
+              />
+            )}
+
+            {highlights && (
+              <HighlightsSection
+                highlights={highlights}
+                prompt={
+                  availableCurriculumYears.length > 1 ? (
+                    <AskChatPrompt
+                      template="heaviest_year"
+                      section="destaques"
+                      question={t('degree_page.ask.heaviest_year', {
+                        acronym: degree.acronym
+                      })}
+                      degreeId={degree.id}
+                      scopeLabel={scopeLabel}
+                    />
+                  ) : (
+                    <AskChatPrompt
+                      template="hardest_course"
+                      section="destaques"
+                      question={t('degree_page.ask.hardest_course', {
+                        acronym: degree.acronym
+                      })}
+                      degreeId={degree.id}
+                      scopeLabel={scopeLabel}
+                    />
+                  )
+                }
+              />
+            )}
+
+            {(!isRetired || extras.campuses.length > 0) && (
+              <CampusSection
+                campuses={extras.campuses}
+                degree={degree}
+                showContribute={!isRetired}
+                track={track}
+              />
+            )}
+
+            {faqItems.length > 0 && <FaqSection items={faqItems} />}
+
+            {extras.related.length > 0 && (
+              <RelatedSection related={extras.related} track={track} />
+            )}
+
+            <div className="mt-12">
+              <ReportErrorNote
+                surface="degree_page"
+                pageName={track.pageName}
+                facultySlug={faculty.slug}
+                degreeSlug={degree.slug}
+              />
+            </div>
+          </div>
+
+          <aside className="hidden lg:block">
+            <DegreeTocSidebar
+              sections={tocSections}
+              current={currentSection}
+              onNavigate={trackTocClick('sidebar')}
+            />
+          </aside>
+        </div>
+      </div>
+    </div>
   )
 }

@@ -185,9 +185,16 @@ function CourseTableLegend({ sections }: CourseListingProps) {
   )
 }
 
-export function CourseTable({ sections }: CourseListingProps) {
+export function CourseTable({
+  sections,
+  headingLevel = 'h2'
+}: CourseListingProps & {
+  /** 'h3' when the listing sits inside a page section with its own h2 */
+  headingLevel?: 'h2' | 'h3'
+}) {
   // Flat rank across sections, for `positionInList`.
   let position = 0
+  const Heading = headingLevel
 
   return (
     <div>
@@ -196,9 +203,9 @@ export function CourseTable({ sections }: CourseListingProps) {
         {sections.map((section) => (
           <section key={section.key}>
             {section.heading && (
-              <h2 className="text-lg font-semibold text-foreground mb-2 border-b border-border pb-2">
+              <Heading className="text-lg font-semibold text-foreground mb-2 border-b border-border pb-2">
                 {section.heading}
-              </h2>
+              </Heading>
             )}
             {section.entries.map((entry) => (
               <CourseRow

@@ -133,9 +133,46 @@ export type ShareChannel = 'whatsapp' | 'copy_url' | 'native'
  */
 /**
  * Where a "spotted a mistake?" mailto link was clicked. `degree_about` sits
- * under our degree description; `*_page` is the foot of the page.
+ * under our degree description, `degree_admission` / `degree_outcomes` under the
+ * official data on the degree page; `*_page` is the foot of the page.
  */
-export type ErrorReportSurface = 'degree_about' | 'degree_page' | 'faculty_page'
+export type ErrorReportSurface =
+  | 'degree_about'
+  | 'degree_admission'
+  | 'degree_outcomes'
+  | 'degree_page'
+  | 'faculty_page'
+
+/**
+ * A fact the degree page expected and does not have, next to its "Sabes isto?
+ * Ajuda-nos a completar" prompt.
+ */
+export type MissingInfoField =
+  | 'teaching_language'
+  | 'schedule'
+  | 'campus'
+  | 'admission'
+  | 'fees'
+  | 'outcomes'
+
+/** The sections of the degree page (v2), in page order. Also the anchor ids. */
+export type DegreeSectionId =
+  | 'sobre'
+  | 'plano'
+  | 'ingresso'
+  | 'depois'
+  | 'destaques'
+  | 'campus'
+  | 'faq'
+  | 'relacionados'
+
+/** Outside pages the degree page links to as the source of what it shows. */
+export type DegreeSourceLink =
+  | 'dges'
+  | 'infocursos'
+  | 'fees'
+  | 'campus_map'
+  | 'campus_website'
 
 export type CorrectionEntryPoint =
   | 'course_info_card'
@@ -614,7 +651,18 @@ export const analytics = {
       surface: ErrorReportSurface
       facultySlug: string | null
       degreeSlug: string | null
-    }) => trackEvent('error_report_clicked', props)
+    }) => trackEvent('error_report_clicked', props),
+
+    /**
+     * Track a click on "Sabes isto? Ajuda-nos a completar" next to a fact the
+     * degree page has no value for (a mailto, like `error_report_clicked`).
+     * Only intent. `field` says which gaps students can actually fill.
+     */
+    missingInfoClicked: (props: {
+      field: MissingInfoField
+      facultySlug: string | null
+      degreeSlug: string | null
+    }) => trackEvent('missing_info_clicked', props)
   },
 
   discovery: {
@@ -699,7 +747,65 @@ export const analytics = {
       courseCount: number
       /** Discontinued courses, in the collapsed section (not in courseCount) */
       pastCourseCount: number
+      /** The sections this page rendered (v2), so reach can be read per section */
+      sections: DegreeSectionId[]
     }) => trackEvent('degree_page_viewed', props),
+
+    /**
+     * Track a degree page section scrolled into view, once per section per page
+     * view. Over `degree_page_viewed{sections contains X}` it is the reach of
+     * each section: whether anyone gets past the course plan.
+     */
+    degreeSectionViewed: (props: {
+      facultySlug: string
+      degreeSlug: string
+      section: DegreeSectionId
+    }) => trackEvent('degree_section_viewed', props),
+
+    /**
+     * Track a jump through the degree page's navigation: the table of contents
+     * (`sidebar` on desktop, `mobile_sheet` on phones) or the header's "Ver as
+     * N cadeiras" button (`header_button`).
+     */
+    degreeTocClicked: (props: {
+      facultySlug: string
+      degreeSlug: string
+      section: DegreeSectionId
+      surface: 'sidebar' | 'mobile_sheet' | 'header_button'
+    }) => trackEvent('degree_toc_clicked', props),
+
+    /** Track the mobile "Nesta página" sheet being opened. */
+    degreeTocOpened: (props: { facultySlug: string; degreeSlug: string }) =>
+      trackEvent('degree_toc_opened', props),
+
+    /** Track "Mostrar mais / menos" on the degree description. */
+    degreeAboutToggled: (props: {
+      facultySlug: string
+      degreeSlug: string
+      expanded: boolean
+    }) => trackEvent('degree_about_toggled', props),
+
+    /** Track a click out to a source (DGES, InfoCursos, fee page, map, campus site). */
+    degreeSourceLinkClicked: (props: {
+      facultySlug: string
+      degreeSlug: string
+      source: DegreeSourceLink
+    }) => trackEvent('degree_source_link_clicked', props),
+
+    /** Track the yearly admission table being opened under the grade chart. */
+    degreeAdmissionTableOpened: (props: {
+      facultySlug: string
+      degreeSlug: string
+    }) => trackEvent('degree_admission_table_opened', props),
+
+    /** Track a related degree opened from the "Relacionados" section. */
+    degreeRelatedClicked: (props: {
+      facultySlug: string
+      degreeSlug: string
+      targetFacultySlug: string
+      targetDegreeSlug: string
+      relationship: string
+    }) => trackEvent('degree_related_clicked', props),
 
     /**
      * Track opening or closing the degree page's collapsed "courses no longer
@@ -1058,6 +1164,7 @@ export const analytics = {
         | 'course_page_inline'
         | 'landing_inline'
         | 'degree_page'
+        | 'degree_page_prompt'
         | 'faculty_page'
         | 'direct'
       hasContext: boolean
@@ -1083,6 +1190,19 @@ export const analytics = {
      * question itself. Kept separate so a drop between typing and the chat
      * loading is visible.
      */
+    /**
+     * A question link on the degree page ("Qual é o ano mais pesado de LEIC?
+     * Pergunta-nos"). The chat opens with `source: 'degree_page_prompt'` and
+     * sends the question itself (signed out, after the login wall). `template`
+     * is which question, so we can see which ones convert.
+     */
+    degreePromptClicked: (props: {
+      degreeId: number
+      template: 'heaviest_year' | 'hardest_course' | 'best_courses'
+      section: DegreeSectionId
+      isAuthenticated: boolean
+    }) => trackEvent('chat_degree_prompt_clicked', props),
+
     inlinePromptSubmitted: (props: {
       source: 'course_page' | 'landing'
       /** Null on the landing page, whose box is not about one course. */
