@@ -24,6 +24,7 @@ import { FilterRow } from './common/FilterRow'
 import { MissingItemNote } from './common/MissingItemNote'
 import { ReportErrorNote } from './common/ReportErrorNote'
 import { SearchInput } from './common/SearchInput'
+import { ToggleChip } from './common/ToggleChip'
 import type { CourseSection, CourseWithFeedback } from './course/types'
 import { AskChatPrompt } from './degree/AskChatPrompt'
 import { buildFaq, computeHighlights } from './degree/content'
@@ -184,9 +185,10 @@ export function DegreePageContent({
   const lang = useLang()
   const workloadLabel = useWorkloadLabel()
   const [searchQuery, setSearchQuery] = useState('')
+  // undefined = nothing chosen yet: the plan opens on its first year. null = all years.
   const [selectedCurriculumYear, setSelectedCurriculumYear] = useState<
-    number | null
-  >(null)
+    number | null | undefined
+  >(undefined)
   const [selectedTerm, setSelectedTerm] = useState<string | null>(null)
   const [selectedCourseGroupId, setSelectedCourseGroupId] = useState<
     number | null
@@ -322,7 +324,7 @@ export function DegreePageContent({
 
     const savedFilters = loadCourseFilters(faculty.slug, degree.slug)
     if (savedFilters) {
-      setSelectedCurriculumYear(savedFilters.curriculumYear)
+      setSelectedCurriculumYear(savedFilters.curriculumYear ?? undefined)
       setSelectedTerm(savedFilters.term)
       setSelectedCourseGroupId(savedFilters.courseGroupId)
       setMandatoryExamFilter(savedFilters.hasMandatoryExam)
@@ -337,7 +339,7 @@ export function DegreePageContent({
     if (!faculty.slug || !degree.slug) return
 
     saveCourseFilters(faculty.slug, degree.slug, {
-      curriculumYear: selectedCurriculumYear,
+      curriculumYear: selectedCurriculumYear ?? null,
       term: selectedTerm,
       courseGroupId: selectedCourseGroupId,
       hasMandatoryExam: mandatoryExamFilter,
@@ -403,9 +405,15 @@ export function DegreePageContent({
   // A hidden chip keeps whatever selection localStorage saved for this degree,
   // but must not filter on it: a value saved before the degree's data narrowed
   // to one answer would otherwise cut courses with no chip left to undo it.
-  const activeCurriculumYear = showCurriculumYearFilter
-    ? selectedCurriculumYear
-    : null
+  // One year at a time (the first by default); a search looks across all years.
+  const shownCurriculumYear =
+    selectedCurriculumYear === undefined
+      ? (availableCurriculumYears[0] ?? null)
+      : selectedCurriculumYear
+  const activeCurriculumYear =
+    showCurriculumYearFilter && searchQuery.trim() === ''
+      ? shownCurriculumYear
+      : null
   const activeTerm = showTermFilter ? selectedTerm : null
   const activeCourseType = showCourseTypeFilter ? courseTypeFilter : null
   const activeExamFilter = showExamFilter ? mandatoryExamFilter : null
@@ -750,6 +758,39 @@ export function DegreePageContent({
           placeholder={t('degree_page.search_placeholder')}
         />
       </div>
+      {showCurriculumYearFilter && (
+        <div
+          className="mb-3 flex flex-wrap gap-2"
+          role="group"
+          aria-label={t('degree_page.year_label')}
+        >
+          {curriculumYearOptions.map((option) => (
+            <ToggleChip
+              key={option.value}
+              label={option.label}
+              isActive={shownCurriculumYear === Number(option.value)}
+              onClick={() => {
+                setSelectedCurriculumYear(Number(option.value))
+                analytics.discovery.filterApplied({
+                  filterType: 'curriculum_year',
+                  filterValue: option.value
+                })
+              }}
+            />
+          ))}
+          <ToggleChip
+            label={t('degree_page.all_years')}
+            isActive={shownCurriculumYear === null}
+            onClick={() => {
+              setSelectedCurriculumYear(null)
+              analytics.discovery.filterApplied({
+                filterType: 'curriculum_year',
+                filterValue: 'all'
+              })
+            }}
+          />
+        </div>
+      )}
       <div className="mb-4">
         <FilterRow
           filters={
@@ -762,17 +803,6 @@ export function DegreePageContent({
                 placeholder={t('degree_page.sort_default')}
                 variant="sort"
               />
-              {showCurriculumYearFilter && (
-                <FilterChip
-                  label={t('degree_page.year_label')}
-                  options={curriculumYearOptions}
-                  selectedValue={selectedCurriculumYear?.toString() ?? null}
-                  onValueChange={(value) =>
-                    setSelectedCurriculumYear(value ? Number(value) : null)
-                  }
-                  placeholder={t('degree_page.all_years')}
-                />
-              )}
               {showTermFilter && (
                 <FilterChip
                   label={t('degree_page.term_label')}
