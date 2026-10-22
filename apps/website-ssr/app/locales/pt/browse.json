@@ -154,10 +154,9 @@
       "source": "propinas {{year}}"
     },
     "outcomes": {
-      "unemployment": "Desemprego dos diplomados",
-      "compare_both": "Nacional: {{national}} · Área: {{area}}",
-      "compare_national": "Nacional: {{national}}",
-      "compare_area": "Área: {{area}}",
+      "compare_both": "Desemprego registado: {{rate}} (nacional {{national}}, área {{area}})",
+      "compare_national": "Desemprego registado: {{rate}} (nacional {{national}})",
+      "compare_area": "Desemprego registado: {{rate}} (área {{area}})",
       "completion": "Terminam no tempo previsto",
       "completion_plus3": "{{pct}} até mais 3 anos",
       "plus3_only": "Terminam até 3 anos depois do previsto",
@@ -168,7 +167,9 @@
         "mestrado": "Dados do mestrado em {{name}} no seu conjunto (todas as especializações).",
         "licenciatura": "Dados da licenciatura em {{name}} no seu conjunto (todas as especializações).",
         "other": "Dados do curso {{name}} no seu conjunto (todas as especializações)."
-      }
+      },
+      "not_unemployed": "dos diplomados não estão no desemprego",
+      "compare_none": "Desemprego registado: {{rate}}"
     },
     "highlights": {
       "best": "Mais bem avaliadas",
@@ -210,8 +211,8 @@
       "fees_q": "Quanto custa {{acronym}}?",
       "fees_a": "Em {{year}}: {{list}}.",
       "unemployment_q": "Os diplomados de {{acronym}} arranjam emprego?",
-      "unemployment_a": "A taxa de desemprego dos diplomados de {{acronym}} é de {{rate}}, segundo o InfoCursos (edição {{edition}}).",
-      "unemployment_a_national": "A taxa de desemprego dos diplomados de {{acronym}} é de {{rate}}, contra {{national}} a nível nacional, segundo o InfoCursos (edição {{edition}}).",
+      "unemployment_a": "{{share}} dos diplomados de {{acronym}} não estão no desemprego: a taxa de desemprego registado é de {{rate}}, segundo o InfoCursos (edição {{edition}}).",
+      "unemployment_a_national": "{{share}} dos diplomados de {{acronym}} não estão no desemprego: a taxa de desemprego registado é de {{rate}}, contra {{national}} a nível nacional, segundo o InfoCursos (edição {{edition}}).",
       "heaviest_q": "Qual é a cadeira mais pesada de {{acronym}}?",
       "heaviest_a": "Segundo o feedback dos alunos, {{course}} ({{label}}, {{n}} feedbacks)."
     },

@@ -218,6 +218,7 @@ export function buildFaq(
     const params = {
       acronym,
       rate: formatPct(unemployment.rate, lang),
+      share: formatPct(Math.round((100 - unemployment.rate) * 10) / 10, lang),
       edition: ctx.outcomes.edition
     }
     items.push({

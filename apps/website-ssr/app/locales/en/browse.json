@@ -154,10 +154,9 @@
       "source": "tuition fees {{year}}"
     },
     "outcomes": {
-      "unemployment": "Graduate unemployment",
-      "compare_both": "National: {{national}} · Area: {{area}}",
-      "compare_national": "National: {{national}}",
-      "compare_area": "Area: {{area}}",
+      "compare_both": "Registered unemployment: {{rate}} (national {{national}}, area {{area}})",
+      "compare_national": "Registered unemployment: {{rate}} (national {{national}})",
+      "compare_area": "Registered unemployment: {{rate}} (area {{area}})",
       "completion": "Finish in the expected time",
       "completion_plus3": "{{pct}} within 3 extra years",
       "plus3_only": "Finish within 3 extra years",
@@ -168,7 +167,9 @@
         "mestrado": "Figures for the master's in {{name}} as a whole (all specializations).",
         "licenciatura": "Figures for the bachelor's in {{name}} as a whole (all specializations).",
         "other": "Figures for the {{name}} programme as a whole (all specializations)."
-      }
+      },
+      "not_unemployed": "of graduates are not unemployed",
+      "compare_none": "Registered unemployment: {{rate}}"
     },
     "highlights": {
       "best": "Best rated",
@@ -210,8 +211,8 @@
       "fees_q": "How much does {{acronym}} cost?",
       "fees_a": "In {{year}}: {{list}}.",
       "unemployment_q": "Do {{acronym}} graduates find jobs?",
-      "unemployment_a": "Graduate unemployment for {{acronym}} is {{rate}}, according to InfoCursos ({{edition}} edition).",
-      "unemployment_a_national": "Graduate unemployment for {{acronym}} is {{rate}}, against {{national}} nationally, according to InfoCursos ({{edition}} edition).",
+      "unemployment_a": "{{share}} of {{acronym}} graduates are not unemployed: registered unemployment is {{rate}}, according to InfoCursos ({{edition}} edition).",
+      "unemployment_a_national": "{{share}} of {{acronym}} graduates are not unemployed: registered unemployment is {{rate}}, against {{national}} nationally, according to InfoCursos ({{edition}} edition).",
       "heaviest_q": "What is the heaviest course in {{acronym}}?",
       "heaviest_a": "According to students' reviews, {{course}} ({{label}}, {{n}} reviews)."
     },

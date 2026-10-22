@@ -735,19 +735,23 @@ export function OutcomesSection({
   if (u) {
     const national = u.national !== null ? formatPct(u.national, lang) : null
     const area = u.area !== null ? formatPct(u.area, lang) : null
+    // Framed positively, and only as far as the data goes: InfoCursos counts graduates
+    // registered as unemployed (IEFP), so the complement is "not unemployed", not "employed"
+    // (it also covers graduates studying further or abroad).
+    const rate = formatPct(u.rate, lang)
     stats.push(
       <Stat
         key="unemployment"
-        value={formatPct(u.rate, lang)}
-        label={t('degree_page.outcomes.unemployment')}
+        value={formatPct(Math.round((100 - u.rate) * 10) / 10, lang)}
+        label={t('degree_page.outcomes.not_unemployed')}
         note={
           national && area
-            ? t('degree_page.outcomes.compare_both', { national, area })
+            ? t('degree_page.outcomes.compare_both', { rate, national, area })
             : national
-              ? t('degree_page.outcomes.compare_national', { national })
+              ? t('degree_page.outcomes.compare_national', { rate, national })
               : area
-                ? t('degree_page.outcomes.compare_area', { area })
-                : null
+                ? t('degree_page.outcomes.compare_area', { rate, area })
+                : t('degree_page.outcomes.compare_none', { rate })
         }
       />
     )
