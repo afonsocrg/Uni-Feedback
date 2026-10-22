@@ -14,7 +14,11 @@
     "degree_description_reviews_other": "{{degreeName}} ({{acronym}}), {{faculty}}: {{count}} anonymous student reviews of the degree's courses.",
     "degree_description_tail": "Workload, assessment and tips.",
     "degree_title_full": "{{acronym}} {{faculty}}: study plan, reviews and entry grades | Uni Feedback",
-    "degree_title_plan": "{{acronym}} {{faculty}}: study plan and reviews | Uni Feedback"
+    "degree_title_plan": "{{acronym}} {{faculty}}: study plan and reviews | Uni Feedback",
+    "degree_courses_title": "{{acronym}} ({{faculty}}) courses: reviews, ratings and workload",
+    "degree_courses_description": "Every course in {{degreeName}} ({{acronym}}), {{faculty}}: ratings, workload and anonymous student reviews.",
+    "degree_courses_description_reviews_one": "Every course in {{degreeName}} ({{acronym}}), {{faculty}}, with 1 anonymous student review: ratings, workload and tips.",
+    "degree_courses_description_reviews_other": "Every course in {{degreeName}} ({{acronym}}), {{faculty}}, with {{n}} anonymous student reviews: ratings, workload and tips."
   },
   "page": {
     "title": "Select Your University",
@@ -168,8 +172,9 @@
         "licenciatura": "Figures for the bachelor's in {{name}} as a whole (all specializations).",
         "other": "Figures for the {{name}} programme as a whole (all specializations)."
       },
-      "not_unemployed": "of graduates are not unemployed",
-      "compare_none": "Registered unemployment: {{rate}}"
+      "compare_none": "Registered unemployment: {{rate}}",
+      "employability": "Employability",
+      "employability_info": "Graduates not registered as unemployed at IEFP (InfoCursos)"
     },
     "highlights": {
       "best": "Best rated",
@@ -211,8 +216,8 @@
       "fees_q": "How much does {{acronym}} cost?",
       "fees_a": "In {{year}}: {{list}}.",
       "unemployment_q": "Do {{acronym}} graduates find jobs?",
-      "unemployment_a": "{{share}} of {{acronym}} graduates are not unemployed: registered unemployment is {{rate}}, according to InfoCursos ({{edition}} edition).",
-      "unemployment_a_national": "{{share}} of {{acronym}} graduates are not unemployed: registered unemployment is {{rate}}, against {{national}} nationally, according to InfoCursos ({{edition}} edition).",
+      "unemployment_a": "Employability is {{share}}: only {{rate}} of graduates are registered as unemployed, according to InfoCursos ({{edition}} edition).",
+      "unemployment_a_national": "Employability is {{share}}: only {{rate}} of graduates are registered as unemployed (national average {{national}}), according to InfoCursos ({{edition}} edition).",
       "heaviest_q": "What is the heaviest course in {{acronym}}?",
       "heaviest_a": "According to students' reviews, {{course}} ({{label}}, {{n}} reviews)."
     },
@@ -223,7 +228,8 @@
       "equivalent": "Equivalent degree at another faculty",
       "similar": "Similar degree"
     },
-    "retired_notice": "This degree is no longer offered. Its courses and their reviews are still available."
+    "retired_notice": "This degree is no longer offered. Its courses and their reviews are still available.",
+    "explore_all_courses": "Browse all {{acronym}} courses"
   },
   "faculty_page": {
     "title": "{{name}}: choose your degree",
@@ -271,5 +277,10 @@
     "course_count_other": "{{count}} courses",
     "feedback_count_one": "{{count}} feedback",
     "feedback_count_other": "{{count}} feedback"
+  },
+  "courses_page": {
+    "title": "{{name}} courses",
+    "breadcrumb": "Courses",
+    "back": "About {{acronym}}: admission, outcomes and more"
   }
 }

@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next'
 import { useLang } from '~/hooks'
 import { analytics } from '~/utils/analytics'
 import { loadDegreeFilters, saveDegreeFilters } from '~/utils/filterStorage'
-import { getDegreePath } from '~/utils/i18n-routes'
+import { getDegreeCoursesPath, getDegreePath } from '~/utils/i18n-routes'
 import { userPreferences } from '~/utils/userPreferences'
 import { BrowsePageLayout, DegreeTable } from '.'
 import { AskChatButton } from './chat/AskChatButton'
@@ -117,9 +117,11 @@ export function FacultyPageContent({
     userPreferences.set({
       lastSelectedFacultySlug: faculty.slug ?? undefined,
       lastSelectedDegreeSlug: degree.slug ?? undefined,
+      // The link opens the degree page; a returning student comes back to
+      // its course browser
       lastVisitedPath:
         faculty.slug && degree.slug
-          ? getDegreePath(lang, faculty.slug, degree.slug)
+          ? getDegreeCoursesPath(lang, faculty.slug, degree.slug)
           : undefined
     })
   }

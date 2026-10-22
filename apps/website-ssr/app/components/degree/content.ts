@@ -128,9 +128,68 @@ export function latestGrades(admissions: DegreeAdmissions | null) {
   return { latest, previous }
 }
 
+/**
+ * Stable keys for the generated questions. A curated FAQ row (`degree_faqs`)
+ * with the same `topic` replaces the generated one.
+ */
+export type FaqTopic =
+  | 'admission_grade'
+  | 'entry_exams'
+  | 'fees'
+  | 'unemployment'
+  | 'heaviest_course'
+
 export interface FaqItem {
   question: string
   answer: string
+  /** Generated questions always have one; curated rows may */
+  topic: string | null
+  /** Curated answers are markdown; generated ones plain text */
+  isMarkdown: boolean
+}
+
+/** A reviewed `degree_faqs` row, in the page's language */
+export interface CuratedFaq {
+  topic: string | null
+  question: string
+  answer: string
+}
+
+/**
+ * The FAQ the page shows: curated questions first, in their order, then the
+ * generated ones whose topic no curated question already covers.
+ */
+export function mergeFaq(
+  curated: CuratedFaq[],
+  generated: FaqItem[]
+): FaqItem[] {
+  const covered = new Set(
+    curated.map((c) => c.topic).filter((topic): topic is string => !!topic)
+  )
+  return [
+    ...curated.map((c) => ({
+      question: c.question,
+      answer: c.answer,
+      topic: c.topic,
+      isMarkdown: true
+    })),
+    ...generated.filter((item) => !item.topic || !covered.has(item.topic))
+  ]
+}
+
+/**
+ * Markdown to plain text for structured data (FAQPage answers): links keep
+ * their text, emphasis and heading marks go.
+ */
+export function markdownToPlainText(markdown: string): string {
+  return markdown
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+    .replace(/^#{1,6}\s+/gm, '')
+    .replace(/^\s*[-*+]\s+/gm, '')
+    .replace(/(\*\*|__|\*|_|`)/g, '')
+    .replace(/\n{2,}/g, '\n')
+    .trim()
 }
 
 interface FaqContext {
@@ -176,6 +235,8 @@ export function buildFaq(
   const { latest, previous } = latestGrades(ctx.admissions)
   if (latest) {
     items.push({
+      topic: 'admission_grade' satisfies FaqTopic,
+      isMarkdown: false,
       question: t('degree_page.faq.last_grade_q', { acronym }),
       answer: previous
         ? t('degree_page.faq.last_grade_a_prev', {
@@ -195,6 +256,8 @@ export function buildFaq(
   if (!ctx.isRetired && guide && guide.provas.length > 0) {
     const list = guide.provas.map((combo) => combo.join(' + ')).join('; ')
     items.push({
+      topic: 'entry_exams' satisfies FaqTopic,
+      isMarkdown: false,
       question: t('degree_page.faq.exams_q', { acronym }),
       answer:
         guide.provas.length > 1
@@ -205,6 +268,8 @@ export function buildFaq(
 
   if (!ctx.isRetired && ctx.fees && ctx.fees.rows.length > 0) {
     items.push({
+      topic: 'fees' satisfies FaqTopic,
+      isMarkdown: false,
       question: t('degree_page.faq.fees_q', { acronym }),
       answer: t('degree_page.faq.fees_a', {
         year: formatSchoolYear(ctx.fees.schoolYear),
@@ -222,6 +287,8 @@ export function buildFaq(
       edition: ctx.outcomes.edition
     }
     items.push({
+      topic: 'unemployment' satisfies FaqTopic,
+      isMarkdown: false,
       question: t('degree_page.faq.unemployment_q', { acronym }),
       answer:
         unemployment.national !== null
@@ -236,6 +303,8 @@ export function buildFaq(
   const heaviest = ctx.highlights?.heaviest[0]
   if (heaviest) {
     items.push({
+      topic: 'heaviest_course' satisfies FaqTopic,
+      isMarkdown: false,
       question: t('degree_page.faq.heaviest_q', { acronym }),
       answer: t('degree_page.faq.heaviest_a', {
         course: heaviest.name,

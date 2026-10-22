@@ -1,26 +1,27 @@
-import {
-  database,
-  findDegreeSlugRedirect,
-  offeringsSubquery,
-  schema
-} from '@uni-feedback/db'
+import { database, schema } from '@uni-feedback/db'
 import { isDiscontinued } from '@uni-feedback/utils'
-import { and, eq, isNotNull, sql } from 'drizzle-orm'
+import { and, asc, eq, isNotNull } from 'drizzle-orm'
 import { useEffect } from 'react'
-import { redirect, useLocation } from 'react-router'
 import { DegreePageContent } from '~/components'
 import {
   buildFaq,
   computeHighlights,
   formatSchoolYear,
-  latestGrades
+  latestGrades,
+  markdownToPlainText,
+  mergeFaq
 } from '~/components/degree/content'
+import {
+  findDegreeBySlugs,
+  loadAcademicTerms,
+  loadDegreeCourses
+} from '~/lib/degreeCourses.server'
 import { loadDegreePageExtras } from '~/lib/degreePage.server'
 import { userPreferences } from '~/utils'
 
 import {
   detectLang,
-  getCoursePath,
+  getDegreeCoursesPath,
   getDegreePath,
   getFacultyPath,
   getLocalePath
@@ -160,23 +161,6 @@ export function meta({ loaderData, location, matches }: Route.MetaArgs) {
         price: row.amountEur,
         priceCurrency: 'EUR'
       }))
-    }),
-    ...(offeredCourses.length > 0 && {
-      hasCourse: offeredCourses.map((course) => ({
-        '@type': 'Course',
-        name: course.name,
-        courseCode: course.acronym,
-        url: `${origin}${getCoursePath(lang, course.id)}`,
-        ...(Number(course.totalFeedbackCount) > 0 && {
-          aggregateRating: {
-            '@type': 'AggregateRating',
-            ratingValue: Number(course.averageRating).toFixed(1),
-            reviewCount: course.totalFeedbackCount.toString(),
-            bestRating: '5',
-            worstRating: '1'
-          }
-        })
-      }))
     })
   }
 
@@ -214,17 +198,20 @@ export function meta({ loaderData, location, matches }: Route.MetaArgs) {
   const workloadLabels = metaT(location, 'common')('workload_ratings', {
     returnObjects: true
   }) as string[]
-  const faq = buildFaq(t, lang, {
-    acronym: degree.acronym,
-    admissions: extras.admissions,
-    fees: extras.fees,
-    outcomes: extras.outcomes,
-    highlights: computeHighlights(courses),
-    isRetired:
-      offeredCourses.length === 0 &&
-      courses.some((course) => isDiscontinued(course.lastTaughtYear)),
-    workloadLabel: (rating) => workloadLabels[Math.round(rating) - 1] ?? ''
-  })
+  const faq = mergeFaq(
+    loaderData.curatedFaq,
+    buildFaq(t, lang, {
+      acronym: degree.acronym,
+      admissions: extras.admissions,
+      fees: extras.fees,
+      outcomes: extras.outcomes,
+      highlights: computeHighlights(courses),
+      isRetired:
+        offeredCourses.length === 0 &&
+        courses.some((course) => isDiscontinued(course.lastTaughtYear)),
+      workloadLabel: (rating) => workloadLabels[Math.round(rating) - 1] ?? ''
+    })
+  )
   const faqPage =
     faq.length > 0
       ? {
@@ -233,7 +220,12 @@ export function meta({ loaderData, location, matches }: Route.MetaArgs) {
           mainEntity: faq.map((item) => ({
             '@type': 'Question',
             name: item.question,
-            acceptedAnswer: { '@type': 'Answer', text: item.answer }
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: item.isMarkdown
+                ? markdownToPlainText(item.answer)
+                : item.answer
+            }
           }))
         }
       : null
@@ -249,112 +241,14 @@ export function meta({ loaderData, location, matches }: Route.MetaArgs) {
   })
 }
 
-// A renamed faculty or degree slug (or both): 301 to the current URL, keeping
-// the language and the query string. Returns when the slugs were never renamed.
-async function redirectRenamedDegree(
-  request: Request,
-  facultySlug: string,
-  degreeSlug: string
-) {
-  const current = await findDegreeSlugRedirect(facultySlug, degreeSlug)
-  if (!current) return
-  const { pathname, search } = new URL(request.url)
-  throw redirect(
-    `${getDegreePath(detectLang(pathname), current.facultySlug, current.degreeSlug)}${search}`,
-    { status: 301 }
-  )
-}
-
 export async function loader({ params, request }: Route.LoaderArgs) {
-  const { facultySlug, degreeSlug } = params
+  const { faculty, degree } = await findDegreeBySlugs(
+    request,
+    params.facultySlug,
+    params.degreeSlug,
+    getDegreePath
+  )
   const db = database()
-
-  // Find the faculty by slug
-  const faculty = await db.query.faculties.findFirst({
-    where: (faculties, { eq }) => eq(faculties.slug, facultySlug)
-  })
-
-  if (!faculty) {
-    await redirectRenamedDegree(request, facultySlug, degreeSlug)
-    throw new Response('Faculty not found', { status: 404 })
-  }
-
-  // Find the degree by slug within the faculty
-  const degree = await db.query.degrees.findFirst({
-    where: (degrees, { eq, and }) =>
-      and(eq(degrees.slug, degreeSlug), eq(degrees.facultyId, faculty.id))
-  })
-
-  if (!degree) {
-    await redirectRenamedDegree(request, facultySlug, degreeSlug)
-    throw new Response('Degree not found', { status: 404 })
-  }
-
-  // Get courses with pre-computed stats from courseStats table
-  const coursesWithFeedback = await db
-    .select({
-      id: schema.courses.id,
-      name: schema.courses.name,
-      acronym: schema.courses.acronym,
-      url: schema.courses.url,
-      offerings: offeringsSubquery(),
-      hasMandatoryExam: schema.courses.hasMandatoryExam,
-      isMandatory: schema.courses.isMandatory,
-      lastTaughtYear: schema.courses.lastTaughtYear,
-      averageRating:
-        sql<number>`coalesce(${schema.courseStats.averageRating}, 0)`.as(
-          'average_rating'
-        ),
-      averageWorkload:
-        sql<number>`coalesce(${schema.courseStats.averageWorkload}, 0)`.as(
-          'average_workload'
-        ),
-      totalFeedbackCount:
-        sql<number>`coalesce(${schema.courseStats.totalFeedbackCount}, 0)`.as(
-          'total_feedback_count'
-        )
-    })
-    .from(schema.courses)
-    .leftJoin(
-      schema.courseStats,
-      eq(schema.courseStats.courseId, schema.courses.id)
-    )
-    .where(eq(schema.courses.degreeId, degree.id))
-
-  // Every term the faculty defines, not just the ones this degree's offerings
-  // happen to use. Grouping resolves a period to its parent semester even when
-  // no course is offered in that semester directly (LEIC's 3rd year has P1/P2
-  // offerings but no S1 one), and the parent's name and ticks exist only here.
-  const academicTerms = await db
-    .select({
-      id: schema.academicTerms.id,
-      name: schema.academicTerms.name,
-      startTick: schema.academicTerms.startTick,
-      endTick: schema.academicTerms.endTick,
-      parentId: schema.academicTerms.parentId
-    })
-    .from(schema.academicTerms)
-    .where(eq(schema.academicTerms.facultyId, faculty.id))
-
-  // Get course groups
-  const courseGroups = await db
-    .select({
-      id: schema.courseGroup.id,
-      name: schema.courseGroup.name,
-      courseIds: sql<string>`(
-        SELECT string_agg(course_id::text, ',')
-        FROM mtm_course_groups__courses
-        WHERE course_group_id = course_groups.id
-      )`.as('course_ids')
-    })
-    .from(schema.courseGroup)
-    .where(eq(schema.courseGroup.degreeId, degree.id))
-
-  // Format course groups with proper courseIds array
-  const formattedCourseGroups = courseGroups.map((group) => ({
-    ...group,
-    courseIds: group.courseIds ? group.courseIds.split(',').map(Number) : []
-  }))
 
   // Our own description, in the page's language, once reviewed. Pages in a
   // language with no reviewed text show no "about" section.
@@ -372,35 +266,63 @@ export async function loader({ params, request }: Route.LoaderArgs) {
       )
     )
 
-  const [[details], extras] = await Promise.all([
-    detailsQuery,
-    loadDegreePageExtras(degree.id, faculty.universityId)
-  ])
+  // Curated FAQ (migration 0057): reviewed rows in the page's language, in
+  // order. Shown before the generated questions, replacing any on its topic.
+  const curatedFaqQuery = db
+    .select({
+      topic: schema.degreeFaqs.topic,
+      question: schema.degreeFaqs.question,
+      answer: schema.degreeFaqs.answer
+    })
+    .from(schema.degreeFaqs)
+    .where(
+      and(
+        eq(schema.degreeFaqs.degreeId, degree.id),
+        eq(schema.degreeFaqs.lang, detectLang(new URL(request.url).pathname)),
+        isNotNull(schema.degreeFaqs.reviewedAt)
+      )
+    )
+    .orderBy(asc(schema.degreeFaqs.position))
+
+  const [courses, academicTerms, [details], extras, curatedFaq] =
+    await Promise.all([
+      loadDegreeCourses(degree.id),
+      loadAcademicTerms(faculty.id),
+      detailsQuery,
+      loadDegreePageExtras(degree.id, faculty.universityId),
+      curatedFaqQuery
+    ])
 
   return {
     faculty,
     degree,
     about: details?.description ?? null,
-    courses: coursesWithFeedback,
+    courses,
     academicTerms,
-    courseGroups: formattedCourseGroups,
     extras,
+    curatedFaq,
     origin: getRequestOrigin(request)
   }
 }
 
 export default function DegreePage({ loaderData }: Route.ComponentProps) {
-  const location = useLocation()
-  // Persist selection when component mounts
+  const { faculty, degree } = loaderData
+  // Remember the degree. The navbar's "Procurar cadeiras" and other "continue"
+  // shortcuts take a returning student to its course browser, which is where
+  // they come back to find a course.
   useEffect(() => {
-    if (loaderData.faculty?.slug && loaderData.degree?.slug) {
+    if (faculty?.slug && degree?.slug) {
       userPreferences.set({
-        lastSelectedFacultySlug: loaderData.faculty.slug,
-        lastSelectedDegreeSlug: loaderData.degree.slug,
-        lastVisitedPath: location.pathname
+        lastSelectedFacultySlug: faculty.slug,
+        lastSelectedDegreeSlug: degree.slug,
+        lastVisitedPath: getDegreeCoursesPath(
+          detectLang(window.location.pathname),
+          faculty.slug,
+          degree.slug
+        )
       })
     }
-  }, [loaderData.faculty?.slug, loaderData.degree?.slug, location.pathname])
+  }, [faculty?.slug, degree?.slug])
 
   return (
     <DegreePageContent
@@ -409,8 +331,8 @@ export default function DegreePage({ loaderData }: Route.ComponentProps) {
       about={loaderData.about}
       courses={loaderData.courses}
       academicTerms={loaderData.academicTerms}
-      courseGroups={loaderData.courseGroups}
       extras={loaderData.extras}
+      curatedFaq={loaderData.curatedFaq}
     />
   )
 }

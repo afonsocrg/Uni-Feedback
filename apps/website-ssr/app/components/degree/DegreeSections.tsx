@@ -13,6 +13,7 @@ import {
 } from '~/utils/analytics'
 import { getCoursePath, getDegreePath } from '~/utils/i18n-routes'
 import { ContributeNote } from '../common/ContributeNote'
+import { InfoPopover } from '../common/InfoPopover'
 import { ReportErrorNote } from '../common/ReportErrorNote'
 import type { CourseWithFeedback } from '../course/types'
 import { AdmissionChart } from './AdmissionChart'
@@ -80,18 +81,30 @@ export function SectionShell({
 function Stat({
   value,
   label,
-  note
+  note,
+  info
 }: {
   value: string
   label: string
   note?: string | null
+  /** What the figure measures, behind an (i) next to the label */
+  info?: string
 }) {
   return (
     <div className="rounded-lg bg-muted px-4 py-3">
       <div className="text-2xl font-semibold tabular-nums text-foreground">
         {value}
       </div>
-      <div className="text-xs text-muted-foreground">{label}</div>
+      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+        {label}
+        {info && (
+          <InfoPopover
+            content={info}
+            label={info}
+            className="[&_svg]:size-3.5"
+          />
+        )}
+      </div>
       {note && (
         <div className="mt-0.5 text-xs text-muted-foreground">{note}</div>
       )}
@@ -156,29 +169,31 @@ export function DegreeHeader({
   degree,
   facultyName,
   universityName,
-  campuses,
   courseCount,
-  feedbackCount,
   isRetired,
-  onViewCourses
+  coursesHref,
+  onCoursesClick
 }: {
   degree: Degree
   facultyName: string
   universityName: string | null
-  campuses: DegreeCampusInfo[]
   courseCount: number
-  feedbackCount: number
   /** Every course has left the plan: the degree is no longer taught */
   isRetired: boolean
-  onViewCourses: () => void
+  /** The degree's course browser (/cadeiras) */
+  coursesHref: string | null
+  onCoursesClick: () => void
 }) {
   const { t } = useTranslation('browse')
   const lang = useLang()
-  const facts: ReactNode[] = []
 
-  facts.push(<b key="type">{t(`degree_page.facts.type.${degree.type}`)}</b>)
-  if (degree.durationSemesters) {
-    const semesters = degree.durationSemesters
+  // Facts about the degree only (what it is, how long, how big, in what
+  // language); campus, schedule and course stats live in their sections
+  const facts: ReactNode[] = [
+    <b key="type">{t(`degree_page.facts.type.${degree.type}`)}</b>
+  ]
+  const semesters = degree.durationSemesters
+  if (semesters) {
     facts.push(
       semesters % 2 === 0 ? (
         <span key="duration">
@@ -214,52 +229,12 @@ export function DegreeHeader({
       </span>
     )
   }
-  if (campuses.length > 0) {
-    facts.push(
-      <span key="campus">
-        {t('degree_page.facts.campus', {
-          names: campuses.map((c) => c.name).join(', ')
-        })}
-      </span>
-    )
-  }
-  if (degree.schedule) {
-    facts.push(
-      <span key="schedule">
-        {t(`degree_page.facts.schedule.${degree.schedule}`, {
-          defaultValue: ''
-        })}
-      </span>
-    )
-  }
   if (degree.teachingLanguage) {
-    facts.push(
-      <span key="language">
-        {t(`degree_page.facts.language.${degree.teachingLanguage}`, {
-          defaultValue: ''
-        })}
-      </span>
+    const language = t(
+      `degree_page.facts.language.${degree.teachingLanguage}`,
+      { defaultValue: '' }
     )
-  }
-  if (courseCount > 0) {
-    facts.push(
-      <span key="courses">
-        {t('degree_page.facts.courses', {
-          count: courseCount,
-          n: formatNumber(courseCount, lang)
-        })}
-      </span>
-    )
-  }
-  if (feedbackCount > 0) {
-    facts.push(
-      <span key="feedback">
-        {t('degree_page.facts.feedback', {
-          count: feedbackCount,
-          n: formatNumber(feedbackCount, lang)
-        })}
-      </span>
-    )
+    if (language) facts.push(<span key="language">{language}</span>)
   }
 
   return (
@@ -288,20 +263,17 @@ export function DegreeHeader({
           {t('degree_page.retired_notice')}
         </p>
       )}
-      {courseCount > 0 && (
-        <a
-          href="#plano"
-          onClick={(event) => {
-            event.preventDefault()
-            onViewCourses()
-          }}
+      {courseCount > 0 && coursesHref && (
+        <Link
+          to={coursesHref}
+          onClick={onCoursesClick}
           className="mt-5 inline-flex h-10 items-center rounded-md bg-brand-solid px-4 text-sm font-semibold text-white transition-opacity hover:opacity-90"
         >
           {t('degree_page.view_courses', {
             count: courseCount,
             n: formatNumber(courseCount, lang)
           })}
-        </a>
+        </Link>
       )}
     </header>
   )
@@ -743,7 +715,8 @@ export function OutcomesSection({
       <Stat
         key="unemployment"
         value={formatPct(Math.round((100 - u.rate) * 10) / 10, lang)}
-        label={t('degree_page.outcomes.not_unemployed')}
+        label={t('degree_page.outcomes.employability')}
+        info={t('degree_page.outcomes.employability_info')}
         note={
           national && area
             ? t('degree_page.outcomes.compare_both', { rate, national, area })
@@ -1075,7 +1048,13 @@ export function FaqSection({ items }: { items: FaqItem[] }) {
                 </span>
               </span>
             </summary>
-            <p className="mt-2 text-muted-foreground">{item.answer}</p>
+            {item.isMarkdown ? (
+              <div className="mt-2 text-muted-foreground">
+                <Markdown>{item.answer}</Markdown>
+              </div>
+            ) : (
+              <p className="mt-2 text-muted-foreground">{item.answer}</p>
+            )}
           </details>
         ))}
       </div>

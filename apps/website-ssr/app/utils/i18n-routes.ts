@@ -121,6 +121,10 @@ function swapDynamicPath(path: string, from: Lang): string {
     }
     const editMatch = path.match(/^\/feedback\/([^/]+)\/editar$/)
     if (editMatch) return `/en/feedback/${editMatch[1]}/edit`
+    // A degree's course browser: /ist/leic-a/cadeiras
+    const degreeCourses = path.match(/^\/([^/]+)\/([^/]+)\/cadeiras$/)
+    if (degreeCourses)
+      return getDegreeCoursesPath('en', degreeCourses[1], degreeCourses[2])
     if (import.meta.env.DEV) {
       console.warn(
         `[i18n] swapDynamicPath: unrecognized PT path "${path}", falling back to /en prefix`
@@ -135,6 +139,9 @@ function swapDynamicPath(path: string, from: Lang): string {
     }
     const editMatch = withoutEn.match(/^\/feedback\/([^/]+)\/edit$/)
     if (editMatch) return `/feedback/${editMatch[1]}/editar`
+    const degreeCourses = withoutEn.match(/^\/([^/]+)\/([^/]+)\/courses$/)
+    if (degreeCourses)
+      return getDegreeCoursesPath('pt', degreeCourses[1], degreeCourses[2])
     if (import.meta.env.DEV) {
       console.warn(
         `[i18n] swapDynamicPath: unrecognized EN path "${path}", falling back to strip /en`
@@ -189,6 +196,15 @@ export function getDegreePath(
   return lang === 'en'
     ? `/en/${facultySlug}/${degreeSlug}`
     : `/${facultySlug}/${degreeSlug}`
+}
+
+/** A degree's course browser: /ist/leic-a/cadeiras, /en/ist/leic-a/courses */
+export function getDegreeCoursesPath(
+  lang: Lang,
+  facultySlug: string,
+  degreeSlug: string
+): string {
+  return `${getDegreePath(lang, facultySlug, degreeSlug)}/${COURSE_SEGMENT[lang]}`
 }
 
 export function getFeedbackEditPath(lang: Lang, feedbackId: number): string {

@@ -235,6 +235,16 @@ export const routeConfig = [
           pt: ':facultySlug/:degreeSlug',
           en: ':facultySlug/:degreeSlug'
         }
+      },
+      // A degree's full course browser. Static segments rank above dynamic
+      // ones, so /cadeiras/:courseId/feedback is never read as a degree.
+      {
+        key: 'degree-courses',
+        file: 'routes/degree-courses.tsx',
+        slugs: {
+          pt: ':facultySlug/:degreeSlug/cadeiras',
+          en: ':facultySlug/:degreeSlug/courses'
+        }
       }
     ]
   }

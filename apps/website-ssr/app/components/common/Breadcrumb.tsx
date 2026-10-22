@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useLang } from '~/hooks'
 import { userPreferences } from '~/utils'
 import {
+  getDegreeCoursesPath,
   getDegreePath,
   getFacultyPath,
   getLocalePath
@@ -49,9 +50,10 @@ export function Breadcrumb({
     userPreferences.set({
       lastSelectedFacultySlug: faculty?.slug ?? undefined,
       lastSelectedDegreeSlug: degree?.slug ?? undefined,
+      // A returning student comes back to the degree's course browser
       lastVisitedPath:
         faculty?.slug && degree?.slug
-          ? getDegreePath(lang, faculty.slug, degree.slug)
+          ? getDegreeCoursesPath(lang, faculty.slug, degree.slug)
           : browsePath
     })
   }

@@ -14,7 +14,11 @@
     "degree_description_reviews_other": "{{degreeName}} ({{acronym}}), {{faculty}}: {{count}} opiniões anónimas de alunos sobre as cadeiras do curso.",
     "degree_description_tail": "Carga de trabalho, avaliação e dicas.",
     "degree_title_full": "{{acronym}} {{faculty}}: plano curricular, opiniões e média de entrada | Uni Feedback",
-    "degree_title_plan": "{{acronym}} {{faculty}}: plano curricular e opiniões | Uni Feedback"
+    "degree_title_plan": "{{acronym}} {{faculty}}: plano curricular e opiniões | Uni Feedback",
+    "degree_courses_title": "Cadeiras de {{acronym}} ({{faculty}}): opiniões, avaliação e carga de trabalho",
+    "degree_courses_description": "Todas as cadeiras de {{degreeName}} ({{acronym}}), {{faculty}}: avaliação, carga de trabalho e opiniões anónimas de alunos.",
+    "degree_courses_description_reviews_one": "Todas as cadeiras de {{degreeName}} ({{acronym}}), {{faculty}}, com 1 opinião anónima de alunos: avaliação, carga de trabalho e dicas.",
+    "degree_courses_description_reviews_other": "Todas as cadeiras de {{degreeName}} ({{acronym}}), {{faculty}}, com {{n}} opiniões anónimas de alunos: avaliação, carga de trabalho e dicas."
   },
   "page": {
     "title": "Escolhe a tua faculdade",
@@ -168,8 +172,9 @@
         "licenciatura": "Dados da licenciatura em {{name}} no seu conjunto (todas as especializações).",
         "other": "Dados do curso {{name}} no seu conjunto (todas as especializações)."
       },
-      "not_unemployed": "dos diplomados não estão no desemprego",
-      "compare_none": "Desemprego registado: {{rate}}"
+      "compare_none": "Desemprego registado: {{rate}}",
+      "employability": "Empregabilidade",
+      "employability_info": "Diplomados sem registo de desemprego no IEFP (InfoCursos)"
     },
     "highlights": {
       "best": "Mais bem avaliadas",
@@ -211,8 +216,8 @@
       "fees_q": "Quanto custa {{acronym}}?",
       "fees_a": "Em {{year}}: {{list}}.",
       "unemployment_q": "Os diplomados de {{acronym}} arranjam emprego?",
-      "unemployment_a": "{{share}} dos diplomados de {{acronym}} não estão no desemprego: a taxa de desemprego registado é de {{rate}}, segundo o InfoCursos (edição {{edition}}).",
-      "unemployment_a_national": "{{share}} dos diplomados de {{acronym}} não estão no desemprego: a taxa de desemprego registado é de {{rate}}, contra {{national}} a nível nacional, segundo o InfoCursos (edição {{edition}}).",
+      "unemployment_a": "A empregabilidade é de {{share}}: só {{rate}} dos diplomados estão registados como desempregados, segundo o InfoCursos (edição {{edition}}).",
+      "unemployment_a_national": "A empregabilidade é de {{share}}: só {{rate}} dos diplomados estão registados como desempregados (média nacional {{national}}), segundo o InfoCursos (edição {{edition}}).",
       "heaviest_q": "Qual é a cadeira mais pesada de {{acronym}}?",
       "heaviest_a": "Segundo o feedback dos alunos, {{course}} ({{label}}, {{n}} feedbacks)."
     },
@@ -223,7 +228,8 @@
       "equivalent": "Curso equivalente noutra faculdade",
       "similar": "Curso semelhante"
     },
-    "retired_notice": "Este curso já não é lecionado. As cadeiras e o feedback continuam disponíveis."
+    "retired_notice": "Este curso já não é lecionado. As cadeiras e o feedback continuam disponíveis.",
+    "explore_all_courses": "Explorar todas as cadeiras de {{acronym}}"
   },
   "faculty_page": {
     "title": "{{name}}: escolhe o teu curso",
@@ -271,5 +277,10 @@
     "course_count_other": "{{count}} cadeiras",
     "feedback_count_one": "{{count}} feedback",
     "feedback_count_other": "{{count}} feedback"
+  },
+  "courses_page": {
+    "title": "Cadeiras de {{name}}",
+    "breadcrumb": "Cadeiras",
+    "back": "Sobre o curso {{acronym}}: ingresso, saídas e mais"
   }
 }

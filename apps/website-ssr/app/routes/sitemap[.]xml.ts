@@ -1,7 +1,7 @@
 import { database, schema } from '@uni-feedback/db'
 import { eq, isNotNull, max, sql } from 'drizzle-orm'
 import { isCourseIndexable } from '~/utils/course'
-import { getLocalePath } from '~/utils/i18n-routes'
+import { getDegreeCoursesPath, getLocalePath } from '~/utils/i18n-routes'
 import { getRequestOrigin } from '~/utils/request'
 
 interface PagePair {
@@ -188,6 +188,16 @@ export async function loader({ request }: { request: Request }) {
       .map((d) => ({
         pt: `/${d.facultySlug}/${d.degreeSlug}`,
         en: `/en/${d.facultySlug}/${d.degreeSlug}`,
+        changefreq: 'weekly',
+        priority: 0.8,
+        lastmod: degreeLastmod.get(d.id)
+      })),
+    // Each degree's course browser, indexed like the degree page itself
+    ...degrees
+      .filter((d) => d.facultySlug && d.degreeSlug)
+      .map((d) => ({
+        pt: getDegreeCoursesPath('pt', d.facultySlug!, d.degreeSlug!),
+        en: getDegreeCoursesPath('en', d.facultySlug!, d.degreeSlug!),
         changefreq: 'weekly',
         priority: 0.8,
         lastmod: degreeLastmod.get(d.id)

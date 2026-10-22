@@ -141,6 +141,7 @@ export type ErrorReportSurface =
   | 'degree_admission'
   | 'degree_outcomes'
   | 'degree_page'
+  | 'degree_courses_page'
   | 'faculty_page'
 
 /**
@@ -203,7 +204,10 @@ export type FeedbackCardSurface = 'course_page' | 'profile'
  * courses to take, the other two are someone picking a course to review.
  */
 export type SearchSurface =
+  /** The degree page's listing, until it moved to /cadeiras (2026-10-22) */
   | 'degree_page'
+  /** A degree's course browser, `/:faculty/:degree/cadeiras` */
+  | 'degree_courses_page'
   | 'feedback_course_browser'
   | 'change_course_dialog'
   | 'landing_hero'
@@ -763,16 +767,49 @@ export const analytics = {
     }) => trackEvent('degree_section_viewed', props),
 
     /**
-     * Track a jump through the degree page's navigation: the table of contents
-     * (`sidebar` on desktop, `mobile_sheet` on phones) or the header's "Ver as
-     * N cadeiras" button (`header_button`).
+     * Track a jump through the degree page's table of contents (`sidebar` on
+     * desktop, `mobile_sheet` on phones).
      */
     degreeTocClicked: (props: {
       facultySlug: string
       degreeSlug: string
       section: DegreeSectionId
-      surface: 'sidebar' | 'mobile_sheet' | 'header_button'
+      surface: 'sidebar' | 'mobile_sheet'
     }) => trackEvent('degree_toc_clicked', props),
+
+    /**
+     * Track a click from the degree page to its course browser (`/cadeiras`):
+     * the header's "Ver as N cadeiras" (`header`) or "Explorar todas as
+     * cadeiras" under the plan summary (`plan_section`). Over
+     * `degree_page_viewed` it says how many come to the degree page to find a
+     * course rather than to learn about the degree.
+     */
+    degreeCoursesCtaClicked: (props: {
+      facultySlug: string
+      degreeSlug: string
+      surface: 'header' | 'plan_section'
+    }) => trackEvent('degree_courses_cta_clicked', props),
+
+    /** Track a curriculum year chip in the degree page's plan summary. */
+    degreePlanYearSelected: (props: {
+      facultySlug: string
+      degreeSlug: string
+      curriculumYear: number
+    }) => trackEvent('degree_plan_year_selected', props),
+
+    /**
+     * Track a load of a degree's course browser (`/:faculty/:degree/cadeiras`).
+     * Entry point of the course-discovery funnel since 2026-10-22, when the
+     * listing moved off the degree page: the denominator for
+     * `course_search_performed{surface: 'degree_courses_page'}`,
+     * `course_filter_applied` and `course_card_clicked` there.
+     * */
+    degreeCoursesPageViewed: (props: {
+      facultySlug: string
+      degreeSlug: string
+      courseCount: number
+      pastCourseCount: number
+    }) => trackEvent('degree_courses_page_viewed', props),
 
     /** Track the mobile "Nesta página" sheet being opened. */
     degreeTocOpened: (props: { facultySlug: string; degreeSlug: string }) =>
