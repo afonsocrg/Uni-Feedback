@@ -130,9 +130,6 @@ export function DegreePageContent({
   )
 
   const tocSections: TocSection[] = [
-    ...(about
-      ? [{ id: 'sobre' as const, label: t('degree_page.sections.about') }]
-      : []),
     { id: 'plano', label: t('degree_page.sections.plan') },
     ...(showAdmission
       ? [

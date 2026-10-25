@@ -118,9 +118,6 @@ export function FacultyHubContent({
   ]
 
   const sections = [
-    ...(data.intro
-      ? [{ id: 'sobre', label: t('faculty_hub.sections.about') }]
-      : []),
     { id: 'cursos', label: t('faculty_hub.sections.courses') },
     ...(data.campuses.length > 0
       ? [
@@ -181,7 +178,7 @@ export function FacultyHubContent({
       degreeCount={degrees.length}
     >
       {data.intro && (
-        <SectionShell id="sobre" title={t('faculty_hub.sections.about')} first>
+        <SectionShell id="sobre" first>
           <LocalizedText text={data.intro} />
         </SectionShell>
       )}

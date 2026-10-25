@@ -65,26 +65,29 @@ export function SectionShell({
 }: {
   /** A degree section, or another page's section reusing this shell */
   id: DegreeSectionId | (string & {})
-  title: string
+  /** Omitted for the intro right under the header, which needs no label */
+  title?: string
   children: ReactNode
   first?: boolean
 }) {
   return (
     <section
       id={id}
-      aria-labelledby={`${id}-title`}
+      aria-labelledby={title ? `${id}-title` : undefined}
       // Clears the site header (and the mobile section bar) on a jump
       className={cn(
         'scroll-mt-32 lg:scroll-mt-24',
         !first && 'mt-10 border-t border-border pt-8'
       )}
     >
-      <h2
-        id={`${id}-title`}
-        className="mb-4 text-xl font-semibold text-foreground"
-      >
-        {title}
-      </h2>
+      {title && (
+        <h2
+          id={`${id}-title`}
+          className="mb-4 text-xl font-semibold text-foreground"
+        >
+          {title}
+        </h2>
+      )}
       {children}
     </section>
   )
@@ -322,7 +325,7 @@ export function AboutSection({
   const clamped = overflows && !expanded
 
   return (
-    <SectionShell id="sobre" title={t('degree_page.sections.about')} first>
+    <SectionShell id="sobre" first>
       <div
         ref={contentRef}
         lang={about.lang}

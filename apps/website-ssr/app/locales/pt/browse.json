@@ -36,7 +36,6 @@
     "body": "Página: {{url}}\n\nO que está errado:\n"
   },
   "degree_page": {
-    "about_title": "Sobre o curso",
     "search_placeholder": "Pesquisar por nome ou sigla...",
     "sort_label": "Ordenar Por",
     "sort_default": "Mais feedback",
@@ -73,7 +72,6 @@
     "view_courses_other": "Ver as {{n}} cadeiras",
     "toc_label": "Nesta página",
     "sections": {
-      "about": "Sobre o curso",
       "plan": "Plano curricular",
       "admission": "Ingresso",
       "outcomes": "Depois do curso",
@@ -350,8 +348,7 @@
       "related": "Relacionados",
       "compare": "Comparar",
       "first_year": "O primeiro ano",
-      "pathways": "Percursos",
-      "about": "Sobre a faculdade"
+      "pathways": "Percursos"
     },
     "compare_link": {
       "bachelor": "Comparar as licenciaturas: vagas, notas de entrada e empregabilidade",

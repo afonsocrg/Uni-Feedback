@@ -36,7 +36,6 @@
     "body": "Page: {{url}}\n\nWhat is wrong:\n"
   },
   "degree_page": {
-    "about_title": "About the degree",
     "search_placeholder": "Search by name or acronym...",
     "sort_label": "Sort By",
     "sort_default": "Most Reviews",
@@ -73,7 +72,6 @@
     "view_courses_other": "See the {{n}} courses",
     "toc_label": "On this page",
     "sections": {
-      "about": "About the degree",
       "plan": "Study plan",
       "admission": "Admission",
       "outcomes": "After the degree",
@@ -350,8 +348,7 @@
       "related": "Related",
       "compare": "Compare",
       "first_year": "The first year",
-      "pathways": "Pathways",
-      "about": "About the school"
+      "pathways": "Pathways"
     },
     "compare_link": {
       "bachelor": "Compare the bachelor's: places, entry grades and employability",
