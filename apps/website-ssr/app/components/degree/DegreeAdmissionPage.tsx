@@ -4,6 +4,7 @@ import { useEffect, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLang } from '~/hooks'
 import { analytics } from '~/utils/analytics'
+import type { CrumbUniversity } from '~/utils/breadcrumbs'
 import { ContributeNote } from '../common/ContributeNote'
 import { AdmissionChart } from './AdmissionChart'
 import {
@@ -41,12 +42,14 @@ import { CNA_TYPES } from './subpages'
 export function DegreeAdmissionPage({
   faculty,
   degree,
+  university,
   extras,
   data,
   faq
 }: {
   faculty: Faculty
   degree: Degree
+  university: CrumbUniversity | null
   extras: DegreePageExtras
   data: DegreeAdmissionPageData
   faq: FaqItem[]
@@ -130,6 +133,7 @@ export function DegreeAdmissionPage({
     <DegreeSubpageShell
       faculty={faculty}
       degree={degree}
+      university={university}
       universityName={extras.universityName}
       crumb={t('degree_subpages.tabs.admission')}
       title={t('degree_subpages.admission.h1', { name: degree.name })}

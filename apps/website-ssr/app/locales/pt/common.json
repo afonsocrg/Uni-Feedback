@@ -46,7 +46,7 @@
     }
   },
   "breadcrumb": {
-    "select_uni": "Escolher Faculdade"
+    "universities": "Universidades"
   },
   "lang_switcher": {
     "switch_to_en": "EN",

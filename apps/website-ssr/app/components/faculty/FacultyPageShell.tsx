@@ -1,14 +1,8 @@
-import { Home } from 'lucide-react'
 import { useEffect, useRef, type ReactNode } from 'react'
-import { useTranslation } from 'react-i18next'
-import { useLang } from '~/hooks'
 import { analytics, type FacultyPageKind } from '~/utils/analytics'
-import { getFacultyPath, getLocalePath } from '~/utils/i18n-routes'
+import type { CrumbUniversity } from '~/utils/breadcrumbs'
 import { userPreferences } from '~/utils/userPreferences'
-import {
-  GenericBreadcrumb,
-  type BreadcrumbItemData
-} from '../common/GenericBreadcrumb'
+import { Breadcrumb } from '../common/Breadcrumb'
 import { ReportErrorNote } from '../common/ReportErrorNote'
 import { DegreeTocBar, DegreeTocSidebar } from '../degree/DegreeToc'
 import { useScrollSpy, type TocSection } from '../degree/scrollSpy'
@@ -23,6 +17,8 @@ import { useScrollSpy, type TocSection } from '../degree/scrollSpy'
 export function FacultyPageShell({
   facultySlug,
   facultyShortName,
+  facultyName,
+  university,
   page,
   crumb,
   title,
@@ -37,6 +33,8 @@ export function FacultyPageShell({
 }: {
   facultySlug: string
   facultyShortName: string
+  facultyName: string
+  university: CrumbUniversity | null
   page: FacultyPageKind
   /** The last breadcrumb (a type page's label); none on the hub */
   crumb?: string
@@ -52,8 +50,6 @@ export function FacultyPageShell({
   degreeCount: number
   children: ReactNode
 }) {
-  const { t } = useTranslation()
-  const lang = useLang()
   const sectionsRef = useRef(sections)
   sectionsRef.current = sections
 
@@ -84,29 +80,19 @@ export function FacultyPageShell({
   const onToc = (surface: 'sidebar' | 'mobile_sheet') => (section: string) =>
     analytics.faculty.tocClicked({ facultySlug, page, section, surface })
 
-  const browsePath = getLocalePath('browse', lang)
-  const crumbs: BreadcrumbItemData[] = [
-    {
-      label: (
-        <>
-          <Home className="mr-1 h-3 w-3" />
-          {t('breadcrumb.select_uni')}
-        </>
-      ),
-      href: browsePath
-    },
-    {
-      label: facultyShortName,
-      href: crumb ? getFacultyPath(lang, facultySlug) : undefined,
-      isActive: !crumb
-    },
-    ...(crumb ? [{ label: crumb, isActive: true }] : [])
-  ]
-
   return (
     <div className="min-h-screen">
       <div className="container mx-auto px-4 pt-4">
-        <GenericBreadcrumb items={crumbs} />
+        <Breadcrumb
+          surface={crumb ? 'faculty_type' : 'faculty'}
+          university={university}
+          faculty={{
+            slug: facultySlug,
+            shortName: facultyShortName,
+            name: facultyName
+          }}
+          current={crumb}
+        />
       </div>
 
       <DegreeTocBar<string>

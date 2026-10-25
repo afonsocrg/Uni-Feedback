@@ -85,12 +85,17 @@ async function loadUniversity(
     .select({
       name: schema.universities.name,
       nameEn: schema.universities.nameEn,
+      shortName: schema.universities.shortName,
       slug: schema.universities.slug
     })
     .from(schema.universities)
     .where(eq(schema.universities.id, universityId))
   return row
-    ? { name: pickName(lang, row.name, row.nameEn).value, slug: row.slug }
+    ? {
+        name: pickName(lang, row.name, row.nameEn).value,
+        shortName: row.shortName,
+        slug: row.slug
+      }
     : null
 }
 

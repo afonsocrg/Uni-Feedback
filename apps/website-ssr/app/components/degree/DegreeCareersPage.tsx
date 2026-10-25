@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { useLang } from '~/hooks'
 import { analytics } from '~/utils/analytics'
+import type { CrumbUniversity } from '~/utils/breadcrumbs'
 import { getDegreePath } from '~/utils/i18n-routes'
 import { ContributeNote } from '../common/ContributeNote'
 import { formatInt, formatNumber, formatPct, type FaqItem } from './content'
@@ -31,6 +32,7 @@ import type { DegreeCareersPageData, DegreePageExtras } from './pageTypes'
 export function DegreeCareersPage({
   faculty,
   degree,
+  university,
   extras,
   data,
   hasAbout,
@@ -38,6 +40,7 @@ export function DegreeCareersPage({
 }: {
   faculty: Faculty
   degree: Degree
+  university: CrumbUniversity | null
   extras: DegreePageExtras
   data: DegreeCareersPageData
   /** The degree page has our reviewed description (it covers careers) */
@@ -122,6 +125,7 @@ export function DegreeCareersPage({
     <DegreeSubpageShell
       faculty={faculty}
       degree={degree}
+      university={university}
       universityName={extras.universityName}
       crumb={t('degree_subpages.tabs.careers')}
       title={t('degree_subpages.careers.h1', { name: degree.name })}

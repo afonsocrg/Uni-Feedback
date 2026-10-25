@@ -143,6 +143,8 @@ export function FacultyHubContent({
     <FacultyPageShell
       facultySlug={facultySlug}
       facultyShortName={faculty.shortName}
+      facultyName={faculty.name}
+      university={data.university}
       page="hub"
       title={faculty.name}
       subtitle={

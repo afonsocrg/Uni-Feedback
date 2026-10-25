@@ -1,11 +1,10 @@
 import { UniversityDegreesContent } from '~/components/university/UniversityDegreesContent'
 import { loadUniversityPage } from '~/lib/universityPage.server'
+import { breadcrumbJsonLd, buildCrumbs } from '~/utils/breadcrumbs'
 import { facultyTypeFromSegment } from '~/utils/facultyTypePages'
 import {
   detectLang,
   getDegreePath,
-  getLocalePath,
-  getUniversityPath,
   getUniversitySubpagePath,
   getUniversityTypePath
 } from '~/utils/i18n-routes'
@@ -38,7 +37,6 @@ export function meta({ loaderData, location, matches }: Route.MetaArgs) {
   const degrees = type
     ? data.degrees.filter((d) => d.type === type)
     : data.degrees
-  const uniUrl = `${origin}${getUniversityPath(lang, university.slug)}`
   const url = `${origin}${
     type
       ? getUniversityTypePath(lang, university.slug, type)
@@ -72,25 +70,18 @@ export function meta({ loaderData, location, matches }: Route.MetaArgs) {
       robots: 'noindex, follow'
     }),
     structuredData: [
-      {
-        '@context': 'https://schema.org',
-        '@type': 'BreadcrumbList',
-        itemListElement: [
+      breadcrumbJsonLd(
+        buildCrumbs(
+          lang,
+          metaT(location, 'common')('breadcrumb.universities'),
           {
-            '@type': 'ListItem',
-            position: 1,
-            name: t('crumbs.universities'),
-            item: `${origin}${getLocalePath('universities', lang)}`
-          },
-          {
-            '@type': 'ListItem',
-            position: 2,
-            name: university.shortName,
-            item: uniUrl
-          },
-          { '@type': 'ListItem', position: 3, name: crumb, item: url }
-        ]
-      },
+            university,
+            current: crumb
+          }
+        ),
+        origin,
+        url
+      ),
       {
         '@context': 'https://schema.org',
         '@type': 'ItemList',

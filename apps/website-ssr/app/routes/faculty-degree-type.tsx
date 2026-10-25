@@ -1,10 +1,11 @@
 import { FacultyTypePageContent } from '~/components/faculty/FacultyTypePageContent'
 import { findFaculty, loadFacultyTypePage } from '~/lib/facultyPage.server'
+import { breadcrumbJsonLd, buildCrumbs } from '~/utils/breadcrumbs'
 import {
   facultyTypeFromSegment,
   getFacultyTypePath
 } from '~/utils/facultyTypePages'
-import { detectLang, getFacultyPath, getLocalePath } from '~/utils/i18n-routes'
+import { detectLang, getFacultyPath } from '~/utils/i18n-routes'
 import { buildMeta, metaT } from '~/utils/meta'
 import { getRequestOrigin } from '~/utils/request'
 
@@ -46,25 +47,15 @@ export function meta({ loaderData, location, matches }: Route.MetaArgs) {
       .join(', ')
   })
 
-  const breadcrumbs = {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
-      {
-        '@type': 'ListItem',
-        position: 1,
-        name: 'Uni Feedback',
-        item: `${origin}${getLocalePath('browse', lang)}`
-      },
-      {
-        '@type': 'ListItem',
-        position: 2,
-        name: faculty.shortName,
-        item: `${origin}${getFacultyPath(lang, faculty.slug!)}`
-      },
-      { '@type': 'ListItem', position: 3, name: typeLabel, item: url }
-    ]
-  }
+  const breadcrumbs = breadcrumbJsonLd(
+    buildCrumbs(lang, metaT(location, 'common')('breadcrumb.universities'), {
+      university: data.university,
+      faculty,
+      current: typeLabel
+    }),
+    origin,
+    url
+  )
   const list = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',

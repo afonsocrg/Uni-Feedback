@@ -2,6 +2,8 @@ import { database, queries, schema } from '@uni-feedback/db'
 import { type AnyColumn, and, desc, eq, sql } from 'drizzle-orm'
 import { CourseDetailContent } from '~/components'
 import { getCurrentUserId } from '~/lib/auth.server'
+import { loadCrumbUniversity } from '~/lib/crumbUniversity.server'
+import { breadcrumbJsonLd, buildCrumbs } from '~/utils/breadcrumbs'
 import { isCourseIndexable } from '~/utils/course'
 import { detectLang, getCoursePath } from '~/utils/i18n-routes'
 import {
@@ -95,6 +97,18 @@ export function meta({ loaderData, location, matches }: Route.MetaArgs) {
     })
   }
 
+  const breadcrumbs = breadcrumbJsonLd(
+    buildCrumbs(lang, metaT(location, 'common')('breadcrumb.universities'), {
+      university: course.university,
+      faculty: course.faculty,
+      degree: course.degree,
+      current: course.acronym || course.name,
+      currentName: course.name
+    }),
+    origin,
+    `${origin}${getCoursePath(lang, course.id)}`
+  )
+
   return buildMeta({
     matches,
     title,
@@ -103,7 +117,7 @@ export function meta({ loaderData, location, matches }: Route.MetaArgs) {
     // Same predicate the sitemap uses, so a page we don't list is also one we
     // ask crawlers not to index.
     robots: isCourseIndexable(course) ? undefined : 'noindex, follow',
-    structuredData
+    structuredData: [structuredData, breadcrumbs]
   })
 }
 
@@ -297,7 +311,13 @@ export async function loader({ params, request }: Route.LoaderArgs) {
       })),
       ...aggregation,
       degree,
-      faculty
+      faculty,
+      university: faculty
+        ? await loadCrumbUniversity(
+            faculty.universityId,
+            detectLang(new URL(request.url).pathname)
+          )
+        : null
     },
     feedback,
     origin: getRequestOrigin(request)

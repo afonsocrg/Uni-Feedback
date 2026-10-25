@@ -10,14 +10,10 @@ import {
   type UniversityPageKind
 } from '~/utils/analytics'
 import { getFacultyTypePath, isFacultyTypePage } from '~/utils/facultyTypePages'
-import {
-  getFacultyPath,
-  getLocalePath,
-  getUniversityPath
-} from '~/utils/i18n-routes'
+import { getFacultyPath } from '~/utils/i18n-routes'
 import { SchoolLogo } from '../common/SchoolLogo'
 import { formatEur, formatInt } from '../degree/content'
-import type { FeeRange, UniversityFaculty, UniversityInfo } from './types'
+import type { FeeRange, UniversityFaculty } from './types'
 
 /** Type order on every list */
 export const TYPE_ORDER: DegreeType[] = [
@@ -74,45 +70,6 @@ export function TrackedLink({
     >
       {children}
     </Link>
-  )
-}
-
-export function UniversityCrumbs({
-  university,
-  current
-}: {
-  university?: UniversityInfo
-  /** The sub-page's own crumb, already translated ("Faculdades") */
-  current?: string
-}) {
-  const { t } = useTranslation('university')
-  const lang = useLang()
-  const listPath = getLocalePath('universities', lang)
-  const items: { label: string; to?: string }[] = [
-    { label: t('crumbs.universities'), to: university ? listPath : undefined }
-  ]
-  if (university) {
-    items.push({
-      label: university.shortName,
-      to: current ? getUniversityPath(lang, university.slug) : undefined
-    })
-  }
-  if (university && current) items.push({ label: current })
-  return (
-    <nav aria-label="Breadcrumb" className="mb-2 text-sm text-muted-foreground">
-      {items.map((item, i) => (
-        <span key={item.label}>
-          {i > 0 && <span className="mx-1.5">›</span>}
-          {item.to ? (
-            <Link to={item.to} className="hover:text-foreground">
-              {item.label}
-            </Link>
-          ) : (
-            <span className="text-foreground">{item.label}</span>
-          )}
-        </span>
-      ))}
-    </nav>
   )
 }
 

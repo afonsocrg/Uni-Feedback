@@ -4,10 +4,11 @@ import { useTranslation } from 'react-i18next'
 import { useLang } from '~/hooks'
 import { analytics } from '~/utils/analytics'
 import { getDegreePath } from '~/utils/i18n-routes'
+import { Breadcrumb } from '../common/Breadcrumb'
 import { ContributeNote } from '../common/ContributeNote'
 import { ReportErrorNote } from '../common/ReportErrorNote'
 import { formatGrade, formatNumber } from '../degree/content'
-import { TrackedLink, UniversityCrumbs } from './shared'
+import { TrackedLink } from './shared'
 import type { UniversityPageData } from './types'
 
 /**
@@ -72,9 +73,11 @@ export function UniversityBachelorsContent({
   return (
     <div className="container mx-auto min-h-screen px-4 pb-16 pt-4">
       <div className="mx-auto max-w-4xl">
-        <UniversityCrumbs
+        <Breadcrumb
+          surface="university_subpage"
           university={university}
           current={t('crumbs.bachelors')}
+          className="mb-2"
         />
         <h1 className="text-2xl font-bold leading-tight text-foreground text-balance md:text-3xl">
           {t('bachelors_page.title', { name: university.name })}

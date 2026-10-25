@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { useLang } from '~/hooks'
 import { analytics } from '~/utils/analytics'
+import type { CrumbUniversity } from '~/utils/breadcrumbs'
 import { getDegreePath } from '~/utils/i18n-routes'
 import { Breadcrumb } from './common/Breadcrumb'
 import { ReportErrorNote } from './common/ReportErrorNote'
@@ -24,12 +25,14 @@ import { DegreeCoursesBrowser } from './DegreeCoursesBrowser'
 export function DegreeCoursesPageContent({
   faculty,
   degree,
+  university,
   courses,
   academicTerms,
   courseGroups
 }: {
   faculty: Faculty
   degree: Degree
+  university: CrumbUniversity | null
   courses: CourseWithFeedback[]
   academicTerms: AcademicTermInfo[]
   courseGroups: CourseGroupWithIds[]
@@ -55,9 +58,11 @@ export function DegreeCoursesPageContent({
     <div className="min-h-screen">
       <div className="container mx-auto px-4 pt-4">
         <Breadcrumb
+          surface="degree_courses"
+          university={university}
           faculty={faculty}
           degree={degree}
-          course={{ acronym: t('courses_page.breadcrumb') }}
+          current={t('courses_page.breadcrumb')}
         />
       </div>
       <section className="py-4 md:py-6">

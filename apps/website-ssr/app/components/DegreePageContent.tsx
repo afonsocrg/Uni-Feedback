@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLang, useWorkloadLabel } from '~/hooks'
 import { analytics, type DegreeSectionId } from '~/utils/analytics'
+import type { CrumbUniversity } from '~/utils/breadcrumbs'
 import {
   getDegreeAdmissionPath,
   getDegreeCareersPath,
@@ -45,6 +46,7 @@ import { hasAdmissionPage, hasCareersPage } from './degree/subpages'
 interface DegreePageContentProps {
   faculty: Faculty
   degree: Degree
+  university: CrumbUniversity | null
   /** Our reviewed description (markdown) in the page's language */
   /** Reviewed "Sobre o curso" in the page's language, else the Portuguese one */
   about?: Localized<string> | null
@@ -78,6 +80,7 @@ const FEE_TYPES = new Set([
 export function DegreePageContent({
   faculty,
   degree,
+  university,
   about,
   courses,
   academicTerms,
@@ -246,7 +249,12 @@ export function DegreePageContent({
   return (
     <div className="min-h-screen">
       <div className="container mx-auto px-4 pt-4">
-        <Breadcrumb faculty={faculty} degree={degree} />
+        <Breadcrumb
+          surface="degree"
+          university={university}
+          faculty={faculty}
+          degree={degree}
+        />
       </div>
 
       <DegreeTocBar

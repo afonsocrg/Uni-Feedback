@@ -95,6 +95,7 @@ export interface DegreePathway {
 
 export interface FacultyUniversity {
   name: string
+  shortName: string
   slug: string
 }
 

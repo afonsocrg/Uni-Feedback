@@ -11,6 +11,7 @@ import {
   getUniversitySubpagePath,
   getUniversityTypePath
 } from '~/utils/i18n-routes'
+import { Breadcrumb } from '../common/Breadcrumb'
 import {
   campusAddress,
   CampusMap,
@@ -35,7 +36,6 @@ import {
   getTypePagePath,
   TrackedLink,
   TYPE_ORDER,
-  UniversityCrumbs,
   useJoinList,
   useTypeCountLabel
 } from './shared'
@@ -172,7 +172,7 @@ export function UniversityPageContent({ data }: { data: UniversityPageData }) {
   return (
     <div className="min-h-screen">
       <div className="container mx-auto px-4 pt-4">
-        <UniversityCrumbs university={university} />
+        <Breadcrumb surface="university" university={university} />
       </div>
       <DegreeTocBar
         sections={tocSections}

@@ -7,6 +7,7 @@ import {
   getDegreePath,
   getFacultyPath
 } from '~/utils/i18n-routes'
+import { Breadcrumb } from '../common/Breadcrumb'
 import { ReportErrorNote } from '../common/ReportErrorNote'
 import { SchoolLogo } from '../common/SchoolLogo'
 import { formatGrade, formatInt, formatSchoolYear } from '../degree/content'
@@ -15,7 +16,6 @@ import {
   getTypePagePath,
   TrackedLink,
   TYPE_ORDER,
-  UniversityCrumbs,
   useFeeText,
   useTypeCountLabel
 } from './shared'
@@ -61,9 +61,11 @@ export function UniversityFacultiesContent({
   return (
     <div className="container mx-auto min-h-screen px-4 pb-16 pt-4">
       <div className="mx-auto max-w-4xl">
-        <UniversityCrumbs
+        <Breadcrumb
+          surface="university_subpage"
           university={university}
           current={t('crumbs.faculties')}
+          className="mb-2"
         />
         <h1 className="text-2xl font-bold leading-tight text-foreground text-balance md:text-3xl">
           {t('faculties_page.title', { name: university.name })}

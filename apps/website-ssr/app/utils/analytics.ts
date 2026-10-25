@@ -5,6 +5,7 @@ import type {
 import type { ToolbarFormat } from '@uni-feedback/ui'
 import posthog from 'posthog-js'
 import type { Lang } from '~/i18n/config'
+import type { CrumbLevel } from '~/utils/breadcrumbs'
 import { detectLang, getLocalePath, isProfilePath } from '~/utils/i18n-routes'
 import type { ThemePreference } from '~/utils/theme'
 
@@ -329,6 +330,19 @@ export type LandingSearchResultType =
  * drawer or the footer cost it its clicks.
  */
 export type NavSurface = 'navbar' | 'mobile_menu' | 'footer' | 'chat_sidebar'
+
+/** The page a breadcrumb sits on */
+export type BreadcrumbSurface =
+  | 'universities'
+  | 'university'
+  | 'university_subpage'
+  | 'faculty'
+  | 'faculty_type'
+  | 'faculty_legacy'
+  | 'degree'
+  | 'degree_courses'
+  | 'degree_subpage'
+  | 'course'
 
 export const analytics = {
   feedback: {
@@ -1301,6 +1315,18 @@ export const analytics = {
       /** The university or faculty slug, for the footer's directory links */
       target?: string
     }) => trackEvent('nav_link_clicked', props),
+
+    /**
+     * A breadcrumb was clicked. The trail follows the hierarchy (universities,
+     * university, faculty, degree), not the URL, so this shows whether students
+     * actually climb it, and which level they climb to.
+     */
+    breadcrumbClicked: (props: {
+      level: Exclude<CrumbLevel, 'current'>
+      surface: BreadcrumbSurface
+      /** How many levels up from the page: 1 is its parent */
+      levelsUp: number
+    }) => trackEvent('breadcrumb_clicked', props),
 
     /**
      * The account popover or mobile drawer was opened. Pairs with

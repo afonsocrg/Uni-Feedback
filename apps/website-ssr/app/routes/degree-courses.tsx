@@ -10,13 +10,11 @@ import {
   loadDegreeCourses
 } from '~/lib/degreeCourses.server'
 import { userPreferences } from '~/utils'
+import { breadcrumbJsonLd, buildCrumbs } from '~/utils/breadcrumbs'
 import {
   detectLang,
   getCoursePath,
-  getDegreeCoursesPath,
-  getDegreePath,
-  getFacultyPath,
-  getLocalePath
+  getDegreeCoursesPath
 } from '~/utils/i18n-routes'
 import { buildMeta, metaT } from '~/utils/meta'
 import { getRequestOrigin } from '~/utils/request'
@@ -103,40 +101,16 @@ export function meta({ loaderData, location, matches }: Route.MetaArgs) {
     }))
   }
 
-  const breadcrumbs = {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
-      {
-        '@type': 'ListItem',
-        position: 1,
-        name: 'Uni Feedback',
-        item: `${origin}${getLocalePath('browse', lang)}`
-      },
-      ...(hasSlugs
-        ? [
-            {
-              '@type': 'ListItem',
-              position: 2,
-              name: faculty.shortName,
-              item: `${origin}${getFacultyPath(lang, faculty.slug!)}`
-            },
-            {
-              '@type': 'ListItem',
-              position: 3,
-              name: degree.acronym,
-              item: `${origin}${getDegreePath(lang, faculty.slug!, degree.slug!)}`
-            },
-            {
-              '@type': 'ListItem',
-              position: 4,
-              name: t('courses_page.breadcrumb'),
-              item: pageUrl
-            }
-          ]
-        : [])
-    ]
-  }
+  const breadcrumbs = breadcrumbJsonLd(
+    buildCrumbs(lang, metaT(location, 'common')('breadcrumb.universities'), {
+      university: loaderData.university,
+      faculty,
+      degree,
+      current: t('courses_page.breadcrumb')
+    }),
+    origin,
+    pageUrl
+  )
 
   return buildMeta({
     matches,
@@ -148,7 +122,7 @@ export function meta({ loaderData, location, matches }: Route.MetaArgs) {
 }
 
 export async function loader({ params, request }: Route.LoaderArgs) {
-  const { faculty, degree } = await findDegreeBySlugs(
+  const { faculty, degree, university } = await findDegreeBySlugs(
     request,
     params.facultySlug,
     params.degreeSlug,
@@ -164,6 +138,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   return {
     faculty,
     degree,
+    university,
     courses,
     academicTerms,
     courseGroups,
@@ -192,6 +167,7 @@ export default function DegreeCoursesPage({
     <DegreeCoursesPageContent
       faculty={faculty}
       degree={degree}
+      university={loaderData.university}
       courses={loaderData.courses}
       academicTerms={loaderData.academicTerms}
       courseGroups={loaderData.courseGroups}

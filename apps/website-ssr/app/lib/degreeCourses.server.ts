@@ -8,8 +8,10 @@ import type { Degree, Faculty } from '@uni-feedback/db/schema'
 import { eq, sql } from 'drizzle-orm'
 import { redirect } from 'react-router'
 import type { Lang } from '~/i18n/config'
+import type { CrumbUniversity } from '~/utils/breadcrumbs'
 import { detectLang } from '~/utils/i18n-routes'
 import { altName, pickName, withLocalizedName } from '~/utils/localizedContent'
+import { loadCrumbUniversity } from './crumbUniversity.server'
 
 /**
  * What the degree page and the degree's course browser (`/cadeiras`) both
@@ -29,7 +31,11 @@ export async function findDegreeBySlugs(
   facultySlug: string,
   degreeSlug: string,
   pathFor: PathFor
-): Promise<{ faculty: Faculty; degree: Degree }> {
+): Promise<{
+  faculty: Faculty
+  degree: Degree
+  university: CrumbUniversity | null
+}> {
   const db = database()
 
   const redirectIfRenamed = async () => {
@@ -64,7 +70,8 @@ export async function findDegreeBySlugs(
   const lang = detectLang(new URL(request.url).pathname)
   return {
     faculty: withLocalizedName(faculty, lang),
-    degree: withLocalizedName(degree, lang)
+    degree: withLocalizedName(degree, lang),
+    university: await loadCrumbUniversity(faculty.universityId, lang)
   }
 }
 

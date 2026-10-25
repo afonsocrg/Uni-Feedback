@@ -1,6 +1,7 @@
 import { FacultyHubContent } from '~/components/faculty/FacultyHubContent'
 import { findFaculty, loadFacultyHub } from '~/lib/facultyPage.server'
 
+import { breadcrumbJsonLd, buildCrumbs } from '~/utils/breadcrumbs'
 import { detectLang, getDegreePath, getFacultyPath } from '~/utils/i18n-routes'
 import { buildMeta, metaT } from '~/utils/meta'
 import { getRequestOrigin } from '~/utils/request'
@@ -64,6 +65,14 @@ export function meta({ loaderData, location, matches }: Route.MetaArgs) {
     })
   }
 
+  const breadcrumbs = breadcrumbJsonLd(
+    buildCrumbs(lang, metaT(location, 'common')('breadcrumb.universities'), {
+      university: loaderData.hub.university,
+      faculty
+    }),
+    origin
+  )
+
   return buildMeta({
     matches,
     title,
@@ -74,7 +83,7 @@ export function meta({ loaderData, location, matches }: Route.MetaArgs) {
     // EN page whose own text is all Portuguese fallback (content_translation decision 8)
     ...(lang === 'en' &&
       loaderData.hub.isMostlyFallback && { robots: 'noindex, follow' }),
-    structuredData
+    structuredData: [structuredData, breadcrumbs]
   })
 }
 

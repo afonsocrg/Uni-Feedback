@@ -3,10 +3,11 @@ import { useTranslation } from 'react-i18next'
 import { useLang } from '~/hooks'
 import { analytics } from '~/utils/analytics'
 import { getFacultyPath, getUniversityPath } from '~/utils/i18n-routes'
+import { Breadcrumb } from '../common/Breadcrumb'
 import { ERROR_REPORT_EMAIL } from '../common/ReportErrorNote'
 import { SchoolLogo } from '../common/SchoolLogo'
 import { formatInt } from '../degree/content'
-import { TrackedLink, UniversityCrumbs } from './shared'
+import { TrackedLink } from './shared'
 import type { UniversityListItem } from './types'
 
 /** `/unis`: every university we cover, with its faculties. */
@@ -28,7 +29,7 @@ export function UniversitiesListContent({
   return (
     <div className="container mx-auto min-h-screen px-4 pb-16 pt-4">
       <div className="mx-auto max-w-3xl">
-        <UniversityCrumbs />
+        <Breadcrumb surface="universities" className="mb-2" />
         <h1 className="text-2xl font-bold leading-tight text-foreground md:text-3xl">
           {t('list.title')}
         </h1>

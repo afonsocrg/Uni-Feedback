@@ -24,10 +24,16 @@ export function BrowsePageLayout({
 }: BrowsePageLayoutProps) {
   return (
     <div className="min-h-screen">
-      {/* Breadcrumb Section */}
-      <div className="container mx-auto px-4 pt-4">
-        <Breadcrumb faculty={faculty} degree={degree} />
-      </div>
+      {/* /procurar has no place in the hierarchy to show */}
+      {faculty && (
+        <div className="container mx-auto px-4 pt-4">
+          <Breadcrumb
+            surface="faculty_legacy"
+            faculty={faculty}
+            degree={degree}
+          />
+        </div>
+      )}
 
       {/* Main Content Section */}
       <section className="py-4 md:py-6">

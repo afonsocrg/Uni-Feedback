@@ -382,6 +382,8 @@ export function FacultyTypePageContent({
     <FacultyPageShell
       facultySlug={facultySlug}
       facultyShortName={faculty.shortName}
+      facultyName={faculty.name}
+      university={data.university}
       page={type}
       crumb={typeLabel}
       title={t('faculty_hub.type_title', {

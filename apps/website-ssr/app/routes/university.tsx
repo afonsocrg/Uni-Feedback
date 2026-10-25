@@ -1,9 +1,9 @@
 import { UniversityPageContent } from '~/components/university/UniversityPageContent'
 import { loadUniversityPage } from '~/lib/universityPage.server'
+import { breadcrumbJsonLd, buildCrumbs } from '~/utils/breadcrumbs'
 import {
   detectLang,
   getFacultyPath,
-  getLocalePath,
   getUniversityPath
 } from '~/utils/i18n-routes'
 import { buildMeta, metaT } from '~/utils/meta'
@@ -50,24 +50,16 @@ export function meta({ loaderData, location, matches }: Route.MetaArgs) {
           url: `${origin}${getFacultyPath(lang, f.slug)}`
         }))
       },
-      {
-        '@context': 'https://schema.org',
-        '@type': 'BreadcrumbList',
-        itemListElement: [
+      breadcrumbJsonLd(
+        buildCrumbs(
+          lang,
+          metaT(location, 'common')('breadcrumb.universities'),
           {
-            '@type': 'ListItem',
-            position: 1,
-            name: t('crumbs.universities'),
-            item: `${origin}${getLocalePath('universities', lang)}`
-          },
-          {
-            '@type': 'ListItem',
-            position: 2,
-            name: university.shortName,
-            item: url
+            university
           }
-        ]
-      }
+        ),
+        origin
+      )
     ]
   })
 }

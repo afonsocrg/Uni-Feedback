@@ -7,13 +7,8 @@ import { useLang } from '~/hooks'
 import { findDegreeBySlugs } from '~/lib/degreeCourses.server'
 import { loadDegreeExtrasWithSources } from '~/lib/degreePage.server'
 import { loadAdmissionPageData } from '~/lib/degreeSubpages.server'
-import {
-  detectLang,
-  getDegreeAdmissionPath,
-  getDegreePath,
-  getFacultyPath,
-  getLocalePath
-} from '~/utils/i18n-routes'
+import { breadcrumbJsonLd, buildCrumbs } from '~/utils/breadcrumbs'
+import { detectLang, getDegreeAdmissionPath } from '~/utils/i18n-routes'
 import { buildMeta, metaT } from '~/utils/meta'
 import { getRequestOrigin } from '~/utils/request'
 
@@ -62,40 +57,16 @@ export function meta({ loaderData, location, matches }: Route.MetaArgs) {
     ? `${origin}${getDegreeAdmissionPath(lang, faculty.slug!, degree.slug!)}`
     : undefined
 
-  const breadcrumbs = {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
-      {
-        '@type': 'ListItem',
-        position: 1,
-        name: 'Uni Feedback',
-        item: `${origin}${getLocalePath('browse', lang)}`
-      },
-      ...(hasSlugs
-        ? [
-            {
-              '@type': 'ListItem',
-              position: 2,
-              name: faculty.shortName,
-              item: `${origin}${getFacultyPath(lang, faculty.slug!)}`
-            },
-            {
-              '@type': 'ListItem',
-              position: 3,
-              name: degree.acronym,
-              item: `${origin}${getDegreePath(lang, faculty.slug!, degree.slug!)}`
-            },
-            {
-              '@type': 'ListItem',
-              position: 4,
-              name: t('degree_subpages.tabs.admission'),
-              item: pageUrl
-            }
-          ]
-        : [])
-    ]
-  }
+  const breadcrumbs = breadcrumbJsonLd(
+    buildCrumbs(lang, metaT(location, 'common')('breadcrumb.universities'), {
+      university: loaderData.university,
+      faculty,
+      degree,
+      current: t('degree_subpages.tabs.admission')
+    }),
+    origin,
+    pageUrl
+  )
 
   const faq = buildAdmissionFaq(t, lang, degree.acronym, extras, data)
   const faqPage =
@@ -134,7 +105,7 @@ export function meta({ loaderData, location, matches }: Route.MetaArgs) {
 }
 
 export async function loader({ params, request }: Route.LoaderArgs) {
-  const { faculty, degree } = await findDegreeBySlugs(
+  const { faculty, degree, university } = await findDegreeBySlugs(
     request,
     params.facultySlug,
     params.degreeSlug,
@@ -154,6 +125,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   return {
     faculty,
     degree,
+    university,
     extras,
     data,
     origin: getRequestOrigin(request)
@@ -168,6 +140,7 @@ export default function DegreeIngressoPage({
     <DegreeAdmissionPage
       faculty={faculty}
       degree={degree}
+      university={loaderData.university}
       extras={extras}
       data={data}
       faq={useAdmissionFaq(degree.acronym, extras, data)}

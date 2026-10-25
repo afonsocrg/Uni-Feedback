@@ -13,6 +13,7 @@ import {
 } from '~/components'
 import type { CourseFeedback } from '~/components/feedback/cards/CoursePageFeedbackCard'
 import { cn } from '~/utils'
+import type { CrumbUniversity } from '~/utils/breadcrumbs'
 import { CourseReviews } from '.'
 
 export interface CourseDetail extends Course {
@@ -35,6 +36,7 @@ export interface CourseDetail extends Course {
     shortName: string
     slug: string | null
   } | null
+  university?: CrumbUniversity | null
 }
 
 interface CourseDetailContentProps {
@@ -99,9 +101,12 @@ export function CourseDetailContent({
     <main className="bg-muted/30 min-h-screen">
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <Breadcrumb
-          faculty={course.faculty ?? undefined}
-          degree={course.degree ?? undefined}
-          course={course}
+          surface="course"
+          university={course.university}
+          faculty={course.faculty}
+          degree={course.degree}
+          current={course.acronym || course.name}
+          currentName={course.name}
           className="mb-8"
         />
 
