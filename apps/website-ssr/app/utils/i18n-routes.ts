@@ -291,12 +291,11 @@ export function getUniversityPath(lang: Lang, uniSlug: string): string {
 }
 
 const UNIVERSITY_SUBPAGE_SEGMENT = {
-  faculties: { pt: 'faculdades', en: 'faculties' },
   bachelors: { pt: 'licenciaturas', en: 'bachelors' },
   degrees: { pt: 'cursos', en: 'degrees' }
 } as const satisfies Record<string, Record<Lang, string>>
 
-/** /unis/ulisboa/faculdades, /en/unis/ulisboa/bachelors */
+/** /unis/ulisboa/cursos, /en/unis/ulisboa/bachelors */
 export function getUniversitySubpagePath(
   lang: Lang,
   uniSlug: string,

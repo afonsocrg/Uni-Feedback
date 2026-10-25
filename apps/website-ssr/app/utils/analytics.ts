@@ -203,7 +203,6 @@ export type FacultyLinkTarget =
 /** University pages (/unis/:uniSlug and its sub-pages) */
 export type UniversityPageKind =
   | 'main'
-  | 'faculties'
   | 'bachelors'
   /** `/cursos` and the type pages (`/mestrados`, ...), told apart by `degreeType` */
   | 'degrees'
@@ -215,7 +214,6 @@ export type UniversityLinkTarget =
   | 'faculty_type_page'
   | 'degree'
   | 'course'
-  | 'faculties_page'
   | 'bachelors_page'
   /** `/unis/:uniSlug/cursos` */
   | 'degrees_page'

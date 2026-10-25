@@ -172,7 +172,6 @@ export function UniversityPageContent({ data }: { data: UniversityPageData }) {
 
   const degreesPath = getUniversitySubpagePath(lang, slug, 'degrees')
   const bachelorsPath = getUniversitySubpagePath(lang, slug, 'bachelors')
-  const facultiesPath = getUniversitySubpagePath(lang, slug, 'faculties')
   const pageName = university.shortName
 
   return (
@@ -206,19 +205,6 @@ export function UniversityPageContent({ data }: { data: UniversityPageData }) {
                 />
               </PageHeading>
               <div className="mt-5 flex flex-wrap gap-2">
-                <TrackedLink
-                  to={facultiesPath}
-                  universitySlug={slug}
-                  page="main"
-                  target="faculties_page"
-                  surface="header"
-                  className="inline-flex h-10 items-center rounded-md bg-brand-solid px-4 text-sm font-semibold text-white transition-opacity hover:opacity-90"
-                >
-                  {t('page.cta.faculties', {
-                    count: faculties.length,
-                    n: faculties.length
-                  })}
-                </TrackedLink>
                 {data.degrees.length > 0 && (
                   <TrackedLink
                     to={degreesPath}
@@ -226,7 +212,7 @@ export function UniversityPageContent({ data }: { data: UniversityPageData }) {
                     page="main"
                     target="degrees_page"
                     surface="header"
-                    className="inline-flex h-10 items-center rounded-md border border-border bg-card px-4 text-sm font-semibold text-foreground hover:bg-muted"
+                    className="inline-flex h-10 items-center rounded-md bg-brand-solid px-4 text-sm font-semibold text-white transition-opacity hover:opacity-90"
                   >
                     {t('page.cta.degrees', {
                       count: data.degrees.length,
@@ -271,21 +257,6 @@ export function UniversityPageContent({ data }: { data: UniversityPageData }) {
                 universitySlug={slug}
                 page="main"
               />
-              {faculties.length > 1 && (
-                <TrackedLink
-                  to={facultiesPath}
-                  universitySlug={slug}
-                  page="main"
-                  target="faculties_page"
-                  surface="faculties_section"
-                  className="mt-4 inline-flex items-center gap-1.5 font-semibold text-primaryBlue hover:underline"
-                >
-                  {t('page.faculty_card.compare', {
-                    shortName: university.shortName
-                  })}
-                  <ArrowRight aria-hidden="true" className="size-4" />
-                </TrackedLink>
-              )}
               <ContributeNote
                 field="campus"
                 className="mt-4"

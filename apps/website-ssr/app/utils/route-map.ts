@@ -236,11 +236,6 @@ export const routeConfig = [
         slugs: { pt: 'unis/:uniSlug', en: 'unis/:uniSlug' }
       },
       {
-        key: 'university-faculties',
-        file: 'routes/university-faculties.tsx',
-        slugs: { pt: 'unis/:uniSlug/faculdades', en: 'unis/:uniSlug/faculties' }
-      },
-      {
         key: 'university-bachelors',
         file: 'routes/university-bachelors.tsx',
         slugs: {

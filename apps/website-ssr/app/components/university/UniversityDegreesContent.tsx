@@ -11,6 +11,7 @@ import {
 } from '~/utils/facultyTypePages'
 import {
   getDegreePath,
+  getUniversityPath,
   getUniversitySubpagePath,
   getUniversityTypePath
 } from '~/utils/i18n-routes'
@@ -189,10 +190,10 @@ export function UniversityDegreesContent({
             </TrackedLink>
           )}
           <TrackedLink
-            to={getUniversitySubpagePath(lang, slug, 'faculties')}
+            to={`${getUniversityPath(lang, slug)}#faculdades`}
             universitySlug={slug}
             page="degrees"
-            target="faculties_page"
+            target="university"
             surface="degrees_footer"
             className="inline-flex items-center gap-1.5 font-semibold text-primaryBlue hover:underline"
           >

@@ -4,8 +4,6 @@
     "list_description": "As universidades e faculdades no Uni Feedback, com os seus cursos, notas de entrada e o feedback dos alunos sobre as cadeiras.",
     "title": "{{shortName}}: faculdades, cursos e opiniões dos alunos | Uni Feedback",
     "description": "{{name}}: {{facultyCount}} faculdades no Uni Feedback, {{degreeCount}} cursos, onde fica cada campus e o feedback dos alunos sobre as cadeiras.",
-    "faculties_title": "Faculdades {{shortName}}: cursos, ingresso e propinas | Uni Feedback",
-    "faculties_description": "As faculdades da {{name}} no Uni Feedback: cursos, vagas, notas de entrada, propinas e campi de cada uma.",
     "bachelors_title": "Licenciaturas {{shortName}}: notas de entrada e vagas | Uni Feedback",
     "bachelors_description": "As licenciaturas e mestrados integrados da {{name}} no Uni Feedback, com a nota do último colocado e as vagas da 1.ª fase.",
     "degrees_title": "Cursos {{shortName}}: licenciaturas, mestrados e opiniões | Uni Feedback",
@@ -15,7 +13,6 @@
   },
   "crumbs": {
     "universities": "Universidades",
-    "faculties": "Faculdades",
     "bachelors": "Licenciaturas",
     "degrees": "Cursos"
   },
@@ -35,8 +32,6 @@
   "page": {
     "toc_label": "Nesta página",
     "cta": {
-      "faculties_one": "Ver a faculdade",
-      "faculties_other": "Ver as {{n}} faculdades",
       "official_site": "Site oficial",
       "degrees_one": "Ver o curso",
       "degrees_other": "Ver os {{n}} cursos"
@@ -54,7 +49,6 @@
     "faculty_card": {
       "feedback_one": "{{n}} feedback",
       "feedback_other": "{{n}} feedbacks",
-      "compare": "Comparar as faculdades",
       "no_feedback": "Ainda sem feedback"
     },
     "fees": {
@@ -89,25 +83,6 @@
       "see_all_one": "Ver o curso",
       "see_all_other": "Ver os {{n}} cursos"
     }
-  },
-  "faculties_page": {
-    "title": "{{name}}: faculdades",
-    "intro_one": "A escola desta universidade que está no Uni Feedback, com os seus cursos, ingresso, propinas e campi.",
-    "intro_other": "As {{n}} escolas desta universidade que estão no Uni Feedback, com os seus cursos, ingresso, propinas e campi.",
-    "degrees": "cursos",
-    "vagas": "vagas, 1.ª fase {{year}}",
-    "grades": "nota do último colocado, {{year}}",
-    "feedback": "feedbacks",
-    "fees": "Propinas {{year}}: {{fees}}",
-    "top_degree": "Curso com mais feedback:",
-    "top_course": "Cadeira com mais feedback:",
-    "compare": "Comparar",
-    "col_faculty": "Faculdade",
-    "col_degrees": "Cursos",
-    "col_bachelors": "Licenciaturas e MI",
-    "col_vagas": "Vagas {{year}}",
-    "col_feedback": "Feedbacks",
-    "source": "Vagas: DGES, Concurso Nacional de Acesso, 1.ª fase {{year}}, cursos que temos. Feedbacks: Uni Feedback."
   },
   "bachelors_page": {
     "title": "{{name}}: licenciaturas",

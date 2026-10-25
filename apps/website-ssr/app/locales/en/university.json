@@ -4,8 +4,6 @@
     "list_description": "The universities and faculties on Uni Feedback, with their degrees, entry grades and what students say about each course.",
     "title": "{{shortName}}: faculties, degrees and student reviews | Uni Feedback",
     "description": "{{name}}: {{facultyCount}} faculties on Uni Feedback, {{degreeCount}} degrees, where each campus is and what students say about the courses.",
-    "faculties_title": "{{shortName}} faculties | Uni Feedback",
-    "faculties_description": "The faculties of {{name}} on Uni Feedback: degrees, places, entry grades, fees and campuses of each one.",
     "bachelors_title": "{{shortName}} bachelor's degrees: entry grades and places | Uni Feedback",
     "bachelors_description": "The bachelor's and integrated master's degrees of {{name}} on Uni Feedback, with the last admitted grade and places in the 1st phase.",
     "degrees_title": "{{shortName}} degrees: bachelor's, master's and reviews | Uni Feedback",
@@ -15,7 +13,6 @@
   },
   "crumbs": {
     "universities": "Universities",
-    "faculties": "Faculties",
     "bachelors": "Bachelor's",
     "degrees": "Degrees"
   },
@@ -35,8 +32,6 @@
   "page": {
     "toc_label": "On this page",
     "cta": {
-      "faculties_one": "See the faculty",
-      "faculties_other": "See the {{n}} faculties",
       "official_site": "Official website",
       "degrees_one": "See the degree",
       "degrees_other": "See the {{n}} degrees"
@@ -54,7 +49,6 @@
     "faculty_card": {
       "feedback_one": "{{n}} review",
       "feedback_other": "{{n}} reviews",
-      "compare": "Compare the faculties",
       "no_feedback": "No feedback yet"
     },
     "fees": {
@@ -89,25 +83,6 @@
       "see_all_one": "See the degree",
       "see_all_other": "See the {{n}} degrees"
     }
-  },
-  "faculties_page": {
-    "title": "{{name}}: faculties",
-    "intro_one": "This university's school on Uni Feedback, with its degrees, admission, fees and campuses.",
-    "intro_other": "The {{n}} schools of this university on Uni Feedback, with their degrees, admission, fees and campuses.",
-    "degrees": "degrees",
-    "vagas": "places, 1st phase {{year}}",
-    "grades": "last admitted grade, {{year}}",
-    "feedback": "reviews",
-    "fees": "Fees {{year}}: {{fees}}",
-    "top_degree": "Degree with the most feedback:",
-    "top_course": "Course with the most feedback:",
-    "compare": "Compare",
-    "col_faculty": "Faculty",
-    "col_degrees": "Degrees",
-    "col_bachelors": "Bachelor's and IM",
-    "col_vagas": "Places {{year}}",
-    "col_feedback": "Reviews",
-    "source": "Places: DGES, national admission, 1st phase {{year}}, degrees we have. Reviews: Uni Feedback."
   },
   "bachelors_page": {
     "title": "{{name}}: bachelor's degrees",
