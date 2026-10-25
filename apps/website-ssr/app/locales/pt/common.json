@@ -87,6 +87,7 @@
   },
   "official_links": {
     "label": "{{name}} nas redes sociais",
+    "website": "{{name}}: site oficial",
     "linkedin": "{{name}} no LinkedIn",
     "instagram": "{{name}} no Instagram",
     "tiktok": "{{name}} no TikTok",

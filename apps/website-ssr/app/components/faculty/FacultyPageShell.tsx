@@ -44,7 +44,7 @@ export function FacultyPageShell({
   subtitle: ReactNode
   facts: ReactNode[]
   actions?: ReactNode
-  /** The official profiles row (OfficialLinks), on the hub */
+  /** The website and official profiles row (OfficialLinks), on the hub */
   links?: ReactNode
   /** The school's logo (SchoolLogo), on the hub */
   logo?: ReactNode
@@ -122,9 +122,12 @@ export function FacultyPageShell({
             <header className="mb-8">
               <div className="flex items-center gap-4">
                 {logo}
-                <h1 className="text-balance text-2xl font-bold leading-tight text-foreground md:text-3xl">
-                  {title}
-                </h1>
+                <div className="min-w-0">
+                  <h1 className="text-balance text-2xl font-bold leading-tight text-foreground md:text-3xl">
+                    {title}
+                  </h1>
+                  {links}
+                </div>
               </div>
               <p className="mt-1 text-muted-foreground">{subtitle}</p>
               {facts.length > 0 && (
@@ -142,7 +145,6 @@ export function FacultyPageShell({
               {actions && (
                 <div className="mt-5 flex flex-wrap gap-2">{actions}</div>
               )}
-              {links}
             </header>
 
             {children}

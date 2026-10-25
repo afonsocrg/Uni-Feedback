@@ -345,8 +345,6 @@
     },
     "sections": {
       "courses": "Degrees",
-      "admission": "Bachelor's admission",
-      "admission_short": "Admission",
       "highlights": "The courses, according to students",
       "highlights_short": "The courses",
       "campuses": "Campuses",
@@ -364,14 +362,6 @@
       "minor": "See every minor",
       "postgraduate": "Compare the postgraduate programmes",
       "phd": "See the PhD programmes"
-    },
-    "admission": {
-      "vagas": "Places, 1st phase {{year}}",
-      "highest": "Highest last-admitted grade ({{year}})",
-      "lowest": "Lowest last-admitted grade ({{year}})",
-      "fee": "Yearly fee, Portuguese and EU students",
-      "source": "Source: DGES, national admission (CNA), 1st phase.",
-      "compare": "Compare every bachelor's"
     },
     "highlights": {
       "most_feedback": "Most reviewed",

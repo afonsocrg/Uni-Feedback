@@ -345,8 +345,6 @@
     },
     "sections": {
       "courses": "Cursos",
-      "admission": "Ingresso nas licenciaturas",
-      "admission_short": "Ingresso",
       "highlights": "As cadeiras segundo os alunos",
       "highlights_short": "As cadeiras",
       "campuses": "Campi",
@@ -364,14 +362,6 @@
       "minor": "Ver todos os minors",
       "postgraduate": "Comparar as pós-graduações",
       "phd": "Ver os doutoramentos"
-    },
-    "admission": {
-      "vagas": "Vagas na 1.ª fase {{year}}",
-      "highest": "Último colocado mais alto ({{year}})",
-      "lowest": "Último colocado mais baixo ({{year}})",
-      "fee": "Propina anual, estudantes nacionais",
-      "source": "Fonte: DGES, Concurso Nacional de Acesso, 1.ª fase.",
-      "compare": "Comparar todas as licenciaturas"
     },
     "highlights": {
       "most_feedback": "Mais feedback",

@@ -13,16 +13,10 @@ import { SchoolLogo } from '../common/SchoolLogo'
 import { SearchInput } from '../common/SearchInput'
 import { ToggleChip } from '../common/ToggleChip'
 import type { FaqItem } from '../degree/content'
-import {
-  formatEur,
-  formatGrade,
-  formatInt,
-  formatNumber
-} from '../degree/content'
+import { formatGrade, formatInt, formatNumber } from '../degree/content'
 import { FaqSection, SectionShell } from '../degree/DegreeSections'
 import { FacultyPageShell } from './FacultyPageShell'
 import {
-  AdmissionSummaryStats,
   ArrowLink,
   CampusesSection,
   CompareTable,
@@ -31,7 +25,6 @@ import {
   FacultyRelatedSection,
   hasHighlights,
   NoData,
-  SourceNote,
   trackFacultyLink,
   type FacultyTrack,
   type RelatedLink
@@ -40,11 +33,11 @@ import { useFeeText } from './fees'
 import type { FacultyHubData } from './types'
 
 /**
- * The faculty hub (`/ist`), prds/content_rich_pages.md "Faculty": the degree
- * table first (what students come for), now one table per type behind chips,
- * each linking to its type page; then the faculty in numbers, the courses
- * students talk about, campuses, FAQ and related links. Every section renders
- * only with data.
+ * The faculty hub (`/ist`), prds/content_rich_pages.md "Faculty": what the
+ * faculty is, then the degree table (what students come for), one table per
+ * type behind chips, each linking to its type page; then the courses students
+ * talk about, campuses, FAQ and related links. Every section renders only with
+ * data.
  */
 export function FacultyHubContent({
   faculty,
@@ -160,13 +153,10 @@ export function FacultyHubContent({
   ]
 
   const sections = [
-    { id: 'cursos', label: t('faculty_hub.sections.courses') },
     ...(data.intro
       ? [{ id: 'sobre', label: t('faculty_hub.sections.about') }]
       : []),
-    ...(adm
-      ? [{ id: 'ingresso', label: t('faculty_hub.sections.admission_short') }]
-      : []),
+    { id: 'cursos', label: t('faculty_hub.sections.courses') },
     ...(showHighlights
       ? [{ id: 'cadeiras', label: t('faculty_hub.sections.highlights_short') }]
       : []),
@@ -219,8 +209,10 @@ export function FacultyHubContent({
       links={
         <OfficialLinks
           name={faculty.shortName}
+          website={faculty.url}
           links={data.links}
-          onClick={(kind) => trackFacultyLink(track, kind, 'header')}
+          className="-ml-2 mt-1"
+          onClick={(target) => trackFacultyLink(track, target, 'header')}
         />
       }
       actions={
@@ -235,7 +227,17 @@ export function FacultyHubContent({
       sections={sections}
       degreeCount={degrees.length}
     >
-      <SectionShell id="cursos" title={t('faculty_hub.sections.courses')} first>
+      {data.intro && (
+        <SectionShell id="sobre" title={t('faculty_hub.sections.about')} first>
+          <LocalizedText text={data.intro} />
+        </SectionShell>
+      )}
+
+      <SectionShell
+        id="cursos"
+        title={t('faculty_hub.sections.courses')}
+        first={!data.intro}
+      >
         <SearchInput
           value={query}
           onChange={setQuery}
@@ -318,38 +320,16 @@ export function FacultyHubContent({
           )}
       </SectionShell>
 
-      {data.intro && (
-        <SectionShell id="sobre" title={t('faculty_hub.sections.about')}>
-          <LocalizedText text={data.intro} />
-        </SectionShell>
-      )}
-
-      {adm && (
-        <SectionShell id="ingresso" title={t('faculty_hub.sections.admission')}>
-          <AdmissionSummaryStats
-            year={adm.year}
-            degreeCount={adm.degreeCount}
-            vagas={adm.vagas}
-            highest={adm.highest}
-            lowest={adm.lowest}
-            fee={adm.fee ? formatEur(adm.fee.amountEur, lang) : null}
-          />
-          <SourceNote>{t('faculty_hub.admission.source')}</SourceNote>
-          <ArrowLink
-            to={getFacultyTypePath(lang, facultySlug, 'bachelor')}
-            onClick={() => trackFacultyLink(track, 'type_page', 'admission')}
-          >
-            {t('faculty_hub.admission.compare')}
-          </ArrowLink>
-        </SectionShell>
-      )}
-
       {showHighlights && (
         <FacultyHighlightsSection highlights={data.highlights} track={track} />
       )}
 
       {data.campuses.length > 0 && (
-        <CampusesSection campuses={data.campuses} track={track} />
+        <CampusesSection
+          campuses={data.campuses}
+          facultyUrl={faculty.url}
+          track={track}
+        />
       )}
 
       {faq.length > 0 && <FaqSection items={faq} surface="faculty_page" />}

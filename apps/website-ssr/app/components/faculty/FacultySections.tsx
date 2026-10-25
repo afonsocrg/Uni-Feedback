@@ -14,7 +14,7 @@ import { getCoursePath, getDegreePath } from '~/utils/i18n-routes'
 import { userPreferences } from '~/utils/userPreferences'
 import { CampusMap, campusAddress } from '../common/campusMap'
 import { formatGrade, formatInt, formatNumber } from '../degree/content'
-import { SectionShell, Stat, StatGrid } from '../degree/DegreeSections'
+import { SectionShell } from '../degree/DegreeSections'
 import {
   FACULTY_HIGHLIGHT_MIN_FEEDBACK,
   type FacultyCampus,
@@ -139,58 +139,6 @@ export function SourceNote({ children }: { children: ReactNode }) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Ingresso nas licenciaturas (hub)                                    */
-/* ------------------------------------------------------------------ */
-
-export function AdmissionSummaryStats({
-  year,
-  degreeCount,
-  vagas,
-  highest,
-  lowest,
-  fee
-}: {
-  year: number
-  degreeCount: number
-  vagas: number
-  highest: { acronym: string; grade: number } | null
-  lowest: { acronym: string; grade: number } | null
-  fee: ReactNode | null
-}) {
-  const { t } = useTranslation('browse')
-  const lang = useLang()
-  return (
-    <StatGrid>
-      <Stat
-        value={formatInt(vagas, lang)}
-        label={t('faculty_hub.admission.vagas', { year })}
-        note={t('faculty_hub.type_count.bachelor', {
-          count: degreeCount,
-          n: formatNumber(degreeCount, lang)
-        })}
-      />
-      {highest && (
-        <Stat
-          value={formatGrade(highest.grade, lang)}
-          label={t('faculty_hub.admission.highest', { year })}
-          note={highest.acronym}
-        />
-      )}
-      {lowest && (
-        <Stat
-          value={formatGrade(lowest.grade, lang)}
-          label={t('faculty_hub.admission.lowest', { year })}
-          note={lowest.acronym}
-        />
-      )}
-      {fee && (
-        <Stat value={String(fee)} label={t('faculty_hub.admission.fee')} />
-      )}
-    </StatGrid>
-  )
-}
-
-/* ------------------------------------------------------------------ */
 /* As cadeiras segundo os alunos                                       */
 /* ------------------------------------------------------------------ */
 
@@ -310,9 +258,12 @@ export function hasHighlights(h: FacultyHighlights) {
 
 export function CampusesSection({
   campuses,
+  facultyUrl,
   track
 }: {
   campuses: FacultyCampus[]
+  /** The faculty's website, already in the header: a campus repeating it shows none */
+  facultyUrl: string | null
   track: FacultyTrack
 }) {
   const { t } = useTranslation('browse')
@@ -345,9 +296,10 @@ export function CampusesSection({
           ]
             .filter(Boolean)
             .join(' · '),
-          website: campus.url
-            ? { href: campus.url, label: t('faculty_hub.campus.website') }
-            : undefined
+          website:
+            campus.url && !sameUrl(campus.url, facultyUrl)
+              ? { href: campus.url, label: t('faculty_hub.campus.website') }
+              : undefined
         }))}
         onSelect={(item, surface) =>
           analytics.discovery.campusSelected({
@@ -362,6 +314,12 @@ export function CampusesSection({
       />
     </SectionShell>
   )
+}
+
+/** Same page, ignoring a trailing slash */
+function sameUrl(a: string, b: string | null) {
+  const strip = (u: string) => u.replace(/\/+$/, '')
+  return b !== null && strip(a) === strip(b)
 }
 
 /* ------------------------------------------------------------------ */

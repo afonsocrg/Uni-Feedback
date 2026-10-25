@@ -190,7 +190,8 @@ export type FacultyLinkTarget =
   | 'course'
   | 'campus_map'
   | 'campus_website'
-  /** An official profile in the header (OfficialLinks) */
+  /** The website and official profiles in the header (OfficialLinks) */
+  | 'official_site'
   | 'linkedin'
   | 'x'
   | 'tiktok'
