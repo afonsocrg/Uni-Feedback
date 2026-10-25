@@ -1,40 +1,101 @@
-import type { DegreeType } from '@uni-feedback/db/schema'
+import { cn } from '@uni-feedback/ui'
+import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { useLang } from '~/hooks'
-import type { Lang } from '~/i18n/config'
 import {
   analytics,
   type UniversityLinkTarget,
   type UniversityPageKind
 } from '~/utils/analytics'
-import { getFacultyTypePath, isFacultyTypePage } from '~/utils/facultyTypePages'
 import { getFacultyPath } from '~/utils/i18n-routes'
 import { SchoolLogo } from '../common/SchoolLogo'
-import { formatEur, formatInt } from '../degree/content'
-import type { FeeRange, UniversityFaculty } from './types'
+import { formatInt } from '../degree/content'
+import { TYPE_ORDER, useTypeCountLabel } from './helpers'
+import type { SortState } from './tableSort'
+import type { UniversityFaculty } from './types'
 
-/** Type order on every list */
-export const TYPE_ORDER: DegreeType[] = [
-  'bachelor',
-  'integrated_master',
-  'master',
-  'minor',
-  'postgraduate',
-  'phd',
-  'other'
-]
+/**
+ * First cell of the degree tables: the faculty's logo, then the degree name
+ * and its sub-line. Capped in width so long names wrap instead of pushing the
+ * number columns off-screen.
+ */
+export function DegreeNameCell({
+  faculty,
+  facultyShortName,
+  children
+}: {
+  faculty: UniversityFaculty | undefined
+  facultyShortName: string
+  children: ReactNode
+}) {
+  return (
+    <div className="flex max-w-md items-center gap-3">
+      <SchoolLogo
+        logo={faculty?.logo ?? null}
+        name={faculty?.name ?? facultyShortName}
+        shortName={facultyShortName}
+        size="sm"
+      />
+      <div className="min-w-0 break-words">{children}</div>
+    </div>
+  )
+}
 
-/** The faculty's type page (`/ist/licenciaturas`); null for `other` */
-export function getTypePagePath(
-  lang: Lang,
-  facultySlug: string,
-  type: DegreeType
-): string | null {
-  return isFacultyTypePage(type)
-    ? getFacultyTypePath(lang, facultySlug, type)
-    : null
+/** A clickable column header, with `aria-sort` and an arrow for the order */
+export function SortableHeader<K extends string>({
+  column,
+  sort,
+  onSort,
+  align = 'left',
+  className,
+  children
+}: {
+  column: K
+  sort: SortState<K>
+  onSort: (column: K) => void
+  align?: 'left' | 'right'
+  className?: string
+  children: ReactNode
+}) {
+  const active = sort.key === column
+  const Icon = !active
+    ? ArrowUpDown
+    : sort.direction === 'asc'
+      ? ArrowUp
+      : ArrowDown
+  return (
+    <th
+      aria-sort={
+        active
+          ? sort.direction === 'asc'
+            ? 'ascending'
+            : 'descending'
+          : 'none'
+      }
+      className={cn(
+        'py-1.5 font-medium',
+        align === 'right' && 'text-right',
+        className
+      )}
+    >
+      <button
+        type="button"
+        onClick={() => onSort(column)}
+        className={cn(
+          'inline-flex items-center gap-1 hover:text-foreground',
+          active && 'text-foreground'
+        )}
+      >
+        {children}
+        <Icon
+          aria-hidden="true"
+          className={cn('size-3', !active && 'opacity-50')}
+        />
+      </button>
+    </th>
+  )
 }
 
 /** A link out of a university page, tracked as `university_link_clicked` */
@@ -71,45 +132,6 @@ export function TrackedLink({
       {children}
     </Link>
   )
-}
-
-/** "697 €" / "825 € a 2 500 €", with the period ("por ano") */
-export function useFeeText() {
-  const { t } = useTranslation('university')
-  const lang = useLang()
-  return (range: FeeRange) => {
-    const amount =
-      range.min === range.max
-        ? formatEur(range.min, lang)
-        : t('page.fees.range', {
-            min: formatEur(range.min, lang),
-            max: formatEur(range.max, lang)
-          })
-    const period = t(`page.fees.per.${range.period}`, {
-      defaultValue: range.period
-    })
-    return `${amount} ${period}`
-  }
-}
-
-/** "Técnico, Letras e Direito" */
-export function useJoinList() {
-  const { t } = useTranslation('university')
-  return (items: string[]) =>
-    items.length <= 1
-      ? (items[0] ?? '')
-      : `${items.slice(0, -1).join(', ')}${t('page.and')}${items.at(-1)}`
-}
-
-/** "19 licenciaturas", "1 mestrado integrado" */
-export function useTypeCountLabel() {
-  const { t } = useTranslation('browse')
-  const lang = useLang()
-  return (type: DegreeType, count: number) =>
-    `${formatInt(count, lang)} ${(count === 1
-      ? t(`degree_page.facts.type.${type}`)
-      : t(`degree_types.${type}`)
-    ).toLowerCase()}`
 }
 
 /** Cards linking to each faculty: degrees per type, feedback */

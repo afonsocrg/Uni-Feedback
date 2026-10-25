@@ -14,11 +14,11 @@ import { formatGrade, formatInt, formatSchoolYear } from '../degree/content'
 import { Stat } from '../degree/DegreeSections'
 import {
   getTypePagePath,
-  TrackedLink,
   TYPE_ORDER,
   useFeeText,
   useTypeCountLabel
-} from './shared'
+} from './helpers'
+import { TrackedLink } from './shared'
 import type { UniversityPageData } from './types'
 
 /**

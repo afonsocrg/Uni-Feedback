@@ -31,7 +31,8 @@ import {
 import { FaqSection, SectionShell } from '../degree/DegreeSections'
 import { DegreeTocBar, DegreeTocSidebar } from '../degree/DegreeToc'
 import { useScrollSpy, type TocSection } from '../degree/scrollSpy'
-import { FacultyCards, TrackedLink, useJoinList } from './shared'
+import { useJoinList } from './helpers'
+import { FacultyCards, TrackedLink } from './shared'
 import type { UniversityPageData } from './types'
 
 type SectionId =

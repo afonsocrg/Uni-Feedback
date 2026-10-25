@@ -1089,7 +1089,19 @@ export const analytics = {
       universitySlug: string
       degreeType: string | null
       facultySlug: string | null
-    }) => trackEvent('university_degrees_filter_selected', props)
+    }) => trackEvent('university_degrees_filter_selected', props),
+
+    /**
+     * A column header clicked on a degree table (`/licenciaturas`, `/cursos`,
+     * the type pages). `degreeType` is null on `/licenciaturas` and `/cursos`.
+     */
+    tableSorted: (props: {
+      universitySlug: string
+      page: UniversityPageKind
+      degreeType: string | null
+      column: string
+      direction: 'asc' | 'desc'
+    }) => trackEvent('university_table_sorted', props)
   },
 
   faculty: {

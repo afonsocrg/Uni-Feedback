@@ -8,8 +8,25 @@ import { Breadcrumb } from '../common/Breadcrumb'
 import { ContributeNote } from '../common/ContributeNote'
 import { ReportErrorNote } from '../common/ReportErrorNote'
 import { formatGrade, formatNumber } from '../degree/content'
-import { TrackedLink } from './shared'
-import type { UniversityPageData } from './types'
+import { DegreeNameCell, SortableHeader, TrackedLink } from './shared'
+import { sortRows, useTableSort } from './tableSort'
+import type { UniversityBachelor, UniversityPageData } from './types'
+
+type BachelorSortKey = 'name' | 'duration' | 'grade' | 'vagas'
+
+const BACHELOR_SORT_VALUE: Record<
+  BachelorSortKey,
+  (b: UniversityBachelor) => string | number | null
+> = {
+  name: (b) => b.name,
+  // Years first, ECTS to break ties
+  duration: (b) =>
+    b.durationSemesters === null
+      ? null
+      : b.durationSemesters * 1000 + (b.ects ?? 0),
+  grade: (b) => b.grade,
+  vagas: (b) => b.vagas
+}
 
 /**
  * `/unis/:uniSlug/licenciaturas`: every licenciatura and mestrado integrado we
@@ -28,6 +45,7 @@ export function UniversityBachelorsContent({
   const slug = university.slug
   const year = data.admissionYear
   const [facultySlug, setFacultySlug] = useState<string | null>(null)
+  const facultyBySlug = new Map(data.faculties.map((f) => [f.slug, f]))
 
   useEffect(() => {
     analytics.university.universityPageViewed({
@@ -41,9 +59,28 @@ export function UniversityBachelorsContent({
   const facultiesWithBachelors = data.faculties.filter((f) =>
     data.bachelors.some((b) => b.facultySlug === f.slug)
   )
-  const rows = facultySlug
-    ? data.bachelors.filter((b) => b.facultySlug === facultySlug)
-    : data.bachelors
+  const { sort, toggle } = useTableSort<BachelorSortKey>(
+    year
+      ? { key: 'grade', direction: 'desc' }
+      : { key: 'name', direction: 'asc' },
+    ['name'],
+    ({ key, direction }) =>
+      analytics.university.tableSorted({
+        universitySlug: slug,
+        page: 'bachelors',
+        degreeType: null,
+        column: key,
+        direction
+      })
+  )
+  const rows = sortRows(
+    facultySlug
+      ? data.bachelors.filter((b) => b.facultySlug === facultySlug)
+      : data.bachelors,
+    BACHELOR_SORT_VALUE[sort.key],
+    sort.direction,
+    lang
+  )
 
   const select = (value: string | null) => {
     setFacultySlug(value)
@@ -104,20 +141,42 @@ export function UniversityBachelorsContent({
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border text-left text-xs text-muted-foreground">
-                <th className="py-1.5 pr-2 font-medium">
+                <SortableHeader
+                  column="name"
+                  sort={sort}
+                  onSort={toggle}
+                  className="pr-2"
+                >
                   {t('bachelors_page.col_degree')}
-                </th>
-                <th className="py-1.5 pr-2 text-right font-medium">
+                </SortableHeader>
+                <SortableHeader
+                  column="duration"
+                  sort={sort}
+                  onSort={toggle}
+                  align="right"
+                  className="pr-2"
+                >
                   {t('bachelors_page.col_duration')}
-                </th>
+                </SortableHeader>
                 {year && (
                   <>
-                    <th className="py-1.5 pr-2 text-right font-medium">
+                    <SortableHeader
+                      column="grade"
+                      sort={sort}
+                      onSort={toggle}
+                      align="right"
+                      className="pr-2"
+                    >
                       {t('bachelors_page.col_grade', { year })}
-                    </th>
-                    <th className="py-1.5 text-right font-medium">
+                    </SortableHeader>
+                    <SortableHeader
+                      column="vagas"
+                      sort={sort}
+                      onSort={toggle}
+                      align="right"
+                    >
                       {t('bachelors_page.col_vagas')}
-                    </th>
+                    </SortableHeader>
                   </>
                 )}
               </tr>
@@ -134,20 +193,25 @@ export function UniversityBachelorsContent({
                     className="border-b border-border"
                   >
                     <td className="py-2 pr-2">
-                      <TrackedLink
-                        to={getDegreePath(lang, b.facultySlug, b.slug)}
-                        universitySlug={slug}
-                        page="bachelors"
-                        target="degree"
-                        surface="bachelors_table"
+                      <DegreeNameCell
+                        faculty={facultyBySlug.get(b.facultySlug)}
+                        facultyShortName={b.facultyShortName}
                       >
-                        {b.name}
-                      </TrackedLink>
-                      <span className="block text-xs text-muted-foreground">
-                        {b.facultyShortName} · {b.acronym}
-                        {b.type === 'integrated_master' &&
-                          ` · ${t('browse:degree_page.facts.type.integrated_master')}`}
-                      </span>
+                        <TrackedLink
+                          to={getDegreePath(lang, b.facultySlug, b.slug)}
+                          universitySlug={slug}
+                          page="bachelors"
+                          target="degree"
+                          surface="bachelors_table"
+                        >
+                          {b.name}
+                        </TrackedLink>
+                        <span className="block text-xs text-muted-foreground">
+                          {b.facultyShortName} · {b.acronym}
+                          {b.type === 'integrated_master' &&
+                            ` · ${t('browse:degree_page.facts.type.integrated_master')}`}
+                        </span>
+                      </DegreeNameCell>
                     </td>
                     <td className="py-2 pr-2 text-right tabular-nums">
                       {b.durationSemesters

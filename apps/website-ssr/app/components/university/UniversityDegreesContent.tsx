@@ -17,8 +17,14 @@ import {
 import { Breadcrumb } from '../common/Breadcrumb'
 import { ReportErrorNote } from '../common/ReportErrorNote'
 import { formatInt, formatNumber } from '../degree/content'
-import { TrackedLink, TYPE_ORDER } from './shared'
-import type { UniversityDegree, UniversityPageData } from './types'
+import { TYPE_ORDER } from './helpers'
+import { DegreeNameCell, SortableHeader, TrackedLink } from './shared'
+import { sortRows, useTableSort } from './tableSort'
+import type {
+  UniversityDegree,
+  UniversityFaculty,
+  UniversityPageData
+} from './types'
 
 /**
  * `/unis/:uniSlug/cursos` (every degree, one table per type) and the type
@@ -156,7 +162,12 @@ export function UniversityDegreesContent({
                 </span>
               </h2>
             )}
-            <DegreeTable degrees={group.degrees} universitySlug={slug} />
+            <DegreeTable
+              degrees={group.degrees}
+              faculties={data.faculties}
+              universitySlug={slug}
+              degreeType={type}
+            />
           </section>
         ))}
 
@@ -203,50 +214,109 @@ export function UniversityDegreesContent({
   )
 }
 
+type DegreeSortKey = 'name' | 'duration' | 'feedback'
+
+const DEGREE_SORT_VALUE: Record<
+  DegreeSortKey,
+  (d: UniversityDegree) => string | number | null
+> = {
+  name: (d) => d.name,
+  // Years first, ECTS to break ties
+  duration: (d) =>
+    d.durationSemesters === null
+      ? null
+      : d.durationSemesters * 1000 + (d.ects ?? 0),
+  feedback: (d) => d.feedbackCount
+}
+
 function DegreeTable({
   degrees,
-  universitySlug
+  faculties,
+  universitySlug,
+  degreeType
 }: {
   degrees: UniversityDegree[]
+  faculties: UniversityFaculty[]
   universitySlug: string
+  degreeType: string | null
 }) {
   const { t } = useTranslation(['university', 'browse'])
   const lang = useLang()
+  const facultyBySlug = new Map(faculties.map((f) => [f.slug, f]))
+  const { sort, toggle } = useTableSort<DegreeSortKey>(
+    { key: 'name', direction: 'asc' },
+    ['name'],
+    ({ key, direction }) =>
+      analytics.university.tableSorted({
+        universitySlug,
+        page: 'degrees',
+        degreeType,
+        column: key,
+        direction
+      })
+  )
+  const rows = sortRows(
+    degrees,
+    DEGREE_SORT_VALUE[sort.key],
+    sort.direction,
+    lang
+  )
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-border text-left text-xs text-muted-foreground">
-            <th className="py-1.5 pr-2 font-medium">
+            <SortableHeader
+              column="name"
+              sort={sort}
+              onSort={toggle}
+              className="pr-2"
+            >
               {t('bachelors_page.col_degree')}
-            </th>
-            <th className="py-1.5 pr-2 text-right font-medium">
+            </SortableHeader>
+            <SortableHeader
+              column="duration"
+              sort={sort}
+              onSort={toggle}
+              align="right"
+              className="pr-2"
+            >
               {t('bachelors_page.col_duration')}
-            </th>
-            <th className="py-1.5 text-right font-medium">
+            </SortableHeader>
+            <SortableHeader
+              column="feedback"
+              sort={sort}
+              onSort={toggle}
+              align="right"
+            >
               {t('degrees_page.col_feedback')}
-            </th>
+            </SortableHeader>
           </tr>
         </thead>
         <tbody>
-          {degrees.map((d) => (
+          {rows.map((d) => (
             <tr
               key={`${d.facultySlug}/${d.slug}`}
               className="border-b border-border"
             >
               <td className="py-2 pr-2">
-                <TrackedLink
-                  to={getDegreePath(lang, d.facultySlug, d.slug)}
-                  universitySlug={universitySlug}
-                  page="degrees"
-                  target="degree"
-                  surface="degrees_table"
+                <DegreeNameCell
+                  faculty={facultyBySlug.get(d.facultySlug)}
+                  facultyShortName={d.facultyShortName}
                 >
-                  {d.name}
-                </TrackedLink>
-                <span className="block text-xs text-muted-foreground">
-                  {d.facultyShortName} · {d.acronym}
-                </span>
+                  <TrackedLink
+                    to={getDegreePath(lang, d.facultySlug, d.slug)}
+                    universitySlug={universitySlug}
+                    page="degrees"
+                    target="degree"
+                    surface="degrees_table"
+                  >
+                    {d.name}
+                  </TrackedLink>
+                  <span className="block text-xs text-muted-foreground">
+                    {d.facultyShortName} · {d.acronym}
+                  </span>
+                </DegreeNameCell>
               </td>
               <td className="py-2 pr-2 text-right tabular-nums">
                 {d.durationSemesters
