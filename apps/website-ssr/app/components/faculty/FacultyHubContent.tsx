@@ -164,7 +164,7 @@ export function FacultyHubContent({
           name={faculty.shortName}
           website={faculty.url}
           links={data.links}
-          className="-ml-2 mt-1"
+          className="mt-1"
           onClick={(target) => trackFacultyLink(track, target, 'header')}
         />
       }

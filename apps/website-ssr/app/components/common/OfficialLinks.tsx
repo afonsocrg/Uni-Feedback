@@ -63,7 +63,7 @@ export function OfficialLinks({
   if (items.length === 0) return null
   return (
     <ul
-      className={cn('mt-4 flex flex-wrap items-center gap-1', className)}
+      className={cn('mt-4 flex flex-wrap items-center gap-3', className)}
       aria-label={t('official_links.label', { name })}
     >
       {items.map(({ key, url, Icon, label }) => (
@@ -75,7 +75,7 @@ export function OfficialLinks({
             onClick={() => onClick(key)}
             aria-label={label}
             title={label}
-            className="inline-flex size-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            className="inline-flex items-center justify-center text-muted-foreground transition-colors hover:text-foreground/80"
           >
             <Icon className="size-4" />
           </a>

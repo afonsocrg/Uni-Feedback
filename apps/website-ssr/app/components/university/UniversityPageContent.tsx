@@ -189,7 +189,7 @@ export function UniversityPageContent({ data }: { data: UniversityPageData }) {
                 <OfficialLinks
                   name={university.shortName}
                   links={data.links}
-                  className="-ml-2 mt-1"
+                  className="mt-1"
                   onClick={(kind) =>
                     analytics.university.linkClicked({
                       universitySlug: slug,
