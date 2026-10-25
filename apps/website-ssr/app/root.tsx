@@ -34,7 +34,6 @@ import {
   THEME_INIT_SCRIPT
 } from '~/utils/theme'
 
-import { loadFooterDirectory } from '~/lib/footerDirectory.server'
 import { detectLang, getEquivalentPath } from '~/utils/i18n-routes'
 import { recordPathname } from '~/utils/navigationHistory'
 import { getRequestOrigin } from '~/utils/request'
@@ -78,14 +77,10 @@ export async function loader({ request }: Route.LoaderArgs) {
   // cosmetic, since switching the API off already gives students the resting
   // screen on its own.
   const showChatEntryPoints = process.env.SHOW_CHAT_ENTRY_POINTS === 'true'
-  // The footer's university/faculty directory. Cached in memory and never
-  // throws, so it costs no query on most renders and can't fail a page.
-  const footerDirectory = await loadFooterDirectory()
   return {
     lang,
     theme,
     showChatEntryPoints,
-    footerDirectory,
     origin: getRequestOrigin(request)
   }
 }

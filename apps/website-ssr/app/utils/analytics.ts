@@ -1367,11 +1367,9 @@ export const analytics = {
      * between the bar, the drawer and the footer.
      */
     navLinkClicked: (props: {
-      destination: 'browse' | 'chat' | 'universities' | 'university' | 'faculty'
+      destination: 'browse' | 'chat' | 'universities'
       surface: NavSurface
       referrerPage?: string
-      /** The university or faculty slug, for the footer's directory links */
-      target?: string
     }) => trackEvent('nav_link_clicked', props),
 
     /**

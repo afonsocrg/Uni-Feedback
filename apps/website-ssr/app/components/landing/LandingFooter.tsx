@@ -2,22 +2,15 @@ import { Separator } from '@uni-feedback/ui'
 import { GraduationCap, Instagram } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { SiTiktok } from 'react-icons/si'
-import { useRouteLoaderData } from 'react-router'
 import {
   LanguagePreferenceControl,
   ThemePreferenceControl
 } from '~/components/layout/PreferenceControls'
 import { useAuth, useLang, useShowChatEntryPoints } from '~/hooks'
 import { useLastVisitedPath } from '~/hooks/useLastVisitedPath'
-import type { FooterDirectoryUniversity } from '~/lib/footerDirectory.server'
 import { analytics, getPageName } from '~/utils/analytics'
 import { INSTAGRAM_URL, TIKTOK_URL } from '~/utils/constants'
-import {
-  getFacultyPath,
-  getLocalePath,
-  getReviewPath,
-  getUniversityPath
-} from '~/utils/i18n-routes'
+import { getLocalePath, getReviewPath } from '~/utils/i18n-routes'
 import { FooterLink } from './FooterLink'
 
 interface FooterLinkItem {
@@ -39,27 +32,21 @@ export function LandingFooter() {
   const lastVisitedPath = useLastVisitedPath()
   const browsePath = getLocalePath('browse', lang)
   const browseLink = lastVisitedPath !== '/' ? lastVisitedPath : browsePath
-  // Every university and its faculties, so each hub page is one click from
-  // anywhere on the site (and crawlable from every page).
-  const rootData = useRouteLoaderData('root') as
-    | { footerDirectory?: FooterDirectoryUniversity[] }
-    | undefined
-  const directory = rootData?.footerDirectory ?? []
-  const trackDirectoryClick =
-    (destination: 'universities' | 'university' | 'faculty', target?: string) =>
-    () =>
-      analytics.navigation.navLinkClicked({
-        destination,
-        surface: 'footer',
-        target,
-        referrerPage: getPageName(window.location.pathname)
-      })
-
   const FOOTER_LINK_GROUPS: FooterLinkGroup[] = [
     {
       title: t('footer.groups.explore'),
       links: [
         { href: browseLink, label: t('footer.links.browse_courses') },
+        {
+          href: getLocalePath('universities', lang),
+          label: t('footer.links.all_universities'),
+          onClick: () =>
+            analytics.navigation.navLinkClicked({
+              destination: 'universities',
+              surface: 'footer',
+              referrerPage: getPageName(window.location.pathname)
+            })
+        },
         // Dropped entirely rather than rendered dead when the chat is off: a
         // footer is a list of places you can go.
         ...(showChatEntryPoints
@@ -191,45 +178,6 @@ export function LandingFooter() {
             ))}
           </div>
         </div>
-        {directory.length > 0 && (
-          <nav aria-label={t('footer.groups.universities')}>
-            <Separator className="my-8" />
-            <h3 className="font-semibold mb-4">
-              <FooterLink
-                href={getLocalePath('universities', lang)}
-                onClick={trackDirectoryClick('universities')}
-              >
-                {t('footer.groups.universities')}
-              </FooterLink>
-            </h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-x-8 gap-y-6 text-sm text-muted-foreground">
-              {directory.map((uni) => (
-                <div key={uni.slug}>
-                  <p className="font-medium text-foreground mb-2">
-                    <FooterLink
-                      href={getUniversityPath(lang, uni.slug)}
-                      onClick={trackDirectoryClick('university', uni.slug)}
-                    >
-                      {uni.shortName}
-                    </FooterLink>
-                  </p>
-                  <ul className="space-y-2">
-                    {uni.faculties.map((faculty) => (
-                      <li key={faculty.slug}>
-                        <FooterLink
-                          href={getFacultyPath(lang, faculty.slug)}
-                          onClick={trackDirectoryClick('faculty', faculty.slug)}
-                        >
-                          {faculty.shortName}
-                        </FooterLink>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </nav>
-        )}
         <Separator className="my-8" />
         {/* Theme and language also live here, not only in the account popover.
             The popover is always reachable but reads as "account"; the footer is
