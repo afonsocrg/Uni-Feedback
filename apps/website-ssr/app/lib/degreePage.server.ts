@@ -12,6 +12,8 @@ import type {
   DegreeRelationshipType,
   RelatedDegree
 } from '~/components/degree/pageTypes'
+import type { Lang } from '~/i18n/config'
+import { pickName } from '~/utils/localizedContent'
 
 /**
  * The degree page's content sections beyond the course plan (v2): campus,
@@ -26,7 +28,7 @@ import type {
 
 type Db = ReturnType<typeof database>
 
-interface Pair {
+export interface Pair {
   unit: string
   course: string
   url: string | null
@@ -39,7 +41,7 @@ function parsePair(externalId: string, url: string | null): Pair | null {
 
 const AFTER_WORK = /p[óo]s-laboral/i
 
-const toNumber = (value: unknown): number | null => {
+export const toNumber = (value: unknown): number | null => {
   if (value === null || value === undefined || value === '') return null
   const n = Number(value)
   return Number.isFinite(n) ? n : null
@@ -47,8 +49,30 @@ const toNumber = (value: unknown): number | null => {
 
 export async function loadDegreePageExtras(
   degreeId: number,
-  facultyUniversityId: number | null
+  facultyUniversityId: number | null,
+  lang: Lang
 ): Promise<DegreePageExtras> {
+  return (
+    await loadDegreeExtrasWithSources(degreeId, facultyUniversityId, lang)
+  ).extras
+}
+
+/**
+ * The degree page's extras plus the official ids they were read from, for the
+ * sub-pages (`/ingresso`, `/saidas-profissionais`) that read more of the same
+ * tables: every DGES pair, the main admission track's course code, and the
+ * InfoCursos pair the outcomes come from.
+ */
+export async function loadDegreeExtrasWithSources(
+  degreeId: number,
+  facultyUniversityId: number | null,
+  lang: Lang
+): Promise<{
+  extras: DegreePageExtras
+  dgesPairs: Pair[]
+  mainCourseCode: string | null
+  outcomesPair: Pair | null
+}> {
   const db = database()
 
   const externalIds = await db
@@ -76,11 +100,11 @@ export async function loadDegreePageExtras(
 
   const [universityName, campuses, admissionsResult, fees, related] =
     await Promise.all([
-      loadUniversityName(db, facultyUniversityId),
+      loadUniversityName(db, facultyUniversityId, lang),
       loadCampuses(db, degreeId),
       loadAdmissions(db, dgesPairs),
       loadFees(db, degreeId),
-      loadRelated(db, degreeId)
+      loadRelated(db, degreeId, lang)
     ])
 
   const admissions = admissionsResult?.admissions ?? null
@@ -113,19 +137,28 @@ export async function loadDegreePageExtras(
     : [null, 1]
   if (outcomes && sharingDegrees <= 1) outcomes.broaderProgramme = null
 
-  return { universityName, campuses, admissions, fees, outcomes, related }
+  return {
+    extras: { universityName, campuses, admissions, fees, outcomes, related },
+    dgesPairs,
+    mainCourseCode: admissions?.main.courseCode ?? null,
+    outcomesPair
+  }
 }
 
 async function loadUniversityName(
   db: Db,
-  universityId: number | null
+  universityId: number | null,
+  lang: Lang
 ): Promise<string | null> {
   if (!universityId) return null
   const [row] = await db
-    .select({ name: schema.universities.name })
+    .select({
+      name: schema.universities.name,
+      nameEn: schema.universities.nameEn
+    })
     .from(schema.universities)
     .where(eq(schema.universities.id, universityId))
-  return row?.name ?? null
+  return row ? pickName(lang, row.name, row.nameEn).value : null
 }
 
 async function loadCampuses(
@@ -559,7 +592,11 @@ async function loadOutcomes(
  * degree as the source finds them all; `continues_to` is directed, so it is
  * read both ways (this degree leads to X / X leads here).
  */
-async function loadRelated(db: Db, degreeId: number): Promise<RelatedDegree[]> {
+async function loadRelated(
+  db: Db,
+  degreeId: number,
+  lang: Lang
+): Promise<RelatedDegree[]> {
   const rel = schema.degreeRelationships
   const rows = await db
     .select({
@@ -568,6 +605,7 @@ async function loadRelated(db: Db, degreeId: number): Promise<RelatedDegree[]> {
       slug: schema.degrees.slug,
       acronym: schema.degrees.acronym,
       name: schema.degrees.name,
+      nameEn: schema.degrees.nameEn,
       facultySlug: schema.faculties.slug,
       facultyShortName: schema.faculties.shortName
     })
@@ -613,7 +651,7 @@ async function loadRelated(db: Db, degreeId: number): Promise<RelatedDegree[]> {
         facultyShortName: row.facultyShortName,
         slug: row.slug as string,
         acronym: row.acronym,
-        name: row.name
+        name: pickName(lang, row.name, row.nameEn).value
       }
     })
     .filter(

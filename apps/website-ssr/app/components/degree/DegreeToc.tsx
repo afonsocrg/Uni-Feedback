@@ -13,14 +13,14 @@ import type { DegreeSectionId } from '~/utils/analytics'
 import { scrollToSection, type TocSection } from './scrollSpy'
 
 /** Desktop: the sticky list on the right. */
-export function DegreeTocSidebar({
+export function DegreeTocSidebar<Id extends string = DegreeSectionId>({
   sections,
   current,
   onNavigate
 }: {
-  sections: TocSection[]
-  current: DegreeSectionId | null
-  onNavigate: (id: DegreeSectionId) => void
+  sections: TocSection<Id>[]
+  current: Id | null
+  onNavigate: (id: Id) => void
 }) {
   const { t } = useTranslation('browse')
   return (
@@ -62,15 +62,15 @@ export function DegreeTocSidebar({
  * Phones: a sticky "Nesta página" bar under the site header, naming the current
  * section, that opens the section list as a bottom sheet.
  */
-export function DegreeTocBar({
+export function DegreeTocBar<Id extends string = DegreeSectionId>({
   sections,
   current,
   onNavigate,
   onOpen
 }: {
-  sections: TocSection[]
-  current: DegreeSectionId | null
-  onNavigate: (id: DegreeSectionId) => void
+  sections: TocSection<Id>[]
+  current: Id | null
+  onNavigate: (id: Id) => void
   onOpen: () => void
 }) {
   const { t } = useTranslation('browse')

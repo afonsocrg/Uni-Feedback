@@ -159,7 +159,9 @@ export function HeroSearchBar() {
                     </span>
                     <span className="flex items-center gap-2">
                       <span className="text-sm font-medium truncate">
-                        {course.name}
+                        {lang === 'en' && course.nameEn
+                          ? course.nameEn
+                          : course.name}
                       </span>
                       <LastTaughtTag lastTaughtYear={course.lastTaughtYear} />
                     </span>

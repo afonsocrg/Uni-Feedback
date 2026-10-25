@@ -5,6 +5,9 @@
     "universities_suffix": " Available universities: {{names}}{{more}}.",
     "and_more": ", and more",
     "faculty_title": "{{shortName}}: course and degree reviews | Uni Feedback",
+    "faculty_type_title": "{{shortName}} {{type}}: places, entry grades and reviews | Uni Feedback",
+    "faculty_type_description_one": "{{count}} programme at {{name}} ({{acronyms}}): compare places, entry grades, fees and what students say about the courses.",
+    "faculty_type_description_other": "The {{count}} {{type}} programmes at {{name}} ({{acronyms}}, ...): compare places, entry grades, fees and what students say about the courses.",
     "faculty_description": "{{shortName}}: anonymous student reviews of the courses in every degree. Workload, assessment and tips to help you choose.",
     "faculty_description_reviews_one": "{{shortName}}: 1 anonymous student review of the courses in every degree. Workload, assessment and tips to help you choose.",
     "faculty_description_reviews_other": "{{shortName}}: {{count}} anonymous student reviews of the courses in every degree. Workload, assessment and tips to help you choose.",
@@ -197,11 +200,14 @@
         "campus": "campus",
         "admission": "admission",
         "fees": "tuition fees",
-        "outcomes": "after the degree"
+        "outcomes": "after the degree",
+        "requirements": "entry requirements",
+        "application_dates": "application deadlines",
+        "careers": "careers"
       }
     },
     "ask": {
-      "link": "Ask us",
+      "link": "Ask our chat",
       "heaviest_year": "Which year of {{acronym}} is the heaviest?",
       "hardest_course": "Which {{acronym}} course is the hardest?",
       "best_courses": "Which {{acronym}} courses get the best reviews?"
@@ -229,7 +235,17 @@
       "similar": "Similar degree"
     },
     "retired_notice": "This degree is no longer offered. Its courses and their reviews are still available.",
-    "explore_all_courses": "Browse all {{acronym}} courses"
+    "plan_all_courses": "All courses",
+    "plan_optional_more": "{{count}} more electives in {{year}} year",
+    "plan_optional_cta": "See electives",
+    "plan_optional_count": "{{count}} more electives",
+    "plan_term_more_one": "See {{count}} more course",
+    "plan_term_more_other": "See {{count}} more courses",
+    "faq_footer": {
+      "question": "Have another question?",
+      "chat": "Ask our chat",
+      "contact": "Ask us"
+    }
   },
   "faculty_page": {
     "title": "{{name}}: choose your degree",
@@ -282,5 +298,276 @@
     "title": "{{name}} courses",
     "breadcrumb": "Courses",
     "back": "About {{acronym}}: admission, outcomes and more"
+  },
+  "faculty_hub": {
+    "no_data": "no data",
+    "type_title": "{{type}}: {{name}}",
+    "type_intro": {
+      "bachelor_one": "{{n}} bachelor's, with places, entry grades, employability and student feedback on the courses.",
+      "bachelor_other": "{{n}} bachelor's degrees, with places, entry grades, employability and student feedback on the courses.",
+      "integrated_master_one": "{{n}} integrated master's, with places, entry grades and student feedback on the courses.",
+      "integrated_master_other": "{{n}} integrated master's degrees, with places, entry grades and student feedback on the courses.",
+      "master_one": "{{n}} master's, with fees, teaching language, completion and student feedback on the courses.",
+      "master_other": "{{n}} master's degrees, with fees, teaching language, completion and student feedback on the courses.",
+      "minor_one": "{{n}} minor, with its courses and student feedback.",
+      "minor_other": "{{n}} minors, with their courses and student feedback.",
+      "postgraduate_one": "{{n}} postgraduate programme, with fees, teaching language and student feedback on the courses.",
+      "postgraduate_other": "{{n}} postgraduate programmes, with fees, teaching language and student feedback on the courses.",
+      "phd_one": "{{n}} PhD programme, with fees and student feedback on the courses.",
+      "phd_other": "{{n}} PhD programmes, with fees and student feedback on the courses."
+    },
+    "type_count_label": {
+      "bachelor_one": "bachelor's",
+      "bachelor_other": "bachelor's",
+      "integrated_master_one": "integrated master's",
+      "integrated_master_other": "integrated master's",
+      "master_one": "master's",
+      "master_other": "master's",
+      "minor_one": "minor",
+      "minor_other": "minors",
+      "postgraduate_one": "postgraduate",
+      "postgraduate_other": "postgraduate",
+      "phd_one": "PhD",
+      "phd_other": "PhDs",
+      "other_one": "other",
+      "other_other": "other"
+    },
+    "type_count": {
+      "bachelor_one": "{{n}} bachelor's",
+      "bachelor_other": "{{n}} bachelor's"
+    },
+    "campus_count_one": "{{n}} campus",
+    "campus_count_other": "{{n}} campuses",
+    "facts": {
+      "vagas": "{{n}} places in {{year}}",
+      "english_one": "{{n}} taught in English",
+      "english_other": "{{n}} taught in English"
+    },
+    "sections": {
+      "courses": "Degrees",
+      "admission": "Bachelor's admission",
+      "admission_short": "Admission",
+      "highlights": "The courses, according to students",
+      "highlights_short": "The courses",
+      "campuses": "Campuses",
+      "campus": "Campus",
+      "related": "Related",
+      "compare": "Compare",
+      "first_year": "The first year",
+      "pathways": "Pathways",
+      "about": "About the school"
+    },
+    "compare_link": {
+      "bachelor": "Compare the bachelor's: places, entry grades and employability",
+      "integrated_master": "Compare the integrated master's",
+      "master": "Compare the master's: fees, language and completion",
+      "minor": "See every minor",
+      "postgraduate": "Compare the postgraduate programmes",
+      "phd": "See the PhD programmes"
+    },
+    "admission": {
+      "vagas": "Places, 1st phase {{year}}",
+      "highest": "Highest last-admitted grade ({{year}})",
+      "lowest": "Lowest last-admitted grade ({{year}})",
+      "fee": "Yearly fee, Portuguese and EU students",
+      "source": "Source: DGES, national admission (CNA), 1st phase.",
+      "compare": "Compare every bachelor's"
+    },
+    "highlights": {
+      "most_feedback": "Most reviewed",
+      "best": "Best rated",
+      "heaviest": "Heaviest",
+      "hint_one": "Courses taught today, with at least {{n}} review. A course shared by several degrees appears once.",
+      "hint_other": "Courses taught today, with at least {{n}} reviews. A course shared by several degrees appears once."
+    },
+    "campus": {
+      "degrees_one": "{{n}} degree on this campus",
+      "degrees_other": "{{n}} degrees on this campus",
+      "website": "Official website"
+    },
+    "table": {
+      "campus": "Campus",
+      "vagas": "Places {{year}}",
+      "placed": "{{n}} admitted",
+      "last_grade": "Last admitted {{year}}",
+      "vs_year": "vs {{year}}",
+      "admission_link": "Admission",
+      "employability": "Employability",
+      "employability_info": "Share of graduates not registered as unemployed at IEFP, Portugal's employment service (InfoCursos).",
+      "completion": "Finish on time",
+      "fee": "Fee",
+      "ects": "ECTS",
+      "language_head": "Language",
+      "language": {
+        "pt": "Portuguese",
+        "en": "English",
+        "pt_en": "PT and EN"
+      }
+    },
+    "sources": {
+      "cna": "Places and last admitted: DGES, national admission (CNA), 1st phase {{year}}.",
+      "infocursos": "Employability and completion: InfoCursos, latest edition (suppressed for small programmes).",
+      "fees": "Fees: Portuguese and EU students, latest school year we have, from the faculties' websites."
+    },
+    "first_year": {
+      "intro": "First-year courses shared by several bachelor's:",
+      "course": "Course",
+      "degrees": "In how many bachelor's",
+      "rating": "Rating",
+      "workload": "Workload",
+      "in_n": "{{n}} of {{total}}",
+      "hint": "Courses with the same name in the first curricular year of at least 3 bachelor's. Rating and workload of the most reviewed edition."
+    },
+    "pathways": {
+      "from": "Degree",
+      "to": "Continues to"
+    },
+    "related": {
+      "university": "University",
+      "faculty": "Faculty",
+      "type_page": "{{name}} degrees"
+    },
+    "faq": {
+      "highest_grade_q": "Which {{name}} bachelor's has the highest entry grade?",
+      "type_highest_grade_q": "Which {{name}} {{type}} has the highest entry grade?",
+      "highest_grade_a": "{{acronym}}: {{grade}} in the 1st phase of {{year}}, according to DGES.",
+      "fee_q": "How much does a bachelor's at {{name}} cost?",
+      "type_fee_q": "How much do {{name}} {{type}} cost?",
+      "fee_a": "{{fee}} for Portuguese and EU students.",
+      "fee_range_a": "Between {{min}} and {{max}} for Portuguese and EU students, depending on the programme.",
+      "campuses_q": "Where is {{name}}?",
+      "vagas_q": "How many places do {{name}} {{type}} have?",
+      "vagas_a_one": "{{n}} places in the 1st phase of {{year}}, in {{count}} programme.",
+      "vagas_a_other": "{{n}} places in the 1st phase of {{year}}, in {{count}} programmes.",
+      "english_q": "Are there {{type}} in English at {{name}}?",
+      "english_a": "{{n}} of {{total}} are taught in English, or in Portuguese and English."
+    }
+  },
+  "degree_subpages": {
+    "and": " and ",
+    "back": "Back to {{acronym}}",
+    "see_admission": "Everything about admission",
+    "see_careers": "More on careers",
+    "tabs": {
+      "label": "Degree pages",
+      "overview": "Overview",
+      "courses": "Courses",
+      "courses_count": "Courses ({{n}})",
+      "admission": "Admission",
+      "careers": "Careers"
+    },
+    "admission": {
+      "h1": "Admission to {{name}}",
+      "meta_title": "{{acronym}} ({{faculty}}) admission: entry grades, places and exams | Uni Feedback",
+      "meta_title_direct": "{{acronym}} ({{faculty}}) admission: application and tuition | Uni Feedback",
+      "meta_description": "How to get into {{degreeName}} ({{acronym}}), {{faculty}}: lowest entry grade over the years, places, entrance exams, applicants and tuition, from DGES data.",
+      "meta_description_direct": "How to get into {{degreeName}} ({{acronym}}), {{faculty}}: application, tuition and who studies it.",
+      "intro_cna": "Students get into {{acronym}} through the national admission contest (Concurso Nacional de Acesso).",
+      "intro_vagas": "There are {{vagas}} places in the first round for {{year}}.",
+      "intro_grade": "In {{year}}, the last student admitted in the first round had {{grade}}.",
+      "intro_direct": "Applications to {{acronym}} go directly to the faculty, not through the national admission contest.",
+      "requirements_missing": "Entry requirements: no information yet.",
+      "dates_missing": "Application rounds and deadlines: no information yet.",
+      "official_page": "See the official degree page ({{host}})",
+      "source_guide": "DGES, entrance exam guide {{year}}",
+      "source_applicants": "DGES, application statistics",
+      "sections": {
+        "summary": "Summary",
+        "rules": "Entrance exams and formula",
+        "history": "Lowest entry grade over the years",
+        "applicants": "Applicants and admitted students",
+        "fees": "Tuition fees",
+        "intake": "Who studies {{acronym}}"
+      },
+      "table": {
+        "fase": "Round {{fase}}",
+        "placed": "Admitted"
+      },
+      "applicants": {
+        "title": "First round",
+        "candidatos": "Applicants",
+        "first_option": "… as first choice",
+        "placed": "Admitted",
+        "media_candidatura": "Average application grade of those admitted",
+        "media_provas": "Average entrance exam grade",
+        "media_secundario": "Average secondary school grade",
+        "women": "Admitted (women)"
+      },
+      "entry": {
+        "title": "How first-year students got in",
+        "cna_first": "National contest, first choice",
+        "cna_other": "National contest, other choice",
+        "other_regimes": "Other regimes",
+        "other_general": "Other, general regime",
+        "course_change": "Change of degree",
+        "over23": "Over 23",
+        "local": "Local or institutional contests",
+        "note": "{{n}} students enrolled for the first time in {{years}}."
+      },
+      "fees_history": "Over the years",
+      "fees_year": "School year",
+      "fees_amount": "Tuition",
+      "fees_source": "Source",
+      "intake": {
+        "enrolled": "Students enrolled, {{year}}",
+        "foreign": "International students, {{year}}",
+        "foreign_national": "National average: {{pct}}",
+        "age": "Aged {{band}}, {{year}}"
+      },
+      "faq": {
+        "vagas_q": "How many places does {{acronym}} have?",
+        "vagas_a": "{{vagas}} in the first round of {{year}}, according to DGES.",
+        "fase2_q": "Are there places for {{acronym}} in the second round?",
+        "fase2_a_one": "In {{year}}, the second round opened {{vagas}} place and the last student admitted had {{grade}}.",
+        "fase2_a_other": "In {{year}}, the second round opened {{vagas}} places and the last student admitted had {{grade}}.",
+        "fase2_a_nograde_one": "In {{year}}, the second round opened {{vagas}} place.",
+        "fase2_a_nograde_other": "In {{year}}, the second round opened {{vagas}} places."
+      }
+    },
+    "careers": {
+      "h1": "Careers after {{name}}",
+      "meta_title": "{{acronym}} ({{faculty}}) careers: employability and outcomes | Uni Feedback",
+      "meta_description": "{{degreeName}} ({{acronym}}), {{faculty}}: graduate employability, completion on time and follow-on master's degrees, from InfoCursos data.",
+      "sections": {
+        "employability": "Employability",
+        "history": "Over the years",
+        "jobs": "Where graduates work",
+        "paths": "Pathways",
+        "during": "During the degree"
+      },
+      "explainer": "Of the {{graduates}} graduates between {{from}} and {{to}}, {{unemployed}} were registered as unemployed at the IEFP ({{rate}}). It does not say how many are working: graduates who go on to a master's, move abroad or do not register at the IEFP do not count as unemployed.",
+      "explainer_short": "{{rate}} of graduates were registered as unemployed at the IEFP. It does not say how many are working: graduates who go on to a master's, move abroad or do not register at the IEFP do not count as unemployed.",
+      "history": {
+        "window": "Graduated between",
+        "window_value": "{{from}} and {{to}}",
+        "edition": "Edition {{edition}}",
+        "graduates": "Graduates",
+        "unemployed": "Registered as unemployed",
+        "note": "Unemployment is the average of two months, hence values like 4.5."
+      },
+      "about_hint": "The degree description says which roles and sectors graduates usually work in.",
+      "about_link": "Read the description",
+      "jobs_missing": "Graduate salaries, employers and roles are not published per degree yet.",
+      "paths_to": "Follow-on master's degrees after {{acronym}}",
+      "paths_from": "Bachelor's degrees that lead to {{acronym}}",
+      "during": {
+        "plus1": "{{pct}} within 1 extra year",
+        "plus3": "{{pct}} within 3 extra years",
+        "cohort": "Students who started in {{year}} ({{n}})",
+        "moved": "{{same}} change degree within the institution · {{other}} change institution",
+        "final_grade": "Average final grade",
+        "graduates": "{{n}} graduates, {{years}}",
+        "grades_title": "Graduates' final grades",
+        "grades_label": "Distribution of graduates' final grades, 10 to 20",
+        "grade_bar": "{{grade}}: {{pct}}"
+      },
+      "faq": {
+        "completion_q": "How many students finish {{acronym}} on time?",
+        "completion_a": "{{pct}} of the students who started in {{cohort}} finished on time, according to InfoCursos.",
+        "completion_a_plus3": "{{pct}} of the students who started in {{cohort}} finished on time, and {{plus3}} within 3 extra years, according to InfoCursos.",
+        "grade_q": "What is the average final grade in {{acronym}}?",
+        "grade_a": "{{average}} out of 20, for graduates of {{years}}, according to InfoCursos."
+      }
+    }
   }
 }

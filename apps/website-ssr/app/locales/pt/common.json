@@ -26,7 +26,8 @@
       "rewards": "Recompensas",
       "about": "Sobre",
       "help": "Ajuda",
-      "legal": "Legal"
+      "legal": "Legal",
+      "universities": "Universidades"
     },
     "links": {
       "browse_courses": "Procurar Cadeiras",
@@ -40,7 +41,8 @@
       "contact": "Contacto",
       "terms": "Termos de Serviço",
       "privacy": "Política de Privacidade",
-      "chat": "Chat IA"
+      "chat": "Chat IA",
+      "all_universities": "Todas as universidades"
     }
   },
   "breadcrumb": {
@@ -50,11 +52,46 @@
     "switch_to_en": "EN",
     "switch_to_pt": "PT"
   },
+  "academic_terms": {
+    "semester_1": {
+      "short": "S1",
+      "long": "1º Semestre"
+    },
+    "semester_2": {
+      "short": "S2",
+      "long": "2º Semestre"
+    },
+    "annual": {
+      "short": "Anual",
+      "long": "Anual"
+    }
+  },
   "workload_ratings": [
     "Muito pesada",
     "Pesada",
     "Moderada",
     "Leve",
     "Muito leve"
-  ]
+  ],
+  "localized": {
+    "pt_only": "Disponível só em português",
+    "en_only": "Disponível só em inglês"
+  },
+  "campus_map": {
+    "map_label": "Mapa dos campi",
+    "no_pin": "Sem localização no mapa",
+    "directions": "Como chegar",
+    "show_all": "Ver todos",
+    "hint": "Escolhe um campus para ver onde fica.",
+    "map_failed": "Não foi possível carregar o mapa."
+  },
+  "official_links": {
+    "label": "{{name}} nas redes sociais",
+    "linkedin": "{{name}} no LinkedIn",
+    "instagram": "{{name}} no Instagram",
+    "tiktok": "{{name}} no TikTok",
+    "x": "{{name}} no X",
+    "facebook": "{{name}} no Facebook",
+    "youtube": "{{name}} no YouTube"
+  }
 }

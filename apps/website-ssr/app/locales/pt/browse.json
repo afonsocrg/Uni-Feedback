@@ -5,6 +5,9 @@
     "universities_suffix": " Universidades disponíveis: {{names}}{{more}}.",
     "and_more": ", e mais",
     "faculty_title": "{{shortName}}: opiniões sobre cadeiras e cursos | Uni Feedback",
+    "faculty_type_title": "{{type}} {{shortName}}: vagas, médias e opiniões | Uni Feedback",
+    "faculty_type_description_one": "{{count}} curso em {{name}} ({{acronyms}}): compara vagas, notas de entrada, propinas e o que os alunos dizem das cadeiras.",
+    "faculty_type_description_other": "As {{count}} {{type}} em {{name}} ({{acronyms}}, ...): compara vagas, notas de entrada, propinas e o que os alunos dizem das cadeiras.",
     "faculty_description": "{{shortName}}: opiniões anónimas de alunos sobre as cadeiras de cada curso. Carga de trabalho, avaliação e dicas para escolher.",
     "faculty_description_reviews_one": "{{shortName}}: 1 opinião anónima de alunos sobre as cadeiras de cada curso. Carga de trabalho, avaliação e dicas para escolher.",
     "faculty_description_reviews_other": "{{shortName}}: {{count}} opiniões anónimas de alunos sobre as cadeiras de cada curso. Carga de trabalho, avaliação e dicas para escolher.",
@@ -197,11 +200,14 @@
         "campus": "campus",
         "admission": "ingresso",
         "fees": "propinas",
-        "outcomes": "depois do curso"
+        "outcomes": "depois do curso",
+        "requirements": "requisitos de acesso",
+        "application_dates": "prazos de candidatura",
+        "careers": "saídas profissionais"
       }
     },
     "ask": {
-      "link": "Pergunta-nos",
+      "link": "Pergunta ao nosso chat",
       "heaviest_year": "Qual é o ano mais pesado de {{acronym}}?",
       "hardest_course": "Qual é a cadeira mais difícil de {{acronym}}?",
       "best_courses": "Que cadeiras de {{acronym}} têm melhor feedback?"
@@ -229,7 +235,17 @@
       "similar": "Curso semelhante"
     },
     "retired_notice": "Este curso já não é lecionado. As cadeiras e o feedback continuam disponíveis.",
-    "explore_all_courses": "Explorar todas as cadeiras de {{acronym}}"
+    "plan_all_courses": "Todas as cadeiras",
+    "plan_optional_more": "Mais {{count}} optativas no {{year}}.º ano",
+    "plan_optional_cta": "Ver optativas",
+    "plan_optional_count": "Mais {{count}} optativas",
+    "plan_term_more_one": "Ver mais {{count}} cadeira",
+    "plan_term_more_other": "Ver mais {{count}} cadeiras",
+    "faq_footer": {
+      "question": "Tens outra pergunta?",
+      "chat": "Pergunta ao nosso chat",
+      "contact": "Pergunta-nos"
+    }
   },
   "faculty_page": {
     "title": "{{name}}: escolhe o teu curso",
@@ -282,5 +298,276 @@
     "title": "Cadeiras de {{name}}",
     "breadcrumb": "Cadeiras",
     "back": "Sobre o curso {{acronym}}: ingresso, saídas e mais"
+  },
+  "faculty_hub": {
+    "no_data": "sem dados",
+    "type_title": "{{type}}: {{name}}",
+    "type_intro": {
+      "bachelor_one": "{{n}} licenciatura, com vagas, notas de entrada, empregabilidade e o feedback dos alunos às cadeiras.",
+      "bachelor_other": "{{n}} licenciaturas, com vagas, notas de entrada, empregabilidade e o feedback dos alunos às cadeiras.",
+      "integrated_master_one": "{{n}} mestrado integrado, com vagas, notas de entrada e o feedback dos alunos às cadeiras.",
+      "integrated_master_other": "{{n}} mestrados integrados, com vagas, notas de entrada e o feedback dos alunos às cadeiras.",
+      "master_one": "{{n}} mestrado, com propinas, língua de ensino, conclusão e o feedback dos alunos às cadeiras.",
+      "master_other": "{{n}} mestrados, com propinas, língua de ensino, conclusão e o feedback dos alunos às cadeiras.",
+      "minor_one": "{{n}} minor, com as suas cadeiras e o feedback dos alunos.",
+      "minor_other": "{{n}} minors, com as suas cadeiras e o feedback dos alunos.",
+      "postgraduate_one": "{{n}} pós-graduação, com propinas, língua de ensino e o feedback dos alunos às cadeiras.",
+      "postgraduate_other": "{{n}} pós-graduações, com propinas, língua de ensino e o feedback dos alunos às cadeiras.",
+      "phd_one": "{{n}} doutoramento, com propinas e o feedback dos alunos às cadeiras.",
+      "phd_other": "{{n}} doutoramentos, com propinas e o feedback dos alunos às cadeiras."
+    },
+    "type_count_label": {
+      "bachelor_one": "licenciatura",
+      "bachelor_other": "licenciaturas",
+      "integrated_master_one": "mestrado integrado",
+      "integrated_master_other": "mestrados integrados",
+      "master_one": "mestrado",
+      "master_other": "mestrados",
+      "minor_one": "minor",
+      "minor_other": "minors",
+      "postgraduate_one": "pós-graduação",
+      "postgraduate_other": "pós-graduações",
+      "phd_one": "doutoramento",
+      "phd_other": "doutoramentos",
+      "other_one": "outro",
+      "other_other": "outros"
+    },
+    "type_count": {
+      "bachelor_one": "{{n}} licenciatura",
+      "bachelor_other": "{{n}} licenciaturas"
+    },
+    "campus_count_one": "{{n}} campus",
+    "campus_count_other": "{{n}} campi",
+    "facts": {
+      "vagas": "{{n}} vagas em {{year}}",
+      "english_one": "{{n}} com aulas em inglês",
+      "english_other": "{{n}} com aulas em inglês"
+    },
+    "sections": {
+      "courses": "Cursos",
+      "admission": "Ingresso nas licenciaturas",
+      "admission_short": "Ingresso",
+      "highlights": "As cadeiras segundo os alunos",
+      "highlights_short": "As cadeiras",
+      "campuses": "Campi",
+      "campus": "Campus",
+      "related": "Relacionados",
+      "compare": "Comparar",
+      "first_year": "O primeiro ano",
+      "pathways": "Percursos",
+      "about": "Sobre a faculdade"
+    },
+    "compare_link": {
+      "bachelor": "Comparar as licenciaturas: vagas, notas de entrada e empregabilidade",
+      "integrated_master": "Comparar os mestrados integrados",
+      "master": "Comparar os mestrados: propinas, língua e conclusão",
+      "minor": "Ver todos os minors",
+      "postgraduate": "Comparar as pós-graduações",
+      "phd": "Ver os doutoramentos"
+    },
+    "admission": {
+      "vagas": "Vagas na 1.ª fase {{year}}",
+      "highest": "Último colocado mais alto ({{year}})",
+      "lowest": "Último colocado mais baixo ({{year}})",
+      "fee": "Propina anual, estudantes nacionais",
+      "source": "Fonte: DGES, Concurso Nacional de Acesso, 1.ª fase.",
+      "compare": "Comparar todas as licenciaturas"
+    },
+    "highlights": {
+      "most_feedback": "Mais feedback",
+      "best": "Mais bem avaliadas",
+      "heaviest": "Mais pesadas",
+      "hint_one": "Cadeiras lecionadas atualmente, com pelo menos {{n}} feedback. Uma cadeira comum a vários cursos aparece uma vez.",
+      "hint_other": "Cadeiras lecionadas atualmente, com pelo menos {{n}} feedbacks. Uma cadeira comum a vários cursos aparece uma vez."
+    },
+    "campus": {
+      "degrees_one": "{{n}} curso neste campus",
+      "degrees_other": "{{n}} cursos neste campus",
+      "website": "Site oficial"
+    },
+    "table": {
+      "campus": "Campus",
+      "vagas": "Vagas {{year}}",
+      "placed": "{{n}} colocados",
+      "last_grade": "Último colocado {{year}}",
+      "vs_year": "vs {{year}}",
+      "admission_link": "Ver ingresso",
+      "employability": "Empregabilidade",
+      "employability_info": "Percentagem de diplomados que não estão inscritos como desempregados no IEFP (InfoCursos).",
+      "completion": "Terminam no tempo previsto",
+      "fee": "Propina",
+      "ects": "ECTS",
+      "language_head": "Língua",
+      "language": {
+        "pt": "Português",
+        "en": "Inglês",
+        "pt_en": "PT e EN"
+      }
+    },
+    "sources": {
+      "cna": "Vagas e último colocado: DGES, Concurso Nacional de Acesso, 1.ª fase {{year}}.",
+      "infocursos": "Empregabilidade e conclusão: InfoCursos, edição mais recente (valores suprimidos nos cursos pequenos).",
+      "fees": "Propinas: estudantes nacionais, último ano letivo que temos, dos sites das faculdades."
+    },
+    "first_year": {
+      "intro": "Cadeiras do 1.º ano comuns a várias licenciaturas:",
+      "course": "Cadeira",
+      "degrees": "Em quantas licenciaturas",
+      "rating": "Avaliação",
+      "workload": "Carga",
+      "in_n": "{{n}} de {{total}}",
+      "hint": "Cadeiras com o mesmo nome no 1.º ano curricular de pelo menos 3 licenciaturas. Avaliação e carga da edição com mais feedback."
+    },
+    "pathways": {
+      "from": "Curso",
+      "to": "Continua em"
+    },
+    "related": {
+      "university": "Universidade",
+      "faculty": "Faculdade",
+      "type_page": "Cursos de {{name}}"
+    },
+    "faq": {
+      "highest_grade_q": "Qual é a licenciatura de {{name}} com a nota de entrada mais alta?",
+      "type_highest_grade_q": "Que curso tem a nota de entrada mais alta nas {{type}} de {{name}}?",
+      "highest_grade_a": "{{acronym}}: {{grade}} na 1.ª fase de {{year}}, segundo a DGES.",
+      "fee_q": "Quanto custa uma licenciatura em {{name}}?",
+      "type_fee_q": "Quanto custam as {{type}} de {{name}}?",
+      "fee_a": "{{fee}} para estudantes nacionais.",
+      "fee_range_a": "Entre {{min}} e {{max}} para estudantes nacionais, conforme o curso.",
+      "campuses_q": "Onde fica {{name}}?",
+      "vagas_q": "Quantas vagas há nas {{type}} de {{name}}?",
+      "vagas_a_one": "{{n}} vagas na 1.ª fase de {{year}}, em {{count}} curso.",
+      "vagas_a_other": "{{n}} vagas na 1.ª fase de {{year}}, em {{count}} cursos.",
+      "english_q": "Há {{type}} em inglês em {{name}}?",
+      "english_a": "{{n}} de {{total}} têm aulas em inglês ou em português e inglês."
+    }
+  },
+  "degree_subpages": {
+    "and": " e ",
+    "back": "Voltar a {{acronym}}",
+    "see_admission": "Ver tudo sobre o ingresso",
+    "see_careers": "Ver tudo sobre as saídas profissionais",
+    "tabs": {
+      "label": "Páginas do curso",
+      "overview": "Visão geral",
+      "courses": "Cadeiras",
+      "courses_count": "Cadeiras ({{n}})",
+      "admission": "Ingresso",
+      "careers": "Saídas profissionais"
+    },
+    "admission": {
+      "h1": "Ingresso em {{name}}",
+      "meta_title": "Ingresso em {{acronym}} ({{faculty}}): média de entrada, vagas e provas | Uni Feedback",
+      "meta_title_direct": "Ingresso em {{acronym}} ({{faculty}}): candidatura e propinas | Uni Feedback",
+      "meta_description": "Como entrar em {{degreeName}} ({{acronym}}), {{faculty}}: nota do último colocado ao longo dos anos, vagas, provas de ingresso, candidatos e propinas, com dados da DGES.",
+      "meta_description_direct": "Como entrar em {{degreeName}} ({{acronym}}), {{faculty}}: candidatura, propinas e quem estuda o curso.",
+      "intro_cna": "Entra-se em {{acronym}} pelo Concurso Nacional de Acesso.",
+      "intro_vagas": "Para {{year}} há {{vagas}} vagas na 1.ª fase.",
+      "intro_grade": "Em {{year}}, o último colocado da 1.ª fase entrou com {{grade}}.",
+      "intro_direct": "A candidatura a {{acronym}} é feita diretamente à faculdade, não pelo Concurso Nacional de Acesso.",
+      "requirements_missing": "Requisitos de acesso: ainda sem informação.",
+      "dates_missing": "Fases e prazos de candidatura: ainda sem informação.",
+      "official_page": "Ver a página oficial do curso ({{host}})",
+      "source_guide": "DGES, Guia das Provas de Ingresso {{year}}",
+      "source_applicants": "DGES, estatísticas da candidatura",
+      "sections": {
+        "summary": "Resumo",
+        "rules": "Provas de ingresso e fórmula",
+        "history": "Nota do último colocado ao longo dos anos",
+        "applicants": "Candidatos e colocados",
+        "fees": "Propinas",
+        "intake": "Quem estuda {{acronym}}"
+      },
+      "table": {
+        "fase": "{{fase}}.ª fase",
+        "placed": "Colocados"
+      },
+      "applicants": {
+        "title": "1.ª fase",
+        "candidatos": "Candidatos",
+        "first_option": "… em 1.ª opção",
+        "placed": "Colocados",
+        "media_candidatura": "Média de candidatura dos colocados",
+        "media_provas": "Média nas provas de ingresso",
+        "media_secundario": "Média do secundário",
+        "women": "Colocadas (mulheres)"
+      },
+      "entry": {
+        "title": "Como entraram os alunos do 1.º ano",
+        "cna_first": "Concurso Nacional, 1.ª opção",
+        "cna_other": "Concurso Nacional, outra opção",
+        "other_regimes": "Outros regimes",
+        "other_general": "Outros, regime geral",
+        "course_change": "Mudança de curso",
+        "over23": "Maiores de 23",
+        "local": "Concursos locais ou institucionais",
+        "note": "{{n}} alunos inscritos pela 1.ª vez em {{years}}."
+      },
+      "fees_history": "Ao longo dos anos",
+      "fees_year": "Ano letivo",
+      "fees_amount": "Propina",
+      "fees_source": "Fonte",
+      "intake": {
+        "enrolled": "Alunos inscritos, {{year}}",
+        "foreign": "Alunos estrangeiros, {{year}}",
+        "foreign_national": "Média nacional: {{pct}}",
+        "age": "Têm {{band}} anos, {{year}}"
+      },
+      "faq": {
+        "vagas_q": "Quantas vagas tem {{acronym}}?",
+        "vagas_a": "{{vagas}} na 1.ª fase de {{year}}, segundo a DGES.",
+        "fase2_q": "Há vagas para {{acronym}} na 2.ª fase?",
+        "fase2_a_one": "Em {{year}}, a 2.ª fase abriu {{vagas}} vaga e o último colocado entrou com {{grade}}.",
+        "fase2_a_other": "Em {{year}}, a 2.ª fase abriu {{vagas}} vagas e o último colocado entrou com {{grade}}.",
+        "fase2_a_nograde_one": "Em {{year}}, a 2.ª fase abriu {{vagas}} vaga.",
+        "fase2_a_nograde_other": "Em {{year}}, a 2.ª fase abriu {{vagas}} vagas."
+      }
+    },
+    "careers": {
+      "h1": "Saídas profissionais de {{name}}",
+      "meta_title": "Saídas profissionais de {{acronym}} ({{faculty}}): empregabilidade e percurso | Uni Feedback",
+      "meta_description": "{{degreeName}} ({{acronym}}), {{faculty}}: empregabilidade dos diplomados, conclusão no tempo previsto e mestrados a seguir, com dados do InfoCursos.",
+      "sections": {
+        "employability": "Empregabilidade",
+        "history": "Ao longo dos anos",
+        "jobs": "Onde trabalham",
+        "paths": "Percursos",
+        "during": "Durante o curso"
+      },
+      "explainer": "Dos {{graduates}} diplomados entre {{from}} e {{to}}, {{unemployed}} estavam inscritos como desempregados no IEFP ({{rate}}). O número não diz quantos estão a trabalhar: quem segue para mestrado, emigra ou não se inscreve no IEFP não conta como desempregado.",
+      "explainer_short": "{{rate}} dos diplomados estavam inscritos como desempregados no IEFP. O número não diz quantos estão a trabalhar: quem segue para mestrado, emigra ou não se inscreve no IEFP não conta como desempregado.",
+      "history": {
+        "window": "Diplomados entre",
+        "window_value": "{{from}} e {{to}}",
+        "edition": "Edição {{edition}}",
+        "graduates": "Diplomados",
+        "unemployed": "Inscritos como desempregados",
+        "note": "Os desempregados são a média de dois meses, daí valores como 4,5."
+      },
+      "about_hint": "A descrição do curso diz em que funções e setores os diplomados costumam trabalhar.",
+      "about_link": "Ler a descrição",
+      "jobs_missing": "Salários, empresas e funções dos diplomados ainda não são publicados por curso.",
+      "paths_to": "Mestrados de continuidade de {{acronym}}",
+      "paths_from": "Licenciaturas que levam a {{acronym}}",
+      "during": {
+        "plus1": "{{pct}} com mais 1 ano",
+        "plus3": "{{pct}} com mais 3 anos",
+        "cohort": "Alunos que entraram em {{year}} ({{n}})",
+        "moved": "{{same}} mudam de curso na instituição · {{other}} mudam de instituição",
+        "final_grade": "Média final de curso",
+        "graduates": "{{n}} diplomados, {{years}}",
+        "grades_title": "Notas finais dos diplomados",
+        "grades_label": "Distribuição das notas finais dos diplomados, de 10 a 20 valores",
+        "grade_bar": "{{grade}} valores: {{pct}}"
+      },
+      "faq": {
+        "completion_q": "Quantos alunos acabam {{acronym}} no tempo previsto?",
+        "completion_a": "{{pct}} dos alunos que entraram em {{cohort}} terminaram no tempo previsto, segundo o InfoCursos.",
+        "completion_a_plus3": "{{pct}} dos alunos que entraram em {{cohort}} terminaram no tempo previsto, e {{plus3}} até 3 anos depois, segundo o InfoCursos.",
+        "grade_q": "Qual é a média final de curso em {{acronym}}?",
+        "grade_a": "{{average}} valores, nos diplomados de {{years}}, segundo o InfoCursos."
+      }
+    }
   }
 }

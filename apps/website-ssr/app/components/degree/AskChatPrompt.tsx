@@ -11,7 +11,7 @@ export type DegreePromptTemplate =
   | 'best_courses'
 
 /**
- * "Qual é o ano mais pesado de LEIC? Pergunta-nos": a question the chat can
+ * "Qual é o ano mais pesado de LEIC? Pergunta ao nosso chat": a question the chat can
  * answer from our data, inline where it comes up (prds/content_rich_pages.md,
  * "AI chat entry points"). Opens the chat scoped to the degree with the
  * question in router state, like `AskChatInput`, so the chat page sends it on

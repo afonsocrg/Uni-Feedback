@@ -26,6 +26,11 @@ import {
   getFacultyPath,
   getLocalePath
 } from '~/utils/i18n-routes'
+import {
+  isMostlyFallback,
+  pickText,
+  type ContentLang
+} from '~/utils/localizedContent'
 import { buildMeta, metaT } from '~/utils/meta'
 import { getRequestOrigin } from '~/utils/request'
 
@@ -237,6 +242,9 @@ export function meta({ loaderData, location, matches }: Route.MetaArgs) {
     title,
     description,
     url: pageUrl,
+    // EN page whose own text is all Portuguese fallback (content_translation decision 8)
+    ...(lang === 'en' &&
+      isMostlyFallback([loaderData.about]) && { robots: 'noindex, follow' }),
     structuredData
   })
 }
@@ -250,18 +258,17 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   )
   const db = database()
 
-  // Our own description, in the page's language, once reviewed. Pages in a
-  // language with no reviewed text show no "about" section.
+  // Our own description, once reviewed: in the page's language, else the
+  // Portuguese one with an "Available in Portuguese only" note (pickText).
   const detailsQuery = db
-    .select({ description: schema.degreeDetails.description })
+    .select({
+      lang: schema.degreeDetails.lang,
+      description: schema.degreeDetails.description
+    })
     .from(schema.degreeDetails)
     .where(
       and(
         eq(schema.degreeDetails.degreeId, degree.id),
-        eq(
-          schema.degreeDetails.lang,
-          detectLang(new URL(request.url).pathname)
-        ),
         isNotNull(schema.degreeDetails.reviewedAt)
       )
     )
@@ -284,19 +291,28 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     )
     .orderBy(asc(schema.degreeFaqs.position))
 
-  const [courses, academicTerms, [details], extras, curatedFaq] =
+  const [courses, academicTerms, details, extras, curatedFaq] =
     await Promise.all([
-      loadDegreeCourses(degree.id),
+      loadDegreeCourses(degree.id, detectLang(new URL(request.url).pathname)),
       loadAcademicTerms(faculty.id),
       detailsQuery,
-      loadDegreePageExtras(degree.id, faculty.universityId),
+      loadDegreePageExtras(
+        degree.id,
+        faculty.universityId,
+        detectLang(new URL(request.url).pathname)
+      ),
       curatedFaqQuery
     ])
 
   return {
     faculty,
     degree,
-    about: details?.description ?? null,
+    about: pickText(
+      detectLang(new URL(request.url).pathname),
+      Object.fromEntries(
+        details.map((d) => [d.lang as ContentLang, d.description])
+      )
+    ),
     courses,
     academicTerms,
     extras,

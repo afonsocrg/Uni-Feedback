@@ -1,10 +1,15 @@
-import { CourseContentSection } from '.'
+import {
+  CourseContentSection,
+  type CourseContentField,
+  type CourseTextLang
+} from '.'
 
 interface CourseBibliographyProps {
   course: {
     id: number
     name: string
     bibliography?: string | null
+    contentLang?: Partial<Record<CourseContentField, CourseTextLang>>
   }
   /** Open the correction dialog on arrival (a `?correct=` deep link). */
   autoOpen?: boolean
@@ -20,6 +25,7 @@ export function CourseBibliography({
       field="bibliography"
       autoOpen={autoOpen}
       content={course.bibliography}
+      contentLang={course.contentLang?.bibliography}
     />
   )
 }

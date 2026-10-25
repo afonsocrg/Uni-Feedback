@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { analytics, type DegreeSectionId } from '~/utils/analytics'
 
-export interface TocSection {
-  id: DegreeSectionId
+export interface TocSection<Id extends string = DegreeSectionId> {
+  id: Id
   label: string
 }
 
@@ -14,14 +14,14 @@ const SPY_OFFSET = 140
  * section that comes into view. Starts at the first section so the server and
  * the first client render agree.
  */
-export function useScrollSpy(
-  sections: TocSection[],
-  track: { facultySlug: string | null; degreeSlug: string | null }
-): DegreeSectionId | null {
-  const [current, setCurrent] = useState<DegreeSectionId | null>(
-    sections[0]?.id ?? null
-  )
-  const viewed = useRef(new Set<DegreeSectionId>())
+export function useScrollSpy<Id extends string = DegreeSectionId>(
+  sections: TocSection<Id>[],
+  track: { facultySlug: string | null; degreeSlug: string | null },
+  /** Pages other than the degree page track their own section views */
+  onSectionViewed?: (id: Id) => void
+): Id | null {
+  const [current, setCurrent] = useState<Id | null>(sections[0]?.id ?? null)
+  const viewed = useRef(new Set<Id>())
   const key = sections.map((s) => s.id).join(',')
 
   useEffect(() => {
@@ -41,11 +41,13 @@ export function useScrollSpy(
           !viewed.current.has(section.id)
         ) {
           viewed.current.add(section.id)
-          if (track.facultySlug && track.degreeSlug) {
+          if (onSectionViewed) {
+            onSectionViewed(section.id)
+          } else if (track.facultySlug && track.degreeSlug) {
             analytics.discovery.degreeSectionViewed({
               facultySlug: track.facultySlug,
               degreeSlug: track.degreeSlug,
-              section: section.id
+              section: section.id as DegreeSectionId
             })
           }
         }

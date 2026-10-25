@@ -11,6 +11,9 @@ import {
 } from 'drizzle-orm/pg-core'
 import { faculties } from './faculty'
 
+export const STANDARD_TERMS = ['semester_1', 'semester_2', 'annual'] as const
+export type StandardTerm = (typeof STANDARD_TERMS)[number]
+
 /**
  * Academic periods within a faculty, modelled as integer tick intervals.
  *
@@ -52,6 +55,13 @@ export const academicTerms = pgTable(
       (): AnyPgColumn => academicTerms.id,
       { onDelete: 'set null' }
     ),
+    /**
+     * Which standard term this is, so the site labels it in its own words and
+     * the reader's language rather than the catalogue's ("1.º Semestre",
+     * "Semester 1"). Null for terms particular to a faculty (P1, a trimester, a
+     * half-semester) and for Fall/Spring, which keep their stored name.
+     */
+    standardTerm: text('standard_term').$type<StandardTerm>(),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow()
   },
@@ -64,6 +74,10 @@ export const academicTerms = pgTable(
     check(
       'academic_terms_parent_not_self',
       sql`${table.parentId} IS NULL OR ${table.parentId} <> ${table.id}`
+    ),
+    check(
+      'academic_terms_valid_standard_term',
+      sql`${table.standardTerm} IN ('semester_1', 'semester_2', 'annual')`
     ),
     // One term name per faculty — keeps seeding idempotent and term lookups stable.
     unique('academic_terms_faculty_name_unique').on(table.facultyId, table.name)

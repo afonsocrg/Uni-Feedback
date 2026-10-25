@@ -57,6 +57,10 @@ export const getPageName = (path: string): string => {
   // Faculty/Degree pages — catch-all, must be last
   const pathWithoutLangPrefix = lang === 'en' ? path.slice('/en'.length) : path
   const pathParts = pathWithoutLangPrefix.split('/').filter(Boolean)
+  // University pages (/unis, /unis/:uniSlug and its sub-pages)
+  if (pathParts[0] === 'unis') {
+    return pathParts.length === 1 ? 'universities' : 'university_page'
+  }
   if (pathParts.length === 2) return 'degree_page'
   if (pathParts.length === 1) return 'faculty_page'
 
@@ -142,7 +146,11 @@ export type ErrorReportSurface =
   | 'degree_outcomes'
   | 'degree_page'
   | 'degree_courses_page'
+  | 'degree_admission_page'
+  | 'degree_careers_page'
   | 'faculty_page'
+  | 'faculty_type_page'
+  | 'university_page'
 
 /**
  * A fact the degree page expected and does not have, next to its "Sabes isto?
@@ -155,6 +163,74 @@ export type MissingInfoField =
   | 'admission'
   | 'fees'
   | 'outcomes'
+  | 'requirements'
+  | 'application_dates'
+  | 'careers'
+
+/**
+ * A faculty page: the hub (`/ist`) or one of its type pages (`/ist/licenciaturas`
+ * is `bachelor`).
+ */
+export type FacultyPageKind =
+  | 'hub'
+  | 'bachelor'
+  | 'integrated_master'
+  | 'master'
+  | 'minor'
+  | 'postgraduate'
+  | 'phd'
+
+/** Where a link on the faculty pages points to */
+export type FacultyLinkTarget =
+  | 'degree'
+  | 'degree_admission'
+  | 'type_page'
+  | 'faculty'
+  | 'university'
+  | 'course'
+  | 'campus_map'
+  | 'campus_website'
+  /** An official profile in the header (OfficialLinks) */
+  | 'linkedin'
+  | 'x'
+  | 'tiktok'
+  | 'instagram'
+  | 'facebook'
+  | 'youtube'
+
+/** University pages (/unis/:uniSlug and its sub-pages) */
+export type UniversityPageKind =
+  | 'main'
+  | 'faculties'
+  | 'bachelors'
+  /** `/cursos` and the type pages (`/mestrados`, ...), told apart by `degreeType` */
+  | 'degrees'
+
+/** Where a link on the university pages points to */
+export type UniversityLinkTarget =
+  | 'university'
+  | 'faculty'
+  | 'faculty_type_page'
+  | 'degree'
+  | 'course'
+  | 'faculties_page'
+  | 'bachelors_page'
+  /** `/unis/:uniSlug/cursos` */
+  | 'degrees_page'
+  /** A university type page (`/unis/:uniSlug/mestrados`, ...) */
+  | 'university_type_page'
+  | 'official_site'
+  /** "A tua universidade não está aqui?" mailto on /unis */
+  | 'missing_university'
+  /** "Como chegar" under the campus map */
+  | 'campus_map'
+  /** An official profile in the header (OfficialLinks) */
+  | 'linkedin'
+  | 'x'
+  | 'tiktok'
+  | 'instagram'
+  | 'facebook'
+  | 'youtube'
 
 /** The sections of the degree page (v2), in page order. Also the anchor ids. */
 export type DegreeSectionId =
@@ -204,7 +280,10 @@ export type FeedbackCardSurface = 'course_page' | 'profile'
  * courses to take, the other two are someone picking a course to review.
  */
 export type SearchSurface =
-  /** The degree page's listing, until it moved to /cadeiras (2026-10-22) */
+  /**
+   * The degree page's course search: the full listing until 2026-10-22, then
+   * the plan summary's search box (back on 2026-10-23, every year at once)
+   */
   | 'degree_page'
   /** A degree's course browser, `/:faculty/:degree/cadeiras` */
   | 'degree_courses_page'
@@ -787,7 +866,14 @@ export const analytics = {
     degreeCoursesCtaClicked: (props: {
       facultySlug: string
       degreeSlug: string
-      surface: 'header' | 'plan_section'
+      /**
+       * `plan_optional`: the plan summary's "N optativas" link for a year.
+       * `plan_more`: the "see N more courses" link under a term cut down to
+       * its most reviewed courses (until 2026-10-24, one "the other N courses"
+       * link under the whole year).
+       */
+      surface: 'header' | 'plan_section' | 'plan_optional' | 'plan_more'
+      curriculumYear?: number
     }) => trackEvent('degree_courses_cta_clicked', props),
 
     /** Track a curriculum year chip in the degree page's plan summary. */
@@ -811,6 +897,31 @@ export const analytics = {
       pastCourseCount: number
     }) => trackEvent('degree_courses_page_viewed', props),
 
+    /**
+     * Track a load of a degree sub-page: `admission` (`/ingresso`) or
+     * `careers` (`/saidas-profissionais`), prds/content_rich_pages.md decision
+     * 22. `hasData` is false when the page only shows "we don't have this yet"
+     * prompts (a master's with no InfoCursos data, say).
+     */
+    degreeSubpageViewed: (props: {
+      facultySlug: string
+      degreeSlug: string
+      page: 'admission' | 'careers'
+      hasData: boolean
+    }) => trackEvent('degree_subpage_viewed', props),
+
+    /**
+     * Track a click into a degree sub-page from the summary section on the
+     * degree page ("Ver tudo sobre o ingresso"). The tabs across the degree's
+     * pages (`subnav`) were removed 2026-10-23.
+     */
+    degreeSubpageLinkClicked: (props: {
+      facultySlug: string
+      degreeSlug: string
+      page: 'overview' | 'courses' | 'admission' | 'careers'
+      surface: 'section'
+    }) => trackEvent('degree_subpage_link_clicked', props),
+
     /** Track the mobile "Nesta página" sheet being opened. */
     degreeTocOpened: (props: { facultySlug: string; degreeSlug: string }) =>
       trackEvent('degree_toc_opened', props),
@@ -823,6 +934,20 @@ export const analytics = {
     }) => trackEvent('degree_about_toggled', props),
 
     /** Track a click out to a source (DGES, InfoCursos, fee page, map, campus site). */
+    /**
+     * A campus picked on a campus map (`components/common/campusMap`): in the
+     * list beside it, or by clicking its pin. `page` is where the map is;
+     * slugs say whose page it is.
+     */
+    campusSelected: (props: {
+      page: 'university' | 'faculty' | 'degree'
+      universitySlug?: string
+      facultySlug: string
+      degreeSlug?: string
+      campus: string
+      surface: 'list' | 'pin'
+    }) => trackEvent('campus_selected', props),
+
     degreeSourceLinkClicked: (props: {
       facultySlug: string
       degreeSlug: string
@@ -883,6 +1008,110 @@ export const analytics = {
 
     filterApplied: (props: { filterType: string; filterValue: string }) =>
       trackEvent('course_filter_applied', props)
+  },
+
+  university: {
+    /** `/unis` load: the list of every university we cover */
+    universitiesPageViewed: (props: { universityCount: number }) =>
+      trackEvent('universities_page_viewed', props),
+
+    /**
+     * A university page load (`/unis/:uniSlug` and its sub-pages). Entry and
+     * denominator for everything below; `sections` lists what the main page
+     * rendered, so reach can be read per section.
+     */
+    universityPageViewed: (props: {
+      universitySlug: string
+      page: UniversityPageKind
+      facultyCount: number
+      sections?: string[]
+      /** On `degrees` pages: the type shown, null on `/cursos` */
+      degreeType?: string | null
+      degreeCount?: number
+    }) => trackEvent('university_page_viewed', props),
+
+    /** A main-page section scrolled into view, once per section per view */
+    sectionViewed: (props: { universitySlug: string; section: string }) =>
+      trackEvent('university_section_viewed', props),
+
+    tocClicked: (props: {
+      universitySlug: string
+      section: string
+      surface: 'sidebar' | 'mobile_sheet'
+    }) => trackEvent('university_toc_clicked', props),
+
+    tocOpened: (props: { universitySlug: string }) =>
+      trackEvent('university_toc_opened', props),
+
+    /**
+     * A link out of a university page: into a faculty, a degree, a sub-page or
+     * the official site. `surface` is the block it was in.
+     */
+    linkClicked: (props: {
+      universitySlug: string | null
+      page: UniversityPageKind | 'list'
+      target: UniversityLinkTarget
+      surface: string
+    }) => trackEvent('university_link_clicked', props),
+
+    /** Faculty chip on `/unis/:uniSlug/licenciaturas` (null = all) */
+    bachelorsFilterSelected: (props: {
+      universitySlug: string
+      facultySlug: string | null
+    }) => trackEvent('university_bachelors_filter_selected', props),
+
+    /** Faculty chip on `/cursos` and the type pages (null = all) */
+    degreesFilterSelected: (props: {
+      universitySlug: string
+      degreeType: string | null
+      facultySlug: string | null
+    }) => trackEvent('university_degrees_filter_selected', props)
+  },
+
+  faculty: {
+    /**
+     * A faculty type page load (`/ist/licenciaturas`, ...). The hub keeps
+     * `faculty_page_viewed`; both carry the sections they rendered so reach can
+     * be read per section.
+     */
+    typePageViewed: (props: {
+      facultySlug: string
+      type: FacultyPageKind
+      degreeCount: number
+      sections: string[]
+    }) => trackEvent('faculty_type_page_viewed', props),
+
+    /** A section scrolled into view, once per section per page view */
+    sectionViewed: (props: {
+      facultySlug: string
+      page: FacultyPageKind
+      section: string
+    }) => trackEvent('faculty_section_viewed', props),
+
+    tocClicked: (props: {
+      facultySlug: string
+      page: FacultyPageKind
+      section: string
+      surface: 'sidebar' | 'mobile_sheet'
+    }) => trackEvent('faculty_toc_clicked', props),
+
+    tocOpened: (props: { facultySlug: string; page: FacultyPageKind }) =>
+      trackEvent('faculty_toc_opened', props),
+
+    /**
+     * A link out of a faculty page: into a degree (or its /ingresso), a type
+     * page, the university, a course. `surface` is the block it was in.
+     */
+    linkClicked: (props: {
+      facultySlug: string
+      page: FacultyPageKind
+      target: FacultyLinkTarget
+      surface: string
+    }) => trackEvent('faculty_link_clicked', props),
+
+    /** A degree-type chip in the hub's "Cursos" table */
+    degreeTypeSelected: (props: { facultySlug: string; type: string }) =>
+      trackEvent('faculty_degree_type_selected', props)
   },
 
   course: {
@@ -1065,9 +1294,11 @@ export const analytics = {
      * between the bar, the drawer and the footer.
      */
     navLinkClicked: (props: {
-      destination: 'browse' | 'chat'
+      destination: 'browse' | 'chat' | 'universities' | 'university' | 'faculty'
       surface: NavSurface
       referrerPage?: string
+      /** The university or faculty slug, for the footer's directory links */
+      target?: string
     }) => trackEvent('nav_link_clicked', props),
 
     /**
@@ -1202,6 +1433,7 @@ export const analytics = {
         | 'landing_inline'
         | 'degree_page'
         | 'degree_page_prompt'
+        | 'faq'
         | 'faculty_page'
         | 'direct'
       hasContext: boolean
@@ -1218,18 +1450,39 @@ export const analytics = {
       /** Their existing conversations, or null when we cannot know: a
        *  signed-out visitor's list is a 401, not an empty list. */
       chatCount: number | null
+      /**
+       * The page they came from. `source` says which entry point (`faq`,
+       * `navbar`, ...) but not which page it sat on. `referrerPath` is the
+       * pathname (`/ist/leic-a/ingresso`), `referrerPage` its `getPageName`
+       * bucket; both null for an external arrival.
+       */
+      referrerPath: string | null
+      referrerPage: string | null
     }) => trackEvent('chat_opened', props),
 
     /**
-     * A question typed into an ask box outside the chat (the course page's, or
-     * the landing page section's), before the chat page opens. The next step is
-     * `chat_opened{source: '<source>_inline'}` on the chat page, which sends the
-     * question itself. Kept separate so a drop between typing and the chat
-     * loading is visible.
+     * "Tens outra pergunta? Pergunta ao nosso chat" under an FAQ. The chat then
+     * opens with `source: 'faq'` (and `referrerPage` naming the page).
      */
+    faqFooterClicked: (props: {
+      /** The page whose FAQ it was (see `FaqSurface`) */
+      surface:
+        | 'degree_page'
+        | 'degree_admission_page'
+        | 'degree_careers_page'
+        | 'faculty_page'
+        | 'faculty_type_page'
+        | 'university_page'
+      /** Set on degree pages, where the chat opens scoped to the degree */
+      degreeId: number | null
+      /** `contact` when the chat entry points are switched off */
+      destination: 'chat' | 'contact'
+      isAuthenticated: boolean
+    }) => trackEvent('chat_faq_footer_clicked', props),
+
     /**
      * A question link on the degree page ("Qual é o ano mais pesado de LEIC?
-     * Pergunta-nos"). The chat opens with `source: 'degree_page_prompt'` and
+     * Pergunta ao nosso chat"). The chat opens with `source: 'degree_page_prompt'` and
      * sends the question itself (signed out, after the login wall). `template`
      * is which question, so we can see which ones convert.
      */
@@ -1240,6 +1493,13 @@ export const analytics = {
       isAuthenticated: boolean
     }) => trackEvent('chat_degree_prompt_clicked', props),
 
+    /**
+     * A question typed into an ask box outside the chat (the course page's, or
+     * the landing page section's), before the chat page opens. The next step is
+     * `chat_opened{source: '<source>_inline'}` on the chat page, which sends the
+     * question itself. Kept separate so a drop between typing and the chat
+     * loading is visible.
+     */
     inlinePromptSubmitted: (props: {
       source: 'course_page' | 'landing'
       /** Null on the landing page, whose box is not about one course. */

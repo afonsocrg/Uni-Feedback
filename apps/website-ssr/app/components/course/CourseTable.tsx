@@ -26,8 +26,9 @@ const COLUMN = {
 function CourseRow({
   course,
   terms,
-  positionInList
-}: CourseListingEntry & { positionInList: number }) {
+  positionInList,
+  showExamTag
+}: CourseListingEntry & { positionInList: number; showExamTag: boolean }) {
   const { t } = useTranslation('browse')
   const workloadLabel = useWorkloadLabel()
   const lang = useLang()
@@ -90,7 +91,7 @@ function CourseRow({
               size="xs"
             />
           ))}
-          {course.hasMandatoryExam && (
+          {showExamTag && course.hasMandatoryExam && (
             <span
               className="flex-shrink-0 text-xs"
               role="img"
@@ -187,10 +188,16 @@ function CourseTableLegend({ sections }: CourseListingProps) {
 
 export function CourseTable({
   sections,
-  headingLevel = 'h2'
+  headingLevel = 'h2',
+  showExamTag = true
 }: CourseListingProps & {
   /** 'h3' when the listing sits inside a page section with its own h2 */
   headingLevel?: 'h2' | 'h3'
+  /**
+   * The 📝 tag and its legend. Off where the list is a glance at the plan (the
+   * degree page), where whether a course has an exam is beside the point.
+   */
+  showExamTag?: boolean
 }) {
   // Flat rank across sections, for `positionInList`.
   let position = 0
@@ -198,7 +205,7 @@ export function CourseTable({
 
   return (
     <div>
-      <CourseTableLegend sections={sections} />
+      {showExamTag && <CourseTableLegend sections={sections} />}
       <div className="space-y-8">
         {sections.map((section) => (
           <section key={section.key}>
@@ -213,8 +220,10 @@ export function CourseTable({
                 course={entry.course}
                 terms={entry.terms}
                 positionInList={position++}
+                showExamTag={showExamTag}
               />
             ))}
+            {section.footer}
           </section>
         ))}
       </div>

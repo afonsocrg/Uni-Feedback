@@ -1,9 +1,5 @@
-import { database, findFacultySlugRedirect, schema } from '@uni-feedback/db'
-import { and, eq, gt, sql } from 'drizzle-orm'
-import { useEffect } from 'react'
-import { redirect, useLocation } from 'react-router'
-import { FacultyPageContent } from '~/components'
-import { userPreferences } from '~/utils'
+import { FacultyHubContent } from '~/components/faculty/FacultyHubContent'
+import { findFaculty, loadFacultyHub } from '~/lib/facultyPage.server'
 
 import { detectLang, getDegreePath, getFacultyPath } from '~/utils/i18n-routes'
 import { buildMeta, metaT } from '~/utils/meta'
@@ -30,10 +26,8 @@ export function meta({ loaderData, location, matches }: Route.MetaArgs) {
   // full name is still in the H1 and the structured data.
   const title = t('meta.faculty_title', { shortName: faculty.shortName })
 
-  const totalFeedback = degrees.reduce(
-    (sum, d) => sum + Number(d.feedbackCount),
-    0
-  )
+  // Each feedback once (a course shared by degrees counts in each degree)
+  const totalFeedback = loaderData.hub.feedbackCount
   const description =
     totalFeedback > 0
       ? t('meta.faculty_description_reviews', {
@@ -49,7 +43,14 @@ export function meta({ loaderData, location, matches }: Route.MetaArgs) {
     name: faculty.name,
     alternateName: faculty.shortName,
     ...(faculty.slug && {
-      url: `${origin}${getFacultyPath('pt', faculty.slug)}`
+      url: `${origin}${getFacultyPath(lang, faculty.slug)}`
+    }),
+    // Its website and reviewed official profiles
+    ...((faculty.url || loaderData.hub.links.length > 0) && {
+      sameAs: [
+        ...(faculty.url ? [faculty.url] : []),
+        ...loaderData.hub.links.map((l) => l.url)
+      ]
     }),
     ...(degrees.length > 0 && {
       department: degrees.map((degree) => ({
@@ -70,85 +71,34 @@ export function meta({ loaderData, location, matches }: Route.MetaArgs) {
     url: faculty.slug
       ? `${origin}${getFacultyPath(lang, faculty.slug)}`
       : undefined,
+    // EN page whose own text is all Portuguese fallback (content_translation decision 8)
+    ...(lang === 'en' &&
+      loaderData.hub.isMostlyFallback && { robots: 'noindex, follow' }),
     structuredData
   })
 }
 
 export async function loader({ params, request }: Route.LoaderArgs) {
-  const { facultySlug } = params
-  const db = database()
-
-  // Find the faculty by slug
-  const faculty = await db.query.faculties.findFirst({
-    where: (faculties, { eq }) => eq(faculties.slug, facultySlug)
-  })
-
-  if (!faculty) {
-    // A renamed faculty: send old URLs to the current one
-    const currentSlug = await findFacultySlugRedirect(facultySlug)
-    if (currentSlug) {
-      const { pathname, search } = new URL(request.url)
-      throw redirect(
-        `${getFacultyPath(detectLang(pathname), currentSlug)}${search}`,
-        { status: 301 }
-      )
-    }
-    throw new Response('Faculty not found', { status: 404 })
-  }
-
-  // Get degrees with pre-computed stats from degreeStats table
-  const degreesWithCounts = await db
-    .select({
-      id: schema.degrees.id,
-      externalId: schema.degrees.externalId,
-      type: schema.degrees.type,
-      name: schema.degrees.name,
-      acronym: schema.degrees.acronym,
-      slug: schema.degrees.slug,
-      courseCount:
-        sql<number>`coalesce(${schema.degreeStats.courseCount}, 0)`.as(
-          'course_count'
-        ),
-      feedbackCount:
-        sql<number>`coalesce(${schema.degreeStats.feedbackCount}, 0)`.as(
-          'feedback_count'
-        )
-    })
-    .from(schema.degrees)
-    .leftJoin(
-      schema.degreeStats,
-      eq(schema.degreeStats.degreeId, schema.degrees.id)
-    )
-    .where(
-      and(
-        eq(schema.degrees.facultyId, faculty.id),
-        gt(sql`coalesce(${schema.degreeStats.courseCount}, 0)`, 0)
-      )
-    )
-
+  const faculty = await findFaculty(
+    request,
+    params.facultySlug,
+    getFacultyPath,
+    detectLang
+  )
+  const hub = await loadFacultyHub(
+    faculty,
+    detectLang(new URL(request.url).pathname)
+  )
   return {
     faculty,
-    degrees: degreesWithCounts,
+    degrees: hub.degrees,
+    hub,
     origin: getRequestOrigin(request)
   }
 }
 
 export default function FacultyPage({ loaderData }: Route.ComponentProps) {
-  const location = useLocation()
-  // Persist selection when component mounts
-  useEffect(() => {
-    if (loaderData.faculty?.slug) {
-      userPreferences.set({
-        lastSelectedFacultySlug: loaderData.faculty.slug,
-        lastVisitedPath: location.pathname
-      })
-    }
-  }, [loaderData.faculty?.slug, location.pathname])
-
   return (
-    <FacultyPageContent
-      faculty={loaderData.faculty}
-      degrees={loaderData.degrees}
-    />
+    <FacultyHubContent faculty={loaderData.faculty} data={loaderData.hub} />
   )
 }

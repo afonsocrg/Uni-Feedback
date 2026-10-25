@@ -40,6 +40,7 @@ export default function ChatPage() {
     'landing_inline',
     'degree_page',
     'degree_page_prompt',
+    'faq',
     'faculty_page'
   ] as const
   type Source = (typeof knownSources)[number] | 'direct'
@@ -72,7 +73,12 @@ function sourceToContext(
 ): 'course_page' | 'degree_page' | 'manual' {
   if (source === 'course_page' || source === 'course_page_inline')
     return 'course_page'
-  if (source === 'degree_page' || source === 'degree_page_prompt')
+  // `faq` only carries a scope from degree pages
+  if (
+    source === 'degree_page' ||
+    source === 'degree_page_prompt' ||
+    source === 'faq'
+  )
     return 'degree_page'
   return 'manual'
 }

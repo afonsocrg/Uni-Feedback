@@ -12,6 +12,7 @@ import enCourse from '../locales/en/course.json'
 import enFeedback from '../locales/en/feedback.json'
 import enLanding from '../locales/en/landing.json'
 import enLegal from '../locales/en/legal.json'
+import enUniversity from '../locales/en/university.json'
 import ptBrowse from '../locales/pt/browse.json'
 import ptChat from '../locales/pt/chat.json'
 import ptCommon from '../locales/pt/common.json'
@@ -19,6 +20,7 @@ import ptCourse from '../locales/pt/course.json'
 import ptFeedback from '../locales/pt/feedback.json'
 import ptLanding from '../locales/pt/landing.json'
 import ptLegal from '../locales/pt/legal.json'
+import ptUniversity from '../locales/pt/university.json'
 
 export type Lang = 'pt' | 'en'
 export const defaultLang: Lang = 'pt'
@@ -37,7 +39,8 @@ const resources = {
     chat: ptChat,
     course: ptCourse,
     feedback: ptFeedback,
-    legal: ptLegal
+    legal: ptLegal,
+    university: ptUniversity
   },
   en: {
     common: enCommon,
@@ -46,14 +49,24 @@ const resources = {
     chat: enChat,
     course: enCourse,
     feedback: enFeedback,
-    legal: enLegal
+    legal: enLegal,
+    university: enUniversity
   }
 }
 
 i18n.use(initReactI18next).init({
   lng: defaultLang,
   fallbackLng: defaultLang,
-  ns: ['common', 'landing', 'browse', 'chat', 'course', 'feedback', 'legal'],
+  ns: [
+    'common',
+    'landing',
+    'browse',
+    'chat',
+    'course',
+    'feedback',
+    'legal',
+    'university'
+  ],
   defaultNS: 'common',
   resources,
   interpolation: {

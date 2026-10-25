@@ -131,3 +131,115 @@ export interface DegreePageExtras {
   outcomes: DegreeOutcomes | null
   related: RelatedDegree[]
 }
+
+/* ------------------------------------------------------------------ */
+/* Sub-pages: /ingresso and /saidas-profissionais                      */
+/* ------------------------------------------------------------------ */
+
+/** One fase of one year of the Concurso Nacional (DGES results files). */
+export interface AdmissionFaseResult {
+  fase: number
+  vagas: number | null
+  colocados: number | null
+  lastGrade: number | null
+}
+
+/** Every fase of one year, main track only. */
+export interface AdmissionYear {
+  year: number
+  fases: AdmissionFaseResult[]
+}
+
+/** One year/fase of the candidate statistics on the DGES guide page. */
+export interface AdmissionGuideStat {
+  year: number
+  fase: number
+  candidatos: number | null
+  candidatosFirstOption: number | null
+  colocados: number | null
+  colocadosFirstOption: number | null
+  colocadosWomen: number | null
+  mediaCandidatura: number | null
+  mediaProvas: number | null
+  mediaSecundario: number | null
+}
+
+/** How first-year students got in, percentages (InfoCursos entry_forms). */
+export interface EntryForms {
+  students: number | null
+  schoolYears: string[]
+  cnaFirstOption: number | null
+  cnaOtherOption: number | null
+  otherRegimes: number | null
+  otherGeneralRegime: number | null
+  courseChange: number | null
+  over23: number | null
+  localOrInstitutional: number | null
+}
+
+/** Who studies the degree (InfoCursos nationality / age). */
+export interface DegreeIntake {
+  schoolYear: string | null
+  enrolled: number | null
+  foreign: number | null
+  /** National share of foreign students, for comparison */
+  nationalForeignPct: number | null
+  /** The most common age band and its share */
+  topAgeBand: { label: string; pct: number } | null
+}
+
+export interface DegreeFeeHistoryRow extends DegreeFeeRow {
+  schoolYear: number
+  sourceUrl: string
+}
+
+export interface DegreeAdmissionPageData {
+  /** Every year we have, newest first */
+  years: AdmissionYear[]
+  /** Candidate statistics from the latest guide snapshot, newest first */
+  guideStats: AdmissionGuideStat[]
+  entryForms: EntryForms | null
+  intake: DegreeIntake | null
+  /** Every fee row we hold, newest school year first */
+  feeHistory: DegreeFeeHistoryRow[]
+  infocursos: { url: string; edition: number } | null
+}
+
+/** One InfoCursos edition of the registered-unemployment figure. */
+export interface UnemploymentWindow {
+  edition: number
+  /** Graduation years the figure covers ("2020/21" to "2023/24") */
+  from: string | null
+  to: string | null
+  graduates: number | null
+  unemployed: number | null
+  rate: number
+}
+
+export interface DegreeCareersPageData {
+  /** One row per graduation window (editions repeating a window are merged), newest first */
+  unemploymentHistory: UnemploymentWindow[]
+  completion: {
+    cohortYear: string | null
+    firstYearStudents: number | null
+    durationYears: number | null
+    expectedTime: number | null
+    plus1Year: number | null
+    plus3Years: number | null
+  } | null
+  statusAfter1Year: {
+    students: number | null
+    sameCourse: number | null
+    otherCourseSameInstitution: number | null
+    otherInstitution: number | null
+    graduated: number | null
+    notFound: number | null
+  } | null
+  finalGrades: {
+    average: number | null
+    graduates: number | null
+    schoolYears: string[]
+    distribution: { grade: number; percent: number }[]
+  } | null
+  infocursos: { url: string; edition: number } | null
+}

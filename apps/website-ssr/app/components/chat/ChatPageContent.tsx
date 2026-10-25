@@ -11,9 +11,10 @@ import { Trans, useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router'
 import type { AuthUser } from '~/context/AuthContext'
 import { useAuth, useChatStream, useLang, useLocalStorage } from '~/hooks'
-import { analytics } from '~/utils/analytics'
+import { analytics, getPageName } from '~/utils/analytics'
 import { STORAGE_KEYS } from '~/utils/constants'
 import { getLocalePath } from '~/utils/i18n-routes'
+import { getPreviousPathname } from '~/utils/navigationHistory'
 import type { ChatPrefillState } from './AskChatInput'
 import { ChatAccessRequestDialog } from './ChatAccessRequestDialog'
 import { ChatComposer } from './ChatComposer'
@@ -42,6 +43,7 @@ interface ChatPageContentProps {
     | 'landing_inline'
     | 'degree_page'
     | 'degree_page_prompt'
+    | 'faq'
     | 'faculty_page'
     | 'direct'
 }
@@ -183,11 +185,14 @@ export function ChatPageContent({
   useEffect(() => {
     if (!loaded || authLoading || trackedOpen.current || continued) return
     trackedOpen.current = true
+    const referrerPath = getPreviousPathname()
     analytics.chat.opened({
       source,
       hasContext,
       isAuthenticated,
-      chatCount: isAuthenticated ? chats.length : null
+      chatCount: isAuthenticated ? chats.length : null,
+      referrerPath,
+      referrerPage: referrerPath ? getPageName(referrerPath) : null
     })
   }, [
     loaded,

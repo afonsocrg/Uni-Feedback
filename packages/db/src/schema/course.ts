@@ -20,11 +20,16 @@ export const courses = pgTable('courses', {
   // Every year (between academic years) we need to update this value.
   externalId: text('external_id'),
   name: text('name').notNull(),
+  // Official (or reviewed translated) English name; EN pages fall back to `name`
+  nameEn: text('name_en'),
   acronym: text('acronym').notNull(),
   slug: text('slug'),
   degreeId: integer('degree_id').references(() => degrees.id),
   ects: real('ects'),
   url: text('url'),
+  // The faculty's own text, as scraped and in whatever language it publishes.
+  // Per-language versions go in `course_details`; these move there once every
+  // course has its rows (migration 0058).
   description: text('description'),
   bibliography: text('bibliography'),
   assessment: text('assessment'),

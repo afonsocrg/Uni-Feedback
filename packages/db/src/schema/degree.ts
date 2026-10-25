@@ -30,6 +30,8 @@ export const degrees = pgTable('degrees', {
   externalId: text('external_id'),
   type: degreeTypeEnum('type').notNull(),
   name: text('name').notNull(),
+  // Official English name; EN pages fall back to `name` when NULL
+  nameEn: text('name_en'),
   acronym: text('acronym').notNull(),
   slug: text('slug'),
   campus: text('campus').notNull(), // This field may be removed later. It may be too specific

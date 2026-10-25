@@ -1,12 +1,15 @@
 import type { Degree, Faculty } from '@uni-feedback/db/schema'
 import { getCurrentSchoolYear, isDiscontinued } from '@uni-feedback/utils'
-import { ArrowRight } from 'lucide-react'
 import { useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router'
 import { useLang, useWorkloadLabel } from '~/hooks'
 import { analytics, type DegreeSectionId } from '~/utils/analytics'
-import { getDegreeCoursesPath } from '~/utils/i18n-routes'
+import {
+  getDegreeAdmissionPath,
+  getDegreeCareersPath,
+  getDegreeCoursesPath
+} from '~/utils/i18n-routes'
+import type { Localized } from '~/utils/localizedContent'
 import { Breadcrumb } from '.'
 import { ReportErrorNote } from './common/ReportErrorNote'
 import {
@@ -37,12 +40,14 @@ import {
 import { DegreeTocBar, DegreeTocSidebar } from './degree/DegreeToc'
 import type { DegreePageExtras } from './degree/pageTypes'
 import { useScrollSpy, type TocSection } from './degree/scrollSpy'
+import { hasAdmissionPage, hasCareersPage } from './degree/subpages'
 
 interface DegreePageContentProps {
   faculty: Faculty
   degree: Degree
   /** Our reviewed description (markdown) in the page's language */
-  about?: string | null
+  /** Reviewed "Sobre o curso" in the page's language, else the Portuguese one */
+  about?: Localized<string> | null
   courses: CourseWithFeedback[]
   academicTerms: AcademicTermInfo[]
   /** Campus, admission, fees, outcomes and related degrees (v2) */
@@ -208,7 +213,7 @@ export function DegreePageContent({
     faculty.slug && degree.slug
       ? getDegreeCoursesPath(lang, faculty.slug, degree.slug)
       : null
-  const trackCoursesCta = (surface: 'header' | 'plan_section') => {
+  const trackCoursesCta = (surface: 'header') => {
     if (!faculty.slug || !degree.slug) return
     analytics.discovery.degreeCoursesCtaClicked({
       facultySlug: faculty.slug,
@@ -225,17 +230,8 @@ export function DegreePageContent({
         academicTerms={academicTerms}
         hasPastCourses={pastCourses.length > 0}
         track={track}
+        coursesPath={coursesPath}
       />
-      {coursesPath && (
-        <Link
-          to={coursesPath}
-          onClick={() => trackCoursesCta('plan_section')}
-          className="mt-6 inline-flex items-center gap-1.5 font-semibold text-primaryBlue hover:underline"
-        >
-          {t('degree_page.explore_all_courses', { acronym: degree.acronym })}
-          <ArrowRight aria-hidden="true" className="size-4" />
-        </Link>
-      )}
       {totalFeedback > 0 && (
         <AskChatPrompt
           template="best_courses"
@@ -300,6 +296,11 @@ export function DegreePageContent({
                 admissionExpected={expectsAdmission}
                 feesExpected={expectsFees}
                 schoolYear={getCurrentSchoolYear()}
+                fullHref={
+                  faculty.slug && degree.slug && hasAdmissionPage(degree.type)
+                    ? getDegreeAdmissionPath(lang, faculty.slug, degree.slug)
+                    : null
+                }
                 track={track}
               />
             )}
@@ -308,6 +309,11 @@ export function DegreePageContent({
               <OutcomesSection
                 outcomes={extras.outcomes}
                 showFallback={expectsOutcomes}
+                fullHref={
+                  faculty.slug && degree.slug && hasCareersPage(degree.type)
+                    ? getDegreeCareersPath(lang, faculty.slug, degree.slug)
+                    : null
+                }
                 track={track}
               />
             )}
@@ -350,7 +356,13 @@ export function DegreePageContent({
               />
             )}
 
-            {faqItems.length > 0 && <FaqSection items={faqItems} />}
+            {faqItems.length > 0 && (
+              <FaqSection
+                items={faqItems}
+                surface="degree_page"
+                chatScope={{ degreeId: degree.id, scopeLabel: degree.acronym }}
+              />
+            )}
 
             {extras.related.length > 0 && (
               <RelatedSection related={extras.related} track={track} />

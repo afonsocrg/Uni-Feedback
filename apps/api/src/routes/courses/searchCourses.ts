@@ -16,6 +16,8 @@ import { z } from 'zod'
 const CourseSearchResultSchema = z.object({
   id: z.number(),
   name: z.string(),
+  // Official English name, when there is one (content translation, 0058)
+  nameEn: z.string().nullable(),
   acronym: z.string(),
   degree: z.object({
     id: z.number(),
@@ -111,6 +113,8 @@ export class SearchCourses extends OpenAPIRoute {
     if (q) {
       const searchCondition = or(
         sql`unaccent(${courses.name}) ILIKE unaccent(${`%${q}%`})`,
+        // Both languages match, so "Chemistry" finds "Química"
+        sql`unaccent(coalesce(${courses.nameEn}, '')) ILIKE unaccent(${`%${q}%`})`,
         sql`unaccent(${courses.acronym}) ILIKE unaccent(${`%${q}%`})`
       )
       if (searchCondition) {
@@ -136,6 +140,7 @@ export class SearchCourses extends OpenAPIRoute {
     let results: Array<{
       id: number
       name: string
+      nameEn: string | null
       acronym: string
       degree: { id: number; name: string; acronym: string }
       faculty: { id: number; name: string; shortName: string }
@@ -151,6 +156,7 @@ export class SearchCourses extends OpenAPIRoute {
         .select({
           id: courses.id,
           name: courses.name,
+          nameEn: courses.nameEn,
           acronym: courses.acronym,
           degree: {
             id: degrees.id,
@@ -202,6 +208,7 @@ export class SearchCourses extends OpenAPIRoute {
         .select({
           id: courses.id,
           name: courses.name,
+          nameEn: courses.nameEn,
           acronym: courses.acronym,
           degree: {
             id: degrees.id,

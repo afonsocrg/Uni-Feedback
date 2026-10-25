@@ -156,7 +156,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   )
 
   const [courses, academicTerms, courseGroups] = await Promise.all([
-    loadDegreeCourses(degree.id),
+    loadDegreeCourses(degree.id, detectLang(new URL(request.url).pathname)),
     loadAcademicTerms(faculty.id),
     loadCourseGroups(degree.id)
   ])

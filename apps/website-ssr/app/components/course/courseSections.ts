@@ -1,8 +1,9 @@
+import type { StandardTerm } from '@uni-feedback/api-client'
 import { CHIP_COLOR_KEYS } from '@uni-feedback/ui'
 import { toOrdinal } from '@uni-feedback/utils'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useLang } from '~/hooks'
+import { useLang, useTermLabel } from '~/hooks'
 import type { CourseSection, CourseWithFeedback } from './types'
 
 /**
@@ -20,6 +21,7 @@ export interface CourseGroupWithIds {
 /** Just enough of a term to order and label a run or a bucket. */
 export interface TermLabel {
   name: string
+  standardTerm: StandardTerm | null
   startTick: number
   endTick: number
 }
@@ -130,6 +132,7 @@ export function useCourseSections(
 ): CourseSection[] {
   const { t } = useTranslation('browse')
   const lang = useLang()
+  const termLabel = useTermLabel()
 
   // Group the filtered courses into (curriculum year, parent term) buckets, each
   // split into runs of courses sharing a term.
@@ -178,6 +181,7 @@ export function useCourseSections(
             key: bucketKey,
             curriculumYear: o.curriculumYear,
             name: bucketTerm.name,
+            standardTerm: bucketTerm.standardTerm,
             startTick: bucketTerm.startTick,
             endTick: bucketTerm.endTick,
             entries: new Map()
@@ -253,17 +257,22 @@ export function useCourseSections(
     )
   }, [academicTerms])
 
+  // With a year chosen, every heading would repeat it, so the heading is the
+  // term alone, spelled out ("1º Semestre"). Beside a year it takes the short
+  // form ("1º ano · S1").
   const bucketHeading = (bucket: CourseBucket) => {
-    if (bucket.curriculumYear === null) return bucket.name
+    if (activeCurriculumYear !== null || bucket.curriculumYear === null) {
+      return termLabel(bucket, 'long')
+    }
     const yearLabel = t('degree_page.year_option', {
       year:
         lang === 'en' ? toOrdinal(bucket.curriculumYear) : bucket.curriculumYear
     })
-    return `${yearLabel} · ${bucket.name}`
+    return `${yearLabel} · ${termLabel(bucket, 'short')}`
   }
 
   // The sections every listing component renders. Degrees with no
-  // curriculum-year data group by term alone, under bare "S1"/"Fall" headings:
+  // curriculum-year data group by term alone, under bare "1º Semestre"/"Fall" headings:
   // the term is the only structure their offerings carry, and dropping it left
   // every IST master's and all of Nova SBE as one undifferentiated list (MEIC:
   // 60 courses, MIEI: 174). The split costs some duplication, since a course
@@ -292,7 +301,7 @@ export function useCourseSections(
               terms: entry.terms
                 .filter((term) => term.name !== bucket.name)
                 .map((term) => ({
-                  label: term.name,
+                  label: termLabel(term, 'short'),
                   color: termColors.get(term.name) ?? 'gray'
                 }))
             }))

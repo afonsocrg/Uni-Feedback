@@ -9,6 +9,7 @@ import { eq, sql } from 'drizzle-orm'
 import { redirect } from 'react-router'
 import type { Lang } from '~/i18n/config'
 import { detectLang } from '~/utils/i18n-routes'
+import { altName, pickName, withLocalizedName } from '~/utils/localizedContent'
 
 /**
  * What the degree page and the degree's course browser (`/cadeiras`) both
@@ -58,16 +59,27 @@ export async function findDegreeBySlugs(
     throw new Response('Degree not found', { status: 404 })
   }
 
-  return { faculty, degree }
+  // Names in the page's language (content translation, 0058): the degree
+  // page, /cadeiras and the sub-pages, with their breadcrumbs and JSON-LD
+  const lang = detectLang(new URL(request.url).pathname)
+  return {
+    faculty: withLocalizedName(faculty, lang),
+    degree: withLocalizedName(degree, lang)
+  }
 }
 
-/** The degree's courses with pre-computed stats (course_stats) and offerings. */
-export function loadDegreeCourses(degreeId: number) {
+/**
+ * The degree's courses with pre-computed stats (course_stats) and offerings.
+ * `name` is in the page's language and `altName` is the other one, so a search
+ * for "Chemistry" finds "Química" (content translation, 0058).
+ */
+export async function loadDegreeCourses(degreeId: number, lang: Lang) {
   const db = database()
-  return db
+  const rows = await db
     .select({
       id: schema.courses.id,
       name: schema.courses.name,
+      nameEn: schema.courses.nameEn,
       acronym: schema.courses.acronym,
       url: schema.courses.url,
       offerings: offeringsSubquery(),
@@ -93,6 +105,11 @@ export function loadDegreeCourses(degreeId: number) {
       eq(schema.courseStats.courseId, schema.courses.id)
     )
     .where(eq(schema.courses.degreeId, degreeId))
+  return rows.map(({ nameEn, ...row }) => ({
+    ...row,
+    name: pickName(lang, row.name, nameEn).value,
+    altName: altName(lang, row.name, nameEn)
+  }))
 }
 
 /**
@@ -107,6 +124,7 @@ export function loadAcademicTerms(facultyId: number) {
     .select({
       id: schema.academicTerms.id,
       name: schema.academicTerms.name,
+      standardTerm: schema.academicTerms.standardTerm,
       startTick: schema.academicTerms.startTick,
       endTick: schema.academicTerms.endTick,
       parentId: schema.academicTerms.parentId

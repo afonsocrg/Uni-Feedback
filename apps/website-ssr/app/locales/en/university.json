@@ -1,0 +1,149 @@
+{
+  "meta": {
+    "list_title": "Universities: course and degree reviews | Uni Feedback",
+    "list_description": "The universities and faculties on Uni Feedback, with their degrees, entry grades and what students say about each course.",
+    "title": "{{shortName}}: faculties, degrees and student reviews | Uni Feedback",
+    "description": "{{name}}: {{facultyCount}} faculties on Uni Feedback, {{degreeCount}} degrees, where each campus is and what students say about the courses.",
+    "faculties_title": "{{shortName}} faculties | Uni Feedback",
+    "faculties_description": "The faculties of {{name}} on Uni Feedback: degrees, places, entry grades, fees and campuses of each one.",
+    "bachelors_title": "{{shortName}} bachelor's degrees: entry grades and places | Uni Feedback",
+    "bachelors_description": "The bachelor's and integrated master's degrees of {{name}} on Uni Feedback, with the last admitted grade and places in the 1st phase.",
+    "degrees_title": "{{shortName}} degrees: bachelor's, master's and reviews | Uni Feedback",
+    "degrees_description": "The {{count}} degrees of {{name}} on Uni Feedback, across its faculties: bachelor's, master's, PhDs and what students say about the courses.",
+    "type_title": "{{type}} at {{shortName}}: every degree and reviews | Uni Feedback",
+    "type_description": "{{type}} at {{name}} on Uni Feedback ({{n}}), across its faculties: duration, ECTS and what students say about each degree's courses."
+  },
+  "crumbs": {
+    "universities": "Universities",
+    "faculties": "Faculties",
+    "bachelors": "Bachelor's",
+    "degrees": "Degrees"
+  },
+  "list": {
+    "title": "Universities",
+    "intro": "Student feedback on courses and degrees from {{count}} higher education institutions. Their faculties are listed below.",
+    "faculty_count_one": "{{n}} faculty",
+    "faculty_count_other": "{{n}} faculties",
+    "degree_count_one": "{{n}} degree",
+    "degree_count_other": "{{n}} degrees",
+    "feedback_count_one": "{{n}} review",
+    "feedback_count_other": "{{n}} reviews",
+    "no_feedback": "No feedback yet",
+    "missing": "Is your university missing?",
+    "missing_link": "Tell us which one"
+  },
+  "page": {
+    "toc_label": "On this page",
+    "facts": {
+      "faculties_one": "<b>{{n}}</b> faculty on Uni Feedback",
+      "faculties_other": "<b>{{n}}</b> faculties on Uni Feedback",
+      "degrees_one": "<b>{{n}}</b> degree",
+      "degrees_other": "<b>{{n}}</b> degrees",
+      "feedback_one": "<b>{{n}}</b> review",
+      "feedback_other": "<b>{{n}}</b> reviews"
+    },
+    "cta": {
+      "faculties_one": "See the faculty",
+      "faculties_other": "See the {{n}} faculties",
+      "official_site": "Official website",
+      "degrees_one": "See the degree",
+      "degrees_other": "See the {{n}} degrees"
+    },
+    "sections": {
+      "about": "About the university",
+      "about_short": "About",
+      "faculties": "Faculties",
+      "related": "Related",
+      "degrees": "Degrees"
+    },
+    "about": {
+      "more_schools": "This university may have other schools that are not on Uni Feedback yet.",
+      "more_schools_link": "Study at one? Tell us"
+    },
+    "faculty_card": {
+      "feedback_one": "{{n}} review",
+      "feedback_other": "{{n}} reviews",
+      "compare": "Compare the faculties",
+      "no_feedback": "No feedback yet"
+    },
+    "fees": {
+      "per": {
+        "year": "per year",
+        "total": "in total",
+        "semester": "per semester",
+        "ects": "per ECTS"
+      },
+      "line": "{{type}} at {{faculty}}, {{period}}",
+      "source": "Source: each faculty's tuition fee page. Amounts for Portuguese and EU students; each degree page shows its own.",
+      "range": "{{min}} to {{max}}"
+    },
+    "faq": {
+      "which_faculties_q": "{{shortName}}: which faculties are on Uni Feedback?",
+      "which_faculties_a": "{{faculties}}.",
+      "highest_grade_q": "{{shortName}}: which degree has the highest entry grade?",
+      "highest_grade_a": "Among the degrees we have, {{degree}} ({{faculty}}): {{grade}} in the 1st phase of {{year}}, according to DGES.",
+      "fees_q": "{{shortName}}: how much does a bachelor's degree cost?",
+      "fees_a": "{{amount}} per year in {{schoolYear}}, for Portuguese and EU students."
+    },
+    "related": {
+      "other_university": "Another university",
+      "top_faculty": "Faculty with the most feedback",
+      "bachelors": "All bachelor's degrees",
+      "bachelors_title": "{{shortName}} bachelor's degrees"
+    },
+    "and": " and ",
+    "degrees": {
+      "intro_one": "The degree of this university that is on Uni Feedback.",
+      "intro_other": "The {{n}} degrees of this university on Uni Feedback, across its faculties, by type.",
+      "see_all_one": "See the degree",
+      "see_all_other": "See the {{n}} degrees"
+    }
+  },
+  "faculties_page": {
+    "title": "{{name}}: faculties",
+    "intro_one": "This university's school on Uni Feedback, with its degrees, admission, fees and campuses.",
+    "intro_other": "The {{n}} schools of this university on Uni Feedback, with their degrees, admission, fees and campuses.",
+    "degrees": "degrees",
+    "vagas": "places, 1st phase {{year}}",
+    "grades": "last admitted grade, {{year}}",
+    "feedback": "reviews",
+    "fees": "Fees {{year}}: {{fees}}",
+    "top_degree": "Degree with the most feedback:",
+    "top_course": "Course with the most feedback:",
+    "compare": "Compare",
+    "col_faculty": "Faculty",
+    "col_degrees": "Degrees",
+    "col_bachelors": "Bachelor's and IM",
+    "col_vagas": "Places {{year}}",
+    "col_feedback": "Reviews",
+    "source": "Places: DGES, national admission, 1st phase {{year}}, degrees we have. Reviews: Uni Feedback."
+  },
+  "bachelors_page": {
+    "title": "{{name}}: bachelor's degrees",
+    "intro": "The bachelor's and integrated master's degrees of this university on Uni Feedback, with the last admitted grade and places in the 1st phase of {{year}}.",
+    "intro_no_year": "The bachelor's and integrated master's degrees of this university on Uni Feedback.",
+    "all": "All",
+    "col_degree": "Degree",
+    "col_duration": "Duration",
+    "col_grade": "Grade {{year}}",
+    "col_vagas": "Places",
+    "years_one": "{{n}} year",
+    "years_other": "{{n}} years",
+    "delta": "{{delta}} vs {{year}}",
+    "no_data": "no data",
+    "source": "Source: DGES, national admission, 1st phase {{year}} and {{previous}}. \"–\": no results linked to this degree.",
+    "missing_admission": "Missing a degree's grade?"
+  },
+  "degrees_page": {
+    "title": "{{name}}: {{type}}",
+    "intro_one": "The degree of this university that is on Uni Feedback. Open it to see the plan and what students say about the courses.",
+    "intro_other": "The {{n}} degrees of this university on Uni Feedback, across its faculties. Open one to see the plan and what students say about the courses.",
+    "intro_type_one": "The only degree of this type we have at this university. Open it to see the plan and what students say about the courses.",
+    "intro_type_other": "The {{n}} {{type}} degrees of this university on Uni Feedback, across its faculties. Open one to see the plan and what students say about the courses.",
+    "all": "All",
+    "col_feedback": "Feedback",
+    "see_all_one": "See the degree",
+    "see_all_other": "See the {{n}} degrees",
+    "see_faculties": "See the faculties"
+  }
+}

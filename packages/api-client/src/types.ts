@@ -28,8 +28,12 @@ export interface CourseGroup {
   courseIds: number[]
 }
 
+export type StandardTerm = 'semester_1' | 'semester_2' | 'annual'
+
 export interface AcademicTerm {
   name: string
+  /** Set for the terms the site labels itself; null keeps `name` */
+  standardTerm: StandardTerm | null
   startTick: number
   endTick: number
 }
@@ -110,6 +114,8 @@ export interface DuplicateFeedbackDetail {
 export interface CourseSearchResult {
   id: number
   name: string
+  /** Official English name, when there is one */
+  nameEn?: string | null
   acronym: string
   degree: {
     id: number

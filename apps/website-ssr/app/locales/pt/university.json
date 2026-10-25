@@ -1,0 +1,149 @@
+{
+  "meta": {
+    "list_title": "Universidades: opiniões sobre cadeiras e cursos | Uni Feedback",
+    "list_description": "As universidades e faculdades no Uni Feedback, com os seus cursos, notas de entrada e o feedback dos alunos sobre as cadeiras.",
+    "title": "{{shortName}}: faculdades, cursos e opiniões dos alunos | Uni Feedback",
+    "description": "{{name}}: {{facultyCount}} faculdades no Uni Feedback, {{degreeCount}} cursos, onde fica cada campus e o feedback dos alunos sobre as cadeiras.",
+    "faculties_title": "Faculdades {{shortName}}: cursos, ingresso e propinas | Uni Feedback",
+    "faculties_description": "As faculdades da {{name}} no Uni Feedback: cursos, vagas, notas de entrada, propinas e campi de cada uma.",
+    "bachelors_title": "Licenciaturas {{shortName}}: notas de entrada e vagas | Uni Feedback",
+    "bachelors_description": "As licenciaturas e mestrados integrados da {{name}} no Uni Feedback, com a nota do último colocado e as vagas da 1.ª fase.",
+    "degrees_title": "Cursos {{shortName}}: licenciaturas, mestrados e opiniões | Uni Feedback",
+    "degrees_description": "Os {{count}} cursos da {{name}} no Uni Feedback, de todas as faculdades: licenciaturas, mestrados, doutoramentos e o feedback dos alunos sobre as cadeiras.",
+    "type_title": "{{type}} {{shortName}}: todos os cursos e opiniões | Uni Feedback",
+    "type_description": "{{type}} da {{name}} no Uni Feedback ({{n}}), de todas as faculdades: duração, ECTS e o feedback dos alunos sobre as cadeiras de cada curso."
+  },
+  "crumbs": {
+    "universities": "Universidades",
+    "faculties": "Faculdades",
+    "bachelors": "Licenciaturas",
+    "degrees": "Cursos"
+  },
+  "list": {
+    "title": "Universidades",
+    "intro": "Feedback de alunos sobre cadeiras e cursos de {{count}} instituições de ensino superior. As faculdades de cada uma estão abaixo.",
+    "faculty_count_one": "{{n}} faculdade",
+    "faculty_count_other": "{{n}} faculdades",
+    "degree_count_one": "{{n}} curso",
+    "degree_count_other": "{{n}} cursos",
+    "feedback_count_one": "{{n}} feedback",
+    "feedback_count_other": "{{n}} feedbacks",
+    "no_feedback": "Ainda sem feedback",
+    "missing": "A tua universidade não está aqui?",
+    "missing_link": "Diz-nos qual é"
+  },
+  "page": {
+    "toc_label": "Nesta página",
+    "facts": {
+      "faculties_one": "<b>{{n}}</b> faculdade no Uni Feedback",
+      "faculties_other": "<b>{{n}}</b> faculdades no Uni Feedback",
+      "degrees_one": "<b>{{n}}</b> curso",
+      "degrees_other": "<b>{{n}}</b> cursos",
+      "feedback_one": "<b>{{n}}</b> feedback",
+      "feedback_other": "<b>{{n}}</b> feedbacks"
+    },
+    "cta": {
+      "faculties_one": "Ver a faculdade",
+      "faculties_other": "Ver as {{n}} faculdades",
+      "official_site": "Site oficial",
+      "degrees_one": "Ver o curso",
+      "degrees_other": "Ver os {{n}} cursos"
+    },
+    "sections": {
+      "about": "Sobre a universidade",
+      "about_short": "Sobre",
+      "faculties": "Faculdades",
+      "related": "Relacionados",
+      "degrees": "Cursos"
+    },
+    "about": {
+      "more_schools": "Esta universidade pode ter outras escolas que ainda não estão no Uni Feedback.",
+      "more_schools_link": "Estudas numa delas? Diz-nos"
+    },
+    "faculty_card": {
+      "feedback_one": "{{n}} feedback",
+      "feedback_other": "{{n}} feedbacks",
+      "compare": "Comparar as faculdades",
+      "no_feedback": "Ainda sem feedback"
+    },
+    "fees": {
+      "per": {
+        "year": "por ano",
+        "total": "no total",
+        "semester": "por semestre",
+        "ects": "por ECTS"
+      },
+      "line": "{{type}} da {{faculty}}, {{period}}",
+      "source": "Fonte: páginas de propinas de cada faculdade. Valores para estudantes nacionais; cada curso mostra o seu.",
+      "range": "{{min}} a {{max}}"
+    },
+    "faq": {
+      "which_faculties_q": "{{shortName}}: que faculdades estão no Uni Feedback?",
+      "which_faculties_a": "{{faculties}}.",
+      "highest_grade_q": "{{shortName}}: qual é o curso com a nota de entrada mais alta?",
+      "highest_grade_a": "Entre os cursos que temos, {{degree}} ({{faculty}}): {{grade}} na 1.ª fase de {{year}}, segundo a DGES.",
+      "fees_q": "{{shortName}}: quanto custa uma licenciatura?",
+      "fees_a": "{{amount}} por ano em {{schoolYear}}, para estudantes nacionais."
+    },
+    "related": {
+      "other_university": "Outra universidade",
+      "top_faculty": "Faculdade com mais feedback",
+      "bachelors": "Todas as licenciaturas",
+      "bachelors_title": "Licenciaturas {{shortName}}"
+    },
+    "and": " e ",
+    "degrees": {
+      "intro_one": "O curso desta universidade que está no Uni Feedback.",
+      "intro_other": "Os {{n}} cursos desta universidade que estão no Uni Feedback, de todas as faculdades, por tipo.",
+      "see_all_one": "Ver o curso",
+      "see_all_other": "Ver os {{n}} cursos"
+    }
+  },
+  "faculties_page": {
+    "title": "{{name}}: faculdades",
+    "intro_one": "A escola desta universidade que está no Uni Feedback, com os seus cursos, ingresso, propinas e campi.",
+    "intro_other": "As {{n}} escolas desta universidade que estão no Uni Feedback, com os seus cursos, ingresso, propinas e campi.",
+    "degrees": "cursos",
+    "vagas": "vagas, 1.ª fase {{year}}",
+    "grades": "nota do último colocado, {{year}}",
+    "feedback": "feedbacks",
+    "fees": "Propinas {{year}}: {{fees}}",
+    "top_degree": "Curso com mais feedback:",
+    "top_course": "Cadeira com mais feedback:",
+    "compare": "Comparar",
+    "col_faculty": "Faculdade",
+    "col_degrees": "Cursos",
+    "col_bachelors": "Licenciaturas e MI",
+    "col_vagas": "Vagas {{year}}",
+    "col_feedback": "Feedbacks",
+    "source": "Vagas: DGES, Concurso Nacional de Acesso, 1.ª fase {{year}}, cursos que temos. Feedbacks: Uni Feedback."
+  },
+  "bachelors_page": {
+    "title": "{{name}}: licenciaturas",
+    "intro": "As licenciaturas e mestrados integrados desta universidade que estão no Uni Feedback, com a nota do último colocado e as vagas da 1.ª fase de {{year}}.",
+    "intro_no_year": "As licenciaturas e mestrados integrados desta universidade que estão no Uni Feedback.",
+    "all": "Todas",
+    "col_degree": "Curso",
+    "col_duration": "Duração",
+    "col_grade": "Nota {{year}}",
+    "col_vagas": "Vagas",
+    "years_one": "{{n}} ano",
+    "years_other": "{{n}} anos",
+    "delta": "{{delta}} vs {{year}}",
+    "no_data": "sem dados",
+    "source": "Fonte: DGES, Concurso Nacional de Acesso, 1.ª fase {{year}} e {{previous}}. \"–\": sem resultados ligados a este curso.",
+    "missing_admission": "Falta a nota de algum curso?"
+  },
+  "degrees_page": {
+    "title": "{{name}}: {{type}}",
+    "intro_one": "O curso desta universidade que está no Uni Feedback. Abre-o para veres o plano e o que os alunos dizem das cadeiras.",
+    "intro_other": "Os {{n}} cursos desta universidade que estão no Uni Feedback, de todas as faculdades. Abre um para veres o plano e o que os alunos dizem das cadeiras.",
+    "intro_type_one": "O único curso deste tipo que temos nesta universidade. Abre-o para veres o plano e o que os alunos dizem das cadeiras.",
+    "intro_type_other": "Os {{n}} {{type}} desta universidade que estão no Uni Feedback, de todas as faculdades. Abre um para veres o plano e o que os alunos dizem das cadeiras.",
+    "all": "Todas",
+    "col_feedback": "Feedbacks",
+    "see_all_one": "Ver o curso",
+    "see_all_other": "Ver os {{n}} cursos",
+    "see_faculties": "Ver as faculdades"
+  }
+}

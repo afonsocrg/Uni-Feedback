@@ -1,17 +1,28 @@
 import type { Degree } from '@uni-feedback/db/schema'
 import { cn, Markdown } from '@uni-feedback/ui'
-import { Star } from 'lucide-react'
+import { ArrowRight, Star } from 'lucide-react'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
-import { useLang, useWorkloadLabel } from '~/hooks'
+import {
+  useAuth,
+  useLang,
+  useShowChatEntryPoints,
+  useWorkloadLabel
+} from '~/hooks'
 import {
   analytics,
   getPageName,
   type DegreeSectionId,
   type DegreeSourceLink
 } from '~/utils/analytics'
-import { getCoursePath, getDegreePath } from '~/utils/i18n-routes'
+import {
+  getCoursePath,
+  getDegreePath,
+  getLocalePath
+} from '~/utils/i18n-routes'
+import type { Localized } from '~/utils/localizedContent'
+import { campusAddress, CampusMap } from '../common/campusMap'
 import { ContributeNote } from '../common/ContributeNote'
 import { InfoPopover } from '../common/InfoPopover'
 import { ReportErrorNote } from '../common/ReportErrorNote'
@@ -52,7 +63,8 @@ export function SectionShell({
   children,
   first = false
 }: {
-  id: DegreeSectionId
+  /** A degree section, or another page's section reusing this shell */
+  id: DegreeSectionId | (string & {})
   title: string
   children: ReactNode
   first?: boolean
@@ -78,7 +90,7 @@ export function SectionShell({
   )
 }
 
-function Stat({
+export function Stat({
   value,
   label,
   note,
@@ -112,7 +124,7 @@ function Stat({
   )
 }
 
-function StatGrid({ children }: { children: ReactNode }) {
+export function StatGrid({ children }: { children: ReactNode }) {
   return (
     <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-[repeat(auto-fit,minmax(10rem,1fr))]">
       {children}
@@ -120,7 +132,7 @@ function StatGrid({ children }: { children: ReactNode }) {
   )
 }
 
-function SubHeading({ children }: { children: ReactNode }) {
+export function SubHeading({ children }: { children: ReactNode }) {
   return (
     <h3 className="mb-2 mt-6 text-base font-semibold text-foreground">
       {children}
@@ -129,7 +141,18 @@ function SubHeading({ children }: { children: ReactNode }) {
 }
 
 /** A link out to the page a figure comes from, tracked by source. */
-function SourceLink({
+/** A click out to a source (DGES, InfoCursos, fee page, map, campus site) */
+function trackSource(track: DegreeTrack, source: DegreeSourceLink) {
+  if (track.facultySlug && track.degreeSlug) {
+    analytics.discovery.degreeSourceLinkClicked({
+      facultySlug: track.facultySlug,
+      degreeSlug: track.degreeSlug,
+      source
+    })
+  }
+}
+
+export function SourceLink({
   href,
   source,
   track,
@@ -146,15 +169,7 @@ function SourceLink({
       target="_blank"
       rel="noopener noreferrer"
       className="text-primaryBlue hover:underline"
-      onClick={() => {
-        if (track.facultySlug && track.degreeSlug) {
-          analytics.discovery.degreeSourceLinkClicked({
-            facultySlug: track.facultySlug,
-            degreeSlug: track.degreeSlug,
-            source
-          })
-        }
-      }}
+      onClick={() => trackSource(track, source)}
     >
       {children}
     </a>
@@ -287,10 +302,12 @@ export function AboutSection({
   about,
   track
 }: {
-  about: string
+  /** Reviewed text, possibly the Portuguese fallback on an EN page */
+  about: Localized<string>
   track: DegreeTrack
 }) {
   const { t } = useTranslation('browse')
+  const { t: tCommon } = useTranslation()
   const contentRef = useRef<HTMLDivElement>(null)
   const [expanded, setExpanded] = useState(false)
   // Shown until measured, so the server render offers it; hidden after
@@ -300,7 +317,7 @@ export function AboutSection({
   useEffect(() => {
     const el = contentRef.current
     if (el) setOverflows(el.scrollHeight > el.clientHeight + 4)
-  }, [about])
+  }, [about.value])
 
   const clamped = overflows && !expanded
 
@@ -308,14 +325,20 @@ export function AboutSection({
     <SectionShell id="sobre" title={t('degree_page.sections.about')} first>
       <div
         ref={contentRef}
+        lang={about.lang}
         className={cn(
           'max-w-prose',
           clamped &&
             'max-h-44 overflow-hidden [mask-image:linear-gradient(to_bottom,black_65%,transparent)]'
         )}
       >
-        <Markdown>{about}</Markdown>
+        <Markdown>{about.value}</Markdown>
       </div>
+      {about.fellBack && (
+        <p className="mt-1 text-xs text-muted-foreground">
+          {tCommon('localized.pt_only')}
+        </p>
+      )}
       {overflows && (
         <button
           type="button"
@@ -353,28 +376,17 @@ export function AboutSection({
 /* Ingresso                                                            */
 /* ------------------------------------------------------------------ */
 
-export function AdmissionSection({
-  admissions,
-  fees,
-  feesExpected,
-  admissionExpected,
-  schoolYear,
-  track
-}: {
+/**
+ * The headline admission figures (last grade, vagas, candidatos, média dos
+ * colocados), shared by the degree page's Ingresso section and `/ingresso`.
+ */
+export function useAdmissionStats(
   admissions: DegreeAdmissions | null
-  fees: DegreeFees | null
-  /** Show the fallback line when the fees are missing */
-  feesExpected: boolean
-  /** Show the fallback line when the Concurso Nacional data is missing */
-  admissionExpected: boolean
-  schoolYear: number
-  track: DegreeTrack
-}) {
+): ReactNode[] {
   const { t } = useTranslation('browse')
   const lang = useLang()
   const { latest, previous } = latestGrades(admissions)
   const guide = admissions?.guide ?? null
-  const series = admissions?.main.series ?? []
 
   const stats: ReactNode[] = []
   if (latest) {
@@ -433,9 +445,154 @@ export function AdmissionSection({
     )
   }
 
-  const hasAdmission = stats.length > 0 || (guide?.provas.length ?? 0) > 0
-  const minimum = guide?.minimumGrades
+  return stats
+}
+
+/** Provas de ingresso, fórmula and mínimos from the DGES guide. */
+export function AdmissionRules({
+  guide,
+  showTitle = true
+}: {
+  guide: DegreeAdmissions['guide']
+  showTitle?: boolean
+}) {
+  const { t } = useTranslation('browse')
+  const lang = useLang()
+  if (!guide) return null
+  const minimum = guide.minimumGrades
   const formatMin = (v: number) => formatInt(Math.round(v), lang)
+
+  return (
+    <>
+      {guide.provas.length > 0 && (
+        <>
+          {showTitle && (
+            <SubHeading>{t('degree_page.admission.exams_title')}</SubHeading>
+          )}
+          {guide.provas.length > 1 && (
+            <p className="mb-2 text-sm text-muted-foreground">
+              {t('degree_page.admission.exams_one_of')}
+            </p>
+          )}
+          <ul className="flex flex-wrap gap-2">
+            {guide.provas.map((combo) => (
+              <li
+                key={combo.join('+')}
+                className="rounded-md border border-border px-2.5 py-1.5 text-sm"
+              >
+                {combo.join(' + ')}
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+
+      {(guide.formula ||
+        minimum.application != null ||
+        minimum.entryExams != null) && (
+        <p className="mt-3 text-sm">
+          {guide.formula && (
+            <Trans
+              t={t}
+              i18nKey="degree_page.admission.formula"
+              values={{
+                secondary: formatInt(guide.formula.secondaryPct, lang),
+                exams: formatInt(guide.formula.examsPct, lang)
+              }}
+              components={{ b: <b /> }}
+            />
+          )}{' '}
+          {minimum.application != null && minimum.entryExams != null ? (
+            <Trans
+              t={t}
+              i18nKey="degree_page.admission.minimum_both"
+              values={{
+                application: formatMin(minimum.application),
+                exams: formatMin(minimum.entryExams)
+              }}
+              components={{ b: <b /> }}
+            />
+          ) : minimum.application != null ? (
+            <Trans
+              t={t}
+              i18nKey="degree_page.admission.minimum_application"
+              values={{ application: formatMin(minimum.application) }}
+              components={{ b: <b /> }}
+            />
+          ) : minimum.entryExams != null ? (
+            <Trans
+              t={t}
+              i18nKey="degree_page.admission.minimum_exams"
+              values={{ exams: formatMin(minimum.entryExams) }}
+              components={{ b: <b /> }}
+            />
+          ) : null}
+        </p>
+      )}
+    </>
+  )
+}
+
+/** "Ver tudo sobre o ingresso →": from a degree page section to its sub-page */
+export function SubpageLink({
+  href,
+  page,
+  label,
+  track
+}: {
+  href: string
+  page: 'admission' | 'careers'
+  label: string
+  track: DegreeTrack
+}) {
+  return (
+    <Link
+      to={href}
+      onClick={() => {
+        if (track.facultySlug && track.degreeSlug) {
+          analytics.discovery.degreeSubpageLinkClicked({
+            facultySlug: track.facultySlug,
+            degreeSlug: track.degreeSlug,
+            page,
+            surface: 'section'
+          })
+        }
+      }}
+      className="mt-5 inline-flex items-center gap-1.5 font-semibold text-primaryBlue hover:underline"
+    >
+      {label}
+      <ArrowRight aria-hidden="true" className="size-4" />
+    </Link>
+  )
+}
+
+export function AdmissionSection({
+  admissions,
+  fees,
+  feesExpected,
+  admissionExpected,
+  schoolYear,
+  fullHref,
+  track
+}: {
+  admissions: DegreeAdmissions | null
+  fees: DegreeFees | null
+  /** Show the fallback line when the fees are missing */
+  feesExpected: boolean
+  /** Show the fallback line when the Concurso Nacional data is missing */
+  admissionExpected: boolean
+  schoolYear: number
+  /** The degree's `/ingresso` sub-page, which carries the full detail */
+  fullHref?: string | null
+  track: DegreeTrack
+}) {
+  const { t } = useTranslation('browse')
+  const lang = useLang()
+  const guide = admissions?.guide ?? null
+  const series = admissions?.main.series ?? []
+  const stats = useAdmissionStats(admissions)
+
+  const hasAdmission = stats.length > 0 || (guide?.provas.length ?? 0) > 0
 
   return (
     <SectionShell id="ingresso" title={t('degree_page.sections.admission')}>
@@ -454,51 +611,55 @@ export function AdmissionSection({
                   to: series[series.length - 1].year
                 })}
               />
-              <details
-                className="mt-2 text-sm"
-                onToggle={(event) => {
-                  if (
-                    (event.currentTarget as HTMLDetailsElement).open &&
-                    track.facultySlug &&
-                    track.degreeSlug
-                  ) {
-                    analytics.discovery.degreeAdmissionTableOpened({
-                      facultySlug: track.facultySlug,
-                      degreeSlug: track.degreeSlug
-                    })
-                  }
-                }}
-              >
-                <summary className="cursor-pointer text-muted-foreground hover:text-foreground">
-                  {t('degree_page.admission.table_toggle')}
-                </summary>
-                <table className="mt-2 w-full max-w-sm text-left tabular-nums">
-                  <thead>
-                    <tr className="border-b border-border text-xs text-muted-foreground">
-                      <th className="py-1.5 font-medium">
-                        {t('degree_page.admission.table_year')}
-                      </th>
-                      <th className="py-1.5 font-medium">
-                        {t('degree_page.admission.table_grade')}
-                      </th>
-                      <th className="py-1.5 font-medium">
-                        {t('degree_page.admission.table_vagas')}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {[...series].reverse().map((p) => (
-                      <tr key={p.year} className="border-b border-border">
-                        <td className="py-1.5">{p.year}</td>
-                        <td className="py-1.5">{formatGrade(p.grade, lang)}</td>
-                        <td className="py-1.5">
-                          {p.vagas !== null ? formatInt(p.vagas, lang) : ''}
-                        </td>
+              {!fullHref && (
+                <details
+                  className="mt-2 text-sm"
+                  onToggle={(event) => {
+                    if (
+                      (event.currentTarget as HTMLDetailsElement).open &&
+                      track.facultySlug &&
+                      track.degreeSlug
+                    ) {
+                      analytics.discovery.degreeAdmissionTableOpened({
+                        facultySlug: track.facultySlug,
+                        degreeSlug: track.degreeSlug
+                      })
+                    }
+                  }}
+                >
+                  <summary className="cursor-pointer text-muted-foreground hover:text-foreground">
+                    {t('degree_page.admission.table_toggle')}
+                  </summary>
+                  <table className="mt-2 w-full max-w-sm text-left tabular-nums">
+                    <thead>
+                      <tr className="border-b border-border text-xs text-muted-foreground">
+                        <th className="py-1.5 font-medium">
+                          {t('degree_page.admission.table_year')}
+                        </th>
+                        <th className="py-1.5 font-medium">
+                          {t('degree_page.admission.table_grade')}
+                        </th>
+                        <th className="py-1.5 font-medium">
+                          {t('degree_page.admission.table_vagas')}
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </details>
+                    </thead>
+                    <tbody>
+                      {[...series].reverse().map((p) => (
+                        <tr key={p.year} className="border-b border-border">
+                          <td className="py-1.5">{p.year}</td>
+                          <td className="py-1.5">
+                            {formatGrade(p.grade, lang)}
+                          </td>
+                          <td className="py-1.5">
+                            {p.vagas !== null ? formatInt(p.vagas, lang) : ''}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </details>
+              )}
             </>
           )}
 
@@ -519,69 +680,7 @@ export function AdmissionSection({
             )
           })}
 
-          {guide && guide.provas.length > 0 && (
-            <>
-              <SubHeading>{t('degree_page.admission.exams_title')}</SubHeading>
-              {guide.provas.length > 1 && (
-                <p className="mb-2 text-sm text-muted-foreground">
-                  {t('degree_page.admission.exams_one_of')}
-                </p>
-              )}
-              <ul className="flex flex-wrap gap-2">
-                {guide.provas.map((combo) => (
-                  <li
-                    key={combo.join('+')}
-                    className="rounded-md border border-border px-2.5 py-1.5 text-sm"
-                  >
-                    {combo.join(' + ')}
-                  </li>
-                ))}
-              </ul>
-            </>
-          )}
-
-          {(guide?.formula ||
-            minimum?.application != null ||
-            minimum?.entryExams != null) && (
-            <p className="mt-3 text-sm">
-              {guide?.formula && (
-                <Trans
-                  t={t}
-                  i18nKey="degree_page.admission.formula"
-                  values={{
-                    secondary: formatInt(guide.formula.secondaryPct, lang),
-                    exams: formatInt(guide.formula.examsPct, lang)
-                  }}
-                  components={{ b: <b /> }}
-                />
-              )}{' '}
-              {minimum?.application != null && minimum.entryExams != null ? (
-                <Trans
-                  t={t}
-                  i18nKey="degree_page.admission.minimum_both"
-                  values={{
-                    application: formatMin(minimum.application),
-                    exams: formatMin(minimum.entryExams)
-                  }}
-                  components={{ b: <b /> }}
-                />
-              ) : minimum?.application != null ? (
-                <Trans
-                  t={t}
-                  i18nKey="degree_page.admission.minimum_application"
-                  values={{ application: formatMin(minimum.application) }}
-                  components={{ b: <b /> }}
-                />
-              ) : minimum?.entryExams != null ? (
-                <Trans
-                  t={t}
-                  i18nKey="degree_page.admission.minimum_exams"
-                  values={{ exams: formatMin(minimum.entryExams) }}
-                  components={{ b: <b /> }}
-                />
-              ) : null}
-            </p>
-          )}
+          <AdmissionRules guide={guide} />
         </>
       ) : (
         admissionExpected && (
@@ -662,6 +761,14 @@ export function AdmissionSection({
           ))}
         </p>
       )}
+      {fullHref && (
+        <SubpageLink
+          href={fullHref}
+          page="admission"
+          label={t('degree_subpages.see_admission')}
+          track={track}
+        />
+      )}
       {(hasAdmission || fees) && (
         <div className="mt-3">
           <ReportErrorNote
@@ -677,7 +784,7 @@ export function AdmissionSection({
   )
 }
 
-function hostOf(url: string): string {
+export function hostOf(url: string): string {
   try {
     return new URL(url).hostname.replace(/^www\./, '')
   } catch {
@@ -689,16 +796,11 @@ function hostOf(url: string): string {
 /* Depois do curso                                                     */
 /* ------------------------------------------------------------------ */
 
-export function OutcomesSection({
-  outcomes,
-  showFallback,
-  track
-}: {
-  outcomes: DegreeOutcomes | null
-  /** The "no data yet" line; off for a degree no longer taught */
-  showFallback: boolean
-  track: DegreeTrack
-}) {
+/**
+ * Employability, completion and "still in the course" figures, shared by the
+ * degree page's "Depois do curso" and `/saidas-profissionais`.
+ */
+export function useOutcomeStats(outcomes: DegreeOutcomes | null): ReactNode[] {
   const { t } = useTranslation('browse')
   const lang = useLang()
 
@@ -764,6 +866,25 @@ export function OutcomesSection({
     )
   }
 
+  return stats
+}
+
+export function OutcomesSection({
+  outcomes,
+  showFallback,
+  fullHref,
+  track
+}: {
+  outcomes: DegreeOutcomes | null
+  /** The "no data yet" line; off for a degree no longer taught */
+  showFallback: boolean
+  /** The degree's `/saidas-profissionais` sub-page */
+  fullHref?: string | null
+  track: DegreeTrack
+}) {
+  const { t } = useTranslation('browse')
+  const stats = useOutcomeStats(outcomes)
+
   return (
     <SectionShell id="depois" title={t('degree_page.sections.outcomes')}>
       {outcomes && stats.length > 0 ? (
@@ -812,6 +933,14 @@ export function OutcomesSection({
             degreeSlug={track.degreeSlug}
           />
         )
+      )}
+      {fullHref && outcomes && (
+        <SubpageLink
+          href={fullHref}
+          page="careers"
+          label={t('degree_subpages.see_careers')}
+          track={track}
+        />
       )}
     </SectionShell>
   )
@@ -926,68 +1055,34 @@ export function CampusSection({
   return (
     <SectionShell id="campus" title={t('degree_page.sections.campus')}>
       {campuses.length > 0 ? (
-        <div className="space-y-4">
-          {campuses.map((campus) => {
-            const address = [
-              campus.address,
-              [campus.postalCode, campus.city].filter(Boolean).join(' ')
-            ]
-              .filter(Boolean)
-              .join(', ')
-            const contacts = [campus.phone, campus.email].filter(Boolean)
-            return (
-              <div key={campus.id} className="text-sm">
-                <p>
-                  <b>{campus.name}</b>
-                  {address && <> · {address}</>}
-                  {campus.latitude !== null && campus.longitude !== null && (
-                    <>
-                      {' · '}
-                      <SourceLink
-                        href={`https://www.google.com/maps/search/?api=1&query=${campus.latitude},${campus.longitude}`}
-                        source="campus_map"
-                        track={track}
-                      >
-                        {t('degree_page.campus.map')}
-                      </SourceLink>
-                    </>
-                  )}
-                </p>
-                {(contacts.length > 0 || campus.url) && (
-                  <p className="mt-1 text-muted-foreground">
-                    {campus.phone && (
-                      <a
-                        href={`tel:${campus.phone.replace(/\s+/g, '')}`}
-                        className="hover:text-foreground"
-                      >
-                        {campus.phone}
-                      </a>
-                    )}
-                    {campus.phone && campus.email && ' · '}
-                    {campus.email && (
-                      <a
-                        href={`mailto:${campus.email}`}
-                        className="hover:text-foreground"
-                      >
-                        {campus.email}
-                      </a>
-                    )}
-                    {contacts.length > 0 && campus.url && ' · '}
-                    {campus.url && (
-                      <SourceLink
-                        href={campus.url}
-                        source="campus_website"
-                        track={track}
-                      >
-                        {hostOf(campus.url)}
-                      </SourceLink>
-                    )}
-                  </p>
-                )}
-              </div>
-            )
-          })}
-        </div>
+        <CampusMap
+          items={campuses.map((campus) => ({
+            key: String(campus.id),
+            title: campus.name,
+            pinLabel: campus.name,
+            address: campusAddress(campus),
+            latitude: campus.latitude,
+            longitude: campus.longitude,
+            details:
+              [campus.phone, campus.email].filter(Boolean).join(' · ') ||
+              undefined,
+            website: campus.url
+              ? { href: campus.url, label: hostOf(campus.url) }
+              : undefined
+          }))}
+          onSelect={(item, surface) => {
+            if (!track.facultySlug || !track.degreeSlug) return
+            analytics.discovery.campusSelected({
+              page: 'degree',
+              facultySlug: track.facultySlug,
+              degreeSlug: track.degreeSlug,
+              campus: item.title,
+              surface
+            })
+          }}
+          onDirections={() => trackSource(track, 'campus_map')}
+          onWebsite={() => trackSource(track, 'campus_website')}
+        />
       ) : (
         showContribute && (
           <ContributeNote
@@ -1027,7 +1122,25 @@ export function CampusSection({
 /* FAQ                                                                 */
 /* ------------------------------------------------------------------ */
 
-export function FaqSection({ items }: { items: FaqItem[] }) {
+/** Which page an FAQ sits on, for its "ask our chat" footer */
+export type FaqSurface =
+  | 'degree_page'
+  | 'degree_admission_page'
+  | 'degree_careers_page'
+  | 'faculty_page'
+  | 'faculty_type_page'
+  | 'university_page'
+
+export function FaqSection({
+  items,
+  surface,
+  chatScope
+}: {
+  items: FaqItem[]
+  surface: FaqSurface
+  /** Scopes the chat to the degree the page is about */
+  chatScope?: { degreeId: number; scopeLabel: string }
+}) {
   const { t } = useTranslation('browse')
   return (
     <SectionShell id="faq" title={t('degree_page.sections.faq')}>
@@ -1058,7 +1171,57 @@ export function FaqSection({ items }: { items: FaqItem[] }) {
           </details>
         ))}
       </div>
+      <FaqChatFooter surface={surface} chatScope={chatScope} />
     </SectionShell>
+  )
+}
+
+/**
+ * "Tens outra pergunta? Pergunta ao nosso chat": the FAQ answers what we wrote
+ * down, the chat what we didn't. Opens the chat empty (scoped to the degree on
+ * degree pages); with the chat switched off, points to the contact page instead.
+ */
+function FaqChatFooter({
+  surface,
+  chatScope
+}: {
+  surface: FaqSurface
+  chatScope?: { degreeId: number; scopeLabel: string }
+}) {
+  const { t } = useTranslation('browse')
+  const lang = useLang()
+  const { isAuthenticated } = useAuth()
+  const showChat = useShowChatEntryPoints()
+
+  const params = new URLSearchParams({ source: 'faq' })
+  if (chatScope) {
+    params.set('degreeId', String(chatScope.degreeId))
+    params.set('scopeLabel', chatScope.scopeLabel)
+  }
+  const href = showChat
+    ? `${getLocalePath('chat', lang)}?${params.toString()}`
+    : getLocalePath('contact', lang)
+
+  return (
+    <p className="mt-4 text-sm text-muted-foreground">
+      {t('degree_page.faq_footer.question')}{' '}
+      <Link
+        to={href}
+        onClick={() =>
+          analytics.chat.faqFooterClicked({
+            surface,
+            degreeId: chatScope?.degreeId ?? null,
+            destination: showChat ? 'chat' : 'contact',
+            isAuthenticated
+          })
+        }
+        className="font-semibold text-primaryBlue hover:underline"
+      >
+        {showChat
+          ? t('degree_page.faq_footer.chat')
+          : t('degree_page.faq_footer.contact')}
+      </Link>
+    </p>
   )
 }
 

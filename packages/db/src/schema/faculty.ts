@@ -11,6 +11,8 @@ import { universities } from './university'
 export const faculties = pgTable('faculties', {
   id: serial('id').primaryKey(),
   name: text('name').notNull(),
+  // English name where it differs; EN pages fall back to `name` when NULL
+  nameEn: text('name_en'),
   shortName: text('short_name').notNull(),
   slug: text('slug'),
 

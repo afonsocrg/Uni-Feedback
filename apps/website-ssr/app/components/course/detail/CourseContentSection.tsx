@@ -6,6 +6,12 @@ import { useTranslation } from 'react-i18next'
 import { analytics } from '~/utils/analytics'
 import { CorrectionRequestDialog, type CourseContentField } from '.'
 
+/** Which language a course text is in, and whether it is not the page's */
+export interface CourseTextLang {
+  lang: 'pt' | 'en'
+  fellBack: boolean
+}
+
 interface CourseContentSectionProps {
   course: {
     id: number
@@ -14,6 +20,12 @@ interface CourseContentSectionProps {
   /** Which course field this section renders, also the correction field. */
   field: CourseContentField
   content?: string | null
+  /**
+   * The language `content` is in (from `course_details`). When it is not the
+   * page's, the text is marked with its `lang` and a "only in Portuguese /
+   * English" note follows. Absent for text with no known language.
+   */
+  contentLang?: CourseTextLang
   /**
    * Open the correction dialog on arrival, targeted at this field.
    *
@@ -34,9 +46,11 @@ export function CourseContentSection({
   course,
   field,
   content,
+  contentLang,
   autoOpen = false
 }: CourseContentSectionProps) {
   const { t } = useTranslation('course')
+  const { t: tCommon } = useTranslation()
   const [dialogOpen, setDialogOpen] = useState(false)
   // Sticks for the life of the dialog, so the submit event is attributed to the
   // link that opened it rather than to the section it happens to live in.
@@ -100,7 +114,14 @@ export function CourseContentSection({
 
       {hasContent ? (
         <>
-          <Markdown>{content ?? ''}</Markdown>
+          <div lang={contentLang?.lang}>
+            <Markdown>{content ?? ''}</Markdown>
+          </div>
+          {contentLang?.fellBack && (
+            <p className="mt-2 text-xs text-muted-foreground">
+              {tCommon(`localized.${contentLang.lang}_only`)}
+            </p>
+          )}
           <p className="mt-6 text-sm text-muted-foreground">
             {t(`${field}.outdated_help`)}{' '}
             <button

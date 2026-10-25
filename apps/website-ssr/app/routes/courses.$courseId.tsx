@@ -1,9 +1,15 @@
 import { database, queries, schema } from '@uni-feedback/db'
-import { type AnyColumn, desc, eq, sql } from 'drizzle-orm'
+import { type AnyColumn, and, desc, eq, sql } from 'drizzle-orm'
 import { CourseDetailContent } from '~/components'
 import { getCurrentUserId } from '~/lib/auth.server'
 import { isCourseIndexable } from '~/utils/course'
 import { detectLang, getCoursePath } from '~/utils/i18n-routes'
+import {
+  type ContentLang,
+  type Localized,
+  pickName,
+  pickTextEither
+} from '~/utils/localizedContent'
 import { buildMeta, metaT } from '~/utils/meta'
 import { getRequestOrigin } from '~/utils/request'
 
@@ -47,8 +53,9 @@ export function meta({ loaderData, location, matches }: Route.MetaArgs) {
   const structuredData = {
     '@context': 'https://schema.org',
     '@type': 'Course',
-    url: `${origin}${getCoursePath('pt', course.id)}`,
+    url: `${origin}${getCoursePath(lang, course.id)}`,
     name: course.name,
+    ...(course.alternateName && { alternateName: course.alternateName }),
     courseCode: course.acronym,
     numberOfCredits: course.ects,
     ...(course.description && { description: course.description }),
@@ -122,6 +129,23 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   if (!course) {
     throw new Response('Course not found', { status: 404 })
   }
+
+  // The course's name and texts in the page's language (content translation,
+  // 0058). `course_details` holds the faculty's own text per language; a
+  // translated row shows only once reviewed. Courses with no rows yet keep the
+  // legacy columns, whose language we don't know.
+  const lang = detectLang(new URL(request.url).pathname)
+  const detailRows = await db
+    .select()
+    .from(schema.courseDetails)
+    .where(
+      and(
+        eq(schema.courseDetails.courseId, courseIdNum),
+        sql`(${schema.courseDetails.source} <> 'translation' or ${schema.courseDetails.reviewedAt} is not null)`
+      )
+    )
+  const content = pickCourseContent(lang, detailRows, course)
+  const localizedName = pickName(lang, course.name, course.nameEn)
 
   // Counts of feedback per rating value (1..5), as a single `filter`ed aggregate
   // so the distributions come from the same scan as the averages.
@@ -251,10 +275,22 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   return {
     course: {
       ...course,
+      name: localizedName.value,
+      alternateName:
+        course.nameEn && course.nameEn !== course.name
+          ? lang === 'en'
+            ? course.name
+            : course.nameEn
+          : null,
+      description: content.description?.value ?? null,
+      assessment: content.assessment?.value ?? null,
+      bibliography: content.bibliography?.value ?? null,
+      contentLang: content.langs,
       offerings: course.offerings.map((o) => ({
         curriculumYear: o.curriculumYear,
         academicTerm: {
           name: o.academicTerm.name,
+          standardTerm: o.academicTerm.standardTerm,
           startTick: o.academicTerm.startTick,
           endTick: o.academicTerm.endTick
         }
@@ -266,6 +302,54 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     feedback,
     origin: getRequestOrigin(request)
   }
+}
+
+type CourseTextField = 'description' | 'assessment' | 'bibliography'
+
+/**
+ * Each text field in the page's language, else the other one (`pickTextEither`:
+ * Nova SBE and much of Nova FCT publish only in English), else the legacy
+ * column with no language attached. Bibliography is language-neutral.
+ */
+function pickCourseContent(
+  lang: ContentLang,
+  rows: {
+    lang: ContentLang
+    description: string | null
+    assessment: string | null
+    bibliography: string | null
+  }[],
+  legacy: Record<CourseTextField, string | null>
+) {
+  const fields: CourseTextField[] = [
+    'description',
+    'assessment',
+    'bibliography'
+  ]
+  const out: Partial<Record<CourseTextField, Localized<string>>> = {}
+  const langs: Partial<
+    Record<CourseTextField, { lang: ContentLang; fellBack: boolean }>
+  > = {}
+  for (const field of fields) {
+    if (field === 'bibliography') {
+      // A list of books, never translated: one row in the language it is
+      // written in, shown as is on both pages, with no "only in X" note.
+      const own = rows.find((r) => r.lang === lang)?.bibliography
+      const any = own ?? rows.find((r) => r.bibliography)?.bibliography
+      const text = any ?? legacy.bibliography
+      if (text) out.bibliography = { value: text, lang, fellBack: false }
+      continue
+    }
+    const byLang = Object.fromEntries(rows.map((r) => [r.lang, r[field]]))
+    const picked = pickTextEither(lang, byLang)
+    if (picked) {
+      out[field] = picked
+      langs[field] = { lang: picked.lang, fellBack: picked.fellBack }
+    } else if (legacy[field]) {
+      out[field] = { value: legacy[field]!, lang, fellBack: false }
+    }
+  }
+  return { ...out, langs }
 }
 
 export default function CourseDetailPage({ loaderData }: Route.ComponentProps) {

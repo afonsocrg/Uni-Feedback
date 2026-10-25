@@ -223,10 +223,116 @@ export const routeConfig = [
           }
         ]
       },
+      // Universities (prds/content_rich_pages.md decision 6). Static `unis`
+      // ranks above the faculty and degree catch-alls.
+      {
+        key: 'universities',
+        file: 'routes/universities.tsx',
+        slugs: { pt: 'unis', en: 'unis' }
+      },
+      {
+        key: 'university',
+        file: 'routes/university.tsx',
+        slugs: { pt: 'unis/:uniSlug', en: 'unis/:uniSlug' }
+      },
+      {
+        key: 'university-faculties',
+        file: 'routes/university-faculties.tsx',
+        slugs: { pt: 'unis/:uniSlug/faculdades', en: 'unis/:uniSlug/faculties' }
+      },
+      {
+        key: 'university-bachelors',
+        file: 'routes/university-bachelors.tsx',
+        slugs: {
+          pt: 'unis/:uniSlug/licenciaturas',
+          en: 'unis/:uniSlug/bachelors'
+        }
+      },
+      {
+        key: 'university-degrees',
+        file: 'routes/university-degrees.tsx',
+        slugs: { pt: 'unis/:uniSlug/cursos', en: 'unis/:uniSlug/degrees' }
+      },
+      // A university's degrees of one type, across its faculties. One file
+      // behind the five routes; licenciaturas keep their own page (above),
+      // with the 1ª fase grades.
+      {
+        key: 'university-integrated-masters',
+        file: 'routes/university-degrees.tsx',
+        slugs: {
+          pt: 'unis/:uniSlug/mestrados-integrados',
+          en: 'unis/:uniSlug/integrated-masters'
+        }
+      },
+      {
+        key: 'university-masters',
+        file: 'routes/university-degrees.tsx',
+        slugs: { pt: 'unis/:uniSlug/mestrados', en: 'unis/:uniSlug/masters' }
+      },
+      {
+        key: 'university-minors',
+        file: 'routes/university-degrees.tsx',
+        slugs: { pt: 'unis/:uniSlug/minors', en: 'unis/:uniSlug/minors' }
+      },
+      {
+        key: 'university-postgraduate',
+        file: 'routes/university-degrees.tsx',
+        slugs: {
+          pt: 'unis/:uniSlug/pos-graduacoes',
+          en: 'unis/:uniSlug/postgraduate'
+        }
+      },
+      {
+        key: 'university-phd',
+        file: 'routes/university-degrees.tsx',
+        slugs: { pt: 'unis/:uniSlug/doutoramentos', en: 'unis/:uniSlug/phd' }
+      },
       {
         key: 'faculty',
         file: 'routes/$facultySlug.tsx',
         slugs: { pt: ':facultySlug', en: ':facultySlug' }
+      },
+      // A faculty's degrees of one type (prds/content_rich_pages.md, "Degree
+      // type"). Static segments rank above `:facultySlug/:degreeSlug`, so these
+      // words are reserved as degree slugs (utils/facultyTypePages.ts).
+      {
+        key: 'faculty-bachelors',
+        file: 'routes/faculty-degree-type.tsx',
+        slugs: {
+          pt: ':facultySlug/licenciaturas',
+          en: ':facultySlug/bachelors'
+        }
+      },
+      {
+        key: 'faculty-integrated-masters',
+        file: 'routes/faculty-degree-type.tsx',
+        slugs: {
+          pt: ':facultySlug/mestrados-integrados',
+          en: ':facultySlug/integrated-masters'
+        }
+      },
+      {
+        key: 'faculty-masters',
+        file: 'routes/faculty-degree-type.tsx',
+        slugs: { pt: ':facultySlug/mestrados', en: ':facultySlug/masters' }
+      },
+      {
+        key: 'faculty-minors',
+        file: 'routes/faculty-degree-type.tsx',
+        slugs: { pt: ':facultySlug/minors', en: ':facultySlug/minors' }
+      },
+      {
+        key: 'faculty-postgraduate',
+        file: 'routes/faculty-degree-type.tsx',
+        slugs: {
+          pt: ':facultySlug/pos-graduacoes',
+          en: ':facultySlug/postgraduate'
+        }
+      },
+      {
+        key: 'faculty-phd',
+        file: 'routes/faculty-degree-type.tsx',
+        slugs: { pt: ':facultySlug/doutoramentos', en: ':facultySlug/phd' }
       },
       {
         key: 'degree',
@@ -244,6 +350,23 @@ export const routeConfig = [
         slugs: {
           pt: ':facultySlug/:degreeSlug/cadeiras',
           en: ':facultySlug/:degreeSlug/courses'
+        }
+      },
+      // A degree's feature sub-pages (prds/content_rich_pages.md decision 22)
+      {
+        key: 'degree-admission',
+        file: 'routes/degree-admission.tsx',
+        slugs: {
+          pt: ':facultySlug/:degreeSlug/ingresso',
+          en: ':facultySlug/:degreeSlug/admission'
+        }
+      },
+      {
+        key: 'degree-careers',
+        file: 'routes/degree-careers.tsx',
+        slugs: {
+          pt: ':facultySlug/:degreeSlug/saidas-profissionais',
+          en: ':facultySlug/:degreeSlug/careers'
         }
       }
     ]

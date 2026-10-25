@@ -1,4 +1,4 @@
-@import "@uni-feedback/ui/style.css";
+@import '@uni-feedback/ui/style.css';
 
 /* Docs: https://tailwindcss.com/docs/detecting-classes-in-source-files#explicitly-registering-sources */
 @source "../../../packages/ui";
@@ -32,4 +32,75 @@
   100% {
     transform: scale(1);
   }
+}
+
+/* University campus map pins (components/university/CampusMap.tsx). MapLibre
+   markers are plain DOM, so they're styled here, from the tokens. */
+.campus-map .campus-pin {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.campus-map .campus-pin-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 9999px;
+  background: var(--brand);
+  border: 3px solid var(--background);
+  box-shadow: 0 1px 6px rgb(0 0 0 / 0.3);
+  transition: transform 150ms ease;
+}
+.campus-map .campus-pin-label {
+  position: absolute;
+  left: 26px;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  padding: 4px 7px;
+  border-radius: 9999px;
+  color: var(--foreground);
+  background: var(--background);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.18);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition:
+    opacity 150ms ease,
+    transform 150ms ease;
+  pointer-events: none;
+}
+.campus-map .campus-pin:hover .campus-pin-dot,
+.campus-map .campus-pin.is-active .campus-pin-dot {
+  transform: scale(1.3);
+}
+.campus-map .campus-pin:hover .campus-pin-label,
+.campus-map .campus-pin.is-active .campus-pin-label {
+  opacity: 1;
+  transform: none;
+}
+.campus-map .campus-pin.is-active {
+  z-index: 2;
+}
+.campus-map .maplibregl-ctrl-group {
+  background: var(--background);
+  border: 1px solid var(--border);
+  box-shadow: none;
+}
+.dark .campus-map .maplibregl-ctrl-group button .maplibregl-ctrl-icon {
+  filter: invert(1);
+}
+.campus-map .maplibregl-ctrl-attrib,
+.campus-map .maplibregl-ctrl-attrib.maplibregl-compact {
+  background: color-mix(in oklab, var(--background) 85%, transparent);
+  color: var(--muted-foreground);
+}
+.campus-map .maplibregl-ctrl-attrib a {
+  color: var(--muted-foreground);
+}
+.dark .campus-map .maplibregl-ctrl-attrib-button {
+  filter: invert(1);
 }

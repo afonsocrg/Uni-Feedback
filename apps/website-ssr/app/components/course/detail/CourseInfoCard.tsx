@@ -14,7 +14,7 @@ import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { AskChatInput } from '~/components/chat/AskChatInput'
-import { useLang } from '~/hooks'
+import { useLang, useTermLabel } from '~/hooks'
 import { analytics, getPageName } from '~/utils/analytics'
 import { getCourseFeedbackPath } from '~/utils/i18n-routes'
 import { CorrectionRequestDialog, FeedbackHistogram } from '.'
@@ -87,9 +87,10 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
   const workloadCount = course.workloadDistribution.reduce((a, b) => a + b, 0)
   const hasFeedback = course.totalFeedbackCount > 0
 
-  // Distinct academic term names this course is offered in.
+  // Distinct academic terms this course is offered in, as the site labels them.
+  const termLabel = useTermLabel()
   const termNames = Array.from(
-    new Set(course.offerings.map((o) => o.academicTerm.name))
+    new Set(course.offerings.map((o) => termLabel(o.academicTerm, 'long')))
   )
 
   const examChip =

@@ -1,5 +1,11 @@
 import type { Lang } from '~/i18n/config'
 import type { FeedbackLinkSource } from './analytics'
+import {
+  FACULTY_TYPE_SEGMENTS,
+  type FacultyTypePage,
+  facultyTypeFromSegment,
+  getFacultyTypePath
+} from './facultyTypePages'
 import { LANG_PREFIXES, type RouteKey, routeMap } from './route-map'
 
 export type { Lang, RouteKey }
@@ -121,6 +127,26 @@ function swapDynamicPath(path: string, from: Lang): string {
     }
     const editMatch = path.match(/^\/feedback\/([^/]+)\/editar$/)
     if (editMatch) return `/en/feedback/${editMatch[1]}/edit`
+    // University sub-pages: /unis/ulisboa/faculdades, /unis/ulisboa/mestrados
+    const uniSub = path.match(/^\/unis\/([^/]+)\/([^/]+)$/)
+    const uniSubPath =
+      uniSub && swapUniversitySubpage(uniSub[1], uniSub[2], 'pt')
+    if (uniSubPath) return uniSubPath
+    // A degree's sub-pages: /ist/leic-a/ingresso, /ist/leic-a/saidas-profissionais
+    const degreeSub = path.match(
+      /^\/([^/]+)\/([^/]+)\/(ingresso|saidas-profissionais)$/
+    )
+    if (degreeSub)
+      return getDegreeSubpagePath(
+        'en',
+        degreeSub[1],
+        degreeSub[2],
+        degreeSub[3] === 'ingresso' ? 'admission' : 'careers'
+      )
+    // A faculty's type page: /ist/licenciaturas
+    const typePage = path.match(/^\/([^/]+)\/([^/]+)$/)
+    const ptType = typePage && facultyTypeFromSegment(typePage[2], 'pt')
+    if (typePage && ptType) return getFacultyTypePath('en', typePage[1], ptType)
     // A degree's course browser: /ist/leic-a/cadeiras
     const degreeCourses = path.match(/^\/([^/]+)\/([^/]+)\/cadeiras$/)
     if (degreeCourses)
@@ -139,6 +165,23 @@ function swapDynamicPath(path: string, from: Lang): string {
     }
     const editMatch = withoutEn.match(/^\/feedback\/([^/]+)\/edit$/)
     if (editMatch) return `/feedback/${editMatch[1]}/editar`
+    const uniSub = withoutEn.match(/^\/unis\/([^/]+)\/([^/]+)$/)
+    const uniSubPath =
+      uniSub && swapUniversitySubpage(uniSub[1], uniSub[2], 'en')
+    if (uniSubPath) return uniSubPath
+    const degreeSub = withoutEn.match(
+      /^\/([^/]+)\/([^/]+)\/(admission|careers)$/
+    )
+    if (degreeSub)
+      return getDegreeSubpagePath(
+        'pt',
+        degreeSub[1],
+        degreeSub[2],
+        degreeSub[3] === 'admission' ? 'admission' : 'careers'
+      )
+    const typePage = withoutEn.match(/^\/([^/]+)\/([^/]+)$/)
+    const enType = typePage && facultyTypeFromSegment(typePage[2], 'en')
+    if (typePage && enType) return getFacultyTypePath('pt', typePage[1], enType)
     const degreeCourses = withoutEn.match(/^\/([^/]+)\/([^/]+)\/courses$/)
     if (degreeCourses)
       return getDegreeCoursesPath('pt', degreeCourses[1], degreeCourses[2])
@@ -205,6 +248,92 @@ export function getDegreeCoursesPath(
   degreeSlug: string
 ): string {
   return `${getDegreePath(lang, facultySlug, degreeSlug)}/${COURSE_SEGMENT[lang]}`
+}
+
+const DEGREE_SUBPAGE_SEGMENT = {
+  admission: { pt: 'ingresso', en: 'admission' },
+  careers: { pt: 'saidas-profissionais', en: 'careers' }
+} as const satisfies Record<string, Record<Lang, string>>
+
+export type DegreeSubpage = keyof typeof DEGREE_SUBPAGE_SEGMENT
+
+/** /ist/leic-a/ingresso, /en/ist/leic-a/careers */
+export function getDegreeSubpagePath(
+  lang: Lang,
+  facultySlug: string,
+  degreeSlug: string,
+  page: DegreeSubpage
+): string {
+  return `${getDegreePath(lang, facultySlug, degreeSlug)}/${DEGREE_SUBPAGE_SEGMENT[page][lang]}`
+}
+
+/** /ist/leic-a/ingresso, /en/ist/leic-a/admission */
+export function getDegreeAdmissionPath(
+  lang: Lang,
+  facultySlug: string,
+  degreeSlug: string
+): string {
+  return getDegreeSubpagePath(lang, facultySlug, degreeSlug, 'admission')
+}
+
+/** /ist/leic-a/saidas-profissionais, /en/ist/leic-a/careers */
+export function getDegreeCareersPath(
+  lang: Lang,
+  facultySlug: string,
+  degreeSlug: string
+): string {
+  return getDegreeSubpagePath(lang, facultySlug, degreeSlug, 'careers')
+}
+
+/** /unis/ulisboa, /en/unis/ulisboa */
+export function getUniversityPath(lang: Lang, uniSlug: string): string {
+  return lang === 'en' ? `/en/unis/${uniSlug}` : `/unis/${uniSlug}`
+}
+
+const UNIVERSITY_SUBPAGE_SEGMENT = {
+  faculties: { pt: 'faculdades', en: 'faculties' },
+  bachelors: { pt: 'licenciaturas', en: 'bachelors' },
+  degrees: { pt: 'cursos', en: 'degrees' }
+} as const satisfies Record<string, Record<Lang, string>>
+
+/** /unis/ulisboa/faculdades, /en/unis/ulisboa/bachelors */
+export function getUniversitySubpagePath(
+  lang: Lang,
+  uniSlug: string,
+  page: keyof typeof UNIVERSITY_SUBPAGE_SEGMENT
+): string {
+  return `${getUniversityPath(lang, uniSlug)}/${UNIVERSITY_SUBPAGE_SEGMENT[page][lang]}`
+}
+
+/**
+ * A university's degrees of one type: /unis/ulisboa/mestrados. Licenciaturas
+ * are its `bachelors` sub-page; the segments are the faculty type pages' own.
+ */
+export function getUniversityTypePath(
+  lang: Lang,
+  uniSlug: string,
+  type: FacultyTypePage
+): string {
+  return type === 'bachelor'
+    ? getUniversitySubpagePath(lang, uniSlug, 'bachelors')
+    : `${getUniversityPath(lang, uniSlug)}/${FACULTY_TYPE_SEGMENTS[type][lang]}`
+}
+
+/** The sub-page a /unis/:uniSlug/:segment URL names, in the other language */
+function swapUniversitySubpage(
+  uniSlug: string,
+  segment: string,
+  from: Lang
+): string | null {
+  const to: Lang = from === 'pt' ? 'en' : 'pt'
+  const page = (
+    Object.keys(UNIVERSITY_SUBPAGE_SEGMENT) as Array<
+      keyof typeof UNIVERSITY_SUBPAGE_SEGMENT
+    >
+  ).find((key) => UNIVERSITY_SUBPAGE_SEGMENT[key][from] === segment)
+  if (page) return getUniversitySubpagePath(to, uniSlug, page)
+  const type = facultyTypeFromSegment(segment, from)
+  return type ? getUniversityTypePath(to, uniSlug, type) : null
 }
 
 export function getFeedbackEditPath(lang: Lang, feedbackId: number): string {

@@ -70,6 +70,9 @@
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
+  /* Behind school logos: logos are drawn for light backgrounds, so this stays
+     light in both themes (dimmed in dark so it doesn't glare) */
+  --logo-tile: oklch(1 0 0);
   --muted-foreground: oklch(0.556 0 0);
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
@@ -188,6 +191,7 @@
   --secondary: oklch(0.335 0 0);
   --secondary-foreground: oklch(0.9 0 0);
   --muted: oklch(0.335 0 0);
+  --logo-tile: oklch(0.93 0 0);
   --muted-foreground: oklch(0.73 0 0);
   --accent: oklch(0.335 0 0);
   --accent-foreground: oklch(0.9 0 0);
@@ -311,6 +315,7 @@
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
+  --color-logo-tile: var(--logo-tile);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);

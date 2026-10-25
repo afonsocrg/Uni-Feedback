@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm'
-import { courses } from '../schema'
+import { courses, type StandardTerm } from '../schema'
 
 /**
  * Shape of an offering as returned by {@link offeringsSubquery}.
@@ -9,6 +9,7 @@ export interface CourseOfferingJson {
   curriculumYear: number | null
   academicTerm: {
     name: string
+    standardTerm: StandardTerm | null
     startTick: number
     endTick: number
   }
@@ -16,7 +17,7 @@ export interface CourseOfferingJson {
 
 /**
  * Correlated subquery that aggregates a course's offerings into a JSON array,
- * each entry `{ curriculumYear, academicTerm: { name, startTick, endTick } }`.
+ * each entry `{ curriculumYear, academicTerm: { name, standardTerm, startTick, endTick } }`.
  *
  * Ordered `start_tick ASC, end_tick DESC` so container terms come before their
  * sub-terms. Returns `[]` for courses with no offerings. Use inside the
@@ -30,6 +31,7 @@ export function offeringsSubquery() {
         'curriculumYear', o.curriculum_year,
         'academicTerm', jsonb_build_object(
           'name', t.name,
+          'standardTerm', t.standard_term,
           'startTick', t.start_tick,
           'endTick', t.end_tick
         )

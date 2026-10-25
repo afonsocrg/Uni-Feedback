@@ -1,3 +1,4 @@
+import type { CourseOffering } from '@uni-feedback/api-client'
 import type { Degree, Faculty } from '@uni-feedback/db/schema'
 import {
   Accordion,
@@ -8,7 +9,7 @@ import {
 import { isDiscontinued, toOrdinal } from '@uni-feedback/utils'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useDebounce, useLang } from '~/hooks'
+import { useDebounce, useLang, useTermLabel } from '~/hooks'
 import { insensitiveMatch } from '~/utils'
 import { analytics } from '~/utils/analytics'
 import { loadCourseFilters, saveCourseFilters } from '~/utils/filterStorage'
@@ -54,6 +55,7 @@ export function DegreeCoursesBrowser({
 }) {
   const { t } = useTranslation('browse')
   const lang = useLang()
+  const termLabel = useTermLabel()
   const [searchQuery, setSearchQuery] = useState('')
   // undefined = nothing chosen yet: the plan opens on its first year. null = all years.
   const [selectedCurriculumYear, setSelectedCurriculumYear] = useState<
@@ -100,6 +102,22 @@ export function DegreeCoursesBrowser({
       setCourseTypeFilter(savedFilters.isMandatory ?? null)
       setSortBy(savedFilters.sortBy as SortOption)
     }
+
+    // A link from the degree page's plan summary ("N optativas no 3.º ano")
+    // names the year and course type to open on. It wins over the saved
+    // filters, and the term and group are cleared so the list isn't narrowed
+    // by a filter the link didn't ask for.
+    const params = new URLSearchParams(window.location.search)
+    const linkedYear = Number(params.get('year'))
+    const linkedType = params.get('type')
+    if (Number.isInteger(linkedYear) && linkedYear > 0) {
+      setSelectedCurriculumYear(linkedYear)
+      setSelectedTerm(null)
+      setSelectedCourseGroupId(null)
+    }
+    if (linkedType === 'optional' || linkedType === 'mandatory') {
+      setCourseTypeFilter(linkedType === 'mandatory')
+    }
   }, [faculty.slug, degree.slug])
 
   // Save filters to localStorage whenever they change
@@ -128,15 +146,17 @@ export function DegreeCoursesBrowser({
   // Available curriculum years for filtering (from offerings)
   const availableCurriculumYears = useAvailableCurriculumYears(offeredCourses)
 
-  // Available academic term names for filtering (from offerings)
+  // Available academic terms for filtering (from offerings), keyed by name
   const availableTerms = useMemo(() => {
-    const terms = new Set<string>()
+    const terms = new Map<string, CourseOffering['academicTerm']>()
     offeredCourses.forEach((course) => {
       course.offerings.forEach((offering) => {
-        terms.add(offering.academicTerm.name)
+        terms.set(offering.academicTerm.name, offering.academicTerm)
       })
     })
-    return Array.from(terms).sort()
+    return Array.from(terms.values()).sort((a, b) =>
+      a.name.localeCompare(b.name)
+    )
   }, [offeredCourses])
 
   // A property every course answers the same way makes for a chip that can only
@@ -172,7 +192,12 @@ export function DegreeCoursesBrowser({
     showCurriculumYearFilter && searchQuery.trim() === ''
       ? shownCurriculumYear
       : null
-  const activeTerm = showTermFilter ? selectedTerm : null
+  // Same for a saved term the degree no longer has, e.g. one saved before the
+  // faculty's terms were renamed ("1.º Semestre" to "S1").
+  const activeTerm =
+    showTermFilter && availableTerms.some((term) => term.name === selectedTerm)
+      ? selectedTerm
+      : null
   const activeCourseType = showCourseTypeFilter ? courseTypeFilter : null
   const activeExamFilter = showExamFilter ? mandatoryExamFilter : null
 
@@ -185,8 +210,8 @@ export function DegreeCoursesBrowser({
   }))
 
   const termOptions = availableTerms.map((term) => ({
-    value: term,
-    label: term
+    value: term.name,
+    label: termLabel(term, 'long')
   }))
 
   const courseGroupOptions = courseGroups.map((group) => ({
@@ -216,7 +241,7 @@ export function DegreeCoursesBrowser({
     return offeredCourses
       .filter((course) => {
         const matchesSearch = insensitiveMatch(
-          `${course.name} ${course.acronym}`,
+          `${course.name} ${course.acronym} ${course.altName ?? ''}`,
           searchQuery
         )
 
@@ -271,7 +296,10 @@ export function DegreeCoursesBrowser({
     () =>
       pastCourses
         .filter((course) =>
-          insensitiveMatch(`${course.name} ${course.acronym}`, searchQuery)
+          insensitiveMatch(
+            `${course.name} ${course.acronym} ${course.altName ?? ''}`,
+            searchQuery
+          )
         )
         .sort(compareCourses(sortBy)),
     [pastCourses, searchQuery, sortBy]
@@ -386,7 +414,7 @@ export function DegreeCoursesBrowser({
                 <FilterChip
                   label={t('degree_page.term_label')}
                   options={termOptions}
-                  selectedValue={selectedTerm}
+                  selectedValue={activeTerm}
                   onValueChange={setSelectedTerm}
                   placeholder={t('degree_page.all_terms')}
                 />

@@ -1,6 +1,7 @@
 import {
   integer,
   pgSchema,
+  primaryKey,
   serial,
   text,
   timestamp,
@@ -77,3 +78,25 @@ export const degreeExternalIds = sourcesSchema.table(
 export type UniversityExternalId = typeof universityExternalIds.$inferSelect
 export type FacultyExternalId = typeof facultyExternalIds.$inferSelect
 export type DegreeExternalId = typeof degreeExternalIds.$inferSelect
+
+// Names per entity and language as an outside source publishes them, or as we
+// translated them (source = 'translation'), for provenance. The curated value
+// lives on the entity (`name`, `name_en`); this records where it came from.
+// `entityId` is not a foreign key: one table serves all four entities.
+export const entityNames = sourcesSchema.table(
+  'entity_names',
+  {
+    entity: text('entity')
+      .$type<'university' | 'faculty' | 'degree' | 'course'>()
+      .notNull(),
+    entityId: integer('entity_id').notNull(),
+    lang: text('lang').$type<'pt' | 'en'>().notNull(),
+    name: text('name').notNull(),
+    source: text('source').notNull(),
+    sourceUrl: text('source_url'),
+    fetchedAt: timestamp('fetched_at', { withTimezone: true })
+      .notNull()
+      .defaultNow()
+  },
+  (t) => [primaryKey({ columns: [t.entity, t.entityId, t.lang, t.source] })]
+)

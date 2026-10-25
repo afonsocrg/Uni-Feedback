@@ -1,9 +1,13 @@
 import type { CourseOffering } from '@uni-feedback/api-client'
 import type { ChipColor } from '@uni-feedback/ui'
+import type { ReactNode } from 'react'
 
 export interface CourseWithFeedback {
   id: number
+  /** In the page's language (`name_en` on EN pages, else `name`) */
   name: string
+  /** The other language's name, matched by search too; null when the same */
+  altName?: string | null
   acronym: string
   offerings: CourseOffering[]
   hasMandatoryExam: boolean | null
@@ -47,6 +51,8 @@ export interface CourseSection {
   key: string
   heading: string | null
   entries: CourseListingEntry[]
+  /** Rendered under the section's rows, e.g. "N more" on a cut-down term */
+  footer?: ReactNode
 }
 
 /**

@@ -3,6 +3,7 @@ import { z } from 'zod'
 /** Zod schema for a course offering as returned by `offeringsSubquery()`. */
 export const AcademicTermSchema = z.object({
   name: z.string(),
+  standardTerm: z.enum(['semester_1', 'semester_2', 'annual']).nullable(),
   startTick: z.number(),
   endTick: z.number()
 })

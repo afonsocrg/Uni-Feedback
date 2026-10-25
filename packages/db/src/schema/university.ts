@@ -15,6 +15,9 @@ import { pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core'
 export const universities = pgTable('universities', {
   id: serial('id').primaryKey(),
   name: text('name').notNull(),
+  // Official English name; EN pages fall back to `name` (the Portuguese one)
+  // when NULL. `shortName` is the same in both languages.
+  nameEn: text('name_en'),
   shortName: text('short_name').notNull(),
   // Used as the value of the faculty-page university filter, so the selection
   // stays readable and stable if ids ever change.
