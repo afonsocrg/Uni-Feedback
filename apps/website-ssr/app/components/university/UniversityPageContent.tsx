@@ -71,7 +71,8 @@ export function UniversityPageContent({ data }: { data: UniversityPageData }) {
       pinLabel: faculty.shortName,
       address: campusAddress(campus),
       latitude: campus.latitude,
-      longitude: campus.longitude
+      longitude: campus.longitude,
+      website: campus.url
     }))
   )
   const topFaculty = [...faculties].sort(
@@ -308,11 +309,27 @@ export function UniversityPageContent({ data }: { data: UniversityPageData }) {
                       surface
                     })
                   }
+                  onCopyAddress={(item) =>
+                    analytics.discovery.campusAddressCopied({
+                      page: 'university',
+                      universitySlug: slug,
+                      facultySlug: item.key.split('/')[0],
+                      campus: item.title
+                    })
+                  }
                   onDirections={() =>
                     analytics.university.linkClicked({
                       universitySlug: slug,
                       page: 'main',
                       target: 'campus_map',
+                      surface: 'campuses_section'
+                    })
+                  }
+                  onWebsite={() =>
+                    analytics.university.linkClicked({
+                      universitySlug: slug,
+                      page: 'main',
+                      target: 'campus_website',
                       surface: 'campuses_section'
                     })
                   }

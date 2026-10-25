@@ -1060,8 +1060,6 @@ export function CampusSection({
               [campus.phone, campus.email].filter(Boolean).join(' · ') ||
               undefined,
             website: campus.url
-              ? { href: campus.url, label: hostOf(campus.url) }
-              : undefined
           }))}
           onSelect={(item, surface) => {
             if (!track.facultySlug || !track.degreeSlug) return
@@ -1071,6 +1069,15 @@ export function CampusSection({
               degreeSlug: track.degreeSlug,
               campus: item.title,
               surface
+            })
+          }}
+          onCopyAddress={(item) => {
+            if (!track.facultySlug || !track.degreeSlug) return
+            analytics.discovery.campusAddressCopied({
+              page: 'degree',
+              facultySlug: track.facultySlug,
+              degreeSlug: track.degreeSlug,
+              campus: item.title
             })
           }}
           onDirections={() => trackSource(track, 'campus_map')}

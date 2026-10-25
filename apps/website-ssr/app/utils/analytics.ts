@@ -224,8 +224,10 @@ export type UniversityLinkTarget =
   | 'official_site'
   /** "A tua universidade não está aqui?" mailto on /unis */
   | 'missing_university'
-  /** "Como chegar" under the campus map */
+  /** "Abrir no Google Maps" in a campus map popup */
   | 'campus_map'
+  /** "Site oficial" in a campus map popup */
+  | 'campus_website'
   /** An official profile in the header (OfficialLinks) */
   | 'linkedin'
   | 'x'
@@ -971,6 +973,18 @@ export const analytics = {
       campus: string
       surface: 'list' | 'pin'
     }) => trackEvent('campus_selected', props),
+
+    /**
+     * A campus address copied from its popup on a campus map. Fires once the
+     * clipboard write resolved. Same props as `campus_selected`, minus surface.
+     */
+    campusAddressCopied: (props: {
+      page: 'university' | 'faculty' | 'degree'
+      universitySlug?: string
+      facultySlug: string
+      degreeSlug?: string
+      campus: string
+    }) => trackEvent('campus_address_copied', props),
 
     degreeSourceLinkClicked: (props: {
       facultySlug: string

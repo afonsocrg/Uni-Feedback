@@ -104,3 +104,14 @@
 .dark .campus-map .maplibregl-ctrl-attrib-button {
   filter: invert(1);
 }
+/* The popup on a selected pin (CampusCard renders into it) */
+.campus-map .campus-popup .maplibregl-popup-content {
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 16px rgb(0 0 0 / 0.18);
+}
+.campus-map .campus-popup .maplibregl-popup-tip {
+  border-top-color: var(--card);
+}

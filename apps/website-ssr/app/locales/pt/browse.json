@@ -365,8 +365,7 @@
     },
     "campus": {
       "degrees_one": "{{n}} curso neste campus",
-      "degrees_other": "{{n}} cursos neste campus",
-      "website": "Site oficial"
+      "degrees_other": "{{n}} cursos neste campus"
     },
     "table": {
       "campus": "Campus",

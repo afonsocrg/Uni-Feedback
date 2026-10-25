@@ -80,7 +80,12 @@
   "campus_map": {
     "map_label": "Map of the campuses",
     "no_pin": "Not on the map yet",
-    "directions": "Directions",
+    "open_in_maps": "Open in Google Maps",
+    "website": "Official website",
+    "copy_address": "Copy address",
+    "address_copied": "Address copied",
+    "copy_failed": "Couldn't copy the address",
+    "close": "Close",
     "show_all": "Show all",
     "hint": "Pick a campus to see where it is.",
     "map_failed": "The map couldn't load."

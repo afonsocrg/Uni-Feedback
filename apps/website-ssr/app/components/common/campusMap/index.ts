@@ -1,8 +1,4 @@
-export {
-  CampusMap,
-  type CampusMapItem,
-  type CampusMapListApi
-} from './CampusMap'
+export { CampusMap, type CampusMapItem } from './CampusMap'
 
 /** "Av. Rovisco Pais, 1, 1049-001 Lisboa", or null when we have none of it */
 export function campusAddress(campus: {

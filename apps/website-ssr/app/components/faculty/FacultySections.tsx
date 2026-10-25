@@ -258,12 +258,9 @@ export function hasHighlights(h: FacultyHighlights) {
 
 export function CampusesSection({
   campuses,
-  facultyUrl,
   track
 }: {
   campuses: FacultyCampus[]
-  /** The faculty's website, already in the header: a campus repeating it shows none */
-  facultyUrl: string | null
   track: FacultyTrack
 }) {
   const { t } = useTranslation('browse')
@@ -296,10 +293,7 @@ export function CampusesSection({
           ]
             .filter(Boolean)
             .join(' · '),
-          website:
-            campus.url && !sameUrl(campus.url, facultyUrl)
-              ? { href: campus.url, label: t('faculty_hub.campus.website') }
-              : undefined
+          website: campus.url
         }))}
         onSelect={(item, surface) =>
           analytics.discovery.campusSelected({
@@ -309,17 +303,18 @@ export function CampusesSection({
             surface
           })
         }
+        onCopyAddress={(item) =>
+          analytics.discovery.campusAddressCopied({
+            page: 'faculty',
+            facultySlug: track.facultySlug,
+            campus: item.title
+          })
+        }
         onDirections={() => trackFacultyLink(track, 'campus_map', 'campuses')}
         onWebsite={() => trackFacultyLink(track, 'campus_website', 'campuses')}
       />
     </SectionShell>
   )
-}
-
-/** Same page, ignoring a trailing slash */
-function sameUrl(a: string, b: string | null) {
-  const strip = (u: string) => u.replace(/\/+$/, '')
-  return b !== null && strip(a) === strip(b)
 }
 
 /* ------------------------------------------------------------------ */
