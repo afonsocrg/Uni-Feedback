@@ -1,5 +1,6 @@
 import type { Lang } from '~/i18n/config'
 import {
+  getDegreeCoursesPath,
   getDegreePath,
   getFacultyPath,
   getLocalePath,
@@ -22,6 +23,7 @@ export type CrumbLevel =
   | 'university'
   | 'faculty'
   | 'degree'
+  | 'courses'
   | 'current'
 
 export interface Crumb {
@@ -44,6 +46,11 @@ export interface CrumbTrail {
   university?: CrumbUniversity | null
   faculty?: { slug?: string | null; shortName: string; name?: string } | null
   degree?: { slug?: string | null; acronym: string; name?: string } | null
+  /**
+   * The degree's course list ("Cadeiras"), as the parent of a course page: the
+   * step back from a course is the list it was picked from, not the degree.
+   */
+  courses?: string
   /** The page's own crumb when it is not one of the above (a course, "Ingresso") */
   current?: string
   /** `current`'s full name, when it is an acronym */
@@ -54,7 +61,7 @@ export interface CrumbTrail {
 export function buildCrumbs(
   lang: Lang,
   rootLabel: string,
-  { university, faculty, degree, current, currentName }: CrumbTrail
+  { university, faculty, degree, courses, current, currentName }: CrumbTrail
 ): Crumb[] {
   const crumbs: Crumb[] = [
     {
@@ -88,6 +95,17 @@ export function buildCrumbs(
       path:
         faculty.slug && degree.slug
           ? getDegreePath(lang, faculty.slug, degree.slug)
+          : undefined
+    })
+  }
+  if (faculty && degree && courses) {
+    crumbs.push({
+      level: 'courses',
+      label: courses,
+      fullName: courses,
+      path:
+        faculty.slug && degree.slug
+          ? getDegreeCoursesPath(lang, faculty.slug, degree.slug)
           : undefined
     })
   }

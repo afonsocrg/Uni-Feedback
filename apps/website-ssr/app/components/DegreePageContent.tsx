@@ -213,14 +213,6 @@ export function DegreePageContent({
     faculty.slug && degree.slug
       ? getDegreeCoursesPath(lang, faculty.slug, degree.slug)
       : null
-  const trackCoursesCta = (surface: 'header') => {
-    if (!faculty.slug || !degree.slug) return
-    analytics.discovery.degreeCoursesCtaClicked({
-      facultySlug: faculty.slug,
-      degreeSlug: degree.slug,
-      surface
-    })
-  }
   const availableCurriculumYears = useAvailableCurriculumYears(offeredCourses)
 
   const plan = (
@@ -276,12 +268,9 @@ export function DegreePageContent({
           <div className="min-w-0">
             <DegreeHeader
               degree={degree}
-              facultyName={faculty.name}
+              faculty={faculty}
               universityName={extras.universityName}
-              courseCount={offeredCourses.length}
               isRetired={isRetired}
-              coursesHref={coursesPath}
-              onCoursesClick={() => trackCoursesCta('header')}
             />
 
             {about && <AboutSection about={about} track={track} />}

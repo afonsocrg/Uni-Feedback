@@ -9,9 +9,9 @@
     "description_reviews_one": "Rated {{rating}}/5 from 1 anonymous review of {{subject}}. Workload, assessment and tips from students who took it.",
     "description_reviews_other": "Rated {{rating}}/5 from {{count}} anonymous reviews of {{subject}}. Workload, assessment and tips from students who took it."
   },
-  "tabs": {
+  "sections": {
     "feedback": "Feedback",
-    "description": "Description",
+    "description": "About the course",
     "assessment": "Assessment",
     "bibliography": "Bibliography"
   },
@@ -30,7 +30,6 @@
     "ratings_count_other": "{{count}} ratings"
   },
   "reviews": {
-    "heading": "Student Feedback",
     "give_feedback": "Give Feedback!",
     "empty_heading": "No feedback for this course yet",
     "empty_desc": "Be the first to share your experience, or ask your friends to leave feedback! Your input helps future students make better choices.",

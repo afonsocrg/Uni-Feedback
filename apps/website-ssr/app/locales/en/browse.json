@@ -68,8 +68,6 @@
     "past_courses_hint": "These are no longer part of the degree's plan. You can still read their feedback and give yours for the years they were taught.",
     "tag_last_taught": "Until {{year}}",
     "legend_mandatory_exam": "Mandatory exam",
-    "view_courses_one": "See the course",
-    "view_courses_other": "See the {{n}} courses",
     "toc_label": "On this page",
     "sections": {
       "plan": "Study plan",

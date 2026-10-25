@@ -1,4 +1,5 @@
 import type { CorrectionRequestField } from '@uni-feedback/api-client'
+import type { CourseSectionId } from '~/utils/analytics'
 
 /**
  * The long-form markdown fields rendered as their own section on the course
@@ -16,3 +17,14 @@ export function isCourseContentField(
 ): field is CourseContentField {
   return (CONTENT_FIELDS as readonly string[]).includes(field)
 }
+
+/**
+ * The course page's sections, in page order, by their anchor (`#avaliacao`).
+ * Anchors are Portuguese on both languages' pages, like the degree page's.
+ */
+export const COURSE_SECTION_IDS = {
+  feedback: 'feedback',
+  description: 'sobre',
+  assessment: 'avaliacao',
+  bibliography: 'bibliografia'
+} as const satisfies Record<'feedback' | CourseContentField, CourseSectionId>

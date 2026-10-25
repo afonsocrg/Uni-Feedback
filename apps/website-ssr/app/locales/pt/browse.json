@@ -68,8 +68,6 @@
     "past_courses_hint": "Já não fazem parte do plano do curso. Continuas a poder ler o feedback e a dar o teu sobre os anos em que foram lecionadas.",
     "tag_last_taught": "Até {{year}}",
     "legend_mandatory_exam": "Exame obrigatório",
-    "view_courses_one": "Ver a cadeira",
-    "view_courses_other": "Ver as {{n}} cadeiras",
     "toc_label": "Nesta página",
     "sections": {
       "plan": "Plano curricular",

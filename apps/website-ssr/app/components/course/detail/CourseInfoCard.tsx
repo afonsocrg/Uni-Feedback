@@ -2,12 +2,7 @@ import type {
   CorrectionRequestField,
   CourseOffering
 } from '@uni-feedback/api-client'
-import {
-  Button,
-  Chip,
-  StarRating,
-  WorkloadRatingDisplay
-} from '@uni-feedback/ui'
+import { Button, cn, StarRating, WorkloadRatingDisplay } from '@uni-feedback/ui'
 import { formatSchoolYearString } from '@uni-feedback/utils'
 import { Clock, ExternalLink, Flag, History, Star } from 'lucide-react'
 import { useMemo, useState } from 'react'
@@ -18,6 +13,7 @@ import { useLang, useTermLabel } from '~/hooks'
 import { analytics, getPageName } from '~/utils/analytics'
 import { getCourseFeedbackPath } from '~/utils/i18n-routes'
 import { CorrectionRequestDialog, FeedbackHistogram } from '.'
+import { PageHeading } from '../../common/PageHeading'
 
 export interface CourseInfoCardProps {
   course: {
@@ -43,11 +39,11 @@ export interface CourseInfoCardProps {
       id: number
       name: string
       acronym: string
-      faculty?: {
-        id: number
-        name: string
-        shortName: string
-      }
+    } | null
+    faculty?: {
+      name: string
+      shortName: string
+      logo: string | null
     } | null
   }
 }
@@ -95,10 +91,29 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
 
   const examChip =
     course.hasMandatoryExam === null || course.hasMandatoryExam === undefined
-      ? { label: t('info.exam_not_specified'), color: 'gray' as const }
+      ? { label: t('info.exam_not_specified'), className: 'bg-muted' }
       : course.hasMandatoryExam
-        ? { label: t('info.exam_mandatory'), color: 'red' as const }
-        : { label: t('info.exam_optional'), color: 'green' as const }
+        ? {
+            label: t('info.exam_mandatory'),
+            className: 'bg-tint-red text-tint-red-fg'
+          }
+        : {
+            label: t('info.exam_optional'),
+            className: 'bg-tint-green text-tint-green-fg'
+          }
+  const facts: { label: string; className?: string }[] = [
+    ...(course.ects ? [{ label: `${course.ects} ECTS` }] : []),
+    ...termNames.map((name) => ({ label: name })),
+    {
+      label: `${t('info.exam_label')}: ${examChip.label}`,
+      className: examChip.className
+    }
+  ]
+
+  // The degree the course is in, then its school, as on the degree page
+  const eyebrow = [course.degree?.acronym, course.faculty?.name]
+    .filter(Boolean)
+    .join(' · ')
 
   const getCurrentValue = (
     field: CorrectionRequestField
@@ -128,50 +143,50 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
   }
 
   return (
-    <div className="mb-12">
-      {/* Hero Section */}
-      <div className="space-y-3">
-        {/* Course Title */}
-        <h1 className="text-2xl sm:text-3xl font-bold text-primaryBlue leading-tight">
-          {course.name}
-        </h1>
-
-        {/* Identity and actions */}
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
-          <span className="text-muted-foreground font-medium">
-            {course.acronym}
-          </span>
-          {course.url && (
-            <a
-              href={course.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primaryBlue hover:underline inline-flex items-center gap-1.5"
+    <div>
+      <header>
+        <PageHeading
+          school={course.faculty ?? undefined}
+          eyebrow={eyebrow || undefined}
+          title={course.name}
+        >
+          {/* Identity and actions */}
+          <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+            <span className="text-muted-foreground font-medium">
+              {course.acronym}
+            </span>
+            {course.url && (
+              <a
+                href={course.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primaryBlue hover:underline inline-flex items-center gap-1.5"
+              >
+                {t('info.course_page')}
+                <ExternalLink className="size-3.5" />
+              </a>
+            )}
+            <button
+              onClick={() => {
+                analytics.correction.dialogOpened({
+                  courseId: course.id,
+                  entryPoint: 'course_info_card'
+                })
+                setCorrectionDialogOpen(true)
+              }}
+              className="text-muted-foreground hover:text-foreground hover:underline cursor-pointer inline-flex items-center gap-1.5"
             >
-              {t('info.course_page')}
-              <ExternalLink className="size-3.5" />
-            </a>
-          )}
-          <button
-            onClick={() => {
-              analytics.correction.dialogOpened({
-                courseId: course.id,
-                entryPoint: 'course_info_card'
-              })
-              setCorrectionDialogOpen(true)
-            }}
-            className="text-muted-foreground hover:text-foreground hover:underline cursor-pointer inline-flex items-center gap-1.5"
-          >
-            <Flag className="size-3.5" />
-            {t('info.suggest_correction')}
-          </button>
-        </div>
+              <Flag className="size-3.5" />
+              {t('info.suggest_correction')}
+            </button>
+          </div>
+        </PageHeading>
 
         {/* Said before any fact, so nobody reads the page as a course they
             can still take. The reviews and the feedback form stay: students
             who took it can still review the years it ran. */}
         {course.lastTaughtYear != null && (
-          <p className="flex items-start gap-2 rounded-md border border-border bg-muted px-3 py-2 text-sm text-muted-foreground">
+          <p className="mt-4 flex items-start gap-2 rounded-md border border-border bg-muted px-3 py-2 text-sm text-muted-foreground">
             <History className="mt-0.5 size-4 flex-shrink-0" />
             {t('info.no_longer_taught', {
               year: formatSchoolYearString(course.lastTaughtYear)
@@ -179,21 +194,23 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
           </p>
         )}
 
-        {/* Course facts */}
-        <div className="flex flex-wrap items-center gap-2">
-          {course.ects && (
-            <Chip label={`${course.ects} ECTS`} size="sm" color="gray" />
-          )}
-          {termNames.map((name) => (
-            <Chip key={name} label={name} color="gray" size="sm" />
+        {/* Course facts, as chips like the degree page's */}
+        <ul className="mt-4 flex flex-wrap gap-2">
+          {facts.map((fact) => (
+            <li
+              key={fact.label}
+              className={cn(
+                'whitespace-nowrap rounded-full px-3 py-1 text-sm',
+                fact.className ?? 'bg-muted text-foreground'
+              )}
+            >
+              {fact.label}
+            </li>
           ))}
-          <Chip
-            label={`${t('info.exam_label')}: ${examChip.label}`}
-            color={examChip.color}
-            size="sm"
-          />
-        </div>
+        </ul>
+      </header>
 
+      <div>
         {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 mt-6">
           {/* Feedback Stat */}

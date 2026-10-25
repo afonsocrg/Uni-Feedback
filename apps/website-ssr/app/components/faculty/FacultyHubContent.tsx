@@ -8,7 +8,6 @@ import { getFacultyTypePath, isFacultyTypePage } from '~/utils/facultyTypePages'
 import { getUniversityPath } from '~/utils/i18n-routes'
 import { LocalizedText } from '../common/LocalizedText'
 import { OfficialLinks } from '../common/OfficialLinks'
-import { SchoolLogo } from '../common/SchoolLogo'
 import { SearchInput } from '../common/SearchInput'
 import { ToggleChip } from '../common/ToggleChip'
 import type { FaqItem } from '../degree/content'
@@ -147,7 +146,7 @@ export function FacultyHubContent({
       university={data.university}
       page="hub"
       title={faculty.name}
-      subtitle={
+      eyebrow={
         data.university ? (
           <a
             href={getUniversityPath(lang, data.university.slug)}
@@ -159,14 +158,7 @@ export function FacultyHubContent({
         ) : null
       }
       facts={[]}
-      logo={
-        <SchoolLogo
-          logo={faculty.logo}
-          name={faculty.name}
-          shortName={faculty.shortName}
-          size="lg"
-        />
-      }
+      school={faculty}
       links={
         <OfficialLinks
           name={faculty.shortName}

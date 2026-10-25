@@ -9,9 +9,9 @@
     "description_reviews_one": "Nota {{rating}}/5 com base em 1 opinião anónima sobre {{subject}}. Carga de trabalho, avaliação e dicas de quem já fez a cadeira.",
     "description_reviews_other": "Nota {{rating}}/5 com base em {{count}} opiniões anónimas sobre {{subject}}. Carga de trabalho, avaliação e dicas de quem já fez a cadeira."
   },
-  "tabs": {
+  "sections": {
     "feedback": "Feedback",
-    "description": "Descrição",
+    "description": "Sobre a cadeira",
     "assessment": "Avaliação",
     "bibliography": "Bibliografia"
   },
@@ -30,7 +30,6 @@
     "ratings_count_other": "{{count}} avaliações"
   },
   "reviews": {
-    "heading": "Feedback dos Alunos",
     "give_feedback": "Dá Feedback!",
     "empty_heading": "Ainda não há feedback para esta cadeira",
     "empty_desc": "Sê o primeiro a partilhar a tua experiência, ou pede aos teus amigos que deixem feedback! A tua contribuição ajuda os futuros alunos a tomar melhores decisões.",

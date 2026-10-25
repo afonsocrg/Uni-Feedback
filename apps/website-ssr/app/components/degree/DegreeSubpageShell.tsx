@@ -8,6 +8,7 @@ import { type ErrorReportSurface } from '~/utils/analytics'
 import type { CrumbUniversity } from '~/utils/breadcrumbs'
 import { getDegreePath } from '~/utils/i18n-routes'
 import { Breadcrumb } from '../common/Breadcrumb'
+import { PageHeading } from '../common/PageHeading'
 import { ReportErrorNote } from '../common/ReportErrorNote'
 import { DegreeTocBar, DegreeTocSidebar } from './DegreeToc'
 import { useScrollSpy, type TocSection } from './scrollSpy'
@@ -73,23 +74,25 @@ export function DegreeSubpageShell({
         <div className="mx-auto max-w-6xl lg:grid lg:grid-cols-[minmax(0,1fr)_13rem] lg:gap-12">
           <div className="min-w-0">
             <header className="mb-6">
-              <h1 className="text-2xl font-bold leading-tight text-foreground text-balance md:text-3xl">
-                {title}
-              </h1>
-              <p className="mt-1 text-muted-foreground">
-                {universityName
-                  ? `${faculty.name} · ${universityName}`
-                  : faculty.name}
-              </p>
-              {faculty.slug && degree.slug && (
-                <Link
-                  to={getDegreePath(lang, faculty.slug, degree.slug)}
-                  className="mt-1 inline-flex items-center gap-1 text-sm text-primaryBlue hover:underline"
-                >
-                  <ArrowLeft aria-hidden="true" className="size-3.5" />
-                  {t('degree_subpages.back', { acronym: degree.acronym })}
-                </Link>
-              )}
+              <PageHeading
+                school={faculty}
+                eyebrow={
+                  universityName
+                    ? `${faculty.name} · ${universityName}`
+                    : faculty.name
+                }
+                title={title}
+              >
+                {faculty.slug && degree.slug && (
+                  <Link
+                    to={getDegreePath(lang, faculty.slug, degree.slug)}
+                    className="mt-1 inline-flex items-center gap-1 text-sm text-primaryBlue hover:underline"
+                  >
+                    <ArrowLeft aria-hidden="true" className="size-3.5" />
+                    {t('degree_subpages.back', { acronym: degree.acronym })}
+                  </Link>
+                )}
+              </PageHeading>
             </header>
 
             {children}

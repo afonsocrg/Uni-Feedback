@@ -245,6 +245,13 @@ export type DegreeSectionId =
   | 'faq'
   | 'relacionados'
 
+/** The course page's sections, by anchor, in page order (since 2026-10-25) */
+export type CourseSectionId =
+  | 'feedback'
+  | 'sobre'
+  | 'avaliacao'
+  | 'bibliografia'
+
 /** Outside pages the degree page links to as the source of what it shows. */
 export type DegreeSourceLink =
   | 'dges'
@@ -677,10 +684,11 @@ export const analytics = {
 
   correction: {
     /**
-     * Track a student landing on a content tab (description / assessment /
-     * bibliography) that invites them to contribute. This is the denominator of
-     * the contribution funnel: the CTA only renders inside the active tab, so a
-     * view here means the student actually looked at that section.
+     * Track a content section (description / assessment / bibliography) that
+     * invites the student to contribute coming into view. This is the
+     * denominator of the contribution funnel. Until 2026-10-25 these were tabs
+     * and it fired when the student opened one; since then they are sections
+     * of one page and it fires when one scrolls into view, once per page view.
      *
      * `hasExistingContent` splits the two intents the same dialog serves:
      * `false` is a gap we're asking students to fill, `true` is an edit of
@@ -873,8 +881,9 @@ export const analytics = {
 
     /**
      * Track a click from the degree page to its course browser (`/cadeiras`):
-     * the header's "Ver as N cadeiras" (`header`) or "Explorar todas as
-     * cadeiras" under the plan summary (`plan_section`). Over
+     * "Explorar todas as cadeiras" under the plan summary (`plan_section`),
+     * or the header's "Ver as N cadeiras" (`header`, removed 2026-10-25: the
+     * plan summary sits right below it). Over
      * `degree_page_viewed` it says how many come to the degree page to find a
      * course rather than to learn about the degree.
      */
@@ -1130,6 +1139,29 @@ export const analytics = {
   },
 
   course: {
+    /**
+     * A course page load (since 2026-10-25, when the tabs became sections).
+     * Carries the sections it rendered, so reach can be read per section.
+     */
+    pageViewed: (props: {
+      courseId: number
+      feedbackCount: number
+      sections: CourseSectionId[]
+    }) => trackEvent('course_page_viewed', props),
+
+    /** A section scrolled into view, once per section per page view */
+    sectionViewed: (props: { courseId: number; section: CourseSectionId }) =>
+      trackEvent('course_section_viewed', props),
+
+    tocClicked: (props: {
+      courseId: number
+      section: CourseSectionId
+      surface: 'sidebar' | 'mobile_sheet'
+    }) => trackEvent('course_toc_clicked', props),
+
+    tocOpened: (props: { courseId: number }) =>
+      trackEvent('course_toc_opened', props),
+
     /**
      * Track when a student shares a course page from the course header.
      *

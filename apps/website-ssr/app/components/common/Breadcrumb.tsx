@@ -15,7 +15,7 @@ interface BreadcrumbProps extends CrumbTrail {
 }
 
 /**
- * Universidades › ULisboa › IST › LEIC-A › Cadeiras. The trail comes from
+ * Universidades › ULisboa › IST › LEIC-A › Cadeiras (› IAED). The trail comes from
  * `buildCrumbs`, the same one the pages' JSON-LD uses. On phones only the root
  * (as an icon) and the last two crumbs show, with "…" for the levels between.
  */
@@ -42,7 +42,11 @@ export function Breadcrumb({
         lastSelectedDegreeSlug: undefined,
         lastVisitedPath: getFacultyPath(lang, faculty.slug)
       })
-    } else if (crumb.level === 'degree' && faculty?.slug && degree?.slug) {
+    } else if (
+      (crumb.level === 'degree' || crumb.level === 'courses') &&
+      faculty?.slug &&
+      degree?.slug
+    ) {
       userPreferences.set({
         lastSelectedFacultySlug: faculty.slug,
         lastSelectedDegreeSlug: degree.slug,

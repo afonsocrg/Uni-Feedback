@@ -3,6 +3,7 @@ import { analytics, type FacultyPageKind } from '~/utils/analytics'
 import type { CrumbUniversity } from '~/utils/breadcrumbs'
 import { userPreferences } from '~/utils/userPreferences'
 import { Breadcrumb } from '../common/Breadcrumb'
+import { PageHeading } from '../common/PageHeading'
 import { ReportErrorNote } from '../common/ReportErrorNote'
 import { DegreeTocBar, DegreeTocSidebar } from '../degree/DegreeToc'
 import { useScrollSpy, type TocSection } from '../degree/scrollSpy'
@@ -22,11 +23,12 @@ export function FacultyPageShell({
   page,
   crumb,
   title,
+  eyebrow,
   subtitle,
   facts,
   actions,
   links,
-  logo,
+  school,
   sections,
   degreeCount,
   children
@@ -39,13 +41,16 @@ export function FacultyPageShell({
   /** The last breadcrumb (a type page's label); none on the hub */
   crumb?: string
   title: string
-  subtitle: ReactNode
+  /** The university, above the title, on the hub */
+  eyebrow?: ReactNode
+  /** A line under the header (a type page's intro) */
+  subtitle?: ReactNode
   facts: ReactNode[]
   actions?: ReactNode
   /** The website and official profiles row (OfficialLinks), on the hub */
   links?: ReactNode
-  /** The school's logo (SchoolLogo), on the hub */
-  logo?: ReactNode
+  /** The faculty whose logo leads the header, on the hub */
+  school?: { logo: string | null; name: string; shortName: string }
   sections: TocSection<string>[]
   degreeCount: number
   children: ReactNode
@@ -106,16 +111,12 @@ export function FacultyPageShell({
         <div className="mx-auto max-w-6xl lg:grid lg:grid-cols-[minmax(0,1fr)_13rem] lg:gap-12">
           <div className="min-w-0">
             <header className="mb-8">
-              <div className="flex items-center gap-4">
-                {logo}
-                <div className="min-w-0">
-                  <h1 className="text-balance text-2xl font-bold leading-tight text-foreground md:text-3xl">
-                    {title}
-                  </h1>
-                  {links}
-                </div>
-              </div>
-              <p className="mt-1 text-muted-foreground">{subtitle}</p>
+              <PageHeading school={school} eyebrow={eyebrow} title={title}>
+                {links}
+              </PageHeading>
+              {subtitle && (
+                <p className="mt-1 text-muted-foreground">{subtitle}</p>
+              )}
               {facts.length > 0 && (
                 <ul className="mt-4 flex flex-wrap gap-2">
                   {facts.map((fact, i) => (

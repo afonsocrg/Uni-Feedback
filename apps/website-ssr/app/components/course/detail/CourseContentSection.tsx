@@ -4,7 +4,12 @@ import { FilePlus2, PenLine } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { analytics } from '~/utils/analytics'
-import { CorrectionRequestDialog, type CourseContentField } from '.'
+import {
+  CorrectionRequestDialog,
+  COURSE_SECTION_IDS,
+  type CourseContentField
+} from '.'
+import { SectionShell } from '../../degree/DegreeSections'
 
 /** Which language a course text is in, and whether it is not the page's */
 export interface CourseTextLang {
@@ -57,20 +62,6 @@ export function CourseContentSection({
   const [fromDeepLink, setFromDeepLink] = useState(false)
   const hasContent = Boolean(content?.trim())
 
-  // Inactive tabs aren't mounted, so a mount means the student opened this
-  // section: the denominator for "did the CTA get clicked". Guarded so a
-  // re-render can't inflate it.
-  const promptTrackedRef = useRef(false)
-  useEffect(() => {
-    if (promptTrackedRef.current) return
-    promptTrackedRef.current = true
-    analytics.correction.contributePromptViewed({
-      courseId: course.id,
-      field,
-      hasExistingContent: hasContent
-    })
-  }, [course.id, field, hasContent])
-
   const openDialog = (fromChat = false) => {
     analytics.correction.dialogOpened({
       courseId: course.id,
@@ -96,12 +87,11 @@ export function CourseContentSection({
     requestedField === field ? (content ?? undefined) : undefined
 
   return (
-    <div className="mb-8">
-      <div className="flex items-center justify-between gap-4 mb-4">
-        <h2 className="text-2xl font-semibold text-foreground">
-          {t(`tabs.${field}`)}
-        </h2>
-        {hasContent && (
+    <SectionShell
+      id={COURSE_SECTION_IDS[field]}
+      title={t(`sections.${field}`)}
+      action={
+        hasContent && (
           <button
             onClick={() => openDialog()}
             className="text-sm text-muted-foreground hover:text-foreground hover:underline cursor-pointer inline-flex items-center gap-1.5 flex-shrink-0"
@@ -109,9 +99,9 @@ export function CourseContentSection({
             <PenLine className="size-3.5" />
             {t('correction.suggest_edit')}
           </button>
-        )}
-      </div>
-
+        )
+      }
+    >
       {hasContent ? (
         <>
           <div lang={contentLang?.lang}>
@@ -162,6 +152,6 @@ export function CourseContentSection({
         entryPoint={fromDeepLink ? 'chat_answer' : 'content_section'}
         defaultField={field}
       />
-    </div>
+    </SectionShell>
   )
 }

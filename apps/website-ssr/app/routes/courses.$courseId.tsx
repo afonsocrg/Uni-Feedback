@@ -102,6 +102,7 @@ export function meta({ loaderData, location, matches }: Route.MetaArgs) {
       university: course.university,
       faculty: course.faculty,
       degree: course.degree,
+      courses: metaT(location, 'browse')('courses_page.breadcrumb'),
       current: course.acronym || course.name,
       currentName: course.name
     }),

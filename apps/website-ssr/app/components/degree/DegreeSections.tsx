@@ -1,4 +1,4 @@
-import type { Degree } from '@uni-feedback/db/schema'
+import type { Degree, Faculty } from '@uni-feedback/db/schema'
 import { cn, Markdown } from '@uni-feedback/ui'
 import { ArrowRight, Star } from 'lucide-react'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
@@ -25,6 +25,7 @@ import type { Localized } from '~/utils/localizedContent'
 import { campusAddress, CampusMap } from '../common/campusMap'
 import { ContributeNote } from '../common/ContributeNote'
 import { InfoPopover } from '../common/InfoPopover'
+import { PageHeading } from '../common/PageHeading'
 import { ReportErrorNote } from '../common/ReportErrorNote'
 import type { CourseWithFeedback } from '../course/types'
 import { AdmissionChart } from './AdmissionChart'
@@ -60,6 +61,7 @@ export interface DegreeTrack {
 export function SectionShell({
   id,
   title,
+  action,
   children,
   first = false
 }: {
@@ -67,6 +69,8 @@ export function SectionShell({
   id: DegreeSectionId | (string & {})
   /** Omitted for the intro right under the header, which needs no label */
   title?: string
+  /** A small link or button on the title's line (a course's "suggest edit") */
+  action?: ReactNode
   children: ReactNode
   first?: boolean
 }) {
@@ -81,12 +85,15 @@ export function SectionShell({
       )}
     >
       {title && (
-        <h2
-          id={`${id}-title`}
-          className="mb-4 text-xl font-semibold text-foreground"
-        >
-          {title}
-        </h2>
+        <div className="mb-4 flex items-center justify-between gap-4">
+          <h2
+            id={`${id}-title`}
+            className="text-xl font-semibold text-foreground"
+          >
+            {title}
+          </h2>
+          {action}
+        </div>
       )}
       {children}
     </section>
@@ -185,31 +192,23 @@ export function SourceLink({
 
 export function DegreeHeader({
   degree,
-  facultyName,
+  faculty,
   universityName,
-  courseCount,
-  isRetired,
-  coursesHref,
-  onCoursesClick
+  isRetired
 }: {
   degree: Degree
-  facultyName: string
+  faculty: Pick<Faculty, 'name' | 'shortName' | 'logo'>
   universityName: string | null
-  courseCount: number
   /** Every course has left the plan: the degree is no longer taught */
   isRetired: boolean
-  /** The degree's course browser (/cadeiras) */
-  coursesHref: string | null
-  onCoursesClick: () => void
 }) {
   const { t } = useTranslation('browse')
   const lang = useLang()
 
   // Facts about the degree only (what it is, how long, how big, in what
-  // language); campus, schedule and course stats live in their sections
-  const facts: ReactNode[] = [
-    <b key="type">{t(`degree_page.facts.type.${degree.type}`)}</b>
-  ]
+  // language); campus, schedule and course stats live in their sections. The
+  // type is left out: the degree's name already says it ("Licenciatura em ...")
+  const facts: ReactNode[] = []
   const semesters = degree.durationSemesters
   if (semesters) {
     facts.push(
@@ -257,22 +256,25 @@ export function DegreeHeader({
 
   return (
     <header className="mb-8">
-      <h1 className="text-2xl font-bold leading-tight text-foreground text-balance md:text-3xl">
-        {degree.name}
-      </h1>
-      <p className="mt-1 text-muted-foreground">
-        {universityName ? `${facultyName} · ${universityName}` : facultyName}
-      </p>
-      <ul className="mt-4 flex flex-wrap gap-2">
-        {facts.map((fact, i) => (
-          <li
-            key={i}
-            className="whitespace-nowrap rounded-full bg-muted px-3 py-1 text-sm text-foreground"
-          >
-            {fact}
-          </li>
-        ))}
-      </ul>
+      <PageHeading
+        school={faculty}
+        eyebrow={
+          universityName ? `${faculty.name} · ${universityName}` : faculty.name
+        }
+        title={degree.name}
+      />
+      {facts.length > 0 && (
+        <ul className="mt-4 flex flex-wrap gap-2">
+          {facts.map((fact, i) => (
+            <li
+              key={i}
+              className="whitespace-nowrap rounded-full bg-muted px-3 py-1 text-sm text-foreground"
+            >
+              {fact}
+            </li>
+          ))}
+        </ul>
+      )}
       {isRetired && (
         <p
           role="note"
@@ -280,18 +282,6 @@ export function DegreeHeader({
         >
           {t('degree_page.retired_notice')}
         </p>
-      )}
-      {courseCount > 0 && coursesHref && (
-        <Link
-          to={coursesHref}
-          onClick={onCoursesClick}
-          className="mt-5 inline-flex h-10 items-center rounded-md bg-brand-solid px-4 text-sm font-semibold text-white transition-opacity hover:opacity-90"
-        >
-          {t('degree_page.view_courses', {
-            count: courseCount,
-            n: formatNumber(courseCount, lang)
-          })}
-        </Link>
       )}
     </header>
   )

@@ -20,6 +20,7 @@ import {
 import { ContributeNote } from '../common/ContributeNote'
 import { LocalizedText } from '../common/LocalizedText'
 import { OfficialLinks } from '../common/OfficialLinks'
+import { PageHeading } from '../common/PageHeading'
 import { ReportErrorNote } from '../common/ReportErrorNote'
 import { SchoolLogo } from '../common/SchoolLogo'
 import {
@@ -184,32 +185,21 @@ export function UniversityPageContent({ data }: { data: UniversityPageData }) {
         <div className="mx-auto max-w-6xl lg:grid lg:grid-cols-[minmax(0,1fr)_13rem] lg:gap-12">
           <div className="min-w-0">
             <header className="mb-8">
-              <div className="flex items-center gap-4">
-                <SchoolLogo
-                  logo={university.logo}
-                  name={university.name}
-                  shortName={university.shortName}
-                  size="lg"
+              <PageHeading school={university} title={university.name}>
+                <OfficialLinks
+                  name={university.shortName}
+                  links={data.links}
+                  className="-ml-2 mt-1"
+                  onClick={(kind) =>
+                    analytics.university.linkClicked({
+                      universitySlug: slug,
+                      page: 'main',
+                      target: kind,
+                      surface: 'header'
+                    })
+                  }
                 />
-                <div className="min-w-0">
-                  <h1 className="text-2xl font-bold leading-tight text-foreground text-balance md:text-3xl">
-                    {university.name}
-                  </h1>
-                  <OfficialLinks
-                    name={university.shortName}
-                    links={data.links}
-                    className="-ml-2 mt-1"
-                    onClick={(kind) =>
-                      analytics.university.linkClicked({
-                        universitySlug: slug,
-                        page: 'main',
-                        target: kind,
-                        surface: 'header'
-                      })
-                    }
-                  />
-                </div>
-              </div>
+              </PageHeading>
               <div className="mt-5 flex flex-wrap gap-2">
                 <TrackedLink
                   to={facultiesPath}
