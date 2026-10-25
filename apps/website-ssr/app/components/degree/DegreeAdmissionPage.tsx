@@ -8,7 +8,6 @@ import type { CrumbUniversity } from '~/utils/breadcrumbs'
 import { ContributeNote } from '../common/ContributeNote'
 import { AdmissionChart } from './AdmissionChart'
 import {
-  feeLine,
   formatAcademicYear,
   formatEur,
   formatGrade,
@@ -647,6 +646,8 @@ function EntryFormsBars({
   )
 }
 
+const FEE_STUDENT_TYPES = ['national', 'international', 'all'] as const
+
 function FeeHistoryTable({
   rows,
   track
@@ -660,6 +661,18 @@ function FeeHistoryTable({
   for (const row of rows) {
     byYear.set(row.schoolYear, [...(byYear.get(row.schoolYear) ?? []), row])
   }
+  // One column per student type we have; a year without that type stays blank
+  const columns = FEE_STUDENT_TYPES.filter((type) =>
+    rows.some((r) => r.studentType === type)
+  )
+  // One source line under the table; years noted only when they differ by document
+  const sourceYears = new Map<string, number[]>()
+  for (const [year, yearRows] of byYear) {
+    for (const url of new Set(yearRows.map((r) => r.sourceUrl))) {
+      sourceYears.set(url, [...(sourceYears.get(url) ?? []), year])
+    }
+  }
+  const sources = [...sourceYears.entries()]
   return (
     <>
       <SubHeading>{t('degree_subpages.admission.fees_history')}</SubHeading>
@@ -670,12 +683,11 @@ function FeeHistoryTable({
               <th className="py-1.5 pr-3 font-medium">
                 {t('degree_subpages.admission.fees_year')}
               </th>
-              <th className="py-1.5 pr-3 font-medium">
-                {t('degree_subpages.admission.fees_amount')}
-              </th>
-              <th className="py-1.5 font-medium">
-                {t('degree_subpages.admission.fees_source')}
-              </th>
+              {columns.map((type) => (
+                <th key={type} className="py-1.5 pr-3 font-medium">
+                  {t(`degree_subpages.admission.fees_student.${type}`)}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
@@ -684,26 +696,40 @@ function FeeHistoryTable({
                 <td className="py-1.5 pr-3 tabular-nums">
                   {formatSchoolYear(year)}
                 </td>
-                <td className="py-1.5 pr-3">
-                  {yearRows.map((row) => feeLine(row, t, lang)).join('; ')}
-                </td>
-                <td className="py-1.5 text-muted-foreground">
-                  {[...new Set(yearRows.map((r) => r.sourceUrl))].map(
-                    (url, i) => (
-                      <span key={url}>
-                        {i > 0 && ' · '}
-                        <SourceLink href={url} source="fees" track={track}>
-                          {hostOf(url)}
-                        </SourceLink>
-                      </span>
-                    )
-                  )}
-                </td>
+                {columns.map((type) => (
+                  <td key={type} className="py-1.5 pr-3 tabular-nums">
+                    {yearRows
+                      .filter((r) => r.studentType === type)
+                      .map((row, i) => (
+                        <span key={i} className="block">
+                          {formatEur(row.amountEur, lang)}{' '}
+                          <span className="text-muted-foreground">
+                            {t(`degree_page.fees.period.${row.period}`, {
+                              defaultValue: row.period
+                            })}
+                          </span>
+                        </span>
+                      ))}
+                  </td>
+                ))}
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+      <p className="mt-4 text-xs text-muted-foreground">
+        {t('degree_page.source_label')}{' '}
+        {sources.map(([url, years], i) => (
+          <span key={url}>
+            {i > 0 && ' · '}
+            <SourceLink href={url} source="fees" track={track}>
+              {hostOf(url)}
+              {sources.length > 1 &&
+                ` (${years.map((y) => formatSchoolYear(y)).join(', ')})`}
+            </SourceLink>
+          </span>
+        ))}
+      </p>
     </>
   )
 }

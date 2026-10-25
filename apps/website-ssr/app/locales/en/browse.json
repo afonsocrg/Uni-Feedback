@@ -491,8 +491,11 @@
       },
       "fees_history": "Over the years",
       "fees_year": "School year",
-      "fees_amount": "Tuition",
-      "fees_source": "Source",
+      "fees_student": {
+        "national": "National students",
+        "international": "International students",
+        "all": "All students"
+      },
       "intake": {
         "enrolled": "Students enrolled, {{year}}",
         "foreign": "International students, {{year}}",

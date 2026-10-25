@@ -491,8 +491,11 @@
       },
       "fees_history": "Ao longo dos anos",
       "fees_year": "Ano letivo",
-      "fees_amount": "Propina",
-      "fees_source": "Fonte",
+      "fees_student": {
+        "national": "Estudantes nacionais",
+        "international": "Estudantes internacionais",
+        "all": "Todos os estudantes"
+      },
       "intake": {
         "enrolled": "Alunos inscritos, {{year}}",
         "foreign": "Alunos estrangeiros, {{year}}",
