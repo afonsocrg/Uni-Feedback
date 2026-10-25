@@ -6,14 +6,13 @@ import { useLang } from '~/hooks'
 import { analytics } from '~/utils/analytics'
 import { getFacultyTypePath, isFacultyTypePage } from '~/utils/facultyTypePages'
 import { getUniversityPath } from '~/utils/i18n-routes'
-import { AskChatButton } from '../chat/AskChatButton'
 import { LocalizedText } from '../common/LocalizedText'
 import { OfficialLinks } from '../common/OfficialLinks'
 import { SchoolLogo } from '../common/SchoolLogo'
 import { SearchInput } from '../common/SearchInput'
 import { ToggleChip } from '../common/ToggleChip'
 import type { FaqItem } from '../degree/content'
-import { formatGrade, formatInt, formatNumber } from '../degree/content'
+import { formatGrade, formatInt } from '../degree/content'
 import { FaqSection, SectionShell } from '../degree/DegreeSections'
 import { FacultyPageShell } from './FacultyPageShell'
 import {
@@ -21,9 +20,7 @@ import {
   CampusesSection,
   CompareTable,
   DegreeCell,
-  FacultyHighlightsSection,
   FacultyRelatedSection,
-  hasHighlights,
   NoData,
   trackFacultyLink,
   type FacultyTrack,
@@ -65,38 +62,6 @@ export function FacultyHubContent({
   const count = (type: DegreeType) =>
     degrees.filter((d) => d.type === type).length
 
-  const facts = [
-    ...types
-      .filter((type) => type !== 'other')
-      .map((type) => (
-        <span key={type}>
-          <b>{formatNumber(count(type), lang)}</b>{' '}
-          {t(`faculty_hub.type_count_label.${type}`, { count: count(type) })}
-        </span>
-      )),
-    ...(data.campuses.length > 0
-      ? [
-          <span key="campuses">
-            {t('faculty_hub.campus_count', {
-              count: data.campuses.length,
-              n: formatNumber(data.campuses.length, lang)
-            })}
-          </span>
-        ]
-      : []),
-    ...(data.feedbackCount > 0
-      ? [
-          <b key="feedback">
-            {t('degree_page.facts.feedback', {
-              count: data.feedbackCount,
-              n: formatInt(data.feedbackCount, lang)
-            })}
-          </b>
-        ]
-      : [])
-  ]
-
-  const showHighlights = hasHighlights(data.highlights)
   const faq: FaqItem[] = []
   if (adm?.highest) {
     faq.push({
@@ -157,9 +122,6 @@ export function FacultyHubContent({
       ? [{ id: 'sobre', label: t('faculty_hub.sections.about') }]
       : []),
     { id: 'cursos', label: t('faculty_hub.sections.courses') },
-    ...(showHighlights
-      ? [{ id: 'cadeiras', label: t('faculty_hub.sections.highlights_short') }]
-      : []),
     ...(data.campuses.length > 0
       ? [
           {
@@ -197,7 +159,7 @@ export function FacultyHubContent({
           </a>
         ) : null
       }
-      facts={facts}
+      facts={[]}
       logo={
         <SchoolLogo
           logo={faculty.logo}
@@ -213,15 +175,6 @@ export function FacultyHubContent({
           links={data.links}
           className="-ml-2 mt-1"
           onClick={(target) => trackFacultyLink(track, target, 'header')}
-        />
-      }
-      actions={
-        <AskChatButton
-          name={faculty.shortName}
-          facultyId={faculty.id}
-          source="faculty_page"
-          variant="outline"
-          size="sm"
         />
       }
       sections={sections}
@@ -319,10 +272,6 @@ export function FacultyHubContent({
             </p>
           )}
       </SectionShell>
-
-      {showHighlights && (
-        <FacultyHighlightsSection highlights={data.highlights} track={track} />
-      )}
 
       {data.campuses.length > 0 && (
         <CampusesSection

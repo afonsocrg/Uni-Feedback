@@ -445,23 +445,15 @@ export async function loadFacultyHub(
   lang: Lang
 ): Promise<FacultyHubData> {
   const db = database()
-  const [
-    university,
-    degrees,
-    campuses,
-    highlights,
-    feedbackCount,
-    intro,
-    links
-  ] = await Promise.all([
-    loadUniversity(db, faculty.universityId, lang),
-    loadDegrees(db, faculty.id, lang),
-    loadCampuses(db, faculty.id),
-    loadHighlights(db, faculty.id, null),
-    countFeedback(db, faculty.id),
-    loadIntro(db, faculty.id, lang),
-    loadOfficialLinks('faculty', faculty.id)
-  ])
+  const [university, degrees, campuses, feedbackCount, intro, links] =
+    await Promise.all([
+      loadUniversity(db, faculty.universityId, lang),
+      loadDegrees(db, faculty.id, lang),
+      loadCampuses(db, faculty.id),
+      countFeedback(db, faculty.id),
+      loadIntro(db, faculty.id, lang),
+      loadOfficialLinks('faculty', faculty.id)
+    ])
 
   // Entry summary over the licenciaturas (CNA)
   const bachelorIds = degrees
@@ -518,7 +510,6 @@ export async function loadFacultyHub(
     university,
     degrees,
     campuses,
-    highlights,
     feedbackCount,
     admissionSummary,
     intro,

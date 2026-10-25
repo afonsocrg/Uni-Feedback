@@ -119,7 +119,6 @@ export interface FacultyHubData {
   links: { kind: EntityLinkKind; url: string }[]
   degrees: FacultyDegree[]
   campuses: FacultyCampus[]
-  highlights: FacultyHighlights
   /** Approved feedback on the faculty's courses, each counted once */
   feedbackCount: number
   admissionSummary: FacultyAdmissionSummary | null

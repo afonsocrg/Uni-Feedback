@@ -1,7 +1,7 @@
 import { cn } from '@uni-feedback/ui'
 import { ArrowRight, MapPin } from 'lucide-react'
 import { useEffect, useMemo, useRef } from 'react'
-import { Trans, useTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
 import { useLang } from '~/hooks'
 import { analytics } from '~/utils/analytics'
 import { FACULTY_TYPE_PAGES } from '~/utils/facultyTypePages'
@@ -127,9 +127,6 @@ export function UniversityPageContent({ data }: { data: UniversityPageData }) {
   }, [data, lang])
 
   const tocSections: TocSection<SectionId>[] = [
-    ...(data.intro
-      ? [{ id: 'sobre' as const, label: t('page.sections.about_short') }]
-      : []),
     { id: 'faculdades', label: t('page.sections.faculties') },
     ...(data.degrees.length > 0
       ? [{ id: 'cursos' as const, label: t('page.sections.degrees') }]
@@ -213,27 +210,6 @@ export function UniversityPageContent({ data }: { data: UniversityPageData }) {
                   />
                 </div>
               </div>
-              <ul className="mt-4 flex flex-wrap gap-2">
-                {[
-                  ['faculties', faculties.length],
-                  ['degrees', data.degreeCount],
-                  ['feedback', data.feedbackCount]
-                ]
-                  .filter(([, n]) => Number(n) > 0)
-                  .map(([key, n]) => (
-                    <li
-                      key={key}
-                      className="whitespace-nowrap rounded-full bg-muted px-3 py-1 text-sm text-foreground"
-                    >
-                      <Trans
-                        t={t}
-                        i18nKey={`page.facts.${key as 'faculties'}`}
-                        values={{ count: n, n: formatInt(Number(n), lang) }}
-                        components={{ b: <b /> }}
-                      />
-                    </li>
-                  ))}
-              </ul>
               <div className="mt-5 flex flex-wrap gap-2">
                 <TrackedLink
                   to={facultiesPath}
@@ -285,7 +261,7 @@ export function UniversityPageContent({ data }: { data: UniversityPageData }) {
             </header>
 
             {data.intro && (
-              <SectionShell id="sobre" title={t('page.sections.about')} first>
+              <SectionShell id="sobre" first>
                 <LocalizedText text={data.intro} />
               </SectionShell>
             )}

@@ -34,14 +34,6 @@
   },
   "page": {
     "toc_label": "Nesta página",
-    "facts": {
-      "faculties_one": "<b>{{n}}</b> faculdade no Uni Feedback",
-      "faculties_other": "<b>{{n}}</b> faculdades no Uni Feedback",
-      "degrees_one": "<b>{{n}}</b> curso",
-      "degrees_other": "<b>{{n}}</b> cursos",
-      "feedback_one": "<b>{{n}}</b> feedback",
-      "feedback_other": "<b>{{n}}</b> feedbacks"
-    },
     "cta": {
       "faculties_one": "Ver a faculdade",
       "faculties_other": "Ver as {{n}} faculdades",
@@ -50,8 +42,6 @@
       "degrees_other": "Ver os {{n}} cursos"
     },
     "sections": {
-      "about": "Sobre a universidade",
-      "about_short": "Sobre",
       "faculties": "Faculdades",
       "related": "Relacionados",
       "degrees": "Cursos"

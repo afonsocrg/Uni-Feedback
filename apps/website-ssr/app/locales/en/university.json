@@ -34,14 +34,6 @@
   },
   "page": {
     "toc_label": "On this page",
-    "facts": {
-      "faculties_one": "<b>{{n}}</b> faculty on Uni Feedback",
-      "faculties_other": "<b>{{n}}</b> faculties on Uni Feedback",
-      "degrees_one": "<b>{{n}}</b> degree",
-      "degrees_other": "<b>{{n}}</b> degrees",
-      "feedback_one": "<b>{{n}}</b> review",
-      "feedback_other": "<b>{{n}}</b> reviews"
-    },
     "cta": {
       "faculties_one": "See the faculty",
       "faculties_other": "See the {{n}} faculties",
@@ -50,8 +42,6 @@
       "degrees_other": "See the {{n}} degrees"
     },
     "sections": {
-      "about": "About the university",
-      "about_short": "About",
       "faculties": "Faculties",
       "related": "Related",
       "degrees": "Degrees"

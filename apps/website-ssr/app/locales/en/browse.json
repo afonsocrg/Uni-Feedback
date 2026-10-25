@@ -336,8 +336,6 @@
       "bachelor_one": "{{n}} bachelor's",
       "bachelor_other": "{{n}} bachelor's"
     },
-    "campus_count_one": "{{n}} campus",
-    "campus_count_other": "{{n}} campuses",
     "facts": {
       "vagas": "{{n}} places in {{year}}",
       "english_one": "{{n}} taught in English",

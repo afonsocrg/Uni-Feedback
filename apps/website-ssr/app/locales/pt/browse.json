@@ -336,8 +336,6 @@
       "bachelor_one": "{{n}} licenciatura",
       "bachelor_other": "{{n}} licenciaturas"
     },
-    "campus_count_one": "{{n}} campus",
-    "campus_count_other": "{{n}} campi",
     "facts": {
       "vagas": "{{n}} vagas em {{year}}",
       "english_one": "{{n}} com aulas em inglês",
