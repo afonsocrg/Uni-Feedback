@@ -44,7 +44,8 @@
     "sections": {
       "faculties": "Faculdades",
       "related": "Relacionados",
-      "degrees": "Cursos"
+      "degrees": "Cursos",
+      "campuses": "Campi"
     },
     "about": {
       "more_schools": "Esta universidade pode ter outras escolas que ainda não estão no Uni Feedback.",

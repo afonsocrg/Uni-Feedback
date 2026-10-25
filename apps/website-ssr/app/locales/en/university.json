@@ -44,7 +44,8 @@
     "sections": {
       "faculties": "Faculties",
       "related": "Related",
-      "degrees": "Degrees"
+      "degrees": "Degrees",
+      "campuses": "Campuses"
     },
     "about": {
       "more_schools": "This university may have other schools that are not on Uni Feedback yet.",

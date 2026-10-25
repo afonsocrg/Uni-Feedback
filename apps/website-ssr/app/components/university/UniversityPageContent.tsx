@@ -1,5 +1,4 @@
-import { cn } from '@uni-feedback/ui'
-import { ArrowRight, MapPin } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 import { useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLang } from '~/hooks'
@@ -22,7 +21,6 @@ import { LocalizedText } from '../common/LocalizedText'
 import { OfficialLinks } from '../common/OfficialLinks'
 import { PageHeading } from '../common/PageHeading'
 import { ReportErrorNote } from '../common/ReportErrorNote'
-import { SchoolLogo } from '../common/SchoolLogo'
 import {
   formatEur,
   formatGrade,
@@ -33,23 +31,26 @@ import {
 import { FaqSection, SectionShell } from '../degree/DegreeSections'
 import { DegreeTocBar, DegreeTocSidebar } from '../degree/DegreeToc'
 import { useScrollSpy, type TocSection } from '../degree/scrollSpy'
-import {
-  getTypePagePath,
-  TrackedLink,
-  TYPE_ORDER,
-  useJoinList,
-  useTypeCountLabel
-} from './shared'
-import type { UniversityFaculty, UniversityPageData } from './types'
+import { FacultyCards, TrackedLink, useJoinList } from './shared'
+import type { UniversityPageData } from './types'
 
-type SectionId = 'sobre' | 'faculdades' | 'cursos' | 'faq' | 'relacionados'
+type SectionId =
+  | 'sobre'
+  | 'faculdades'
+  | 'campi'
+  | 'cursos'
+  | 'faq'
+  | 'relacionados'
 
 /**
  * `/unis/:uniSlug`: the university's page, in the degree page v2's layout
  * (sections with a sticky table of contents). Rough first version
  * (prds/content_rich_pages.md, "University"): our reviewed intro
  * (`university_details`, in the page's language or else Portuguese), the
- * faculties beside the campus map, and links to the degree list pages.
+ * faculties as cards (each links to its page), every campus on one map, and
+ * links to the degree list pages. The faculties and the map were one block
+ * until 2026-10-25: a faculty name read as "show it on the map" but opened
+ * the faculty page.
  * Admission grades and fees live on those pages and on each degree's, not
  * here. There is no banner yet.
  */
@@ -69,8 +70,7 @@ export function UniversityPageContent({ data }: { data: UniversityPageData }) {
       pinLabel: faculty.shortName,
       address: campusAddress(campus),
       latitude: campus.latitude,
-      longitude: campus.longitude,
-      link: { to: getFacultyPath(lang, faculty.slug), label: faculty.name }
+      longitude: campus.longitude
     }))
   )
   const topFaculty = [...faculties].sort(
@@ -129,6 +129,9 @@ export function UniversityPageContent({ data }: { data: UniversityPageData }) {
 
   const tocSections: TocSection<SectionId>[] = [
     { id: 'faculdades', label: t('page.sections.faculties') },
+    ...(campusItems.length > 0
+      ? [{ id: 'campi' as const, label: t('page.sections.campuses') }]
+      : []),
     ...(data.degrees.length > 0
       ? [{ id: 'cursos' as const, label: t('page.sections.degrees') }]
       : []),
@@ -261,41 +264,10 @@ export function UniversityPageContent({ data }: { data: UniversityPageData }) {
               title={t('page.sections.faculties')}
               first={!data.intro}
             >
-              <CampusMap
-                items={campusItems}
-                renderList={({ activeKey, select }) => (
-                  <ul className="space-y-2">
-                    {faculties.map((faculty) => (
-                      <FacultyRow
-                        key={faculty.id}
-                        faculty={faculty}
-                        universitySlug={slug}
-                        campusItems={campusItems.filter(
-                          (i) => i.key.split('/')[0] === faculty.slug
-                        )}
-                        activeKey={activeKey}
-                        onSelect={select}
-                      />
-                    ))}
-                  </ul>
-                )}
-                onSelect={(item, surface) =>
-                  analytics.discovery.campusSelected({
-                    page: 'university',
-                    universitySlug: slug,
-                    facultySlug: item.key.split('/')[0],
-                    campus: item.title,
-                    surface
-                  })
-                }
-                onDirections={() =>
-                  analytics.university.linkClicked({
-                    universitySlug: slug,
-                    page: 'main',
-                    target: 'campus_map',
-                    surface: 'faculties_section'
-                  })
-                }
+              <FacultyCards
+                faculties={faculties}
+                universitySlug={slug}
+                page="main"
               />
               {faculties.length > 1 && (
                 <TrackedLink
@@ -321,6 +293,31 @@ export function UniversityPageContent({ data }: { data: UniversityPageData }) {
                 pageName={pageName}
               />
             </SectionShell>
+
+            {campusItems.length > 0 && (
+              <SectionShell id="campi" title={t('page.sections.campuses')}>
+                <CampusMap
+                  items={campusItems}
+                  onSelect={(item, surface) =>
+                    analytics.discovery.campusSelected({
+                      page: 'university',
+                      universitySlug: slug,
+                      facultySlug: item.key.split('/')[0],
+                      campus: item.title,
+                      surface
+                    })
+                  }
+                  onDirections={() =>
+                    analytics.university.linkClicked({
+                      universitySlug: slug,
+                      page: 'main',
+                      target: 'campus_map',
+                      surface: 'campuses_section'
+                    })
+                  }
+                />
+              </SectionShell>
+            )}
 
             {data.degrees.length > 0 && (
               <SectionShell id="cursos" title={t('page.sections.degrees')}>
@@ -453,118 +450,5 @@ function RelatedCard({
       <span className="block text-xs text-muted-foreground">{small}</span>
       <span className="block font-semibold">{title}</span>
     </TrackedLink>
-  )
-}
-
-/**
- * A faculty in the list beside the campus map: its name links to the faculty,
- * its degree counts to its type pages, and each campus is a button that
- * zooms the map there.
- */
-function FacultyRow({
-  faculty,
-  universitySlug,
-  campusItems,
-  activeKey,
-  onSelect
-}: {
-  faculty: UniversityFaculty
-  universitySlug: string
-  campusItems: CampusMapItem[]
-  activeKey: string | null
-  onSelect: (item: CampusMapItem) => void
-}) {
-  const { t } = useTranslation('university')
-  const lang = useLang()
-  const typeCount = useTypeCountLabel()
-  const types = TYPE_ORDER.filter((type) => faculty.degreeCounts[type])
-  return (
-    <li className="flex gap-3 rounded-lg border border-border p-3">
-      <SchoolLogo
-        logo={faculty.logo}
-        name={faculty.name}
-        shortName={faculty.shortName}
-        size="sm"
-      />
-      <div className="min-w-0">
-        <TrackedLink
-          to={getFacultyPath(lang, faculty.slug)}
-          universitySlug={universitySlug}
-          page="main"
-          target="faculty"
-          surface="faculty_list"
-          className="font-semibold leading-snug text-foreground hover:underline"
-        >
-          {faculty.name}
-        </TrackedLink>
-        <p className="mt-0.5 text-sm text-muted-foreground">
-          {types.map((type, i) => {
-            const label = typeCount(type, faculty.degreeCounts[type]!)
-            const path = getTypePagePath(lang, faculty.slug, type)
-            return (
-              <span key={type}>
-                {i > 0 && ' · '}
-                {path ? (
-                  <TrackedLink
-                    to={path}
-                    universitySlug={universitySlug}
-                    page="main"
-                    target="faculty_type_page"
-                    surface="faculty_list"
-                    className="hover:text-foreground hover:underline"
-                  >
-                    {label}
-                  </TrackedLink>
-                ) : (
-                  label
-                )}
-              </span>
-            )
-          })}
-        </p>
-        <p className="text-sm text-muted-foreground">
-          {faculty.feedbackCount > 0
-            ? t('page.faculty_card.feedback', {
-                count: faculty.feedbackCount,
-                n: formatInt(faculty.feedbackCount, lang)
-              })
-            : t('page.faculty_card.no_feedback')}
-        </p>
-        {campusItems.length > 0 && (
-          <div className="mt-2 flex flex-wrap gap-1.5">
-            {campusItems.map((item) => {
-              const pinned = item.latitude !== null && item.longitude !== null
-              const selected = activeKey === item.key
-              return (
-                <button
-                  key={item.key}
-                  type="button"
-                  disabled={!pinned}
-                  aria-pressed={selected}
-                  onClick={() => onSelect(item)}
-                  title={item.address ?? undefined}
-                  className={cn(
-                    'inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs transition-colors',
-                    selected
-                      ? 'border-primaryBlue bg-muted text-foreground'
-                      : 'border-border text-muted-foreground',
-                    pinned && 'hover:bg-muted hover:text-foreground'
-                  )}
-                >
-                  <MapPin
-                    aria-hidden="true"
-                    className={cn(
-                      'size-3',
-                      pinned ? 'text-primaryBlue' : 'text-muted-foreground'
-                    )}
-                  />
-                  {item.title.split(' · ').at(-1)}
-                </button>
-              )
-            })}
-          </div>
-        )}
-      </div>
-    </li>
   )
 }

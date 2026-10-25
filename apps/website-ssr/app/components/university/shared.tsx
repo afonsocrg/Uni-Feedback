@@ -112,7 +112,7 @@ export function useTypeCountLabel() {
     ).toLowerCase()}`
 }
 
-/** Cards linking to each faculty: campuses, degrees per type, feedback */
+/** Cards linking to each faculty: degrees per type, feedback */
 export function FacultyCards({
   faculties,
   universitySlug,
@@ -143,11 +143,6 @@ export function FacultyCards({
             shortName={faculty.shortName}
           />
           <span className="min-w-0">
-            {faculty.campuses.length > 0 && (
-              <span className="block text-xs text-muted-foreground">
-                {faculty.campuses.map((c) => c.name).join(', ')}
-              </span>
-            )}
             <span className="block font-semibold">{faculty.name}</span>
             <span className="mt-1 block text-sm text-muted-foreground">
               {TYPE_ORDER.filter((type) => faculty.degreeCounts[type])
