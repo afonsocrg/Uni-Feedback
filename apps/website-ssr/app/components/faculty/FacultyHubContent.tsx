@@ -232,7 +232,6 @@ export function FacultyHubContent({
                       degree={d}
                       track={track}
                       surface="courses_table"
-                      nameFirst
                     />,
                     d.campuses.length > 0 ? d.campuses.join(', ') : <NoData />,
                     formatInt(d.courseCount, lang),

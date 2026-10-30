@@ -42,28 +42,22 @@ export function trackFacultyLink(
 }
 
 /**
- * A degree's acronym (linked) over its name, the first cell of every table.
- * `nameFirst` swaps them: the name is linked, the acronym sits below.
+ * A degree's name (linked) over its acronym, the first cell of every table.
  */
 export function DegreeCell({
   facultySlug,
   degree,
   track,
   surface,
-  note,
-  nameFirst = false
+  note
 }: {
   facultySlug: string
   degree: { acronym: string; name: string; slug: string | null }
   track: FacultyTrack
   surface: string
   note?: ReactNode
-  nameFirst?: boolean
 }) {
   const lang = useLang()
-  const [main, sub] = nameFirst
-    ? [degree.name, degree.acronym]
-    : [degree.acronym, degree.name]
   return (
     <div className="min-w-0">
       {degree.slug ? (
@@ -78,12 +72,14 @@ export function DegreeCell({
           }}
           className="font-semibold text-primaryBlue hover:underline"
         >
-          {main}
+          {degree.name}
         </Link>
       ) : (
-        <span className="font-semibold">{main}</span>
+        <span className="font-semibold">{degree.name}</span>
       )}
-      <span className="block text-xs text-muted-foreground">{sub}</span>
+      <span className="block text-xs text-muted-foreground">
+        {degree.acronym}
+      </span>
       {note && (
         <span className="block text-xs text-muted-foreground">{note}</span>
       )}
