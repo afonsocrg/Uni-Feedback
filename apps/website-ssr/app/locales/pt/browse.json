@@ -460,34 +460,22 @@
       "meta_description_direct": "Como entrar em {{degreeName}} ({{acronym}}), {{faculty}}: candidatura, propinas e quem estuda o curso.",
       "intro_cna": "Entra-se em {{acronym}} pelo Concurso Nacional de Acesso.",
       "intro_vagas": "Para {{year}} há {{vagas}} vagas na 1.ª fase.",
+      "intro_vagas_past": "Em {{year}} houve {{vagas}} vagas na 1.ª fase.",
       "intro_grade": "Em {{year}}, o último colocado da 1.ª fase entrou com {{grade}}.",
       "intro_direct": "A candidatura a {{acronym}} é feita diretamente à faculdade, não pelo Concurso Nacional de Acesso.",
       "requirements_missing": "Requisitos de acesso: ainda sem informação.",
       "dates_missing": "Fases e prazos de candidatura: ainda sem informação.",
       "official_page": "Ver a página oficial do curso ({{host}})",
       "source_guide": "DGES, Guia das Provas de Ingresso {{year}}",
-      "source_applicants": "DGES, estatísticas da candidatura",
       "sections": {
         "summary": "Resumo",
         "rules": "Provas de ingresso e fórmula",
         "history": "Nota do último colocado ao longo dos anos",
-        "applicants": "Candidatos e colocados",
-        "fees": "Propinas",
-        "intake": "Quem estuda {{acronym}}"
+        "fees": "Propinas"
       },
       "table": {
         "fase": "{{fase}}.ª fase",
         "placed": "Colocados"
-      },
-      "applicants": {
-        "title": "1.ª fase",
-        "candidatos": "Candidatos",
-        "first_option": "… em 1.ª opção",
-        "placed": "Colocados",
-        "media_candidatura": "Média de candidatura dos colocados",
-        "media_provas": "Média nas provas de ingresso",
-        "media_secundario": "Média do secundário",
-        "women": "Colocadas (mulheres)"
       },
       "entry": {
         "title": "Como entraram os alunos do 1.º ano",
@@ -506,12 +494,6 @@
         "national": "Estudantes nacionais",
         "international": "Estudantes internacionais",
         "all": "Todos os estudantes"
-      },
-      "intake": {
-        "enrolled": "Alunos inscritos, {{year}}",
-        "foreign": "Alunos estrangeiros, {{year}}",
-        "foreign_national": "Média nacional: {{pct}}",
-        "age": "Têm {{band}} anos, {{year}}"
       },
       "faq": {
         "vagas_q": "Quantas vagas tem {{acronym}}?",

@@ -1,12 +1,10 @@
 import { database, schema } from '@uni-feedback/db'
 import { and, desc, eq, inArray, or } from 'drizzle-orm'
 import type {
-  AdmissionGuideStat,
   AdmissionYear,
   DegreeAdmissionPageData,
   DegreeCareersPageData,
   DegreeFeeHistoryRow,
-  DegreeIntake,
   EntryForms,
   UnemploymentWindow
 } from '~/components/degree/pageTypes'
@@ -15,8 +13,7 @@ import { toNumber, type Pair } from './degreePage.server'
 /**
  * What the degree sub-pages read beyond the degree page's extras
  * (prds/content_rich_pages.md, decision 22): every fase of every year, the
- * guide's candidate statistics, the whole fee history, and more InfoCursos
- * indicators. Same tables, same rules: nothing guessed, a missing figure is
+ * whole fee history, and how first-years entered (InfoCursos). Same tables, same rules: nothing guessed, a missing figure is
  * null and the page leaves it out.
  */
 
@@ -48,17 +45,11 @@ export async function loadAdmissionPageData(
     ? sources.dgesPairs.filter((p) => p.course === sources.mainCourseCode)
     : []
 
-  const [years, guideStats, feeHistory, indicators] = await Promise.all([
+  const [years, feeHistory, indicators] = await Promise.all([
     loadAllFases(db, mainPairs),
-    loadGuideStats(db, mainPairs),
     loadFeeHistory(db, degreeId),
     sources.outcomesPair
-      ? loadLatestIndicators(db, sources.outcomesPair, [
-          'entry_forms',
-          'nationality',
-          'age',
-          'enrolments'
-        ])
+      ? loadLatestIndicators(db, sources.outcomesPair, ['entry_forms'])
       : Promise.resolve([])
   ])
 
@@ -81,43 +72,9 @@ export async function loadAdmissionPageData(
     }
   }
 
-  let intake: DegreeIntake | null = null
-  const nat = get('nationality')
-  const age = get('age')
-  if (nat || age) {
-    const comparison = (nat?.data.comparison ?? {}) as Json
-    const national = (comparison.national ?? {}) as Json
-    const ages = Array.isArray(age?.data.distribution)
-      ? (age!.data.distribution as Json[])
-      : []
-    const ageTotal = ages.reduce((sum, a) => sum + (toNumber(a.count) ?? 0), 0)
-    const top = ages.reduce<Json | null>(
-      (best, a) =>
-        (toNumber(a.count) ?? 0) > (toNumber(best?.count) ?? -1) ? a : best,
-      null
-    )
-    intake = {
-      schoolYear:
-        String(nat?.data.school_year ?? age?.data.school_year ?? '') || null,
-      enrolled: toNumber(nat?.data.enrolled ?? age?.data.enrolled),
-      foreign: toNumber(nat?.data.foreign),
-      nationalForeignPct: toNumber(pctOf(national).foreign),
-      topAgeBand:
-        top && ageTotal > 0
-          ? {
-              label: String(top.age),
-              pct:
-                Math.round(((toNumber(top.count) ?? 0) / ageTotal) * 1000) / 10
-            }
-          : null
-    }
-  }
-
   return {
     years,
-    guideStats,
     entryForms,
-    intake,
     feeHistory,
     infocursos:
       sources.outcomesPair && indicators.length > 0
@@ -180,47 +137,6 @@ async function loadAllFases(db: Db, pairs: Pair[]): Promise<AdmissionYear[]> {
   return [...byYear.values()]
     .map((y) => ({ ...y, fases: y.fases.sort((a, b) => a.fase - b.fase) }))
     .sort((a, b) => b.year - a.year)
-}
-
-/** The candidate statistics on the latest guide snapshot of the main track. */
-async function loadGuideStats(
-  db: Db,
-  pairs: Pair[]
-): Promise<AdmissionGuideStat[]> {
-  if (pairs.length === 0) return []
-  const [row] = await db
-    .select({ data: schema.dgesGuide.data })
-    .from(schema.dgesGuide)
-    .where(
-      or(
-        ...pairs.map((p) =>
-          and(
-            eq(schema.dgesGuide.unitCode, p.unit),
-            eq(schema.dgesGuide.courseCode, p.course)
-          )
-        )
-      )
-    )
-    .orderBy(desc(schema.dgesGuide.year))
-    .limit(1)
-  const stats = Array.isArray((row?.data as Json | undefined)?.stats)
-    ? ((row!.data as Json).stats as Json[])
-    : []
-  return stats
-    .filter((s) => toNumber(s.year) !== null && toNumber(s.fase) !== null)
-    .map((s) => ({
-      year: Number(s.year),
-      fase: Number(s.fase),
-      candidatos: toNumber(s.candidatos),
-      candidatosFirstOption: toNumber(s.candidatos_1a_opcao),
-      colocados: toNumber(s.colocados),
-      colocadosFirstOption: toNumber(s.colocados_1a_opcao),
-      colocadosWomen: toNumber(s.colocados_feminino),
-      mediaCandidatura: toNumber(s.media_candidatura),
-      mediaProvas: toNumber(s.media_provas_ingresso),
-      mediaSecundario: toNumber(s.media_secundario)
-    }))
-    .sort((a, b) => b.year - a.year || a.fase - b.fase)
 }
 
 const STUDENT_TYPE_ORDER = ['national', 'all', 'international']

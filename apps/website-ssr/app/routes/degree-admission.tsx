@@ -92,7 +92,7 @@ export function meta({ loaderData, location, matches }: Route.MetaArgs) {
     extras.admissions !== null ||
     extras.fees !== null ||
     data.feeHistory.length > 0 ||
-    data.intake !== null
+    data.entryForms !== null
 
   return buildMeta({
     matches,

@@ -150,20 +150,6 @@ export interface AdmissionYear {
   fases: AdmissionFaseResult[]
 }
 
-/** One year/fase of the candidate statistics on the DGES guide page. */
-export interface AdmissionGuideStat {
-  year: number
-  fase: number
-  candidatos: number | null
-  candidatosFirstOption: number | null
-  colocados: number | null
-  colocadosFirstOption: number | null
-  colocadosWomen: number | null
-  mediaCandidatura: number | null
-  mediaProvas: number | null
-  mediaSecundario: number | null
-}
-
 /** How first-year students got in, percentages (InfoCursos entry_forms). */
 export interface EntryForms {
   students: number | null
@@ -177,17 +163,6 @@ export interface EntryForms {
   localOrInstitutional: number | null
 }
 
-/** Who studies the degree (InfoCursos nationality / age). */
-export interface DegreeIntake {
-  schoolYear: string | null
-  enrolled: number | null
-  foreign: number | null
-  /** National share of foreign students, for comparison */
-  nationalForeignPct: number | null
-  /** The most common age band and its share */
-  topAgeBand: { label: string; pct: number } | null
-}
-
 export interface DegreeFeeHistoryRow extends DegreeFeeRow {
   schoolYear: number
   sourceUrl: string
@@ -196,10 +171,7 @@ export interface DegreeFeeHistoryRow extends DegreeFeeRow {
 export interface DegreeAdmissionPageData {
   /** Every year we have, newest first */
   years: AdmissionYear[]
-  /** Candidate statistics from the latest guide snapshot, newest first */
-  guideStats: AdmissionGuideStat[]
   entryForms: EntryForms | null
-  intake: DegreeIntake | null
   /** Every fee row we hold, newest school year first */
   feeHistory: DegreeFeeHistoryRow[]
   infocursos: { url: string; edition: number } | null

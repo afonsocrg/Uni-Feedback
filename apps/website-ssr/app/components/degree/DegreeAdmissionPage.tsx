@@ -1,6 +1,6 @@
 import type { Degree, Faculty } from '@uni-feedback/db/schema'
 import { getCurrentSchoolYear } from '@uni-feedback/utils'
-import { useEffect, type ReactNode } from 'react'
+import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLang } from '~/hooks'
 import { analytics } from '~/utils/analytics'
@@ -35,8 +35,8 @@ import { CNA_TYPES } from './subpages'
 /**
  * `/:faculty/:degree/ingresso` (EN `/admission`): everything about getting in.
  * Licenciaturas and integrated masters: the Concurso Nacional in full (every
- * fase of every year, candidates, how first-years entered). Masters and
- * pós-graduações: what we have (fees, who studies it) and prompts for the rest.
+ * fase of every year, how first-years entered). Masters and pós-graduações:
+ * what we have (fees) and prompts for the rest.
  */
 export function DegreeAdmissionPage({
   faculty,
@@ -68,11 +68,8 @@ export function DegreeAdmissionPage({
   const { acronym } = degree
 
   const hasCna = stats.length > 0 || data.years.length > 0
-  const fase1Stats = data.guideStats.filter((s) => s.fase === 1)
-  const hasApplicants = fase1Stats.length > 0 || data.entryForms !== null
   const hasFees = extras.fees !== null || data.feeHistory.length > 0
-  const intakeStats = useIntakeStats(data)
-  const hasData = hasCna || hasFees || intakeStats.length > 0
+  const hasData = hasCna || hasFees || data.entryForms !== null
 
   const sections = [
     { id: 'resumo', label: t('degree_subpages.admission.sections.summary') },
@@ -92,23 +89,15 @@ export function DegreeAdmissionPage({
           }
         ]
       : []),
-    ...(hasApplicants
+    ...(data.entryForms
       ? [
           {
             id: 'candidatos',
-            label: t('degree_subpages.admission.sections.applicants')
+            label: t('degree_subpages.admission.entry.title')
           }
         ]
       : []),
     { id: 'propinas', label: t('degree_subpages.admission.sections.fees') },
-    ...(intakeStats.length > 0
-      ? [
-          {
-            id: 'quem',
-            label: t('degree_subpages.admission.sections.intake', { acronym })
-          }
-        ]
-      : []),
     ...(faq.length > 0
       ? [{ id: 'faq', label: t('degree_page.sections.faq') }]
       : [])
@@ -127,6 +116,12 @@ export function DegreeAdmissionPage({
 
   const latest = series.at(-1)
   const next = guide?.nextYearVagas
+  // DGES publishes a year's vagas in the summer and the guide keeps them all
+  // year, so once that school year starts they're history, not news
+  const nextVagasStarted =
+    next !== undefined &&
+    next !== null &&
+    Number(next.academicYear.slice(0, 4)) <= getCurrentSchoolYear()
 
   return (
     <DegreeSubpageShell
@@ -150,10 +145,15 @@ export function DegreeAdmissionPage({
               <p className="mb-4 max-w-prose">
                 {t('degree_subpages.admission.intro_cna', { acronym })}{' '}
                 {next &&
-                  t('degree_subpages.admission.intro_vagas', {
-                    vagas: formatInt(next.vagas, lang),
-                    year: formatAcademicYear(next.academicYear)
-                  })}{' '}
+                  t(
+                    nextVagasStarted
+                      ? 'degree_subpages.admission.intro_vagas_past'
+                      : 'degree_subpages.admission.intro_vagas',
+                    {
+                      vagas: formatInt(next.vagas, lang),
+                      year: formatAcademicYear(next.academicYear)
+                    }
+                  )}{' '}
                 {latest &&
                   t('degree_subpages.admission.intro_grade', {
                     year: latest.year,
@@ -339,29 +339,15 @@ export function DegreeAdmissionPage({
         </SectionShell>
       )}
 
-      {hasApplicants && (
+      {data.entryForms && (
         <SectionShell
           id="candidatos"
-          title={t('degree_subpages.admission.sections.applicants')}
+          title={t('degree_subpages.admission.entry.title')}
         >
-          {fase1Stats.length > 0 && (
-            <>
-              <SubHeading>
-                {t('degree_subpages.admission.applicants.title')}
-              </SubHeading>
-              <ApplicantsTable stats={fase1Stats} />
-            </>
-          )}
-          {data.entryForms && <EntryFormsBars entryForms={data.entryForms} />}
+          <EntryFormsBars entryForms={data.entryForms} />
           <p className="mt-4 text-xs text-muted-foreground">
             {t('degree_page.source_label')}{' '}
-            {admissions && fase1Stats.length > 0 && (
-              <SourceLink href={admissions.dgesUrl} source="dges" track={track}>
-                {t('degree_subpages.admission.source_applicants')}
-              </SourceLink>
-            )}
-            {admissions && fase1Stats.length > 0 && data.infocursos && ' · '}
-            {data.infocursos && data.entryForms && (
+            {data.infocursos && (
               <SourceLink
                 href={data.infocursos.url}
                 source="infocursos"
@@ -421,29 +407,6 @@ export function DegreeAdmissionPage({
         )}
       </SectionShell>
 
-      {intakeStats.length > 0 && (
-        <SectionShell
-          id="quem"
-          title={t('degree_subpages.admission.sections.intake', { acronym })}
-        >
-          <StatGrid>{intakeStats}</StatGrid>
-          {data.infocursos && (
-            <p className="mt-4 text-xs text-muted-foreground">
-              {t('degree_page.source_label')}{' '}
-              <SourceLink
-                href={data.infocursos.url}
-                source="infocursos"
-                track={track}
-              >
-                {t('degree_page.outcomes.source', {
-                  edition: data.infocursos.edition
-                })}
-              </SourceLink>
-            </p>
-          )}
-        </SectionShell>
-      )}
-
       {faq.length > 0 && (
         <FaqSection
           items={faq}
@@ -452,144 +415,6 @@ export function DegreeAdmissionPage({
         />
       )}
     </DegreeSubpageShell>
-  )
-}
-
-function useIntakeStats(data: DegreeAdmissionPageData): ReactNode[] {
-  const { t } = useTranslation('browse')
-  const lang = useLang()
-  const intake = data.intake
-  if (!intake) return []
-  const stats: ReactNode[] = []
-  const year = intake.schoolYear ?? ''
-  if (intake.enrolled) {
-    stats.push(
-      <Stat
-        key="enrolled"
-        value={formatInt(intake.enrolled, lang)}
-        label={t('degree_subpages.admission.intake.enrolled', { year })}
-      />
-    )
-  }
-  if (intake.foreign != null && intake.enrolled) {
-    stats.push(
-      <Stat
-        key="foreign"
-        value={formatPct(
-          Math.round((intake.foreign / intake.enrolled) * 1000) / 10,
-          lang
-        )}
-        label={t('degree_subpages.admission.intake.foreign', { year })}
-        note={
-          intake.nationalForeignPct != null
-            ? t('degree_subpages.admission.intake.foreign_national', {
-                pct: formatPct(intake.nationalForeignPct, lang)
-              })
-            : null
-        }
-      />
-    )
-  }
-  if (intake.topAgeBand) {
-    stats.push(
-      <Stat
-        key="age"
-        value={formatPct(intake.topAgeBand.pct, lang)}
-        label={t('degree_subpages.admission.intake.age', {
-          band: intake.topAgeBand.label.replace('<=', '≤').replace('>=', '≥'),
-          year
-        })}
-      />
-    )
-  }
-  return stats
-}
-
-function ApplicantsTable({
-  stats
-}: {
-  stats: DegreeAdmissionPageData['guideStats']
-}) {
-  const { t } = useTranslation('browse')
-  const lang = useLang()
-  const years = [...stats].sort((a, b) => a.year - b.year)
-  const rows: {
-    key: keyof (typeof stats)[number]
-    label: string
-    grade?: boolean
-  }[] = [
-    {
-      key: 'candidatos',
-      label: t('degree_subpages.admission.applicants.candidatos')
-    },
-    {
-      key: 'candidatosFirstOption',
-      label: t('degree_subpages.admission.applicants.first_option')
-    },
-    {
-      key: 'colocados',
-      label: t('degree_subpages.admission.applicants.placed')
-    },
-    {
-      key: 'colocadosFirstOption',
-      label: t('degree_subpages.admission.applicants.first_option')
-    },
-    {
-      key: 'mediaCandidatura',
-      label: t('degree_subpages.admission.applicants.media_candidatura'),
-      grade: true
-    },
-    {
-      key: 'mediaProvas',
-      label: t('degree_subpages.admission.applicants.media_provas'),
-      grade: true
-    },
-    {
-      key: 'mediaSecundario',
-      label: t('degree_subpages.admission.applicants.media_secundario'),
-      grade: true
-    },
-    {
-      key: 'colocadosWomen',
-      label: t('degree_subpages.admission.applicants.women')
-    }
-  ]
-  return (
-    <div className="overflow-x-auto">
-      <table className="w-full min-w-[28rem] text-left text-sm tabular-nums">
-        <thead>
-          <tr className="border-b border-border text-xs text-muted-foreground">
-            <th className="py-1.5 font-medium" />
-            {years.map((y) => (
-              <th key={y.year} className="py-1.5 pr-3 font-medium">
-                {y.year}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {rows
-            .filter((row) => years.some((y) => y[row.key] != null))
-            .map((row) => (
-              <tr key={row.key} className="border-b border-border">
-                <td className="py-1.5 pr-3">{row.label}</td>
-                {years.map((y) => {
-                  const v = y[row.key] as number | null
-                  return (
-                    <td key={y.year} className="py-1.5 pr-3">
-                      {v == null
-                        ? ''
-                        : row.grade
-                          ? formatGrade(v, lang)
-                          : formatInt(v, lang)}
-                    </td>
-                  )
-                })}
-              </tr>
-            ))}
-        </tbody>
-      </table>
-    </div>
   )
 }
 
@@ -614,7 +439,6 @@ function EntryFormsBars({
   if (bars.length === 0) return null
   return (
     <>
-      <SubHeading>{t('degree_subpages.admission.entry.title')}</SubHeading>
       <ul className="space-y-1.5">
         {bars.map(([key, pct]) => (
           <li

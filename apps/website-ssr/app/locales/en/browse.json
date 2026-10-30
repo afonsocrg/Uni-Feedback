@@ -460,34 +460,22 @@
       "meta_description_direct": "How to get into {{degreeName}} ({{acronym}}), {{faculty}}: application, tuition and who studies it.",
       "intro_cna": "Students get into {{acronym}} through the national admission contest (Concurso Nacional de Acesso).",
       "intro_vagas": "There are {{vagas}} places in the first round for {{year}}.",
+      "intro_vagas_past": "There were {{vagas}} places in the first round in {{year}}.",
       "intro_grade": "In {{year}}, the last student admitted in the first round had {{grade}}.",
       "intro_direct": "Applications to {{acronym}} go directly to the faculty, not through the national admission contest.",
       "requirements_missing": "Entry requirements: no information yet.",
       "dates_missing": "Application rounds and deadlines: no information yet.",
       "official_page": "See the official degree page ({{host}})",
       "source_guide": "DGES, entrance exam guide {{year}}",
-      "source_applicants": "DGES, application statistics",
       "sections": {
         "summary": "Summary",
         "rules": "Entrance exams and formula",
         "history": "Lowest entry grade over the years",
-        "applicants": "Applicants and admitted students",
-        "fees": "Tuition fees",
-        "intake": "Who studies {{acronym}}"
+        "fees": "Tuition fees"
       },
       "table": {
         "fase": "Round {{fase}}",
         "placed": "Admitted"
-      },
-      "applicants": {
-        "title": "First round",
-        "candidatos": "Applicants",
-        "first_option": "… as first choice",
-        "placed": "Admitted",
-        "media_candidatura": "Average application grade of those admitted",
-        "media_provas": "Average entrance exam grade",
-        "media_secundario": "Average secondary school grade",
-        "women": "Admitted (women)"
       },
       "entry": {
         "title": "How first-year students got in",
@@ -506,12 +494,6 @@
         "national": "National students",
         "international": "International students",
         "all": "All students"
-      },
-      "intake": {
-        "enrolled": "Students enrolled, {{year}}",
-        "foreign": "International students, {{year}}",
-        "foreign_national": "National average: {{pct}}",
-        "age": "Aged {{band}}, {{year}}"
       },
       "faq": {
         "vagas_q": "How many places does {{acronym}} have?",
