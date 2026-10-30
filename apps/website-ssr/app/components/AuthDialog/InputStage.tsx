@@ -13,7 +13,7 @@ import {
   cn
 } from '@uni-feedback/ui'
 import { Loader2, Mail } from 'lucide-react'
-import { type ReactNode, useEffect, useRef } from 'react'
+import { type ReactNode, useRef } from 'react'
 import type { UseFormReturn } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { analytics } from '~/utils/analytics'
@@ -84,18 +84,19 @@ export function InputStage({
   /**
    * Someone we cannot serve, told us who they are.
    *
-   * Reported once per distinct domain rather than on every keystroke, because
-   * typing an address fires this component's render a dozen times and a dozen
-   * events would make the number meaningless.
+   * Reported only when they finish with the address (leave the field or press
+   * send), once per distinct domain. Not from a render effect: once the field
+   * has been touched, every keystroke is a new "domain" ("n", "no", "nov", ...)
+   * and the number becomes meaningless.
    */
   const reportedDomains = useRef(new Set<string>())
-  useEffect(() => {
-    if (!showDomainError) return
-    const domain = email.split('@')[1]?.toLowerCase()
+  const reportUnsupportedDomain = (value: string) => {
+    if (!value.includes('@') || validateEmailDomain(value)) return
+    const domain = value.split('@')[1]?.toLowerCase()
     if (!domain || reportedDomains.current.has(domain)) return
     reportedDomains.current.add(domain)
     analytics.auth.unsupportedDomain({ emailDomain: domain, trigger })
-  }, [showDomainError, email, trigger])
+  }
 
   // Format allowed suffixes for display
   const formattedSuffixes = allowedEmailSuffixes?.length
@@ -121,6 +122,7 @@ export function InputStage({
           onSubmit={(e) => {
             e.stopPropagation()
             form.handleSubmit(async (values) => {
+              reportUnsupportedDomain(values.email)
               if (!isWrongDomain) await onSubmit(values)
             })(e)
           }}
@@ -145,6 +147,10 @@ export function InputStage({
                         : t('auth.placeholder')
                     }
                     {...field}
+                    onBlur={(e) => {
+                      field.onBlur()
+                      reportUnsupportedDomain(e.target.value)
+                    }}
                     disabled={modalState.isSubmitting}
                   />
                 </FormControl>

@@ -3,6 +3,7 @@ import { type AnyColumn, and, desc, eq, sql } from 'drizzle-orm'
 import { CourseDetailContent } from '~/components'
 import type { CourseTextLang } from '~/components/course/detail/CourseContentSection'
 import { getCurrentUserId } from '~/lib/auth.server'
+import { redirectIfCourseMoved } from '~/lib/courseRedirect.server'
 import { loadCrumbUniversity } from '~/lib/crumbUniversity.server'
 import { breadcrumbJsonLd, buildCrumbs } from '~/utils/breadcrumbs'
 import { isCourseIndexable } from '~/utils/course'
@@ -143,6 +144,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   })
 
   if (!course) {
+    await redirectIfCourseMoved(request, courseIdNum)
     throw new Response('Course not found', { status: 404 })
   }
 

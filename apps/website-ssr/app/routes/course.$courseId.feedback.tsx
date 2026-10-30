@@ -22,6 +22,7 @@ import { DuplicateFeedbackResolution } from '~/components/feedback/DuplicateFeed
 import { useAuth, useLang } from '~/hooks'
 import { useSubmitFeedback } from '~/hooks/queries'
 import { getCurrentUserId } from '~/lib/auth.server'
+import { redirectIfCourseMoved } from '~/lib/courseRedirect.server'
 import { analytics, getPageName, toFeedbackEntryPoint } from '~/utils/analytics'
 import {
   detectLang,
@@ -112,6 +113,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     }
   })
 
+  if (!course) await redirectIfCourseMoved(request, courseId)
   if (!course || !course.degree || !course.degree.faculty) {
     throw new Response('Course not found', { status: 404 })
   }
