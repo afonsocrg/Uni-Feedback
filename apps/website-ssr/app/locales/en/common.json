@@ -74,7 +74,9 @@
   ],
   "localized": {
     "pt_only": "Available in Portuguese only",
-    "en_only": "Available in English only"
+    "en_only": "Available in English only",
+    "translated_from_pt": "Automatically translated from Portuguese",
+    "translated_from_en": "Automatically translated from English"
   },
   "campus_map": {
     "map_label": "Map of the campuses",

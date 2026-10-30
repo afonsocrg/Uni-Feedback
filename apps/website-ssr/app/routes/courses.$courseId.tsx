@@ -1,6 +1,7 @@
 import { database, queries, schema } from '@uni-feedback/db'
 import { type AnyColumn, and, desc, eq, sql } from 'drizzle-orm'
 import { CourseDetailContent } from '~/components'
+import type { CourseTextLang } from '~/components/course/detail/CourseContentSection'
 import { getCurrentUserId } from '~/lib/auth.server'
 import { loadCrumbUniversity } from '~/lib/crumbUniversity.server'
 import { breadcrumbJsonLd, buildCrumbs } from '~/utils/breadcrumbs'
@@ -146,20 +147,25 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   }
 
   // The course's name and texts in the page's language (content translation,
-  // 0058). `course_details` holds the faculty's own text per language; a
-  // translated row shows only once reviewed. Courses with no rows yet keep the
-  // legacy columns, whose language we don't know.
+  // 0058/0061). `course_texts` holds the faculty's own texts, one per field and
+  // language; a translation shows only once reviewed. Courses with no rows yet
+  // keep the legacy columns, whose language we don't know.
   const lang = detectLang(new URL(request.url).pathname)
-  const detailRows = await db
-    .select()
-    .from(schema.courseDetails)
+  const textRows = await db
+    .select({
+      field: schema.courseTexts.field,
+      lang: schema.courseTexts.lang,
+      text: schema.courseTexts.text,
+      translatedFrom: schema.courseTexts.translatedFrom
+    })
+    .from(schema.courseTexts)
     .where(
       and(
-        eq(schema.courseDetails.courseId, courseIdNum),
-        sql`(${schema.courseDetails.source} <> 'translation' or ${schema.courseDetails.reviewedAt} is not null)`
+        eq(schema.courseTexts.courseId, courseIdNum),
+        sql`(${schema.courseTexts.source} <> 'translation' or ${schema.courseTexts.reviewedAt} is not null)`
       )
     )
-  const content = pickCourseContent(lang, detailRows, course)
+  const content = pickCourseContent(lang, textRows, course)
   const localizedName = pickName(lang, course.name, course.nameEn)
 
   // Counts of feedback per rating value (1..5), as a single `filter`ed aggregate
@@ -335,10 +341,10 @@ type CourseTextField = 'description' | 'assessment' | 'bibliography'
 function pickCourseContent(
   lang: ContentLang,
   rows: {
+    field: string
     lang: ContentLang
-    description: string | null
-    assessment: string | null
-    bibliography: string | null
+    text: string
+    translatedFrom: ContentLang | null
   }[],
   legacy: Record<CourseTextField, string | null>
 ) {
@@ -348,24 +354,30 @@ function pickCourseContent(
     'bibliography'
   ]
   const out: Partial<Record<CourseTextField, Localized<string>>> = {}
-  const langs: Partial<
-    Record<CourseTextField, { lang: ContentLang; fellBack: boolean }>
-  > = {}
+  const langs: Partial<Record<CourseTextField, CourseTextLang>> = {}
   for (const field of fields) {
+    const texts = rows.filter((r) => r.field === field)
     if (field === 'bibliography') {
       // A list of books, never translated: one row in the language it is
       // written in, shown as is on both pages, with no "only in X" note.
-      const own = rows.find((r) => r.lang === lang)?.bibliography
-      const any = own ?? rows.find((r) => r.bibliography)?.bibliography
-      const text = any ?? legacy.bibliography
+      const text =
+        (texts.find((r) => r.lang === lang) ?? texts[0])?.text ??
+        legacy.bibliography
       if (text) out.bibliography = { value: text, lang, fellBack: false }
       continue
     }
-    const byLang = Object.fromEntries(rows.map((r) => [r.lang, r[field]]))
-    const picked = pickTextEither(lang, byLang)
+    const picked = pickTextEither(
+      lang,
+      Object.fromEntries(texts.map((r) => [r.lang, r.text]))
+    )
     if (picked) {
       out[field] = picked
-      langs[field] = { lang: picked.lang, fellBack: picked.fellBack }
+      langs[field] = {
+        lang: picked.lang,
+        fellBack: picked.fellBack,
+        translatedFrom:
+          texts.find((r) => r.lang === picked.lang)?.translatedFrom ?? null
+      }
     } else if (legacy[field]) {
       out[field] = { value: legacy[field]!, lang, fellBack: false }
     }

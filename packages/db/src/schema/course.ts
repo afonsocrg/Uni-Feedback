@@ -28,7 +28,7 @@ export const courses = pgTable('courses', {
   ects: real('ects'),
   url: text('url'),
   // The faculty's own text, as scraped and in whatever language it publishes.
-  // Per-language versions go in `course_details`; these move there once every
+  // Per-language versions go in `course_texts`; these move there once every
   // course has its rows (migration 0058).
   description: text('description'),
   bibliography: text('bibliography'),

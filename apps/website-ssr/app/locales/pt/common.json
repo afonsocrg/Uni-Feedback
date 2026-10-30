@@ -74,7 +74,9 @@
   ],
   "localized": {
     "pt_only": "Disponível só em português",
-    "en_only": "Disponível só em inglês"
+    "en_only": "Disponível só em inglês",
+    "translated_from_pt": "Traduzido automaticamente do português",
+    "translated_from_en": "Traduzido automaticamente do inglês"
   },
   "campus_map": {
     "map_label": "Mapa dos campi",

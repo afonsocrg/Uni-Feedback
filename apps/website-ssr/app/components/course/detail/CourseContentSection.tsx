@@ -11,10 +11,14 @@ import {
 } from '.'
 import { SectionShell } from '../../degree/DegreeSections'
 
-/** Which language a course text is in, and whether it is not the page's */
+/**
+ * Which language a course text is in, whether it is not the page's, and the
+ * language it was machine-translated from (null for the faculty's own text)
+ */
 export interface CourseTextLang {
   lang: 'pt' | 'en'
   fellBack: boolean
+  translatedFrom: 'pt' | 'en' | null
 }
 
 interface CourseContentSectionProps {
@@ -26,9 +30,10 @@ interface CourseContentSectionProps {
   field: CourseContentField
   content?: string | null
   /**
-   * The language `content` is in (from `course_details`). When it is not the
+   * The language `content` is in (from `course_texts`). When it is not the
    * page's, the text is marked with its `lang` and a "only in Portuguese /
-   * English" note follows. Absent for text with no known language.
+   * English" note follows; a translation says what it was translated from.
+   * Absent for text with no known language.
    */
   contentLang?: CourseTextLang
   /**
@@ -110,6 +115,13 @@ export function CourseContentSection({
           {contentLang?.fellBack && (
             <p className="mt-2 text-xs text-muted-foreground">
               {tCommon(`localized.${contentLang.lang}_only`)}
+            </p>
+          )}
+          {contentLang?.translatedFrom && (
+            <p className="mt-2 text-xs text-muted-foreground">
+              {tCommon(
+                `localized.translated_from_${contentLang.translatedFrom}`
+              )}
             </p>
           )}
           <p className="mt-6 text-sm text-muted-foreground">
