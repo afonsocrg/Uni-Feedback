@@ -29,9 +29,8 @@ import { PageHeading } from '../common/PageHeading'
 import { ReportErrorNote } from '../common/ReportErrorNote'
 import type { CourseWithFeedback } from '../course/types'
 import { AdmissionChart } from './AdmissionChart'
+import { AdmissionSummary, type MissingGrade } from './AdmissionSummary'
 import {
-  formatAcademicYear,
-  formatEur,
   formatGrade,
   formatInt,
   formatNumber,
@@ -43,6 +42,7 @@ import {
   type FaqItem
 } from './content'
 import type {
+  AdmissionRouteView,
   DegreeAdmissions,
   DegreeCampusInfo,
   DegreeFees,
@@ -102,22 +102,29 @@ export function SectionShell({
 
 export function Stat({
   value,
+  unit,
   label,
   note,
-  info
+  info,
+  muted = false
 }: {
   value: string
+  /** Read with the value, in the same line ("697 € por ano"), so it isn't missed */
+  unit?: string | null
   label: string
-  note?: string | null
+  note?: ReactNode
   /** What the figure measures, behind an (i) next to the label */
   info?: string
+  /** No figure to show: the value is words ("Não publicada"), smaller and grey */
+  muted?: boolean
 }) {
   return (
-    <div className="rounded-lg bg-muted px-4 py-3">
-      <div className="text-2xl font-semibold tabular-nums text-foreground">
-        {value}
-      </div>
-      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+    // Three rows shared with the other cards in the row (subgrid, see StatGrid),
+    // so values line up even when one eyebrow wraps to two lines
+    <div className="row-span-3 grid grid-rows-subgrid gap-y-0 rounded-lg bg-muted px-4 py-3">
+      {/* The label is the card's title, an eyebrow above the value: keep it short,
+          details ("1.ª fase 2026") go in the note */}
+      <div className="flex items-center gap-1 self-start text-xs font-medium uppercase tracking-wide text-muted-foreground">
         {label}
         {info && (
           <InfoPopover
@@ -127,9 +134,21 @@ export function Stat({
           />
         )}
       </div>
-      {note && (
-        <div className="mt-0.5 text-xs text-muted-foreground">{note}</div>
-      )}
+      <div
+        className={cn(
+          'mt-1 font-semibold tabular-nums',
+          muted ? 'text-lg text-muted-foreground' : 'text-2xl text-foreground'
+        )}
+      >
+        {value}
+        {unit && (
+          <span className="ml-1.5 text-base font-medium text-muted-foreground">
+            {unit}
+          </span>
+        )}
+      </div>
+      {/* Always rendered: the third row of the subgrid */}
+      <div className="mt-0.5 text-xs text-muted-foreground">{note}</div>
     </div>
   )
 }
@@ -370,8 +389,10 @@ export function AboutSection({
 /* ------------------------------------------------------------------ */
 
 /**
- * The headline admission figures (last grade, vagas, candidatos, média dos
- * colocados), shared by the degree page's Ingresso section and `/ingresso`.
+ * The last admitted grade as a card, for the Ingresso summary (degree page and
+ * `/ingresso`): what students ask first. Empty without Concurso Nacional data.
+ * Vagas and candidatos were cards too until 2026-10-30: vagas are in the year
+ * table, candidatos lag a year (DGES guide) and didn't help anyone decide.
  */
 export function useAdmissionStats(
   admissions: DegreeAdmissions | null
@@ -379,75 +400,46 @@ export function useAdmissionStats(
   const { t } = useTranslation('browse')
   const lang = useLang()
   const { latest, previous } = latestGrades(admissions)
-  const guide = admissions?.guide ?? null
-
-  const stats: ReactNode[] = []
-  if (latest) {
-    stats.push(
-      <Stat
-        key="last"
-        value={formatGrade(latest.grade, lang)}
-        label={t('degree_page.admission.last_grade', { year: latest.year })}
-        note={
-          previous
-            ? t('degree_page.admission.previous', {
-                grade: formatGrade(previous.grade, lang),
-                year: previous.year
-              })
-            : null
-        }
-      />
-    )
-  }
-  if (guide?.nextYearVagas) {
-    stats.push(
-      <Stat
-        key="vagas"
-        value={formatInt(guide.nextYearVagas.vagas, lang)}
-        label={t('degree_page.admission.vagas', {
-          year: formatAcademicYear(guide.nextYearVagas.academicYear)
-        })}
-      />
-    )
-  }
-  const fase1 = guide?.latestFase1
-  if (fase1?.candidatos) {
-    stats.push(
-      <Stat
-        key="candidatos"
-        value={formatInt(fase1.candidatos, lang)}
-        label={t('degree_page.admission.candidatos', { year: fase1.year })}
-        note={
-          fase1.candidatosFirstOption !== null
-            ? t('degree_page.admission.first_option', {
-                count: fase1.candidatosFirstOption,
-                n: formatNumber(fase1.candidatosFirstOption, lang)
-              })
-            : null
-        }
-      />
-    )
-  }
-  if (fase1?.mediaColocados) {
-    stats.push(
-      <Stat
-        key="media"
-        value={formatGrade(fase1.mediaColocados, lang)}
-        label={t('degree_page.admission.media', { year: fase1.year })}
-      />
-    )
-  }
-
-  return stats
+  if (!latest) return []
+  return [
+    <Stat
+      key="last"
+      value={formatGrade(latest.grade, lang)}
+      label={t('degree_page.admission.last_grade')}
+      note={[
+        t('degree_page.admission.last_grade_phase', { year: latest.year }),
+        previous
+          ? t('degree_page.admission.previous', {
+              grade: formatGrade(previous.grade, lang),
+              year: previous.year
+            })
+          : null
+      ]
+        .filter(Boolean)
+        .join(' · ')}
+    />
+  ]
 }
+
+/** How many exam combinations the compact view lists before "e mais N" */
+const COMPACT_PROVAS = 3
 
 /** Provas de ingresso, fórmula and mínimos from the DGES guide. */
 export function AdmissionRules({
   guide,
-  showTitle = true
+  showTitle = true,
+  compact = false,
+  allHref = null
 }: {
   guide: DegreeAdmissions['guide']
   showTitle?: boolean
+  /**
+   * The degree page: the formula and minimums first, then the exam
+   * combinations as one quiet line, the first few only, with a link to the
+   * full list on `/ingresso` (`allHref`)
+   */
+  compact?: boolean
+  allHref?: string | null
 }) {
   const { t } = useTranslation('browse')
   const lang = useLang()
@@ -455,35 +447,101 @@ export function AdmissionRules({
   const minimum = guide.minimumGrades
   const formatMin = (v: number) => formatInt(Math.round(v), lang)
 
+  if (compact) {
+    const shown = allHref ? guide.provas.slice(0, COMPACT_PROVAS) : guide.provas
+    const hidden = guide.provas.length - shown.length
+    return (
+      <>
+        {showTitle && (guide.provas.length > 0 || guide.formula) && (
+          <SubHeading>{t('degree_page.admission.exams_title')}</SubHeading>
+        )}
+        {(guide.formula ||
+          minimum.application != null ||
+          minimum.entryExams != null) && (
+          <p className="text-sm">
+            {guide.formula && (
+              <Trans
+                t={t}
+                i18nKey="degree_page.admission.formula"
+                values={{
+                  secondary: formatInt(guide.formula.secondaryPct, lang),
+                  exams: formatInt(guide.formula.examsPct, lang)
+                }}
+                components={{ b: <b /> }}
+              />
+            )}{' '}
+            {minimum.application != null && minimum.entryExams != null ? (
+              <Trans
+                t={t}
+                i18nKey="degree_page.admission.minimum_both"
+                values={{
+                  application: formatMin(minimum.application),
+                  exams: formatMin(minimum.entryExams)
+                }}
+                components={{ b: <b /> }}
+              />
+            ) : minimum.application != null ? (
+              <Trans
+                t={t}
+                i18nKey="degree_page.admission.minimum_application"
+                values={{ application: formatMin(minimum.application) }}
+                components={{ b: <b /> }}
+              />
+            ) : minimum.entryExams != null ? (
+              <Trans
+                t={t}
+                i18nKey="degree_page.admission.minimum_exams"
+                values={{ exams: formatMin(minimum.entryExams) }}
+                components={{ b: <b /> }}
+              />
+            ) : null}
+          </p>
+        )}
+
+        {guide.provas.length > 0 && (
+          <p className="mt-1.5 text-sm text-muted-foreground">
+            {guide.provas.length > 1 &&
+              `${t('degree_page.admission.exams_one_of')} `}
+            {shown.map((combo) => combo.join(' + ')).join(' · ')}
+            {hidden > 0 && allHref && (
+              <>
+                {' '}
+                {t('degree_page.admission.exams_more', { count: hidden })}{' '}
+                <Link
+                  to={`${allHref}#provas`}
+                  className="text-primaryBlue hover:underline"
+                >
+                  {t('degree_page.admission.exams_see_all')}
+                </Link>
+              </>
+            )}
+          </p>
+        )}
+        {guide.prerequisites && (
+          <p className="mt-2 text-sm">
+            <b>
+              {guide.prerequisites.type
+                ? t('degree_page.admission.prerequisites_typed', {
+                    type: guide.prerequisites.type.toLowerCase()
+                  })
+                : t('degree_page.admission.prerequisites')}
+            </b>{' '}
+            {guide.prerequisites.lines.join('; ')}
+          </p>
+        )}
+      </>
+    )
+  }
+
   return (
     <>
-      {guide.provas.length > 0 && (
-        <>
-          {showTitle && (
-            <SubHeading>{t('degree_page.admission.exams_title')}</SubHeading>
-          )}
-          {guide.provas.length > 1 && (
-            <p className="mb-2 text-sm text-muted-foreground">
-              {t('degree_page.admission.exams_one_of')}
-            </p>
-          )}
-          <ul className="flex flex-wrap gap-2">
-            {guide.provas.map((combo) => (
-              <li
-                key={combo.join('+')}
-                className="rounded-md border border-border px-2.5 py-1.5 text-sm"
-              >
-                {combo.join(' + ')}
-              </li>
-            ))}
-          </ul>
-        </>
+      {showTitle && (guide.provas.length > 0 || guide.formula) && (
+        <SubHeading>{t('degree_page.admission.exams_title')}</SubHeading>
       )}
-
       {(guide.formula ||
         minimum.application != null ||
         minimum.entryExams != null) && (
-        <p className="mt-3 text-sm">
+        <p className="text-sm">
           {guide.formula && (
             <Trans
               t={t}
@@ -520,6 +578,40 @@ export function AdmissionRules({
               components={{ b: <b /> }}
             />
           ) : null}
+        </p>
+      )}
+
+      {guide.provas.length > 0 && (
+        <>
+          {guide.provas.length > 1 && (
+            <p className="mb-1.5 mt-3 text-sm text-muted-foreground">
+              {t('degree_page.admission.exams_one_of')}
+            </p>
+          )}
+          <ul
+            className={cn(
+              'list-disc space-y-1 pl-5 text-sm',
+              // Without the "Uma destas combinações" line above it
+              guide.provas.length === 1 && 'mt-3'
+            )}
+          >
+            {guide.provas.map((combo) => (
+              <li key={combo.join('+')}>{combo.join(' + ')}</li>
+            ))}
+          </ul>
+        </>
+      )}
+
+      {guide.prerequisites && (
+        <p className="mt-2 text-sm">
+          <b>
+            {guide.prerequisites.type
+              ? t('degree_page.admission.prerequisites_typed', {
+                  type: guide.prerequisites.type.toLowerCase()
+                })
+              : t('degree_page.admission.prerequisites')}
+          </b>{' '}
+          {guide.prerequisites.lines.join('; ')}
         </p>
       )}
     </>
@@ -561,19 +653,22 @@ export function SubpageLink({
 
 export function AdmissionSection({
   admissions,
+  applyRoutes,
   fees,
   feesExpected,
-  admissionExpected,
+  missingGrade,
   schoolYear,
   fullHref,
   track
 }: {
   admissions: DegreeAdmissions | null
+  /** How to apply (`admission_guides`, `admission_rounds`), for the summary */
+  applyRoutes: AdmissionRouteView[]
   fees: DegreeFees | null
   /** Show the fallback line when the fees are missing */
   feesExpected: boolean
-  /** Show the fallback line when the Concurso Nacional data is missing */
-  admissionExpected: boolean
+  /** What the summary's grade card says when there is no grade (see AdmissionSummary) */
+  missingGrade: MissingGrade
   schoolYear: number
   /** The degree's `/ingresso` sub-page, which carries the full detail */
   fullHref?: string | null
@@ -585,13 +680,27 @@ export function AdmissionSection({
   const series = admissions?.main.series ?? []
   const stats = useAdmissionStats(admissions)
 
-  const hasAdmission = stats.length > 0 || (guide?.provas.length ?? 0) > 0
+  const hasAdmission =
+    stats.length > 0 ||
+    (guide?.provas.length ?? 0) > 0 ||
+    applyRoutes.length > 0
 
   return (
     <SectionShell id="ingresso" title={t('degree_page.sections.admission')}>
+      <AdmissionSummary
+        admissions={admissions}
+        fees={fees}
+        applyRoutes={applyRoutes}
+        detailed={false}
+        missingGrade={missingGrade}
+        track={track}
+      />
+
       {hasAdmission ? (
         <>
-          {stats.length > 0 && <StatGrid>{stats}</StatGrid>}
+          {/* Provas and fórmula before the chart: the chart is secondary (the
+              summary already has the last grade), so it goes last */}
+          <AdmissionRules guide={guide} compact allHref={fullHref ?? null} />
 
           {series.length > 1 && (
             <>
@@ -672,88 +781,24 @@ export function AdmissionSection({
               </p>
             )
           })}
-
-          <AdmissionRules guide={guide} />
         </>
-      ) : (
-        admissionExpected && (
-          <ContributeNote
-            field="admission"
-            text={t('degree_page.admission.missing')}
-            pageName={track.pageName}
-            facultySlug={track.facultySlug}
-            degreeSlug={track.degreeSlug}
-          />
-        )
+      ) : // Without Concurso Nacional data the summary says so, in the grade card
+      null}
+
+      {/* The tuition is a card in the summary above */}
+      {!fees && feesExpected && (
+        <ContributeNote
+          className="mt-4"
+          field="fees"
+          text={t('degree_page.fees.missing', {
+            year: formatSchoolYear(schoolYear)
+          })}
+          pageName={track.pageName}
+          facultySlug={track.facultySlug}
+          degreeSlug={track.degreeSlug}
+        />
       )}
 
-      {fees ? (
-        <>
-          <SubHeading>
-            {t('degree_page.fees.title', {
-              year: formatSchoolYear(fees.schoolYear)
-            })}
-          </SubHeading>
-          <StatGrid>
-            {fees.rows.map((row) => (
-              <Stat
-                key={`${row.studentType}-${row.period}`}
-                value={formatEur(row.amountEur, lang)}
-                label={t('degree_page.fees.label', {
-                  period: t(`degree_page.fees.period.${row.period}`, {
-                    defaultValue: row.period
-                  }),
-                  student: t(`degree_page.fees.student.${row.studentType}`, {
-                    defaultValue: row.studentType
-                  })
-                })}
-              />
-            ))}
-          </StatGrid>
-        </>
-      ) : (
-        feesExpected && (
-          <ContributeNote
-            className="mt-4"
-            field="fees"
-            text={t('degree_page.fees.missing', {
-              year: formatSchoolYear(schoolYear)
-            })}
-            pageName={track.pageName}
-            facultySlug={track.facultySlug}
-            degreeSlug={track.degreeSlug}
-          />
-        )
-      )}
-
-      {(hasAdmission || fees) && (
-        <p className="mt-4 text-xs text-muted-foreground">
-          {t('degree_page.source_label')}{' '}
-          {admissions && hasAdmission && (
-            <>
-              <SourceLink href={admissions.dgesUrl} source="dges" track={track}>
-                {series.length > 1
-                  ? t('degree_page.admission.source_years', {
-                      from: series[0].year,
-                      to: series[series.length - 1].year
-                    })
-                  : t('degree_page.admission.source_dges')}
-              </SourceLink>
-              {fees && ' · '}
-            </>
-          )}
-          {fees?.sourceUrls.map((url, i) => (
-            <span key={url}>
-              {i > 0 && ' · '}
-              <SourceLink href={url} source="fees" track={track}>
-                {`${hostOf(url)}, ${t('degree_page.fees.source', {
-                  year: formatSchoolYear(fees.schoolYear)
-                })}`}
-              </SourceLink>
-            </span>
-          ))}
-        </p>
-      )}
       {fullHref && (
         <SubpageLink
           href={fullHref}
@@ -762,11 +807,44 @@ export function AdmissionSection({
           track={track}
         />
       )}
+      {/* One quiet line under the link: where the figures come from, and how to
+          report a wrong one */}
       {(hasAdmission || fees) && (
-        <div className="mt-3">
+        <div className="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-xs text-muted-foreground">
+          <p>
+            {t('degree_page.source_label')}{' '}
+            {admissions && hasAdmission && (
+              <>
+                <SourceLink
+                  href={admissions.dgesUrl}
+                  source="dges"
+                  track={track}
+                >
+                  {series.length > 1
+                    ? t('degree_page.admission.source_years', {
+                        from: series[0].year,
+                        to: series[series.length - 1].year
+                      })
+                    : t('degree_page.admission.source_dges')}
+                </SourceLink>
+                {fees && ' · '}
+              </>
+            )}
+            {fees?.sourceUrls.map((url, i) => (
+              <span key={url}>
+                {i > 0 && ' · '}
+                <SourceLink href={url} source="fees" track={track}>
+                  {`${hostOf(url)}, ${t('degree_page.fees.source', {
+                    year: formatSchoolYear(fees.schoolYear)
+                  })}`}
+                </SourceLink>
+              </span>
+            ))}
+          </p>
           <ReportErrorNote
             surface="degree_admission"
             align="left"
+            size="xs"
             pageName={track.pageName}
             facultySlug={track.facultySlug}
             degreeSlug={track.degreeSlug}
@@ -896,25 +974,6 @@ export function OutcomesSection({
               )}
             </p>
           )}
-          <p className="mt-4 text-xs text-muted-foreground">
-            {t('degree_page.source_label')}{' '}
-            <SourceLink
-              href={outcomes.sourceUrl}
-              source="infocursos"
-              track={track}
-            >
-              {t('degree_page.outcomes.source', { edition: outcomes.edition })}
-            </SourceLink>
-          </p>
-          <div className="mt-3">
-            <ReportErrorNote
-              surface="degree_outcomes"
-              align="left"
-              pageName={track.pageName}
-              facultySlug={track.facultySlug}
-              degreeSlug={track.degreeSlug}
-            />
-          </div>
         </>
       ) : (
         showFallback && (
@@ -934,6 +993,30 @@ export function OutcomesSection({
           label={t('degree_subpages.see_careers')}
           track={track}
         />
+      )}
+      {/* As in Ingresso: the link first, then one quiet line with the source
+          and how to report a wrong figure */}
+      {outcomes && (
+        <div className="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-xs text-muted-foreground">
+          <p>
+            {t('degree_page.source_label')}{' '}
+            <SourceLink
+              href={outcomes.sourceUrl}
+              source="infocursos"
+              track={track}
+            >
+              {t('degree_page.outcomes.source', { edition: outcomes.edition })}
+            </SourceLink>
+          </p>
+          <ReportErrorNote
+            surface="degree_outcomes"
+            align="left"
+            size="xs"
+            pageName={track.pageName}
+            facultySlug={track.facultySlug}
+            degreeSlug={track.degreeSlug}
+          />
+        </div>
       )}
     </SectionShell>
   )

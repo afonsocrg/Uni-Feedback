@@ -5,7 +5,6 @@ import type {
   DegreeAdmissionPageData,
   DegreeCareersPageData,
   DegreeFeeHistoryRow,
-  EntryForms,
   UnemploymentWindow
 } from '~/components/degree/pageTypes'
 import { toNumber, type Pair } from './degreePage.server'
@@ -44,46 +43,12 @@ export async function loadAdmissionPageData(
   const mainPairs = sources.mainCourseCode
     ? sources.dgesPairs.filter((p) => p.course === sources.mainCourseCode)
     : []
-
-  const [years, feeHistory, indicators] = await Promise.all([
+  const [years, feeHistory] = await Promise.all([
     loadAllFases(db, mainPairs),
-    loadFeeHistory(db, degreeId),
-    sources.outcomesPair
-      ? loadLatestIndicators(db, sources.outcomesPair, ['entry_forms'])
-      : Promise.resolve([])
+    loadFeeHistory(db, degreeId)
   ])
 
-  const get = (name: string) => indicators.find((r) => r.indicator === name)
-
-  let entryForms: EntryForms | null = null
-  const ef = get('entry_forms')
-  if (ef) {
-    const pct = pctOf(ef.data)
-    entryForms = {
-      students: toNumber(ef.data.students),
-      schoolYears: stringList(ef.data.school_years),
-      cnaFirstOption: toNumber(pct.cna_option_1),
-      cnaOtherOption: toNumber(pct.cna_option_2),
-      otherRegimes: toNumber(pct.other_regimes),
-      otherGeneralRegime: toNumber(pct.other_general_regime),
-      courseChange: toNumber(pct.course_change),
-      over23: toNumber(pct.over_23),
-      localOrInstitutional: toNumber(pct.local_or_institutional)
-    }
-  }
-
-  return {
-    years,
-    entryForms,
-    feeHistory,
-    infocursos:
-      sources.outcomesPair && indicators.length > 0
-        ? {
-            url: infocursosUrl(sources.outcomesPair),
-            edition: Math.max(...indicators.map((r) => r.edition))
-          }
-        : null
-  }
+  return { years, feeHistory }
 }
 
 /**

@@ -1,19 +1,20 @@
 import type { Degree, Faculty } from '@uni-feedback/db/schema'
 import { getCurrentSchoolYear } from '@uni-feedback/utils'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLang } from '~/hooks'
 import { analytics } from '~/utils/analytics'
 import type { CrumbUniversity } from '~/utils/breadcrumbs'
 import { ContributeNote } from '../common/ContributeNote'
+import { AdmissionApply } from './AdmissionApply'
 import { AdmissionChart } from './AdmissionChart'
+import { AdmissionSummary, TuitionStat } from './AdmissionSummary'
 import {
-  formatAcademicYear,
   formatEur,
   formatGrade,
   formatInt,
-  formatPct,
   formatSchoolYear,
+  nextRound,
   type FaqItem
 } from './content'
 import {
@@ -22,7 +23,6 @@ import {
   hostOf,
   SectionShell,
   SourceLink,
-  Stat,
   StatGrid,
   SubHeading,
   useAdmissionStats,
@@ -30,7 +30,11 @@ import {
 } from './DegreeSections'
 import { DegreeSubpageShell } from './DegreeSubpageShell'
 import type { DegreeAdmissionPageData, DegreePageExtras } from './pageTypes'
+import { ShowAllRows } from './ShowAllRows'
 import { CNA_TYPES } from './subpages'
+
+/** Year-by-year tables show this many recent years until expanded */
+const RECENT_ROWS = 5
 
 /**
  * `/:faculty/:degree/ingresso` (EN `/admission`): everything about getting in.
@@ -69,18 +73,13 @@ export function DegreeAdmissionPage({
 
   const hasCna = stats.length > 0 || data.years.length > 0
   const hasFees = extras.fees !== null || data.feeHistory.length > 0
-  const hasData = hasCna || hasFees || data.entryForms !== null
+  const applyRoutes = extras.applyRoutes
+  const hasApplyInfo = applyRoutes.length > 0
+  const hasData = hasCna || hasFees || hasApplyInfo
 
+  // Grades first, then the cost, then how to apply (the most technical part)
   const sections = [
     { id: 'resumo', label: t('degree_subpages.admission.sections.summary') },
-    ...(guide && (guide.provas.length > 0 || guide.formula)
-      ? [
-          {
-            id: 'provas',
-            label: t('degree_subpages.admission.sections.rules')
-          }
-        ]
-      : []),
     ...(data.years.length > 0
       ? [
           {
@@ -89,19 +88,29 @@ export function DegreeAdmissionPage({
           }
         ]
       : []),
-    ...(data.entryForms
+    ...(guide && (guide.provas.length > 0 || guide.formula)
       ? [
           {
-            id: 'candidatos',
-            label: t('degree_subpages.admission.entry.title')
+            id: 'provas',
+            label: t('degree_subpages.admission.sections.rules')
           }
         ]
       : []),
     { id: 'propinas', label: t('degree_subpages.admission.sections.fees') },
+    ...(hasApplyInfo
+      ? [
+          {
+            id: 'candidatura',
+            label: t('degree_subpages.admission.apply.title')
+          }
+        ]
+      : []),
     ...(faq.length > 0
       ? [{ id: 'faq', label: t('degree_page.sections.faq') }]
       : [])
   ]
+
+  const [allYears, setAllYears] = useState(false)
 
   useEffect(() => {
     if (!faculty.slug || !degree.slug) return
@@ -109,19 +118,14 @@ export function DegreeAdmissionPage({
       facultySlug: faculty.slug,
       degreeSlug: degree.slug,
       page: 'admission',
-      hasData
+      hasData,
+      hasApplyInfo,
+      applicationsOpen: applyRoutes.some(
+        (r) => nextRound(r.rounds)?.status === 'open'
+      )
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [faculty.slug, degree.slug])
-
-  const latest = series.at(-1)
-  const next = guide?.nextYearVagas
-  // DGES publishes a year's vagas in the summer and the guide keeps them all
-  // year, so once that school year starts they're history, not news
-  const nextVagasStarted =
-    next !== undefined &&
-    next !== null &&
-    Number(next.academicYear.slice(0, 4)) <= getCurrentSchoolYear()
 
   return (
     <DegreeSubpageShell
@@ -140,57 +144,49 @@ export function DegreeAdmissionPage({
         first
       >
         {isCna ? (
-          hasCna ? (
-            <>
-              <p className="mb-4 max-w-prose">
-                {t('degree_subpages.admission.intro_cna', { acronym })}{' '}
-                {next &&
-                  t(
-                    nextVagasStarted
-                      ? 'degree_subpages.admission.intro_vagas_past'
-                      : 'degree_subpages.admission.intro_vagas',
-                    {
-                      vagas: formatInt(next.vagas, lang),
-                      year: formatAcademicYear(next.academicYear)
-                    }
-                  )}{' '}
-                {latest &&
-                  t('degree_subpages.admission.intro_grade', {
-                    year: latest.year,
-                    grade: formatGrade(latest.grade, lang)
-                  })}
-              </p>
-              {stats.length > 0 && <StatGrid>{stats}</StatGrid>}
-            </>
-          ) : (
-            <ContributeNote
-              field="admission"
-              text={t('degree_page.admission.missing')}
-              pageName={track.pageName}
-              facultySlug={track.facultySlug}
-              degreeSlug={track.degreeSlug}
-            />
-          )
+          <AdmissionSummary
+            admissions={admissions}
+            fees={extras.fees}
+            applyRoutes={applyRoutes}
+            detailed
+            missingGrade="missing"
+            track={track}
+          />
         ) : (
           <>
-            <p className="mb-3 max-w-prose">
-              {t('degree_subpages.admission.intro_direct', { acronym })}
-            </p>
-            <ContributeNote
-              field="requirements"
-              text={t('degree_subpages.admission.requirements_missing')}
-              pageName={track.pageName}
-              facultySlug={track.facultySlug}
-              degreeSlug={track.degreeSlug}
-            />
-            <ContributeNote
-              className="mt-1"
-              field="application_dates"
-              text={t('degree_subpages.admission.dates_missing')}
-              pageName={track.pageName}
-              facultySlug={track.facultySlug}
-              degreeSlug={track.degreeSlug}
-            />
+            {hasApplyInfo ? (
+              <AdmissionSummary
+                admissions={admissions}
+                fees={extras.fees}
+                applyRoutes={applyRoutes}
+                detailed
+                missingGrade={degree.type === 'master' ? 'unpublished' : null}
+                track={track}
+              />
+            ) : (
+              <p className="mb-3 max-w-prose">
+                {t('degree_subpages.admission.intro_direct', { acronym })}
+              </p>
+            )}
+            {!applyRoutes.some((r) => r.guide) && (
+              <ContributeNote
+                field="requirements"
+                text={t('degree_subpages.admission.requirements_missing')}
+                pageName={track.pageName}
+                facultySlug={track.facultySlug}
+                degreeSlug={track.degreeSlug}
+              />
+            )}
+            {!applyRoutes.some((r) => r.rounds.length > 0) && (
+              <ContributeNote
+                className="mt-1"
+                field="application_dates"
+                text={t('degree_subpages.admission.dates_missing')}
+                pageName={track.pageName}
+                facultySlug={track.facultySlug}
+                degreeSlug={track.degreeSlug}
+              />
+            )}
             {degree.url && (
               <p className="mt-3 text-sm">
                 <a
@@ -208,23 +204,6 @@ export function DegreeAdmissionPage({
           </>
         )}
       </SectionShell>
-
-      {guide && (guide.provas.length > 0 || guide.formula) && (
-        <SectionShell
-          id="provas"
-          title={t('degree_subpages.admission.sections.rules')}
-        >
-          <AdmissionRules guide={guide} showTitle={false} />
-          <p className="mt-4 text-xs text-muted-foreground">
-            {t('degree_page.source_label')}{' '}
-            <SourceLink href={guide.sourceUrl} source="dges" track={track}>
-              {t('degree_subpages.admission.source_guide', {
-                year: guide.year
-              })}
-            </SourceLink>
-          </p>
-        </SectionShell>
-      )}
 
       {data.years.length > 0 && admissions && (
         <SectionShell
@@ -280,37 +259,55 @@ export function DegreeAdmissionPage({
                 </tr>
               </thead>
               <tbody>
-                {data.years.map((y) => {
-                  const f = (n: number) => y.fases.find((x) => x.fase === n)
-                  const num = (v: number | null | undefined) =>
-                    v != null ? formatInt(v, lang) : ''
-                  const grade = (v: number | null | undefined) =>
-                    v != null ? formatGrade(v, lang) : '–'
-                  return (
-                    <tr key={y.year} className="border-b border-border">
-                      <td className="py-1.5 pr-3">{y.year}</td>
-                      <td className="py-1.5 pr-3">{num(f(1)?.vagas)}</td>
-                      <td className="py-1.5 pr-3">{num(f(1)?.colocados)}</td>
-                      <td className="py-1.5 pr-3 font-semibold">
-                        {grade(f(1)?.lastGrade)}
-                      </td>
-                      {[2, 3].flatMap((n) => [
-                        <td key={`v${n}`} className="py-1.5 pr-3">
-                          {num(f(n)?.vagas)}
-                        </td>,
-                        <td
-                          key={`g${n}`}
-                          className="py-1.5 pr-3 text-muted-foreground"
-                        >
-                          {f(n) ? grade(f(n)?.lastGrade) : ''}
+                {data.years
+                  .slice(0, allYears ? undefined : RECENT_ROWS)
+                  .map((y) => {
+                    const f = (n: number) => y.fases.find((x) => x.fase === n)
+                    const num = (v: number | null | undefined) =>
+                      v != null ? formatInt(v, lang) : ''
+                    const grade = (v: number | null | undefined) =>
+                      v != null ? formatGrade(v, lang) : '–'
+                    return (
+                      <tr key={y.year} className="border-b border-border">
+                        <td className="py-1.5 pr-3">{y.year}</td>
+                        <td className="py-1.5 pr-3">{num(f(1)?.vagas)}</td>
+                        <td className="py-1.5 pr-3">{num(f(1)?.colocados)}</td>
+                        <td className="py-1.5 pr-3 font-semibold">
+                          {grade(f(1)?.lastGrade)}
                         </td>
-                      ])}
-                    </tr>
-                  )
-                })}
+                        {[2, 3].flatMap((n) => [
+                          <td key={`v${n}`} className="py-1.5 pr-3">
+                            {num(f(n)?.vagas)}
+                          </td>,
+                          <td
+                            key={`g${n}`}
+                            className="py-1.5 pr-3 text-muted-foreground"
+                          >
+                            {f(n) ? grade(f(n)?.lastGrade) : ''}
+                          </td>
+                        ])}
+                      </tr>
+                    )
+                  })}
               </tbody>
             </table>
           </div>
+          {data.years.length > RECENT_ROWS && (
+            <ShowAllRows
+              total={data.years.length}
+              expanded={allYears}
+              onToggle={() => {
+                if (!allYears && track.facultySlug && track.degreeSlug) {
+                  analytics.discovery.degreeTableExpanded({
+                    facultySlug: track.facultySlug,
+                    degreeSlug: track.degreeSlug,
+                    table: 'grades'
+                  })
+                }
+                setAllYears(!allYears)
+              }}
+            />
+          )}
           {admissions.afterWork.map((trackData) => {
             const last = trackData.series.at(-1)
             if (!last) return null
@@ -339,25 +336,19 @@ export function DegreeAdmissionPage({
         </SectionShell>
       )}
 
-      {data.entryForms && (
+      {guide && (guide.provas.length > 0 || guide.formula) && (
         <SectionShell
-          id="candidatos"
-          title={t('degree_subpages.admission.entry.title')}
+          id="provas"
+          title={t('degree_subpages.admission.sections.rules')}
         >
-          <EntryFormsBars entryForms={data.entryForms} />
+          <AdmissionRules guide={guide} showTitle={false} />
           <p className="mt-4 text-xs text-muted-foreground">
             {t('degree_page.source_label')}{' '}
-            {data.infocursos && (
-              <SourceLink
-                href={data.infocursos.url}
-                source="infocursos"
-                track={track}
-              >
-                {t('degree_page.outcomes.source', {
-                  edition: data.infocursos.edition
-                })}
-              </SourceLink>
-            )}
+            <SourceLink href={guide.sourceUrl} source="dges" track={track}>
+              {t('degree_subpages.admission.source_guide', {
+                year: guide.year
+              })}
+            </SourceLink>
           </p>
         </SectionShell>
       )}
@@ -368,26 +359,9 @@ export function DegreeAdmissionPage({
       >
         {extras.fees && (
           <>
-            <SubHeading>
-              {t('degree_page.fees.title', {
-                year: formatSchoolYear(extras.fees.schoolYear)
-              })}
-            </SubHeading>
+            {/* The card's own title says the year: no heading above it */}
             <StatGrid>
-              {extras.fees.rows.map((row) => (
-                <Stat
-                  key={`${row.studentType}-${row.period}`}
-                  value={formatEur(row.amountEur, lang)}
-                  label={t('degree_page.fees.label', {
-                    period: t(`degree_page.fees.period.${row.period}`, {
-                      defaultValue: row.period
-                    }),
-                    student: t(`degree_page.fees.student.${row.studentType}`, {
-                      defaultValue: row.studentType
-                    })
-                  })}
-                />
-              ))}
+              <TuitionStat fees={extras.fees} />
             </StatGrid>
           </>
         )}
@@ -407,6 +381,19 @@ export function DegreeAdmissionPage({
         )}
       </SectionShell>
 
+      {hasApplyInfo && (
+        <SectionShell
+          id="candidatura"
+          title={t('degree_subpages.admission.apply.title')}
+        >
+          <AdmissionApply
+            routes={applyRoutes}
+            today={extras.today}
+            track={track}
+          />
+        </SectionShell>
+      )}
+
       {faq.length > 0 && (
         <FaqSection
           items={faq}
@@ -415,58 +402,6 @@ export function DegreeAdmissionPage({
         />
       )}
     </DegreeSubpageShell>
-  )
-}
-
-function EntryFormsBars({
-  entryForms
-}: {
-  entryForms: NonNullable<DegreeAdmissionPageData['entryForms']>
-}) {
-  const { t } = useTranslation('browse')
-  const lang = useLang()
-  const bars = (
-    [
-      ['cna_first', entryForms.cnaFirstOption],
-      ['cna_other', entryForms.cnaOtherOption],
-      ['other_regimes', entryForms.otherRegimes],
-      ['other_general', entryForms.otherGeneralRegime],
-      ['course_change', entryForms.courseChange],
-      ['over23', entryForms.over23],
-      ['local', entryForms.localOrInstitutional]
-    ] as const
-  ).filter(([, pct]) => pct != null && pct > 0)
-  if (bars.length === 0) return null
-  return (
-    <>
-      <ul className="space-y-1.5">
-        {bars.map(([key, pct]) => (
-          <li
-            key={key}
-            className="grid grid-cols-[9rem_1fr_3.5rem] items-center gap-3 text-sm sm:grid-cols-[13rem_1fr_3.5rem]"
-          >
-            <span>{t(`degree_subpages.admission.entry.${key}` as const)}</span>
-            <span className="h-3 overflow-hidden rounded bg-muted">
-              <span
-                className="block h-full rounded-r bg-brand-solid"
-                style={{ width: `${Math.min(100, pct ?? 0)}%` }}
-              />
-            </span>
-            <span className="text-right tabular-nums">
-              {formatPct(pct ?? 0, lang)}
-            </span>
-          </li>
-        ))}
-      </ul>
-      {entryForms.students != null && entryForms.schoolYears.length > 0 && (
-        <p className="mt-2 text-xs text-muted-foreground">
-          {t('degree_subpages.admission.entry.note', {
-            n: formatInt(entryForms.students, lang),
-            years: entryForms.schoolYears.join(t('degree_subpages.and'))
-          })}
-        </p>
-      )}
-    </>
   )
 }
 
@@ -481,6 +416,7 @@ function FeeHistoryTable({
 }) {
   const { t } = useTranslation('browse')
   const lang = useLang()
+  const [allYears, setAllYears] = useState(false)
   const byYear = new Map<number, typeof rows>()
   for (const row of rows) {
     byYear.set(row.schoolYear, [...(byYear.get(row.schoolYear) ?? []), row])
@@ -497,6 +433,7 @@ function FeeHistoryTable({
     }
   }
   const sources = [...sourceYears.entries()]
+  const years = [...byYear.entries()]
   return (
     <>
       <SubHeading>{t('degree_subpages.admission.fees_history')}</SubHeading>
@@ -515,32 +452,50 @@ function FeeHistoryTable({
             </tr>
           </thead>
           <tbody>
-            {[...byYear.entries()].map(([year, yearRows]) => (
-              <tr key={year} className="border-b border-border align-top">
-                <td className="py-1.5 pr-3 tabular-nums">
-                  {formatSchoolYear(year)}
-                </td>
-                {columns.map((type) => (
-                  <td key={type} className="py-1.5 pr-3 tabular-nums">
-                    {yearRows
-                      .filter((r) => r.studentType === type)
-                      .map((row, i) => (
-                        <span key={i} className="block">
-                          {formatEur(row.amountEur, lang)}{' '}
-                          <span className="text-muted-foreground">
-                            {t(`degree_page.fees.period.${row.period}`, {
-                              defaultValue: row.period
-                            })}
-                          </span>
-                        </span>
-                      ))}
+            {years
+              .slice(0, allYears ? undefined : RECENT_ROWS)
+              .map(([year, yearRows]) => (
+                <tr key={year} className="border-b border-border align-top">
+                  <td className="py-1.5 pr-3 tabular-nums">
+                    {formatSchoolYear(year)}
                   </td>
-                ))}
-              </tr>
-            ))}
+                  {columns.map((type) => (
+                    <td key={type} className="py-1.5 pr-3 tabular-nums">
+                      {yearRows
+                        .filter((r) => r.studentType === type)
+                        .map((row, i) => (
+                          <span key={i} className="block">
+                            {formatEur(row.amountEur, lang)}{' '}
+                            <span className="text-muted-foreground">
+                              {t(`degree_page.fees.period.${row.period}`, {
+                                defaultValue: row.period
+                              })}
+                            </span>
+                          </span>
+                        ))}
+                    </td>
+                  ))}
+                </tr>
+              ))}
           </tbody>
         </table>
       </div>
+      {years.length > RECENT_ROWS && (
+        <ShowAllRows
+          total={years.length}
+          expanded={allYears}
+          onToggle={() => {
+            if (!allYears && track.facultySlug && track.degreeSlug) {
+              analytics.discovery.degreeTableExpanded({
+                facultySlug: track.facultySlug,
+                degreeSlug: track.degreeSlug,
+                table: 'fees'
+              })
+            }
+            setAllYears(!allYears)
+          }}
+        />
+      )}
       <p className="mt-4 text-xs text-muted-foreground">
         {t('degree_page.source_label')}{' '}
         {sources.map(([url, years], i) => (

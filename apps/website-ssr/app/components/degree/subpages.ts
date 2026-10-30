@@ -8,12 +8,17 @@ import type { DegreeType } from '@uni-feedback/db/schema'
  * the data is missing. Any other type answers 404.
  */
 
-/** Concurso Nacional (DGES) admission, or direct application with fees */
+/**
+ * Concurso Nacional (DGES) admission, or direct application with fees and,
+ * where we have it, a guide and the application rounds (doutoramentos since
+ * 2026-10-30)
+ */
 const ADMISSION_TYPES = new Set<DegreeType>([
   'bachelor',
   'integrated_master',
   'master',
-  'postgraduate'
+  'postgraduate',
+  'phd'
 ])
 
 /** Types InfoCursos covers */

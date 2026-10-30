@@ -16,7 +16,9 @@ export function ReportErrorNote({
   pageName,
   facultySlug,
   degreeSlug,
-  align = 'center'
+  align = 'center',
+  text,
+  size = 'sm'
 }: {
   surface: ErrorReportSurface
   /** What the page is about, for the email subject ("LEIC-A (IST)") */
@@ -25,6 +27,10 @@ export function ReportErrorNote({
   degreeSlug?: string | null
   /** 'left' inside a section, next to the data it covers */
   align?: 'center' | 'left'
+  /** The question before the link, when the default ("Encontraste algum erro?") is too vague */
+  text?: string
+  /** 'xs' next to a source line, in its size */
+  size?: 'sm' | 'xs'
 }) {
   const { t } = useTranslation('browse')
 
@@ -42,9 +48,9 @@ export function ReportErrorNote({
 
   return (
     <p
-      className={`text-sm text-muted-foreground ${align === 'center' ? 'text-center' : 'text-left'}`}
+      className={`${size === 'xs' ? 'text-xs' : 'text-sm'} text-muted-foreground ${align === 'center' ? 'text-center' : 'text-left'}`}
     >
-      <span>{t('report_error.text')} </span>
+      <span>{text ?? t('report_error.text')} </span>
       <a
         href={`mailto:${ERROR_REPORT_EMAIL}`}
         onClick={handleClick}

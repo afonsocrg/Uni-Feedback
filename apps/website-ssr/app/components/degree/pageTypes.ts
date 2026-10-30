@@ -8,6 +8,8 @@
  * workspace.
  */
 
+import type { AdmissionAudience, AdmissionRoute } from '@uni-feedback/db/schema'
+
 export interface DegreeCampusInfo {
   id: number
   name: string
@@ -49,13 +51,9 @@ export interface AdmissionGuide {
   provas: string[][]
   formula: { secondaryPct: number; examsPct: number } | null
   minimumGrades: { application: number | null; entryExams: number | null }
-  /** 1ª fase of the latest year the guide reports */
-  latestFase1: {
-    year: number
-    candidatos: number | null
-    candidatosFirstOption: number | null
-    mediaColocados: number | null
-  } | null
+  /** Pré-requisitos, for the few courses that require them; `type` as DGES
+   *  writes it ("Seleção") */
+  prerequisites: { type: string | null; lines: string[] } | null
   sourceUrl: string
 }
 
@@ -130,6 +128,10 @@ export interface DegreePageExtras {
   fees: DegreeFees | null
   outcomes: DegreeOutcomes | null
   related: RelatedDegree[]
+  /** How to apply, one entry per route and audience, in display order */
+  applyRoutes: AdmissionRouteView[]
+  /** Today in Lisbon (ISO date), the day the round statuses were computed for */
+  today: string
 }
 
 /* ------------------------------------------------------------------ */
@@ -150,7 +152,6 @@ export interface AdmissionYear {
   fases: AdmissionFaseResult[]
 }
 
-/** How first-year students got in, percentages (InfoCursos entry_forms). */
 export interface EntryForms {
   students: number | null
   schoolYears: string[]
@@ -168,13 +169,48 @@ export interface DegreeFeeHistoryRow extends DegreeFeeRow {
   sourceUrl: string
 }
 
+/** Where a round stands on the day the page was rendered (Lisbon date). */
+export type AdmissionRoundStatus = 'upcoming' | 'open' | 'closed' | 'unknown'
+
+export interface AdmissionRoundView {
+  label: string
+  /** ISO dates; null when the source doesn't state one */
+  opensOn: string | null
+  closesOn: string | null
+  resultsOn: string | null
+  status: AdmissionRoundStatus
+}
+
+/**
+ * One way into the degree (prds/content_rich_pages.md, "Ingresso v2"): our
+ * reviewed guide and the rounds of the latest intake we hold, each from the
+ * most specific scope that has them (degree, faculty and type, faculty,
+ * national).
+ */
+export interface AdmissionRouteView {
+  route: AdmissionRoute
+  audience: AdmissionAudience
+  guide: {
+    /** `degree`: written for this degree alone, a special case (BIPB, MEFarm) */
+    scope: 'degree' | 'faculty' | 'national'
+    body: string
+    /** One sentence with the requirements, for the Ingresso summary */
+    summary: string | null
+    applicationFee: { amountEur: number; note: string | null } | null
+    applyUrl: string | null
+    sourceUrls: string[]
+  } | null
+  /** The intake the rounds are for (2027 = 2027/28); null without rounds */
+  schoolYear: number | null
+  rounds: AdmissionRoundView[]
+  roundsSourceUrl: string | null
+}
+
 export interface DegreeAdmissionPageData {
   /** Every year we have, newest first */
   years: AdmissionYear[]
-  entryForms: EntryForms | null
   /** Every fee row we hold, newest school year first */
   feeHistory: DegreeFeeHistoryRow[]
-  infocursos: { url: string; edition: number } | null
 }
 
 /** One InfoCursos edition of the registered-unemployment figure. */

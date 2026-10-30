@@ -2,7 +2,12 @@ import { isDiscontinued } from '@uni-feedback/utils'
 import type { TFunction } from 'i18next'
 import type { Lang } from '~/i18n/config'
 import type { CourseWithFeedback } from '../course/types'
-import type { DegreeAdmissions, DegreeFees, DegreeOutcomes } from './pageTypes'
+import type {
+  AdmissionRoundView,
+  DegreeAdmissions,
+  DegreeFees,
+  DegreeOutcomes
+} from './pageTypes'
 
 /**
  * Pure helpers shared by the degree page and its `meta` (titles, JSON-LD), so
@@ -318,4 +323,132 @@ export function buildFaq(
   }
 
   return items
+}
+
+/** The round a student should look at: the open one, else the next to open. */
+export function nextRound(
+  rounds: AdmissionRoundView[]
+): AdmissionRoundView | undefined {
+  return (
+    rounds.find((r) => r.status === 'open') ??
+    rounds.find((r) => r.status === 'upcoming')
+  )
+}
+
+/* Admission round dates: ISO calendar days, always formatted in UTC */
+
+const DATE_LOCALES = { pt: 'pt-PT', en: 'en-GB' } as const
+
+// ISO dates are calendar days: format them in UTC so no timezone shifts the day
+const isoToDate = (iso: string) => new Date(`${iso}T00:00:00Z`)
+// 'short' months are numeric in pt-PT ("11/11/2026"), so the formats use 'long'
+const dayFormat = (lang: 'pt' | 'en') =>
+  new Intl.DateTimeFormat(DATE_LOCALES[lang], {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'UTC'
+  })
+
+export function formatIsoDay(iso: string, lang: 'pt' | 'en'): string {
+  return dayFormat(lang).format(isoToDate(iso))
+}
+
+/** "25 nov" / "25 Nov": a timeline tick, where the year is implied. */
+export function formatIsoShortDay(iso: string, lang: 'pt' | 'en'): string {
+  const month = new Intl.DateTimeFormat(DATE_LOCALES[lang], {
+    month: 'long',
+    timeZone: 'UTC'
+  })
+    .format(isoToDate(iso))
+    .slice(0, 3)
+  return `${isoToDate(iso).getUTCDate()} ${month}`
+}
+
+/** "17 abr 2026": a date with an abbreviated month, for compact lists. */
+export function formatIsoShortDate(iso: string, lang: 'pt' | 'en'): string {
+  return `${formatIsoShortDay(iso, lang)} ${iso.slice(0, 4)}`
+}
+
+/**
+ * A round's dates as one range with abbreviated months: "9–20 mar 2026",
+ * "22 jun – 3 jul 2026", "25 nov 2026 – 6 jan 2027", or "until" / "from" with
+ * only one end.
+ */
+export function formatIsoPeriod(
+  opensOn: string | null,
+  closesOn: string | null,
+  lang: 'pt' | 'en',
+  label: { until: (date: string) => string; from: (date: string) => string }
+): string {
+  if (opensOn && closesOn) {
+    if (opensOn.slice(0, 4) !== closesOn.slice(0, 4)) {
+      return `${formatIsoShortDate(opensOn, lang)} – ${formatIsoShortDate(closesOn, lang)}`
+    }
+    return `${formatIsoShortRange(opensOn, closesOn, lang, label)} ${closesOn.slice(0, 4)}`
+  }
+  if (closesOn) return label.until(formatIsoShortDate(closesOn, lang))
+  if (opensOn) return label.from(formatIsoShortDate(opensOn, lang))
+  return '–'
+}
+
+/**
+ * A round's interval for a timeline label, year implied: "11–25 nov",
+ * "25 nov – 6 jan", or "until" / "from" with only one end.
+ */
+export function formatIsoShortRange(
+  opensOn: string | null,
+  closesOn: string | null,
+  lang: 'pt' | 'en',
+  label: { until: (date: string) => string; from: (date: string) => string }
+): string {
+  if (opensOn && closesOn) {
+    const [start, end] = [opensOn, closesOn].map((iso) =>
+      formatIsoShortDay(iso, lang)
+    )
+    const sameMonth = opensOn.slice(0, 7) === closesOn.slice(0, 7)
+    return sameMonth
+      ? `${isoToDate(opensOn).getUTCDate()}–${end}`
+      : `${start} – ${end}`
+  }
+  if (closesOn) return label.until(formatIsoShortDay(closesOn, lang))
+  if (opensOn) return label.from(formatIsoShortDay(opensOn, lang))
+  return '–'
+}
+
+/**
+ * The provas de ingresso in one phrase for the Ingresso summary, from the
+ * guide's combinations (each a list of exam names): the exam every
+ * combination shares ("com Matemática A e outra prova de ingresso"), or how
+ * many combinations there are. Null without provas.
+ */
+export function admissionProvasPhrase(
+  provas: string[][],
+  t: TFunction<'browse'>,
+  lang: Lang
+): string | null {
+  const combos = provas.filter((combo) => combo.length > 0)
+  if (combos.length === 0) return null
+  if (combos.length === 1) {
+    const [only] = combos
+    if (only.length === 1) {
+      return t('degree_page.admission_summary.provas_one', { exam: only[0] })
+    }
+    const list = new Intl.ListFormat(lang === 'pt' ? 'pt-PT' : 'en-GB', {
+      type: 'conjunction'
+    }).format(only)
+    return t('degree_page.admission_summary.provas_all', { list })
+  }
+  const common = combos[0].filter((exam) =>
+    combos.every((combo) => combo.includes(exam))
+  )
+  if (common.length === 1) {
+    const exam = common[0]
+    return combos.some((combo) => combo.length === 1)
+      ? t('degree_page.admission_summary.provas_alone_or_pair', { exam })
+      : t('degree_page.admission_summary.provas_common', { exam })
+  }
+  return t('degree_page.admission_summary.provas_combos', {
+    count: combos.length
+  })
 }

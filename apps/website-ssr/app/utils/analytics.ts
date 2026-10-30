@@ -148,6 +148,8 @@ export type ErrorReportSurface =
   | 'degree_page'
   | 'degree_courses_page'
   | 'degree_admission_page'
+  /** The "Como candidatar-se" section: rounds, requirements, apply links */
+  | 'degree_admission_apply'
   | 'degree_careers_page'
   | 'faculty_page'
   | 'faculty_type_page'
@@ -167,6 +169,8 @@ export type MissingInfoField =
   | 'requirements'
   | 'application_dates'
   | 'careers'
+  /** The last admitted grade: not published (mestrados) or not loaded yet */
+  | 'entry_grade'
 
 /**
  * A faculty page: the hub (`/ist`) or one of its type pages (`/ist/licenciaturas`
@@ -257,6 +261,7 @@ export type DegreeSourceLink =
   | 'dges'
   | 'infocursos'
   | 'fees'
+  | 'admissions'
   | 'campus_map'
   | 'campus_website'
 
@@ -932,7 +937,29 @@ export const analytics = {
       degreeSlug: string
       page: 'admission' | 'careers'
       hasData: boolean
+      /** admission only: the page shows how to apply (a guide or round dates) */
+      hasApplyInfo?: boolean
+      /** admission only: a round of some route is open today */
+      applicationsOpen?: boolean
     }) => trackEvent('degree_subpage_viewed', props),
+
+    /**
+     * Track a click on a route's link out on the Ingresso page
+     * (prds/content_rich_pages.md, "Ingresso v2"): `kind: 'apply'`, "Candidatura
+     * em ...", the application portal, shown only while a round is open;
+     * `kind: 'info'`, "Mais informação em ...", the faculty's admissions page,
+     * the rest of the time. Its rate is this over `degree_subpage_viewed{page:
+     * 'admission', hasApplyInfo: true}`. `roundStatus` is where that route's
+     * next round stood.
+     */
+    degreeApplyLinkClicked: (props: {
+      facultySlug: string
+      degreeSlug: string
+      route: 'cna' | 'direct' | 'special'
+      audience: 'all' | 'national' | 'international' | 'internal'
+      kind: 'apply' | 'info'
+      roundStatus: 'open' | 'upcoming' | 'closed' | 'none'
+    }) => trackEvent('degree_apply_link_clicked', props),
 
     /**
      * Track a click into a degree sub-page from the summary section on the
@@ -989,6 +1016,17 @@ export const analytics = {
       degreeSlug: string
       source: DegreeSourceLink
     }) => trackEvent('degree_source_link_clicked', props),
+
+    /**
+     * Track "Mostrar todos os anos" under a year-by-year table on `/ingresso`
+     * (the tables show the 5 most recent years until expanded): the grades per
+     * fase, or the tuition history. Only the expanding click.
+     */
+    degreeTableExpanded: (props: {
+      facultySlug: string
+      degreeSlug: string
+      table: 'grades' | 'fees'
+    }) => trackEvent('degree_table_expanded', props),
 
     /** Track the yearly admission table being opened under the grade chart. */
     degreeAdmissionTableOpened: (props: {

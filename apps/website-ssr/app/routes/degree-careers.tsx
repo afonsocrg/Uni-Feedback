@@ -103,7 +103,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   const db = database()
   const [{ extras, outcomesPair }, [about]] = await Promise.all([
     loadDegreeExtrasWithSources(
-      degree.id,
+      degree,
       faculty.universityId,
       detectLang(new URL(request.url).pathname)
     ),

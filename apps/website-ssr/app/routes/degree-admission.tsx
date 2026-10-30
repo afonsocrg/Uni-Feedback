@@ -45,10 +45,13 @@ export function meta({ loaderData, location, matches }: Route.MetaArgs) {
       : 'degree_subpages.admission.meta_title_direct',
     params
   )
+  const hasRounds = extras.applyRoutes.some((r) => r.rounds.length > 0)
   const description = t(
     isCna
       ? 'degree_subpages.admission.meta_description'
-      : 'degree_subpages.admission.meta_description_direct',
+      : hasRounds
+        ? 'degree_subpages.admission.meta_description_apply'
+        : 'degree_subpages.admission.meta_description_direct',
     params
   )
 
@@ -89,10 +92,10 @@ export function meta({ loaderData, location, matches }: Route.MetaArgs) {
 
   // Only prompts and no data: not worth indexing until it has some
   const hasData =
+    extras.applyRoutes.length > 0 ||
     extras.admissions !== null ||
     extras.fees !== null ||
-    data.feeHistory.length > 0 ||
-    data.entryForms !== null
+    data.feeHistory.length > 0
 
   return buildMeta({
     matches,
@@ -115,10 +118,11 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     throw new Response('Not found', { status: 404 })
   }
 
+  const lang = detectLang(new URL(request.url).pathname)
   const { extras, ...sources } = await loadDegreeExtrasWithSources(
-    degree.id,
+    degree,
     faculty.universityId,
-    detectLang(new URL(request.url).pathname)
+    lang
   )
   const data = await loadAdmissionPageData(degree.id, sources)
 

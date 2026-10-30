@@ -276,7 +276,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
       loadAcademicTerms(faculty.id),
       detailsQuery,
       loadDegreePageExtras(
-        degree.id,
+        degree,
         faculty.universityId,
         detectLang(new URL(request.url).pathname)
       ),

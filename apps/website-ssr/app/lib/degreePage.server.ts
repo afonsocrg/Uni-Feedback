@@ -1,4 +1,5 @@
 import { database, schema } from '@uni-feedback/db'
+import type { DegreeType } from '@uni-feedback/db/schema'
 import { getCurrentSchoolYear } from '@uni-feedback/utils'
 import { and, asc, desc, eq, inArray, isNotNull, or, sql } from 'drizzle-orm'
 import type {
@@ -14,6 +15,7 @@ import type {
 } from '~/components/degree/pageTypes'
 import type { Lang } from '~/i18n/config'
 import { pickName } from '~/utils/localizedContent'
+import { lisbonToday, loadApplyRoutes } from './admissionRoutes.server'
 
 /**
  * The degree page's content sections beyond the course plan (v2): campus,
@@ -47,14 +49,20 @@ export const toNumber = (value: unknown): number | null => {
   return Number.isFinite(n) ? n : null
 }
 
+/** The degree as the extras loaders need it */
+export type ExtrasDegree = {
+  id: number
+  type: DegreeType
+  facultyId: number | null
+}
+
 export async function loadDegreePageExtras(
-  degreeId: number,
+  degree: ExtrasDegree,
   facultyUniversityId: number | null,
   lang: Lang
 ): Promise<DegreePageExtras> {
-  return (
-    await loadDegreeExtrasWithSources(degreeId, facultyUniversityId, lang)
-  ).extras
+  return (await loadDegreeExtrasWithSources(degree, facultyUniversityId, lang))
+    .extras
 }
 
 /**
@@ -64,7 +72,7 @@ export async function loadDegreePageExtras(
  * InfoCursos pair the outcomes come from.
  */
 export async function loadDegreeExtrasWithSources(
-  degreeId: number,
+  degree: ExtrasDegree,
   facultyUniversityId: number | null,
   lang: Lang
 ): Promise<{
@@ -74,6 +82,7 @@ export async function loadDegreeExtrasWithSources(
   outcomesPair: Pair | null
 }> {
   const db = database()
+  const degreeId = degree.id
 
   const externalIds = await db
     .select({
@@ -108,6 +117,15 @@ export async function loadDegreeExtrasWithSources(
     ])
 
   const admissions = admissionsResult?.admissions ?? null
+  const today = lisbonToday()
+  // The national calendar only for a degree that is in the Concurso Nacional
+  const applyRoutesQuery = loadApplyRoutes(
+    db,
+    degree,
+    lang,
+    today,
+    admissions !== null
+  )
 
   // InfoCursos uses the same (unit, course) pair as DGES. An explicit
   // 'infocursos' id wins (mestrados, which have no DGES pair); otherwise the
@@ -136,9 +154,19 @@ export async function loadDegreeExtrasWithSources(
       ])
     : [null, 1]
   if (outcomes && sharingDegrees <= 1) outcomes.broaderProgramme = null
+  const applyRoutes = await applyRoutesQuery
 
   return {
-    extras: { universityName, campuses, admissions, fees, outcomes, related },
+    extras: {
+      universityName,
+      campuses,
+      admissions,
+      fees,
+      outcomes,
+      related,
+      applyRoutes,
+      today
+    },
     dgesPairs,
     mainCourseCode: admissions?.main.courseCode ?? null,
     outcomesPair
@@ -400,12 +428,15 @@ function parseGuide(row: {
     | null
     | undefined
 
-  const stats = Array.isArray(data.stats)
-    ? (data.stats as Record<string, unknown>[])
+  // Only the courses that require them (Medicina, Medicina Dentária, ...):
+  // { type: 'Seleção', lines: ['Grupo A - Comunicação interpessoal'] }
+  const prereq = data.prerequisites as
+    | { type?: unknown; lines?: unknown }
+    | null
+    | undefined
+  const prerequisiteLines = Array.isArray(prereq?.lines)
+    ? prereq.lines.map(String).filter(Boolean)
     : []
-  const fase1 = stats
-    .filter((s) => toNumber(s.fase) === 1 && toNumber(s.year) !== null)
-    .sort((a, b) => Number(b.year) - Number(a.year))[0]
 
   return {
     year: row.year,
@@ -425,14 +456,13 @@ function parseGuide(row: {
       application: toNumber(minimum?.application),
       entryExams: toNumber(minimum?.entry_exams)
     },
-    latestFase1: fase1
-      ? {
-          year: Number(fase1.year),
-          candidatos: toNumber(fase1.candidatos),
-          candidatosFirstOption: toNumber(fase1.candidatos_1a_opcao),
-          mediaColocados: toNumber(fase1.media_candidatura)
-        }
-      : null,
+    prerequisites:
+      prerequisiteLines.length > 0
+        ? {
+            type: typeof prereq?.type === 'string' ? prereq.type : null,
+            lines: prerequisiteLines
+          }
+        : null,
     sourceUrl: row.sourceUrl
   }
 }

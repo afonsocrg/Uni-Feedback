@@ -15,7 +15,8 @@ export function ContributeNote({
   pageName,
   facultySlug,
   degreeSlug,
-  className
+  className,
+  linkText
 }: {
   field: MissingInfoField
   /** What is missing, said plainly ("Língua de ensino: sem informação.") */
@@ -25,6 +26,8 @@ export function ContributeNote({
   facultySlug?: string | null
   degreeSlug?: string | null
   className?: string
+  /** Instead of "Sabes isto? Ajuda-nos a completar", when the ask is specific */
+  linkText?: string
 }) {
   const { t } = useTranslation('browse')
 
@@ -50,7 +53,7 @@ export function ContributeNote({
         onClick={handleClick}
         className="underline underline-offset-2 transition-colors hover:text-foreground"
       >
-        {t('degree_page.contribute.link')}
+        {linkText ?? t('degree_page.contribute.link')}
       </a>
     </p>
   )

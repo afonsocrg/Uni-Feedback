@@ -39,6 +39,10 @@
   --fnac-500: #ecb300; /* FNAC brand gold */
   --fnac-400: #f5c518;
 
+  /* Orange: the "today" marker on timelines */
+  --orange-700: #c2410c;
+  --orange-400: #fb923c;
+
   /* WhatsApp brand green — invite/share CTA.
      Deepened a touch from the neon logo green (#25d366) so it reads less bright
      on white; dark-mode variants are dimmer/less saturated to avoid glare. */
@@ -101,6 +105,9 @@
   /* Rating */
   --rating: var(--gold-500); /* filled star */
   --rating-track: #e5e7eb; /* empty star (was gray-200) */
+
+  /* The "today" marker on timelines (admission rounds) */
+  --today: var(--orange-700);
 
   /* FNAC accent */
   --fnac: var(--fnac-500);
@@ -219,6 +226,9 @@
   /* Rating — softer gold, not neon yellow */
   --rating: oklch(0.8 0.1 90);
   --rating-track: oklch(0.38 0 0);
+
+  /* Today marker: lighter orange on dark surfaces */
+  --today: var(--orange-400);
 
   /* FNAC — softened gold */
   --fnac: oklch(0.81 0.1 88);
@@ -348,6 +358,9 @@
   /* Rating: text-rating, bg-rating-track */
   --color-rating: var(--rating);
   --color-rating-track: var(--rating-track);
+
+  /* Today: bg-today / text-today */
+  --color-today: var(--today);
 
   /* FNAC: text-fnac / bg-fnac */
   --color-fnac: var(--fnac);

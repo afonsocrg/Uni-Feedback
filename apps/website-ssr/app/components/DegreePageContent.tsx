@@ -114,6 +114,7 @@ export function DegreePageContent({
   const expectsFees = !isRetired && FEE_TYPES.has(degree.type)
   const expectsOutcomes = !isRetired && INFOCURSOS_TYPES.has(degree.type)
   const showAdmission =
+    extras.applyRoutes.length > 0 ||
     extras.admissions !== null ||
     extras.fees !== null ||
     expectsAdmission ||
@@ -286,8 +287,17 @@ export function DegreePageContent({
             {showAdmission && (
               <AdmissionSection
                 admissions={extras.admissions}
+                applyRoutes={extras.applyRoutes}
                 fees={extras.fees}
-                admissionExpected={expectsAdmission}
+                missingGrade={
+                  isRetired
+                    ? null
+                    : CNA_TYPES.has(degree.type)
+                      ? 'missing'
+                      : degree.type === 'master'
+                        ? 'unpublished'
+                        : null
+                }
                 feesExpected={expectsFees}
                 schoolYear={getCurrentSchoolYear()}
                 fullHref={

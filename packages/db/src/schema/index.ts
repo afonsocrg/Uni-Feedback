@@ -1,4 +1,5 @@
 export * from './academicTerm'
+export * from './admission'
 export * from './aiCategorizationCache'
 export * from './audioRecording'
 export * from './campus'
