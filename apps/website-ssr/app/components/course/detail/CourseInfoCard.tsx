@@ -19,6 +19,11 @@ export interface CourseInfoCardProps {
   course: {
     id: number
     name: string
+    /**
+     * The English name under the title on PT pages, for courses of degrees
+     * taught in English (what their students call them); null otherwise
+     */
+    subtitleName?: string | null
     acronym: string
     url?: string | null
     description?: string | null
@@ -150,6 +155,11 @@ export function CourseInfoCard({ course }: CourseInfoCardProps) {
           eyebrow={eyebrow || undefined}
           title={course.name}
         >
+          {course.subtitleName && (
+            <p lang="en" className="mt-0.5 text-base text-muted-foreground">
+              {course.subtitleName}
+            </p>
+          )}
           {/* Identity and actions */}
           <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
             <span className="text-muted-foreground font-medium">

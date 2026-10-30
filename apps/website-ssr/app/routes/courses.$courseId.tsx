@@ -299,6 +299,13 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     course: {
       ...course,
       name: localizedName.value,
+      subtitleName:
+        lang === 'pt' &&
+        course.nameEn &&
+        course.nameEn !== course.name &&
+        ['en', 'pt_en'].includes(degree?.teachingLanguage ?? '')
+          ? course.nameEn
+          : null,
       alternateName:
         course.nameEn && course.nameEn !== course.name
           ? lang === 'en'
