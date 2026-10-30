@@ -684,6 +684,10 @@ export function AdmissionSection({
     stats.length > 0 ||
     (guide?.provas.length ?? 0) > 0 ||
     applyRoutes.length > 0
+  // The source line lists only what has a link: apply routes alone have none here
+  const showDgesSource = !!admissions && hasAdmission
+  const feeSourceUrls = fees?.sourceUrls ?? []
+  const hasSource = showDgesSource || feeSourceUrls.length > 0
 
   return (
     <SectionShell id="ingresso" title={t('degree_page.sections.admission')}>
@@ -811,36 +815,39 @@ export function AdmissionSection({
           report a wrong one */}
       {(hasAdmission || fees) && (
         <div className="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-xs text-muted-foreground">
-          <p>
-            {t('degree_page.source_label')}{' '}
-            {admissions && hasAdmission && (
-              <>
-                <SourceLink
-                  href={admissions.dgesUrl}
-                  source="dges"
-                  track={track}
-                >
-                  {series.length > 1
-                    ? t('degree_page.admission.source_years', {
-                        from: series[0].year,
-                        to: series[series.length - 1].year
-                      })
-                    : t('degree_page.admission.source_dges')}
-                </SourceLink>
-                {fees && ' · '}
-              </>
-            )}
-            {fees?.sourceUrls.map((url, i) => (
-              <span key={url}>
-                {i > 0 && ' · '}
-                <SourceLink href={url} source="fees" track={track}>
-                  {`${hostOf(url)}, ${t('degree_page.fees.source', {
-                    year: formatSchoolYear(fees.schoolYear)
-                  })}`}
-                </SourceLink>
-              </span>
-            ))}
-          </p>
+          {hasSource && (
+            <p>
+              {t('degree_page.source_label')}{' '}
+              {admissions && showDgesSource && (
+                <>
+                  <SourceLink
+                    href={admissions.dgesUrl}
+                    source="dges"
+                    track={track}
+                  >
+                    {series.length > 1
+                      ? t('degree_page.admission.source_years', {
+                          from: series[0].year,
+                          to: series[series.length - 1].year
+                        })
+                      : t('degree_page.admission.source_dges')}
+                  </SourceLink>
+                  {feeSourceUrls.length > 0 && ' · '}
+                </>
+              )}
+              {fees &&
+                feeSourceUrls.map((url, i) => (
+                  <span key={url}>
+                    {i > 0 && ' · '}
+                    <SourceLink href={url} source="fees" track={track}>
+                      {`${hostOf(url)}, ${t('degree_page.fees.source', {
+                        year: formatSchoolYear(fees.schoolYear)
+                      })}`}
+                    </SourceLink>
+                  </span>
+                ))}
+            </p>
+          )}
           <ReportErrorNote
             surface="degree_admission"
             align="left"
