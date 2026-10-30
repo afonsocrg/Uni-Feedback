@@ -37,10 +37,14 @@ interface BucketEntry {
   terms: TermLabel[]
 }
 
-/** All the courses of one curriculum year and one term. */
-interface CourseBucket extends TermLabel {
+/**
+ * All the courses of one curriculum year that run in the same set of terms
+ * (just S1, or both S1 and S2). `terms` is in timeline order.
+ */
+interface CourseBucket {
   key: string
   curriculumYear: number | null
+  terms: TermLabel[]
   entries: BucketEntry[]
 }
 
@@ -144,9 +148,12 @@ export function useCourseSections(
   // to read. Each course keeps a tag naming its own term, which is what tells P1
   // and P2 courses apart inside the merged bucket.
   //
-  // A course offered in several of a bucket's terms is one entry carrying both,
-  // not two near-identical rows; offered in several *buckets*, it appears in
-  // each (all linking to the same page). A course with no offerings, or none
+  // A course is listed once. It goes to its earliest curriculum year (unknown
+  // last), in the bucket for the whole set of terms it runs in that year: a
+  // course offered in both semesters sits under "Fall and Spring", not under
+  // each (which doubled Nova SBE's plan, BE: 50 courses over 90 rows) nor under
+  // Fall alone (which emptied its Spring, since SBE runs nearly every course
+  // twice a year). A course with no offerings, or none
   // matching the active year/term filters, falls into a trailing "Other" bucket
   // so nothing is silently dropped. `filteredCourses` is already sorted by
   // `sortBy`, and we preserve that order while bucketing, so each bucket stays
@@ -169,36 +176,38 @@ export function useCourseSections(
         continue
       }
 
-      for (const o of offerings) {
-        const term = o.academicTerm
-        const bucketTerm = bucketTermOf(term, academicTerms)
-        const year = o.curriculumYear ?? 'x'
-        const bucketKey = `${year}|${bucketTerm.name}`
+      const yearOf = (o: (typeof offerings)[number]) =>
+        o.curriculumYear ?? Infinity
+      const earliestYear = Math.min(...offerings.map(yearOf))
+      const yearOfferings = offerings.filter((o) => yearOf(o) === earliestYear)
+      const curriculumYear = yearOfferings[0].curriculumYear
 
-        let bucket = buckets.get(bucketKey)
-        if (!bucket) {
-          bucket = {
-            key: bucketKey,
-            curriculumYear: o.curriculumYear,
-            name: bucketTerm.name,
-            standardTerm: bucketTerm.standardTerm,
-            startTick: bucketTerm.startTick,
-            endTick: bucketTerm.endTick,
-            entries: new Map()
-          }
-          buckets.set(bucketKey, bucket)
-        }
-
-        let entry = bucket.entries.get(course.id)
-        if (!entry) {
-          entry = { course, terms: [] }
-          bucket.entries.set(course.id, entry)
+      const bucketTerms: TermLabel[] = []
+      const terms: TermLabel[] = []
+      for (const o of yearOfferings) {
+        const bucketTerm = bucketTermOf(o.academicTerm, academicTerms)
+        if (!bucketTerms.some((t) => t.name === bucketTerm.name)) {
+          bucketTerms.push(bucketTerm)
         }
         // A course may list the same year/term twice; tag it once.
-        if (!entry.terms.some((t) => t.name === term.name)) {
-          entry.terms.push(term)
+        if (!terms.some((t) => t.name === o.academicTerm.name)) {
+          terms.push(o.academicTerm)
         }
       }
+      bucketTerms.sort(byTerm)
+
+      const bucketKey = `${curriculumYear ?? 'x'}|${bucketTerms.map((t) => t.name).join('+')}`
+      let bucket = buckets.get(bucketKey)
+      if (!bucket) {
+        bucket = {
+          key: bucketKey,
+          curriculumYear,
+          terms: bucketTerms,
+          entries: new Map()
+        }
+        buckets.set(bucketKey, bucket)
+      }
+      bucket.entries.set(course.id, { course, terms })
     }
 
     // A course sits at its earliest term, so one offered in both P1 and P2 sorts
@@ -211,7 +220,14 @@ export function useCourseSections(
       const ay = a.curriculumYear ?? Infinity
       const by = b.curriculumYear ?? Infinity
       if (ay !== by) return ay - by
-      return byTerm(a, b)
+      // Then by first term, and on a tie the one ending sooner: Fall, then
+      // Fall and Spring, then Spring.
+      const byFirst = byTerm(a.terms[0], b.terms[0])
+      if (byFirst !== 0) return byFirst
+      return (
+        a.terms[a.terms.length - 1].endTick -
+        b.terms[b.terms.length - 1].endTick
+      )
     })
 
     const withEntries = ordered.map((bucket) => ({
@@ -259,25 +275,28 @@ export function useCourseSections(
 
   // With a year chosen, every heading would repeat it, so the heading is the
   // term alone, spelled out ("1º Semestre"). Beside a year it takes the short
-  // form ("1º ano · S1").
+  // form ("1º ano · S1"). A bucket of several terms lists them all ("S1 e S2").
+  const termsLabel = (bucket: CourseBucket, form: 'short' | 'long') =>
+    new Intl.ListFormat(lang, { type: 'conjunction' }).format(
+      bucket.terms.map((term) => termLabel(term, form))
+    )
   const bucketHeading = (bucket: CourseBucket) => {
     if (activeCurriculumYear !== null || bucket.curriculumYear === null) {
-      return termLabel(bucket, 'long')
+      return termsLabel(bucket, 'long')
     }
     const yearLabel = t('degree_page.year_option', {
       year:
         lang === 'en' ? toOrdinal(bucket.curriculumYear) : bucket.curriculumYear
     })
-    return `${yearLabel} · ${termLabel(bucket, 'short')}`
+    return `${yearLabel} · ${termsLabel(bucket, 'short')}`
   }
 
   // The sections every listing component renders. Degrees with no
   // curriculum-year data group by term alone, under bare "1º Semestre"/"Fall" headings:
   // the term is the only structure their offerings carry, and dropping it left
   // every IST master's and all of Nova SBE as one undifferentiated list (MEIC:
-  // 60 courses, MIEI: 174). The split costs some duplication, since a course
-  // offered in both terms is listed under each (Nova SBE BE: 50 courses over 90
-  // rows), but that is what year-based degrees already do across years.
+  // 60 courses, MIEI: 174). A course offered in both terms sits under the
+  // earlier one.
   //
   // Only when nothing buckets at all, every filtered course lacking an offering,
   // do we fall back to a single unheaded section holding the flat sorted list.
@@ -296,10 +315,12 @@ export function useCourseSections(
             heading: bucketHeading(bucket),
             entries: bucket.entries.map((entry) => ({
               course: entry.course,
-              // A course running the bucket's whole term earns no tag: the
+              // A course running a bucket term whole earns no tag for it: the
               // section heading already names that term.
               terms: entry.terms
-                .filter((term) => term.name !== bucket.name)
+                .filter(
+                  (term) => !bucket.terms.some((b) => b.name === term.name)
+                )
                 .map((term) => ({
                   label: termLabel(term, 'short'),
                   color: termColors.get(term.name) ?? 'gray'
