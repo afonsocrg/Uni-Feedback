@@ -32,7 +32,6 @@
   "page": {
     "toc_label": "On this page",
     "cta": {
-      "official_site": "Official website",
       "degrees_one": "See the degree",
       "degrees_other": "See the {{n}} degrees"
     },
@@ -79,9 +78,7 @@
     "and": " and ",
     "degrees": {
       "intro_one": "The degree of this university that is on Uni Feedback.",
-      "intro_other": "The {{n}} degrees of this university on Uni Feedback, across its faculties, by type.",
-      "see_all_one": "See the degree",
-      "see_all_other": "See the {{n}} degrees"
+      "intro_other": "The {{n}} degrees of this university on Uni Feedback, across its faculties, by type."
     }
   },
   "bachelors_page": {

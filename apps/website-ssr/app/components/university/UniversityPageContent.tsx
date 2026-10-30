@@ -192,6 +192,7 @@ export function UniversityPageContent({ data }: { data: UniversityPageData }) {
               <PageHeading school={university} title={university.name}>
                 <OfficialLinks
                   name={university.shortName}
+                  website={university.url}
                   links={data.links}
                   className="mt-1"
                   onClick={(kind) =>
@@ -204,46 +205,27 @@ export function UniversityPageContent({ data }: { data: UniversityPageData }) {
                   }
                 />
               </PageHeading>
-              <div className="mt-5 flex flex-wrap gap-2">
+            </header>
+
+            {data.intro && (
+              <SectionShell id="sobre" first>
+                <LocalizedText text={data.intro} />
                 {data.degrees.length > 0 && (
                   <TrackedLink
                     to={degreesPath}
                     universitySlug={slug}
                     page="main"
                     target="degrees_page"
-                    surface="header"
-                    className="inline-flex h-10 items-center rounded-md bg-brand-solid px-4 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                    surface="intro"
+                    className="mt-3 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground hover:underline"
                   >
                     {t('page.cta.degrees', {
                       count: data.degrees.length,
                       n: formatInt(data.degrees.length, lang)
                     })}
+                    <ArrowRight aria-hidden="true" className="size-3.5" />
                   </TrackedLink>
                 )}
-                {university.url && (
-                  <a
-                    href={university.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() =>
-                      analytics.university.linkClicked({
-                        universitySlug: slug,
-                        page: 'main',
-                        target: 'official_site',
-                        surface: 'header'
-                      })
-                    }
-                    className="inline-flex h-10 items-center rounded-md border border-border bg-card px-4 text-sm font-semibold text-foreground hover:bg-muted"
-                  >
-                    {t('page.cta.official_site')}
-                  </a>
-                )}
-              </div>
-            </header>
-
-            {data.intro && (
-              <SectionShell id="sobre" first>
-                <LocalizedText text={data.intro} />
               </SectionShell>
             )}
 
@@ -341,20 +323,6 @@ export function UniversityPageContent({ data }: { data: UniversityPageData }) {
                     </li>
                   ))}
                 </ul>
-                <TrackedLink
-                  to={degreesPath}
-                  universitySlug={slug}
-                  page="main"
-                  target="degrees_page"
-                  surface="degrees_section"
-                  className="mt-4 inline-flex items-center gap-1.5 font-semibold text-primaryBlue hover:underline"
-                >
-                  {t('page.degrees.see_all', {
-                    count: data.degrees.length,
-                    n: formatInt(data.degrees.length, lang)
-                  })}
-                  <ArrowRight aria-hidden="true" className="size-4" />
-                </TrackedLink>
               </SectionShell>
             )}
 

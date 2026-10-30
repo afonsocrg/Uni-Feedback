@@ -32,7 +32,6 @@
   "page": {
     "toc_label": "Nesta página",
     "cta": {
-      "official_site": "Site oficial",
       "degrees_one": "Ver o curso",
       "degrees_other": "Ver os {{n}} cursos"
     },
@@ -79,9 +78,7 @@
     "and": " e ",
     "degrees": {
       "intro_one": "O curso desta universidade que está no Uni Feedback.",
-      "intro_other": "Os {{n}} cursos desta universidade que estão no Uni Feedback, de todas as faculdades, por tipo.",
-      "see_all_one": "Ver o curso",
-      "see_all_other": "Ver os {{n}} cursos"
+      "intro_other": "Os {{n}} cursos desta universidade que estão no Uni Feedback, de todas as faculdades, por tipo."
     }
   },
   "bachelors_page": {
