@@ -15,9 +15,12 @@ import { useScrollSpy, type TocSection } from './scrollSpy'
 
 /**
  * The frame of a degree sub-page (`/ingresso`, `/saidas-profissionais`):
- * breadcrumb, an H1 for the page's query with a link back to the degree page,
- * then the sections with the same table of contents as the degree page (sidebar
- * on desktop, "Nesta página" sheet on phones).
+ * breadcrumb, an H1 for the page's query, then the sections with the same table
+ * of contents as the degree page (sidebar on desktop, "Nesta página" sheet on
+ * phones), and a link back to the degree page at the end.
+ *
+ * No back link under the H1 (removed 2026-10-30): the breadcrumb right above
+ * already links to the degree, also on phones (it keeps the last two crumbs).
  *
  * No tabs across the degree's pages (tried 2026-10-23): tabs read as views of
  * one page, and these are separate pages. The degree page is the hub; each of
@@ -82,17 +85,7 @@ export function DegreeSubpageShell({
                     : faculty.name
                 }
                 title={title}
-              >
-                {faculty.slug && degree.slug && (
-                  <Link
-                    to={getDegreePath(lang, faculty.slug, degree.slug)}
-                    className="mt-1 inline-flex items-center gap-1 text-sm text-primaryBlue hover:underline"
-                  >
-                    <ArrowLeft aria-hidden="true" className="size-3.5" />
-                    {t('degree_subpages.back', { acronym: degree.acronym })}
-                  </Link>
-                )}
-              </PageHeading>
+              />
             </header>
 
             {children}
