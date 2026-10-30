@@ -348,6 +348,20 @@
       "first_year": "O primeiro ano",
       "pathways": "Percursos"
     },
+    "more": {
+      "bachelor_one": "Ver mais {{count}} licenciatura",
+      "bachelor_other": "Ver mais {{count}} licenciaturas",
+      "integrated_master_one": "Ver mais {{count}} mestrado integrado",
+      "integrated_master_other": "Ver mais {{count}} mestrados integrados",
+      "master_one": "Ver mais {{count}} mestrado",
+      "master_other": "Ver mais {{count}} mestrados",
+      "minor_one": "Ver mais {{count}} minor",
+      "minor_other": "Ver mais {{count}} minors",
+      "postgraduate_one": "Ver mais {{count}} pós-graduação",
+      "postgraduate_other": "Ver mais {{count}} pós-graduações",
+      "phd_one": "Ver mais {{count}} doutoramento",
+      "phd_other": "Ver mais {{count}} doutoramentos"
+    },
     "compare_link": {
       "bachelor": "Comparar as licenciaturas: vagas, notas de entrada e empregabilidade",
       "integrated_master": "Comparar os mestrados integrados",

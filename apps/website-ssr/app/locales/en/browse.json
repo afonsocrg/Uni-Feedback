@@ -348,6 +348,20 @@
       "first_year": "The first year",
       "pathways": "Pathways"
     },
+    "more": {
+      "bachelor_one": "See {{count}} more bachelor's",
+      "bachelor_other": "See {{count}} more bachelor's",
+      "integrated_master_one": "See {{count}} more integrated master's",
+      "integrated_master_other": "See {{count}} more integrated master's",
+      "master_one": "See {{count}} more master's",
+      "master_other": "See {{count}} more master's",
+      "minor_one": "See {{count}} more minor",
+      "minor_other": "See {{count}} more minors",
+      "postgraduate_one": "See {{count}} more postgraduate programme",
+      "postgraduate_other": "See {{count}} more postgraduate programmes",
+      "phd_one": "See {{count}} more PhD programme",
+      "phd_other": "See {{count}} more PhD programmes"
+    },
     "compare_link": {
       "bachelor": "Compare the bachelor's: places, entry grades and employability",
       "integrated_master": "Compare the integrated master's",

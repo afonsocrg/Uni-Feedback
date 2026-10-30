@@ -1,14 +1,15 @@
 import type { DegreeType, Faculty } from '@uni-feedback/db/schema'
 import { DEGREE_TYPES } from '@uni-feedback/db/schema'
+import { ArrowRight } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router'
 import { useLang } from '~/hooks'
 import { analytics } from '~/utils/analytics'
 import { getFacultyTypePath, isFacultyTypePage } from '~/utils/facultyTypePages'
 import { getUniversityPath } from '~/utils/i18n-routes'
 import { LocalizedText } from '../common/LocalizedText'
 import { OfficialLinks } from '../common/OfficialLinks'
-import { SearchInput } from '../common/SearchInput'
 import { ToggleChip } from '../common/ToggleChip'
 import type { FaqItem } from '../degree/content'
 import { formatGrade, formatInt } from '../degree/content'
@@ -29,11 +30,18 @@ import { useFeeText } from './fees'
 import type { FacultyHubData } from './types'
 
 /**
+ * A type with more degrees than this lists only this many, the most reviewed
+ * (the loader sorts by feedback), ending in a "Ver mais N" link to its type
+ * page. A type with no page of its own (`other`) is listed in full.
+ */
+const MAX_TYPE_DEGREES = 8
+
+/**
  * The faculty hub (`/ist`), prds/content_rich_pages.md "Faculty": what the
  * faculty is, then the degree table (what students come for), one table per
- * type behind chips, each linking to its type page; then the courses students
- * talk about, campuses, FAQ and related links. Every section renders only with
- * data.
+ * type behind chips, each capped and linking to its type page; then the
+ * courses students talk about, campuses, FAQ and related links. Every section
+ * renders only with data. No search box: the type pages list every degree.
  */
 export function FacultyHubContent({
   faculty,
@@ -55,8 +63,6 @@ export function FacultyHubContent({
   )
   const [selectedType, setSelectedType] = useState<DegreeType | null>(null)
   const activeType = selectedType ?? types[0] ?? null
-  const [query, setQuery] = useState('')
-  const q = query.trim().toLowerCase()
 
   const count = (type: DegreeType) =>
     degrees.filter((d) => d.type === type).length
@@ -182,13 +188,8 @@ export function FacultyHubContent({
         title={t('faculty_hub.sections.courses')}
         first={!data.intro}
       >
-        <SearchInput
-          value={query}
-          onChange={setQuery}
-          placeholder={t('faculty_page.search_placeholder')}
-        />
-        {types.length > 1 && !q && (
-          <div className="mt-3 flex flex-wrap gap-1.5">
+        {types.length > 1 && (
+          <div className="flex flex-wrap gap-1.5">
             {types.map((type) => (
               <ToggleChip
                 key={type}
@@ -204,19 +205,16 @@ export function FacultyHubContent({
         )}
         {/* Every type's table is in the HTML; the chips only show one */}
         {types.map((type) => {
-          const rows = degrees.filter(
-            (d) =>
-              d.type === type &&
-              (!q || `${d.acronym} ${d.name}`.toLowerCase().includes(q))
-          )
-          const hidden = q ? rows.length === 0 : type !== activeType
+          const all = degrees.filter((d) => d.type === type)
+          const hasPage = isFacultyTypePage(type)
+          const rows = hasPage ? all.slice(0, MAX_TYPE_DEGREES) : all
+          const more = all.length - rows.length
           return (
-            <div key={type} hidden={hidden} className="mt-3">
-              {q && (
-                <h3 className="mb-1 mt-4 text-sm font-semibold text-muted-foreground">
-                  {t(`degree_types.${type}`)}
-                </h3>
-              )}
+            <div
+              key={type}
+              hidden={type !== activeType}
+              className={types.length > 1 ? 'mt-3' : undefined}
+            >
               <CompareTable
                 minWidth="min-w-[28rem]"
                 head={[
@@ -234,6 +232,7 @@ export function FacultyHubContent({
                       degree={d}
                       track={track}
                       surface="courses_table"
+                      nameFirst
                     />,
                     d.campuses.length > 0 ? d.campuses.join(', ') : <NoData />,
                     formatInt(d.courseCount, lang),
@@ -241,27 +240,33 @@ export function FacultyHubContent({
                   ]
                 }))}
               />
-              {!q && isFacultyTypePage(type) && (
-                <ArrowLink
+              {hasPage && more > 0 && (
+                <Link
                   to={getFacultyTypePath(lang, facultySlug, type)}
                   onClick={() =>
-                    trackFacultyLink(track, 'type_page', 'courses_table')
+                    trackFacultyLink(track, 'type_page', 'courses_table_more')
                   }
+                  className="mt-1 inline-flex items-center gap-1 px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:underline"
                 >
-                  {t(`faculty_hub.compare_link.${type}`)}
-                </ArrowLink>
+                  {t(`faculty_hub.more.${type}`, { count: more })}
+                  <ArrowRight aria-hidden="true" className="size-3.5" />
+                </Link>
+              )}
+              {hasPage && (
+                <div>
+                  <ArrowLink
+                    to={getFacultyTypePath(lang, facultySlug, type)}
+                    onClick={() =>
+                      trackFacultyLink(track, 'type_page', 'courses_table')
+                    }
+                  >
+                    {t(`faculty_hub.compare_link.${type}`)}
+                  </ArrowLink>
+                </div>
               )}
             </div>
           )
         })}
-        {q &&
-          !degrees.some((d) =>
-            `${d.acronym} ${d.name}`.toLowerCase().includes(q)
-          ) && (
-            <p className="py-6 text-center text-muted-foreground">
-              {t('faculty_page.no_results')}
-            </p>
-          )}
       </SectionShell>
 
       {data.campuses.length > 0 && (
