@@ -16,8 +16,17 @@ import { analytics, type LandingSearchResultType } from '~/utils/analytics'
 import { getCoursePath, getLocalePath } from '~/utils/i18n-routes'
 import { LastTaughtTag } from '../course/LastTaughtTag'
 
-export function HeroSearchBar() {
+interface HeroSearchBarProps {
+  /** Where the box sits. The 404 page reports to its own events. */
+  surface?: 'landing_hero' | 'not_found'
+}
+
+export function HeroSearchBar({
+  surface = 'landing_hero'
+}: HeroSearchBarProps) {
   const { t } = useTranslation('landing')
+  const events =
+    surface === 'not_found' ? analytics.notFound : analytics.landing
   const lang = useLang()
   const browsePath = getLocalePath('browse', lang)
 
@@ -70,17 +79,17 @@ export function HeroSearchBar() {
       analytics.discovery.searchPerformed({
         searchQuery: q,
         resultsCount,
-        surface: 'landing_hero'
+        surface
       })
     }, 1000)
     return () => clearTimeout(timer)
-  }, [query, open, resultsCount])
+  }, [query, open, resultsCount, surface])
 
   const trackResult = (
     resultType: LandingSearchResultType,
     position: number | null
   ) =>
-    analytics.landing.searchResultClicked({
+    events.searchResultClicked({
       resultType,
       position,
       resultsCount,
@@ -128,7 +137,7 @@ export function HeroSearchBar() {
           onFocus={() => {
             if (!focusTracked.current) {
               focusTracked.current = true
-              analytics.landing.searchFocused()
+              events.searchFocused()
             }
             if (hasResults) setOpen(true)
           }}

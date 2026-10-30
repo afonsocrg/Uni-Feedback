@@ -100,5 +100,24 @@
     "x": "{{name}} on X",
     "facebook": "{{name}} on Facebook",
     "youtube": "{{name}} on YouTube"
+  },
+  "not_found": {
+    "title": "We couldn't find this page",
+    "subtitle": "The link may be wrong, or the page has moved. Search for what you were looking for, or try one of these.",
+    "go_back": "Go back",
+    "links": {
+      "browse": {
+        "label": "Browse courses",
+        "hint": "By university and degree"
+      },
+      "chat": {
+        "label": "AI Chat",
+        "hint": "Ask about any course or degree"
+      },
+      "home": {
+        "label": "Home",
+        "hint": "Back to the start"
+      }
+    }
   }
 }

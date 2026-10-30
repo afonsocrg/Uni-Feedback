@@ -100,5 +100,24 @@
     "x": "{{name}} no X",
     "facebook": "{{name}} no Facebook",
     "youtube": "{{name}} no YouTube"
+  },
+  "not_found": {
+    "title": "Não encontrámos esta página",
+    "subtitle": "O link pode estar errado ou a página mudou de sítio. Procura o que querias ou segue um destes atalhos.",
+    "go_back": "Voltar atrás",
+    "links": {
+      "browse": {
+        "label": "Procurar cadeiras",
+        "hint": "Por universidade e curso"
+      },
+      "chat": {
+        "label": "Chat IA",
+        "hint": "Pergunta sobre qualquer cadeira ou curso"
+      },
+      "home": {
+        "label": "Página inicial",
+        "hint": "Volta ao início"
+      }
+    }
   }
 }

@@ -304,6 +304,8 @@ export type SearchSurface =
   | 'feedback_course_browser'
   | 'change_course_dialog'
   | 'landing_hero'
+  /** The search box on the 404 page (same component as the landing hero) */
+  | 'not_found'
 
 /**
  * The landing page's sections, in no particular order (the page order travels
@@ -328,6 +330,9 @@ export type LandingSection =
 
 /** What a hero search click opened. `browse_all` is the dropdown's footer link,
  *  `enter` is pressing Enter in the box (which also opens the browse page). */
+/** The shortcut rows on the 404 page, plus its "go back" link. */
+export type NotFoundLinkTarget = 'browse' | 'chat' | 'home' | 'back'
+
 export type LandingSearchResultType =
   | 'course'
   | 'degree'
@@ -1727,6 +1732,35 @@ export const analytics = {
 
     errorShown: (props: { chatId: string; message: string }) =>
       trackEvent('chat_error_shown', props)
+  },
+
+  notFound: {
+    /**
+     * The 404 page was shown. `path` is the URL that does not exist, so a
+     * breakdown by it lists the dead links people actually follow (old slugs,
+     * typos, links from outside). Denominator for the two exits below.
+     */
+    viewed: (props: { path: string }) => trackEvent('not_found_viewed', props),
+
+    /** A shortcut row (or "go back") on the 404 page was clicked. */
+    linkClicked: (props: { target: NotFoundLinkTarget }) =>
+      trackEvent('not_found_link_clicked', props),
+
+    /**
+     * The 404 search box got focus, once per page view. Same funnel as the
+     * landing hero's, under its own names so 404 traffic does not leak into it:
+     * focused -> `course_search_performed{surface: 'not_found'}` ->
+     * `not_found_search_result_clicked`.
+     */
+    searchFocused: () => trackEvent('not_found_search_focused', {}),
+
+    /** Same props as `landing_search_result_clicked`. */
+    searchResultClicked: (props: {
+      resultType: LandingSearchResultType
+      position: number | null
+      resultsCount: number
+      queryLength: number
+    }) => trackEvent('not_found_search_result_clicked', props)
   }
 }
 
