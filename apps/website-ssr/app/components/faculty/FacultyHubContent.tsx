@@ -12,7 +12,7 @@ import { LocalizedText } from '../common/LocalizedText'
 import { OfficialLinks } from '../common/OfficialLinks'
 import { ToggleChip } from '../common/ToggleChip'
 import type { FaqItem } from '../degree/content'
-import { formatGrade, formatInt } from '../degree/content'
+import { formatGrade, formatInt, formatNumber } from '../degree/content'
 import { FaqSection, SectionShell } from '../degree/DegreeSections'
 import { FacultyPageShell } from './FacultyPageShell'
 import {
@@ -27,7 +27,7 @@ import {
   type RelatedLink
 } from './FacultySections'
 import { useFeeText } from './fees'
-import type { FacultyHubData } from './types'
+import type { FacultyDegree, FacultyHubData } from './types'
 
 /**
  * A type with more degrees than this lists only this many, the most reviewed
@@ -56,6 +56,8 @@ export function FacultyHubContent({
   const facultySlug = faculty.slug ?? ''
   const track: FacultyTrack = { facultySlug, page: 'hub' }
   const { degrees, admissionSummary: adm } = data
+  // A campus column only tells degrees apart when they don't all share one
+  const multiCampus = new Set(degrees.flatMap((d) => d.campuses)).size > 1
 
   const types = useMemo(
     () => DEGREE_TYPES.filter((type) => degrees.some((d) => d.type === type)),
@@ -219,9 +221,9 @@ export function FacultyHubContent({
                 minWidth="min-w-[28rem]"
                 head={[
                   t('faculty_page.column_degree'),
-                  t('faculty_hub.table.campus'),
-                  t('faculty_page.column_courses'),
-                  t('faculty_page.column_feedback')
+                  ...(multiCampus ? [t('faculty_hub.table.campus')] : []),
+                  t('faculty_hub.table.duration'),
+                  t('faculty_hub.table.feedback')
                 ]}
                 rows={rows.map((d) => ({
                   key: d.id,
@@ -233,8 +235,16 @@ export function FacultyHubContent({
                       track={track}
                       surface="courses_table"
                     />,
-                    d.campuses.length > 0 ? d.campuses.join(', ') : <NoData />,
-                    formatInt(d.courseCount, lang),
+                    ...(multiCampus
+                      ? [
+                          d.campuses.length > 0 ? (
+                            d.campuses.join(', ')
+                          ) : (
+                            <NoData key="c" />
+                          )
+                        ]
+                      : []),
+                    <DurationCell key="t" degree={d} />,
                     formatInt(d.feedbackCount, lang)
                   ]
                 }))}
@@ -282,5 +292,37 @@ export function FacultyHubContent({
         <FacultyRelatedSection links={related} track={track} />
       )}
     </FacultyPageShell>
+  )
+}
+
+/** "3 anos" (or "1 semestre" when it isn't whole years), ECTS underneath */
+function DurationCell({ degree }: { degree: FacultyDegree }) {
+  const { t } = useTranslation('browse')
+  const lang = useLang()
+  const semesters = degree.durationSemesters
+  if (!semesters && !degree.ects) return <NoData />
+  return (
+    <span className="whitespace-nowrap">
+      {semesters ? (
+        semesters % 2 === 0 ? (
+          t('degree_page.facts.years', {
+            count: semesters / 2,
+            n: formatNumber(semesters / 2, lang)
+          })
+        ) : (
+          t('degree_page.facts.semesters', {
+            count: semesters,
+            n: formatNumber(semesters, lang)
+          })
+        )
+      ) : (
+        <NoData />
+      )}
+      {degree.ects && (
+        <span className="block text-xs text-muted-foreground">
+          {t('degree_page.facts.ects', { n: formatNumber(degree.ects, lang) })}
+        </span>
+      )}
+    </span>
   )
 }

@@ -393,6 +393,8 @@
       "completion": "Finish on time",
       "fee": "Fee",
       "ects": "ECTS",
+      "duration": "Duration",
+      "feedback": "Student feedback",
       "language_head": "Language",
       "language": {
         "pt": "Portuguese",

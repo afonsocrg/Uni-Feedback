@@ -393,6 +393,8 @@
       "completion": "Terminam no tempo previsto",
       "fee": "Propina",
       "ects": "ECTS",
+      "duration": "Duração",
+      "feedback": "Feedback de alunos",
       "language_head": "Língua",
       "language": {
         "pt": "Português",

@@ -68,6 +68,8 @@ export function FacultyTypePageContent({
   const track: FacultyTrack = { facultySlug, page: type }
   const { degrees } = data
   const isCna = CNA_TYPES.has(type)
+  // A campus column only tells degrees apart when they don't all share one
+  const multiCampus = new Set(degrees.flatMap((d) => d.campuses)).size > 1
   const typeLabel = t(`degree_types.${type}`)
 
   // Licenciaturas by entry grade; the rest by feedback
@@ -221,22 +223,26 @@ export function FacultyTypePageContent({
   const columns: Column[] = isCna
     ? [
         [t('faculty_page.column_degree'), cell.degree],
-        [t('faculty_hub.table.campus'), cell.campus],
+        ...(multiCampus
+          ? [[t('faculty_hub.table.campus'), cell.campus] as Column]
+          : []),
         [t('faculty_hub.table.vagas', { year: admissionYear }), cell.vagas],
         [
           t('faculty_hub.table.last_grade', { year: admissionYear }),
           cell.grade
         ],
         [employabilityHead, cell.employability],
-        [t('faculty_page.column_feedback'), cell.feedback]
+        [t('faculty_hub.table.feedback'), cell.feedback]
       ]
     : type === 'minor'
       ? [
           [t('faculty_page.column_degree'), cell.degree],
-          [t('faculty_hub.table.campus'), cell.campus],
+          ...(multiCampus
+            ? [[t('faculty_hub.table.campus'), cell.campus] as Column]
+            : []),
           [t('faculty_hub.table.ects'), cell.ects],
           [t('faculty_page.column_courses'), cell.courses],
-          [t('faculty_page.column_feedback'), cell.feedback]
+          [t('faculty_hub.table.feedback'), cell.feedback]
         ]
       : [
           [t('faculty_page.column_degree'), cell.degree],
@@ -246,7 +252,7 @@ export function FacultyTypePageContent({
           ...(type === 'master'
             ? [[t('faculty_hub.table.completion'), cell.completion] as Column]
             : []),
-          [t('faculty_page.column_feedback'), cell.feedback]
+          [t('faculty_hub.table.feedback'), cell.feedback]
         ]
 
   const pathwaysBySource = new Map<
