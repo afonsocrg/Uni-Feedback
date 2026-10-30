@@ -270,7 +270,11 @@ export function FacultyHubContent({
       </SectionShell>
 
       {data.campuses.length > 0 && (
-        <CampusesSection campuses={data.campuses} track={track} />
+        <CampusesSection
+          campuses={data.campuses}
+          facultyWebsite={faculty.url}
+          track={track}
+        />
       )}
 
       {faq.length > 0 && <FaqSection items={faq} surface="faculty_page" />}

@@ -256,6 +256,11 @@ export function FacultyHighlightsSection({
   )
 }
 
+/** Equal up to a trailing slash */
+function sameUrl(a: string, b?: string | null) {
+  return !!b && a.replace(/\/+$/, '') === b.replace(/\/+$/, '')
+}
+
 export function hasHighlights(h: FacultyHighlights) {
   return h.mostFeedback.length + h.best.length + h.heaviest.length > 0
 }
@@ -266,9 +271,12 @@ export function hasHighlights(h: FacultyHighlights) {
 
 export function CampusesSection({
   campuses,
+  facultyWebsite,
   track
 }: {
   campuses: FacultyCampus[]
+  /** Already linked in the header, so a campus link to it is left out */
+  facultyWebsite?: string | null
   track: FacultyTrack
 }) {
   const { t } = useTranslation('browse')
@@ -301,7 +309,10 @@ export function CampusesSection({
           ]
             .filter(Boolean)
             .join(' · '),
-          website: campus.url
+          website:
+            campus.url && !sameUrl(campus.url, facultyWebsite)
+              ? campus.url
+              : null
         }))}
         onSelect={(item, surface) =>
           analytics.discovery.campusSelected({
