@@ -36,7 +36,9 @@ export function ListingRow({
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
         <span className="truncate font-medium text-foreground">{title}</span>
         {meta && (
-          <div className="flex min-w-0 items-center gap-1.5">{meta}</div>
+          <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+            {meta}
+          </div>
         )}
       </div>
       {children}
