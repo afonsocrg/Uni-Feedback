@@ -44,7 +44,29 @@ import { LandingLayout } from './components/landing'
 // rendering).
 let _ssrTheme: ResolvedTheme = 'light'
 
+// Bump when the favicon files in public/ change, so browsers drop their cached
+// copy. Keep it in sync with the `?v=` in public/site.webmanifest.
+const FAVICON_VERSION = '20261101'
+
 export const links: Route.LinksFunction = () => [
+  {
+    rel: 'icon',
+    type: 'image/png',
+    href: `/favicon-96x96.png?v=${FAVICON_VERSION}`,
+    sizes: '96x96'
+  },
+  {
+    rel: 'icon',
+    type: 'image/svg+xml',
+    href: `/favicon.svg?v=${FAVICON_VERSION}`
+  },
+  { rel: 'shortcut icon', href: `/favicon.ico?v=${FAVICON_VERSION}` },
+  {
+    rel: 'apple-touch-icon',
+    sizes: '180x180',
+    href: `/apple-touch-icon.png?v=${FAVICON_VERSION}`
+  },
+  { rel: 'manifest', href: `/site.webmanifest?v=${FAVICON_VERSION}` },
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
   {
     rel: 'preconnect',
