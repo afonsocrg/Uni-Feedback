@@ -329,6 +329,13 @@ export const routeConfig = [
         file: 'routes/faculty-degree-type.tsx',
         slugs: { pt: ':facultySlug/doutoramentos', en: ':facultySlug/phd' }
       },
+      // Every degree's fee for this school year, by type (todo "Propinas
+      // pages per faculty"). Reserved as a degree slug like the type pages.
+      {
+        key: 'faculty-fees',
+        file: 'routes/faculty-fees.tsx',
+        slugs: { pt: ':facultySlug/propinas', en: ':facultySlug/tuition-fees' }
+      },
       {
         key: 'degree',
         file: 'routes/$facultySlug.$degreeSlug.tsx',

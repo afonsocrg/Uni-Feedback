@@ -471,6 +471,79 @@
       "english_a": "{{n}} of {{total}} are taught in English, or in Portuguese and English."
     }
   },
+  "faculty_fees": {
+    "crumb": "Tuition fees",
+    "title": "Tuition fees {{year}}: {{name}}",
+    "intro": "What each degree at {{name}} costs in the {{year}} school year, for national and international students.",
+    "facts": {
+      "year": "School year {{year}}",
+      "count_one": "{{n}} degree with a published fee",
+      "count_other": "{{n}} degrees with a published fee",
+      "bachelor": "Bachelor's: {{fee}}",
+      "next": "{{next}} fees already out for {{students}}"
+    },
+    "table": {
+      "national": "National students",
+      "international": "International students",
+      "next": "{{next}}: {{fee}}",
+      "next_same": "{{next}}: same"
+    },
+    "sections": {
+      "about": "About these figures"
+    },
+    "about": {
+      "year": "Figures published by the faculty for the {{year}} school year. A degree with no figure has no fee published for this year yet, or we haven't found it.",
+      "student_types": "The national student fee usually applies to European Union students too. The international student fee is for students with that status (usually students from outside the EU). When everyone pays the same, it shows in both columns.",
+      "check": "Some degrees charge different amounts depending on the year of the degree or the schedule. Before you apply, check the faculty's website.",
+      "more_sources_one": "and {{count}} more faculty page",
+      "more_sources_other": "and {{count}} more faculty pages",
+      "fetched": "Figures collected on {{date}}",
+      "next": "The {{next}} fees already published for {{students}} show under this year's."
+    },
+    "related": {
+      "kicker": "What it costs",
+      "label": "Tuition fees {{year}}"
+    },
+    "faq": {
+      "type_q": {
+        "bachelor": "How much does a bachelor's degree cost at {{name}}?",
+        "integrated_master": "How much does an integrated master's cost at {{name}}?",
+        "master": "How much does a master's degree cost at {{name}}?",
+        "postgraduate": "How much does a postgraduate programme cost at {{name}}?",
+        "phd": "How much does a PhD cost at {{name}}?"
+      },
+      "type_a": "In {{year}}: {{parts}}.",
+      "national_uniform": "{{fee}} for national students",
+      "national_range": "between {{min}} and {{max}} for national students, depending on the degree",
+      "international_uniform": "{{fee}} for international students",
+      "international_range": "between {{min}} and {{max}} for international students",
+      "most_expensive_q": {
+        "bachelor": "What is the most expensive bachelor's degree at {{name}}?",
+        "integrated_master": "What is the most expensive integrated master's at {{name}}?",
+        "master": "What is the most expensive master's degree at {{name}}?",
+        "postgraduate": "What is the most expensive postgraduate programme at {{name}}?",
+        "phd": "What is the most expensive PhD at {{name}}?"
+      },
+      "most_expensive_a": "{{name}} ({{acronym}}): {{fee}} for national students in {{year}}.",
+      "next_q": "Do we know how much tuition will cost at {{name}} in {{next}}?",
+      "next_side": "For {{students}}: {{list}}.",
+      "next_uniform": "{{type}}, {{fee}}",
+      "next_range": "{{type}}, between {{min}} and {{max}}",
+      "next_missing": "The fees for {{students}} have not been published yet."
+    },
+    "meta": {
+      "title": "{{shortName}} tuition fees {{year}}: what each degree costs | Uni Feedback",
+      "description_one": "{{name}} tuition fees for {{year}}: the fee of {{count}} degree, for national and international students.",
+      "description_other": "{{name}} tuition fees for {{year}}: the fee of each of its {{count}} degrees, for national and international students.",
+      "bachelor_uniform": "Bachelor's: {{fee}}.",
+      "bachelor_range": "Bachelor's: {{min}} to {{max}}.",
+      "master_uniform": "Master's: {{fee}}.",
+      "master_range": "Master's: {{min}} to {{max}}.",
+      "title_next": "{{shortName}} tuition fees {{year}} and {{next}}: what each degree costs | Uni Feedback",
+      "next": "Includes the {{next}} fees for {{students}}."
+    },
+    "students_both": "national and international students"
+  },
   "degree_subpages": {
     "and": " and ",
     "back": "Back to {{acronym}}",

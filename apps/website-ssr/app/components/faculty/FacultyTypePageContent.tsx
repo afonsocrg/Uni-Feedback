@@ -1,4 +1,5 @@
 import type { Faculty } from '@uni-feedback/db/schema'
+import { getCurrentSchoolYear } from '@uni-feedback/utils'
 import { Star } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -13,6 +14,7 @@ import {
   getCoursePath,
   getDegreeAdmissionPath,
   getDegreePath,
+  getFacultyFeesPath,
   getFacultyPath,
   getUniversityPath
 } from '~/utils/i18n-routes'
@@ -22,6 +24,7 @@ import {
   formatInt,
   formatNumber,
   formatPct,
+  formatSchoolYear,
   type FaqItem
 } from '../degree/content'
 import { FaqSection, SectionShell } from '../degree/DegreeSections'
@@ -347,6 +350,19 @@ export function FacultyTypePageContent({
       href: getFacultyTypePath(lang, facultySlug, other),
       target: 'type_page' as const
     })),
+    ...(data.hasFeesPage
+      ? [
+          {
+            key: 'fees',
+            kicker: t('faculty_fees.related.kicker'),
+            label: t('faculty_fees.related.label', {
+              year: formatSchoolYear(getCurrentSchoolYear())
+            }),
+            href: getFacultyFeesPath(lang, facultySlug),
+            target: 'fees_page' as const
+          }
+        ]
+      : []),
     ...(data.university
       ? [
           {

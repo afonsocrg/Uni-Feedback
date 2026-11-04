@@ -1,5 +1,6 @@
 import { database, findFacultySlugRedirect, schema } from '@uni-feedback/db'
 import type { DegreeType, Faculty } from '@uni-feedback/db/schema'
+import { getCurrentSchoolYear } from '@uni-feedback/utils'
 import { and, eq, isNotNull, sql } from 'drizzle-orm'
 import { redirect } from 'react-router'
 import type {
@@ -9,14 +10,21 @@ import type {
   FacultyCampus,
   FacultyCourseStat,
   FacultyDegree,
+  FacultyFeesPageData,
   FacultyHighlights,
   FacultyHubData,
   FacultyTypePageData,
   FacultyUniversity,
+  FeeAmount,
+  FeePageType,
+  FeesPageDegree,
   SharedFirstYearCourse,
   TypePageDegree
 } from '~/components/faculty/types'
-import { FACULTY_HIGHLIGHT_MIN_FEEDBACK } from '~/components/faculty/types'
+import {
+  FACULTY_HIGHLIGHT_MIN_FEEDBACK,
+  FEE_PAGE_TYPES
+} from '~/components/faculty/types'
 import type { Lang } from '~/i18n/config'
 import {
   isMostlyFallback,
@@ -365,6 +373,27 @@ async function loadFees(
   return out
 }
 
+/**
+ * Whether the faculty has a propinas page: a fee for this school year on a
+ * listed degree of a type the page shows (same rule as its loader's 404).
+ */
+async function hasCurrentFees(db: Db, facultyId: number): Promise<boolean> {
+  const [row] = await db.execute<{ ok: boolean }>(sql`
+    SELECT EXISTS (
+      SELECT 1 FROM degree_fees f
+      JOIN degrees d ON d.id = f.degree_id
+      JOIN degree_stats ds ON ds.degree_id = d.id AND ds.course_count > 0
+      WHERE d.faculty_id = ${facultyId}
+        AND f.school_year = ${getCurrentSchoolYear()}
+        AND d.type IN (${sql.join(
+          FEE_PAGE_TYPES.map((t) => sql`${t}`),
+          sql`, `
+        )})
+    ) AS ok
+  `)
+  return Boolean(row?.ok)
+}
+
 async function loadDescribed(db: Db, degreeIds: number[], lang: Lang) {
   if (degreeIds.length === 0) return new Set<number>()
   const rows = await db.execute<{ degree_id: number }>(sql`
@@ -450,15 +479,23 @@ export async function loadFacultyHub(
   lang: Lang
 ): Promise<FacultyHubData> {
   const db = database()
-  const [university, degrees, campuses, feedbackCount, intro, links] =
-    await Promise.all([
-      loadUniversity(db, faculty.universityId, lang),
-      loadDegrees(db, faculty.id, lang),
-      loadCampuses(db, faculty.id),
-      countFeedback(db, faculty.id),
-      loadIntro(db, faculty.id, lang),
-      loadOfficialLinks('faculty', faculty.id)
-    ])
+  const [
+    university,
+    degrees,
+    campuses,
+    feedbackCount,
+    intro,
+    links,
+    hasFeesPage
+  ] = await Promise.all([
+    loadUniversity(db, faculty.universityId, lang),
+    loadDegrees(db, faculty.id, lang),
+    loadCampuses(db, faculty.id),
+    countFeedback(db, faculty.id),
+    loadIntro(db, faculty.id, lang),
+    loadOfficialLinks('faculty', faculty.id),
+    hasCurrentFees(db, faculty.id)
+  ])
 
   // Entry summary over the licenciaturas (CNA)
   const bachelorIds = degrees
@@ -519,7 +556,8 @@ export async function loadFacultyHub(
     admissionSummary,
     intro,
     isMostlyFallback: isMostlyFallback([intro]),
-    links
+    links,
+    hasFeesPage
   }
 }
 
@@ -529,12 +567,14 @@ export async function loadFacultyTypePage(
   lang: Lang
 ): Promise<FacultyTypePageData> {
   const db = database()
-  const [university, allDegrees, campuses, highlights] = await Promise.all([
-    loadUniversity(db, faculty.universityId, lang),
-    loadDegrees(db, faculty.id, lang),
-    loadCampuses(db, faculty.id),
-    loadHighlights(db, faculty.id, [type])
-  ])
+  const [university, allDegrees, campuses, highlights, hasFeesPage] =
+    await Promise.all([
+      loadUniversity(db, faculty.universityId, lang),
+      loadDegrees(db, faculty.id, lang),
+      loadCampuses(db, faculty.id),
+      loadHighlights(db, faculty.id, [type]),
+      hasCurrentFees(db, faculty.id)
+    ])
   const degrees = allDegrees.filter((d) => d.type === type)
   const ids = degrees.map((d) => d.id)
   const [admissions, outcomes, fees, described, firstYear, pathways] =
@@ -572,6 +612,111 @@ export async function loadFacultyTypePage(
     highlights,
     firstYear,
     pathways,
-    otherTypes
+    otherTypes,
+    hasFeesPage
+  }
+}
+
+const PERIOD_ORDER = ['year', 'semester', 'ects', 'total']
+
+/**
+ * The propinas page (`/:facultySlug/propinas`): every degree's fee for this
+ * school year, national and international, plus next year's where it is
+ * already published (ULisboa sets international fees a year ahead). No
+ * older years: the history lives on each degree's /ingresso page.
+ */
+export async function loadFacultyFeesPage(
+  faculty: Faculty,
+  lang: Lang
+): Promise<FacultyFeesPageData> {
+  const db = database()
+  const schoolYear = getCurrentSchoolYear()
+  const [university, allDegrees] = await Promise.all([
+    loadUniversity(db, faculty.universityId, lang),
+    loadDegrees(db, faculty.id, lang)
+  ])
+  const isFeeType = (type: DegreeType): type is FeePageType =>
+    (FEE_PAGE_TYPES as readonly DegreeType[]).includes(type)
+  const degrees = allDegrees.flatMap((d) =>
+    isFeeType(d.type) ? [{ ...d, type: d.type }] : []
+  )
+  const ids = degrees.map((d) => d.id)
+  const rows =
+    ids.length === 0
+      ? []
+      : await db.execute<Record<string, unknown>>(sql`
+          SELECT degree_id, school_year, student_type, period, amount_eur,
+            source_url, fetched_at
+          FROM degree_fees
+          WHERE school_year IN (${schoolYear}, ${schoolYear + 1})
+            AND degree_id IN (${sql.join(
+              ids.map((id) => sql`${id}`),
+              sql`, `
+            )})
+        `)
+
+  // Keyed by `${school_year}:${student_type}`
+  const byDegree = new Map<number, Record<string, FeeAmount[]>>()
+  const sourceCounts = new Map<string, number>()
+  let fetchedAt: Date | null = null
+  for (const r of rows) {
+    const id = Number(r.degree_id)
+    const entry = byDegree.get(id) ?? {}
+    const key = `${Number(r.school_year)}:${String(r.student_type)}`
+    entry[key] = [
+      ...(entry[key] ?? []),
+      { period: String(r.period), amountEur: Number(r.amount_eur) }
+    ]
+    byDegree.set(id, entry)
+    const url = String(r.source_url)
+    sourceCounts.set(url, (sourceCounts.get(url) ?? 0) + 1)
+    const fetched = r.fetched_at ? new Date(String(r.fetched_at)) : null
+    if (fetched && (!fetchedAt || fetched > fetchedAt)) fetchedAt = fetched
+  }
+  const sorted = (list: FeeAmount[] | undefined) =>
+    [...(list ?? [])].sort(
+      (a, b) => PERIOD_ORDER.indexOf(a.period) - PERIOD_ORDER.indexOf(b.period)
+    )
+
+  // Within a type: degrees with a fee first, then by name
+  const order = (type: FeePageType) => FEE_PAGE_TYPES.indexOf(type)
+  const hasFee = (d: FeesPageDegree) =>
+    Number(d.national.length + d.international.length > 0)
+  const pageDegrees: FeesPageDegree[] = degrees
+    .map((d) => {
+      const fees = byDegree.get(d.id) ?? {}
+      // One price for everyone fills both columns
+      const side = (year: number, type: 'national' | 'international') =>
+        sorted(fees[`${year}:${type}`] ?? fees[`${year}:all`])
+      return {
+        id: d.id,
+        type: d.type,
+        name: d.name,
+        acronym: d.acronym,
+        slug: d.slug,
+        national: side(schoolYear, 'national'),
+        international: side(schoolYear, 'international'),
+        next: {
+          national: side(schoolYear + 1, 'national'),
+          international: side(schoolYear + 1, 'international')
+        }
+      }
+    })
+    .sort(
+      (a, b) =>
+        order(a.type) - order(b.type) ||
+        hasFee(b) - hasFee(a) ||
+        a.name.localeCompare(b.name, lang)
+    )
+
+  return {
+    university,
+    schoolYear,
+    degrees: pageDegrees,
+    sourceUrls: [...sourceCounts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .map(([url]) => url),
+    fetchedAt: fetchedAt?.toISOString() ?? null,
+    types: [...new Set(allDegrees.map((d) => d.type))]
   }
 }

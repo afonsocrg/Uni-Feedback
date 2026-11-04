@@ -1,5 +1,6 @@
 import type { DegreeType, Faculty } from '@uni-feedback/db/schema'
 import { DEGREE_TYPES } from '@uni-feedback/db/schema'
+import { getCurrentSchoolYear } from '@uni-feedback/utils'
 import { ArrowRight } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -7,12 +8,17 @@ import { Link } from 'react-router'
 import { useLang } from '~/hooks'
 import { analytics } from '~/utils/analytics'
 import { getFacultyTypePath, isFacultyTypePage } from '~/utils/facultyTypePages'
-import { getUniversityPath } from '~/utils/i18n-routes'
+import { getFacultyFeesPath, getUniversityPath } from '~/utils/i18n-routes'
 import { LocalizedText } from '../common/LocalizedText'
 import { OfficialLinks } from '../common/OfficialLinks'
 import { ToggleChip } from '../common/ToggleChip'
 import type { FaqItem } from '../degree/content'
-import { formatGrade, formatInt, formatNumber } from '../degree/content'
+import {
+  formatGrade,
+  formatInt,
+  formatNumber,
+  formatSchoolYear
+} from '../degree/content'
 import { FaqSection, SectionShell } from '../degree/DegreeSections'
 import { FacultyPageShell } from './FacultyPageShell'
 import {
@@ -121,7 +127,20 @@ export function FacultyHubContent({
       label: t(`degree_types.${type}`),
       href: getFacultyTypePath(lang, facultySlug, type),
       target: 'type_page' as const
-    }))
+    })),
+    ...(data.hasFeesPage
+      ? [
+          {
+            key: 'fees',
+            kicker: t('faculty_fees.related.kicker'),
+            label: t('faculty_fees.related.label', {
+              year: formatSchoolYear(getCurrentSchoolYear())
+            }),
+            href: getFacultyFeesPath(lang, facultySlug),
+            target: 'fees_page' as const
+          }
+        ]
+      : [])
   ]
 
   const sections = [

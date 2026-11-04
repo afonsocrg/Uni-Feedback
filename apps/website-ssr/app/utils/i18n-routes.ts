@@ -143,6 +143,9 @@ function swapDynamicPath(path: string, from: Lang): string {
         degreeSub[2],
         degreeSub[3] === 'ingresso' ? 'admission' : 'careers'
       )
+    // A faculty's propinas page: /ist/propinas
+    const feesPage = path.match(/^\/([^/]+)\/propinas$/)
+    if (feesPage) return getFacultyFeesPath('en', feesPage[1])
     // A faculty's type page: /ist/licenciaturas
     const typePage = path.match(/^\/([^/]+)\/([^/]+)$/)
     const ptType = typePage && facultyTypeFromSegment(typePage[2], 'pt')
@@ -179,6 +182,8 @@ function swapDynamicPath(path: string, from: Lang): string {
         degreeSub[2],
         degreeSub[3] === 'admission' ? 'admission' : 'careers'
       )
+    const feesPage = withoutEn.match(/^\/([^/]+)\/tuition-fees$/)
+    if (feesPage) return getFacultyFeesPath('pt', feesPage[1])
     const typePage = withoutEn.match(/^\/([^/]+)\/([^/]+)$/)
     const enType = typePage && facultyTypeFromSegment(typePage[2], 'en')
     if (typePage && enType) return getFacultyTypePath('pt', typePage[1], enType)
@@ -229,6 +234,16 @@ export function getCourseFeedbackPath(
 
 export function getFacultyPath(lang: Lang, facultySlug: string): string {
   return lang === 'en' ? `/en/${facultySlug}` : `/${facultySlug}`
+}
+
+const FEES_SEGMENT: Record<Lang, string> = {
+  pt: 'propinas',
+  en: 'tuition-fees'
+}
+
+/** /ist/propinas, /en/ist/tuition-fees */
+export function getFacultyFeesPath(lang: Lang, facultySlug: string): string {
+  return `${getFacultyPath(lang, facultySlug)}/${FEES_SEGMENT[lang]}`
 }
 
 export function getDegreePath(

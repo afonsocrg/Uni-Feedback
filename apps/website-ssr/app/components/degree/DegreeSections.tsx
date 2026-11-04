@@ -1219,6 +1219,7 @@ export type FaqSurface =
   | 'degree_careers_page'
   | 'faculty_page'
   | 'faculty_type_page'
+  | 'faculty_fees_page'
   | 'university_page'
 
 export function FaqSection({

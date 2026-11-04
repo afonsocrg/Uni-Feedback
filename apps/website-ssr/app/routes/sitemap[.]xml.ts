@@ -1,7 +1,14 @@
 import { database, schema } from '@uni-feedback/db'
+import { getCurrentSchoolYear } from '@uni-feedback/utils'
 import { eq, isNotNull, max, sql } from 'drizzle-orm'
+import { FEES_PAGE_MIN_INDEXED } from '~/components/faculty/feesContent'
+import { FEE_PAGE_TYPES } from '~/components/faculty/types'
 import { isCourseIndexable } from '~/utils/course'
-import { getDegreeCoursesPath, getLocalePath } from '~/utils/i18n-routes'
+import {
+  getDegreeCoursesPath,
+  getFacultyFeesPath,
+  getLocalePath
+} from '~/utils/i18n-routes'
 import { getRequestOrigin } from '~/utils/request'
 
 interface PagePair {
@@ -55,7 +62,7 @@ export async function loader({ request }: { request: Request }) {
   const db = database()
   const origin = getRequestOrigin(request)
 
-  const [faculties, degrees, courses, feedbackStats, identicalPairs] =
+  const [faculties, degrees, courses, feedbackStats, identicalPairs, fees] =
     await Promise.all([
       db
         .select({ id: schema.faculties.id, slug: schema.faculties.slug })
@@ -97,7 +104,24 @@ export async function loader({ request }: { request: Request }) {
           targetCourseId: schema.courseRelationships.targetCourseId
         })
         .from(schema.courseRelationships)
-        .where(eq(schema.courseRelationships.relationshipType, 'identical'))
+        .where(eq(schema.courseRelationships.relationshipType, 'identical')),
+      // Faculties with a propinas page worth indexing: this year's fee on
+      // enough listed degrees (the page's own noindex rule)
+      db.execute<{ slug: string; n: number; fetched_at: string | null }>(sql`
+        SELECT fa.slug, count(DISTINCT d.id)::int AS n,
+          max(f.fetched_at) AS fetched_at
+        FROM degree_fees f
+        JOIN degrees d ON d.id = f.degree_id
+        JOIN degree_stats ds ON ds.degree_id = d.id AND ds.course_count > 0
+        JOIN faculties fa ON fa.id = d.faculty_id
+        WHERE f.school_year = ${getCurrentSchoolYear()}
+          AND fa.slug IS NOT NULL
+          AND d.type IN (${sql.join(
+            FEE_PAGE_TYPES.map((t) => sql`${t}`),
+            sql`, `
+          )})
+        GROUP BY fa.slug
+      `)
     ])
 
   // A course page shows its own feedback plus that of its "identical"
@@ -201,6 +225,16 @@ export async function loader({ request }: { request: Request }) {
         changefreq: 'weekly',
         priority: 0.8,
         lastmod: degreeLastmod.get(d.id)
+      })),
+    // Each faculty's propinas page; refreshed yearly, so lastmod is the fetch
+    ...fees
+      .filter((f) => Number(f.n) >= FEES_PAGE_MIN_INDEXED)
+      .map((f) => ({
+        pt: getFacultyFeesPath('pt', f.slug),
+        en: getFacultyFeesPath('en', f.slug),
+        changefreq: 'monthly',
+        priority: 0.7,
+        lastmod: f.fetched_at ? new Date(f.fetched_at) : null
       })),
     ...indexableCourses.map((c) => ({
       pt: `/cadeiras/${c.id}`,

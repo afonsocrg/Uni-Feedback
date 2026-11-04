@@ -184,12 +184,18 @@ export type FacultyPageKind =
   | 'minor'
   | 'postgraduate'
   | 'phd'
+  /** `/ist/propinas`: every degree's fee */
+  | 'fees'
 
 /** Where a link on the faculty pages points to */
 export type FacultyLinkTarget =
   | 'degree'
   | 'degree_admission'
   | 'type_page'
+  /** The faculty's propinas page */
+  | 'fees_page'
+  /** An official page a fee was read from (propinas page) */
+  | 'fee_source'
   | 'faculty'
   | 'university'
   | 'course'
@@ -1596,6 +1602,7 @@ export const analytics = {
         | 'degree_careers_page'
         | 'faculty_page'
         | 'faculty_type_page'
+        | 'faculty_fees_page'
         | 'university_page'
       /** Set on degree pages, where the chat opens scoped to the degree */
       degreeId: number | null

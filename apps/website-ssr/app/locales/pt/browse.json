@@ -471,6 +471,79 @@
       "english_a": "{{n}} de {{total}} têm aulas em inglês ou em português e inglês."
     }
   },
+  "faculty_fees": {
+    "crumb": "Propinas",
+    "title": "Propinas {{year}}: {{name}}",
+    "intro": "Quanto custa cada curso de {{name}} no ano letivo {{year}}, para estudantes nacionais e internacionais.",
+    "facts": {
+      "year": "Ano letivo {{year}}",
+      "count_one": "{{n}} curso com propina publicada",
+      "count_other": "{{n}} cursos com propina publicada",
+      "bachelor": "Licenciaturas: {{fee}}",
+      "next": "Valores de {{next}} já publicados para {{students}}"
+    },
+    "table": {
+      "national": "Estudantes nacionais",
+      "international": "Estudantes internacionais",
+      "next": "{{next}}: {{fee}}",
+      "next_same": "{{next}}: igual"
+    },
+    "sections": {
+      "about": "Sobre estes valores"
+    },
+    "about": {
+      "year": "Valores publicados pela faculdade para o ano letivo {{year}}. Um curso sem valor ainda não tem a propina deste ano publicada, ou ainda não a encontrámos.",
+      "student_types": "A propina de estudante nacional aplica-se, em geral, também a estudantes da União Europeia. A de estudante internacional é para quem tem esse estatuto (em geral, estudantes de fora da UE). Quando há um só preço para todos, aparece nas duas colunas.",
+      "check": "Alguns cursos cobram valores diferentes conforme o ano do curso ou o regime. Antes de te candidatares, confirma no site da faculdade.",
+      "more_sources_one": "e mais {{count}} página da faculdade",
+      "more_sources_other": "e mais {{count}} páginas da faculdade",
+      "fetched": "Valores recolhidos a {{date}}",
+      "next": "Os valores de {{next}} já publicados para {{students}} aparecem por baixo dos deste ano."
+    },
+    "related": {
+      "kicker": "Quanto custa",
+      "label": "Propinas {{year}}"
+    },
+    "faq": {
+      "type_q": {
+        "bachelor": "Quanto custa uma licenciatura em {{name}}?",
+        "integrated_master": "Quanto custa um mestrado integrado em {{name}}?",
+        "master": "Quanto custa um mestrado em {{name}}?",
+        "postgraduate": "Quanto custa uma pós-graduação em {{name}}?",
+        "phd": "Quanto custa um doutoramento em {{name}}?"
+      },
+      "type_a": "Em {{year}}: {{parts}}.",
+      "national_uniform": "{{fee}} para estudantes nacionais",
+      "national_range": "entre {{min}} e {{max}} para estudantes nacionais, conforme o curso",
+      "international_uniform": "{{fee}} para estudantes internacionais",
+      "international_range": "entre {{min}} e {{max}} para estudantes internacionais",
+      "most_expensive_q": {
+        "bachelor": "Qual é a licenciatura mais cara em {{name}}?",
+        "integrated_master": "Qual é o mestrado integrado mais caro em {{name}}?",
+        "master": "Qual é o mestrado mais caro em {{name}}?",
+        "postgraduate": "Qual é a pós-graduação mais cara em {{name}}?",
+        "phd": "Qual é o doutoramento mais caro em {{name}}?"
+      },
+      "most_expensive_a": "{{name}} ({{acronym}}): {{fee}} para estudantes nacionais em {{year}}.",
+      "next_q": "Já se sabe quanto vão custar as propinas em {{name}} em {{next}}?",
+      "next_side": "Para {{students}}: {{list}}.",
+      "next_uniform": "{{type}}, {{fee}}",
+      "next_range": "{{type}}, entre {{min}} e {{max}}",
+      "next_missing": "Os valores para {{students}} ainda não foram publicados."
+    },
+    "meta": {
+      "title": "Propinas {{shortName}} {{year}}: quanto custa cada curso | Uni Feedback",
+      "description_one": "Propinas de {{name}} em {{year}}: o valor de {{count}} curso, para estudantes nacionais e internacionais.",
+      "description_other": "Propinas de {{name}} em {{year}}: o valor de cada um dos {{count}} cursos, para estudantes nacionais e internacionais.",
+      "bachelor_uniform": "Licenciaturas: {{fee}}.",
+      "bachelor_range": "Licenciaturas: de {{min}} a {{max}}.",
+      "master_uniform": "Mestrados: {{fee}}.",
+      "master_range": "Mestrados: de {{min}} a {{max}}.",
+      "title_next": "Propinas {{shortName}} {{year}} e {{next}}: quanto custa cada curso | Uni Feedback",
+      "next": "Já com os valores de {{next}} para {{students}}."
+    },
+    "students_both": "estudantes nacionais e internacionais"
+  },
   "degree_subpages": {
     "and": " e ",
     "back": "Voltar a {{acronym}}",
