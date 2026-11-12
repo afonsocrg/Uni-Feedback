@@ -390,6 +390,7 @@ export function DegreeAdmissionPage({
             routes={applyRoutes}
             today={extras.today}
             track={track}
+            facultyShortName={faculty.shortName}
           />
         </SectionShell>
       )}

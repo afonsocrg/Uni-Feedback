@@ -336,6 +336,17 @@ export const routeConfig = [
         file: 'routes/faculty-fees.tsx',
         slugs: { pt: ':facultySlug/propinas', en: ':facultySlug/tuition-fees' }
       },
+      // How and when to apply to every degree, one section per shared route
+      // (prds/content_rich_pages.md, "Candidaturas at the faculty level").
+      // Reserved as a degree slug like the type pages.
+      {
+        key: 'faculty-admissions',
+        file: 'routes/faculty-admissions.tsx',
+        slugs: {
+          pt: ':facultySlug/candidaturas',
+          en: ':facultySlug/admissions'
+        }
+      },
       {
         key: 'degree',
         file: 'routes/$facultySlug.$degreeSlug.tsx',

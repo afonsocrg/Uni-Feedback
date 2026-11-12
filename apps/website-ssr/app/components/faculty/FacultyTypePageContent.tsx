@@ -14,6 +14,7 @@ import {
   getCoursePath,
   getDegreeAdmissionPath,
   getDegreePath,
+  getFacultyAdmissionsPath,
   getFacultyFeesPath,
   getFacultyPath,
   getUniversityPath
@@ -350,6 +351,17 @@ export function FacultyTypePageContent({
       href: getFacultyTypePath(lang, facultySlug, other),
       target: 'type_page' as const
     })),
+    ...(data.hasAdmissionsPage
+      ? [
+          {
+            key: 'admissions',
+            kicker: t('faculty_admissions.related.kicker'),
+            label: t('faculty_admissions.related.label'),
+            href: getFacultyAdmissionsPath(lang, facultySlug),
+            target: 'admissions_page' as const
+          }
+        ]
+      : []),
     ...(data.hasFeesPage
       ? [
           {

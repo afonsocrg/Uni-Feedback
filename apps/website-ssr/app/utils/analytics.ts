@@ -186,6 +186,8 @@ export type FacultyPageKind =
   | 'phd'
   /** `/ist/propinas`: every degree's fee */
   | 'fees'
+  /** `/nova-sbe/candidaturas`: how and when to apply, per route */
+  | 'admissions'
 
 /** Where a link on the faculty pages points to */
 export type FacultyLinkTarget =
@@ -194,6 +196,9 @@ export type FacultyLinkTarget =
   | 'type_page'
   /** The faculty's propinas page */
   | 'fees_page'
+  /** The faculty's candidaturas page (`surface` says from where: the hub's
+   * banner, its Candidaturas section, Relacionados) */
+  | 'admissions_page'
   /** An official page a fee was read from (propinas page) */
   | 'fee_source'
   | 'faculty'
@@ -854,8 +859,17 @@ export const analytics = {
      * `degreeCount` swings hard (IST lists 80 degrees while FDUL lists 1), so
      * cut anything on this page by it.
      */
-    facultyPageViewed: (props: { facultySlug: string; degreeCount: number }) =>
-      trackEvent('faculty_page_viewed', props),
+    facultyPageViewed: (props: {
+      facultySlug: string
+      degreeCount: number
+      /**
+       * Applications open for some route today (since 2026-11-12): the hub
+       * then shows the "Candidaturas abertas" banner, so this is the
+       * denominator of `faculty_link_clicked{target: admissions_page,
+       * surface: banner}`. Absent before that date.
+       */
+      applicationsOpen?: boolean
+    }) => trackEvent('faculty_page_viewed', props),
 
     /**
      * Track a degree page load. Entry point of the course-discovery funnel and
@@ -959,7 +973,10 @@ export const analytics = {
      * (prds/content_rich_pages.md, "Ingresso v2"): `kind: 'apply'`, "Candidatura
      * em ...", the application portal, shown only while a round is open;
      * `kind: 'info'`, "Mais informação em ...", the faculty's admissions page,
-     * the rest of the time. Its rate is this over `degree_subpage_viewed{page:
+     * the rest of the time; `kind: 'faculty_page'` (since 2026-11-12), "Ver
+     * calendário e requisitos": a route shared with the faculty's other degrees
+     * shows only its status here and links to its section on the faculty's
+     * Candidaturas page. Its rate is this over `degree_subpage_viewed{page:
      * 'admission', hasApplyInfo: true}`. `roundStatus` is where that route's
      * next round stood.
      */
@@ -968,7 +985,7 @@ export const analytics = {
       degreeSlug: string
       route: 'cna' | 'direct' | 'special'
       audience: 'all' | 'national' | 'international' | 'internal'
-      kind: 'apply' | 'info'
+      kind: 'apply' | 'info' | 'faculty_page'
       roundStatus: 'open' | 'upcoming' | 'closed' | 'none'
     }) => trackEvent('degree_apply_link_clicked', props),
 
@@ -1205,6 +1222,21 @@ export const analytics = {
       target: FacultyLinkTarget
       surface: string
     }) => trackEvent('faculty_link_clicked', props),
+
+    /**
+     * A route's link out on the faculty's Candidaturas page: `kind: 'apply'`,
+     * the application portal while a round is open, else `info`, the
+     * faculty's admissions page. Same shape as `degree_apply_link_clicked`,
+     * per faculty; `section` is the route's section id (`mestrados`).
+     */
+    applyLinkClicked: (props: {
+      facultySlug: string
+      section: string
+      route: 'cna' | 'direct' | 'special'
+      audience: 'all' | 'national' | 'international' | 'internal'
+      kind: 'apply' | 'info'
+      roundStatus: 'open' | 'upcoming' | 'closed' | 'none'
+    }) => trackEvent('faculty_apply_link_clicked', props),
 
     /** A degree-type chip in the hub's "Cursos" table */
     degreeTypeSelected: (props: { facultySlug: string; type: string }) =>
@@ -1603,6 +1635,7 @@ export const analytics = {
         | 'faculty_page'
         | 'faculty_type_page'
         | 'faculty_fees_page'
+        | 'faculty_admissions_page'
         | 'university_page'
       /** Set on degree pages, where the chat opens scoped to the degree */
       degreeId: number | null

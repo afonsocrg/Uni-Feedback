@@ -1220,6 +1220,7 @@ export type FaqSurface =
   | 'faculty_page'
   | 'faculty_type_page'
   | 'faculty_fees_page'
+  | 'faculty_admissions_page'
   | 'university_page'
 
 export function FaqSection({

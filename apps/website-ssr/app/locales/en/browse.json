@@ -542,7 +542,75 @@
       "title_next": "{{shortName}} tuition fees {{year}} and {{next}}: what each degree costs | Uni Feedback",
       "next": "Includes the {{next}} fees for {{students}}."
     },
-    "students_both": "national and international students"
+    "students_both": "national and international students",
+    "apply_link": "How to apply: deadlines and requirements"
+  },
+  "faculty_admissions": {
+    "crumb": "Admissions",
+    "title": "Admissions: {{name}}",
+    "intro": "How and when to apply to {{name}}'s degrees: deadlines, requirements and where to submit your application.",
+    "meta_title": "{{name}} admissions: deadlines and requirements | Uni Feedback",
+    "meta_description": "Applying to {{name}}: {{routes}}. Each round's deadlines, requirements, application fee and where to apply.",
+    "meta_description_short": "Applying to {{name}}: each round's deadlines, requirements and where to apply.",
+    "facts": {
+      "year": "Applications for {{year}}",
+      "count_one": "{{n}} degree",
+      "count_other": "{{n}} degrees"
+    },
+    "sections": {
+      "summary": "Summary",
+      "own": "Degrees with their own rules"
+    },
+    "own_intro": "These degrees have their own calendar or requirements. The details are on each one's admission page.",
+    "fee_short": "{{fee}} fee",
+    "types_join": "{{first}} and {{last}}",
+    "section_label": "{{types}}: {{route}}",
+    "status": {
+      "open": "Open until {{date}}",
+      "open_nodate": "Open",
+      "upcoming": "Open on {{date}}",
+      "upcoming_nodate": "Not open yet",
+      "closed": "Closed",
+      "guide_only": "Dates not published yet"
+    },
+    "faq": {
+      "dates_q": "When are applications at {{name}} ({{label}})?",
+      "dates_a_one": "For {{year}}, there is one application period: {{rounds}}.",
+      "dates_a_other": "For {{year}}, there are {{count}} application periods: {{rounds}}.",
+      "fee_q": "How much does it cost to apply to {{name}} ({{label}})?",
+      "fee_a": "The application fee is {{fee}}.",
+      "fee_a_note": "The application fee is {{fee}}, {{note}}."
+    },
+    "related": {
+      "kicker": "How to apply",
+      "label": "Admissions"
+    },
+    "hub": {
+      "banner_title": "Applications open",
+      "banner_item": "{{label}}, until {{date}}",
+      "banner_link": "See applications",
+      "section_title": "Applications",
+      "section_link": "Deadlines and requirements for every degree"
+    },
+    "admission_link": "admission",
+    "tuition": {
+      "title": "Tuition fees",
+      "line": "{{year}}: {{amount}}.",
+      "line_international": "{{year}}, international students: {{amount}}.",
+      "range": "between {{min}} and {{max}}",
+      "link": "See each degree's fee",
+      "varies": "They vary by degree."
+    },
+    "applies_to": {
+      "bachelor": "See the bachelor's degrees it applies to",
+      "integrated_master": "See the integrated master's degrees it applies to",
+      "master": "See the master's degrees it applies to",
+      "minor": "See the minors it applies to",
+      "postgraduate": "See the postgraduate programmes it applies to",
+      "phd": "See the PhD programmes it applies to"
+    },
+    "except": "Except {{list}}, which have their own rules.",
+    "except_link": "See below"
   },
   "degree_subpages": {
     "and": " and ",
@@ -596,7 +664,13 @@
         "button": "Apply at {{host}}",
         "button_info": "More information at {{host}}",
         "sources": "Sources:",
-        "report_text": "A date, requirement or fee out of date?"
+        "report_text": "A date, requirement or fee out of date?",
+        "shared_link": "Calendar and requirements",
+        "card": {
+          "round_of": "{{label}} ({{n}} of {{count}})",
+          "next_opens": "the next opens on {{date}}"
+        },
+        "shared_link_label": "Calendar and requirements on {{faculty}}'s admissions page"
       },
       "source_guide": "DGES, entrance exam guide {{year}}",
       "sections": {

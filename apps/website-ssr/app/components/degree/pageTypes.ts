@@ -8,7 +8,11 @@
  * workspace.
  */
 
-import type { AdmissionAudience, AdmissionRoute } from '@uni-feedback/db/schema'
+import type {
+  AdmissionAudience,
+  AdmissionRoute,
+  DegreeType
+} from '@uni-feedback/db/schema'
 
 export interface DegreeCampusInfo {
   id: number
@@ -204,6 +208,22 @@ export interface AdmissionRouteView {
   schoolYear: number | null
   rounds: AdmissionRoundView[]
   roundsSourceUrl: string | null
+  /** Where the guide and rounds come from: the more specific of the two */
+  scope: AdmissionRouteScope
+  /**
+   * The route's section on the faculty's Candidaturas page
+   * (`/:facultySlug/candidaturas#<id>`), when that page carries it: a route
+   * shared with other degrees. The Ingresso page then shows its status and a
+   * link there instead of repeating the calendar and guide. Null for a route
+   * of this degree alone, which Ingresso shows in full.
+   */
+  facultySectionId: string | null
+}
+
+export interface AdmissionRouteScope {
+  level: 'degree' | 'faculty' | 'national'
+  /** The degree type faculty-level rows are for; null when for every type */
+  degreeType: DegreeType | null
 }
 
 export interface DegreeAdmissionPageData {

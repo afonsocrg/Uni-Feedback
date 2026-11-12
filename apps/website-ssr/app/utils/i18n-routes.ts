@@ -146,6 +146,9 @@ function swapDynamicPath(path: string, from: Lang): string {
     // A faculty's propinas page: /ist/propinas
     const feesPage = path.match(/^\/([^/]+)\/propinas$/)
     if (feesPage) return getFacultyFeesPath('en', feesPage[1])
+    // A faculty's candidaturas page: /nova-sbe/candidaturas
+    const admissionsPage = path.match(/^\/([^/]+)\/candidaturas$/)
+    if (admissionsPage) return getFacultyAdmissionsPath('en', admissionsPage[1])
     // A faculty's type page: /ist/licenciaturas
     const typePage = path.match(/^\/([^/]+)\/([^/]+)$/)
     const ptType = typePage && facultyTypeFromSegment(typePage[2], 'pt')
@@ -184,6 +187,8 @@ function swapDynamicPath(path: string, from: Lang): string {
       )
     const feesPage = withoutEn.match(/^\/([^/]+)\/tuition-fees$/)
     if (feesPage) return getFacultyFeesPath('pt', feesPage[1])
+    const admissionsPage = withoutEn.match(/^\/([^/]+)\/admissions$/)
+    if (admissionsPage) return getFacultyAdmissionsPath('pt', admissionsPage[1])
     const typePage = withoutEn.match(/^\/([^/]+)\/([^/]+)$/)
     const enType = typePage && facultyTypeFromSegment(typePage[2], 'en')
     if (typePage && enType) return getFacultyTypePath('pt', typePage[1], enType)
@@ -241,9 +246,35 @@ const FEES_SEGMENT: Record<Lang, string> = {
   en: 'tuition-fees'
 }
 
-/** /ist/propinas, /en/ist/tuition-fees */
-export function getFacultyFeesPath(lang: Lang, facultySlug: string): string {
-  return `${getFacultyPath(lang, facultySlug)}/${FEES_SEGMENT[lang]}`
+/**
+ * /ist/propinas, /en/ist/tuition-fees; with `section`, its anchor there (a
+ * type's table: `#mestrados`)
+ */
+export function getFacultyFeesPath(
+  lang: Lang,
+  facultySlug: string,
+  section?: string | null
+): string {
+  const path = `${getFacultyPath(lang, facultySlug)}/${FEES_SEGMENT[lang]}`
+  return section ? `${path}#${section}` : path
+}
+
+const ADMISSIONS_SEGMENT: Record<Lang, string> = {
+  pt: 'candidaturas',
+  en: 'admissions'
+}
+
+/**
+ * /nova-sbe/candidaturas, /en/nova-sbe/admissions; with `section`, its anchor
+ * there (`#mestrados`, from `applySectionId`)
+ */
+export function getFacultyAdmissionsPath(
+  lang: Lang,
+  facultySlug: string,
+  section?: string | null
+): string {
+  const path = `${getFacultyPath(lang, facultySlug)}/${ADMISSIONS_SEGMENT[lang]}`
+  return section ? `${path}#${section}` : path
 }
 
 export function getDegreePath(

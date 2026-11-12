@@ -7,11 +7,16 @@ import {
   getFacultyTypePath,
   isFacultyTypePage
 } from '~/utils/facultyTypePages'
-import { getFacultyPath, getUniversityPath } from '~/utils/i18n-routes'
+import {
+  getFacultyAdmissionsPath,
+  getFacultyPath,
+  getUniversityPath
+} from '~/utils/i18n-routes'
 import { formatInt, formatSchoolYear } from '../degree/content'
 import { FaqSection, SectionShell } from '../degree/DegreeSections'
 import { FacultyPageShell } from './FacultyPageShell'
 import {
+  ArrowLink,
   CompareTable,
   DegreeCell,
   FacultyRelatedSection,
@@ -112,6 +117,17 @@ export function FacultyFeesPageContent({
       href: getFacultyTypePath(lang, facultySlug, type),
       target: 'type_page' as const
     })),
+    ...(data.hasAdmissionsPage
+      ? [
+          {
+            key: 'admissions',
+            kicker: t('faculty_admissions.related.kicker'),
+            label: t('faculty_admissions.related.label'),
+            href: getFacultyAdmissionsPath(lang, facultySlug),
+            target: 'admissions_page' as const
+          }
+        ]
+      : []),
     ...(data.university
       ? [
           {
@@ -230,6 +246,20 @@ export function FacultyFeesPageContent({
                 ]
               }))}
             />
+            {data.admissionsSections[type] && (
+              <ArrowLink
+                to={getFacultyAdmissionsPath(
+                  lang,
+                  facultySlug,
+                  data.admissionsSections[type]
+                )}
+                onClick={() =>
+                  trackFacultyLink(track, 'admissions_page', `fees_${type}`)
+                }
+              >
+                {t('faculty_fees.apply_link')}
+              </ArrowLink>
+            )}
           </SectionShell>
         )
       })}

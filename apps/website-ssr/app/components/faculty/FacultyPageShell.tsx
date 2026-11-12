@@ -31,6 +31,7 @@ export function FacultyPageShell({
   school,
   sections,
   degreeCount,
+  applicationsOpen,
   children
 }: {
   facultySlug: string
@@ -53,6 +54,8 @@ export function FacultyPageShell({
   school?: { logo: string | null; name: string; shortName: string }
   sections: TocSection<string>[]
   degreeCount: number
+  /** The hub: a round is open today (its banner shows) */
+  applicationsOpen?: boolean
   children: ReactNode
 }) {
   const sectionsRef = useRef(sections)
@@ -61,7 +64,11 @@ export function FacultyPageShell({
   useEffect(() => {
     const ids = sectionsRef.current.map((s) => s.id)
     if (page === 'hub') {
-      analytics.discovery.facultyPageViewed({ facultySlug, degreeCount })
+      analytics.discovery.facultyPageViewed({
+        facultySlug,
+        degreeCount,
+        applicationsOpen: applicationsOpen ?? false
+      })
     } else {
       analytics.faculty.typePageViewed({
         facultySlug,

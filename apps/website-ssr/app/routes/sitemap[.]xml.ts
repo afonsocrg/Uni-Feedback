@@ -6,6 +6,7 @@ import { FEE_PAGE_TYPES } from '~/components/faculty/types'
 import { isCourseIndexable } from '~/utils/course'
 import {
   getDegreeCoursesPath,
+  getFacultyAdmissionsPath,
   getFacultyFeesPath,
   getLocalePath
 } from '~/utils/i18n-routes'
@@ -62,52 +63,59 @@ export async function loader({ request }: { request: Request }) {
   const db = database()
   const origin = getRequestOrigin(request)
 
-  const [faculties, degrees, courses, feedbackStats, identicalPairs, fees] =
-    await Promise.all([
-      db
-        .select({ id: schema.faculties.id, slug: schema.faculties.slug })
-        .from(schema.faculties),
-      db
-        .select({
-          id: schema.degrees.id,
-          facultyId: schema.faculties.id,
-          facultySlug: schema.faculties.slug,
-          degreeSlug: schema.degrees.slug
-        })
-        .from(schema.degrees)
-        .innerJoin(
-          schema.faculties,
-          eq(schema.degrees.facultyId, schema.faculties.id)
-        ),
-      db
-        .select({
-          id: schema.courses.id,
-          degreeId: schema.courses.degreeId,
-          description: schema.courses.description,
-          assessment: schema.courses.assessment,
-          bibliography: schema.courses.bibliography,
-          updatedAt: schema.courses.updatedAt
-        })
-        .from(schema.courses),
-      db
-        .select({
-          courseId: schema.feedback.courseId,
-          count: sql<number>`count(*)::integer`,
-          lastApprovedAt: max(schema.feedback.approvedAt)
-        })
-        .from(schema.feedback)
-        .where(isNotNull(schema.feedback.approvedAt))
-        .groupBy(schema.feedback.courseId),
-      db
-        .select({
-          sourceCourseId: schema.courseRelationships.sourceCourseId,
-          targetCourseId: schema.courseRelationships.targetCourseId
-        })
-        .from(schema.courseRelationships)
-        .where(eq(schema.courseRelationships.relationshipType, 'identical')),
-      // Faculties with a propinas page worth indexing: this year's fee on
-      // enough listed degrees (the page's own noindex rule)
-      db.execute<{ slug: string; n: number; fetched_at: string | null }>(sql`
+  const [
+    faculties,
+    degrees,
+    courses,
+    feedbackStats,
+    identicalPairs,
+    fees,
+    admissionPages
+  ] = await Promise.all([
+    db
+      .select({ id: schema.faculties.id, slug: schema.faculties.slug })
+      .from(schema.faculties),
+    db
+      .select({
+        id: schema.degrees.id,
+        facultyId: schema.faculties.id,
+        facultySlug: schema.faculties.slug,
+        degreeSlug: schema.degrees.slug
+      })
+      .from(schema.degrees)
+      .innerJoin(
+        schema.faculties,
+        eq(schema.degrees.facultyId, schema.faculties.id)
+      ),
+    db
+      .select({
+        id: schema.courses.id,
+        degreeId: schema.courses.degreeId,
+        description: schema.courses.description,
+        assessment: schema.courses.assessment,
+        bibliography: schema.courses.bibliography,
+        updatedAt: schema.courses.updatedAt
+      })
+      .from(schema.courses),
+    db
+      .select({
+        courseId: schema.feedback.courseId,
+        count: sql<number>`count(*)::integer`,
+        lastApprovedAt: max(schema.feedback.approvedAt)
+      })
+      .from(schema.feedback)
+      .where(isNotNull(schema.feedback.approvedAt))
+      .groupBy(schema.feedback.courseId),
+    db
+      .select({
+        sourceCourseId: schema.courseRelationships.sourceCourseId,
+        targetCourseId: schema.courseRelationships.targetCourseId
+      })
+      .from(schema.courseRelationships)
+      .where(eq(schema.courseRelationships.relationshipType, 'identical')),
+    // Faculties with a propinas page worth indexing: this year's fee on
+    // enough listed degrees (the page's own noindex rule)
+    db.execute<{ slug: string; n: number; fetched_at: string | null }>(sql`
         SELECT fa.slug, count(DISTINCT d.id)::int AS n,
           max(f.fetched_at) AS fetched_at
         FROM degree_fees f
@@ -121,8 +129,25 @@ export async function loader({ request }: { request: Request }) {
             sql`, `
           )})
         GROUP BY fa.slug
+      `),
+    // Faculties with an indexed candidaturas page: a reviewed guide of the
+    // faculty's own (isAdmissionsPageIndexable) and a degree it covers
+    db.execute<{ slug: string; reviewed_at: string | null }>(sql`
+        SELECT fa.slug, max(g.reviewed_at) AS reviewed_at
+        FROM admission_guides g
+        JOIN faculties fa ON fa.id = g.faculty_id
+        WHERE g.degree_id IS NULL AND g.reviewed_at IS NOT NULL
+          AND fa.slug IS NOT NULL
+          AND EXISTS (
+            SELECT 1 FROM degrees d
+            JOIN degree_stats ds ON ds.degree_id = d.id AND ds.course_count > 0
+            WHERE d.faculty_id = fa.id AND d.slug IS NOT NULL
+              AND d.type NOT IN ('minor', 'other')
+              AND (g.degree_type IS NULL OR d.type = g.degree_type)
+          )
+        GROUP BY fa.slug
       `)
-    ])
+  ])
 
   // A course page shows its own feedback plus that of its "identical"
   // courses (see getFeedbackWhereCondition), so count it the same way here.
@@ -227,6 +252,14 @@ export async function loader({ request }: { request: Request }) {
         lastmod: degreeLastmod.get(d.id)
       })),
     // Each faculty's propinas page; refreshed yearly, so lastmod is the fetch
+    // Each faculty's candidaturas page; dates change through the year
+    ...admissionPages.map((a) => ({
+      pt: getFacultyAdmissionsPath('pt', a.slug),
+      en: getFacultyAdmissionsPath('en', a.slug),
+      changefreq: 'weekly',
+      priority: 0.7,
+      lastmod: a.reviewed_at ? new Date(a.reviewed_at) : null
+    })),
     ...fees
       .filter((f) => Number(f.n) >= FEES_PAGE_MIN_INDEXED)
       .map((f) => ({

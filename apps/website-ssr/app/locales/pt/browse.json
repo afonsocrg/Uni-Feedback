@@ -542,7 +542,75 @@
       "title_next": "Propinas {{shortName}} {{year}} e {{next}}: quanto custa cada curso | Uni Feedback",
       "next": "Já com os valores de {{next}} para {{students}}."
     },
-    "students_both": "estudantes nacionais e internacionais"
+    "students_both": "estudantes nacionais e internacionais",
+    "apply_link": "Como te candidatas: prazos e requisitos"
+  },
+  "faculty_admissions": {
+    "crumb": "Candidaturas",
+    "title": "Candidaturas: {{name}}",
+    "intro": "Como e quando te candidatas aos cursos de {{name}}: prazos, requisitos e onde submeter a candidatura.",
+    "meta_title": "Candidaturas {{name}}: prazos e requisitos | Uni Feedback",
+    "meta_description": "Candidaturas em {{name}}: {{routes}}. Prazos de cada fase, requisitos, taxa de candidatura e onde te candidatas.",
+    "meta_description_short": "Candidaturas em {{name}}: prazos de cada fase, requisitos e onde te candidatas.",
+    "facts": {
+      "year": "Candidaturas para {{year}}",
+      "count_one": "{{n}} curso",
+      "count_other": "{{n}} cursos"
+    },
+    "sections": {
+      "summary": "Resumo",
+      "own": "Cursos com regras próprias"
+    },
+    "own_intro": "Estes cursos têm calendário ou requisitos próprios. Os detalhes estão na página de ingresso de cada um.",
+    "fee_short": "taxa de {{fee}}",
+    "types_join": "{{first}} e {{last}}",
+    "section_label": "{{types}}: {{route}}",
+    "status": {
+      "open": "Abertas até {{date}}",
+      "open_nodate": "Abertas",
+      "upcoming": "Abrem a {{date}}",
+      "upcoming_nodate": "Ainda não abriram",
+      "closed": "Encerradas",
+      "guide_only": "Datas por publicar"
+    },
+    "faq": {
+      "dates_q": "Quando são as candidaturas em {{name}} ({{label}})?",
+      "dates_a_one": "Para {{year}}, há um período de candidatura: {{rounds}}.",
+      "dates_a_other": "Para {{year}}, há {{count}} períodos de candidatura: {{rounds}}.",
+      "fee_q": "Quanto custa candidatar-me em {{name}} ({{label}})?",
+      "fee_a": "A taxa de candidatura é de {{fee}}.",
+      "fee_a_note": "A taxa de candidatura é de {{fee}}, {{note}}."
+    },
+    "related": {
+      "kicker": "Como te candidatas",
+      "label": "Candidaturas"
+    },
+    "hub": {
+      "banner_title": "Candidaturas abertas",
+      "banner_item": "{{label}}, até {{date}}",
+      "banner_link": "Ver candidaturas",
+      "section_title": "Candidaturas",
+      "section_link": "Prazos e requisitos de todos os cursos"
+    },
+    "admission_link": "ingresso",
+    "tuition": {
+      "title": "Propinas",
+      "line": "{{year}}: {{amount}}.",
+      "line_international": "{{year}}, estudantes internacionais: {{amount}}.",
+      "range": "entre {{min}} e {{max}}",
+      "link": "Ver propinas de cada curso",
+      "varies": "Variam conforme o curso."
+    },
+    "applies_to": {
+      "bachelor": "Ver as licenciaturas a que se aplica",
+      "integrated_master": "Ver os mestrados integrados a que se aplica",
+      "master": "Ver os mestrados a que se aplica",
+      "minor": "Ver os minors a que se aplica",
+      "postgraduate": "Ver as pós-graduações a que se aplica",
+      "phd": "Ver os doutoramentos a que se aplica"
+    },
+    "except": "Exceto {{list}}, com regras próprias.",
+    "except_link": "Ver abaixo"
   },
   "degree_subpages": {
     "and": " e ",
@@ -596,7 +664,13 @@
         "button": "Candidatura em {{host}}",
         "button_info": "Mais informação em {{host}}",
         "sources": "Fontes:",
-        "report_text": "Alguma data, requisito ou valor desatualizado?"
+        "report_text": "Alguma data, requisito ou valor desatualizado?",
+        "shared_link": "Calendário e requisitos",
+        "card": {
+          "round_of": "{{label}} ({{n}} de {{count}})",
+          "next_opens": "a seguinte abre a {{date}}"
+        },
+        "shared_link_label": "Calendário e requisitos na página de candidaturas de {{faculty}}"
       },
       "source_guide": "DGES, Guia das Provas de Ingresso {{year}}",
       "sections": {

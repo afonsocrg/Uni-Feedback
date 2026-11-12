@@ -1,11 +1,18 @@
 import { cn, Markdown } from '@uni-feedback/ui'
-import { ArrowUpRight } from 'lucide-react'
+import { ArrowRight, ArrowUpRight } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router'
 import { useLang } from '~/hooks'
 import { analytics } from '~/utils/analytics'
+import { getFacultyAdmissionsPath } from '~/utils/i18n-routes'
 import { ReportErrorNote } from '../common/ReportErrorNote'
 import { AdmissionTimeline } from './AdmissionTimeline'
-import { formatIsoDay, formatSchoolYear, nextRound } from './content'
+import {
+  formatIsoDay,
+  formatIsoPeriod,
+  formatSchoolYear,
+  nextRound
+} from './content'
 import {
   hostOf,
   SourceLink,
@@ -18,23 +25,45 @@ import type { AdmissionRoundView, AdmissionRouteView } from './pageTypes'
  * "Como te candidatas" on the Ingresso page (prds/content_rich_pages.md,
  * "Ingresso v2"): per route into the degree, where the rounds stand today, the
  * rounds of the latest intake, our guide, and the way out to the official
- * application. Statuses come from the loader (Lisbon date), so server and
- * client render the same thing.
+ * application. A route shared with other degrees lives on the faculty's
+ * Candidaturas page: here it is its status and a link there, so the calendar
+ * and guide aren't copied onto every degree. Statuses come from the loader
+ * (Lisbon date), so server and client render the same thing.
  */
 export function AdmissionApply({
   routes,
   today,
-  track
+  track,
+  facultyShortName
 }: {
   routes: AdmissionRouteView[]
   /** The loader's Lisbon date, the day the statuses are for */
   today: string
   track: DegreeTrack
+  facultyShortName: string
 }) {
   const { t } = useTranslation('browse')
+  const facultySlug = track.facultySlug
+  const shared = facultySlug ? routes.filter((r) => r.facultySectionId) : []
+  const own = routes.filter((r) => !shared.includes(r))
   return (
     <div className="space-y-10">
-      {routes.map((route) => (
+      {facultySlug && shared.length > 0 && (
+        <ul className="grid gap-3 sm:grid-cols-2">
+          {shared.map((route) => (
+            <li key={`${route.route}-${route.audience}`}>
+              <SharedRouteCard
+                route={route}
+                sectionId={route.facultySectionId!}
+                facultySlug={facultySlug}
+                facultyShortName={facultyShortName}
+                track={track}
+              />
+            </li>
+          ))}
+        </ul>
+      )}
+      {own.map((route) => (
         <ApplyRoute
           key={`${route.route}-${route.audience}`}
           route={route}
@@ -55,31 +84,30 @@ export function AdmissionApply({
   )
 }
 
-function ApplyRoute({
+/**
+ * One route in full: status, timeline, guide, link out and sources. Also the
+ * body of each section on the faculty's Candidaturas page, which passes its
+ * own `onLinkClick` (its analytics are per faculty, not per degree).
+ */
+export function ApplyRoute({
   route,
   today,
   track,
-  showHeading
+  showHeading,
+  onLinkClick
 }: {
   route: AdmissionRouteView
   today: string
   track: DegreeTrack
   showHeading: boolean
+  onLinkClick?: (
+    kind: 'apply' | 'info',
+    roundStatus: 'open' | 'upcoming' | 'closed' | 'none'
+  ) => void
 }) {
   const { t } = useTranslation('browse')
   const next = nextRound(route.rounds)
-  // The application portal only while a round is open; otherwise the page
-  // with the rules and dates
-  const isOpen = next?.status === 'open'
-  // The guide's own source first: it is in the page's language
-  const infoUrl =
-    route.guide?.sourceUrls[0] ??
-    route.roundsSourceUrl ??
-    route.guide?.applyUrl ??
-    null
-  const linkKind: 'apply' | 'info' =
-    isOpen && route.guide?.applyUrl ? 'apply' : 'info'
-  const linkUrl = linkKind === 'apply' ? route.guide!.applyUrl! : infoUrl
+  const { kind: linkKind, url: linkUrl, roundStatus } = applyLink(route)
   // One link per site: the rounds' page first, then the guide's sources
   const sources = [
     ...new Map(
@@ -132,6 +160,10 @@ function ApplyRoute({
           rel="noopener noreferrer"
           className="mt-3 inline-flex items-center gap-1 font-semibold text-primaryBlue hover:underline"
           onClick={() => {
+            if (onLinkClick) {
+              onLinkClick(linkKind, roundStatus)
+              return
+            }
             if (!track.facultySlug || !track.degreeSlug) return
             analytics.discovery.degreeApplyLinkClicked({
               facultySlug: track.facultySlug,
@@ -139,13 +171,7 @@ function ApplyRoute({
               route: route.route,
               audience: route.audience,
               kind: linkKind,
-              roundStatus: isOpen
-                ? 'open'
-                : next
-                  ? 'upcoming'
-                  : route.rounds.length > 0
-                    ? 'closed'
-                    : 'none'
+              roundStatus
             })
           }}
         >
@@ -176,12 +202,167 @@ function ApplyRoute({
   )
 }
 
-function StatusLine({
+/**
+ * The way out of a route: the application portal while a round is open,
+ * otherwise the page with the rules and dates (the guide's own source first,
+ * as it is in the page's language). Shared by the full block and the card.
+ */
+function applyLink(route: AdmissionRouteView): {
+  kind: 'apply' | 'info'
+  url: string | null
+  roundStatus: 'open' | 'upcoming' | 'closed' | 'none'
+} {
+  const next = nextRound(route.rounds)
+  const isOpen = next?.status === 'open'
+  const kind = isOpen && route.guide?.applyUrl ? 'apply' : 'info'
+  return {
+    kind,
+    url:
+      kind === 'apply'
+        ? route.guide!.applyUrl!
+        : (route.guide?.sourceUrls[0] ??
+          route.roundsSourceUrl ??
+          route.guide?.applyUrl ??
+          null),
+    roundStatus: isOpen
+      ? 'open'
+      : next
+        ? 'upcoming'
+        : route.rounds.length > 0
+          ? 'closed'
+          : 'none'
+  }
+}
+
+/**
+ * A route shared with the faculty's other degrees, as a card: where it stands,
+ * the round in play (which of how many, its dates, when the next opens), a
+ * link to its section on the faculty's Candidaturas page, which has the
+ * calendar and requirements (so they aren't copied here), and under it, muted,
+ * the official page (the portal while a round is open). The
+ * application fee is already in the page's Resumo.
+ */
+function SharedRouteCard({
   route,
-  next
+  sectionId,
+  facultySlug,
+  facultyShortName,
+  track
+}: {
+  route: AdmissionRouteView
+  sectionId: string
+  facultySlug: string
+  facultyShortName: string
+  track: DegreeTrack
+}) {
+  const { t } = useTranslation('browse')
+  const lang = useLang()
+  const next = nextRound(route.rounds)
+  const link = applyLink(route)
+  const trackClick = (kind: 'apply' | 'info' | 'faculty_page') => {
+    if (!track.degreeSlug) return
+    analytics.discovery.degreeApplyLinkClicked({
+      facultySlug,
+      degreeSlug: track.degreeSlug,
+      route: route.route,
+      audience: route.audience,
+      kind,
+      roundStatus: link.roundStatus
+    })
+  }
+
+  // "1.ª ronda (1 de 5) · 11–25 nov 2026 · a seguinte abre a 25 nov 2026"
+  const context: string[] = []
+  if (next) {
+    const index = route.rounds.indexOf(next)
+    context.push(
+      route.rounds.length > 1
+        ? t('degree_subpages.admission.apply.card.round_of', {
+            label: next.label,
+            n: index + 1,
+            count: route.rounds.length
+          })
+        : next.label
+    )
+    context.push(
+      formatIsoPeriod(next.opensOn, next.closesOn, lang, {
+        until: (date) => t('degree_subpages.admission.apply.until', { date }),
+        from: (date) => t('degree_subpages.admission.apply.from', { date })
+      })
+    )
+    const following = route.rounds[index + 1]
+    if (next.status === 'open' && following?.opensOn) {
+      context.push(
+        t('degree_subpages.admission.apply.card.next_opens', {
+          date: formatIsoDay(following.opensOn, lang)
+        })
+      )
+    }
+  }
+
+  return (
+    <div className="flex h-full flex-col rounded-lg border border-border px-4 py-3">
+      <p className="mb-2 text-sm font-semibold text-foreground">
+        {t(
+          `degree_subpages.admission.apply.route.${route.route}_${route.audience}`,
+          {
+            defaultValue: t(
+              `degree_subpages.admission.apply.route.${route.route}_all`
+            )
+          }
+        )}
+      </p>
+      {route.rounds.length > 0 && (
+        <StatusLine route={route} next={next} className="mb-1" />
+      )}
+      {context.length > 0 && (
+        <p className="pl-4 text-sm text-muted-foreground">
+          {context.join(' · ')}
+        </p>
+      )}
+      {/* Our page first; the official one under it, muted */}
+      <div className="mt-auto space-y-1 pt-4">
+        <Link
+          to={getFacultyAdmissionsPath(lang, facultySlug, sectionId)}
+          onClick={() => trackClick('faculty_page')}
+          aria-label={t('degree_subpages.admission.apply.shared_link_label', {
+            faculty: facultyShortName
+          })}
+          className="inline-flex items-center gap-1 font-semibold text-primaryBlue hover:underline"
+        >
+          {t('degree_subpages.admission.apply.shared_link')}
+          <ArrowRight aria-hidden="true" className="size-4" />
+        </Link>
+        {link.url && (
+          <a
+            href={link.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => trackClick(link.kind)}
+            className="flex w-fit items-center gap-1 text-xs text-muted-foreground hover:text-foreground hover:underline"
+          >
+            {t(
+              link.kind === 'apply'
+                ? 'degree_subpages.admission.apply.button'
+                : 'degree_subpages.admission.apply.button_info',
+              { host: hostOf(link.url) }
+            )}
+            <ArrowUpRight aria-hidden="true" className="size-3.5" />
+          </a>
+        )}
+      </div>
+    </div>
+  )
+}
+
+export function StatusLine({
+  route,
+  next,
+  className = 'mb-3'
 }: {
   route: AdmissionRouteView
   next: AdmissionRoundView | undefined
+  className?: string
 }) {
   const { t } = useTranslation('browse')
   const lang = useLang()
@@ -216,7 +397,8 @@ function StatusLine({
     // Body text with a dot for the state, like the rest of the page (no box)
     <p
       className={cn(
-        'mb-3 flex items-baseline gap-2',
+        'flex items-baseline gap-2',
+        className,
         tone === 'closed' && 'text-muted-foreground'
       )}
     >

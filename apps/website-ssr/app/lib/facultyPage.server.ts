@@ -3,10 +3,12 @@ import type { DegreeType, Faculty } from '@uni-feedback/db/schema'
 import { getCurrentSchoolYear } from '@uni-feedback/utils'
 import { and, eq, isNotNull, sql } from 'drizzle-orm'
 import { redirect } from 'react-router'
+import { hasAdmissionsPage } from '~/components/faculty/admissionsContent'
 import type {
   DegreeAdmissionSummary,
   DegreeFeeSummary,
   DegreePathway,
+  FacultyAdmissionsPageData,
   FacultyCampus,
   FacultyCourseStat,
   FacultyDegree,
@@ -34,6 +36,7 @@ import {
   type ContentLang,
   type Localized
 } from '~/utils/localizedContent'
+import { lisbonToday, loadFacultyApply } from './admissionRoutes.server'
 import { loadOfficialLinks } from './entityLinks.server'
 
 /**
@@ -486,7 +489,8 @@ export async function loadFacultyHub(
     feedbackCount,
     intro,
     links,
-    hasFeesPage
+    hasFeesPage,
+    apply
   ] = await Promise.all([
     loadUniversity(db, faculty.universityId, lang),
     loadDegrees(db, faculty.id, lang),
@@ -494,7 +498,8 @@ export async function loadFacultyHub(
     countFeedback(db, faculty.id),
     loadIntro(db, faculty.id, lang),
     loadOfficialLinks('faculty', faculty.id),
-    hasCurrentFees(db, faculty.id)
+    hasCurrentFees(db, faculty.id),
+    loadFacultyApply(db, faculty.id, lang, lisbonToday())
   ])
 
   // Entry summary over the licenciaturas (CNA)
@@ -557,7 +562,8 @@ export async function loadFacultyHub(
     intro,
     isMostlyFallback: isMostlyFallback([intro]),
     links,
-    hasFeesPage
+    hasFeesPage,
+    apply: hasAdmissionsPage(apply) ? apply : null
   }
 }
 
@@ -567,13 +573,14 @@ export async function loadFacultyTypePage(
   lang: Lang
 ): Promise<FacultyTypePageData> {
   const db = database()
-  const [university, allDegrees, campuses, highlights, hasFeesPage] =
+  const [university, allDegrees, campuses, highlights, hasFeesPage, apply] =
     await Promise.all([
       loadUniversity(db, faculty.universityId, lang),
       loadDegrees(db, faculty.id, lang),
       loadCampuses(db, faculty.id),
       loadHighlights(db, faculty.id, [type]),
-      hasCurrentFees(db, faculty.id)
+      hasCurrentFees(db, faculty.id),
+      loadFacultyApply(db, faculty.id, lang, lisbonToday())
     ])
   const degrees = allDegrees.filter((d) => d.type === type)
   const ids = degrees.map((d) => d.id)
@@ -613,7 +620,8 @@ export async function loadFacultyTypePage(
     firstYear,
     pathways,
     otherTypes,
-    hasFeesPage
+    hasFeesPage,
+    hasAdmissionsPage: hasAdmissionsPage(apply)
   }
 }
 
@@ -630,11 +638,43 @@ export async function loadFacultyFeesPage(
   lang: Lang
 ): Promise<FacultyFeesPageData> {
   const db = database()
-  const schoolYear = getCurrentSchoolYear()
-  const [university, allDegrees] = await Promise.all([
+  const [university, allDegrees, apply] = await Promise.all([
     loadUniversity(db, faculty.universityId, lang),
-    loadDegrees(db, faculty.id, lang)
+    loadDegrees(db, faculty.id, lang),
+    loadFacultyApply(db, faculty.id, lang, lisbonToday())
   ])
+  return {
+    university,
+    ...(await loadFeesTable(db, allDegrees, lang)),
+    types: [...new Set(allDegrees.map((d) => d.type))],
+    hasAdmissionsPage: hasAdmissionsPage(apply),
+    // Each type's first section on the candidaturas page (sections are in
+    // type order, so a licenciatura's is the Concurso Nacional)
+    admissionsSections: hasAdmissionsPage(apply)
+      ? Object.fromEntries(
+          [...apply.sections]
+            .reverse()
+            .flatMap((s) => s.types.map((type) => [type, s.id]))
+        )
+      : {}
+  }
+}
+
+/**
+ * This school year's and next year's fee of every listed degree of a type with
+ * fees: the propinas page's table, and the candidaturas page's per-route line
+ */
+async function loadFeesTable(
+  db: Db,
+  allDegrees: FacultyDegree[],
+  lang: Lang
+): Promise<
+  Pick<
+    FacultyFeesPageData,
+    'schoolYear' | 'degrees' | 'sourceUrls' | 'fetchedAt'
+  >
+> {
+  const schoolYear = getCurrentSchoolYear()
   const isFeeType = (type: DegreeType): type is FeePageType =>
     (FEE_PAGE_TYPES as readonly DegreeType[]).includes(type)
   const degrees = allDegrees.flatMap((d) =>
@@ -710,13 +750,37 @@ export async function loadFacultyFeesPage(
     )
 
   return {
-    university,
     schoolYear,
     degrees: pageDegrees,
     sourceUrls: [...sourceCounts.entries()]
       .sort((a, b) => b[1] - a[1])
       .map(([url]) => url),
-    fetchedAt: fetchedAt?.toISOString() ?? null,
-    types: [...new Set(allDegrees.map((d) => d.type))]
+    fetchedAt: fetchedAt?.toISOString() ?? null
+  }
+}
+
+/**
+ * The Candidaturas page (`/:facultySlug/candidaturas`): how and when to apply
+ * to every listed degree, one section per shared route
+ * (prds/content_rich_pages.md, "Candidaturas at the faculty level").
+ */
+export async function loadFacultyAdmissionsPage(
+  faculty: Faculty,
+  lang: Lang
+): Promise<FacultyAdmissionsPageData> {
+  const db = database()
+  const [university, allDegrees, hasFeesPage, apply] = await Promise.all([
+    loadUniversity(db, faculty.universityId, lang),
+    loadDegrees(db, faculty.id, lang),
+    hasCurrentFees(db, faculty.id),
+    loadFacultyApply(db, faculty.id, lang, lisbonToday())
+  ])
+  const fees = await loadFeesTable(db, allDegrees, lang)
+  return {
+    ...apply,
+    university,
+    types: [...new Set(allDegrees.map((d) => d.type))],
+    hasFeesPage,
+    fees: { schoolYear: fees.schoolYear, degrees: fees.degrees }
   }
 }

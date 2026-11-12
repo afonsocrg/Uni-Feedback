@@ -8,7 +8,11 @@ import { Link } from 'react-router'
 import { useLang } from '~/hooks'
 import { analytics } from '~/utils/analytics'
 import { getFacultyTypePath, isFacultyTypePage } from '~/utils/facultyTypePages'
-import { getFacultyFeesPath, getUniversityPath } from '~/utils/i18n-routes'
+import {
+  getFacultyAdmissionsPath,
+  getFacultyFeesPath,
+  getUniversityPath
+} from '~/utils/i18n-routes'
 import { LocalizedText } from '../common/LocalizedText'
 import { OfficialLinks } from '../common/OfficialLinks'
 import { ToggleChip } from '../common/ToggleChip'
@@ -16,10 +20,17 @@ import type { FaqItem } from '../degree/content'
 import {
   formatGrade,
   formatInt,
+  formatIsoDay,
   formatNumber,
   formatSchoolYear
 } from '../degree/content'
 import { FaqSection, SectionShell } from '../degree/DegreeSections'
+import {
+  applySectionLabel,
+  applyStatus,
+  applyStatusShort
+} from './admissionsContent'
+import { StatusDot } from './FacultyAdmissionsPageContent'
 import { FacultyPageShell } from './FacultyPageShell'
 import {
   ArrowLink,
@@ -128,6 +139,17 @@ export function FacultyHubContent({
       href: getFacultyTypePath(lang, facultySlug, type),
       target: 'type_page' as const
     })),
+    ...(data.apply
+      ? [
+          {
+            key: 'admissions',
+            kicker: t('faculty_admissions.related.kicker'),
+            label: t('faculty_admissions.related.label'),
+            href: getFacultyAdmissionsPath(lang, facultySlug),
+            target: 'admissions_page' as const
+          }
+        ]
+      : []),
     ...(data.hasFeesPage
       ? [
           {
@@ -143,8 +165,21 @@ export function FacultyHubContent({
       : [])
   ]
 
+  // Routes with a round open today: the banner under the intro
+  const openSections = (data.apply?.sections ?? []).filter(
+    (s) => applyStatus(s.view).status === 'open'
+  )
+
   const sections = [
     { id: 'cursos', label: t('faculty_hub.sections.courses') },
+    ...(data.apply
+      ? [
+          {
+            id: 'candidaturas',
+            label: t('faculty_admissions.hub.section_title')
+          }
+        ]
+      : []),
     ...(data.campuses.length > 0
       ? [
           {
@@ -197,11 +232,47 @@ export function FacultyHubContent({
       }
       sections={sections}
       degreeCount={degrees.length}
+      applicationsOpen={openSections.length > 0}
     >
       {data.intro && (
         <SectionShell id="sobre" first>
           <LocalizedText text={data.intro} />
         </SectionShell>
+      )}
+
+      {openSections.length > 0 && (
+        <div className="mb-8 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2 rounded-lg border border-border px-4 py-3">
+          <p className="flex items-baseline gap-2">
+            <StatusDot status="open" />
+            <span>
+              <b className="font-semibold">
+                {t('faculty_admissions.hub.banner_title')}
+              </b>
+              {': '}
+              {openSections
+                .map((s) => {
+                  const closesOn = applyStatus(s.view).next?.closesOn
+                  const label = applySectionLabel(t, s)
+                  return closesOn
+                    ? t('faculty_admissions.hub.banner_item', {
+                        label,
+                        date: formatIsoDay(closesOn, lang)
+                      })
+                    : label
+                })
+                .join('; ')}
+              .
+            </span>
+          </p>
+          <Link
+            to={getFacultyAdmissionsPath(lang, facultySlug)}
+            onClick={() => trackFacultyLink(track, 'admissions_page', 'banner')}
+            className="inline-flex shrink-0 items-center gap-1 font-semibold text-primaryBlue hover:underline"
+          >
+            {t('faculty_admissions.hub.banner_link')}
+            <ArrowRight aria-hidden="true" className="size-4" />
+          </Link>
+        </div>
       )}
 
       <SectionShell
@@ -296,6 +367,49 @@ export function FacultyHubContent({
           )
         })}
       </SectionShell>
+
+      {data.apply && (
+        <SectionShell
+          id="candidaturas"
+          title={t('faculty_admissions.hub.section_title')}
+        >
+          <ul className="divide-y divide-border">
+            {data.apply.sections.map((s) => (
+              <li
+                key={s.id}
+                className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-0.5 py-2"
+              >
+                <Link
+                  to={getFacultyAdmissionsPath(lang, facultySlug, s.id)}
+                  onClick={() =>
+                    trackFacultyLink(
+                      track,
+                      'admissions_page',
+                      'admissions_section'
+                    )
+                  }
+                  className="text-foreground hover:text-primaryBlue hover:underline"
+                >
+                  {applySectionLabel(t, s)}
+                </Link>
+                <span className="flex items-baseline gap-2 text-sm text-muted-foreground">
+                  <StatusDot status={applyStatus(s.view).status} />
+                  {applyStatusShort(t, lang, s.view) ??
+                    t('faculty_admissions.status.guide_only')}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <ArrowLink
+            to={getFacultyAdmissionsPath(lang, facultySlug)}
+            onClick={() =>
+              trackFacultyLink(track, 'admissions_page', 'admissions_section')
+            }
+          >
+            {t('faculty_admissions.hub.section_link')}
+          </ArrowLink>
+        </SectionShell>
+      )}
 
       {data.campuses.length > 0 && (
         <CampusesSection

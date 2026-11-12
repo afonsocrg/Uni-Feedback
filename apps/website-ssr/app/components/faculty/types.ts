@@ -1,5 +1,6 @@
 import type { DegreeType, EntityLinkKind } from '@uni-feedback/db/schema'
 import type { Localized } from '~/utils/localizedContent'
+import type { FacultyApplyData } from './admissionsContent'
 
 /** Shapes of the faculty hub and type pages (loaded in lib/facultyPage.server.ts) */
 
@@ -125,6 +126,11 @@ export interface FacultyHubData {
   admissionSummary: FacultyAdmissionSummary | null
   /** This year's fees exist: link the propinas page */
   hasFeesPage: boolean
+  /**
+   * How to apply, per shared route, when the faculty has a Candidaturas page:
+   * the hub's banner (a round open) and its Candidaturas section
+   */
+  apply: FacultyApplyData | null
 }
 
 /** The degree types the propinas page lists (minors have no fee of their own) */
@@ -171,6 +177,10 @@ export interface FacultyFeesPageData {
   fetchedAt: string | null
   /** The faculty's degree types, for links to their pages */
   types: DegreeType[]
+  /** The faculty has a Candidaturas page: link it */
+  hasAdmissionsPage: boolean
+  /** Per degree type, its section there (`mestrados`), linked under its table */
+  admissionsSections: Partial<Record<DegreeType, string>>
 }
 
 export interface FacultyTypePageData {
@@ -184,4 +194,16 @@ export interface FacultyTypePageData {
   otherTypes: DegreeType[]
   /** This year's fees exist: link the propinas page */
   hasFeesPage: boolean
+  /** The faculty has a Candidaturas page: link it */
+  hasAdmissionsPage: boolean
+}
+
+/** The Candidaturas page (`/:facultySlug/candidaturas`) */
+export interface FacultyAdmissionsPageData extends FacultyApplyData {
+  university: FacultyUniversity | null
+  /** The faculty's degree types, for links to their pages */
+  types: DegreeType[]
+  hasFeesPage: boolean
+  /** Each degree's fee (the propinas page's table), for a line per route */
+  fees: Pick<FacultyFeesPageData, 'schoolYear' | 'degrees'>
 }
