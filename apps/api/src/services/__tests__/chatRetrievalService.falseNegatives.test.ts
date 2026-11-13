@@ -253,6 +253,39 @@ describe('ChatRetrievalService: entity resolution must not report false negative
         expect(workloadLabel(5)).toBe('very light')
       })
     })
+
+    // Production, 2026-10-27 (chat 23): get_course returned 3.5 next to its
+    // label, the student described the scale the wrong way round, and the model
+    // answered "3,5/5" on the student's scale. Any 1-5 is ambiguous, so the
+    // model only ever sees the label.
+    it('never hands the model a workload number, only the label', async () => {
+      await withTestDb(async () => {
+        const { leic, ams } = await seed()
+        await createApprovedFeedback(ams.id, {
+          workloadRating: 1,
+          comment: 'Muito trabalho.'
+        })
+        await getTestDb()
+          .update(courseStats)
+          .set({ averageWorkload: 1.4, totalFeedbackCount: 1 })
+          .where(eq(courseStats.courseId, ams.id))
+
+        const course = await service.getCourse(ams.id)
+        expect(course?.workloadLabel).toBe('very heavy')
+
+        const outputs = {
+          search: await service.searchCourses({ query: 'AMS' }),
+          ranked: await service.searchCourses({ sort: 'heaviest_workload' }),
+          course,
+          reviews: await service.getCourseReviews({ courseId: ams.id }),
+          degree: await service.getDegree({ degreeId: leic.id }),
+          groups: await service.getCourseGroups({ degreeId: leic.id })
+        }
+        const json = JSON.stringify(outputs)
+        expect(json).toContain('very heavy')
+        expect(json).not.toMatch(/averageWorkload|workloadRating/)
+      })
+    })
   })
 
   describe('ECTS and degree level filters', () => {

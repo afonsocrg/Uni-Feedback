@@ -150,9 +150,11 @@ function unaccented(value: string) {
  * The workload scale is INVERTED: 1 is the heaviest, 5 is the lightest
  * (`getWorkloadLabel` in packages/utils/src/workload.ts).
  *
- * Every workload number this service returns is paired with a label, because a
- * bare "2" reads as "light" to anything not told the scale runs backwards, and
- * the answer then comes out exactly wrong. The spike shipped that bug once.
+ * Workload numbers never leave this service: every result carries the label
+ * only. Any 1-5 is ambiguous (is 5 "very heavy" or "very good"?). The spike read
+ * a bare "2" as light, and in production (chat 23, 2026-10-27) the model took a
+ * student's own, wrong scale over ours and answered "3,5/5" on it, with the
+ * label right next to the number. Numbers stay internal: sorting, aggregating.
  */
 export function workloadLabel(rating: number | null): string | null {
   if (rating === null || rating === undefined) return null
@@ -553,14 +555,14 @@ export class ChatRetrievalService {
    */
   private async collapseIdenticalCourses(rows: CourseRow[]) {
     const decorate = (
-      { lastTaughtYear, ...row }: CourseRow,
+      { lastTaughtYear, averageWorkload, ...row }: CourseRow,
       alsoInDegrees: string[]
     ) => ({
       ...row,
       lastTaughtSchoolYear: lastTaughtSchoolYear(lastTaughtYear),
       reviewCount: row.reviewCount ?? 0,
       hasDescription: Boolean(row.hasDescription),
-      workloadLabel: workloadLabel(row.averageWorkload),
+      workloadLabel: workloadLabel(averageWorkload),
       alsoInDegrees,
       pageUrl: courseUrl(row.courseId)
     })
@@ -721,7 +723,7 @@ export class ChatRetrievalService {
       .where(eq(courseGroupsCourses.courseId, courseId))
       .orderBy(asc(courseGroup.name))
 
-    const { lastTaughtYear, ...rest } = row
+    const { lastTaughtYear, averageWorkload, ...rest } = row
     return {
       ...rest,
       lastTaughtSchoolYear: lastTaughtSchoolYear(lastTaughtYear),
@@ -729,7 +731,7 @@ export class ChatRetrievalService {
       assessment: truncate(row.assessment, MAX_TEXT_FIELD_CHARS),
       bibliography: truncate(row.bibliography, 400),
       reviewCount: row.reviewCount ?? 0,
-      workloadLabel: workloadLabel(row.averageWorkload),
+      workloadLabel: workloadLabel(averageWorkload),
       commentedReviewCount: Number(counts?.commented ?? 0),
       offerings,
       groups: groups.map((g) => g.name),
@@ -818,10 +820,10 @@ export class ChatRetrievalService {
         reviews: Number(y.reviews),
         withComment: Number(y.withComment)
       })),
-      reviews: rows.map((r) => ({
+      reviews: rows.map(({ workloadRating, ...r }) => ({
         ...r,
         schoolYear: schoolYearLabel(r.schoolYear),
-        workloadLabel: workloadLabel(r.workloadRating),
+        workloadLabel: workloadLabel(workloadRating),
         comment: truncate(r.comment, MAX_REVIEW_CHARS)
       }))
     }
@@ -1132,11 +1134,11 @@ export class ChatRetrievalService {
         name,
         courseCount
       })),
-      curriculum: [...byCourse.values()].map((c) => ({
+      curriculum: [...byCourse.values()].map(({ averageWorkload, ...c }) => ({
         ...c,
         groups: groupsByCourse.get(c.courseId) ?? [],
         reviewCount: c.reviewCount ?? 0,
-        workloadLabel: workloadLabel(c.averageWorkload)
+        workloadLabel: workloadLabel(averageWorkload)
       }))
     }
   }

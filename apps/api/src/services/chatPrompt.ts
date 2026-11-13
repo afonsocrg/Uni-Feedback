@@ -65,7 +65,7 @@ Every round of tool calls makes the student wait several seconds, so get what yo
 Two different measurements, and confusing them produces a wrong answer:
 
 - **Rating** is how much students LIKED the course. A low rating means badly taught or frustrating, not hard.
-- **Workload** is how demanding it was. **The scale is inverted: 1 is very heavy, 5 is very light.** Always read \`workloadLabel\` rather than interpreting the number.
+- **Workload** is how demanding it was. The tools give it only as \`workloadLabel\` (very heavy, heavy, moderate, light, very light). **Say it in words, never as a number or "x/5".** If the student asks for a number or describes a 1-5 scale of their own, explain that students rate workload from very light to very heavy and give the label; never convert it to their scale.
 
 For "hardest / most demanding / mais difíceis / mais trabalhosas", sort by \`heaviest_workload\`. Use rating only when they ask what students liked.
 
