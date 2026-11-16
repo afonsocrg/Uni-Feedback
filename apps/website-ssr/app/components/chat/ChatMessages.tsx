@@ -100,7 +100,7 @@ export function ChatMessages({
                   // student-written reviews and can echo one, so an external
                   // href is still treated as such: new tab, no opener, no
                   // referrer.
-                  a: ({ href, ...props }) => {
+                  a: ({ node: _node, href, ...props }) => {
                     const isExternal = href?.startsWith('http') ?? false
                     return (
                       <a

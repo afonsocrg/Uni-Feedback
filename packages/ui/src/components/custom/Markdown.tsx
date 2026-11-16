@@ -61,7 +61,7 @@ const sanitizeSchema = {
 }
 
 const defaultComponents: Components = {
-  a: ({ ...props }) => {
+  a: ({ node: _node, ...props }) => {
     const href = props.href
     const isExternal = href?.startsWith('http') || href?.startsWith('www.')
 
@@ -77,31 +77,35 @@ const defaultComponents: Components = {
       />
     )
   },
-  h1: ({ ...props }) => (
+  h1: ({ node: _node, ...props }) => (
     <h1 {...props} className="text-2xl font-bold text-foreground mt-4 mb-4" />
   ),
-  h2: ({ ...props }) => (
+  h2: ({ node: _node, ...props }) => (
     <h2 {...props} className="text-xl font-bold text-foreground mt-3 mb-3" />
   ),
-  h3: ({ ...props }) => (
+  h3: ({ node: _node, ...props }) => (
     <h3 {...props} className="text-lg font-bold text-foreground mt-2 mb-2" />
   ),
-  ul: ({ ...props }) => (
+  ul: ({ node: _node, ...props }) => (
     <ul {...props} className="list-disc pl-6 space-y-1 my-2" />
   ),
-  ol: ({ ...props }) => (
+  ol: ({ node: _node, ...props }) => (
     <ol {...props} className="list-decimal pl-6 space-y-1 my-2" />
   ),
-  li: ({ ...props }) => <li {...props} className="text-muted-foreground" />,
-  p: ({ ...props }) => <p {...props} className="mb-2" />,
+  li: ({ node: _node, ...props }) => (
+    <li {...props} className="text-muted-foreground" />
+  ),
+  p: ({ node: _node, ...props }) => <p {...props} className="mb-2" />,
   hr: () => <hr className="my-6 border-t-2 border-border rounded-full" />,
-  pre: ({ ...props }) => (
+  pre: ({ node: _node, ...props }) => (
     <pre
       {...props}
       className="my-2 overflow-x-auto whitespace-pre-wrap break-words"
     />
   ),
-  code: ({ ...props }) => <code {...props} className="break-words" />
+  code: ({ node: _node, ...props }) => (
+    <code {...props} className="break-words" />
+  )
 }
 
 export function Markdown({
