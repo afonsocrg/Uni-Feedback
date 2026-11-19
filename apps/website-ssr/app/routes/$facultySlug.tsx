@@ -1,3 +1,4 @@
+import type { ShouldRevalidateFunctionArgs } from 'react-router'
 import { FacultyHubContent } from '~/components/faculty/FacultyHubContent'
 import { findFaculty, loadFacultyHub } from '~/lib/facultyPage.server'
 
@@ -104,6 +105,18 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     hub,
     origin: getRequestOrigin(request)
   }
+}
+
+// Picking a degree-type chip only changes `?type=`: the hub data is the same,
+// so don't refetch it.
+export function shouldRevalidate({
+  currentUrl,
+  nextUrl,
+  formMethod,
+  defaultShouldRevalidate
+}: ShouldRevalidateFunctionArgs) {
+  if (!formMethod && currentUrl.pathname === nextUrl.pathname) return false
+  return defaultShouldRevalidate
 }
 
 export default function FacultyPage({ loaderData }: Route.ComponentProps) {

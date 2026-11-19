@@ -2,9 +2,9 @@ import type { DegreeType, Faculty } from '@uni-feedback/db/schema'
 import { DEGREE_TYPES } from '@uni-feedback/db/schema'
 import { getCurrentSchoolYear } from '@uni-feedback/utils'
 import { ArrowRight } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router'
+import { Link, useSearchParams } from 'react-router'
 import { useLang } from '~/hooks'
 import { analytics } from '~/utils/analytics'
 import { getFacultyTypePath, isFacultyTypePage } from '~/utils/facultyTypePages'
@@ -53,6 +53,9 @@ import type { FacultyDegree, FacultyHubData } from './types'
  */
 const MAX_TYPE_DEGREES = 8
 
+/** Query param holding the selected degree-type chip on the hub */
+export const TYPE_PARAM = 'type'
+
 /**
  * The faculty hub (`/ist`), prds/content_rich_pages.md "Faculty": what the
  * faculty is, then the degree table (what students come for), one table per
@@ -80,8 +83,25 @@ export function FacultyHubContent({
     () => DEGREE_TYPES.filter((type) => degrees.some((d) => d.type === type)),
     [degrees]
   )
-  const [selectedType, setSelectedType] = useState<DegreeType | null>(null)
-  const activeType = selectedType ?? types[0] ?? null
+  // The chip lives in the URL (`/ist?type=minor`), not in state: it survives
+  // the back button from a degree, renders on the server (no flash of the
+  // first type) and can be shared. The first type is the default, so it has
+  // no param. A query, not a path: `/ist/minors` is the full type page.
+  const [searchParams, setSearchParams] = useSearchParams()
+  const typeParam = searchParams.get(TYPE_PARAM)
+  const activeType =
+    types.find((type) => type === typeParam) ?? types[0] ?? null
+  const selectType = (type: DegreeType) => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev)
+        if (type === types[0]) next.delete(TYPE_PARAM)
+        else next.set(TYPE_PARAM, type)
+        return next
+      },
+      { replace: true, preventScrollReset: true }
+    )
+  }
 
   const count = (type: DegreeType) =>
     degrees.filter((d) => d.type === type).length
@@ -288,7 +308,7 @@ export function FacultyHubContent({
                 label={`${t(`degree_types.${type}`)} (${count(type)})`}
                 isActive={type === activeType}
                 onClick={() => {
-                  setSelectedType(type)
+                  selectType(type)
                   analytics.faculty.degreeTypeSelected({ facultySlug, type })
                 }}
               />
