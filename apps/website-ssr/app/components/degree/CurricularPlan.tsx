@@ -517,9 +517,13 @@ export function CurricularPlan({
             ) : (
               <div className={rowClass}>{content}</div>
             )}
-            {/* The row itself unfolds: its description and options, indented */}
-            {isPool && isOpen && (
-              <div className="pb-2 pl-4">
+            {/* The row itself unfolds: its description and options, indented.
+                Rendered closed too, only hidden, so search engines read the
+                options (people search a degree's "opções"); once per pool, in
+                its first year, as FLUL's Estudos Gerais repeats 1,300 options
+                over several years */}
+            {isPool && (isOpen || year === item.yearFrom) && (
+              <div className={cn('pb-2 pl-4', !isOpen && 'hidden')}>
                 {item.description && (
                   <div className="pb-1 text-xs text-muted-foreground">
                     <Markdown>{item.description}</Markdown>
@@ -601,27 +605,31 @@ export function CurricularPlan({
         key={key}
         className={cn('border-t border-border py-3', i === 0 && 'border-t-0')}
       >
-        <button
-          type="button"
-          aria-expanded={isOpen}
-          onClick={() => toggleYear(row)}
-          className="flex w-full cursor-pointer items-baseline justify-between gap-3 text-left"
-        >
-          {/* Chevron first, like every other row that opens */}
-          <span className="flex items-center gap-1 text-base font-semibold text-foreground">
-            <ChevronRight
-              aria-hidden="true"
-              className={cn(
-                'size-4 shrink-0 text-muted-foreground transition-transform',
-                isOpen && 'rotate-90'
-              )}
-            />
-            {yearLabel(row)}
-          </span>
-          <span className="text-xs tabular-nums text-muted-foreground">
-            {yearEcts(row)}
-          </span>
-        </button>
+        {/* A heading per year, so the plan reads as an outline to search
+            engines ("1.º ano", "2.º ano") under the section's h2 */}
+        <h3>
+          <button
+            type="button"
+            aria-expanded={isOpen}
+            onClick={() => toggleYear(row)}
+            className="flex w-full cursor-pointer items-baseline justify-between gap-3 text-left"
+          >
+            {/* Chevron first, like every other row that opens */}
+            <span className="flex items-center gap-1 text-base font-semibold text-foreground">
+              <ChevronRight
+                aria-hidden="true"
+                className={cn(
+                  'size-4 shrink-0 text-muted-foreground transition-transform',
+                  isOpen && 'rotate-90'
+                )}
+              />
+              {yearLabel(row)}
+            </span>
+            <span className="text-xs tabular-nums text-muted-foreground">
+              {yearEcts(row)}
+            </span>
+          </button>
+        </h3>
         <div className={cn('mt-3 min-w-0', !isOpen && 'hidden')}>
           {useLanes && (
             <div className="flex flex-col gap-8 md:flex-row md:gap-6">
@@ -1017,38 +1025,40 @@ function EntryList<T extends PlanEntry>({
                   {group.label}
                 </li>
               ))}
-            {isOpen &&
-              group.entries.map((entry, i) => {
-                const ects = entry.ects ?? entry.course?.ects ?? null
-                return (
-                  <li
-                    key={i}
-                    className={cn(
-                      'grid items-baseline gap-3 border-b border-border py-1.5 last:border-b-0',
-                      // Inside a folded group: indented under its name
-                      folds && group.label && 'pl-4',
-                      compact
-                        ? 'grid-cols-[minmax(0,1fr)_auto]'
-                        : 'grid-cols-[4.5rem_minmax(0,1fr)_auto]'
-                    )}
-                  >
-                    {!compact && (
-                      <span className="truncate font-mono text-xs text-muted-foreground">
-                        {entry.course?.acronym ?? ''}
-                      </span>
-                    )}
-                    <EntryName
-                      entry={entry}
-                      onCourseClick={onCourseClick}
-                      note={noteOf?.(entry)}
-                    />
-                    <span className="whitespace-nowrap text-xs tabular-nums text-muted-foreground">
-                      {ects !== null &&
-                        t('degree_page.plan.ects', { value: fmt(ects) })}
+            {/* A folded group's courses are in the page, only hidden, for
+                search engines */}
+            {group.entries.map((entry, i) => {
+              const ects = entry.ects ?? entry.course?.ects ?? null
+              return (
+                <li
+                  key={i}
+                  className={cn(
+                    'grid items-baseline gap-3 border-b border-border py-1.5 last:border-b-0',
+                    !isOpen && 'hidden',
+                    // Inside a folded group: indented under its name
+                    folds && group.label && 'pl-4',
+                    compact
+                      ? 'grid-cols-[minmax(0,1fr)_auto]'
+                      : 'grid-cols-[4.5rem_minmax(0,1fr)_auto]'
+                  )}
+                >
+                  {!compact && (
+                    <span className="truncate font-mono text-xs text-muted-foreground">
+                      {entry.course?.acronym ?? ''}
                     </span>
-                  </li>
-                )
-              })}
+                  )}
+                  <EntryName
+                    entry={entry}
+                    onCourseClick={onCourseClick}
+                    note={noteOf?.(entry)}
+                  />
+                  <span className="whitespace-nowrap text-xs tabular-nums text-muted-foreground">
+                    {ects !== null &&
+                      t('degree_page.plan.ects', { value: fmt(ects) })}
+                  </span>
+                </li>
+              )
+            })}
           </Fragment>
         )
       })}
@@ -1197,89 +1207,88 @@ function Tracks({
                 </span>
               </button>
             </h3>
-            {isKindOpen && (
-              <div className="pb-3 pl-4">
-                {/* The rule over the tracks, under the first kind (it covers all) */}
-                {rules && ki === 0 && (
-                  <div className="pb-2 text-sm text-muted-foreground">
-                    <Markdown>{rules}</Markdown>
-                  </div>
-                )}
-                <ul className="border-t border-border">
-                  {tracks
-                    .filter((track) => track.kind === kind)
-                    .map((track) => {
-                      const isOpen = open === track.id
-                      return (
-                        <li key={track.id} className="border-b border-border">
-                          <button
-                            type="button"
-                            aria-expanded={isOpen}
-                            onClick={() => {
-                              setOpen(isOpen ? null : track.id)
-                              if (!isOpen) onOpen(track)
-                            }}
-                            className="grid w-full cursor-pointer grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-0.5 py-2.5 text-left"
-                          >
-                            <span className="flex items-center gap-1 text-sm font-semibold text-foreground">
-                              <ChevronRight
-                                aria-hidden="true"
-                                className={cn(
-                                  'size-3.5 shrink-0 text-muted-foreground transition-transform',
-                                  isOpen && 'rotate-90'
-                                )}
-                              />
-                              {track.name}
+            {/* Closed kinds and tracks are hidden, not left out: their names,
+                rules and courses stay in the page for search engines
+                (people search a degree's Minors and areas) */}
+            <div className={cn('pb-3 pl-4', !isKindOpen && 'hidden')}>
+              {/* The rule over the tracks, under the first kind (it covers all) */}
+              {rules && ki === 0 && (
+                <div className="pb-2 text-sm text-muted-foreground">
+                  <Markdown>{rules}</Markdown>
+                </div>
+              )}
+              <ul className="border-t border-border">
+                {tracks
+                  .filter((track) => track.kind === kind)
+                  .map((track) => {
+                    const isOpen = open === track.id
+                    return (
+                      <li key={track.id} className="border-b border-border">
+                        <button
+                          type="button"
+                          aria-expanded={isOpen}
+                          onClick={() => {
+                            setOpen(isOpen ? null : track.id)
+                            if (!isOpen) onOpen(track)
+                          }}
+                          className="grid w-full cursor-pointer grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-0.5 py-2.5 text-left"
+                        >
+                          <span className="flex items-center gap-1 text-sm font-semibold text-foreground">
+                            <ChevronRight
+                              aria-hidden="true"
+                              className={cn(
+                                'size-3.5 shrink-0 text-muted-foreground transition-transform',
+                                isOpen && 'rotate-90'
+                              )}
+                            />
+                            {track.name}
+                          </span>
+                          <span className="whitespace-nowrap text-xs tabular-nums text-muted-foreground">
+                            {meta(track)}
+                          </span>
+                          {track.description && !isOpen && (
+                            <span className="col-span-2 line-clamp-1 text-sm text-muted-foreground">
+                              {plainText(track.description)}
                             </span>
-                            <span className="whitespace-nowrap text-xs tabular-nums text-muted-foreground">
-                              {meta(track)}
-                            </span>
-                            {track.description && !isOpen && (
-                              <span className="col-span-2 line-clamp-1 text-sm text-muted-foreground">
-                                {plainText(track.description)}
-                              </span>
-                            )}
-                          </button>
-                          {isOpen && (
-                            <div className="space-y-2 pb-3">
-                              {track.description && (
-                                <div className="text-sm text-muted-foreground">
-                                  <Markdown>{track.description}</Markdown>
-                                </div>
-                              )}
-                              {track.rules && (
-                                <div className="text-sm text-foreground">
-                                  <Markdown>{track.rules}</Markdown>
-                                </div>
-                              )}
-                              {track.courses.length > 0 && (
-                                <EntryList
-                                  entries={track.courses}
-                                  fmt={fmt}
-                                  onCourseClick={onCourseClick}
-                                  onGroupToggle={onGroupToggle}
-                                  // Same rows as the plan's own lists
-                                  compact
-                                  noteOf={
-                                    marksMandatory(track)
-                                      ? (entry) =>
-                                          entry.isMandatory
-                                            ? t(
-                                                'degree_page.plan.track_mandatory'
-                                              )
-                                            : null
-                                      : undefined
-                                  }
-                                />
-                              )}
+                          )}
+                        </button>
+                        <div
+                          className={cn('space-y-2 pb-3', !isOpen && 'hidden')}
+                        >
+                          {track.description && (
+                            <div className="text-sm text-muted-foreground">
+                              <Markdown>{track.description}</Markdown>
                             </div>
                           )}
-                        </li>
-                      )
-                    })}
-                </ul>
-              </div>
-            )}
+                          {track.rules && (
+                            <div className="text-sm text-foreground">
+                              <Markdown>{track.rules}</Markdown>
+                            </div>
+                          )}
+                          {track.courses.length > 0 && (
+                            <EntryList
+                              entries={track.courses}
+                              fmt={fmt}
+                              onCourseClick={onCourseClick}
+                              onGroupToggle={onGroupToggle}
+                              // Same rows as the plan's own lists
+                              compact
+                              noteOf={
+                                marksMandatory(track)
+                                  ? (entry) =>
+                                      entry.isMandatory
+                                        ? t('degree_page.plan.track_mandatory')
+                                        : null
+                                  : undefined
+                              }
+                            />
+                          )}
+                        </div>
+                      </li>
+                    )
+                  })}
+              </ul>
+            </div>
           </div>
         )
       })}
