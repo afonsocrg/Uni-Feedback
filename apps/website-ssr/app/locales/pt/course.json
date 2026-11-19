@@ -38,7 +38,8 @@
     "pre_mepp": "Pré-MEPP",
     "ratings_only_show_one": "Ver mais {{count}} avaliação sem comentário",
     "ratings_only_show_other": "Ver mais {{count}} avaliações sem comentário",
-    "ratings_only_hide": "Esconder avaliações sem comentário"
+    "ratings_only_hide": "Esconder avaliações sem comentário",
+    "show_all_feedback": "Ver todo o feedback ({{count}})"
   },
   "description": {
     "no_content": "Ainda não temos uma descrição para esta cadeira.",

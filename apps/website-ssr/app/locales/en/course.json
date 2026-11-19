@@ -38,7 +38,8 @@
     "pre_mepp": "Pre-MEPP",
     "ratings_only_show_one": "Show {{count}} more rating without a comment",
     "ratings_only_show_other": "Show {{count}} more ratings without a comment",
-    "ratings_only_hide": "Hide ratings without a comment"
+    "ratings_only_hide": "Hide ratings without a comment",
+    "show_all_feedback": "Show all feedback ({{count}})"
   },
   "description": {
     "no_content": "We don't have a description for this course yet.",

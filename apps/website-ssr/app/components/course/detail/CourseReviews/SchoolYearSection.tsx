@@ -5,9 +5,9 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CoursePageFeedbackCard } from '~/components'
 import type { CourseFeedback } from '~/components/feedback/cards/CoursePageFeedbackCard'
-import { hasText } from '~/lib/textUtils'
 import { cn } from '~/utils'
 import { analytics } from '~/utils/analytics'
+import { splitYearFeedback } from './splitYearFeedback'
 
 interface SchoolYearSectionProps {
   courseId: number
@@ -20,27 +20,31 @@ interface SchoolYearSectionProps {
    * nothing to read.
    */
   collapseRatingsOnly?: boolean
+  /**
+   * How many of the cards shown by default stay visible; the rest are rendered
+   * hidden (still in the HTML, for search engines) and so is the rating-only
+   * toggle. Unset shows the whole year. See `CourseReviewsContent`.
+   */
+  visibleCount?: number
 }
 
 const firstMEPPYear = 2021
-
-// A year with only a handful of rating-only feedbacks shows them inline: a
-// toggle hiding two or three cards costs more attention than the cards do.
-const ratingsOnlyCollapseThreshold = 5
-
 export function SchoolYearSection({
   courseId,
   schoolYear,
   feedback,
-  collapseRatingsOnly = true
+  collapseRatingsOnly = true,
+  visibleCount
 }: SchoolYearSectionProps) {
   const { t } = useTranslation('course')
   const [isExpanded, setIsExpanded] = useState(false)
 
-  const commented = feedback.filter((f) => hasText(f.comment))
-  const ratingsOnly = feedback.filter((f) => !hasText(f.comment))
-  const shouldCollapse =
-    collapseRatingsOnly && ratingsOnly.length > ratingsOnlyCollapseThreshold
+  const { ratingsOnly, shouldCollapse, shownByDefault } = splitYearFeedback(
+    feedback,
+    collapseRatingsOnly
+  )
+  const isTruncated =
+    visibleCount !== undefined && visibleCount < shownByDefault.length
 
   // Permalinks to rating-only feedback predate this collapse, and the card can
   // only scroll itself into view once it is mounted.
@@ -72,12 +76,22 @@ export function SchoolYearSection({
         )}
       </div>
       <div className="space-y-4">
-        {commented.map((f) => (
-          <CoursePageFeedbackCard key={f.id} feedback={f} />
-        ))}
+        {/* Rating-only cards are in `shownByDefault` only when they are not
+            behind the toggle, so they count against `visibleCount` after the
+            commented ones, in render order. */}
+        {shownByDefault.map((f, index) => {
+          const hidden = isTruncated && index >= visibleCount
+          return (
+            // Keyed on `hidden` so a card remounts when revealed: its
+            // permalink effect can only scroll to it once it is displayed.
+            <div key={`${f.id}:${hidden}`} className={cn(hidden && 'hidden')}>
+              <CoursePageFeedbackCard feedback={f} />
+            </div>
+          )
+        })}
 
         {/* Kept above the expanded cards so the button does not move when clicked. */}
-        {shouldCollapse && (
+        {shouldCollapse && !isTruncated && (
           <button
             type="button"
             onClick={handleToggle}
@@ -100,7 +114,8 @@ export function SchoolYearSection({
           </button>
         )}
 
-        {(!shouldCollapse || isExpanded) &&
+        {shouldCollapse &&
+          isExpanded &&
           ratingsOnly.map((f) => (
             <CoursePageFeedbackCard key={f.id} feedback={f} />
           ))}

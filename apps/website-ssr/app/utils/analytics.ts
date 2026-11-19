@@ -1439,6 +1439,24 @@ export const analytics = {
     sectionViewed: (props: { courseId: number; section: CourseSectionId }) =>
       trackEvent('course_section_viewed', props),
 
+    /**
+     * The "Ver todo o feedback" button scrolled into view, once per page view.
+     * Only courses with more feedback than the preview show it, so this, not
+     * `course_page_viewed`, is the denominator for `feedbackExpanded`.
+     */
+    feedbackMoreViewed: (props: {
+      courseId: number
+      shownCount: number
+      totalCount: number
+    }) => trackEvent('course_feedback_more_viewed', props),
+
+    /** The student opened the full feedback list past the preview */
+    feedbackExpanded: (props: {
+      courseId: number
+      shownCount: number
+      totalCount: number
+    }) => trackEvent('course_feedback_expanded', props),
+
     tocClicked: (props: {
       courseId: number
       section: CourseSectionId
