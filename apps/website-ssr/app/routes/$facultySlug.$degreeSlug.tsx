@@ -17,6 +17,7 @@ import {
   loadDegreeCourses
 } from '~/lib/degreeCourses.server'
 import { loadDegreePageExtras } from '~/lib/degreePage.server'
+import { loadDegreePlan } from '~/lib/degreePlan.server'
 import { userPreferences } from '~/utils'
 import { breadcrumbJsonLd, buildCrumbs } from '~/utils/breadcrumbs'
 
@@ -270,7 +271,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     )
     .orderBy(asc(schema.degreeFaqs.position))
 
-  const [courses, academicTerms, details, extras, curatedFaq] =
+  const [courses, academicTerms, details, extras, curatedFaq, plan] =
     await Promise.all([
       loadDegreeCourses(degree.id, detectLang(new URL(request.url).pathname)),
       loadAcademicTerms(faculty.id),
@@ -280,7 +281,10 @@ export async function loader({ params, request }: Route.LoaderArgs) {
         faculty.universityId,
         detectLang(new URL(request.url).pathname)
       ),
-      curatedFaqQuery
+      curatedFaqQuery,
+      // The curricular plan (0064), when the degree has one; else the page
+      // keeps the summary built from course offerings
+      loadDegreePlan(degree.id, detectLang(new URL(request.url).pathname))
     ])
 
   return {
@@ -297,6 +301,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     academicTerms,
     extras,
     curatedFaq,
+    plan,
     origin: getRequestOrigin(request)
   }
 }
@@ -330,6 +335,7 @@ export default function DegreePage({ loaderData }: Route.ComponentProps) {
       academicTerms={loaderData.academicTerms}
       extras={loaderData.extras}
       curatedFaq={loaderData.curatedFaq}
+      plan={loaderData.plan}
     />
   )
 }

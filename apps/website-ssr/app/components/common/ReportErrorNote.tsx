@@ -18,6 +18,7 @@ export function ReportErrorNote({
   degreeSlug,
   align = 'center',
   text,
+  linkText,
   size = 'sm'
 }: {
   surface: ErrorReportSurface
@@ -29,6 +30,8 @@ export function ReportErrorNote({
   align?: 'center' | 'left'
   /** The question before the link, when the default ("Encontraste algum erro?") is too vague */
   text?: string
+  /** The link, when the default ("Avisa-nos") doesn't fit the question */
+  linkText?: string
   /** 'xs' next to a source line, in its size */
   size?: 'sm' | 'xs'
 }) {
@@ -56,7 +59,7 @@ export function ReportErrorNote({
         onClick={handleClick}
         className="text-muted-foreground underline underline-offset-2 transition-colors hover:text-foreground"
       >
-        {t('report_error.link')}
+        {linkText ?? t('report_error.link')}
       </a>
     </p>
   )

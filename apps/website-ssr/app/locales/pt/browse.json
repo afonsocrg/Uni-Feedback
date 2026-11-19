@@ -234,7 +234,8 @@
       "link": "Pergunta ao nosso chat",
       "heaviest_year": "Qual é o ano mais pesado de {{acronym}}?",
       "hardest_course": "Qual é a cadeira mais difícil de {{acronym}}?",
-      "best_courses": "Que cadeiras de {{acronym}} têm melhor feedback?"
+      "best_courses": "Que cadeiras de {{acronym}} têm melhor feedback?",
+      "plan_question": "Dúvidas sobre o plano?"
     },
     "faq": {
       "last_grade_q": "Qual foi a nota do último colocado em {{acronym}}?",
@@ -269,6 +270,40 @@
       "question": "Tens outra pergunta?",
       "chat": "Pergunta ao nosso chat",
       "contact": "Pergunta-nos"
+    },
+    "plan": {
+      "version_label": "Versão do plano",
+      "year_one": "{{year}}.º ano",
+      "year_or": "{{from}}.º ou {{to}}.º ano",
+      "year_range": "{{from}}.º a {{to}}.º ano",
+      "year_three": "{{a}}.º, {{b}}.º ou {{c}}.º ano",
+      "year_and": "{{from}}.º e {{to}}.º ano",
+      "year_three_and": "{{a}}.º, {{b}}.º e {{c}}.º ano",
+      "no_fixed_term": "Sem semestre fixo",
+      "ects": "{{value}} ECTS",
+      "ects_up_to": "até {{value}} ECTS",
+      "pool_one_of": "1 de {{count}}",
+      "pool_courses_one": "{{value}} cadeira",
+      "pool_courses_other": "{{value}} cadeiras",
+      "pool_options_title": "Opções",
+      "pool_options_unknown": "A lista de opções é publicada pela faculdade.",
+      "pool_close": "Fechar",
+      "tracks_kind": {
+        "specialization": "Áreas de especialização",
+        "secondary": "Áreas secundárias",
+        "major": "Majors",
+        "minor": "Minors",
+        "path": "Percursos"
+      },
+      "track_courses_one": "{{count}} cadeira",
+      "track_courses_other": "{{count}} cadeiras",
+      "track_min_courses_one": "mín. {{count}} cadeira",
+      "track_min_courses_other": "mín. {{count}} cadeiras",
+      "track_min_ects": "mín. {{value}} ECTS",
+      "track_mandatory": "obrigatória",
+      "source": "Fonte",
+      "correction_text": "Algo errado?",
+      "correction_link": "Sugerir correção"
     }
   },
   "faculty_page": {

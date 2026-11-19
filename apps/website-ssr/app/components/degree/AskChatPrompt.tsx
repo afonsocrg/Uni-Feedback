@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { useAuth, useLang, useShowChatEntryPoints } from '~/hooks'
+import { cn } from '~/utils'
 import { analytics, type DegreeSectionId } from '~/utils/analytics'
 import { getLocalePath } from '~/utils/i18n-routes'
 import type { ChatPrefillState } from '../chat/AskChatInput'
@@ -9,6 +10,8 @@ export type DegreePromptTemplate =
   | 'heaviest_year'
   | 'hardest_course'
   | 'best_courses'
+  /** Under a curricular plan: an invitation, not a question (nothing prefilled) */
+  | 'plan_question'
 
 /**
  * "Qual é o ano mais pesado de LEIC? Pergunta ao nosso chat": a question the chat can
@@ -25,13 +28,23 @@ export function AskChatPrompt({
   question,
   degreeId,
   scopeLabel,
-  section
+  section,
+  prefill = true,
+  className
 }: {
   template: DegreePromptTemplate
   question: string
   degreeId: number
   scopeLabel: string
   section: DegreeSectionId
+  /**
+   * Send `question` to the chat as the student's first message. Off for an
+   * open invitation ("Tens alguma pergunta sobre este plano curricular?"):
+   * the chat opens on the degree with an empty box.
+   */
+  prefill?: boolean
+  /** Replaces the default top margin (mt-4) */
+  className?: string
 }) {
   const { t } = useTranslation('browse')
   const lang = useLang()
@@ -49,7 +62,7 @@ export function AskChatPrompt({
   const href = `${getLocalePath('chat', lang)}?${params.toString()}`
 
   return (
-    <p className="mt-4 text-sm text-muted-foreground">
+    <p className={cn('text-sm text-muted-foreground', className ?? 'mt-4')}>
       {question}{' '}
       <a
         href={href}
@@ -62,7 +75,7 @@ export function AskChatPrompt({
             isAuthenticated
           })
           const state: ChatPrefillState = { question }
-          navigate(href, { state })
+          navigate(href, prefill ? { state } : undefined)
         }}
         className="font-semibold text-primaryBlue hover:underline"
       >

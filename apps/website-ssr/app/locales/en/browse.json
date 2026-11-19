@@ -234,7 +234,8 @@
       "link": "Ask our chat",
       "heaviest_year": "Which year of {{acronym}} is the heaviest?",
       "hardest_course": "Which {{acronym}} course is the hardest?",
-      "best_courses": "Which {{acronym}} courses get the best reviews?"
+      "best_courses": "Which {{acronym}} courses get the best reviews?",
+      "plan_question": "Questions about the plan?"
     },
     "faq": {
       "last_grade_q": "What was the last admitted grade for {{acronym}}?",
@@ -269,6 +270,40 @@
       "question": "Have another question?",
       "chat": "Ask our chat",
       "contact": "Ask us"
+    },
+    "plan": {
+      "version_label": "Plan version",
+      "year_one": "Year {{year}}",
+      "year_or": "Year {{from}} or {{to}}",
+      "year_range": "Years {{from}} to {{to}}",
+      "year_three": "Year {{a}}, {{b}} or {{c}}",
+      "year_and": "Years {{from}} and {{to}}",
+      "year_three_and": "Years {{a}}, {{b}} and {{c}}",
+      "no_fixed_term": "No fixed semester",
+      "ects": "{{value}} ECTS",
+      "ects_up_to": "up to {{value}} ECTS",
+      "pool_one_of": "1 of {{count}}",
+      "pool_courses_one": "{{value}} course",
+      "pool_courses_other": "{{value}} courses",
+      "pool_options_title": "Options",
+      "pool_options_unknown": "The faculty publishes the list of options.",
+      "pool_close": "Close",
+      "tracks_kind": {
+        "specialization": "Specialization areas",
+        "secondary": "Secondary areas",
+        "major": "Majors",
+        "minor": "Minors",
+        "path": "Paths"
+      },
+      "track_courses_one": "{{count}} course",
+      "track_courses_other": "{{count}} courses",
+      "track_min_courses_one": "min. {{count}} course",
+      "track_min_courses_other": "min. {{count}} courses",
+      "track_min_ects": "min. {{value}} ECTS",
+      "track_mandatory": "compulsory",
+      "source": "Source",
+      "correction_text": "Something wrong?",
+      "correction_link": "Suggest a correction"
     }
   },
   "faculty_page": {

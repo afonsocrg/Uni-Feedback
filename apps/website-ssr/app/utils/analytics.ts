@@ -146,6 +146,8 @@ export type ErrorReportSurface =
   | 'degree_admission'
   | 'degree_outcomes'
   | 'degree_page'
+  /** Under the curricular plan, which anyone can correct */
+  | 'degree_plan'
   | 'degree_courses_page'
   | 'degree_admission_page'
   /** The "Como candidatar-se" section: rounds, requirements, apply links */
@@ -888,6 +890,11 @@ export const analytics = {
       pastCourseCount: number
       /** The sections this page rendered (v2), so reach can be read per section */
       sections: DegreeSectionId[]
+      /**
+       * The "plano" section drew the degree's curricular plan (0064) rather
+       * than the summary built from offerings. Added 2026-11-15.
+       */
+      hasPlan: boolean
     }) => trackEvent('degree_page_viewed', props),
 
     /**
@@ -939,6 +946,87 @@ export const analytics = {
       degreeSlug: string
       curriculumYear: number
     }) => trackEvent('degree_plan_year_selected', props),
+
+    /**
+     * Track a year of the curricular plan opened or closed. Years start
+     * collapsed, so `expanded: true` over `degree_page_viewed{hasPlan}` says how
+     * many come to the degree page for the plan, and `yearFrom` which years.
+     */
+    degreePlanYearToggled: (props: {
+      facultySlug: string
+      degreeSlug: string
+      yearFrom: number
+      yearTo: number
+      expanded: boolean
+    }) => trackEvent('degree_plan_year_toggled', props),
+
+    /**
+     * Track a pool of the curricular plan opened (a choice: electives, an area,
+     * a Major). Over `degree_page_viewed{hasPlan}` it says whether students look
+     * into the choices, and `label` which ones.
+     */
+    degreePlanPoolOpened: (props: {
+      facultySlug: string
+      degreeSlug: string
+      itemId: number
+      /** The year it was opened under (a pool open to several years shows in each) */
+      year: number
+      label: string
+      optionCount: number
+    }) => trackEvent('degree_plan_pool_opened', props),
+
+    /** Track a version picked in the plan's "Versão do plano" toggle (Nova SBE A/B, FDUL turmas). */
+    degreePlanVersionSelected: (props: {
+      facultySlug: string
+      degreeSlug: string
+      versionId: number
+      version: string
+    }) => trackEvent('degree_plan_version_selected', props),
+
+    /**
+     * Track a kind of track opened under the plan ("› Áreas de especialização
+     * (15)"). They start collapsed, so this says whether the areas, Majors or
+     * paths are worth the space on the degree page.
+     */
+    degreePlanTracksToggled: (props: {
+      facultySlug: string
+      degreeSlug: string
+      kind: string
+      expanded: boolean
+    }) => trackEvent('degree_plan_tracks_toggled', props),
+
+    /**
+     * Track a group folded or unfolded inside a long option list (a pool's options,
+     * or a track's courses, past 20 entries: FLUL's Opções by Major and Minor).
+     */
+    degreePlanOptionGroupToggled: (props: {
+      facultySlug: string
+      degreeSlug: string
+      surface: 'pool' | 'track'
+      group: string
+      expanded: boolean
+    }) => trackEvent('degree_plan_option_group_toggled', props),
+
+    /** Track a track (specialization, Major, Minor, path) opened under the plan. */
+    degreePlanTrackOpened: (props: {
+      facultySlug: string
+      degreeSlug: string
+      trackId: number
+      kind: string
+      track: string
+    }) => trackEvent('degree_plan_track_opened', props),
+
+    /**
+     * Track a course clicked in the curricular plan, the plan's way into a
+     * course page. `surface`: a block of the grid, a pool's list, or a track's
+     * course list.
+     */
+    degreePlanCourseClicked: (props: {
+      facultySlug: string
+      degreeSlug: string
+      courseId: number
+      surface: 'block' | 'pool_option' | 'track'
+    }) => trackEvent('degree_plan_course_clicked', props),
 
     /**
      * Track a load of a degree's course browser (`/:faculty/:degree/cadeiras`).
@@ -1655,7 +1743,11 @@ export const analytics = {
      */
     degreePromptClicked: (props: {
       degreeId: number
-      template: 'heaviest_year' | 'hardest_course' | 'best_courses'
+      template:
+        | 'heaviest_year'
+        | 'hardest_course'
+        | 'best_courses'
+        | 'plan_question'
       section: DegreeSectionId
       isAuthenticated: boolean
     }) => trackEvent('chat_degree_prompt_clicked', props),

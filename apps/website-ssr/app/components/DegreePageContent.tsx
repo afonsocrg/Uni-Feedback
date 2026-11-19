@@ -3,6 +3,7 @@ import { getCurrentSchoolYear, isDiscontinued } from '@uni-feedback/utils'
 import { useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLang, useWorkloadLabel } from '~/hooks'
+import type { DegreePlanData } from '~/lib/degreePlan.server'
 import { analytics, type DegreeSectionId } from '~/utils/analytics'
 import type { CrumbUniversity } from '~/utils/breadcrumbs'
 import {
@@ -25,6 +26,7 @@ import {
   mergeFaq,
   type CuratedFaq
 } from './degree/content'
+import { CurricularPlan, PlanCoursesLink } from './degree/CurricularPlan'
 import { DegreePlanSummary } from './degree/DegreePlanSummary'
 import {
   AboutSection,
@@ -56,6 +58,8 @@ interface DegreePageContentProps {
   extras: DegreePageExtras
   /** Reviewed `degree_faqs` rows in the page's language, by position */
   curatedFaq: CuratedFaq[]
+  /** The degree's curricular plan (0064); null keeps the offerings summary */
+  plan: DegreePlanData | null
 }
 
 /** Types whose admission goes through the Concurso Nacional (DGES) */
@@ -85,7 +89,8 @@ export function DegreePageContent({
   courses,
   academicTerms,
   extras,
-  curatedFaq
+  curatedFaq,
+  plan: curricularPlan
 }: DegreePageContentProps) {
   const { t } = useTranslation('browse')
   const lang = useLang()
@@ -199,7 +204,8 @@ export function DegreePageContent({
       degreeSlug: degree.slug,
       courseCount: offeredCourses.length,
       pastCourseCount: pastCourses.length,
-      sections: tocSectionsRef.current.map((section) => section.id)
+      sections: tocSectionsRef.current.map((section) => section.id),
+      hasPlan: curricularPlan !== null
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [faculty.slug, degree.slug])
@@ -218,23 +224,48 @@ export function DegreePageContent({
 
   const plan = (
     <>
-      <DegreePlanSummary
-        offeredCourses={offeredCourses}
-        academicTerms={academicTerms}
-        hasPastCourses={pastCourses.length > 0}
-        track={track}
-        coursesPath={coursesPath}
-      />
-      {totalFeedback > 0 && (
+      {curricularPlan ? (
+        <CurricularPlan
+          plan={curricularPlan}
+          academicTerms={academicTerms}
+          degreeEcts={degree.ects ?? null}
+          track={track}
+        />
+      ) : (
+        <DegreePlanSummary
+          offeredCourses={offeredCourses}
+          academicTerms={academicTerms}
+          hasPastCourses={pastCourses.length > 0}
+          track={track}
+          coursesPath={coursesPath}
+        />
+      )}
+      {/* Under a plan, an open invitation about the plan; under the
+          offerings summary, the question about the best courses */}
+      {curricularPlan ? (
         <AskChatPrompt
-          template="best_courses"
+          template="plan_question"
           section="plano"
-          question={t('degree_page.ask.best_courses', {
-            acronym: degree.acronym
-          })}
+          // Right under the plan's "Algo errado? Sugerir correção": the two
+          // short help lines read as one group
+          className="mt-1.5"
+          question={t('degree_page.ask.plan_question')}
+          prefill={false}
           degreeId={degree.id}
           scopeLabel={scopeLabel}
         />
+      ) : (
+        totalFeedback > 0 && (
+          <AskChatPrompt
+            template="best_courses"
+            section="plano"
+            question={t('degree_page.ask.best_courses', {
+              acronym: degree.acronym
+            })}
+            degreeId={degree.id}
+            scopeLabel={scopeLabel}
+          />
+        )
       )}
     </>
   )
@@ -280,6 +311,13 @@ export function DegreePageContent({
               id="plano"
               title={t('degree_page.sections.plan')}
               first={!about}
+              // With a plan, "Todas as cadeiras" sits on the title's line; the
+              // summary keeps it beside its year chips
+              action={
+                curricularPlan && coursesPath ? (
+                  <PlanCoursesLink coursesPath={coursesPath} track={track} />
+                ) : undefined
+              }
             >
               {plan}
             </SectionShell>

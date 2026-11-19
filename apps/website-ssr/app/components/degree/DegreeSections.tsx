@@ -27,7 +27,6 @@ import { campusAddress, CampusMap } from '../common/campusMap'
 import { ContributeNote } from '../common/ContributeNote'
 import { InfoPopover } from '../common/InfoPopover'
 import { PageHeading } from '../common/PageHeading'
-import { ReportErrorNote } from '../common/ReportErrorNote'
 import type { CourseWithFeedback } from '../course/types'
 import { AdmissionChart } from './AdmissionChart'
 import { AdmissionSummary, type MissingGrade } from './AdmissionSummary'
@@ -372,15 +371,6 @@ export function AboutSection({
           {expanded ? t('degree_page.show_less') : t('degree_page.show_more')}
         </button>
       )}
-      <div className="mt-4">
-        <ReportErrorNote
-          surface="degree_about"
-          align="left"
-          pageName={track.pageName}
-          facultySlug={track.facultySlug}
-          degreeSlug={track.degreeSlug}
-        />
-      </div>
     </SectionShell>
   )
 }
@@ -812,51 +802,41 @@ export function AdmissionSection({
           track={track}
         />
       )}
-      {/* One quiet line under the link: where the figures come from, and how to
-          report a wrong one */}
-      {(hasAdmission || fees) && (
+      {/* One quiet line under the link: where the figures come from. Errors are
+          reported once, in the page footer */}
+      {(hasAdmission || fees) && hasSource && (
         <div className="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-xs text-muted-foreground">
-          {hasSource && (
-            <p>
-              {t('degree_page.source_label')}{' '}
-              {admissions && showDgesSource && (
-                <>
-                  <SourceLink
-                    href={admissions.dgesUrl}
-                    source="dges"
-                    track={track}
-                  >
-                    {series.length > 1
-                      ? t('degree_page.admission.source_years', {
-                          from: series[0].year,
-                          to: series[series.length - 1].year
-                        })
-                      : t('degree_page.admission.source_dges')}
+          <p>
+            {t('degree_page.source_label')}{' '}
+            {admissions && showDgesSource && (
+              <>
+                <SourceLink
+                  href={admissions.dgesUrl}
+                  source="dges"
+                  track={track}
+                >
+                  {series.length > 1
+                    ? t('degree_page.admission.source_years', {
+                        from: series[0].year,
+                        to: series[series.length - 1].year
+                      })
+                    : t('degree_page.admission.source_dges')}
+                </SourceLink>
+                {feeSourceUrls.length > 0 && ' · '}
+              </>
+            )}
+            {fees &&
+              feeSourceUrls.map((url, i) => (
+                <span key={url}>
+                  {i > 0 && ' · '}
+                  <SourceLink href={url} source="fees" track={track}>
+                    {`${hostOf(url)}, ${t('degree_page.fees.source', {
+                      year: formatSchoolYear(fees.schoolYear)
+                    })}`}
                   </SourceLink>
-                  {feeSourceUrls.length > 0 && ' · '}
-                </>
-              )}
-              {fees &&
-                feeSourceUrls.map((url, i) => (
-                  <span key={url}>
-                    {i > 0 && ' · '}
-                    <SourceLink href={url} source="fees" track={track}>
-                      {`${hostOf(url)}, ${t('degree_page.fees.source', {
-                        year: formatSchoolYear(fees.schoolYear)
-                      })}`}
-                    </SourceLink>
-                  </span>
-                ))}
-            </p>
-          )}
-          <ReportErrorNote
-            surface="degree_admission"
-            align="left"
-            size="xs"
-            pageName={track.pageName}
-            facultySlug={track.facultySlug}
-            degreeSlug={track.degreeSlug}
-          />
+                </span>
+              ))}
+          </p>
         </div>
       )}
     </SectionShell>
@@ -1002,8 +982,7 @@ export function OutcomesSection({
           track={track}
         />
       )}
-      {/* As in Ingresso: the link first, then one quiet line with the source
-          and how to report a wrong figure */}
+      {/* As in Ingresso: the link first, then one quiet line with the source */}
       {outcomes && (
         <div className="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-xs text-muted-foreground">
           <p>
@@ -1016,14 +995,6 @@ export function OutcomesSection({
               {t('degree_page.outcomes.source', { edition: outcomes.edition })}
             </SourceLink>
           </p>
-          <ReportErrorNote
-            surface="degree_outcomes"
-            align="left"
-            size="xs"
-            pageName={track.pageName}
-            facultySlug={track.facultySlug}
-            degreeSlug={track.degreeSlug}
-          />
         </div>
       )}
     </SectionShell>
