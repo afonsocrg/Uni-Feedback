@@ -38,7 +38,7 @@
   "degree_page": {
     "search_placeholder": "Search by name or acronym...",
     "sort_label": "Sort By",
-    "sort_default": "Most reviews",
+    "sort_default": "Highest rated",
     "year_label": "Year",
     "year_option": "{{year}} year",
     "all_years": "All Years",
@@ -56,7 +56,6 @@
     "exam_optional": "Exam: Optional",
     "sort_highest_rating": "Highest rated",
     "sort_alphabetical": "By name",
-    "sort_most_reviews": "Most reviews",
     "sort_workload": "Lightest",
     "missing_course": "Missing a course?",
     "request_link": "Request it here",

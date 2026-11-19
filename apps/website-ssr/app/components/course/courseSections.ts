@@ -86,13 +86,23 @@ const byTerm = (a: TermLabel, b: TermLabel) =>
     ? a.startTick - b.startTick
     : b.endTick - a.endTick
 
+/**
+ * `reviews` (most feedback first) is no longer offered on the course browser,
+ * whose rows don't show the count; the degree page's plan summary still orders
+ * by it.
+ */
 export type SortOption = 'rating' | 'alphabetical' | 'reviews' | 'workload'
 
 export function compareCourses(sortBy: SortOption) {
   return (a: CourseWithFeedback, b: CourseWithFeedback) => {
     switch (sortBy) {
       case 'rating':
-        return Number(b.averageRating || 0) - Number(a.averageRating || 0)
+        // On a tie, the rating more students stand behind first: a 4.5 from
+        // thirty before a 4.5 from one (the count isn't shown, but it decides)
+        return (
+          Number(b.averageRating || 0) - Number(a.averageRating || 0) ||
+          Number(b.totalFeedbackCount || 0) - Number(a.totalFeedbackCount || 0)
+        )
       case 'alphabetical':
         return a.name.localeCompare(b.name)
       case 'reviews':

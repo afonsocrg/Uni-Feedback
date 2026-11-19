@@ -54,6 +54,9 @@ import {
   type TocSection
 } from './degree/scrollSpy'
 
+/** The sorts the browser offers (a saved one outside these is reset) */
+const SORT_VALUES: SortOption[] = ['rating', 'workload', 'alphabetical']
+
 const ADD_COURSE_FORM_URL =
   'https://docs.google.com/forms/d/e/1FAIpQLSd2FBk_hbv6v0iW-y8wtY6DL-fDIE_GlyA8rSkamSJJfCjCFQ/viewform'
 
@@ -106,7 +109,7 @@ export function DegreeCoursesBrowser({
     boolean | null
   >(null)
   const [courseTypeFilter, setCourseTypeFilter] = useState<boolean | null>(null)
-  const [sortBy, setSortBy] = useState<SortOption>('reviews')
+  const [sortBy, setSortBy] = useState<SortOption>('rating')
   // The plan-shaped listing's own state: the plan version shown (Nova SBE's
   // A/B) and a track narrowing it
   const [versionId, setVersionId] = useState<number | null>(
@@ -148,7 +151,13 @@ export function DegreeCoursesBrowser({
       setMandatoryExamFilter(savedFilters.hasMandatoryExam)
       // Filters saved before this option existed have no `isMandatory` key.
       setCourseTypeFilter(savedFilters.isMandatory ?? null)
-      setSortBy(savedFilters.sortBy as SortOption)
+      // A sort no longer offered ("most feedback", until 2026-11-19) falls
+      // back to the default
+      setSortBy(
+        SORT_VALUES.includes(savedFilters.sortBy as SortOption)
+          ? (savedFilters.sortBy as SortOption)
+          : 'rating'
+      )
       setSelectedTrackId(savedFilters.trackId ?? null)
       // Every year folded is a page that looks empty on return (a student
       // who folded each to skim the headings): that one isn't restored
@@ -334,12 +343,12 @@ export function DegreeCoursesBrowser({
     label: track.name
   }))
 
-  // The default first, then by how often students pick each (autocapture,
-  // Feb to Nov 2026: workload 137 picks, rating 114, by name 66)
+  // The default (rating) first, then by how often students pick each
+  // (autocapture, Feb to Nov 2026: workload 137 picks, by name 66). "Most
+  // feedback" went with the count on the rows.
   const sortOptions: { value: SortOption; label: string }[] = [
-    { value: 'reviews', label: t('degree_page.sort_most_reviews') },
-    { value: 'workload', label: t('degree_page.sort_workload') },
     { value: 'rating', label: t('degree_page.sort_highest_rating') },
+    { value: 'workload', label: t('degree_page.sort_workload') },
     { value: 'alphabetical', label: t('degree_page.sort_alphabetical') }
   ]
   const changeSort = (value: string) => {

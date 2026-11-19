@@ -38,7 +38,7 @@
   "degree_page": {
     "search_placeholder": "Pesquisar por nome ou sigla...",
     "sort_label": "Ordenar Por",
-    "sort_default": "Mais feedback",
+    "sort_default": "Melhor avaliadas",
     "year_label": "Ano",
     "year_option": "{{year}}.º ano",
     "all_years": "Todos os Anos",
@@ -56,7 +56,6 @@
     "exam_optional": "Exame: Facultativo",
     "sort_highest_rating": "Melhor avaliadas",
     "sort_alphabetical": "Por nome",
-    "sort_most_reviews": "Mais feedback",
     "sort_workload": "Mais leves",
     "missing_course": "Falta alguma cadeira?",
     "request_link": "Pede aqui",
