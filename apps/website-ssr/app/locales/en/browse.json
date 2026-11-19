@@ -211,9 +211,7 @@
     },
     "campus": {
       "map": "See on the map",
-      "missing": "We don't know which campus this degree is taught on yet.",
-      "language_missing": "Teaching language: unknown.",
-      "schedule_missing": "Schedule: unknown."
+      "missing_list": "Still missing: {{fields}}."
     },
     "contribute": {
       "link": "Know this? Help us fill it in",

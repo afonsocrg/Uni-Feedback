@@ -211,9 +211,7 @@
     },
     "campus": {
       "map": "Ver no mapa",
-      "missing": "Ainda não sabemos em que campus o curso é lecionado.",
-      "language_missing": "Língua de ensino: sem informação.",
-      "schedule_missing": "Horário: sem informação."
+      "missing_list": "Ainda sem informação: {{fields}}."
     },
     "contribute": {
       "link": "Sabes isto? Ajuda-nos a completar",

@@ -784,9 +784,12 @@ export const analytics = {
      * Track a click on "Sabes isto? Ajuda-nos a completar" next to a fact the
      * degree page has no value for (a mailto, like `error_report_clicked`).
      * Only intent. `field` says which gaps students can actually fill.
+     * When one note covers several gaps (the degree page's campus section),
+     * `fields` lists them all and `field` is the first.
      */
     missingInfoClicked: (props: {
       field: MissingInfoField
+      fields: MissingInfoField[]
       facultySlug: string | null
       degreeSlug: string | null
     }) => trackEvent('missing_info_clicked', props)

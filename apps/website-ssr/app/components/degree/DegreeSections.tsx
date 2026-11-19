@@ -14,7 +14,8 @@ import {
   analytics,
   getPageName,
   type DegreeSectionId,
-  type DegreeSourceLink
+  type DegreeSourceLink,
+  type MissingInfoField
 } from '~/utils/analytics'
 import {
   getCoursePath,
@@ -1134,6 +1135,15 @@ export function CampusSection({
   track: DegreeTrack
 }) {
   const { t } = useTranslation('browse')
+  const lang = useLang()
+  /** Every gap in the section, named together under one prompt */
+  const missing: MissingInfoField[] = showContribute
+    ? [
+        ...(campuses.length === 0 ? (['campus'] as const) : []),
+        ...(!degree.teachingLanguage ? (['teaching_language'] as const) : []),
+        ...(!degree.schedule ? (['schedule'] as const) : [])
+      ]
+    : []
 
   return (
     <SectionShell id="campus" title={t('degree_page.sections.campus')}>
@@ -1173,32 +1183,18 @@ export function CampusSection({
           onDirections={() => trackSource(track, 'campus_map')}
           onWebsite={() => trackSource(track, 'campus_website')}
         />
-      ) : (
-        showContribute && (
-          <ContributeNote
-            field="campus"
-            text={t('degree_page.campus.missing')}
-            pageName={track.pageName}
-            facultySlug={track.facultySlug}
-            degreeSlug={track.degreeSlug}
-          />
-        )
-      )}
-      {showContribute && !degree.teachingLanguage && (
+      ) : null}
+      {missing.length > 0 && (
         <ContributeNote
-          className="mt-3"
-          field="teaching_language"
-          text={t('degree_page.campus.language_missing')}
-          pageName={track.pageName}
-          facultySlug={track.facultySlug}
-          degreeSlug={track.degreeSlug}
-        />
-      )}
-      {showContribute && !degree.schedule && (
-        <ContributeNote
-          className="mt-1"
-          field="schedule"
-          text={t('degree_page.campus.schedule_missing')}
+          className={campuses.length > 0 ? 'mt-3' : undefined}
+          field={missing}
+          text={t('degree_page.campus.missing_list', {
+            fields: new Intl.ListFormat(lang, {
+              type: 'conjunction'
+            }).format(
+              missing.map((f) => t(`degree_page.contribute.field.${f}`))
+            )
+          })}
           pageName={track.pageName}
           facultySlug={track.facultySlug}
           degreeSlug={track.degreeSlug}

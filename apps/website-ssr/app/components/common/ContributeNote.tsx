@@ -7,7 +7,8 @@ import { ERROR_REPORT_EMAIL } from './ReportErrorNote'
  * have (prds/content_rich_pages.md, "Missing data invites contributions"). The
  * same mailto flow as `ReportErrorNote`, with the field named in the subject.
  * Very subtle on purpose: a gap is never filled with a placeholder, and the
- * prompt must not shout over the data that is there.
+ * prompt must not shout over the data that is there. Several gaps in one place
+ * share a single note: pass them all as `field`, and `text` lists them.
  */
 export function ContributeNote({
   field,
@@ -18,7 +19,8 @@ export function ContributeNote({
   className,
   linkText
 }: {
-  field: MissingInfoField
+  /** One gap, or several sharing this note (named together in the subject) */
+  field: MissingInfoField | MissingInfoField[]
   /** What is missing, said plainly ("Língua de ensino: sem informação.") */
   text?: string
   /** For the email subject ("LEIC-A (IST)") */
@@ -31,15 +33,20 @@ export function ContributeNote({
 }) {
   const { t } = useTranslation('browse')
 
+  const fields = Array.isArray(field) ? field : [field]
+
   const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     const subject = t('degree_page.contribute.subject', {
       name: pageName,
-      field: t(`degree_page.contribute.field.${field}`)
+      field: fields
+        .map((f) => t(`degree_page.contribute.field.${f}`))
+        .join(', ')
     })
     const body = t('degree_page.contribute.body', { url: window.location.href })
     event.currentTarget.href = `mailto:${ERROR_REPORT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
     analytics.correction.missingInfoClicked({
-      field,
+      field: fields[0],
+      fields,
       facultySlug: facultySlug ?? null,
       degreeSlug: degreeSlug ?? null
     })
