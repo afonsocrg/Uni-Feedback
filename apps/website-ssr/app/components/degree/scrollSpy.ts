@@ -18,7 +18,9 @@ export function useScrollSpy<Id extends string = DegreeSectionId>(
   sections: TocSection<Id>[],
   track: { facultySlug: string | null; degreeSlug: string | null },
   /** Pages other than the degree page track their own section views */
-  onSectionViewed?: (id: Id) => void
+  onSectionViewed?: (id: Id) => void,
+  /** Where "current" starts, for a page with more than the header stuck on top */
+  offset: number = SPY_OFFSET
 ): Id | null {
   const [current, setCurrent] = useState<Id | null>(sections[0]?.id ?? null)
   const viewed = useRef(new Set<Id>())
@@ -34,7 +36,7 @@ export function useScrollSpy<Id extends string = DegreeSectionId>(
         const el = document.getElementById(section.id)
         if (!el) continue
         const rect = el.getBoundingClientRect()
-        if (rect.top < SPY_OFFSET) active = section.id
+        if (rect.top < offset) active = section.id
         if (
           rect.top < window.innerHeight * 0.75 &&
           rect.bottom > 0 &&
@@ -75,7 +77,7 @@ export function useScrollSpy<Id extends string = DegreeSectionId>(
     }
     // `key` stands for `sections`, which is rebuilt on every render
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key, track.facultySlug, track.degreeSlug])
+  }, [key, track.facultySlug, track.degreeSlug, offset])
 
   return current
 }
@@ -86,4 +88,22 @@ export function scrollToSection(id: string) {
   if (!el) return
   el.scrollIntoView({ behavior: 'smooth', block: 'start' })
   history.replaceState(null, '', `#${id}`)
+}
+
+/**
+ * The height of the sticky site header, which differs by breakpoint, for
+ * anything that sticks right under it. Null until measured on the client.
+ */
+export function useHeaderHeight(): number | null {
+  const [height, setHeight] = useState<number | null>(null)
+  useEffect(() => {
+    const header = document.querySelector('header')
+    if (!header) return
+    const measure = () => setHeight(header.getBoundingClientRect().height)
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(header)
+    return () => observer.disconnect()
+  }, [])
+  return height
 }

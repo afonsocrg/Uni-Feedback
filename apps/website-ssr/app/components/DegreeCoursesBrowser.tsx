@@ -4,17 +4,25 @@ import {
   Accordion,
   AccordionContent,
   AccordionItem,
-  AccordionTrigger
+  AccordionTrigger,
+  Button,
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle
 } from '@uni-feedback/ui'
 import { isDiscontinued, toOrdinal } from '@uni-feedback/utils'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { SlidersHorizontal } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDebounce, useLang, useTermLabel } from '~/hooks'
-import { insensitiveMatch } from '~/utils'
+import { cn, insensitiveMatch } from '~/utils'
 import { analytics } from '~/utils/analytics'
 import { loadCourseFilters, saveCourseFilters } from '~/utils/filterStorage'
 import { AskChatButton } from './chat/AskChatButton'
-import { FilterChip } from './common/FilterChip'
+import { FilterChip, type FilterOption } from './common/FilterChip'
 import { FilterRow } from './common/FilterRow'
 import { MissingItemNote } from './common/MissingItemNote'
 import { SearchInput } from './common/SearchInput'
@@ -24,21 +32,33 @@ import {
   compareCourses,
   useAvailableCurriculumYears,
   useCourseSections,
+  yearAnchorId,
   type AcademicTermInfo,
   type CourseGroupWithIds,
   type SortOption
 } from './course/courseSections'
 import type { CourseWithFeedback } from './course/types'
+import {
+  scrollToSection,
+  useHeaderHeight,
+  useScrollSpy,
+  type TocSection
+} from './degree/scrollSpy'
 
 const ADD_COURSE_FORM_URL =
   'https://docs.google.com/forms/d/e/1FAIpQLSd2FBk_hbv6v0iW-y8wtY6DL-fDIE_GlyA8rSkamSJJfCjCFQ/viewform'
 
+/** Before the sticky bar is measured: header plus a two-row bar on a phone */
+const FALLBACK_STICKY_OFFSET = 180
+
 /**
- * The full course browser of a degree (`/:faculty/:degree/cadeiras`): search,
- * sort, one year at a time (or all), term, group, mandatory and exam filters,
- * persisted per degree (filterStorage), and the collapsed section of courses no
- * longer taught. This is the degree page's listing from before v2, moved here
- * when the degree page became "learn about the degree".
+ * The full course browser of a degree (`/:faculty/:degree/cadeiras`): every
+ * year listed in turn, with search, year tabs and the filters in a bar that
+ * sticks under the site header. The year tabs jump between years (and follow
+ * the scroll) rather than filter, so the whole plan stays one scroll. Term,
+ * group, mandatory and exam filters and the sort are persisted per degree
+ * (filterStorage); on phones they fold behind one button into a bottom sheet.
+ * Courses no longer taught sit in a collapsed section at the end.
  */
 export function DegreeCoursesBrowser({
   faculty,
@@ -57,10 +77,6 @@ export function DegreeCoursesBrowser({
   const lang = useLang()
   const termLabel = useTermLabel()
   const [searchQuery, setSearchQuery] = useState('')
-  // undefined = nothing chosen yet: the plan opens on its first year. null = all years.
-  const [selectedCurriculumYear, setSelectedCurriculumYear] = useState<
-    number | null | undefined
-  >(undefined)
   const [selectedTerm, setSelectedTerm] = useState<string | null>(null)
   const [selectedCourseGroupId, setSelectedCourseGroupId] = useState<
     number | null
@@ -70,6 +86,7 @@ export function DegreeCoursesBrowser({
   >(null)
   const [courseTypeFilter, setCourseTypeFilter] = useState<boolean | null>(null)
   const [sortBy, setSortBy] = useState<SortOption>('reviews')
+  const [filtersOpen, setFiltersOpen] = useState(false)
   // null until the student opens or closes it: the section then follows the
   // search, open while the query matches a course no longer taught
   const [pastExpandedByUser, setPastExpandedByUser] = useState<boolean | null>(
@@ -94,7 +111,6 @@ export function DegreeCoursesBrowser({
 
     const savedFilters = loadCourseFilters(faculty.slug, degree.slug)
     if (savedFilters) {
-      setSelectedCurriculumYear(savedFilters.curriculumYear ?? undefined)
       setSelectedTerm(savedFilters.term)
       setSelectedCourseGroupId(savedFilters.courseGroupId)
       setMandatoryExamFilter(savedFilters.hasMandatoryExam)
@@ -104,16 +120,17 @@ export function DegreeCoursesBrowser({
     }
 
     // A link from the degree page's plan summary ("N optativas no 3.º ano")
-    // names the year and course type to open on. It wins over the saved
-    // filters, and the term and group are cleared so the list isn't narrowed
-    // by a filter the link didn't ask for.
+    // names the year and course type to open on. The year is scrolled to, the
+    // type filters, and the term and group are cleared so the list isn't
+    // narrowed by a filter the link didn't ask for.
     const params = new URLSearchParams(window.location.search)
     const linkedYear = Number(params.get('year'))
     const linkedType = params.get('type')
     if (Number.isInteger(linkedYear) && linkedYear > 0) {
-      setSelectedCurriculumYear(linkedYear)
       setSelectedTerm(null)
       setSelectedCourseGroupId(null)
+      // After the cleared filters have re-rendered the listing
+      requestAnimationFrame(() => scrollToSection(yearAnchorId(linkedYear)))
     }
     if (linkedType === 'optional' || linkedType === 'mandatory') {
       setCourseTypeFilter(linkedType === 'mandatory')
@@ -125,7 +142,8 @@ export function DegreeCoursesBrowser({
     if (!faculty.slug || !degree.slug) return
 
     saveCourseFilters(faculty.slug, degree.slug, {
-      curriculumYear: selectedCurriculumYear ?? null,
+      // Years are no longer a filter: every year is listed
+      curriculumYear: null,
       term: selectedTerm,
       courseGroupId: selectedCourseGroupId,
       hasMandatoryExam: mandatoryExamFilter,
@@ -135,7 +153,6 @@ export function DegreeCoursesBrowser({
   }, [
     faculty.slug,
     degree.slug,
-    selectedCurriculumYear,
     selectedTerm,
     selectedCourseGroupId,
     mandatoryExamFilter,
@@ -143,7 +160,7 @@ export function DegreeCoursesBrowser({
     sortBy
   ])
 
-  // Available curriculum years for filtering (from offerings)
+  // Available curriculum years (from offerings), one tab each
   const availableCurriculumYears = useAvailableCurriculumYears(offeredCourses)
 
   // Available academic terms for filtering (from offerings), keyed by name
@@ -177,38 +194,33 @@ export function DegreeCoursesBrowser({
     [offeredCourses]
   )
 
-  const showCurriculumYearFilter = availableCurriculumYears.length > 1
+  const showYearTabs = availableCurriculumYears.length > 1
   const showTermFilter = availableTerms.length > 1
 
   // A hidden chip keeps whatever selection localStorage saved for this degree,
   // but must not filter on it: a value saved before the degree's data narrowed
   // to one answer would otherwise cut courses with no chip left to undo it.
-  // One year at a time (the first by default); a search looks across all years.
-  const shownCurriculumYear =
-    selectedCurriculumYear === undefined
-      ? (availableCurriculumYears[0] ?? null)
-      : selectedCurriculumYear
-  const activeCurriculumYear =
-    showCurriculumYearFilter && searchQuery.trim() === ''
-      ? shownCurriculumYear
-      : null
   // Same for a saved term the degree no longer has, e.g. one saved before the
   // faculty's terms were renamed ("1.º Semestre" to "S1").
   const activeTerm =
     showTermFilter && availableTerms.some((term) => term.name === selectedTerm)
       ? selectedTerm
       : null
+  const activeCourseGroupId = courseGroups.some(
+    (g) => g.id === selectedCourseGroupId
+  )
+    ? selectedCourseGroupId
+    : null
   const activeCourseType = showCourseTypeFilter ? courseTypeFilter : null
   const activeExamFilter = showExamFilter ? mandatoryExamFilter : null
+  const activeFilterCount = [
+    activeTerm,
+    activeCourseGroupId,
+    activeCourseType,
+    activeExamFilter
+  ].filter((value) => value !== null).length
 
   // Filter options
-  const curriculumYearOptions = availableCurriculumYears.map((year) => ({
-    value: year.toString(),
-    label: t('degree_page.year_option', {
-      year: lang === 'en' ? toOrdinal(year) : year
-    })
-  }))
-
   const termOptions = availableTerms.map((term) => ({
     value: term.name,
     label: termLabel(term, 'long')
@@ -236,8 +248,89 @@ export function DegreeCoursesBrowser({
     { value: 'workload', label: t('degree_page.sort_workload') }
   ]
 
+  // One setter per filter, shared by the desktop chips and the phone sheet
+  const changeCourseType = (value: string | null) => {
+    setCourseTypeFilter(value === null ? null : value === 'true')
+    if (value !== null) {
+      analytics.discovery.filterApplied({
+        filterType: 'is_mandatory',
+        filterValue: value === 'true' ? 'mandatory' : 'optional'
+      })
+    }
+  }
+  const changeCourseGroup = (value: string | null) =>
+    setSelectedCourseGroupId(value ? Number(value) : null)
+  const changeExam = (value: string | null) =>
+    setMandatoryExamFilter(value === null ? null : value === 'true')
+  const clearFilters = () => {
+    setSelectedTerm(null)
+    setSelectedCourseGroupId(null)
+    setCourseTypeFilter(null)
+    setMandatoryExamFilter(null)
+  }
+
+  // The filters in the order both surfaces show them, sort aside
+  const filters: {
+    key: string
+    label: string
+    options: FilterOption[]
+    selected: string | null
+    placeholder: string
+    onChange: (value: string | null) => void
+  }[] = [
+    ...(showTermFilter
+      ? [
+          {
+            key: 'term',
+            label: t('degree_page.term_label'),
+            options: termOptions,
+            selected: activeTerm,
+            placeholder: t('degree_page.all_terms'),
+            onChange: setSelectedTerm
+          }
+        ]
+      : []),
+    ...(courseGroupOptions.length > 0
+      ? [
+          {
+            key: 'group',
+            label: t('degree_page.group_label'),
+            options: courseGroupOptions,
+            selected: activeCourseGroupId?.toString() ?? null,
+            placeholder: t('degree_page.all_groups'),
+            onChange: changeCourseGroup
+          }
+        ]
+      : []),
+    ...(showCourseTypeFilter
+      ? [
+          {
+            key: 'type',
+            label: t('degree_page.mandatory_label'),
+            options: courseTypeOptions,
+            selected: activeCourseType?.toString() ?? null,
+            placeholder: t('degree_page.mandatory_any'),
+            onChange: changeCourseType
+          }
+        ]
+      : []),
+    ...(showExamFilter
+      ? [
+          {
+            key: 'exam',
+            label: t('degree_page.exam_label'),
+            options: examTypeOptions,
+            selected: activeExamFilter?.toString() ?? null,
+            placeholder: t('degree_page.exam_any'),
+            onChange: changeExam
+          }
+        ]
+      : [])
+  ]
+
   // Filtered courses based on search and filters
   const filteredCourses = useMemo(() => {
+    const group = courseGroups.find((g) => g.id === activeCourseGroupId)
     return offeredCourses
       .filter((course) => {
         const matchesSearch = insensitiveMatch(
@@ -245,21 +338,11 @@ export function DegreeCoursesBrowser({
           searchQuery
         )
 
-        const matchesCurriculumYear =
-          activeCurriculumYear === null ||
-          course.offerings.some(
-            (o) => o.curriculumYear === activeCurriculumYear
-          )
-
         const matchesTerm =
           !activeTerm ||
           course.offerings.some((o) => o.academicTerm.name === activeTerm)
 
-        const matchesCourseGroup =
-          !selectedCourseGroupId ||
-          courseGroups
-            .find((g) => g.id === selectedCourseGroupId)
-            ?.courseIds.includes(course.id)
+        const matchesCourseGroup = !group || group.courseIds.includes(course.id)
 
         const matchesMandatoryExam =
           activeExamFilter === null ||
@@ -270,7 +353,6 @@ export function DegreeCoursesBrowser({
 
         return (
           matchesSearch &&
-          matchesCurriculumYear &&
           matchesTerm &&
           matchesCourseGroup &&
           matchesMandatoryExam &&
@@ -281,9 +363,8 @@ export function DegreeCoursesBrowser({
   }, [
     offeredCourses,
     searchQuery,
-    activeCurriculumYear,
     activeTerm,
-    selectedCourseGroupId,
+    activeCourseGroupId,
     sortBy,
     courseGroups,
     activeExamFilter,
@@ -340,138 +421,227 @@ export function DegreeCoursesBrowser({
 
   const sections = useCourseSections(
     filteredCourses,
-    activeCurriculumYear,
+    null,
     activeTerm,
-    academicTerms
+    academicTerms,
+    { groupByYear: showYearTabs }
   )
 
+  // The years the listing shows right now: a search or a filter can empty one,
+  // and its tab then has nothing to jump to
+  const listedYears = new Set(
+    sections.flatMap((section) => (section.group ? [section.group.year] : []))
+  )
+  const yearTabs: TocSection<string>[] = availableCurriculumYears
+    .filter((year) => listedYears.has(year))
+    .map((year) => ({ id: yearAnchorId(year), label: '' }))
+
+  // The bar sticks under the site header; a year counts as current once its
+  // heading passes under the bar, and a jump lands its heading just below it
+  const headerHeight = useHeaderHeight()
+  const barRef = useRef<HTMLDivElement>(null)
+  const [barHeight, setBarHeight] = useState<number | null>(null)
+  useEffect(() => {
+    const bar = barRef.current
+    if (!bar) return
+    const measure = () => setBarHeight(bar.getBoundingClientRect().height)
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(bar)
+    return () => observer.disconnect()
+  }, [])
+  const stickyOffset =
+    headerHeight !== null && barHeight !== null
+      ? headerHeight + barHeight
+      : FALLBACK_STICKY_OFFSET
+  const currentYearId = useScrollSpy<string>(
+    yearTabs,
+    { facultySlug: faculty.slug, degreeSlug: degree.slug },
+    () => {},
+    stickyOffset + 24
+  )
+
+  const jumpToYear = (year: number) => {
+    scrollToSection(yearAnchorId(year))
+    if (faculty.slug && degree.slug) {
+      analytics.discovery.degreeCoursesYearJumped({
+        facultySlug: faculty.slug,
+        degreeSlug: degree.slug,
+        curriculumYear: year
+      })
+    }
+  }
+
+  const resultCount = filteredCourses.length + filteredPastCourses.length
+
   return (
-    <>
-      <div className="mb-2">
-        <SearchInput
-          trailing={
-            <AskChatButton
-              name={degree.acronym}
-              degreeId={degree.id}
-              source="degree_page"
-              variant="ghost"
-              size="sm"
-              compact
-              label={t('chat_prompt', { ns: 'chat' })}
-            />
-          }
-          value={searchQuery}
-          onChange={setSearchQuery}
-          placeholder={t('degree_page.search_placeholder')}
-        />
-      </div>
-      {showCurriculumYearFilter && (
-        <div
-          className="mb-3 flex flex-wrap gap-2"
-          role="group"
-          aria-label={t('degree_page.year_label')}
-        >
-          {curriculumYearOptions.map((option) => (
-            <ToggleChip
-              key={option.value}
-              label={option.label}
-              isActive={shownCurriculumYear === Number(option.value)}
-              onClick={() => {
-                setSelectedCurriculumYear(Number(option.value))
-                analytics.discovery.filterApplied({
-                  filterType: 'curriculum_year',
-                  filterValue: option.value
-                })
-              }}
-            />
-          ))}
-          <ToggleChip
-            label={t('degree_page.all_years')}
-            isActive={shownCurriculumYear === null}
+    <div
+      style={{ '--sticky-offset': `${stickyOffset + 16}px` } as CSSProperties}
+    >
+      <div
+        ref={barRef}
+        style={headerHeight !== null ? { top: headerHeight } : undefined}
+        className={cn(
+          'sticky top-[69px] z-30 -mx-4 mb-5 border-b border-border bg-background px-4 pt-2 md:top-[71px] md:mx-0 md:px-0',
+          !showYearTabs && 'pb-3'
+        )}
+      >
+        <div className="flex items-center gap-1">
+          <SearchInput
+            trailing={
+              <AskChatButton
+                name={degree.acronym}
+                degreeId={degree.id}
+                source="degree_page"
+                variant="ghost"
+                size="sm"
+                compact
+                label={t('chat_prompt', { ns: 'chat' })}
+              />
+            }
+            value={searchQuery}
+            onChange={setSearchQuery}
+            placeholder={t('degree_page.search_placeholder')}
+          />
+          <button
+            type="button"
             onClick={() => {
-              setSelectedCurriculumYear(null)
-              analytics.discovery.filterApplied({
-                filterType: 'curriculum_year',
-                filterValue: 'all'
-              })
+              setFiltersOpen(true)
+              if (faculty.slug && degree.slug) {
+                analytics.discovery.degreeCoursesFiltersOpened({
+                  facultySlug: faculty.slug,
+                  degreeSlug: degree.slug,
+                  activeFilterCount
+                })
+              }
             }}
+            aria-label={t('degree_page.filters_button')}
+            className="relative flex size-11 shrink-0 items-center justify-center rounded-lg text-foreground transition-colors hover:bg-muted md:hidden"
+          >
+            <SlidersHorizontal aria-hidden="true" className="size-5" />
+            {activeFilterCount > 0 && (
+              <span className="absolute right-1 top-1 flex size-4 items-center justify-center rounded-full bg-brand-solid text-[10px] font-semibold text-white">
+                {activeFilterCount}
+              </span>
+            )}
+          </button>
+        </div>
+
+        <div className="mt-3 hidden md:block">
+          <FilterRow
+            filters={
+              <>
+                <FilterChip
+                  label={t('degree_page.sort_label')}
+                  options={sortOptions}
+                  selectedValue={sortBy}
+                  onValueChange={(value) => setSortBy(value as SortOption)}
+                  placeholder={t('degree_page.sort_default')}
+                  variant="sort"
+                />
+                {filters.map((filter) => (
+                  <FilterChip
+                    key={filter.key}
+                    label={filter.label}
+                    options={filter.options}
+                    selectedValue={filter.selected}
+                    onValueChange={filter.onChange}
+                    placeholder={filter.placeholder}
+                  />
+                ))}
+              </>
+            }
           />
         </div>
-      )}
-      <div className="mb-4">
-        <FilterRow
-          filters={
-            <>
-              <FilterChip
-                label={t('degree_page.sort_label')}
-                options={sortOptions}
-                selectedValue={sortBy}
-                onValueChange={(value) => setSortBy(value as SortOption)}
-                placeholder={t('degree_page.sort_default')}
-                variant="sort"
-              />
-              {showTermFilter && (
-                <FilterChip
-                  label={t('degree_page.term_label')}
-                  options={termOptions}
-                  selectedValue={activeTerm}
-                  onValueChange={setSelectedTerm}
-                  placeholder={t('degree_page.all_terms')}
-                />
-              )}
-              {courseGroupOptions.length > 0 && (
-                <FilterChip
-                  label={t('degree_page.group_label')}
-                  options={courseGroupOptions}
-                  selectedValue={selectedCourseGroupId?.toString() ?? null}
-                  onValueChange={(value) =>
-                    setSelectedCourseGroupId(value ? Number(value) : null)
-                  }
-                  placeholder={t('degree_page.all_groups')}
-                />
-              )}
-              {showCourseTypeFilter && (
-                <FilterChip
-                  label={t('degree_page.mandatory_label')}
-                  options={courseTypeOptions}
-                  selectedValue={courseTypeFilter?.toString() ?? null}
-                  onValueChange={(value) => {
-                    setCourseTypeFilter(
-                      value === null ? null : value === 'true'
-                    )
-                    if (value !== null) {
-                      analytics.discovery.filterApplied({
-                        filterType: 'is_mandatory',
-                        filterValue: value === 'true' ? 'mandatory' : 'optional'
-                      })
-                    }
+
+        {showYearTabs && (
+          <nav
+            aria-label={t('degree_page.year_nav_label')}
+            className="-mb-px mt-1 flex gap-6 overflow-x-auto scrollbar-hide md:mt-2"
+          >
+            {availableCurriculumYears.map((year) => {
+              const id = yearAnchorId(year)
+              const listed = listedYears.has(year)
+              const current = listed && currentYearId === id
+              return (
+                <a
+                  key={year}
+                  href={`#${id}`}
+                  aria-current={current ? 'location' : undefined}
+                  aria-disabled={!listed || undefined}
+                  tabIndex={listed ? undefined : -1}
+                  onClick={(event) => {
+                    event.preventDefault()
+                    if (listed) jumpToYear(year)
                   }}
-                  placeholder={t('degree_page.mandatory_any')}
-                />
-              )}
-              {showExamFilter && (
-                <FilterChip
-                  label={t('degree_page.exam_label')}
-                  options={examTypeOptions}
-                  selectedValue={mandatoryExamFilter?.toString() ?? null}
-                  onValueChange={(value) =>
-                    setMandatoryExamFilter(
-                      value === null ? null : value === 'true'
-                    )
-                  }
-                  placeholder={t('degree_page.exam_any')}
-                />
-              )}
-            </>
-          }
-        />
+                  className={cn(
+                    'shrink-0 border-b-2 py-2.5 text-sm font-medium transition-colors',
+                    current
+                      ? 'border-primaryBlue text-foreground'
+                      : 'border-transparent text-muted-foreground hover:text-foreground',
+                    !listed && 'pointer-events-none opacity-40'
+                  )}
+                >
+                  {t('degree_page.year_option', {
+                    year: lang === 'en' ? toOrdinal(year) : year
+                  })}
+                </a>
+              )
+            })}
+          </nav>
+        )}
       </div>
+
+      <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
+        <SheetContent
+          side="bottom"
+          className="max-h-[85vh] gap-0 overflow-y-auto rounded-t-xl"
+        >
+          <SheetHeader>
+            <SheetTitle>{t('degree_page.filters_title')}</SheetTitle>
+            <SheetDescription className="sr-only">
+              {t('degree_page.filters_title')}
+            </SheetDescription>
+          </SheetHeader>
+          <div className="space-y-5 px-4 pb-2">
+            <SheetFilterGroup
+              label={t('degree_page.sort_label')}
+              options={sortOptions}
+              selected={sortBy}
+              onChange={(value) => value && setSortBy(value as SortOption)}
+            />
+            {filters.map((filter) => (
+              <SheetFilterGroup
+                key={filter.key}
+                label={filter.label}
+                options={filter.options}
+                selected={filter.selected}
+                onChange={filter.onChange}
+                anyLabel={t('degree_page.filter_any')}
+              />
+            ))}
+          </div>
+          <SheetFooter className="flex-row gap-2">
+            {activeFilterCount > 0 && (
+              <Button variant="ghost" className="flex-1" onClick={clearFilters}>
+                {t('degree_page.filters_clear')}
+              </Button>
+            )}
+            <Button
+              className="flex-1 bg-brand-solid text-white"
+              onClick={() => setFiltersOpen(false)}
+            >
+              {t('degree_page.filters_show', { count: resultCount })}
+            </Button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
 
       {!courses || courses.length === 0 ? (
         <div className="text-center text-muted-foreground py-8">
           {t('degree_page.no_courses')}
         </div>
-      ) : filteredCourses.length === 0 && filteredPastCourses.length === 0 ? (
+      ) : resultCount === 0 ? (
         <div className="flex flex-col items-center gap-3 py-8 text-center text-muted-foreground">
           {t('degree_page.no_results')}
           <AskChatButton
@@ -543,6 +713,47 @@ export function DegreeCoursesBrowser({
           href={ADD_COURSE_FORM_URL}
         />
       </div>
-    </>
+    </div>
+  )
+}
+
+/** One filter in the phone sheet: its label over a wrap of chips. */
+function SheetFilterGroup({
+  label,
+  options,
+  selected,
+  onChange,
+  anyLabel
+}: {
+  label: string
+  options: FilterOption[]
+  selected: string | null
+  onChange: (value: string | null) => void
+  /** Adds a first "any" chip that clears the filter; sorts have none */
+  anyLabel?: string
+}) {
+  return (
+    <fieldset>
+      <legend className="mb-2 text-sm font-semibold text-foreground">
+        {label}
+      </legend>
+      <div className="flex flex-wrap gap-2">
+        {anyLabel && (
+          <ToggleChip
+            label={anyLabel}
+            isActive={selected === null}
+            onClick={() => onChange(null)}
+          />
+        )}
+        {options.map((option) => (
+          <ToggleChip
+            key={option.value}
+            label={option.label}
+            isActive={selected === option.value}
+            onClick={() => onChange(option.value)}
+          />
+        ))}
+      </div>
+    </fieldset>
   )
 }

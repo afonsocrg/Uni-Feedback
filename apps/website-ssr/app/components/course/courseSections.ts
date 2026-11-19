@@ -107,6 +107,9 @@ export function compareCourses(sortBy: SortOption) {
   }
 }
 
+/** The anchor of a curriculum year's group in the course browser (`#year-2`) */
+export const yearAnchorId = (year: number) => `year-${year}`
+
 /** Curriculum years the offered courses run in, ascending. */
 export function useAvailableCurriculumYears(
   offeredCourses: CourseWithFeedback[]
@@ -132,7 +135,13 @@ export function useCourseSections(
   filteredCourses: CourseWithFeedback[],
   activeCurriculumYear: number | null,
   activeTerm: string | null,
-  academicTerms: AcademicTermInfo[]
+  academicTerms: AcademicTermInfo[],
+  /**
+   * Every year listed, each opening with a year heading (`group`) and its
+   * sections headed by term alone: the course browser's layout, where the year
+   * tabs jump between the groups.
+   */
+  { groupByYear = false }: { groupByYear?: boolean } = {}
 ): CourseSection[] {
   const { t } = useTranslation('browse')
   const lang = useLang()
@@ -280,15 +289,27 @@ export function useCourseSections(
     new Intl.ListFormat(lang, { type: 'conjunction' }).format(
       bucket.terms.map((term) => termLabel(term, form))
     )
+  const yearLabel = (year: number) =>
+    t('degree_page.year_option', {
+      year: lang === 'en' ? toOrdinal(year) : year
+    })
   const bucketHeading = (bucket: CourseBucket) => {
-    if (activeCurriculumYear !== null || bucket.curriculumYear === null) {
+    if (
+      groupByYear ||
+      activeCurriculumYear !== null ||
+      bucket.curriculumYear === null
+    ) {
       return termsLabel(bucket, 'long')
     }
-    const yearLabel = t('degree_page.year_option', {
-      year:
-        lang === 'en' ? toOrdinal(bucket.curriculumYear) : bucket.curriculumYear
-    })
-    return `${yearLabel} · ${termsLabel(bucket, 'short')}`
+    return `${yearLabel(bucket.curriculumYear)} · ${termsLabel(bucket, 'short')}`
+  }
+  // The first bucket of each year opens that year's group
+  const groupOf = (bucket: CourseBucket, index: number) => {
+    const year = bucket.curriculumYear
+    if (!groupByYear || year === null) return undefined
+    if (courseBuckets.buckets[index - 1]?.curriculumYear === year)
+      return undefined
+    return { id: yearAnchorId(year), year, heading: yearLabel(year) }
   }
 
   // The sections every listing component renders. Degrees with no
@@ -310,8 +331,9 @@ export function useCourseSections(
           }
         ]
       : [
-          ...courseBuckets.buckets.map((bucket) => ({
+          ...courseBuckets.buckets.map((bucket, index) => ({
             key: bucket.key,
+            group: groupOf(bucket, index),
             heading: bucketHeading(bucket),
             entries: bucket.entries.map((entry) => ({
               course: entry.course,

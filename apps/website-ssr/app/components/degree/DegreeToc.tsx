@@ -7,10 +7,10 @@ import {
   SheetTitle
 } from '@uni-feedback/ui'
 import { ChevronDown } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { DegreeSectionId } from '~/utils/analytics'
-import { scrollToSection, type TocSection } from './scrollSpy'
+import { scrollToSection, useHeaderHeight, type TocSection } from './scrollSpy'
 
 /** Desktop: the sticky list on the right. */
 export function DegreeTocSidebar<Id extends string = DegreeSectionId>({
@@ -76,16 +76,7 @@ export function DegreeTocBar<Id extends string = DegreeSectionId>({
   const { t } = useTranslation('browse')
   const [open, setOpen] = useState(false)
   // Sticks right under the site header, whose height differs by breakpoint
-  const [top, setTop] = useState<number | null>(null)
-  useEffect(() => {
-    const header = document.querySelector('header')
-    if (!header) return
-    const measure = () => setTop(header.getBoundingClientRect().height)
-    measure()
-    const observer = new ResizeObserver(measure)
-    observer.observe(header)
-    return () => observer.disconnect()
-  }, [])
+  const top = useHeaderHeight()
   const currentLabel =
     sections.find((s) => s.id === current)?.label ?? sections[0]?.label
 

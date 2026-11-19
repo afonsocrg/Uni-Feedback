@@ -304,7 +304,14 @@
       "source": "Source",
       "correction_text": "Something wrong?",
       "correction_link": "Suggest a correction"
-    }
+    },
+    "year_nav_label": "Jump to year",
+    "filters_button": "Filters",
+    "filters_title": "Sort and filter",
+    "filters_clear": "Clear filters",
+    "filters_show_other": "Show {{count}} courses",
+    "filters_show_one": "Show {{count}} course",
+    "filter_any": "Any"
   },
   "faculty_page": {
     "title": "{{name}}: choose your degree",

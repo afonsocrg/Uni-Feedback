@@ -49,6 +49,12 @@ export interface CourseListingEntry {
  */
 export interface CourseSection {
   key: string
+  /**
+   * Set on the first section of a group (a curriculum year in the course
+   * browser): the listing opens the group with its own heading, anchored at
+   * `id` so the year tabs can jump to it.
+   */
+  group?: { id: string; year: number; heading: string }
   heading: string | null
   entries: CourseListingEntry[]
   /** Rendered under the section's rows, e.g. "N more" on a cut-down term */

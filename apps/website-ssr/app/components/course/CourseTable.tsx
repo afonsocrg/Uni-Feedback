@@ -209,6 +209,14 @@ export function CourseTable({
       <div className="space-y-8">
         {sections.map((section) => (
           <section key={section.key}>
+            {section.group && (
+              <h2
+                id={section.group.id}
+                className="mb-4 scroll-mt-(--sticky-offset) text-xl font-bold text-foreground"
+              >
+                {section.group.heading}
+              </h2>
+            )}
             {section.heading && (
               <Heading className="text-lg font-semibold text-foreground mb-2 border-b border-border pb-2">
                 {section.heading}

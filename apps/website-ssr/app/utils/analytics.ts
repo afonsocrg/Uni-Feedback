@@ -1177,6 +1177,28 @@ export const analytics = {
     }) => trackEvent('degree_past_courses_toggled', props),
 
     /**
+     * A year tab on the course browser (`/cadeiras`) clicked: every year is
+     * listed, and the tabs jump to one. Over `degree_courses_page_viewed`, says
+     * how many students go looking for a year other than the first.
+     */
+    degreeCoursesYearJumped: (props: {
+      facultySlug: string
+      degreeSlug: string
+      curriculumYear: number
+    }) => trackEvent('degree_courses_year_jumped', props),
+
+    /**
+     * The course browser's filter sheet opened (phones, where the filters fold
+     * behind one button). Over page views, says whether the filters are found
+     * at all once they are no longer on screen.
+     */
+    degreeCoursesFiltersOpened: (props: {
+      facultySlug: string
+      degreeSlug: string
+      activeFilterCount: number
+    }) => trackEvent('degree_courses_filters_opened', props),
+
+    /**
      * Phase 4: Track course discovery patterns
      */
     courseCardClicked: (props: {
