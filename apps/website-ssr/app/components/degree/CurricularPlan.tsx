@@ -84,7 +84,8 @@ const lonePoolKeys = (plan: DegreePlanData, versionId: number | null) => {
 /** ECTS a year is meant to hold: 60, the last year what's left of the degree */
 const ECTS_PER_YEAR = 60
 
-/** "Todas as cadeiras", on the plan section's title line */
+/** "Procurar", on the plan section's title line. The plan
+ * already lists every course, so the link sells the listing's search and filters */
 export function PlanCoursesLink({
   coursesPath,
   track
@@ -106,7 +107,7 @@ export function PlanCoursesLink({
       }}
       className="inline-flex shrink-0 items-center gap-1 text-sm text-muted-foreground hover:text-foreground hover:underline"
     >
-      {t('degree_page.plan_all_courses')}
+      {t('degree_page.plan_search_courses')}
       <ArrowRight aria-hidden="true" className="size-3.5" />
     </Link>
   )

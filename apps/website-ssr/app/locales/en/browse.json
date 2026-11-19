@@ -261,6 +261,7 @@
     },
     "retired_notice": "This degree is no longer offered. Its courses and their reviews are still available.",
     "plan_all_courses": "All courses",
+    "plan_search_courses": "Search",
     "plan_optional_more": "{{count}} more electives in {{year}} year",
     "plan_optional_cta": "See electives",
     "plan_optional_count": "{{count}} more electives",

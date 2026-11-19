@@ -311,7 +311,7 @@ export function DegreePageContent({
               id="plano"
               title={t('degree_page.sections.plan')}
               first={!about}
-              // With a plan, "Todas as cadeiras" sits on the title's line; the
+              // With a plan, the courses link sits on the title's line; the
               // summary keeps it beside its year chips
               action={
                 curricularPlan && coursesPath ? (

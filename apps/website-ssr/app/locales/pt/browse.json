@@ -261,6 +261,7 @@
     },
     "retired_notice": "Este curso já não é lecionado. As cadeiras e o feedback continuam disponíveis.",
     "plan_all_courses": "Todas as cadeiras",
+    "plan_search_courses": "Procurar",
     "plan_optional_more": "Mais {{count}} optativas no {{year}}.º ano",
     "plan_optional_cta": "Ver optativas",
     "plan_optional_count": "Mais {{count}} optativas",
