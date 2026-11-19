@@ -27,7 +27,7 @@ import { AuthProvider } from '~/providers/AuthProvider'
 import { AuthRefreshProvider } from '~/providers/AuthRefreshProvider'
 import { ThemeProvider } from '~/providers/ThemeProvider'
 import { userPreferences } from '~/utils'
-import { captureError } from '~/utils/analytics'
+import { captureError, flushPendingAnalytics } from '~/utils/analytics'
 import {
   getThemeFromCookie,
   type ResolvedTheme,
@@ -268,7 +268,9 @@ export default function App() {
           // window.onerror (React Router catches them), so ErrorBoundary
           // reports those itself.
           capture_exceptions: true,
-          defaults: '2025-05-24'
+          defaults: '2025-05-24',
+          // Events fired before init (every mount event on a full page load)
+          loaded: flushPendingAnalytics
         })
         console.log('[PostHog] Successfully initialized')
       } catch (error) {

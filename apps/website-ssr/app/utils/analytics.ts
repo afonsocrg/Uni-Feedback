@@ -10,18 +10,38 @@ import { detectLang, getLocalePath, isProfilePath } from '~/utils/i18n-routes'
 import type { ThemePreference } from '~/utils/theme'
 
 /**
+ * Calls made before PostHog loaded, replayed in order once it does.
+ *
+ * `posthog.init` runs in an effect in root.tsx, and React runs a parent's
+ * effects after its children's, so on a full page load every page's mount
+ * event fired before init and was dropped: `course_page_viewed` only counted
+ * client-side navigations (~3 a day against ~45 course sessions). Capped so a
+ * session where PostHog never loads (dev, no key, blocked) doesn't grow it.
+ */
+let pending: Array<() => void> | null = []
+const maxPending = 50
+
+const whenLoaded = (call: () => void) => {
+  if (typeof window === 'undefined') return
+  if (posthog.__loaded) return call()
+  if (pending && pending.length < maxPending) pending.push(call)
+}
+
+/** Replays the queued calls. Passed as `loaded` to `posthog.init`. */
+export const flushPendingAnalytics = () => {
+  const calls = pending ?? []
+  pending = null
+  calls.forEach((call) => call())
+}
+
+/**
  * Core event tracking function
- * Safely captures events only in browser context when PostHog is loaded
+ * Captures events only in browser context, queueing them until PostHog loads
  */
 export const trackEvent = (
   eventName: string,
   properties?: Record<string, unknown>
-) => {
-  if (typeof window === 'undefined') return
-  if (!posthog.__loaded) return
-
-  posthog.capture(eventName, properties)
-}
+) => whenLoaded(() => posthog.capture(eventName, properties))
 
 export const getPageName = (path: string): string => {
   const lang = detectLang(path)
@@ -1929,10 +1949,7 @@ export const identifyUser = (
   userId: string,
   traits?: Record<string, unknown>
 ) => {
-  if (typeof window === 'undefined') return
-  if (!posthog.__loaded) return
-
-  posthog.identify(userId, traits)
+  whenLoaded(() => posthog.identify(userId, traits))
 }
 
 /**
@@ -1944,18 +1961,12 @@ export const captureError = (
   error: unknown,
   properties?: Record<string, unknown>
 ) => {
-  if (typeof window === 'undefined') return
-  if (!posthog.__loaded) return
-
-  posthog.captureException(error, properties)
+  whenLoaded(() => posthog.captureException(error, properties))
 }
 
 /**
  * Reset user identification (on logout)
  */
 export const resetUser = () => {
-  if (typeof window === 'undefined') return
-  if (!posthog.__loaded) return
-
-  posthog.reset()
+  whenLoaded(() => posthog.reset())
 }
