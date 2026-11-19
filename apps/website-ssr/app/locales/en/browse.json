@@ -38,7 +38,7 @@
   "degree_page": {
     "search_placeholder": "Search by name or acronym...",
     "sort_label": "Sort By",
-    "sort_default": "Most Reviews",
+    "sort_default": "Most reviews",
     "year_label": "Year",
     "year_option": "{{year}} year",
     "all_years": "All Years",
@@ -54,20 +54,20 @@
     "exam_any": "Exam: Any",
     "exam_mandatory": "Exam: Mandatory",
     "exam_optional": "Exam: Optional",
-    "sort_highest_rating": "Highest Rating",
-    "sort_alphabetical": "Alphabetical",
-    "sort_most_reviews": "Most Reviews",
-    "sort_workload": "Workload Rating",
+    "sort_highest_rating": "Highest rated",
+    "sort_alphabetical": "By name",
+    "sort_most_reviews": "Most reviews",
+    "sort_workload": "Lightest",
     "missing_course": "Missing a course?",
     "request_link": "Request it here",
     "no_courses": "No courses found for this degree.",
     "no_results": "No courses match your search criteria.",
     "other_courses": "Other courses",
+    "first_feedback": "Give the first feedback",
     "tag_optional": "Optional",
     "past_courses": "Courses no longer taught ({{count}})",
     "past_courses_hint": "These are no longer part of the degree's plan. You can still read their feedback and give yours for the years they were taught.",
     "tag_last_taught": "Until {{year}}",
-    "legend_mandatory_exam": "Mandatory exam",
     "toc_label": "On this page",
     "sections": {
       "plan": "Study plan",
@@ -358,13 +358,25 @@
     "see_all": "See all degrees →",
     "course_count_one": "{{count}} course",
     "course_count_other": "{{count}} courses",
-    "feedback_count_one": "{{count}} feedback",
-    "feedback_count_other": "{{count}} feedback"
+    "feedback_count_zero": "{{count}} reviews",
+    "feedback_count_one": "{{count}} review",
+    "feedback_count_other": "{{count}} reviews"
   },
   "courses_page": {
     "title": "{{name}} courses",
     "breadcrumb": "Courses",
     "back": "About {{acronym}}: admission, outcomes and more"
+  },
+  "degree_courses": {
+    "track_label": "Track",
+    "track_any": "All tracks",
+    "plan_info": "How the plan works",
+    "pool_info": "How it works: {{name}}",
+    "other_courses": "Other courses",
+    "other_courses_hint": "Courses of this degree that aren't in its current curricular plan.",
+    "also_in": "Also in {{slots}}",
+    "slot_no_match": "No courses",
+    "slot_empty": "No courses this semester"
   },
   "faculty_hub": {
     "no_data": "no data",

@@ -53,10 +53,13 @@ export function FilterChip({
     onValueChange(null)
   }
 
-  // Sort chips get a solid brand fill; active filters use the soft blue tint.
+  // Active filters take the brand tint (the same as the selected option in the
+  // list below). A sort always has a value, so it is never "on": a quiet
+  // neutral chip with its icon. As a solid brand fill it was the loudest thing
+  // under the search bar, louder than the filters a student actually set.
   const activeChipClass = isSort
-    ? 'bg-brand-solid text-white border-primaryBlue'
-    : 'bg-tint-blue text-tint-blue-fg border-tint-blue-border'
+    ? 'bg-tint-gray text-foreground border-tint-gray-border hover:bg-muted'
+    : 'bg-primary/10 text-primaryBlue border-primaryBlue/30'
   const showAsActive = isSort || selectedValue
 
   return (
@@ -72,7 +75,9 @@ export function FilterChip({
                 isSort && 'font-medium'
               )}
             >
-              {isSort && <ArrowDownUp className="w-3 h-3" />}
+              {isSort && (
+                <ArrowDownUp className="w-3 h-3 text-muted-foreground" />
+              )}
               <span>{displayLabel}</span>
               {!isSort && selectedValue && (
                 <button

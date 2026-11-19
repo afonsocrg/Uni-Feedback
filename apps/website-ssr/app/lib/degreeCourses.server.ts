@@ -5,7 +5,7 @@ import {
   schema
 } from '@uni-feedback/db'
 import type { Degree, Faculty } from '@uni-feedback/db/schema'
-import { eq, sql } from 'drizzle-orm'
+import { eq, inArray, sql, type SQL } from 'drizzle-orm'
 import { redirect } from 'react-router'
 import type { Lang } from '~/i18n/config'
 import type { CrumbUniversity } from '~/utils/breadcrumbs'
@@ -76,11 +76,11 @@ export async function findDegreeBySlugs(
 }
 
 /**
- * The degree's courses with pre-computed stats (course_stats) and offerings.
- * `name` is in the page's language and `altName` is the other one, so a search
- * for "Chemistry" finds "Química" (content translation, 0058).
+ * Courses with pre-computed stats (course_stats) and offerings, those `where`
+ * picks. `name` is in the page's language and `altName` is the other one, so a
+ * search for "Chemistry" finds "Química" (content translation, 0058).
  */
-export async function loadDegreeCourses(degreeId: number, lang: Lang) {
+async function loadCoursesWithStats(where: SQL | undefined, lang: Lang) {
   const db = database()
   const rows = await db
     .select({
@@ -111,12 +111,27 @@ export async function loadDegreeCourses(degreeId: number, lang: Lang) {
       schema.courseStats,
       eq(schema.courseStats.courseId, schema.courses.id)
     )
-    .where(eq(schema.courses.degreeId, degreeId))
+    .where(where)
   return rows.map(({ nameEn, ...row }) => ({
     ...row,
     name: pickName(lang, row.name, nameEn).value,
     altName: altName(lang, row.name, nameEn)
   }))
+}
+
+/** The degree's own courses, with stats and offerings */
+export function loadDegreeCourses(degreeId: number, lang: Lang) {
+  return loadCoursesWithStats(eq(schema.courses.degreeId, degreeId), lang)
+}
+
+/**
+ * Courses by id, with stats and offerings. The course browser draws a degree's
+ * plan, whose courses can belong to another degree of the faculty (a shared
+ * HASS option, a Minor's course): their ratings come from here.
+ */
+export function loadCoursesByIds(ids: number[], lang: Lang) {
+  if (ids.length === 0) return Promise.resolve([])
+  return loadCoursesWithStats(inArray(schema.courses.id, ids), lang)
 }
 
 /**

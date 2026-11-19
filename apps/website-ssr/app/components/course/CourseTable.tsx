@@ -1,9 +1,6 @@
-import {
-  Button,
-  Chip,
-  StarRating,
-  WorkloadRatingDisplay
-} from '@uni-feedback/ui'
+import { Chip, WorkloadRatingDisplay } from '@uni-feedback/ui'
+import { Dumbbell, Star } from 'lucide-react'
+import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { useLang, useWorkloadLabel } from '~/hooks'
@@ -14,21 +11,37 @@ import { RowTag } from '../common/RowTag'
 import { LastTaughtTag } from './LastTaughtTag'
 import type { CourseListingEntry, CourseListingProps } from './types'
 
-// Fixed widths from `md` up are what keep the rating and workload cells lined up
-// down the listing: they fix the width of the row's right-hand group, so the
-// title truncates at the same point on every row and the cells start at the same
-// x. Let either hug its content and a long workload label shifts its whole row.
+// The rating cell (star and average) has a fixed width at every size, a bit
+// more than it needs: the workloads start at the same x down the listing, and
+// the gap reads as a tab between two different facts.
 const COLUMN = {
-  rating: 'md:w-40',
-  workload: 'md:w-28'
+  rating: 'w-14'
 }
 
-function CourseRow({
+/**
+ * One course of a listing: name, acronym and tags, its rating and workload.
+ * The course browser's plan listing (`PlanCourseList`) uses it too: `stacked`
+ * in a semester column, `note` for "Também no 2.º semestre", `planSection` and
+ * `filtered` for `course_card_clicked`.
+ */
+export function CourseRow({
   course,
   terms,
   positionInList,
-  showExamTag
-}: CourseListingEntry & { positionInList: number; showExamTag: boolean }) {
+  stacked = false,
+  note,
+  planSection,
+  filtered,
+  hideOptionalTag = false
+}: CourseListingEntry & {
+  positionInList: number
+  stacked?: boolean
+  note?: ReactNode
+  planSection?: 'course' | 'pool_option' | 'not_in_plan'
+  filtered?: boolean
+  /** Inside a pool, which already says the course is a choice */
+  hideOptionalTag?: boolean
+}) {
   const { t } = useTranslation('browse')
   const workloadLabel = useWorkloadLabel()
   const lang = useLang()
@@ -48,12 +61,22 @@ function CourseRow({
         analytics.discovery.courseCardClicked({
           courseId: course.id,
           sourcePage: getPageName(window.location.pathname),
-          positionInList
+          positionInList,
+          ...(planSection && { planSection, filtered: filtered ?? false })
         })
       }}
       title={course.name}
+      stacked={stacked}
+      // The acronym after the name, muted: students say "CDI", and search it
+      suffix={course.acronym}
+      quiet
+      footnote={
+        note && (
+          <span className="text-xs italic text-muted-foreground">{note}</span>
+        )
+      }
       /* Tags flag only the exception (a term narrower than the section's, a
-         known elective, a required exam); the nullable defaults earn no tag.
+         known elective); the nullable defaults earn no tag.
 
          The term rides right after the acronym, and is the one tag that carries
          colour: within a section the terms are what split the courses into
@@ -61,13 +84,10 @@ function CourseRow({
          way a row of identical grey tags could not. The colour is hashed from
          the term name, so P1 is the same hue on every degree page.
 
-         The exam is an emoji while "Optional" is a word because the two run at
-         very different frequencies: a mandatory exam is the norm in some
-         degrees (~68% of MIEI courses) and rare in others (~4% of MEEC), so it
-         has to stay light enough to repeat down a whole listing. A known
-         elective is rare everywhere, so it can afford the word. Being a word is
-         also what lets it stand alone: only the emoji needs a
-         <CourseTableLegend> entry.
+         A mandatory exam has no mark (a 📝 until 2026-11-19): it is the norm
+         in some degrees (~68% of MIEI courses), so a mark repeated down most
+         rows was noise. The listing's "Exame" filter narrows on it, and the
+         course page states it in its facts.
 
          "Exception" is meant across the catalogue, not within a page: a degree
          whose every course is elective still tags every row. `isMandatory` is
@@ -80,9 +100,6 @@ function CourseRow({
          no fact. */
       meta={
         <>
-          <span className="text-xs text-muted-foreground">
-            {course.acronym}
-          </span>
           {terms.map((term) => (
             <Chip
               key={term.label}
@@ -91,17 +108,7 @@ function CourseRow({
               size="xs"
             />
           ))}
-          {showExamTag && course.hasMandatoryExam && (
-            <span
-              className="flex-shrink-0 text-xs"
-              role="img"
-              aria-label={t('degree_page.legend_mandatory_exam')}
-              title={t('degree_page.legend_mandatory_exam')}
-            >
-              📝
-            </span>
-          )}
-          {course.isMandatory === false && (
+          {course.isMandatory === false && !hideOptionalTag && (
             <RowTag label={t('degree_page.tag_optional')} />
           )}
           {/* A course no longer taught says when it last ran: the reviews
@@ -111,93 +118,83 @@ function CourseRow({
       }
     >
       {hasFeedback ? (
+        // One star and the average, then a dumbbell and the workload: a row
+        // reads as two facts, not five stars, a number, a pill and a count.
+        // Both icons are grey outlines, labels for the facts; the number and
+        // the workload's colour are what carry them. The rating cell has a
+        // fixed width wider than its content: the gap after it, the same on
+        // every row, says the two are different things, and lines the workloads
+        // up. The count lives in the tooltip, for anyone weighing a 5.0 from
+        // one feedback against a 4.2 from forty.
         <div className="flex items-center gap-3 md:gap-4">
           <div
-            className={`flex flex-shrink-0 items-center gap-1.5 ${COLUMN.rating}`}
+            className={`flex flex-shrink-0 items-center gap-1 ${COLUMN.rating}`}
+            title={t('browse_section.feedback_count', {
+              count: course.totalFeedbackCount
+            })}
           >
-            <StarRating value={rating} size="sm" showHalfStars />
-            {/* The review count rides along with the rating rather than owning a
-                column: it is what says how much the rating can be trusted, and
-                a column of its own gave a secondary number top billing. */}
-            <span
-              className="text-xs text-muted-foreground"
-              title={t('browse_section.feedback_count', {
-                count: course.totalFeedbackCount
-              })}
-            >
-              {rating.toFixed(1)}{' '}
-              <span className="text-muted-foreground/70">
-                ({course.totalFeedbackCount})
-              </span>
+            <Star
+              aria-hidden="true"
+              className="size-3.5 text-muted-foreground/60"
+            />
+            <span className="text-sm tabular-nums text-foreground">
+              {rating.toFixed(1)}
             </span>
           </div>
-          <div className={`flex-shrink-0 ${COLUMN.workload}`}>
-            {workload > 0 && (
+          {workload > 0 && (
+            <div className="flex flex-shrink-0 items-center gap-1.5">
+              <Dumbbell
+                aria-hidden="true"
+                className="size-3.5 text-muted-foreground/60"
+              />
               <WorkloadRatingDisplay
                 rating={workload}
                 label={workloadLabel(workload)}
               />
-            )}
-          </div>
+            </div>
+          )}
         </div>
       ) : (
-        <Button
-          variant="link"
-          className="h-auto flex-shrink-0 justify-start p-0 text-xs"
-          onClick={(e) => {
-            e.stopPropagation()
-            e.preventDefault()
-            analytics.navigation.feedbackFormLinkClicked({
-              source: 'course_list_first_feedback',
-              referrerPage: getPageName(window.location.pathname),
-              courseId: course.id
-            })
-            navigate(getCourseFeedbackPath(lang, course.id, 'course_list'))
-          }}
-        >
-          Give the first feedback!
-        </Button>
+        // No feedback yet: a fainter star where the rating goes, so the row keeps
+        // the shape of the rated ones, and the ask for the first feedback. The
+        // ask earns its place in exam season: in July 2026, 48 students
+        // clicked it (77 clicks, ~1.8% of course opens from lists) and 21 of
+        // them submitted that month; out of season it is near unused (~0.2%),
+        // but quiet enough to keep.
+        <div className="flex flex-shrink-0 items-center gap-1 whitespace-nowrap">
+          <Star
+            aria-hidden="true"
+            className="size-3.5 text-muted-foreground/40"
+          />
+          <button
+            type="button"
+            className="cursor-pointer text-xs text-primaryBlue hover:underline"
+            onClick={(e) => {
+              // A review-intent click, not a browse: not a course_card_clicked
+              e.stopPropagation()
+              e.preventDefault()
+              analytics.navigation.feedbackFormLinkClicked({
+                source: 'course_list_first_feedback',
+                referrerPage: getPageName(window.location.pathname),
+                courseId: course.id
+              })
+              navigate(getCourseFeedbackPath(lang, course.id, 'course_list'))
+            }}
+          >
+            {t('degree_page.first_feedback')}
+          </button>
+        </div>
       )}
     </ListingRow>
   )
 }
 
-/**
- * Explains the 📝 emoji, the one mark on a row that cannot speak for itself.
- * Renders only when some course in the listing carries it, so a degree with no
- * exam data never explains an emoji it never shows.
- *
- * Nothing else here earns an entry: the "Optional" tag and the workload badge
- * are words, and the stars are stars.
- */
-function CourseTableLegend({ sections }: CourseListingProps) {
-  const { t } = useTranslation('browse')
-  const hasExamTag = sections.some((section) =>
-    section.entries.some((entry) => entry.course.hasMandatoryExam)
-  )
-
-  if (!hasExamTag) return null
-
-  return (
-    <div className="mb-3 flex items-center gap-1.5 px-3 text-xs text-muted-foreground">
-      <span aria-hidden="true">📝</span>
-      {t('degree_page.legend_mandatory_exam')}
-    </div>
-  )
-}
-
 export function CourseTable({
   sections,
-  headingLevel = 'h2',
-  showExamTag = true
+  headingLevel = 'h2'
 }: CourseListingProps & {
   /** 'h3' when the listing sits inside a page section with its own h2 */
   headingLevel?: 'h2' | 'h3'
-  /**
-   * The 📝 tag and its legend. Off where the list is a glance at the plan (the
-   * degree page), where whether a course has an exam is beside the point.
-   */
-  showExamTag?: boolean
 }) {
   // Flat rank across sections, for `positionInList`.
   let position = 0
@@ -205,14 +202,13 @@ export function CourseTable({
 
   return (
     <div>
-      {showExamTag && <CourseTableLegend sections={sections} />}
       <div className="space-y-8">
         {sections.map((section) => (
           <section key={section.key}>
             {section.group && (
               <h2
                 id={section.group.id}
-                className="mb-4 scroll-mt-(--sticky-offset) text-xl font-bold text-foreground"
+                className="mb-4 scroll-mt-(--sticky-offset) text-base font-semibold text-foreground md:text-lg"
               >
                 {section.group.heading}
               </h2>
@@ -228,7 +224,6 @@ export function CourseTable({
                 course={entry.course}
                 terms={entry.terms}
                 positionInList={position++}
-                showExamTag={showExamTag}
               />
             ))}
             {section.footer}

@@ -84,7 +84,7 @@ export function SearchableFilterChip({
           {selectedValue ? (
             <Badge
               variant="outline"
-              className="text-xs px-2 py-0.5 flex items-center gap-1.5 max-w-full bg-tint-blue text-tint-blue-fg border-tint-blue-border"
+              className="text-xs px-2 py-0.5 flex items-center gap-1.5 max-w-full bg-primary/10 text-primaryBlue border-primaryBlue/30"
             >
               <span className="truncate">{displayLabel}</span>
               <button

@@ -283,8 +283,8 @@ export function useCourseSections(
   }, [academicTerms])
 
   // With a year chosen, every heading would repeat it, so the heading is the
-  // term alone, spelled out ("1º Semestre"). Beside a year it takes the short
-  // form ("1º ano · S1"). A bucket of several terms lists them all ("S1 e S2").
+  // term alone, spelled out ("1.º Semestre"). Beside a year it takes the short
+  // form ("1.º ano · S1"). A bucket of several terms lists them all ("S1 e S2").
   const termsLabel = (bucket: CourseBucket, form: 'short' | 'long') =>
     new Intl.ListFormat(lang, { type: 'conjunction' }).format(
       bucket.terms.map((term) => termLabel(term, form))
@@ -313,7 +313,7 @@ export function useCourseSections(
   }
 
   // The sections every listing component renders. Degrees with no
-  // curriculum-year data group by term alone, under bare "1º Semestre"/"Fall" headings:
+  // curriculum-year data group by term alone, under bare "1.º Semestre"/"Fall" headings:
   // the term is the only structure their offerings carry, and dropping it left
   // every IST master's and all of Nova SBE as one undifferentiated list (MEIC:
   // 60 courses, MIEI: 174). A course offered in both terms sits under the

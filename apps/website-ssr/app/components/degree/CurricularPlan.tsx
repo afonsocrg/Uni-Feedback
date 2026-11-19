@@ -17,6 +17,16 @@ import { ReportErrorNote } from '../common/ReportErrorNote'
 import { ToggleChip } from '../common/ToggleChip'
 import type { AcademicTermInfo } from '../course/courseSections'
 import type { DegreeTrack } from './DegreeSections'
+import {
+  ECTS_PER_YEAR,
+  groupEntries,
+  itemsOfVersion,
+  planRows,
+  planTerms,
+  spansYears,
+  usePlanText,
+  type PlanRow
+} from './planLayout'
 
 /**
  * The degree page's curricular plan (prds/curricular_plan.md, "What the
@@ -51,14 +61,6 @@ const plainText = (markdown: string) =>
   markdown.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1').replace(/\*\*|__/g, '')
 const ROW_ECTS_PER_LINE = 30
 
-interface Row {
-  year: number
-  items: PlanItem[]
-}
-
-/** An item open to more than one year shows in each; this is where it's open */
-const spansYears = (item: PlanItem) => item.yearTo > item.yearFrom
-
 /**
  * The pools that start open: a choice that is all its year holds (Min-SC's
  * 2nd year, "Opções"; every year of a plan that is one choice), where a closed
@@ -66,9 +68,7 @@ const spansYears = (item: PlanItem) => item.yearTo > item.yearFrom
  * so a long one (FLUL's Opções) can still be closed.
  */
 const lonePoolKeys = (plan: DegreePlanData, versionId: number | null) => {
-  const items = plan.items.filter(
-    (item) => item.versionId === null || item.versionId === versionId
-  )
+  const items = itemsOfVersion(plan, versionId)
   const keys = new Set<string>()
   const lastYear = Math.max(0, ...items.map((item) => item.yearTo))
   for (let year = 1; year <= lastYear; year++) {
@@ -80,9 +80,6 @@ const lonePoolKeys = (plan: DegreePlanData, versionId: number | null) => {
   }
   return keys
 }
-
-/** ECTS a year is meant to hold: 60, the last year what's left of the degree */
-const ECTS_PER_YEAR = 60
 
 /** "Procurar", on the plan section's title line. The plan
  * already lists every course, so the link sells the listing's search and filters */
@@ -128,6 +125,7 @@ export function CurricularPlan({
   const { t } = useTranslation('browse')
   const lang = useLang()
   const termLabel = useTermLabel()
+  const { fmt, yearsNote, poolSub, yearLabel: yearName } = usePlanText()
   const [versionId, setVersionId] = useState<number | null>(
     plan.versions[0]?.id ?? null
   )
@@ -143,60 +141,27 @@ export function CurricularPlan({
   // it shouldn't sit behind all of that). Any number can be open at once.
   const [openYears, setOpenYears] = useState<Set<string>>(new Set())
 
-  const fmt = (n: number) =>
-    String(Math.round(n * 10) / 10).replace('.', lang === 'pt' ? ',' : '.')
   const slugs =
     track.facultySlug && track.degreeSlug
       ? { facultySlug: track.facultySlug, degreeSlug: track.degreeSlug }
       : null
 
-  const termsById = useMemo(
-    () => new Map(academicTerms.map((term) => [term.id, term])),
-    [academicTerms]
-  )
-  /** The column a term draws in: its parent semester for a sub-term (P1, P2) */
-  const termOfItem = (item: PlanItem) =>
-    item.termId === null ? null : (termsById.get(item.termId) ?? null)
-  /** A year-long course (FMDUL's "Anual") is no column: it gets its own group */
-  const isAnnual = (item: PlanItem) =>
-    termOfItem(item)?.standardTerm === 'annual'
-  const laneOf = (item: PlanItem) => {
-    const term = termOfItem(item)
-    if (!term || term.standardTerm === 'annual') return null
-    return term.parentId !== null
-      ? (termsById.get(term.parentId) ?? term)
-      : term
-  }
+  const {
+    termsById,
+    termOf: termOfItem,
+    isAnnual,
+    laneOf,
+    lanesOf
+  } = useMemo(() => planTerms(academicTerms), [academicTerms])
 
-  const items = plan.items.filter(
-    (item) => item.versionId === null || item.versionId === versionId
-  )
-  const lanes = [
-    ...new Map(
-      items
-        .map(laneOf)
-        .filter((term): term is AcademicTermInfo => term !== null)
-        .map((term) => [term.id, term])
-    ).values()
-  ].sort((a, b) => a.startTick - b.startTick)
+  const items = itemsOfVersion(plan, versionId)
+  const lanes = lanesOf(items)
 
-  const rows = useMemo(() => {
-    const lastYear = Math.max(0, ...items.map((item) => item.yearTo))
-    const byYear: Row[] = []
-    for (let year = 1; year <= lastYear; year++) {
-      const inYear = items.filter(
-        (item) => item.yearFrom <= year && year <= item.yearTo
-      )
-      // The year's own items first, then those it shares with other years
-      const list = [
-        ...inYear.filter((item) => !spansYears(item)),
-        ...inYear.filter(spansYears)
-      ]
-      if (list.length > 0) byYear.push({ year, items: list })
-    }
-    return byYear
+  const rows = useMemo(
+    () => planRows(items),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [plan, versionId])
+    [plan, versionId]
+  )
 
   /**
    * Each year's ECTS. Its own items count in full; items it shares with other
@@ -239,7 +204,7 @@ export function CurricularPlan({
     return totals
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [plan, versionId, degreeEcts])
-  const yearEcts = (row: Row) => {
+  const yearEcts = (row: PlanRow) => {
     const total = yearTotals.get(row.year) ?? { value: 0, upTo: false }
     return t(
       total.upTo ? 'degree_page.plan.ects_up_to' : 'degree_page.plan.ects',
@@ -247,57 +212,7 @@ export function CurricularPlan({
     )
   }
 
-  const yearLabel = (row: Row) =>
-    t('degree_page.plan.year_one', { year: row.year })
-  /**
-   * "1.º ou 2.º ano", after the name of an item shown in several years. One
-   * bigger than a year (FLUL's 120 ECTS of Opções over years 2 and 3) is spread
-   * across them, not taken in one: "2.º e 3.º ano".
-   */
-  const yearsNote = (item: PlanItem) => {
-    const span = item.yearTo - item.yearFrom
-    const spread = item.ects > ECTS_PER_YEAR
-    if (span === 1)
-      return t(
-        spread ? 'degree_page.plan.year_and' : 'degree_page.plan.year_or',
-        { from: item.yearFrom, to: item.yearTo }
-      )
-    if (span === 2)
-      return t(
-        spread
-          ? 'degree_page.plan.year_three_and'
-          : 'degree_page.plan.year_three',
-        { a: item.yearFrom, b: item.yearFrom + 1, c: item.yearTo }
-      )
-    return t('degree_page.plan.year_range', {
-      from: item.yearFrom,
-      to: item.yearTo
-    })
-  }
-
-  const poolSub = (item: PlanItem) => {
-    const ects =
-      item.ectsMin !== null && item.ectsMax !== null
-        ? `${fmt(item.ectsMin)}–${fmt(item.ectsMax)}`
-        : fmt(item.ects)
-    let count = ''
-    if (item.coursesMin !== null) {
-      const max = item.coursesMax ?? item.coursesMin
-      count =
-        item.coursesMin === 1 && max === 1 && item.options.length > 1
-          ? t('degree_page.plan.pool_one_of', { count: item.options.length })
-          : t('degree_page.plan.pool_courses', {
-              count: max,
-              value:
-                item.coursesMin === max
-                  ? String(max)
-                  : `${item.coursesMin}–${max}`
-            })
-    }
-    return [t('degree_page.plan.ects', { value: ects }), count]
-      .filter(Boolean)
-      .join(' · ')
-  }
+  const yearLabel = (row: PlanRow) => yearName(row.year)
 
   const trackCourseClick = (
     courseId: number,
@@ -575,7 +490,7 @@ export function CurricularPlan({
   const soloPool =
     items.length === 1 && items[0].kind === 'pool' ? items[0] : null
 
-  const toggleYear = (row: Row) => {
+  const toggleYear = (row: PlanRow) => {
     const key = String(row.year)
     const isOpen = openYears.has(key)
     setOpenYears((prev) => {
@@ -593,7 +508,7 @@ export function CurricularPlan({
       })
   }
 
-  const listRow = (row: Row, i: number) => {
+  const listRow = (row: PlanRow, i: number) => {
     const key = String(row.year)
     const useLanes =
       lanes.length > 0 && row.items.some((item) => laneOf(item) !== null)
@@ -920,17 +835,6 @@ function EntryName({
       )}
     </span>
   )
-}
-
-/** Entries under their group headings, keeping the order they come in. */
-function groupEntries<T extends PlanEntry>(entries: T[]) {
-  const groups: { label: string | null; entries: T[] }[] = []
-  for (const entry of entries) {
-    const last = groups[groups.length - 1]
-    if (last && last.label === entry.group) last.entries.push(entry)
-    else groups.push({ label: entry.group, entries: [entry] })
-  }
-  return groups
 }
 
 /**

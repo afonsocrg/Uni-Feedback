@@ -269,3 +269,17 @@ export async function loadDegreePlan(
     }))
   }
 }
+
+/** Every course the plan names: its fixed courses, pool options and tracks */
+export function planCourseIds(plan: DegreePlanData): number[] {
+  const ids = new Set<number>()
+  for (const item of plan.items) {
+    if (item.course) ids.add(item.course.id)
+    for (const option of item.options)
+      if (option.course) ids.add(option.course.id)
+  }
+  for (const track of plan.tracks)
+    for (const entry of track.courses)
+      if (entry.course) ids.add(entry.course.id)
+  return [...ids]
+}

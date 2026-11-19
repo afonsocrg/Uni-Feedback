@@ -188,7 +188,7 @@ export function DegreePlanSummary({
           </Link>
         )}
       </div>
-      <CourseTable sections={sections} headingLevel="h3" showExamTag={false} />
+      <CourseTable sections={sections} headingLevel="h3" />
       {optionalLink && (
         <p className="mt-3 flex flex-wrap items-center gap-x-2 text-sm text-muted-foreground">
           {shownYear === null

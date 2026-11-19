@@ -1053,14 +1053,55 @@ export const analytics = {
      * Entry point of the course-discovery funnel since 2026-10-22, when the
      * listing moved off the degree page: the denominator for
      * `course_search_performed{surface: 'degree_courses_page'}`,
-     * `course_filter_applied` and `course_card_clicked` there.
+     * `course_filter_applied` and `course_card_clicked` there. `hasPlan`
+     * (since 2026-11-19): the listing follows the degree's curricular plan
+     * (years, semesters and pools) rather than the course offerings.
      * */
     degreeCoursesPageViewed: (props: {
       facultySlug: string
       degreeSlug: string
       courseCount: number
       pastCourseCount: number
+      hasPlan: boolean
     }) => trackEvent('degree_courses_page_viewed', props),
+
+    /**
+     * The (?) of a pool, or of the whole plan, opened in the course browser:
+     * the explanation of a choice, shown in place. `itemId` is null for the
+     * plan's own "how it works".
+     */
+    /**
+     * A pool of the course browser opened or closed by hand (pools fold;
+     * browsing, they start closed next to fixed courses). Over
+     * `degree_courses_page_viewed{hasPlan}`, how often students look into a
+     * choice, and `label` which ones.
+     */
+    /**
+     * A year of the plan-shaped course browser folded or opened by hand. The
+     * folded years are remembered per degree, so a fold says "not my year".
+     */
+    degreeCoursesYearToggled: (props: {
+      facultySlug: string
+      degreeSlug: string
+      curriculumYear: number
+      expanded: boolean
+    }) => trackEvent('degree_courses_year_toggled', props),
+
+    degreeCoursesPoolToggled: (props: {
+      facultySlug: string
+      degreeSlug: string
+      itemId: number
+      label: string
+      optionCount: number
+      expanded: boolean
+    }) => trackEvent('degree_courses_pool_toggled', props),
+
+    degreeCoursesPlanInfoOpened: (props: {
+      facultySlug: string
+      degreeSlug: string
+      itemId: number | null
+      label: string
+    }) => trackEvent('degree_courses_plan_info_opened', props),
 
     /**
      * Track a load of a degree sub-page: `admission` (`/ingresso`) or
@@ -1225,6 +1266,13 @@ export const analytics = {
       courseId: number
       sourcePage: string
       positionInList: number
+      /**
+       * Where the row sat in a plan-shaped course browser (since 2026-11-19):
+       * a fixed course, a pool's option, or a course outside the plan
+       */
+      planSection?: 'course' | 'pool_option' | 'not_in_plan'
+      /** A search or filter narrowed the list when the row was clicked */
+      filtered?: boolean
     }) => trackEvent('course_card_clicked', props),
 
     /**

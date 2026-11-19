@@ -8,11 +8,18 @@ interface InfoPopoverProps {
   /** Accessible label for the trigger (e.g. screen readers). */
   label?: string
   className?: string
+  /** Opened or closed, e.g. to track that the explanation was read */
+  onOpenChange?: (open: boolean) => void
 }
 
-export function InfoPopover({ content, label, className }: InfoPopoverProps) {
+export function InfoPopover({
+  content,
+  label,
+  className,
+  onOpenChange
+}: InfoPopoverProps) {
   return (
-    <Popover>
+    <Popover onOpenChange={onOpenChange}>
       <PopoverTrigger
         className={cn(
           'text-muted-foreground transition-colors hover:text-foreground',

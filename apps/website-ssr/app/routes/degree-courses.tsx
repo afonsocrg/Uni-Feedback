@@ -7,8 +7,10 @@ import {
   findDegreeBySlugs,
   loadAcademicTerms,
   loadCourseGroups,
+  loadCoursesByIds,
   loadDegreeCourses
 } from '~/lib/degreeCourses.server'
+import { loadDegreePlan, planCourseIds } from '~/lib/degreePlan.server'
 import { userPreferences } from '~/utils'
 import { breadcrumbJsonLd, buildCrumbs } from '~/utils/breadcrumbs'
 import {
@@ -129,11 +131,24 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     getDegreeCoursesPath
   )
 
-  const [courses, academicTerms, courseGroups] = await Promise.all([
-    loadDegreeCourses(degree.id, detectLang(new URL(request.url).pathname)),
+  const lang = detectLang(new URL(request.url).pathname)
+  const [courses, academicTerms, courseGroups, plan] = await Promise.all([
+    loadDegreeCourses(degree.id, lang),
     loadAcademicTerms(faculty.id),
-    loadCourseGroups(degree.id)
+    loadCourseGroups(degree.id),
+    loadDegreePlan(degree.id, lang)
   ])
+
+  // A plan can list courses of other degrees (a shared HASS option, a Minor's
+  // course): they need their ratings too. They are not the degree's courses, so
+  // they stay out of `courses` (the page's ItemList, its counts, "Outras").
+  const own = new Set(courses.map((course) => course.id))
+  const planCourses = plan
+    ? await loadCoursesByIds(
+        planCourseIds(plan).filter((id) => !own.has(id)),
+        lang
+      )
+    : []
 
   return {
     faculty,
@@ -142,6 +157,8 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     courses,
     academicTerms,
     courseGroups,
+    plan,
+    planCourses,
     origin: getRequestOrigin(request)
   }
 }
@@ -171,6 +188,8 @@ export default function DegreeCoursesPage({
       courses={loaderData.courses}
       academicTerms={loaderData.academicTerms}
       courseGroups={loaderData.courseGroups}
+      plan={loaderData.plan}
+      planCourses={loaderData.planCourses}
     />
   )
 }

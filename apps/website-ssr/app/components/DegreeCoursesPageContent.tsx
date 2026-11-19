@@ -5,11 +5,11 @@ import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { useLang } from '~/hooks'
+import type { DegreePlanData } from '~/lib/degreePlan.server'
 import { analytics } from '~/utils/analytics'
 import type { CrumbUniversity } from '~/utils/breadcrumbs'
 import { getDegreePath } from '~/utils/i18n-routes'
 import { Breadcrumb } from './common/Breadcrumb'
-import { ReportErrorNote } from './common/ReportErrorNote'
 import type {
   AcademicTermInfo,
   CourseGroupWithIds
@@ -28,7 +28,9 @@ export function DegreeCoursesPageContent({
   university,
   courses,
   academicTerms,
-  courseGroups
+  courseGroups,
+  plan,
+  planCourses
 }: {
   faculty: Faculty
   degree: Degree
@@ -36,6 +38,10 @@ export function DegreeCoursesPageContent({
   courses: CourseWithFeedback[]
   academicTerms: AcademicTermInfo[]
   courseGroups: CourseGroupWithIds[]
+  /** The degree's curricular plan: the listing follows it when there is one */
+  plan: DegreePlanData | null
+  /** Courses the plan names that belong to other degrees, with their ratings */
+  planCourses: CourseWithFeedback[]
 }) {
   const { t } = useTranslation('browse')
   const lang = useLang()
@@ -49,7 +55,8 @@ export function DegreeCoursesPageContent({
       facultySlug: faculty.slug,
       degreeSlug: degree.slug,
       courseCount: courses.length - past,
-      pastCourseCount: past
+      pastCourseCount: past,
+      hasPlan: plan !== null
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [faculty.slug, degree.slug])
@@ -89,16 +96,9 @@ export function DegreeCoursesPageContent({
               courses={courses}
               academicTerms={academicTerms}
               courseGroups={courseGroups}
+              plan={plan}
+              planCourses={planCourses}
             />
-
-            <div className="mt-8">
-              <ReportErrorNote
-                surface="degree_courses_page"
-                pageName={`${degree.acronym} (${faculty.shortName})`}
-                facultySlug={faculty.slug}
-                degreeSlug={degree.slug}
-              />
-            </div>
           </div>
         </div>
       </section>

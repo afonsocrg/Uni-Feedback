@@ -25,7 +25,7 @@ export function ToggleChip({ label, isActive, onClick }: ToggleChipProps) {
       className={cn(
         'cursor-pointer text-xs px-2 py-0.5 transition-colors',
         isActive
-          ? 'bg-tint-blue text-tint-blue-fg border-tint-blue-border'
+          ? 'bg-primary/10 text-primaryBlue border-primaryBlue/30'
           : 'bg-tint-gray text-tint-gray-fg border-tint-gray-border hover:bg-muted'
       )}
     >

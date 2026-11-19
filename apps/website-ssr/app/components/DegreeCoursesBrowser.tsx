@@ -6,6 +6,7 @@ import {
   AccordionItem,
   AccordionTrigger,
   Button,
+  Markdown,
   Sheet,
   SheetContent,
   SheetDescription,
@@ -18,16 +19,18 @@ import { SlidersHorizontal } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDebounce, useLang, useTermLabel } from '~/hooks'
+import type { DegreePlanData, PlanItem } from '~/lib/degreePlan.server'
 import { cn, insensitiveMatch } from '~/utils'
 import { analytics } from '~/utils/analytics'
 import { loadCourseFilters, saveCourseFilters } from '~/utils/filterStorage'
 import { AskChatButton } from './chat/AskChatButton'
 import { FilterChip, type FilterOption } from './common/FilterChip'
 import { FilterRow } from './common/FilterRow'
+import { InfoPopover } from './common/InfoPopover'
 import { MissingItemNote } from './common/MissingItemNote'
 import { SearchInput } from './common/SearchInput'
 import { ToggleChip } from './common/ToggleChip'
-import { CourseTable } from './course/CourseTable'
+import { CourseRow, CourseTable } from './course/CourseTable'
 import {
   compareCourses,
   useAvailableCurriculumYears,
@@ -38,6 +41,12 @@ import {
   type SortOption
 } from './course/courseSections'
 import type { CourseWithFeedback } from './course/types'
+import {
+  PlanCourseList,
+  usePlanListing,
+  type PlanFilter
+} from './degree/PlanCourseList'
+import { itemsOfVersion, planRows } from './degree/planLayout'
 import {
   scrollToSection,
   useHeaderHeight,
@@ -59,19 +68,31 @@ const FALLBACK_STICKY_OFFSET = 180
  * group, mandatory and exam filters and the sort are persisted per degree
  * (filterStorage); on phones they fold behind one button into a bottom sheet.
  * Courses no longer taught sit in a collapsed section at the end.
+ *
+ * A degree with a curricular plan lists its plan instead (`PlanCourseList`):
+ * years, a column per semester, and the choices as pools, with the ratings.
+ * There the term and course-group filters give way to the plan's own (fixed
+ * course or choice, a track), the sort orders each list (a semester, a pool's
+ * group) rather than the whole page, and the degree's courses the plan
+ * doesn't name follow under "Outras cadeiras".
  */
 export function DegreeCoursesBrowser({
   faculty,
   degree,
   courses,
   academicTerms,
-  courseGroups
+  courseGroups,
+  plan,
+  planCourses
 }: {
   faculty: Faculty
   degree: Degree
   courses: CourseWithFeedback[]
   academicTerms: AcademicTermInfo[]
   courseGroups: CourseGroupWithIds[]
+  plan: DegreePlanData | null
+  /** Courses the plan names that belong to other degrees, with their ratings */
+  planCourses: CourseWithFeedback[]
 }) {
   const { t } = useTranslation('browse')
   const lang = useLang()
@@ -86,6 +107,17 @@ export function DegreeCoursesBrowser({
   >(null)
   const [courseTypeFilter, setCourseTypeFilter] = useState<boolean | null>(null)
   const [sortBy, setSortBy] = useState<SortOption>('reviews')
+  // The plan-shaped listing's own state: the plan version shown (Nova SBE's
+  // A/B) and a track narrowing it
+  const [versionId, setVersionId] = useState<number | null>(
+    plan?.versions[0]?.id ?? null
+  )
+  const [selectedTrackId, setSelectedTrackId] = useState<number | null>(null)
+  const [collapsedYears, setCollapsedYears] = useState<Set<number>>(new Set())
+  // Saving waits for the saved filters to be read back, so the defaults of the
+  // first render never overwrite them (React runs the mount effects twice in
+  // development, and the save would land between the two reads)
+  const [filtersRestored, setFiltersRestored] = useState(false)
   const [filtersOpen, setFiltersOpen] = useState(false)
   // null until the student opens or closes it: the section then follows the
   // search, open while the query matches a course no longer taught
@@ -117,6 +149,20 @@ export function DegreeCoursesBrowser({
       // Filters saved before this option existed have no `isMandatory` key.
       setCourseTypeFilter(savedFilters.isMandatory ?? null)
       setSortBy(savedFilters.sortBy as SortOption)
+      setSelectedTrackId(savedFilters.trackId ?? null)
+      // Every year folded is a page that looks empty on return (a student
+      // who folded each to skim the headings): that one isn't restored
+      const planYearCount = plan
+        ? planRows(itemsOfVersion(plan, plan.versions[0]?.id ?? null)).length
+        : 0
+      const savedCollapsed = savedFilters.collapsedYears ?? []
+      setCollapsedYears(
+        new Set(
+          planYearCount > 0 && savedCollapsed.length >= planYearCount
+            ? []
+            : savedCollapsed
+        )
+      )
     }
 
     // A link from the degree page's plan summary ("N optativas no 3.º ano")
@@ -129,17 +175,24 @@ export function DegreeCoursesBrowser({
     if (Number.isInteger(linkedYear) && linkedYear > 0) {
       setSelectedTerm(null)
       setSelectedCourseGroupId(null)
+      // A link to a year opens it, even if the student had folded it
+      setCollapsedYears((prev) => {
+        const next = new Set(prev)
+        next.delete(linkedYear)
+        return next
+      })
       // After the cleared filters have re-rendered the listing
       requestAnimationFrame(() => scrollToSection(yearAnchorId(linkedYear)))
     }
     if (linkedType === 'optional' || linkedType === 'mandatory') {
       setCourseTypeFilter(linkedType === 'mandatory')
     }
+    setFiltersRestored(true)
   }, [faculty.slug, degree.slug])
 
   // Save filters to localStorage whenever they change
   useEffect(() => {
-    if (!faculty.slug || !degree.slug) return
+    if (!faculty.slug || !degree.slug || !filtersRestored) return
 
     saveCourseFilters(faculty.slug, degree.slug, {
       // Years are no longer a filter: every year is listed
@@ -148,9 +201,14 @@ export function DegreeCoursesBrowser({
       courseGroupId: selectedCourseGroupId,
       hasMandatoryExam: mandatoryExamFilter,
       isMandatory: courseTypeFilter,
-      sortBy
+      sortBy,
+      trackId: selectedTrackId,
+      collapsedYears: [...collapsedYears]
     })
   }, [
+    filtersRestored,
+    selectedTrackId,
+    collapsedYears,
     faculty.slug,
     degree.slug,
     selectedTerm,
@@ -194,8 +252,36 @@ export function DegreeCoursesBrowser({
     [offeredCourses]
   )
 
-  const showYearTabs = availableCurriculumYears.length > 1
-  const showTermFilter = availableTerms.length > 1
+  // With a plan, the listing follows it: its years, its fixed courses and
+  // choices, its tracks. The terms and course groups are then the columns and
+  // pools on the page, so their chips go.
+  const hasPlan = plan !== null
+  const planItems = useMemo(
+    () => (plan ? itemsOfVersion(plan, versionId) : []),
+    [plan, versionId]
+  )
+  const planYears = useMemo(
+    () => planRows(planItems).map((row) => row.year),
+    [planItems]
+  )
+  const planHasBoth =
+    planItems.some((item) => item.kind === 'course') &&
+    planItems.some((item) => item.kind === 'pool')
+  const planTracks = useMemo(
+    () =>
+      (plan?.tracks ?? []).filter((track) =>
+        track.courses.some((entry) => entry.course !== null)
+      ),
+    [plan]
+  )
+
+  const tabYears = hasPlan ? planYears : availableCurriculumYears
+  const showYearTabs = tabYears.length > 1
+  const showTermFilter = !hasPlan && availableTerms.length > 1
+  const showGroupFilter = !hasPlan && courseGroups.length > 0
+  // A plan says which courses are fixed and which are choices, whatever the
+  // courses' own `isMandatory` holds
+  const showTypeFilter = hasPlan ? planHasBoth : showCourseTypeFilter
 
   // A hidden chip keeps whatever selection localStorage saved for this degree,
   // but must not filter on it: a value saved before the degree's data narrowed
@@ -206,18 +292,20 @@ export function DegreeCoursesBrowser({
     showTermFilter && availableTerms.some((term) => term.name === selectedTerm)
       ? selectedTerm
       : null
-  const activeCourseGroupId = courseGroups.some(
-    (g) => g.id === selectedCourseGroupId
-  )
-    ? selectedCourseGroupId
-    : null
-  const activeCourseType = showCourseTypeFilter ? courseTypeFilter : null
+  const activeCourseGroupId =
+    showGroupFilter && courseGroups.some((g) => g.id === selectedCourseGroupId)
+      ? selectedCourseGroupId
+      : null
+  const activeCourseType = showTypeFilter ? courseTypeFilter : null
   const activeExamFilter = showExamFilter ? mandatoryExamFilter : null
+  const activeTrack =
+    planTracks.find((track) => track.id === selectedTrackId) ?? null
   const activeFilterCount = [
     activeTerm,
     activeCourseGroupId,
     activeCourseType,
-    activeExamFilter
+    activeExamFilter,
+    activeTrack?.id ?? null
   ].filter((value) => value !== null).length
 
   // Filter options
@@ -241,12 +329,26 @@ export function DegreeCoursesBrowser({
     { value: 'false', label: t('degree_page.optional_only') }
   ]
 
+  const trackOptions = planTracks.map((track) => ({
+    value: track.id.toString(),
+    label: track.name
+  }))
+
+  // The default first, then by how often students pick each (autocapture,
+  // Feb to Nov 2026: workload 137 picks, rating 114, by name 66)
   const sortOptions: { value: SortOption; label: string }[] = [
-    { value: 'rating', label: t('degree_page.sort_highest_rating') },
-    { value: 'alphabetical', label: t('degree_page.sort_alphabetical') },
     { value: 'reviews', label: t('degree_page.sort_most_reviews') },
-    { value: 'workload', label: t('degree_page.sort_workload') }
+    { value: 'workload', label: t('degree_page.sort_workload') },
+    { value: 'rating', label: t('degree_page.sort_highest_rating') },
+    { value: 'alphabetical', label: t('degree_page.sort_alphabetical') }
   ]
+  const changeSort = (value: string) => {
+    setSortBy(value as SortOption)
+    analytics.discovery.filterApplied({
+      filterType: 'sort',
+      filterValue: value
+    })
+  }
 
   // One setter per filter, shared by the desktop chips and the phone sheet
   const changeCourseType = (value: string | null) => {
@@ -262,11 +364,21 @@ export function DegreeCoursesBrowser({
     setSelectedCourseGroupId(value ? Number(value) : null)
   const changeExam = (value: string | null) =>
     setMandatoryExamFilter(value === null ? null : value === 'true')
+  const changeTrack = (value: string | null) => {
+    setSelectedTrackId(value ? Number(value) : null)
+    const track = planTracks.find((item) => item.id.toString() === value)
+    if (track)
+      analytics.discovery.filterApplied({
+        filterType: 'plan_track',
+        filterValue: track.name
+      })
+  }
   const clearFilters = () => {
     setSelectedTerm(null)
     setSelectedCourseGroupId(null)
     setCourseTypeFilter(null)
     setMandatoryExamFilter(null)
+    setSelectedTrackId(null)
   }
 
   // The filters in the order both surfaces show them, sort aside
@@ -290,7 +402,7 @@ export function DegreeCoursesBrowser({
           }
         ]
       : []),
-    ...(courseGroupOptions.length > 0
+    ...(showGroupFilter && courseGroupOptions.length > 0
       ? [
           {
             key: 'group',
@@ -302,7 +414,7 @@ export function DegreeCoursesBrowser({
           }
         ]
       : []),
-    ...(showCourseTypeFilter
+    ...(showTypeFilter
       ? [
           {
             key: 'type',
@@ -311,6 +423,18 @@ export function DegreeCoursesBrowser({
             selected: activeCourseType?.toString() ?? null,
             placeholder: t('degree_page.mandatory_any'),
             onChange: changeCourseType
+          }
+        ]
+      : []),
+    ...(trackOptions.length > 0
+      ? [
+          {
+            key: 'track',
+            label: t('degree_courses.track_label'),
+            options: trackOptions,
+            selected: activeTrack?.id.toString() ?? null,
+            placeholder: t('degree_courses.track_any'),
+            onChange: changeTrack
           }
         ]
       : []),
@@ -386,6 +510,74 @@ export function DegreeCoursesBrowser({
     [pastCourses, searchQuery, sortBy]
   )
 
+  // A degree with a plan: the plan, filtered in place, then the degree's
+  // courses it doesn't name. Plan courses of other degrees bring their ratings.
+  const coursesById = useMemo(
+    () =>
+      new Map(
+        [...courses, ...planCourses].map((course) => [course.id, course])
+      ),
+    [courses, planCourses]
+  )
+  const planFilter = useMemo<PlanFilter>(
+    () => ({
+      query: searchQuery,
+      trackCourseIds: activeTrack
+        ? new Set(
+            activeTrack.courses.flatMap((entry) =>
+              entry.course ? [entry.course.id] : []
+            )
+          )
+        : null,
+      hasMandatoryExam: activeExamFilter,
+      fixed: activeCourseType
+    }),
+    [searchQuery, activeTrack, activeExamFilter, activeCourseType]
+  )
+  const planListing = usePlanListing({
+    plan,
+    versionId,
+    academicTerms,
+    coursesById,
+    filter: planFilter,
+    sortBy
+  })
+  // Taught in the degree but not in its plan (an old option, a course the plan
+  // hasn't caught up with). Not a fixed course nor a choice of the plan, so a
+  // type filter leaves them out.
+  const otherCourses = useMemo(
+    () =>
+      !hasPlan || activeCourseType !== null
+        ? []
+        : offeredCourses
+            .filter(
+              (course) =>
+                !planListing.planCourseIds.has(course.id) &&
+                insensitiveMatch(
+                  `${course.name} ${course.acronym} ${course.altName ?? ''}`,
+                  searchQuery
+                ) &&
+                (activeExamFilter === null ||
+                  course.hasMandatoryExam === activeExamFilter) &&
+                (planFilter.trackCourseIds === null ||
+                  planFilter.trackCourseIds.has(course.id))
+            )
+            .sort(compareCourses(sortBy)),
+    [
+      hasPlan,
+      activeCourseType,
+      offeredCourses,
+      planListing.planCourseIds,
+      searchQuery,
+      activeExamFilter,
+      planFilter.trackCourseIds,
+      sortBy
+    ]
+  )
+  const listedCount = hasPlan
+    ? planListing.count + otherCourses.length
+    : filteredCourses.length
+
   // A new query hands the section back to the search
   useEffect(() => {
     setPastExpandedByUser(null)
@@ -414,10 +606,10 @@ export function DegreeCoursesBrowser({
     lastTrackedSearchRef.current = debouncedSearch
     analytics.discovery.searchPerformed({
       searchQuery: debouncedSearch,
-      resultsCount: filteredCourses.length + filteredPastCourses.length,
+      resultsCount: listedCount + filteredPastCourses.length,
       surface: 'degree_courses_page'
     })
-  }, [debouncedSearch, filteredCourses.length, filteredPastCourses.length])
+  }, [debouncedSearch, listedCount, filteredPastCourses.length])
 
   const sections = useCourseSections(
     filteredCourses,
@@ -430,9 +622,13 @@ export function DegreeCoursesBrowser({
   // The years the listing shows right now: a search or a filter can empty one,
   // and its tab then has nothing to jump to
   const listedYears = new Set(
-    sections.flatMap((section) => (section.group ? [section.group.year] : []))
+    hasPlan
+      ? planListing.years.map((year) => year.year)
+      : sections.flatMap((section) =>
+          section.group ? [section.group.year] : []
+        )
   )
-  const yearTabs: TocSection<string>[] = availableCurriculumYears
+  const yearTabs: TocSection<string>[] = tabYears
     .filter((year) => listedYears.has(year))
     .map((year) => ({ id: yearAnchorId(year), label: '' }))
 
@@ -461,8 +657,43 @@ export function DegreeCoursesBrowser({
     stickyOffset + 24
   )
 
+  const planInfoOpened = (item: PlanItem | null) => {
+    if (faculty.slug && degree.slug)
+      analytics.discovery.degreeCoursesPlanInfoOpened({
+        facultySlug: faculty.slug,
+        degreeSlug: degree.slug,
+        itemId: item?.id ?? null,
+        label: item?.label ?? ''
+      })
+  }
+
+  const toggleYear = (year: number) => {
+    const expanded = collapsedYears.has(year)
+    setCollapsedYears((prev) => {
+      const next = new Set(prev)
+      if (expanded) next.delete(year)
+      else next.add(year)
+      return next
+    })
+    if (faculty.slug && degree.slug)
+      analytics.discovery.degreeCoursesYearToggled({
+        facultySlug: faculty.slug,
+        degreeSlug: degree.slug,
+        curriculumYear: year,
+        expanded
+      })
+  }
+
   const jumpToYear = (year: number) => {
-    scrollToSection(yearAnchorId(year))
+    // A tab to a folded year opens it, then lands on it once it has rendered
+    if (collapsedYears.has(year)) {
+      setCollapsedYears((prev) => {
+        const next = new Set(prev)
+        next.delete(year)
+        return next
+      })
+      requestAnimationFrame(() => scrollToSection(yearAnchorId(year)))
+    } else scrollToSection(yearAnchorId(year))
     if (faculty.slug && degree.slug) {
       analytics.discovery.degreeCoursesYearJumped({
         facultySlug: faculty.slug,
@@ -472,7 +703,7 @@ export function DegreeCoursesBrowser({
     }
   }
 
-  const resultCount = filteredCourses.length + filteredPastCourses.length
+  const resultCount = listedCount + filteredPastCourses.length
 
   return (
     <div
@@ -535,7 +766,7 @@ export function DegreeCoursesBrowser({
                   label={t('degree_page.sort_label')}
                   options={sortOptions}
                   selectedValue={sortBy}
-                  onValueChange={(value) => setSortBy(value as SortOption)}
+                  onValueChange={(value) => value && changeSort(value)}
                   placeholder={t('degree_page.sort_default')}
                   variant="sort"
                 />
@@ -554,41 +785,63 @@ export function DegreeCoursesBrowser({
           />
         </div>
 
-        {showYearTabs && (
-          <nav
-            aria-label={t('degree_page.year_nav_label')}
-            className="-mb-px mt-1 flex gap-6 overflow-x-auto scrollbar-hide md:mt-2"
-          >
-            {availableCurriculumYears.map((year) => {
-              const id = yearAnchorId(year)
-              const listed = listedYears.has(year)
-              const current = listed && currentYearId === id
-              return (
-                <a
-                  key={year}
-                  href={`#${id}`}
-                  aria-current={current ? 'location' : undefined}
-                  aria-disabled={!listed || undefined}
-                  tabIndex={listed ? undefined : -1}
-                  onClick={(event) => {
-                    event.preventDefault()
-                    if (listed) jumpToYear(year)
-                  }}
-                  className={cn(
-                    'shrink-0 border-b-2 py-2.5 text-sm font-medium transition-colors',
-                    current
-                      ? 'border-primaryBlue text-foreground'
-                      : 'border-transparent text-muted-foreground hover:text-foreground',
-                    !listed && 'pointer-events-none opacity-40'
-                  )}
-                >
-                  {t('degree_page.year_option', {
-                    year: lang === 'en' ? toOrdinal(year) : year
-                  })}
-                </a>
-              )
-            })}
-          </nav>
+        {/* The year tabs, with how the plan works on their right: a (?) in
+            the bar rather than a row of its own (just the icon on phones) */}
+        {(showYearTabs || plan?.description) && (
+          <div className="-mb-px mt-1 flex items-center gap-4 md:mt-2">
+            {showYearTabs && (
+              <nav
+                aria-label={t('degree_page.year_nav_label')}
+                className="flex min-w-0 flex-1 gap-6 overflow-x-auto scrollbar-hide"
+              >
+                {tabYears.map((year) => {
+                  const id = yearAnchorId(year)
+                  const listed = listedYears.has(year)
+                  const current = listed && currentYearId === id
+                  return (
+                    <a
+                      key={year}
+                      href={`#${id}`}
+                      aria-current={current ? 'location' : undefined}
+                      aria-disabled={!listed || undefined}
+                      tabIndex={listed ? undefined : -1}
+                      onClick={(event) => {
+                        event.preventDefault()
+                        if (listed) jumpToYear(year)
+                      }}
+                      className={cn(
+                        'shrink-0 border-b-2 py-2.5 text-sm font-medium transition-colors',
+                        current
+                          ? 'border-primaryBlue text-foreground'
+                          : 'border-transparent text-muted-foreground hover:text-foreground',
+                        !listed && 'pointer-events-none opacity-40'
+                      )}
+                    >
+                      {t('degree_page.year_option', {
+                        year: lang === 'en' ? toOrdinal(year) : year
+                      })}
+                    </a>
+                  )
+                })}
+              </nav>
+            )}
+            {plan?.description && (
+              <span className="ml-auto inline-flex shrink-0 items-center gap-1 text-sm text-muted-foreground">
+                <span className="hidden md:inline">
+                  {t('degree_courses.plan_info')}
+                </span>
+                <InfoPopover
+                  label={t('degree_courses.plan_info')}
+                  onOpenChange={(open) => open && planInfoOpened(null)}
+                  content={
+                    <div className="max-h-80 overflow-y-auto">
+                      <Markdown>{plan.description}</Markdown>
+                    </div>
+                  }
+                />
+              </span>
+            )}
+          </div>
         )}
       </div>
 
@@ -608,7 +861,7 @@ export function DegreeCoursesBrowser({
               label={t('degree_page.sort_label')}
               options={sortOptions}
               selected={sortBy}
-              onChange={(value) => value && setSortBy(value as SortOption)}
+              onChange={(value) => value && changeSort(value)}
             />
             {filters.map((filter) => (
               <SheetFilterGroup
@@ -637,7 +890,40 @@ export function DegreeCoursesBrowser({
         </SheetContent>
       </Sheet>
 
-      {!courses || courses.length === 0 ? (
+      {plan && plan.versions.length > 1 && (
+        <div className="mb-6 flex flex-wrap items-center gap-2">
+          {plan.versions.length > 1 && (
+            <div
+              className="flex flex-wrap items-center gap-2"
+              role="group"
+              aria-label={t('degree_page.plan.version_label')}
+            >
+              <span className="text-xs font-medium text-muted-foreground">
+                {t('degree_page.plan.version_label')}
+              </span>
+              {plan.versions.map((version) => (
+                <ToggleChip
+                  key={version.id}
+                  label={version.name}
+                  isActive={versionId === version.id}
+                  onClick={() => {
+                    setVersionId(version.id)
+                    if (faculty.slug && degree.slug)
+                      analytics.discovery.degreePlanVersionSelected({
+                        facultySlug: faculty.slug,
+                        degreeSlug: degree.slug,
+                        versionId: version.id,
+                        version: version.name
+                      })
+                  }}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {(!courses || courses.length === 0) && !hasPlan ? (
         <div className="text-center text-muted-foreground py-8">
           {t('degree_page.no_courses')}
         </div>
@@ -655,8 +941,55 @@ export function DegreeCoursesBrowser({
         </div>
       ) : (
         <div className="space-y-8">
-          {filteredCourses.length > 0 && (
-            <CourseTable sections={sections} headingLevel="h3" />
+          {hasPlan ? (
+            <>
+              {planListing.years.length > 0 && (
+                <PlanCourseList
+                  listing={planListing}
+                  onInfoOpened={planInfoOpened}
+                  collapsedYears={collapsedYears}
+                  onYearToggle={toggleYear}
+                  onPoolToggled={(item, expanded) => {
+                    if (faculty.slug && degree.slug)
+                      analytics.discovery.degreeCoursesPoolToggled({
+                        facultySlug: faculty.slug,
+                        degreeSlug: degree.slug,
+                        itemId: item.id,
+                        label: item.label ?? '',
+                        optionCount: item.options.length,
+                        expanded
+                      })
+                  }}
+                />
+              )}
+              {otherCourses.length > 0 && (
+                <section>
+                  <h2
+                    id="other-courses"
+                    className="scroll-mt-(--sticky-offset) text-base font-semibold text-foreground md:text-lg"
+                  >
+                    {t('degree_courses.other_courses')}
+                  </h2>
+                  <p className="mb-3 mt-1 text-sm text-muted-foreground">
+                    {t('degree_courses.other_courses_hint')}
+                  </p>
+                  {otherCourses.map((course, i) => (
+                    <CourseRow
+                      key={course.id}
+                      course={course}
+                      terms={[]}
+                      positionInList={planListing.count + i}
+                      planSection="not_in_plan"
+                      filtered={planListing.filtering}
+                    />
+                  ))}
+                </section>
+              )}
+            </>
+          ) : (
+            filteredCourses.length > 0 && (
+              <CourseTable sections={sections} headingLevel="h3" />
+            )
           )}
           {filteredPastCourses.length > 0 && (
             <Accordion

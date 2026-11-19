@@ -22,6 +22,10 @@ export interface CourseFilters {
     hasMandatoryExam: boolean | null
     isMandatory: boolean | null
     sortBy: string
+    /** A track of the plan (a specialization, a Major) narrowing the list */
+    trackId?: number | null
+    /** Years of the plan the student folded (a 3rd-year folds the 1st and 2nd) */
+    collapsedYears?: number[]
   }
 }
 

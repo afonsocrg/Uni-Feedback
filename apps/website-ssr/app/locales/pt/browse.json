@@ -40,7 +40,7 @@
     "sort_label": "Ordenar Por",
     "sort_default": "Mais feedback",
     "year_label": "Ano",
-    "year_option": "{{year}}º ano",
+    "year_option": "{{year}}.º ano",
     "all_years": "Todos os Anos",
     "term_label": "Semestre",
     "all_terms": "Todos os Semestres",
@@ -55,19 +55,19 @@
     "exam_mandatory": "Exame: Obrigatório",
     "exam_optional": "Exame: Facultativo",
     "sort_highest_rating": "Melhor avaliadas",
-    "sort_alphabetical": "A-Z",
+    "sort_alphabetical": "Por nome",
     "sort_most_reviews": "Mais feedback",
-    "sort_workload": "Carga de trabalho",
+    "sort_workload": "Mais leves",
     "missing_course": "Falta alguma cadeira?",
     "request_link": "Pede aqui",
     "no_courses": "Não há cadeiras disponíveis para este curso.",
     "no_results": "Nenhuma cadeira corresponde à tua pesquisa.",
     "other_courses": "Outras cadeiras",
+    "first_feedback": "Dá o primeiro feedback",
     "tag_optional": "Optativa",
     "past_courses": "Cadeiras que já não são lecionadas ({{count}})",
     "past_courses_hint": "Já não fazem parte do plano do curso. Continuas a poder ler o feedback e a dar o teu sobre os anos em que foram lecionadas.",
     "tag_last_taught": "Até {{year}}",
-    "legend_mandatory_exam": "Exame obrigatório",
     "toc_label": "Nesta página",
     "sections": {
       "plan": "Plano curricular",
@@ -358,13 +358,25 @@
     "see_all": "Ver todos os cursos →",
     "course_count_one": "{{count}} cadeira",
     "course_count_other": "{{count}} cadeiras",
+    "feedback_count_zero": "{{count}} feedbacks",
     "feedback_count_one": "{{count}} feedback",
-    "feedback_count_other": "{{count}} feedback"
+    "feedback_count_other": "{{count}} feedbacks"
   },
   "courses_page": {
     "title": "Cadeiras de {{name}}",
     "breadcrumb": "Cadeiras",
     "back": "Sobre o curso {{acronym}}: ingresso, saídas e mais"
+  },
+  "degree_courses": {
+    "track_label": "Percurso",
+    "track_any": "Todos os percursos",
+    "plan_info": "Como funciona o plano",
+    "pool_info": "Como funciona: {{name}}",
+    "other_courses": "Outras cadeiras",
+    "other_courses_hint": "Cadeiras do curso que não estão no plano curricular atual.",
+    "also_in": "Também no {{slots}}",
+    "slot_no_match": "Nenhuma cadeira",
+    "slot_empty": "Sem cadeiras neste semestre"
   },
   "faculty_hub": {
     "no_data": "sem dados",
